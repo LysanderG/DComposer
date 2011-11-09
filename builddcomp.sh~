@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#cd src
+dmd symbols.d dcomposer.d  dproject.d log.d dcore.d config.d ui.d docman.d document.d elements.d logui.d -L-lgtkdsv -L-lgtkd -L-ldl -of../dcomposer -gc
+
+
+cd ..
+

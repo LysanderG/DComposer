@@ -1,0 +1,8 @@
+
+[project]
+name=dcomposer2
+description=
+base_path=./
+run_cmd=
+regenerate=true
+type=All

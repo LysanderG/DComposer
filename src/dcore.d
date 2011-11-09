@@ -1,0 +1,76 @@
+//      core.d
+//      
+//      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
+//      
+//      This program is free software; you can redistribute it and/or modify
+//      it under the terms of the GNU General Public License as published by
+//      the Free Software Foundation; either version 2 of the License, or
+//      (at your option) any later version.
+//      
+//      This program is distributed in the hope that it will be useful,
+//      but WITHOUT ANY WARRANTY; without even the implied warranty of
+//      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//      GNU General Public License for more details.
+//      
+//      You should have received a copy of the GNU General Public License
+//      along with this program; if not, write to the Free Software
+//      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+//      MA 02110-1301, USA.
+
+
+
+//darn core is already taken!
+module dcore;
+
+
+import config;
+import log;
+
+import dproject;
+import symbols;
+
+
+import std.stdio;
+
+private :
+
+CONFIG		mConfig;
+LOG 		mLog;
+PROJECTD	mProject;
+SYMBOLS	mSymbols;
+
+
+static this()
+{
+    mConfig	    = new CONFIG;
+	mLog	    = new LOG;
+	mProject    = new PROJECTD;
+	mSymbols    = new SYMBOLS;
+}
+
+
+public:
+
+void Engage(string[] CmdArgs)
+{
+	mConfig	    .Engage(CmdArgs);
+	mLog		.Engage();
+	mProject    .Engage();
+	mSymbols    .Engage();
+
+    GetLog().Entry("Engaged dcore");
+}
+
+void Disengage()
+{
+	mSymbols .Disengage();
+	mProject .Disengage();
+	mConfig  .Disengage();
+    GetLog() .Entry("Disengaged dcore");
+	mLog     .Disengage();
+}
+
+CONFIG		GetConfig() {return mConfig;}
+LOG 		GetLog()    {return mLog;}
+PROJECTD	GetProject(){return mProject;}
+SYMBOLS		GetSymbols(){return mSymbols;}
