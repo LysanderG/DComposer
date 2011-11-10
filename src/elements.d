@@ -107,7 +107,11 @@ void AcquireElements()
 
     tmp = cast(ELEMENT)Object.factory("proview.PROJECT_VIEW");
     if(tmp is null) GetLog.Entry("Failed to Engage PROJECT_VIEW", "Error");
-    if(tmp !is null) mElements[tmp.Name] = tmp;    
+    if(tmp !is null) mElements[tmp.Name] = tmp;
+
+    tmp = cast(ELEMENT)Object.factory("dirview.DIR_VIEW");
+    if(tmp is null) GetLog.Entry("Failed to Engage DIR_VIEW", "Error");
+    if(tmp !is null) mElements[tmp.Name] = tmp;   
 
     
 

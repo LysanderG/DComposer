@@ -16,26 +16,11 @@ long_line_behaviour=1
 long_line_column=120
 
 [files]
-current_page=14
-FILE_NAME_0=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/calltips.d;0;4
-FILE_NAME_1=2370;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/config.d;0;4
-FILE_NAME_2=382;Conf;0;16;0;1;0;/home/anthony/.neontotem/dcomposer/dcomposer.cfg;0;4
-FILE_NAME_3=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/dcomposer.d;0;4
-FILE_NAME_4=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/dcore.d;0;4
-FILE_NAME_5=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/docman.d;0;4
-FILE_NAME_6=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/docpop.d;0;4
-FILE_NAME_7=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/document.d;0;4
-FILE_NAME_8=5832;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/dproject.d;0;4
-FILE_NAME_9=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/elements.d;0;4
-FILE_NAME_10=0;None;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/hiworld.tags;0;4
-FILE_NAME_11=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/indent.d;0;4
-FILE_NAME_12=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/log.d;0;4
-FILE_NAME_13=14671;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/projectdui.d;0;4
-FILE_NAME_14=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/proview.d;0;4
-FILE_NAME_15=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/scopelist.d;0;4
-FILE_NAME_16=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/ui.d;0;4
-FILE_NAME_17=56134;None;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/dcmpr.tags;0;4
-FILE_NAME_18=7881;None;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/dcomposer.json;0;4
+current_page=0
+FILE_NAME_0=1853;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/dirview.d;0;4
+FILE_NAME_1=3536;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/elements.d;0;4
+FILE_NAME_2=257;Sh;0;16;0;1;0;/home/anthony/projects/dcomposer2/builddcomp.sh;0;4
+FILE_NAME_3=0;Conf;0;16;0;1;0;/home/anthony/.neontotem/dcomposer/dcomposer.cfg;0;4
 
 [build-menu]
 DFT_01_LB=_Build
