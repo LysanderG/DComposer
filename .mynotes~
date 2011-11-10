@@ -85,7 +85,7 @@ Enough of all that
 
 next up on my to do list ScopeList, then SymCompletion
 
-
+========================================================================================================================
 Wed, 02 Nov 2011 01:11:28 -0400 
 
 ok for now calltips, scopelists and symcompletion are done.
@@ -99,6 +99,43 @@ more todo list stuff
 --- doc navigaton   (move thru statements blocks functions class/structs etc with handydandy short cuts
 --- dirview (browse file system
 --- docview (browse open documents ... and maybe imports??
----
+--- history (recent files ... lets do this soon it would be very convenient for all the testing I'm doing 
 
     
+
+========================================================================================================================
+04.11.2011 07:39:57
+
+'finished' terminal. More needs to be done but it does work.
+
+next up thoughts
+
+--- project view
+--- config ui ... this is going to be huge(new element IF function getoptions and more config core stuff)
+--- search core
+--- new search ui
+--- new project ui ... switch to dialog and make improvements
+--- recent files ... do this when I have limited time, should be a fairly simple interface to gtk history
+--- dirview ... this seems so simple and obvious hard to believe it isn't an object in glade
+
+
+========================================================================================================================
+Thu, 10 Nov 2011 00:56:38 -0500 
+
+Happy Bday to me... oops, past almost an hour ago, darn!
+
+Anyway "finished" dirview tonight.
+
+next steps in my head
+- history / recent files
+- create a debugger branch ... I foresee terrible trouble but I stay here just the same
+
+- best for last ... the super duper, end all, be all, ignorance ending, king of all documentation systems!
+    just a matter of implementation, time, know how, resources, determination ... oh crap.
+========================================================================================================================
+
+========================================================================================================================
+
+========================================================================================================================
+
+========================================================================================================================

@@ -120,7 +120,29 @@ next up thoughts
 
 
 ========================================================================================================================
+Thu, 10 Nov 2011 00:56:38 -0500 
 
+Happy Bday to me... oops, past almost an hour ago, darn!
+
+Anyway "finished" dirview tonight.
+
+next steps in my head
+- history / recent files
+- create a debugger branch ... I foresee terrible trouble but I stay here just the same
+
+- best for last ... the super duper, end all, be all, ignorance ending, king of all documentation systems!
+    just a matter of implementation, time, know how, resources, determination ... oh crap.
+
+^^ new section "what I learned today"
+    if you use dirEntries return value it vaporizes 
+    so don't do this...
+    ---    
+    auto x = dirEntries(blah, blah blah)
+    writeln(x)
+    foreach (y; x) ... no y's;
+    ---
+    I need to take a gander at std.file code.
+    
 ========================================================================================================================
 
 ========================================================================================================================
