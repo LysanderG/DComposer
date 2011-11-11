@@ -196,7 +196,6 @@ class PROJECTD
             mName = baseName(nuname);
 
             BaseDir = buildPath(BaseDir,Name);
-            writeln("-",BaseDir);
 
             NameChanged.emit(mName);
         }
@@ -204,11 +203,9 @@ class PROJECTD
 	
         void   BaseDir(string nudir)
         {
-            writeln ("**",nudir);
             mBaseDir = buildPath(nudir,Name);
             mkdir(mBaseDir);
             chdir(mBaseDir);
-            writeln ("==",mBaseDir);
             BaseDirChanged.emit(BaseDir);
         }
         string BaseDir() {return mBaseDir.idup;}
@@ -244,7 +241,6 @@ class PROJECTD
 	{
 		string Pfile = std.path.buildPath(BaseDir, mName);
 		Pfile = Pfile.setExtension("dpro");
-        writeln("PFILE ", Pfile);
 		string jstring;
 		JSONValue jval;
 		
@@ -327,6 +323,11 @@ class PROJECTD
 	
 	void Open(string pfile)
 	{
+        scope(failure)
+        {
+            GetLog.Entry("Failed to open Project : " ~ pfile, "Error");
+            return;
+        }
 		auto jstring = readText(pfile);
 		
 		auto jval = parseJSON(jstring);

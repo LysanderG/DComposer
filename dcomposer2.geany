@@ -16,13 +16,19 @@ long_line_behaviour=1
 long_line_column=120
 
 [files]
-current_page=0
-FILE_NAME_0=3440;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/dirview.d;0;4
-FILE_NAME_1=3536;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/elements.d;0;4
-FILE_NAME_2=257;Sh;0;16;0;1;0;/home/anthony/projects/dcomposer2/builddcomp.sh;0;4
+current_page=3
+FILE_NAME_0=3745;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/dirview.d;0;4
+FILE_NAME_1=3731;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/elements.d;0;4
+FILE_NAME_2=270;Sh;0;16;0;1;0;/home/anthony/projects/dcomposer2/builddcomp.sh;0;4
 FILE_NAME_3=0;Conf;0;16;0;1;0;/home/anthony/.neontotem/dcomposer/dcomposer.cfg;0;4
-FILE_NAME_4=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/dproject.d;0;4
-FILE_NAME_5=6023;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/docman.d;0;4
+FILE_NAME_4=4563;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/dproject.d;0;4
+FILE_NAME_5=6520;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/docman.d;0;4
+FILE_NAME_6=1110;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/dcore.d;0;4
+FILE_NAME_7=1188;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/config.d;0;4
+FILE_NAME_8=1005;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/dcomposer.d;0;4
+FILE_NAME_9=58192;D;0;16;0;1;0;/usr/include/d/dmd/phobos/std/path.d;0;4
+FILE_NAME_10=2792;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/historyview.d;0;4
+FILE_NAME_11=10446;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/projectdui.d;0;4
 
 [build-menu]
 DFT_01_LB=_Build

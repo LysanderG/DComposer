@@ -113,6 +113,10 @@ void AcquireElements()
     if(tmp is null) GetLog.Entry("Failed to Engage DIR_VIEW", "Error");
     if(tmp !is null) mElements[tmp.Name] = tmp;   
 
+    tmp = cast(ELEMENT)Object.factory("historyview.HISTORY_VIEW");
+    if(tmp is null) GetLog.Entry("Failed to Engage HISTORY_VIEW", "Error");
+    if(tmp !is null) mElements[tmp.Name] = tmp;   
+
     
 
     //next'll be ??? projectui or dirview or search or indentation or symview or docview or ....   

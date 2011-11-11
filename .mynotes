@@ -144,7 +144,23 @@ next steps in my head
     I need to take a gander at std.file code.
     
 ========================================================================================================================
+Thu, 10 Nov 2011 22:19:52 -0500 
 
+I've been reading up on gdb/mi.
+
+Seems pretty straight forward.
+One problem I'd like to solve though is how to display d strings.
+char[] show up as (ucent *)  thinking that there must be some simple way to 
+convert that into a string right?
+
+Another problem is the interface.  Gdb front ends are just so ... ugly.
+So, I'm thinking keep it very simple, just the most basic functions.
+    -- run /continue / run to location,cursor
+    -- set clear breakpoint (no conditional breaks?)
+    -- set clear watch variables (keep getting no x in current context error
+    -- next line (step over) and next line (step in)
+    -- no register view no assembly stuff 
+    -- simple call stack
 ========================================================================================================================
 
 ========================================================================================================================
