@@ -85,7 +85,7 @@ class TERMINAL_UI : ELEMENT
         vte_terminal_fork_command (cvte, null, null, null, null,true, true, true);
         g_signal_connect_object(cvte, cast(char*)toStringz("child-exited"),&Reset,null, cast(GConnectFlags)0);
 
-        GetLog.Entry("Engaged TERMINAL_UI element");
+        Log.Entry("Engaged TERMINAL_UI element");
 
         
     }
@@ -97,7 +97,7 @@ class TERMINAL_UI : ELEMENT
         mState = false;
         mScrWin.hide();
 
-        GetLog.Entry("Disengaged TERMINAL_UI element");
+        Log.Entry("Disengaged TERMINAL_UI element");
         
     }
 }

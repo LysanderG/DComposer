@@ -86,8 +86,8 @@ class DOCMAN
     void Engage()
     {
         mLastFileDialogDirectory = "./";
-        string[] LastSessionFiles = GetConfig().getString("DOCMAN", "files_last_session").split(";");
-        string[] CmdLineFiles = GetConfig().getString("DOCMAN", "files_to_open").split(";");
+        string[] LastSessionFiles = Config().getString("DOCMAN", "files_last_session").split(";");
+        string[] CmdLineFiles = Config().getString("DOCMAN", "files_to_open").split(";");
         
         writeln("session ", LastSessionFiles);
         writeln("cmdline", CmdLineFiles);
@@ -97,7 +97,7 @@ class DOCMAN
         writeln( "huh?");
         OpenDocs(CmdLineFiles);
         
-        GetLog.Entry("Engaged DOCMAN");
+        Log.Entry("Engaged DOCMAN");
 
 
         //file filters
@@ -141,12 +141,12 @@ class DOCMAN
         DocsToOpenNextSession = DocsToOpenNextSession.chomp(";");
         writeln(DocsToOpenNextSession);
         if(DocsToOpenNextSession.empty)DocsToOpenNextSession =  "";
-        GetConfig().setString("DOCMAN", "files_last_session", DocsToOpenNextSession);
-        GetConfig().setString("DOCMAN", "files_to_open","");
+        Config().setString("DOCMAN", "files_last_session", DocsToOpenNextSession);
+        Config().setString("DOCMAN", "files_to_open","");
 
         //verify saving or discarding any modified docs
         CloseAllDocs(true);
-        GetLog().Entry("Disengaged DOCMAN");
+        Log().Entry("Disengaged DOCMAN");
     }
 
     DOCUMENT_IF CreateDoc(string DocType = ".d")
@@ -156,8 +156,8 @@ class DOCMAN
 
         DOCUMENT_IF NuDoc;
 
-        scope(failure) GetLog().Entry("Document " ~ TitleString ~ " failed creation" , "Error");
-        scope(success)         GetLog().Entry("Document " ~ TitleString ~ " created.");
+        scope(failure) Log().Entry("Document " ~ TitleString ~ " failed creation" , "Error");
+        scope(success)         Log().Entry("Document " ~ TitleString ~ " created.");
 
         //now this assumes we're creating a DOCUMENT ... how to improve this for different file types ???
         NuDoc = new DOCUMENT;
@@ -209,8 +209,8 @@ class DOCMAN
         //must have had a reason..?
         if(!IsOpenDoc(FullFileName, true))
         {
-            scope(failure){GetLog.Entry("Document: "~FullFileName~" failed to open.", "Error"); return;}
-            scope(success)GetLog.Entry("Document: "~FullFileName~" opened.");
+            scope(failure){Log.Entry("Document: "~FullFileName~" failed to open.", "Error"); return;}
+            scope(success)Log.Entry("Document: "~FullFileName~" opened.");
             auto DocX = new DOCUMENT;
             if(DocX.Open(FullFileName))
             {
@@ -232,8 +232,8 @@ class DOCMAN
         foreach(f;FullFileNames)
         {
 
-            scope(failure){GetLog.Entry("Document: "~f~" failed to open.", "Error"); continue;}
-            scope(success)GetLog.Entry("Document: "~f~" opened.");
+            scope(failure){Log.Entry("Document: "~f~" failed to open.", "Error"); continue;}
+            scope(success)Log.Entry("Document: "~f~" opened.");
             if(IsOpenDoc(f, true))continue;
             
             //stuck again ... for now just able to open DOCUMENTs
@@ -253,8 +253,8 @@ class DOCMAN
         if(docX.IsVirgin())return SaveAsDoc(docX);
         docX.Save();
 
-        scope(success)GetLog.Entry("Document :"~docX.FullName ~ " saved.");
-        scope(failure)GetLog.Entry("Document :"~docX.FullName ~ " failed to save.", "Error");
+        scope(success)Log.Entry("Document :"~docX.FullName ~ " saved.");
+        scope(failure)Log.Entry("Document :"~docX.FullName ~ " failed to save.", "Error");
     }
     void SaveAsDoc(DOCUMENT_IF docX = null)
     {
@@ -280,8 +280,8 @@ class DOCMAN
 
         docX.SaveAs(DocFiler.getFilename);
 
-        scope(success)GetLog.Entry("Document :"~ presaveas ~ " saved as " ~ docX.FullName ~".");
-        scope(failure)GetLog.Entry("Document :"~ presaveas ~ " failed to save as "~ DocFiler.getFilename ~ ".", "Error");
+        scope(success)Log.Entry("Document :"~ presaveas ~ " saved as " ~ docX.FullName ~".");
+        scope(failure)Log.Entry("Document :"~ presaveas ~ " failed to save as "~ DocFiler.getFilename ~ ".", "Error");
         
     }
     void SaveAllDocs()
@@ -307,7 +307,7 @@ class DOCMAN
     void CloseDoc(string FullFileName = null)
     {
         DOCUMENT_IF docX;
-        scope(success)GetLog().Entry("Document " ~ docX.GetFullFileName() ~ " closed.");
+        scope(success)Log().Entry("Document " ~ docX.GetFullFileName() ~ " closed.");
         
  
         if(FullFileName is null)
@@ -344,7 +344,7 @@ class DOCMAN
         int pagecount;
 
         pagecount = dui.GetCenterPane().getNPages();
-        if(pagecount > 0) GetLog().Entry("Documents, Closing All...");
+        if(pagecount > 0) Log().Entry("Documents, Closing All...");
         while(pagecount > 0)
         {
             pagecount--;
@@ -354,7 +354,7 @@ class DOCMAN
             if(docX.Close(Quitting))
             {
                 dui.GetCenterPane().removePage(pagecount);
-                GetLog().Entry("    Document " ~ docX.GetFullFileName() ~ " closed.");
+                Log().Entry("    Document " ~ docX.GetFullFileName() ~ " closed.");
             }
         }
                     
@@ -481,8 +481,8 @@ class DOCMAN
         dui.AddMenuItem("_Documents", mi,1);
 
         //auto mt = new Menu;
-        //mt.insert(new MenuItem(delegate void(MenuItem mi){GetLog().Entry("menuitem alpha");}, "D source file"), 0);
-        //mt.insert(new MenuItem(delegate void(MenuItem mi){GetLog().Entry("menuitem beta");}, "Empty text file"), 1);
+        //mt.insert(new MenuItem(delegate void(MenuItem mi){Log().Entry("menuitem alpha");}, "D source file"), 0);
+        //mt.insert(new MenuItem(delegate void(MenuItem mi){Log().Entry("menuitem beta");}, "Empty text file"), 1);
         //MenuToolButton mtb = new MenuToolButton(StockID.NEW);
         //mtb.setMenu(mt);
         //dui.AddToolBarItem(mtb,2);

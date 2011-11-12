@@ -68,9 +68,9 @@ class LOG
 
     void Engage()
     {
-        mLogFileName = GetConfig().getString("LOG", "log_file");
-        mMaxLines = GetConfig().getInteger("LOG", "max_lines_buffer");
-        mMaxFileSize = GetConfig().getUint64("LOG", "max_file_size");
+        mLogFileName = Config().getString("LOG", "log_file");
+        mMaxLines = Config().getInteger("LOG", "max_lines_buffer");
+        mMaxFileSize = Config().getUint64("LOG", "max_file_size");
 
         string mode = "w";
         if(exists(mLogFileName))

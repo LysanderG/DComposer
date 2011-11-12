@@ -74,7 +74,7 @@ class HISTORY_VIEW : ELEMENT
     void Engage()
     {
         mBuilder = new Builder;
-        mBuilder.addFromFile(GetConfig.getString("RECENT_VIEW", "glade_file", "/home/anthony/.neontotem/dcomposer/historyview.glade"));
+        mBuilder.addFromFile(Config.getString("RECENT_VIEW", "glade_file", "/home/anthony/.neontotem/dcomposer/historyview.glade"));
 
         mRoot               =   cast(Viewport)              mBuilder.getObject("viewport1");
         mRecentProjects     =   cast(RecentChooserWidget)   mBuilder.getObject("recentchooser1");
@@ -98,7 +98,7 @@ class HISTORY_VIEW : ELEMENT
         mRecentFiles.setFilter(mFilterFiles);
 
 
-        mRecentProjects.addOnItemActivated ( delegate void(RecentChooserIF x) {string str = x.getCurrentUri(); GetProject.Open(str[7..$]);}); 
+        mRecentProjects.addOnItemActivated ( delegate void(RecentChooserIF x) {string str = x.getCurrentUri(); Project.Open(str[7..$]);}); 
 
         mRecentFiles.addOnItemActivated(delegate void (RecentChooserIF x) {writeln(x);string str = x.getCurrentUri();writeln(str[7..$]); dui.GetDocMan.OpenDoc(str[7..$]);});
         
@@ -106,7 +106,7 @@ class HISTORY_VIEW : ELEMENT
         dui.GetSidePane.appendPage(mRoot, "History");
         mRoot.showAll();
 
-        GetLog.Entry("Engaged HISTORY_VIEW element");
+        Log.Entry("Engaged HISTORY_VIEW element");
         
     }
         
@@ -114,7 +114,7 @@ class HISTORY_VIEW : ELEMENT
     void Disengage()
     {
         mRoot.hide();
-        GetLog.Entry("Disengaged HISTORY_VIEW element");
+        Log.Entry("Disengaged HISTORY_VIEW element");
     } 
     
 

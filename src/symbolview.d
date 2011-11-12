@@ -58,7 +58,7 @@ class SYMBOL_VIEW : ELEMENT
         void FillSym(DSYMBOL symx, TreeIter tiParent)
         {
             auto tix = ts.append(tiParent);
-            //ts.setValue(tix, 0, GetSymbols.GetValueFromType(symx.Kind));
+            //ts.setValue(tix, 0, Symbols.GetValueFromType(symx.Kind));
             ts.setValue(tix, 0, symx.GetIcon());
             ts.setValue(tix, 1, symx.Name);
             ts.setValue(tix, 2, SimpleXML.escapeText(symx.Path, -1));
@@ -67,10 +67,10 @@ class SYMBOL_VIEW : ELEMENT
 
         }
 
-        foreach(sym; GetSymbols.Symbols())
+        foreach(sym; Symbols.Symbols())
         {
             ti = ts.append(null);
-            //ts.setValue(ti, 0, GetSymbols.GetValueFromType(sym.Kind));
+            //ts.setValue(ti, 0, Symbols.GetValueFromType(sym.Kind));
             ts.setValue(ti, 0, sym.GetIcon());
             ts.setValue(ti, 1, sym.Name);
             if(sym.Path.length == 0) sym.Path = sym.Name;
@@ -97,7 +97,7 @@ class SYMBOL_VIEW : ELEMENT
         string[] FileToOPen;
         int[] AtLineNo;
 
-        GetSymbols.GetLocation(ti.getValueString(3), FileToOPen, AtLineNo);
+        Symbols.GetLocation(ti.getValueString(3), FileToOPen, AtLineNo);
 
         if(FileToOPen.length < 1)return;
         
@@ -107,7 +107,7 @@ class SYMBOL_VIEW : ELEMENT
 
     void UpdateProjectTags(string ProjectName)
     {
-        GetSymbols.Load(ProjectName, ProjectName ~ ".tags");
+        Symbols.Load(ProjectName, ProjectName ~ ".tags");
         Refresh();
     }
         
@@ -125,12 +125,12 @@ class SYMBOL_VIEW : ELEMENT
 
         mSymBuilder =   new Builder ;
 
-        mSymBuilder.addFromFile(GetConfig.getString("SYMBOL_VIEW", "glade_file", "/home/anthony/.neontotem/dcomposer/dsymview.glade"));
+        mSymBuilder.addFromFile(Config.getString("SYMBOL_VIEW", "glade_file", "/home/anthony/.neontotem/dcomposer/dsymview.glade"));
         mRoot           = cast (ScrolledWindow) mSymBuilder.getObject("scrolledwindow1");
         mSymbolTree     = cast (TreeView) mSymBuilder.getObject("treeview1");
         mSymbolStore    = cast (TreeStore) mSymBuilder.getObject("treestore1");
 
-        GetSymbols.connect(&Refresh);
+        Symbols.connect(&Refresh);
         mSymbolTree.addOnRowActivated(delegate void (TreePath tp, TreeViewColumn tvc, TreeView tv){JumpTo();});
 
         
@@ -140,19 +140,19 @@ class SYMBOL_VIEW : ELEMENT
     {
         mState = true;
 
-        GetProject.TagsUpdated.connect(&UpdateProjectTags);
+        Project.TagsUpdated.connect(&UpdateProjectTags);
 
         mRoot.showAll();
         dui.GetSidePane.appendPage(mRoot, "SYMBOLS");
         Refresh();
-        GetLog.Entry("Engaged SYMBOL_VIEW element");
+        Log.Entry("Engaged SYMBOL_VIEW element");
     }
 
     void Disengage()
     {
         mState = false;
         mRoot.hide();
-        GetLog.Entry("Disengaged SYMBOL_VIEW element");
+        Log.Entry("Disengaged SYMBOL_VIEW element");
     }       
 }
 

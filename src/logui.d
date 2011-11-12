@@ -96,10 +96,10 @@ class LOG_UI : ELEMENT
 		mScroller.showAll();
 		dui.GetExtraPane.appendPage(mScroller, mLabel);
 		
-		GetLog.connect(&CatchLog);
+		Log.connect(&CatchLog);
 
         //catch up on missed log entries before we turned on this visual log viewer
-		foreach (s; GetLog.GetEntries())
+		foreach (s; Log.GetEntries())
         {
             auto i = s.indexOf(":");
             CatchLog(s[i+1 .. $], s[0 .. i], null);
@@ -107,9 +107,9 @@ class LOG_UI : ELEMENT
 
 		mScroller.getVadjustment().addOnChanged(delegate void(Adjustment adj){adj.setValue(adj.getUpper());});
 
-        GetLog.Entry("Engaged LogUI element.");
+        Log.Entry("Engaged LogUI element.");
 
-        scope(failure)GetLog.Entry("Failed to Engage LogUI element","Error");
+        scope(failure)Log.Entry("Failed to Engage LogUI element","Error");
 		
 	}
 
@@ -117,8 +117,8 @@ class LOG_UI : ELEMENT
 	{
         mState = false;
 		mScroller.hide(); //??
-        GetLog.Entry("Disengaged LogUI element");
-		GetLog.disconnect(&CatchLog);
+        Log.Entry("Disengaged LogUI element");
+		Log.disconnect(&CatchLog);
 	}
 		
 

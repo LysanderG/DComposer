@@ -103,8 +103,8 @@ class MAIN_UI
 
 
         mWindow.show();
-        GetLog().Entry("testing logui", "Debug");
-        GetLog().Entry("Engaged UI");
+        Log().Entry("testing logui", "Debug");
+        Log().Entry("Engaged UI");
     }
 
     void Disengage()
@@ -112,21 +112,21 @@ class MAIN_UI
         mDocPop.Disengage();
         mDocMan.Disengage();
         
-        GetLog().Entry("Disengaged UI");
+        Log().Entry("Disengaged UI");
     }
 
 
     void Run()
     {
-        GetLog().Entry("Entering GTK Main Loop\n");
+        Log().Entry("Entering GTK Main Loop\n");
         Main.run();
-        GetLog().Entry("Exiting GTK Main Loop");
+        Log().Entry("Exiting GTK Main Loop");
     }
     
     void EngageWidgets()
     {
         mBuilder = new Builder;
-        mBuilder.addFromFile(GetConfig().getString("UI", "ui_glade_file"));
+        mBuilder.addFromFile(Config().getString("UI", "ui_glade_file"));
 
         mWindow     = cast(Window)      mBuilder.getObject("window1");
         mMenuBar    = cast(MenuBar)     mBuilder.getObject("menubar");
@@ -163,27 +163,27 @@ class MAIN_UI
         mActions.addAction(ViewExtraPaneAct);
         mActions.addAction(ViewStatusBarAct);
 
-        ViewToolBarAct.setActive(GetConfig.getBoolean("UI","view_toolbar", false));
-        ViewSidePaneAct.setActive(GetConfig.getBoolean("UI", "view_sidepane", true));
-        ViewExtraPaneAct.setActive(GetConfig.getBoolean("UI", "view_extrapane", true));
-        ViewStatusBarAct.setActive(GetConfig.getBoolean("UI", "view_statusbar", false));
+        ViewToolBarAct.setActive(Config.getBoolean("UI","view_toolbar", false));
+        ViewSidePaneAct.setActive(Config.getBoolean("UI", "view_sidepane", true));
+        ViewExtraPaneAct.setActive(Config.getBoolean("UI", "view_extrapane", true));
+        ViewStatusBarAct.setActive(Config.getBoolean("UI", "view_statusbar", false));
         (ViewToolBarAct.getActive())?mToolBar.show() : mToolBar.hide();
         (ViewSidePaneAct.getActive())?mSidePane.show() : mSidePane.hide();
         (ViewExtraPaneAct.getActive())?mExtraPane.show() : mExtraPane.hide();
         (ViewStatusBarAct.getActive())?mStatusBar.show() : mStatusBar.hide();
 
-        ViewToolBarAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mToolBar.show() : mToolBar.hide(); GetConfig.setBoolean("UI","view_toolbar", cast(bool)x.getActive());});
-        ViewSidePaneAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mSidePane.show() : mSidePane.hide();GetConfig.setBoolean("UI","view_sidepane",cast(bool)x.getActive());});
-        ViewExtraPaneAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mExtraPane.show() : mExtraPane.hide();GetConfig.setBoolean("UI","view_extrapane",cast(bool)x.getActive());});
-        ViewStatusBarAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mStatusBar.show() : mStatusBar.hide();GetConfig.setBoolean("UI","view_statusbar",cast(bool)x.getActive());});
+        ViewToolBarAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mToolBar.show() : mToolBar.hide(); Config.setBoolean("UI","view_toolbar", cast(bool)x.getActive());});
+        ViewSidePaneAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mSidePane.show() : mSidePane.hide();Config.setBoolean("UI","view_sidepane",cast(bool)x.getActive());});
+        ViewExtraPaneAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mExtraPane.show() : mExtraPane.hide();Config.setBoolean("UI","view_extrapane",cast(bool)x.getActive());});
+        ViewStatusBarAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mStatusBar.show() : mStatusBar.hide();Config.setBoolean("UI","view_statusbar",cast(bool)x.getActive());});
         
         AddMenuItem("_View", ViewToolBarAct.createMenuItem());
         AddMenuItem("_View", ViewSidePaneAct.createMenuItem());
         AddMenuItem("_View", ViewExtraPaneAct.createMenuItem());
         AddMenuItem("_View", ViewStatusBarAct.createMenuItem());
 
-        writeln(mIndicator, GetProject());
-        GetProject().NameChanged.connect(&WatchProjectName);
+        writeln(mIndicator, Project());
+        Project().NameChanged.connect(&WatchProjectName);
     }
     
 
@@ -238,7 +238,7 @@ class MAIN_UI
     void PerformAction(string ActionName)
     {
         auto tmp = mActions.getAction(ActionName);
-        if(tmp is null) GetLog.Entry("Attempt to perform invalid Action "~ActionName, "Error");
+        if(tmp is null) Log.Entry("Attempt to perform invalid Action "~ActionName, "Error");
         else tmp.activate();
     }
 

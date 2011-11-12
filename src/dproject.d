@@ -158,15 +158,15 @@ class PROJECTD
 
     void Engage()
     {
-        auto FlagFile = GetConfig().getString("DPROJECT","flags_file");
+        auto FlagFile = Config().getString("DPROJECT","flags_file");
 		ReadFlags(FlagFile);
-        GetLog().Entry("Engaged D_PROJECT");
+        Log().Entry("Engaged D_PROJECT");
     }
 
     void Disengage()
     {
         Save();
-        GetLog().Entry("Disengaged D_PROJECT");
+        Log().Entry("Disengaged D_PROJECT");
     }
 
 
@@ -228,8 +228,8 @@ class PROJECTD
         Save();
 
         mVersion = PROJECT_VERSION;
-        mBaseDir = GetConfig.getString("DPROJECT", "default_project_folder", "/home/anthony/projects");
-        ReadFlags(GetConfig().getString("DPROJECT","flags_file"));
+        mBaseDir = Config.getString("DPROJECT", "default_project_folder", "/home/anthony/projects");
+        ReadFlags(Config().getString("DPROJECT","flags_file"));
         foreach ( key, L; mLists) mLists[key].clear;
         mManualCmdLine.length = 0;
         mName = " ";
@@ -328,7 +328,7 @@ class PROJECTD
 	{
         scope(failure)
         {
-            GetLog.Entry("Failed to open Project : " ~ pfile, "Error");
+            Log.Entry("Failed to open Project : " ~ pfile, "Error");
             Close();
             return;
         }
@@ -405,7 +405,7 @@ class PROJECTD
         //this = new PROJECTD;
         Name = nuName;
         Type = nuType;
-        BaseDir = GetConfig.getString("DPROJECT","default_project_folder","/home/anthony/projects");
+        BaseDir = Config.getString("DPROJECT","default_project_folder","/home/anthony/projects");
         auto ProDir = buildPath(BaseDir,Name);
         if(!exists(ProDir))mkdir(ProDir);
         chdir(ProDir);
@@ -498,7 +498,7 @@ class PROJECTD
     {        
         std.stdio.File Process = File("tmp","w");
 
-        scope(failure)foreach(string L; lines(Process) )GetLog().Entry(SimpleXML.escapeText( chomp(L), -1),"Error");
+        scope(failure)foreach(string L; lines(Process) )Log().Entry(SimpleXML.escapeText( chomp(L), -1),"Error");
         Process.popen("sh /home/anthony/.neontotem/dcomposer/childrunner.sh " ~ BuildCommand() ~ " 2>&1 ", "r");
 
         string[] output;

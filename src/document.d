@@ -209,7 +209,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
             case 1: if(mVirgin)SaveAs(DisplayName); else Save();return true;
             case 2: return true;
             case 3: return false;
-            default : GetLog().Entry("Bad ResponseType from Confirm CloseFileDialog", "Error");
+            default : Log().Entry("Bad ResponseType from Confirm CloseFileDialog", "Error");
         }
 
         return true;
@@ -259,12 +259,12 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         auto Language = SourceLanguageManager.getDefault().guessLanguage(FullName,null);
         if(Language!is null) getBuffer.setLanguage(Language);
 
-        string StyleId = GetConfig().getString("DOCMAN","style_scheme");
+        string StyleId = Config().getString("DOCMAN","style_scheme");
         getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleId));
 
-        setTabWidth(GetConfig().getInteger("DOCMAN", "tab_width"));
+        setTabWidth(Config().getInteger("DOCMAN", "tab_width"));
 
-        setInsertSpacesInsteadOfTabs(GetConfig().getBoolean("DOCMAN","spaces_for_tabs"));
+        setInsertSpacesInsteadOfTabs(Config().getBoolean("DOCMAN","spaces_for_tabs"));
         setAutoIndent(true);
         setShowLineNumbers(true);
         modifyFont("Anonymous Pro", 12);
@@ -280,7 +280,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
     void Edit(string Verb)
     {
-        GetLog.Entry("Edit action received --- "~ Verb,"Debug");
+        Log.Entry("Edit action received --- "~ Verb,"Debug");
 
         switch (Verb)
         {
@@ -291,7 +291,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
             case "PASTE" :   getBuffer.pasteClipboard(Clipboard.get(cast(GdkAtom)69),null, 1); break;
             case "DELETE":   getBuffer.deleteSelection(1,1);break;
 
-            default : GetLog.Entry("Currently unavailable function :"~Verb,"Debug");
+            default : Log.Entry("Currently unavailable function :"~Verb,"Debug");
         }
             
     }

@@ -34,7 +34,7 @@ import elements;
 int main(string[] args)
 {
     //GC.disable();
-    scope(exit) GetLog.Flush();
+    scope(exit) Log().Flush();
 
 	dcore.Engage(args);
 	dui.Engage(args);
@@ -49,6 +49,6 @@ int main(string[] args)
 	dcore.Disengage();
 
     //GC.enable();
-    scope(failure)GetLog.Flush();
+    scope(failure)Log().Flush();
 	return 0;
 }

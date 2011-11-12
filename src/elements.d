@@ -46,13 +46,13 @@ void Engage()
 {
     AcquireElements();
 
-    GetLog.Entry("Engaging Elements ...");
+    Log.Entry("Engaging Elements ...");
     foreach(E; mElements) E.Engage();    
 }
 
 void Disengage()
 {
-    GetLog.Entry("Disengaging Elements ...");
+    Log.Entry("Disengaging Elements ...");
     foreach_reverse(E; mElements) E.Disengage();
 }
 
@@ -60,7 +60,7 @@ void AcquireElements()
 {
     ELEMENT tmp;
     
-    string elementlist = readText(GetConfig.getString("ELEMENTS","element_list", "/home/anthony/projects/dcomposer2/elementlist"));
+    string elementlist = readText(Config.getString("ELEMENTS","element_list", "/home/anthony/projects/dcomposer2/elementlist"));
         
     foreach (line; elementlist.splitLines())
     {
@@ -69,10 +69,10 @@ void AcquireElements()
         if (line.length < 1) continue;
 
         tmp = cast(ELEMENT)Object.factory(line);
-        if(tmp is null) GetLog.Entry("Failed to Acquire " ~ line ~ " element!", "Error");
+        if(tmp is null) Log.Entry("Failed to Acquire " ~ line ~ " element!", "Error");
         else
         {
-            GetLog.Entry("Acquired " ~ line ~ " element.");
+            Log.Entry("Acquired " ~ line ~ " element.");
             mElements[tmp.Name] = tmp;
         }
     }
@@ -88,53 +88,53 @@ void AcquireElements()
 
     //element number one logui
     ELEMENT tmp = cast(ELEMENT)Object.factory("logui.LOG_UI");
-    if(tmp is null) GetLog.Entry("Failed to Engage LOG_UI","Error");
+    if(tmp is null) Log.Entry("Failed to Engage LOG_UI","Error");
     if(tmp !is null) mElements[tmp.Name] = tmp;
     
 
     tmp = cast(ELEMENT)Object.factory("searchui.SEARCH_UI");
-    if(tmp is null) GetLog.Entry("Failed to Engage SEARCH_UI","Error");
+    if(tmp is null) Log.Entry("Failed to Engage SEARCH_UI","Error");
     if(tmp !is null) mElements[tmp.Name] = tmp;
 
 
     tmp = cast(ELEMENT)Object.factory("projectdui.PROJECT_UI");
-    if(tmp is null) GetLog.Entry("Failed to Engage PROJECT_UI", "Error");
+    if(tmp is null) Log.Entry("Failed to Engage PROJECT_UI", "Error");
     if(tmp !is null) mElements[tmp.Name] = tmp;
 
     tmp = cast(ELEMENT)Object.factory("symbolview.SYMBOL_VIEW");
-    if(tmp is null) GetLog.Entry("Failed to Engage SYMBOL_VIEW", "Error");
+    if(tmp is null) Log.Entry("Failed to Engage SYMBOL_VIEW", "Error");
     if(tmp !is null) mElements[tmp.Name] = tmp;
 
     tmp = cast(ELEMENT)Object.factory("indent.BRACE_INDENT");
-    if(tmp is null) GetLog.Entry("Failed to Engage BRACE_INDENT", "Error");
+    if(tmp is null) Log.Entry("Failed to Engage BRACE_INDENT", "Error");
     if(tmp !is null) mElements[tmp.Name] = tmp;
 
     tmp = cast(ELEMENT)Object.factory("symcompletion.SYMBOL_COMPLETION");
-    if(tmp is null) GetLog.Entry("Failed to Engage SYMBOL_COMPLETTION", "Error");
+    if(tmp is null) Log.Entry("Failed to Engage SYMBOL_COMPLETTION", "Error");
     if(tmp !is null) mElements[tmp.Name] = tmp;
     
     tmp = cast(ELEMENT)Object.factory("scopelist.SCOPE_LIST");
-    if(tmp is null) GetLog.Entry("Failed to Engage SCOPE_LIST", "Error");
+    if(tmp is null) Log.Entry("Failed to Engage SCOPE_LIST", "Error");
     if(tmp !is null) mElements[tmp.Name] = tmp;
 
     tmp = cast(ELEMENT)Object.factory("calltips.CALL_TIPS");
-    if(tmp is null) GetLog.Entry("Failed to Engage CALL_TIPS", "Error");
+    if(tmp is null) Log.Entry("Failed to Engage CALL_TIPS", "Error");
     if(tmp !is null) mElements[tmp.Name] = tmp;
 
     tmp = cast(ELEMENT)Object.factory("terminalui.TERMINAL_UI");
-    if(tmp is null) GetLog.Entry("Failed to Engage TERMINAL_UI", "Error");
+    if(tmp is null) Log.Entry("Failed to Engage TERMINAL_UI", "Error");
     if(tmp !is null) mElements[tmp.Name] = tmp;
 
     tmp = cast(ELEMENT)Object.factory("proview.PROJECT_VIEW");
-    if(tmp is null) GetLog.Entry("Failed to Engage PROJECT_VIEW", "Error");
+    if(tmp is null) Log.Entry("Failed to Engage PROJECT_VIEW", "Error");
     if(tmp !is null) mElements[tmp.Name] = tmp;
 
     tmp = cast(ELEMENT)Object.factory("dirview.DIR_VIEW");
-    if(tmp is null) GetLog.Entry("Failed to Engage DIR_VIEW", "Error");
+    if(tmp is null) Log.Entry("Failed to Engage DIR_VIEW", "Error");
     if(tmp !is null) mElements[tmp.Name] = tmp;   
 
     tmp = cast(ELEMENT)Object.factory("historyview.HISTORY_VIEW");
-    if(tmp is null) GetLog.Entry("Failed to Engage HISTORY_VIEW", "Error");
+    if(tmp is null) Log.Entry("Failed to Engage HISTORY_VIEW", "Error");
     if(tmp !is null) mElements[tmp.Name] = tmp;   
 
     

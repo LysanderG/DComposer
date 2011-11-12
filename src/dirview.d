@@ -112,7 +112,7 @@ class DIR_VIEW : ELEMENT
 
     void GoHome(ToolButton x)
     {
-        if(GetProject.Type != TARGET.NULL) Folder = GetProject.BaseDir;
+        if(Project.Type != TARGET.NULL) Folder = Project.BaseDir;
         else Folder = expandTilde("~");
     }
 
@@ -173,7 +173,7 @@ class DIR_VIEW : ELEMENT
     void Engage()
     {
         mBuilder = new Builder;
-        mBuilder.addFromFile(GetConfig.getString("DIRVIEW","glade_file", "/home/anthony/.neontotem/dcomposer/dirview.glade"));
+        mBuilder.addFromFile(Config.getString("DIRVIEW","glade_file", "/home/anthony/.neontotem/dcomposer/dirview.glade"));
         
         mRoot           = cast(Viewport)    mBuilder.getObject("viewport1");
         mFilter         = cast(Entry)       mBuilder.getObject("entry1");
@@ -201,13 +201,13 @@ class DIR_VIEW : ELEMENT
         Refresh();
         mRoot.showAll();
         dui.GetSidePane.appendPage(mRoot, "Files");
-        GetLog.Entry("Engaged DIRECTORY_VIEW element");
+        Log.Entry("Engaged DIRECTORY_VIEW element");
     }
         
 
     void Disengage()
     {
-        GetLog.Entry("Disengaged DIRECTORY_VIEW element");
+        Log.Entry("Disengaged DIRECTORY_VIEW element");
     }
     
 }

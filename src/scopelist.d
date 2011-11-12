@@ -87,7 +87,7 @@ class SCOPE_LIST : ELEMENT
 
         string Candidate = ti.getText(tiEnd);
 
-        string[] possibles = GetSymbols.GetMembers(Candidate);
+        string[] possibles = Symbols.GetMembers(Candidate);
 
         if(possibles.length < 1) return;
         
@@ -127,12 +127,12 @@ class SCOPE_LIST : ELEMENT
         
         dui.GetDocMan.Appended.connect(&WatchForNewDocument);
 
-        GetLog.Entry("Engaged SCOPE_LIST element");
+        Log.Entry("Engaged SCOPE_LIST element");
     }
 
     void Disengage()
     {
-        GetLog.Entry("Disengaging SCOPE_LIST element");
+        Log.Entry("Disengaging SCOPE_LIST element");
     }
 
 }

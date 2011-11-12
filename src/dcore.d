@@ -37,7 +37,7 @@ private :
 CONFIG		mConfig;
 LOG 		mLog;
 PROJECTD	mProject;
-SYMBOLS	mSymbols;
+SYMBOLS	    mSymbols;
 
 
 static this()
@@ -58,7 +58,7 @@ void Engage(string[] CmdArgs)
 	mProject    .Engage();
 	mSymbols    .Engage();
 
-    GetLog().Entry("Engaged dcore");
+    Log().Entry("Engaged dcore");
 }
 
 void Disengage()
@@ -66,11 +66,11 @@ void Disengage()
 	mSymbols .Disengage();
 	mProject .Disengage();
 	mConfig  .Disengage();
-    GetLog() .Entry("Disengaged dcore");
+    Log()    .Entry("Disengaged dcore");
 	mLog     .Disengage();
 }
 
-CONFIG		GetConfig() {return mConfig;}
-LOG 		GetLog()    {return mLog;}
-PROJECTD	GetProject(){return mProject;}
-SYMBOLS		GetSymbols(){return mSymbols;}
+CONFIG		Config() {return mConfig;}
+LOG 		Log()    {return mLog;}
+PROJECTD	Project(){return mProject;}
+SYMBOLS		Symbols(){return mSymbols;}

@@ -74,7 +74,7 @@ class PROJECT_VIEW : ELEMENT
         X.getActiveIter(ti);
 
         string key = mComboStore.getValueString(ti, 0);
-        auto values = GetProject.Get(key);
+        auto values = Project.Get(key);
 
         if( (key == VERSIONS ) || (key == DEBUGS)) mCellText.setProperty("mode", CellRendererMode.MODE_EDITABLE);
         else mCellText.setProperty("mode",CellRendererMode.MODE_ACTIVATABLE);
@@ -192,7 +192,7 @@ class PROJECT_VIEW : ELEMENT
 
         ti = mListView.getSelectedIter();
         
-        GetProject.Remove(CurrentKey, mViewStore.getValueString(ti,1));
+        Project.Remove(CurrentKey, mViewStore.getValueString(ti,1));
         
         
     }
@@ -216,7 +216,7 @@ class PROJECT_VIEW : ELEMENT
 		while(SelFiles !is null)
 		{
             afile = toImpl!(string, char *)(cast(char *)SelFiles.data()); 
-            GetProject.Add(CurrentKey, afile);
+            Project.Add(CurrentKey, afile);
             SelFiles = SelFiles.next();
 		}
 
@@ -239,7 +239,7 @@ class PROJECT_VIEW : ELEMENT
 		while(SelFiles !is null)
 		{
 			afile = toImpl!(string, char *)(cast(char *)SelFiles.data()); 
-			GetProject.Add(CurrentKey, afile);
+			Project.Add(CurrentKey, afile);
 			SelFiles = SelFiles.next();
 		}
 		
@@ -259,7 +259,7 @@ class PROJECT_VIEW : ELEMENT
         if(mKeyBox.getActiveIter(ti))
         {
             string CurrentKey = mComboStore.getValueString(ti,0);
-            GetProject.Add(CurrentKey, text);
+            Project.Add(CurrentKey, text);
         }
     }
         
@@ -288,7 +288,7 @@ class PROJECT_VIEW : ELEMENT
     {
 
         mBuilding = new Builder;
-        mBuilding.addFromFile(GetConfig.getString("PROJECT_VIEW", "glade_file", "/home/anthony/.neontotem/dcomposer/proview.glade"));
+        mBuilding.addFromFile(Config.getString("PROJECT_VIEW", "glade_file", "/home/anthony/.neontotem/dcomposer/proview.glade"));
 
         mRoot       = cast(VBox)        mBuilding.getObject("vbox1");
         mLabel      = cast(Label)       mBuilding.getObject("label1");
@@ -312,19 +312,19 @@ class PROJECT_VIEW : ELEMENT
         mKeyBox.addOnChanged(&UpdateList);
         mListView.addOnRowActivated(&OpenFile);
         
-        GetProject.ListChanged.connect(&UpdateList);
-        GetProject.NameChanged.connect(&UpdateName);
+        Project.ListChanged.connect(&UpdateList);
+        Project.NameChanged.connect(&UpdateName);
 
         mRoot.showAll();
 
         dui.GetSidePane.appendPage(mRoot, "Project");
 
-        GetLog.Entry("Engaged PROJECT_VIEW element");
+        Log.Entry("Engaged PROJECT_VIEW element");
     }
 
     void Disengage()
     {
-        GetLog.Entry("Disengaged PROJECT_VIEW element");
+        Log.Entry("Disengaged PROJECT_VIEW element");
     }
 }
     

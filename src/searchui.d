@@ -213,11 +213,11 @@ class SEARCH_UI : ELEMENT
                 mResultsList.setValue(ti, 5, cast(int)needle.length);
             }
         }
-        GetLog.Entry("finished searchui.FillResults .. seems fine","Debug");
+        Log.Entry("finished searchui.FillResults .. seems fine","Debug");
         if(matches > 0) mResultsView.setCursor(new TreePath("0"), null, false);
-        GetLog.Entry("finished searchui.FillResults .. seems fine","Debug");
+        Log.Entry("finished searchui.FillResults .. seems fine","Debug");
         mResultsView.grabFocus();
-        GetLog.Entry("finished searchui.FillResults .. seems fine","Debug");
+        Log.Entry("finished searchui.FillResults .. seems fine","Debug");
     }*/
 
     
@@ -288,7 +288,7 @@ class SEARCH_UI : ELEMENT
         //mResultsList = new ListStore([GType.STRING, GType.INT, GType.STRING, GType.STRING, GType.INT, GType.INT]);
         mResultsList.clear();
         
-        if(mScopeSelection.getActive)GetLog.Entry("searching selection... (or will soon)","Debug");
+        if(mScopeSelection.getActive)Log.Entry("searching selection... (or will soon)","Debug");
         if(mScopeFile)FillResultsListFromFile();
         //finish the others later ... open docs .. folder and project
 
@@ -297,7 +297,7 @@ class SEARCH_UI : ELEMENT
         mResultsView.setCursor(new TreePath(true), null, false);
         mResultsView.grabFocus();
 
-        scope(failure){GetLog.Entry(`Possible attempt to set treepath'0' on an empty treeview`,"Debug"); return;};
+        scope(failure){Log.Entry(`Possible attempt to set treepath'0' on an empty treeview`,"Debug"); return;};
     }
 
     
@@ -332,7 +332,7 @@ class SEARCH_UI : ELEMENT
     {
         GC.disable();
         TreeModelIF tmper;
-        foreach (tp; ts.getSelectedRows(tmper))GetLog.Entry(tp.toString(),"Debug"
+        foreach (tp; ts.getSelectedRows(tmper))Log.Entry(tp.toString(),"Debug"
         );
         
         TI = ts.getSelected();
@@ -392,7 +392,7 @@ class SEARCH_UI : ELEMENT
         
         
         mBuilder            = new Builder;
-        mBuilder.addFromFile(GetConfig.getString("SEARCH", "glade_file", "/home/anthony/.neontotem/dcomposer/findui.glade"));
+        mBuilder.addFromFile(Config.getString("SEARCH", "glade_file", "/home/anthony/.neontotem/dcomposer/findui.glade"));
         
         mPage               = cast (VBox)           mBuilder.getObject("vbox5");
         mOptions            = cast (Viewport)       mBuilder.getObject("viewport1");        
@@ -483,14 +483,14 @@ class SEARCH_UI : ELEMENT
         dui.GetActions().addActionWithAccel(SearchAct, null);
         dui.AddMenuItem("_Edit", SearchAct.createMenuItem());   
     
-        GetLog.Entry("Engaged SearchUI element.");
+        Log.Entry("Engaged SearchUI element.");
     }
 
     void Disengage()
     {
 
         mState = false;
-        GetLog.Entry("Disengaged SearchUI element.");
+        Log.Entry("Disengaged SearchUI element.");
     } 
        
 }

@@ -125,14 +125,14 @@ class PROJECT_UI : ELEMENT
     {
 		
 		mProBuilder         = new Builder;
-		mProBuilder.addFromFile(GetConfig.getString("PROJECT_UI","glade_file", "/home/anthony/.neontotem/dcomposer/dprojectoptions.glade"));
+		mProBuilder.addFromFile(Config.getString("PROJECT_UI","glade_file", "/home/anthony/.neontotem/dcomposer/dprojectoptions.glade"));
 
 		mRootVBox           = cast(VBox)mProBuilder.getObject("vbox1");
 		mFilesHBox          = cast(HBox)mProBuilder.getObject("hbox1");
 		mConditionalsHBox   = cast(HBox)mProBuilder.getObject("hbox2");
 		mDPathsHBox         = cast(HBox)mProBuilder.getObject("hbox3");
 		mLinkerHBox	        = cast(HBox)mProBuilder.getObject("hbox4");		
-		mTabLabel           = new Label(GetProject.Name ~" project options");
+		mTabLabel           = new Label(Project.Name ~" project options");
 		mName 				= cast(Entry)mProBuilder.getObject("entry1");
 		mRootDir 			= cast(FileChooserButton)mProBuilder.getObject("filechooserbutton1");
         mProPath            = cast(Label)mProBuilder.getObject("label16");
@@ -188,15 +188,15 @@ class PROJECT_UI : ELEMENT
     {
         mState = true;
 
-        GetProject().ListChanged.connect(&WatchingProjectLists);
-        GetProject().BaseDirChanged.connect(&WatchingProject);
-        GetProject().NameChanged.connect(&WatchingProject);
-        GetProject().OtherArgsChanged.connect(&WatchingProject);
-        GetProject().Opened.connect(&WatchingProject);
-        GetProject().Saved.connect(&WatchingProject);
+        Project().ListChanged.connect(&WatchingProjectLists);
+        Project().BaseDirChanged.connect(&WatchingProject);
+        Project().NameChanged.connect(&WatchingProject);
+        Project().OtherArgsChanged.connect(&WatchingProject);
+        Project().Opened.connect(&WatchingProject);
+        Project().Saved.connect(&WatchingProject);
                 
-        if(GetProject.Type != TARGET.NULL) mRootVBox.showAll();
-        if(GetProject.Type == TARGET.NULL) mRootVBox.hide();
+        if(Project.Type != TARGET.NULL) mRootVBox.showAll();
+        if(Project.Type == TARGET.NULL) mRootVBox.hide();
         dui.GetCenterPane.prependPage(mRootVBox, mTabLabel);
 
 
@@ -204,7 +204,7 @@ class PROJECT_UI : ELEMENT
         
         
 
-        GetLog.Entry("Engaged PROJECT_UI element");
+        Log.Entry("Engaged PROJECT_UI element");
     }
         
         
@@ -215,7 +215,7 @@ class PROJECT_UI : ELEMENT
         
         mRootVBox.hide();
 
-        GetLog.Entry("Disengaged PROJECT_UI element");
+        Log.Entry("Disengaged PROJECT_UI element");
     }
 
 
@@ -280,7 +280,7 @@ class PROJECT_UI : ELEMENT
 
     void New(Action X)
     {
-        GetProject.New(" ");
+        Project.New(" ");
         FillGuiData();
         mRootVBox.showAll();
         dui.GetCenterPane.setCurrentPage(mRootVBox);
@@ -295,24 +295,24 @@ class PROJECT_UI : ELEMENT
         ff.setName("DComposer Project");
         ff.addPattern("*.dpro");
         fcd.setFilter(ff);
-        fcd.setCurrentFolder(GetConfig.getString("DPROJECT","last_open_dialog_folder", "../junkpile"));
+        fcd.setCurrentFolder(Config.getString("DPROJECT","last_open_dialog_folder", "../junkpile"));
         
         int rt = fcd.run();
 		fcd.hide();
 		if(rt != ResponseType.GTK_RESPONSE_OK) return;
         
-        GetProject.Open(fcd.getFilename);
-        chdir(GetProject.BaseDir);
+        Project.Open(fcd.getFilename);
+        chdir(Project.BaseDir);
         FillGuiData();
 
-        GetConfig.setString("DPROJECT", "last_open_dialog_folder", fcd.getCurrentFolder());
+        Config.setString("DPROJECT", "last_open_dialog_folder", fcd.getCurrentFolder());
 
     }
 
     void ShowOptions(Action X)
     {
         if(!State) return;
-        if(GetProject.Type == TARGET.NULL) return;
+        if(Project.Type == TARGET.NULL) return;
         mRootVBox.showAll();
         dui.GetCenterPane.setCurrentPage(mRootVBox);
         mRootVBox.grabFocus();
@@ -320,13 +320,13 @@ class PROJECT_UI : ELEMENT
 
     void RefreshSymbols(Action X)
     {
-        if(GetProject.CreateTags() == 0)
+        if(Project.CreateTags() == 0)
         {
-            GetLog.Entry("Tag file for Project : "~GetProject.Name~" created.");
+            Log.Entry("Tag file for Project : "~Project.Name~" created.");
         }
         else
         {
-            GetLog.Entry("Failed to create tag file for project : "~ GetProject.Name ~".","Error");
+            Log.Entry("Failed to create tag file for project : "~ Project.Name ~".","Error");
         }
     }
 
@@ -337,15 +337,15 @@ class PROJECT_UI : ELEMENT
         dui.GetDocMan.SaveAllDocs();
         std.stdio.File Process = File("tmp","w");
 
-        scope(failure)foreach(string L; lines(Process) )GetLog.Entry(chomp(L),"Error");
-        Process.popen("sh /home/anthony/.neontotem/dcomposer/childrunner.sh " ~ GetProject.CmdLine ~ " 2>&1 ", "r");
+        scope(failure)foreach(string L; lines(Process) )Log.Entry(chomp(L),"Error");
+        Process.popen("sh /home/anthony/.neontotem/dcomposer/childrunner.sh " ~ Project.CmdLine ~ " 2>&1 ", "r");
 
         string[] output;
         foreach(string L; lines(Process) )
         {
             output.length = output.length +1;
             output[$-1] = chomp(L);
-            GetLog.Entry(SimpleXML.escapeText(chomp(L), -1));
+            Log.Entry(SimpleXML.escapeText(chomp(L), -1));
         }
         scope(exit) Process.close();
     }
@@ -354,13 +354,13 @@ class PROJECT_UI : ELEMENT
     {
         scope(failure) return;
         std.stdio.File Process;
-        Process.popen("./"~GetProject.Name,"r");
+        Process.popen("./"~Project.Name,"r");
         string[] output;
         foreach(string L; lines(Process) )
         {
             output.length = output.length +1;
             output[$-1] = chomp(L);
-            GetLog.Entry(chomp(L));
+            Log.Entry(chomp(L));
         }
         Process.close();
         
@@ -371,20 +371,20 @@ class PROJECT_UI : ELEMENT
 	{
 		TreeIter tmpIter = new TreeIter;
 		//basics
-		mName.setText(GetProject.Name);
-		mRootDir.setFilename(GetProject.BaseDir);
-        mProPath.setText("Project path : " ~ GetProject.BaseDir ~ "/" ~ GetProject.Name ~ "/" ~ GetProject.Name ~ ".dpro");
+		mName.setText(Project.Name);
+		mRootDir.setFilename(Project.BaseDir);
+        mProPath.setText("Project path : " ~ Project.BaseDir ~ "/" ~ Project.Name ~ "/" ~ Project.Name ~ ".dpro");
         
-        GetLog.Entry(mRootDir.getFilename(),"Debug");
+        Log.Entry(mRootDir.getFilename(),"Debug");
 
-		mUseManCmdLine.setActive(GetProject.UseManualBuild);
-		mManCmdLine.setText(GetProject.CmdLine);
-		mAutoCmdLine.setText(GetProject.BuildCommand);
-		mSrcList.SetItems(GetProject.Get(SRCFILES));
-		mRelList.SetItems(GetProject.Get(RELFILES));
+		mUseManCmdLine.setActive(Project.UseManualBuild);
+		mManCmdLine.setText(Project.CmdLine);
+		mAutoCmdLine.setText(Project.BuildCommand);
+		mSrcList.SetItems(Project.Get(SRCFILES));
+		mRelList.SetItems(Project.Get(RELFILES));
 		//flags
         mFlagStore.clear();
-        foreach(index, flag; GetProject.GetFlags())
+        foreach(index, flag; Project.GetFlags())
         {
             Value gval = new Value;
             gval.init(GType.BOOLEAN);
@@ -399,17 +399,17 @@ class PROJECT_UI : ELEMENT
             mFlagStore.setValue(tmpIter, 4, flag.Brief);
         }
 
-        mVerList.SetItems(GetProject.Get(VERSIONS));
-        mDbgList.SetItems(GetProject.Get(DEBUGS));
-        mImpList.SetItems(GetProject.Get(INCPATHS));
-        mExpList.SetItems(GetProject.Get(JPATHS));
-        mLibList.SetItems(GetProject.Get(LIBFILES));
-        mLLPList.SetItems(GetProject.Get(LIBPATHS));
+        mVerList.SetItems(Project.Get(VERSIONS));
+        mDbgList.SetItems(Project.Get(DEBUGS));
+        mImpList.SetItems(Project.Get(INCPATHS));
+        mExpList.SetItems(Project.Get(JPATHS));
+        mLibList.SetItems(Project.Get(LIBFILES));
+        mLLPList.SetItems(Project.Get(LIBPATHS));
 
         //string TmpExtraOpts;
         //foreach(lnkopt; mProject.Get("LinkOpts"))TmpExtraOpts ~=lnkopt ~ " ";
-        mMiscLinkOptions.setText(" "~GetProject.OtherArgs);
-        mDescription.getBuffer().setText(GetProject.GetFirst("DESCRIPTION"));
+        mMiscLinkOptions.setText(" "~Project.OtherArgs);
+        mDescription.getBuffer().setText(Project.GetFirst("DESCRIPTION"));
 	}
 
     void FillProjectData()
@@ -418,13 +418,13 @@ class PROJECT_UI : ELEMENT
         
 		TreeIter tmpiter = new TreeIter;
 		
-		GetProject.Name = mName.getText();
-		GetProject.BaseDir = mRootDir.getFilename();
+		Project.Name = mName.getText();
+		Project.BaseDir = mRootDir.getFilename();
 
-		GetProject.UseManualBuild = cast(bool)mUseManCmdLine.getActive();
-		GetProject.CmdLine = mManCmdLine.getText();
-		GetProject.Set(SRCFILES, mSrcList.GetFullItems());
-		GetProject.Set(RELFILES, mRelList.GetFullItems());
+		Project.UseManualBuild = cast(bool)mUseManCmdLine.getActive();
+		Project.CmdLine = mManCmdLine.getText();
+		Project.Set(SRCFILES, mSrcList.GetFullItems());
+		Project.Set(RELFILES, mRelList.GetFullItems());
 		//SAVE flags
         if(mFlagStore.getIterFirst(tmpiter))
         {
@@ -439,20 +439,20 @@ class PROJECT_UI : ELEMENT
                 nustate = cast(bool)gval.getBoolean();
                 key     = mFlagStore.getValueString(tmpiter, 1); //1 = the cmdline switch string
                 arg     = mFlagStore.getValueString(tmpiter, 2); //3 = the argument for the switch
-                GetProject.SetFlag(key, nustate, arg);
+                Project.SetFlag(key, nustate, arg);
             }while (mFlagStore.iterNext(tmpiter));
 		}
-		GetProject.Set(VERSIONS, mVerList.GetFullItems());
-		GetProject.Set(DEBUGS, mDbgList.GetFullItems());
-		GetProject.Set(INCPATHS, mImpList.GetFullItems());
-		GetProject.Set(JPATHS, mExpList.GetFullItems());
-		GetProject.Set(LIBFILES, mLibList.GetFullItems());
-		GetProject.Set(LIBPATHS, mLLPList.GetFullItems());
-		GetProject.OtherArgs = mMiscLinkOptions.getText();
+		Project.Set(VERSIONS, mVerList.GetFullItems());
+		Project.Set(DEBUGS, mDbgList.GetFullItems());
+		Project.Set(INCPATHS, mImpList.GetFullItems());
+		Project.Set(JPATHS, mExpList.GetFullItems());
+		Project.Set(LIBFILES, mLibList.GetFullItems());
+		Project.Set(LIBPATHS, mLLPList.GetFullItems());
+		Project.OtherArgs = mMiscLinkOptions.getText();
 
 		//mProject.AddList("DESCRIPTION");
-		GetProject.Set("DESCRIPTION", mDescription.getBuffer().getText());
-        GetProject.Save();
+		Project.Set("DESCRIPTION", mDescription.getBuffer().getText());
+        Project.Save();
 
         ConnectProjectWatchers();
 	}
@@ -465,28 +465,28 @@ class PROJECT_UI : ELEMENT
     }
     void WatchingProject(string x)
     {
-        //GetLog.Entry("Watching project (from projectui) -- " ~ x, "Debug");
+        //Log.Entry("Watching project (from projectui) -- " ~ x, "Debug");
         FillGuiData();
     }
 
     void DisconnectProjectWatchers()
     {
-        GetProject().ListChanged.disconnect(&WatchingProjectLists);
-        GetProject().BaseDirChanged.disconnect(&WatchingProject);
-        GetProject().NameChanged.disconnect(&WatchingProject);
-        GetProject().OtherArgsChanged.disconnect(&WatchingProject);
-        GetProject().Opened.disconnect(&WatchingProject);
-        GetProject().Saved.disconnect(&WatchingProject);
+        Project().ListChanged.disconnect(&WatchingProjectLists);
+        Project().BaseDirChanged.disconnect(&WatchingProject);
+        Project().NameChanged.disconnect(&WatchingProject);
+        Project().OtherArgsChanged.disconnect(&WatchingProject);
+        Project().Opened.disconnect(&WatchingProject);
+        Project().Saved.disconnect(&WatchingProject);
     }
 
     void ConnectProjectWatchers()
     {
-        GetProject().ListChanged.connect(&WatchingProjectLists);
-        GetProject().BaseDirChanged.connect(&WatchingProject);
-        GetProject().NameChanged.connect(&WatchingProject);
-        GetProject().OtherArgsChanged.connect(&WatchingProject);
-        GetProject().Opened.connect(&WatchingProject);
-        GetProject().Saved.connect(&WatchingProject);
+        Project().ListChanged.connect(&WatchingProjectLists);
+        Project().BaseDirChanged.connect(&WatchingProject);
+        Project().NameChanged.connect(&WatchingProject);
+        Project().OtherArgsChanged.connect(&WatchingProject);
+        Project().Opened.connect(&WatchingProject);
+        Project().Saved.connect(&WatchingProject);
     }
 
     

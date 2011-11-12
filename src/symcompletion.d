@@ -81,7 +81,7 @@ class SYMBOL_COMPLETION : ELEMENT
 
         string Candidate = WordStart.getText(ti);
 
-        auto tmp = GetSymbols.Match(Candidate);
+        auto tmp = Symbols.Match(Candidate);
      
         string[] Possibles;
         
@@ -119,7 +119,7 @@ class SYMBOL_COMPLETION : ELEMENT
 
         dui.GetDocMan.Appended.connect(&WatchForNewDocument);
 
-        GetLog.Entry("Engaged SYMBOL_COMPLETION element");
+        Log.Entry("Engaged SYMBOL_COMPLETION element");
     }
         
 

@@ -81,7 +81,7 @@ class CALL_TIPS : ELEMENT
         //can read preopened docs from config ... they dont change til docman.disengage
         //or just flip thru centerpane?
 
-        GetLog.Entry("Engaged CALL_TIPS element");
+        Log.Entry("Engaged CALL_TIPS element");
     }
 
     void Disengage()
@@ -91,7 +91,7 @@ class CALL_TIPS : ELEMENT
         foreach(Doc; ConnectedDocs) Doc.TextInserted.disconnect(&WatchDoc);
         mStack.length = 0;
         ConnectedDocs.length = 0;
-        GetLog.Entry("Disengaged CALL_TIPS element");
+        Log.Entry("Disengaged CALL_TIPS element");
                 
     }
 
@@ -130,7 +130,7 @@ class CALL_TIPS : ELEMENT
 
                 string Candidate = ti.getText(tiEnd);
 
-                string[] tmp = GetSymbols.GetCallTips(Candidate);
+                string[] tmp = Symbols.GetCallTips(Candidate);
                 string[] Possibles;
 
                 //foreach(p; tmp.uniq()) Possibles ~= SimpleXML.escapeText(p, -1);

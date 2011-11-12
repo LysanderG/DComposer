@@ -86,7 +86,7 @@ class BRACE_INDENT : ELEMENT
             Buffer.delet(tstart, ti);
             return;
         }
-        auto twidth = GetConfig.getInteger("DOCMAN", "tab_width");
+        auto twidth = Config.getInteger("DOCMAN", "tab_width");
         if(line.length < twidth) return;
         char[] notabs;
         notabs.length = twidth;
@@ -111,7 +111,7 @@ class BRACE_INDENT : ELEMENT
     {
         mState = true;
         dui.GetDocMan.Appended.connect(&CatchNewDocs);
-        GetLog.Entry("Engaged BRACE_INDENT element");
+        Log.Entry("Engaged BRACE_INDENT element");
     }
 
     
@@ -119,6 +119,6 @@ class BRACE_INDENT : ELEMENT
     void Disengage()
     {
         mState = false;
-        GetLog.Entry("Disengaged BRACE_INDENT element");
+        Log.Entry("Disengaged BRACE_INDENT element");
     }
 }    

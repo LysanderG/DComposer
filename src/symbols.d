@@ -98,7 +98,7 @@ class SYMBOLS
 {
     private:
     
-    //ok symbols will be like mSymbols["std"] or mSymbols["gtk"] mSymbols[GetProject().Name]
+    //ok symbols will be like mSymbols["std"] or mSymbols["gtk"] mSymbols[Project().Name]
     //or if project type is null foreach opendoc mSymbol["docname"].load ...
     DSYMBOL[string] mSymbols;
 
@@ -230,26 +230,26 @@ class SYMBOLS
     void Engage()
     {
         ulong waste;
-        string[] keys = GetConfig().getKeys("SYMBOLS", waste);
+        string[] keys = Config().getKeys("SYMBOLS", waste);
 
         foreach(key; keys)
         {
-            auto tmp = GetConfig().getString("SYMBOLS", key);
+            auto tmp = Config().getString("SYMBOLS", key);
             
             Load(key, tmp);
         }
 
-        GetLog().Entry("Engaged SYMBOLS");        
+        Log().Entry("Engaged SYMBOLS");        
     }
 
     void Disengage()
     {
-        GetLog().Entry("Disengaged SYMBOLS");
+        Log().Entry("Disengaged SYMBOLS");
     }
 
     void AddCommonTagFile(string key, string TagFile)
     {
-        GetConfig().setString("SYMBOLS", key, TagFile);
+        Config().setString("SYMBOLS", key, TagFile);
     }       
 
     

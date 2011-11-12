@@ -98,7 +98,7 @@ class DOC_POP
     void Engage()
     {
         mBuilder = new Builder;
-        mBuilder.addFromFile(GetConfig.getString("DOC_POP", "glade_file","/home/anthony/.neontotem/dcomposer/docpop.glade"));
+        mBuilder.addFromFile(Config.getString("DOC_POP", "glade_file","/home/anthony/.neontotem/dcomposer/docpop.glade"));
 
         mWindow = cast(Window)mBuilder.getObject("window1");
         mWindow.setTransientFor(dui.GetWindow());
@@ -108,13 +108,13 @@ class DOC_POP
         mCurStack = -1;
         
         
-        GetLog.Entry("Engaged DOC_POP");
+        Log.Entry("Engaged DOC_POP");
 
     }
 
     void Disengage()
     {
-        GetLog.Entry("Disengaged DOC_POP");
+        Log.Entry("Disengaged DOC_POP");
     }
     
 
