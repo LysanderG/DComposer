@@ -79,6 +79,7 @@ class PROJECT_UI : ELEMENT
 
 	Entry			    mName;
 	FileChooserButton   mRootDir;
+    Label               mProPath;
 
 	CheckButton		mUseManCmdLine;
 	Entry			mManCmdLine;
@@ -134,6 +135,7 @@ class PROJECT_UI : ELEMENT
 		mTabLabel           = new Label(GetProject.Name ~" project options");
 		mName 				= cast(Entry)mProBuilder.getObject("entry1");
 		mRootDir 			= cast(FileChooserButton)mProBuilder.getObject("filechooserbutton1");
+        mProPath            = cast(Label)mProBuilder.getObject("label16");
 		mUseManCmdLine 		= cast(CheckButton)mProBuilder.getObject("checkbutton1");
 		mManCmdLine 		= cast(Entry)mProBuilder.getObject("entry3");
 		mAutoCmdLine 		= cast(Label)mProBuilder.getObject("label9");
@@ -175,7 +177,7 @@ class PROJECT_UI : ELEMENT
 
 		mName.addOnChanged(delegate void(EditableIF x) { mTabLabel.setText("Project :" ~ mName.getText());});
 		
-		mBtnApply.addOnClicked(delegate void (Button X){FillProjectData();});
+		mBtnApply.addOnClicked(delegate void (Button X){FillProjectData();FillGuiData();});
 		mBtnHide.addOnClicked(delegate void (Button X){mRootVBox.hide();});
 		mBtnDiscard.addOnClicked(delegate void (Button X){FillGuiData(), mRootVBox.hide();});
 	}
@@ -278,7 +280,7 @@ class PROJECT_UI : ELEMENT
 
     void New(Action X)
     {
-        GetProject.New("zzxproject");
+        GetProject.New(" ");
         FillGuiData();
         mRootVBox.showAll();
         dui.GetCenterPane.setCurrentPage(mRootVBox);
@@ -371,9 +373,10 @@ class PROJECT_UI : ELEMENT
 		//basics
 		mName.setText(GetProject.Name);
 		mRootDir.setFilename(GetProject.BaseDir);
-        writeln(mRootDir.getFilename(), "<<<");
-        writeln(GetProject.BaseDir);
+        mProPath.setText("Project path : " ~ GetProject.BaseDir ~ "/" ~ GetProject.Name ~ "/" ~ GetProject.Name ~ ".dpro");
+        
         GetLog.Entry(mRootDir.getFilename(),"Debug");
+
 		mUseManCmdLine.setActive(GetProject.UseManualBuild);
 		mManCmdLine.setText(GetProject.CmdLine);
 		mAutoCmdLine.setText(GetProject.BuildCommand);
@@ -406,7 +409,7 @@ class PROJECT_UI : ELEMENT
         //string TmpExtraOpts;
         //foreach(lnkopt; mProject.Get("LinkOpts"))TmpExtraOpts ~=lnkopt ~ " ";
         mMiscLinkOptions.setText(" "~GetProject.OtherArgs);
-        mDescription.getBuffer().setText(GetProject.GetFirst("DESCRIPTION"));	
+        mDescription.getBuffer().setText(GetProject.GetFirst("DESCRIPTION"));
 	}
 
     void FillProjectData()
@@ -417,7 +420,6 @@ class PROJECT_UI : ELEMENT
 		
 		GetProject.Name = mName.getText();
 		GetProject.BaseDir = mRootDir.getFilename();
-        writeln(mRootDir.getFilename(), "+++");
 
 		GetProject.UseManualBuild = cast(bool)mUseManCmdLine.getActive();
 		GetProject.CmdLine = mManCmdLine.getText();

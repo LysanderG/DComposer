@@ -20,6 +20,7 @@
 
 module historyview;
 
+import std.stdio;
 
 import dcore;
 import ui;
@@ -99,6 +100,7 @@ class HISTORY_VIEW : ELEMENT
 
         mRecentProjects.addOnItemActivated ( delegate void(RecentChooserIF x) {string str = x.getCurrentUri(); GetProject.Open(str[7..$]);}); 
 
+        mRecentFiles.addOnItemActivated(delegate void (RecentChooserIF x) {writeln(x);string str = x.getCurrentUri();writeln(str[7..$]); dui.GetDocMan.OpenDoc(str[7..$]);});
         
 
         dui.GetSidePane.appendPage(mRoot, "History");

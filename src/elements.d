@@ -17,15 +17,15 @@
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
-
-
 module elements;
+
+import std.array;
+import std.file;
+import std.string;
 
 
 import dcore;
 import ui;
-
-
 
 interface ELEMENT
 {
@@ -39,8 +39,6 @@ interface ELEMENT
     void Disengage();
 }
 
-
-
 ELEMENT[string] mElements;
 
 
@@ -49,11 +47,8 @@ void Engage()
     AcquireElements();
 
     GetLog.Entry("Engaging Elements ...");
-    foreach(E; mElements) E.Engage();
-
-    
+    foreach(E; mElements) E.Engage();    
 }
-
 
 void Disengage()
 {
@@ -61,7 +56,32 @@ void Disengage()
     foreach_reverse(E; mElements) E.Disengage();
 }
 
+void AcquireElements()
+{
+    ELEMENT tmp;
+    
+    string elementlist = readText(GetConfig.getString("ELEMENTS","element_list", "/home/anthony/projects/dcomposer2/elementlist"));
+        
+    foreach (line; elementlist.splitLines())
+    {
+        line = removechars!(string)(line, whitespace);
+        if (line.startsWith('#')) continue;
+        if (line.length < 1) continue;
 
+        tmp = cast(ELEMENT)Object.factory(line);
+        if(tmp is null) GetLog.Entry("Failed to Acquire " ~ line ~ " element!", "Error");
+        else
+        {
+            GetLog.Entry("Acquired " ~ line ~ " element.");
+            mElements[tmp.Name] = tmp;
+        }
+    }
+}
+
+
+
+
+/* old acquire elements
 void AcquireElements()
 {
     //redo this function when I learn what the hell I'm doing
@@ -121,3 +141,4 @@ void AcquireElements()
 
     //next'll be ??? projectui or dirview or search or indentation or symview or docview or ....   
 }    
+*/

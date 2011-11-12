@@ -195,7 +195,7 @@ class PROJECTD
             //or if its a path change base dir and extract name to name
             mName = baseName(nuname);
 
-            BaseDir = buildPath(BaseDir,Name);
+            //BaseDir = buildPath(BaseDir,Name);
 
             NameChanged.emit(mName);
         }
@@ -203,9 +203,11 @@ class PROJECTD
 	
         void   BaseDir(string nudir)
         {
-            mBaseDir = buildPath(nudir,Name);
-            mkdir(mBaseDir);
-            chdir(mBaseDir);
+            auto ProDir = buildPath(nudir, Name);
+            
+            mBaseDir = nudir;
+            if(!exists(ProDir))mkdir(ProDir);
+            chdir(ProDir);
             BaseDirChanged.emit(BaseDir);
         }
         string BaseDir() {return mBaseDir.idup;}
@@ -230,8 +232,8 @@ class PROJECTD
         ReadFlags(GetConfig().getString("DPROJECT","flags_file"));
         foreach ( key, L; mLists) mLists[key].clear;
         mManualCmdLine.length = 0;
-        mName = "New Project";
-        mOtherArgs = "";
+        mName = " ";
+        mOtherArgs = " ";
         mType = TARGET.APP;
         mUseManualCmdLine = false;    
     }
@@ -239,7 +241,8 @@ class PROJECTD
 	
 	void Save()
 	{
-		string Pfile = std.path.buildPath(BaseDir, mName);
+        auto ProDir = buildPath(BaseDir, Name);
+		string Pfile = buildPath(ProDir, Name);
 		Pfile = Pfile.setExtension("dpro");
 		string jstring;
 		JSONValue jval;
@@ -326,9 +329,11 @@ class PROJECTD
         scope(failure)
         {
             GetLog.Entry("Failed to open Project : " ~ pfile, "Error");
+            Close();
             return;
         }
 		auto jstring = readText(pfile);
+        
 		
 		auto jval = parseJSON(jstring);
 		
@@ -364,26 +369,29 @@ class PROJECTD
 				case JSON_TYPE.STRING :
 				{
 					//name basedir otherargs
-					if(key == "name") 		Name      	= j.str;
-					if(key == "basedir") 	BaseDir   	= j.str;
-					if(key == "other")		OtherArgs 	= j.str;
+					if(key == "name") 		mName      	= j.str;
+					if(key == "basedir") 	mBaseDir   	= j.str;
+					if(key == "other")		mOtherArgs 	= j.str;
 					break;
 				}
 				case JSON_TYPE.INTEGER :
 				{
 					if(key == "version")	mVersion 	= j.integer;
-					if(key == "type")		Type 		= cast (TARGET) j.integer;
+					if(key == "type")		mType 		= cast (TARGET) j.integer;
 					break;
 				}
 				
 				default : break;
 			}
 		}
+
         if(mVersion > PROJECT_VERSION)Version.emit();
+
+        chdir(buildPath(BaseDir, Name));
 		Opened.emit(pfile);
 
         CreateTags();
-		
+
 	}
 
     void New(string nuName, TARGET nuType = TARGET.APP, string nuDirectory ="./")
@@ -397,10 +405,10 @@ class PROJECTD
         //this = new PROJECTD;
         Name = nuName;
         Type = nuType;
-        BaseDir = GetConfig.getString("DPROJECT","default_project_folder","../junkpile");
-        BaseDir = buildPath(BaseDir,Name);
-        mkdir(BaseDir);
-        chdir(BaseDir);
+        BaseDir = GetConfig.getString("DPROJECT","default_project_folder","/home/anthony/projects");
+        auto ProDir = buildPath(BaseDir,Name);
+        if(!exists(ProDir))mkdir(ProDir);
+        chdir(ProDir);
     }
     	
 	string BuildCommand()

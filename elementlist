@@ -1,0 +1,19 @@
+#   This file list all elements to be included in compilation.
+#   to exclude an element prepend '#' to the relevant line
+#   all elements SHOULD be able to run independantly
+#   at the very least without crashing.
+
+#   ELEMENTS 
+
+logui.LOG_UI
+searchui.SEARCH_UI
+projectdui.PROJECT_UI
+symbolview.SYMBOL_VIEW
+indent.BRACE_INDENT
+symcompletion.SYMBOL_COMPLETION
+scopelist.SCOPE_LIST
+calltips.CALL_TIPS
+terminalui.TERMINAL_UI
+proview.PROJECT_VIEW
+dirview.DIR_VIEW
+historyview.HISTORY_VIEW

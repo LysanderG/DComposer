@@ -23,13 +23,14 @@ module symcompletion;
 import dcore;
 import ui;
 import elements;
+import docman;
+import document;
 
 import std.stdio;
 import std.algorithm;
 import std.ascii;
 
-import docman;
-import document;
+
 
 import gtk.TextIter;
 import gsv.SourceBuffer;
