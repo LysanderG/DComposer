@@ -17,3 +17,4 @@ terminalui.TERMINAL_UI
 proview.PROJECT_VIEW
 dirview.DIR_VIEW
 historyview.HISTORY_VIEW
+messageui.MESSAGE_UI

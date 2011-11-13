@@ -330,7 +330,7 @@ class PROJECT_UI : ELEMENT
         }
     }
 
-    void Build(Action x)
+    /*void Build(Action x)
     {
         //hey you stupid ... you have this same function in dproject.d  no reason to have it here much less use it!
 
@@ -350,6 +350,12 @@ writeln(Project.CmdLine);
             Log.Entry(SimpleXML.escapeText(chomp(L), -1));
         }
         scope(exit) Process.close();
+    }*/
+
+    void Build(Action x)
+    {
+        dui.GetDocMan.SaveAllDocs();
+        Project.Build();
     }
                
     void Run(Action X)

@@ -498,13 +498,16 @@ writeln(tagcmd);
     }
 
     void Build()
-    {        
+    {
+        BuildMsg.emit(`BEGIN`);
+        BuildMsg.emit(BuildCommand());   
         std.stdio.File Process = File("tmp","w");
 
-        scope(failure)foreach(string L; lines(Process) )Log().Entry(SimpleXML.escapeText( chomp(L), -1),"Error");
+        //scope(failure)foreach(string L; lines(Process) )Log().Entry(SimpleXML.escapeText( chomp(L), -1),"Error");
         Process.popen("sh /home/anthony/.neontotem/dcomposer/childrunner.sh " ~ BuildCommand() ~ " 2>&1 ", "r");
 
         string[] output;
+
         foreach(string L; lines(Process) )
         {
            BuildMsg.emit(chomp(L));
