@@ -302,7 +302,7 @@ class PROJECT_UI : ELEMENT
 		if(rt != ResponseType.GTK_RESPONSE_OK) return;
         
         Project.Open(fcd.getFilename);
-        chdir(Project.BaseDir);
+        //chdir(Project.BaseDir);
         FillGuiData();
 
         Config.setString("DPROJECT", "last_open_dialog_folder", fcd.getCurrentFolder());
@@ -338,6 +338,8 @@ class PROJECT_UI : ELEMENT
         std.stdio.File Process = File("tmp","w");
 
         scope(failure)foreach(string L; lines(Process) )Log.Entry(chomp(L),"Error");
+writeln(getcwd());
+writeln(Project.CmdLine);
         Process.popen("sh /home/anthony/.neontotem/dcomposer/childrunner.sh " ~ Project.CmdLine ~ " 2>&1 ", "r");
 
         string[] output;

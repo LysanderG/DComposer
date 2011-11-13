@@ -196,7 +196,7 @@ class PROJECTD
             mName = baseName(nuname);
 
             //BaseDir = buildPath(BaseDir,Name);
-
+writeln("**"~mName);
             NameChanged.emit(mName);
         }
         string Name() {return mName.idup;}
@@ -417,10 +417,12 @@ class PROJECTD
         if(mUseManualCmdLine) return mManualCmdLine;
         
         string cmdline = "dmd ";
-		
+
+        auto ProDir = buildPath(mBaseDir, mName);
+        
 		foreach(s; mLists[SRCFILES])
 		{
-			auto tstr = relativePath(s, mBaseDir);
+			auto tstr = relativePath(s, ProDir);
 			tstr = buildNormalizedPath(tstr);
 			cmdline ~= tstr ~ " ";
 			//cmdline ~= s ~ " ";
@@ -487,6 +489,7 @@ class PROJECTD
         string tagcmd = "dmd -c -o- -X -Xf"~ Name ~".tags -D -Dftmp.doc ";
         foreach(projectsrc; Get(SRCFILES)) {tagcmd ~= projectsrc ~ " ";}
         foreach(importpath; Get(INCPATHS)) {tagcmd ~= "-I"~importpath ~ " ";}
+writeln(tagcmd);        
 
         return system(tagcmd);
 

@@ -47,23 +47,17 @@ import  gtk.MessageDialog;
 import  gdk.Event;
 import  gtk.ToggleAction;
 
-
 MAIN_UI dui;
-
 
 static this()
 {
     dui = new MAIN_UI;
 }
 
-
-
 class MAIN_UI
 {
 
-
     private :
-
 
     Builder		mBuilder;
 
@@ -82,14 +76,11 @@ class MAIN_UI
     DOCMAN      mDocMan;
     DOC_POP     mDocPop;
 
-
-
     public :
 
     void Engage(string[] CmdArgs)
     {
 
-        
         Main.initMultiThread (CmdArgs);
 
         EngageWidgets();
@@ -100,8 +91,6 @@ class MAIN_UI
         mDocMan     = new DOCMAN; 
         mDocMan.Engage();
 
-
-
         mWindow.show();
         Log().Entry("testing logui", "Debug");
         Log().Entry("Engaged UI");
@@ -110,11 +99,9 @@ class MAIN_UI
     void Disengage()
     {
         mDocPop.Disengage();
-        mDocMan.Disengage();
-        
+        mDocMan.Disengage();        
         Log().Entry("Disengaged UI");
     }
-
 
     void Run()
     {
