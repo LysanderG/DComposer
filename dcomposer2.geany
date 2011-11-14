@@ -16,14 +16,17 @@ long_line_behaviour=1
 long_line_column=120
 
 [files]
-current_page=6
-FILE_NAME_0=1847;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/messageui.d;0;4
+current_page=8
+FILE_NAME_0=2123;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/messageui.d;0;4
 FILE_NAME_1=14171;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/dproject.d;0;4
 FILE_NAME_2=7673;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/proview.d;0;4
 FILE_NAME_3=0;Sh;0;16;0;1;0;/home/anthony/projects/dcomposer2/builddcomp.sh;0;4
 FILE_NAME_4=0;None;0;16;0;1;0;/home/anthony/projects/dcomposer2/elementlist;0;4
 FILE_NAME_5=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/historyview.d;0;4
 FILE_NAME_6=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/indent.d;0;4
+FILE_NAME_7=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/terminalui.d;0;4
+FILE_NAME_8=63;Sh;0;16;0;1;0;/home/anthony/.neontotem/dcomposer/childrunner.sh;0;4
+FILE_NAME_9=8846;D;0;16;0;1;0;/usr/include/d/dmd/phobos/std/signals.d;0;4
 
 [build-menu]
 DFT_01_LB=_Build

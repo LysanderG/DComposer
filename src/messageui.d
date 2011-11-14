@@ -36,6 +36,7 @@ import gtk.TreeViewColumn;
 import gtk.TreeIter;
 import gtk.ListStore;
 import gtk.CellRendererText;
+import gtk.TreePath;
 
 
 class MESSAGE_UI :ELEMENT
@@ -53,6 +54,7 @@ class MESSAGE_UI :ELEMENT
 
     void WatchDMD(string line)
     {
+
         scope(exit)mErrorView.setModel(mStore);
         writeln("line = ",line);
         if(line == `BEGIN`)
@@ -86,6 +88,18 @@ class MESSAGE_UI :ELEMENT
         mStore.setValue(ti, 1, number);
         mStore.setValue(ti, 2, m3);
     }
+
+    void RowActivated(TreePath tp, TreeViewColumn tvc, TreeView tv)
+    {
+        TreeIter ti = new TreeIter;
+
+        mStore.getIter(ti, tp);
+        string file = mStore.getValueString(ti, 0);
+        int line = mStore.getValueInt(ti, 1) -1;
+
+        dui.GetDocMan.OpenDoc(file, line);
+    }
+        
     
     public:
 
@@ -115,6 +129,8 @@ class MESSAGE_UI :ELEMENT
         mErrorView.insertColumn(new TreeViewColumn("Line", new CellRendererText, "text", 1), -1);
         mErrorView.insertColumn(new TreeViewColumn("Error",new CellRendererText, "text", 2), -1);
 
+        mErrorView.addOnRowActivated (&RowActivated);
+        
         mScrWin = new ScrolledWindow;
         mScrWin.add(mErrorView);
         mRoot = new Viewport(null, null);
