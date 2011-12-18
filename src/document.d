@@ -91,6 +91,19 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         return false;
     }
 
+    void SetBreakPoint(TextIter ti, GdkEvent * event, SourceView sv)
+    {
+        auto x = getBuffer.getSourceMarksAtIter(ti,"breakpoint");
+        if(x is null)
+        {
+            getBuffer.createSourceMark(null, "breakpoint", ti);
+            BreakPoint.emit("add", DisplayName, ti.getLine());
+            return;
+        }
+        getBuffer.removeSourceMarks(ti, ti, "breakpoint");
+        BreakPoint.emit("remove", DisplayName, ti.getLine());
+    }        
+
     
 
     public:
@@ -271,6 +284,10 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
         setSmartHomeEnd(SourceSmartHomeEndType.AFTER);
         
+        setShowLineMarks(true);
+        setMarkCategoryIconFromStock ("breakpoint", "gtk-yes");
+        addOnLineMarkActivated(&SetBreakPoint);
+        BreakPoint.connect(&Debugger.CatchBreakPoint);
 
         getBuffer.createTag("hiliteback", "background", "green");
         getBuffer.createTag("hilitefore", "foreground", "yellow");
@@ -348,7 +365,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
     mixin Signal!(TextIter, string, TextBuffer) NewLine;
     mixin Signal!(TextIter, string, TextBuffer) CloseBrace;
     mixin Signal!(DOCUMENT, TextIter, string, SourceBuffer) TextInserted;
-
+    mixin Signal!(string, string, int) BreakPoint;
 }
 
 //multiread as in multiple encoding schemes

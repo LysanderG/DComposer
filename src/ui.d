@@ -169,7 +169,6 @@ class MAIN_UI
         AddMenuItem("_View", ViewExtraPaneAct.createMenuItem());
         AddMenuItem("_View", ViewStatusBarAct.createMenuItem());
 
-        writeln(mIndicator, Project());
         Project().NameChanged.connect(&WatchProjectName);
     }
     

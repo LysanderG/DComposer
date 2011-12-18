@@ -56,15 +56,12 @@ class MESSAGE_UI :ELEMENT
     {
 
         scope(exit)mErrorView.setModel(mStore);
-        writeln("line = ",line);
         if(line == `BEGIN`)
         {
             mStore.clear();
             return;
         }
         auto m = line.match(regex(`\(\d+\)`));
-        writeln(m.empty);
-
 
         TreeIter ti = new TreeIter;
         if(m.empty)
@@ -76,7 +73,6 @@ class MESSAGE_UI :ELEMENT
         auto m1 = m.pre;
         auto m2 = m.hit;
         auto m3 = m.post;
-        writeln (m1, m2, m3);
         string lno = m2[1..$-1];
        
         int number = to!int(lno);

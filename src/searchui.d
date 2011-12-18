@@ -127,7 +127,6 @@ class SEARCH_UI : ELEMENT
         //if(mFind.getText() == mFindComboBox.getActiveText())return;
 
         //TreeIter ti = new TreeIter;
-        if(TI is null)writeln("aaaaarrrrgggghhhh");
         mFindList.append(TI);
         mFindList.setValue(TI,0, mFind.getText());
 
@@ -259,7 +258,6 @@ class SEARCH_UI : ELEMENT
             markup[2] = SimpleXML.escapeText( SplitText[LineNo][(offset + needle.length) .. $], -1);
 
             
-            if(TI is null) writeln("ddddddaaaaaaammmmmmnnnnn");
             TI = new TreeIter;
             mResultsList.append(TI);
             mResultsList.setValue(TI, 0, tmpdoc.DisplayName);
@@ -316,7 +314,7 @@ class SEARCH_UI : ELEMENT
         if(!mResultsList.iterIsValid(TI))
         {
             FillResultsList();
-            writeln("!!!!!!!!!!");return;
+            return;
         }
 
         string FileName = mResultsList.getValueString(TI, 3);

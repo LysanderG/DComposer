@@ -196,7 +196,6 @@ class PROJECTD
             mName = baseName(nuname);
 
             //BaseDir = buildPath(BaseDir,Name);
-writeln("**"~mName);
             NameChanged.emit(mName);
         }
         string Name() {return mName.idup;}
@@ -232,7 +231,7 @@ writeln("**"~mName);
         ReadFlags(Config().getString("DPROJECT","flags_file"));
         foreach ( key, L; mLists) mLists[key].clear;
         mManualCmdLine.length = 0;
-        mName = " ";
+        mName = "";
         mOtherArgs = " ";
         mType = TARGET.APP;
         mUseManualCmdLine = false;    
@@ -388,6 +387,7 @@ writeln("**"~mName);
         if(mVersion > PROJECT_VERSION)Version.emit();
 
         chdir(buildPath(BaseDir, Name));
+        NameChanged.emit(mName);//sure this was here before but I removed it for some reason ... now its back see what it messes up
 		Opened.emit(pfile);
 
         CreateTags();
@@ -489,7 +489,6 @@ writeln("**"~mName);
         string tagcmd = "dmd -c -o- -X -Xf"~ Name ~".tags -D -Dftmp.doc ";
         foreach(projectsrc; Get(SRCFILES)) {tagcmd ~= projectsrc ~ " ";}
         foreach(importpath; Get(INCPATHS)) {tagcmd ~= "-I"~importpath ~ " ";}
-writeln(tagcmd);        
 
         return system(tagcmd);
 
@@ -613,7 +612,7 @@ writeln(tagcmd);
     mixin Signal!(TARGET ) TypeChanged;
     mixin Signal!()        Version;
     mixin Signal!(string ) BuildMsg;
-    mixin Signal!(string)        TagsUpdated;
+    mixin Signal!(string)  TagsUpdated;
 	
 }	
 

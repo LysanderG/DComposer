@@ -280,7 +280,7 @@ class PROJECT_UI : ELEMENT
 
     void New(Action X)
     {
-        Project.New(" ");
+        Project.New("NewProject");
         FillGuiData();
         mRootVBox.showAll();
         dui.GetCenterPane.setCurrentPage(mRootVBox);

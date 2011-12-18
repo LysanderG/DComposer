@@ -5,11 +5,13 @@ indent_type=0
 indent_hard_tab_width=8
 detect_indent=false
 indent_mode=3
+detect_indent_width=false
 
 [project]
 name=dcomposer2
 base_path=/home/anthony/projects/dcomposer2/
 description=
+file_patterns=*;
 
 [long line marker]
 long_line_behaviour=1
@@ -17,16 +19,22 @@ long_line_column=120
 
 [files]
 current_page=7
-FILE_NAME_0=2123;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/messageui.d;0;4
-FILE_NAME_1=14171;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/dproject.d;0;4
-FILE_NAME_2=7673;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/proview.d;0;4
-FILE_NAME_3=0;Sh;0;16;0;1;0;/home/anthony/projects/dcomposer2/builddcomp.sh;0;4
-FILE_NAME_4=0;None;0;16;0;1;0;/home/anthony/projects/dcomposer2/elementlist;0;4
-FILE_NAME_5=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/historyview.d;0;4
-FILE_NAME_6=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/indent.d;0;4
-FILE_NAME_7=0;D;0;16;0;1;0;/home/anthony/projects/dcomposer2/src/terminalui.d;0;4
-FILE_NAME_8=63;Sh;0;16;0;1;0;/home/anthony/.neontotem/dcomposer/childrunner.sh;0;4
-FILE_NAME_9=8846;D;0;16;0;1;0;/usr/include/d/dmd/phobos/std/signals.d;0;4
+FILE_NAME_0=5017;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsearchui.d;0;4
+FILE_NAME_1=182;Conf;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fglade%2Fdcomposer.cfg;0;4
+FILE_NAME_2=1443;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdebugger.d;0;4
+FILE_NAME_3=5004;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdebugui.d;0;4
+FILE_NAME_4=6195;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fui.d;0;4
+FILE_NAME_5=4421;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbols.d;0;4
+FILE_NAME_6=2489;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fproview.d;0;4
+FILE_NAME_7=10383;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fprojectdui.d;0;4
+FILE_NAME_8=1527;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fmessageui.d;0;4
+FILE_NAME_9=3082;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Flog.d;0;4
+FILE_NAME_10=3236;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fhistoryview.d;0;4
+FILE_NAME_11=12399;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdproject.d;0;4
+FILE_NAME_12=11513;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdocument.d;0;4
+FILE_NAME_13=4273;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdocpop.d;0;4
+FILE_NAME_14=4205;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdirview.d;0;4
+FILE_NAME_15=9734;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdocman.d;0;4
 
 [build-menu]
 DFT_01_LB=_Build
@@ -39,3 +47,20 @@ NF_00_WD=
 EX_00_LB=_Execute
 EX_00_CM=%d/../dcomposer
 EX_00_WD=
+
+[VTE]
+last_dir=/home/anthony/projects/dcomposer2/src
+
+[gproject]
+source_patterns=*;
+header_patterns=*.di;
+ignored_dirs_patterns=.*;CVS;
+generate_tags=true
+
+[debugger]
+target=/home/anthony/projects/dcomposer2/dcomposer
+debugger=GDB
+arguments=
+envvar_count=0
+watches_count=0
+breaks_count=0

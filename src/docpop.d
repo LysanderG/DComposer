@@ -176,7 +176,6 @@ class DOC_POP
 
     void Close(int type)
     {
-        writeln( "mcurstack = ", mCurStack);
         if(mCurStack < 0) return Hide();
         if(mStack[mCurStack].Type == type)
         {
@@ -237,7 +236,6 @@ class DOC_POP
                 if(mCurrentType == TYPE_SYMCOM) docX.getBuffer.delet(tiStart, ti);                
                 
                 docX.getBuffer().insert(ti, tple[1]);
-                writeln(repl, "2");
                 Close(TYPE_SYMCOM);
             }
 

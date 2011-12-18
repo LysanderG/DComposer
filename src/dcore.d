@@ -25,9 +25,9 @@ module dcore;
 
 import config;
 import log;
-
 import dproject;
 import symbols;
+import debugger;
 
 
 import std.stdio;
@@ -38,6 +38,7 @@ CONFIG		mConfig;
 LOG 		mLog;
 PROJECTD	mProject;
 SYMBOLS	    mSymbols;
+DEBUGGER    mDebugger;
 
 
 static this()
@@ -46,6 +47,7 @@ static this()
 	mLog	    = new LOG;
 	mProject    = new PROJECTD;
 	mSymbols    = new SYMBOLS;
+    mDebugger   = new DEBUGGER;
 }
 
 
@@ -57,12 +59,14 @@ void Engage(string[] CmdArgs)
 	mLog		.Engage();
 	mProject    .Engage();
 	mSymbols    .Engage();
+    mDebugger   .Engage();
 
     Log().Entry("Engaged dcore");
 }
 
 void Disengage()
 {
+    mDebugger.Disengage();
 	mSymbols .Disengage();
 	mProject .Disengage();
 	mConfig  .Disengage();
@@ -74,3 +78,4 @@ CONFIG		Config() {return mConfig;}
 LOG 		Log()    {return mLog;}
 PROJECTD	Project(){return mProject;}
 SYMBOLS		Symbols(){return mSymbols;}
+DEBUGGER    Debugger(){return mDebugger;}

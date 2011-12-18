@@ -123,12 +123,10 @@ class SYMBOLS
             foreach(kid; symX.Children) _FindScope(kid, scopeX);
 
         }
-        writeln("scope == ",Scopes);
         foreach (sym; mSymbols)
         {
             _FindScope(sym, Scopes);
         }
-        foreach(R; RV) writeln(R.Path);
         return RV;
     }
 
@@ -230,6 +228,7 @@ class SYMBOLS
     void Engage()
     {
         ulong waste;
+                
         string[] keys = Config().getKeys("SYMBOLS", waste);
 
         foreach(key; keys)

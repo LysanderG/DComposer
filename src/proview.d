@@ -22,6 +22,9 @@ module proview;
 
 import std.path;
 import std.conv;
+import std.stdio;
+import core.memory;
+
 
 import elements;
 import ui;
@@ -43,6 +46,8 @@ import gtk.TreeViewColumn;
 import gtk.ToolButton;
 import gtk.FileChooserDialog;
 import gtk.CellRendererText;
+
+import gobject.Value;
 
 class PROJECT_VIEW : ELEMENT
 {
@@ -70,14 +75,31 @@ class PROJECT_VIEW : ELEMENT
     
     void UpdateList(ComboBox X)
     {
+        Log.Entry("updatelist");
+        GC.disable;
+        
         TreeIter ti = new TreeIter;
         X.getActiveIter(ti);
 
         string key = mComboStore.getValueString(ti, 0);
+
+        if( (key == VERSIONS ) || (key == DEBUGS))
+        {
+            mCellText.setProperty("mode", CellRendererMode.MODE_EDITABLE);
+            mCellText.setProperty("editable",true);
+        }
+        else
+        {
+            mCellText.setProperty("editable", false);
+            mCellText.setProperty("mode",CellRendererMode.MODE_ACTIVATABLE);
+        }
+
+        Value x = new Value(GType.INT);
+        mCellText.getProperty("mode", x);
+                        
         auto values = Project.Get(key);
 
-        if( (key == VERSIONS ) || (key == DEBUGS)) mCellText.setProperty("mode", CellRendererMode.MODE_EDITABLE);
-        else mCellText.setProperty("mode",CellRendererMode.MODE_ACTIVATABLE);
+
 
         mViewStore.clear();
         
@@ -89,12 +111,29 @@ class PROJECT_VIEW : ELEMENT
             mViewStore.setValue(ti, 1, val);
             
         }
+        GC.enable;
     }
 
     void UpdateList(string key, string[] Values)
     {
-        TreeIter ti = new TreeIter;
+        version(all)
+        {
+        GC.disable;
+        if( (key == VERSIONS ) || (key == DEBUGS))
+        {
+            mCellText.setProperty("mode", CellRendererMode.MODE_EDITABLE);
+            mCellText.setProperty("editable",true);
+        }
+        else
+        {
+            mCellText.setProperty("editable", false);
+            mCellText.setProperty("mode",CellRendererMode.MODE_ACTIVATABLE);
+        }
 
+        Value x = new Value(GType.INT);
+        mCellText.getProperty("mode", x);
+                
+        TreeIter ti = new TreeIter;
         if(mKeyBox.getActiveIter(ti))
         {
             string currentKey = mComboStore.getValueString(ti,0);
@@ -108,11 +147,11 @@ class PROJECT_VIEW : ELEMENT
                     mViewStore.setValue(ti, 1, item);
                 }
             }
-            if( (key == VERSIONS ) || (key == DEBUGS)) mCellText.setProperty("mode", CellRendererMode.MODE_EDITABLE);
-            else mCellText.setProperty("mode",CellRendererMode.MODE_ACTIVATABLE);
+
 
         }
-   
+        GC.enable;
+        }
         return;
     }
 
@@ -156,6 +195,7 @@ class PROJECT_VIEW : ELEMENT
 
     void Add(ToolButton x)
     {
+        Log.Entry("proview.Add");
         string CurrentKey;
         TreeIter ti = new TreeIter;
         if(mKeyBox.getActiveIter(ti))
@@ -246,6 +286,7 @@ class PROJECT_VIEW : ELEMENT
     }
     void AddAIdentifier(string CurrentKey)
     {
+        
         TreeIter ti = new TreeIter;
         mViewStore.append(ti);
         mViewStore.setValue(ti, 0, "NewValue");
@@ -255,11 +296,12 @@ class PROJECT_VIEW : ELEMENT
 
     void EditIdentifier(string Path, string text, CellRendererText crt)
     {
+
         TreeIter ti = new TreeIter;
         if(mKeyBox.getActiveIter(ti))
         {
             string CurrentKey = mComboStore.getValueString(ti,0);
-            Project.Add(CurrentKey, text);
+            if(mKeyBox.getActive > 5) Project.Add(CurrentKey, text);
         }
     }
         
@@ -302,20 +344,28 @@ class PROJECT_VIEW : ELEMENT
         mCellText   = cast(CellRendererText) mBuilding.getObject("cellrenderertext2");
 
 
-        mAdd.addOnClicked(&Add);
-        mRemove.addOnClicked(&Remove);    
+          
 
         mCellText.addOnEdited(&EditIdentifier);
 
         AppendToolItems();
-
-        mKeyBox.addOnChanged(&UpdateList);
-        mListView.addOnRowActivated(&OpenFile);
         
+        mKeyBox.addOnChanged(&UpdateList);
+        
+        mListView.addOnRowActivated(&OpenFile);
+
+        
+        mRemove.addOnClicked(&Remove); 
+        mAdd.addOnClicked(&Add);
         Project.ListChanged.connect(&UpdateList);
         Project.NameChanged.connect(&UpdateName);
 
+        mKeyBox.setActive(-1);
+        UpdateList(mKeyBox);
+        
+
         mRoot.showAll();
+        mToolBar.setFocusChild(mRemove);
 
         dui.GetSidePane.appendPage(mRoot, "Project");
 

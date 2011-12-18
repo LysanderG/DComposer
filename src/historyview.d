@@ -100,7 +100,7 @@ class HISTORY_VIEW : ELEMENT
 
         mRecentProjects.addOnItemActivated ( delegate void(RecentChooserIF x) {string str = x.getCurrentUri(); Project.Open(str[7..$]);}); 
 
-        mRecentFiles.addOnItemActivated(delegate void (RecentChooserIF x) {writeln(x);string str = x.getCurrentUri();writeln(str[7..$]); dui.GetDocMan.OpenDoc(str[7..$]);});
+        mRecentFiles.addOnItemActivated(delegate void (RecentChooserIF x) {string str = x.getCurrentUri(); dui.GetDocMan.OpenDoc(str[7..$]);});
         
 
         dui.GetSidePane.appendPage(mRoot, "History");

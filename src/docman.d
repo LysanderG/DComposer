@@ -89,12 +89,10 @@ class DOCMAN
         string[] LastSessionFiles = Config().getString("DOCMAN", "files_last_session").split(";");
         string[] CmdLineFiles = Config().getString("DOCMAN", "files_to_open").split(";");
         
-        writeln("session ", LastSessionFiles);
-        writeln("cmdline", CmdLineFiles);
+
 
         CreateActions();
         OpenDocs(LastSessionFiles);
-        writeln( "huh?");
         OpenDocs(CmdLineFiles);
         
         Log.Entry("Engaged DOCMAN");
@@ -128,7 +126,6 @@ class DOCMAN
         DOCUMENT_IF docX;
 
         auto ocnt = dui.GetCenterPane().getNPages();
-        writeln("docs open while exiting = ",ocnt);
         while(ocnt > 0)
         {
             ocnt--;
@@ -139,7 +136,6 @@ class DOCMAN
             //if(ocnt != 0) DocsToOpenNextSession ~= ";";
         }
         DocsToOpenNextSession = DocsToOpenNextSession.chomp(";");
-        writeln(DocsToOpenNextSession);
         if(DocsToOpenNextSession.empty)DocsToOpenNextSession =  "";
         Config().setString("DOCMAN", "files_last_session", DocsToOpenNextSession);
         Config().setString("DOCMAN", "files_to_open","");
@@ -239,7 +235,6 @@ class DOCMAN
             //stuck again ... for now just able to open DOCUMENTs
             //gotta change this ... (maybe later dcomposer will open rad gui form builders or images or anything)
             auto DocX = new DOCUMENT;
-            writeln("****" , DocX);
             if(DocX.Open(f))AppendDocument(DocX);
             else throw new Exception("bad file?");
         }
@@ -312,15 +307,11 @@ class DOCMAN
  
         if(FullFileName is null)
         {
-            writeln("1hellO");
             int pagenumber = dui.GetCenterPane().getCurrentPage();
-            writeln("2hellO");
             docX = GetDocX(pagenumber);
-                        writeln("2.5hellO, ",docX);
 
             if (docX is null) throw new Exception("Nothing to Close");
             scope(failure) return;
-            writeln("3hellO");
             if(docX.Close())dui.GetCenterPane().removePage(pagenumber);
             return;
         }

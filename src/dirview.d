@@ -90,9 +90,16 @@ class DIR_VIEW : ELEMENT
         mDirLabel.setText(mFolder);        
         mStore.clear();        
 
-        auto Contents = dirEntries(mFolder, mFilter.getText(), SpanMode.shallow);
+        version(DMD)
+        {
+            auto Contents = dirEntries(mFolder, mFilter.getText(), SpanMode.shallow);
+        }
+        version(GDMD)
+        {
+            auto Contents = dirEntries(mFolder, SpanMode.shallow);
+        }
 
-        foreach(item; Contents)
+        foreach(DirEntry item; Contents)
         {
             if((!mHiddenBtn.getActive) && (baseName(item.name)[0] == '.')) continue;
             mStore.append(ti);
@@ -131,7 +138,6 @@ class DIR_VIEW : ELEMENT
         if(!mStore.getIter(ti, tp)) return;
 
         string type = mStore.getValueString(ti, 0);
-        writeln(type);
 
         if(type == " ") Folder = buildPath(mFolder , mStore.getValueString(ti,1));
         if(type == " ") dui.GetDocMan.OpenDoc(buildPath(mFolder, mStore.getValueString(ti,1)));
@@ -166,7 +172,6 @@ class DIR_VIEW : ELEMENT
     @property void Folder(string nuFolder)
     {
         mFolder = nuFolder;
-        writeln(mFolder);
         Refresh();
     }
     
