@@ -95,9 +95,10 @@ class PROJECTD
 {
 	private :
 
-	long 			mVersion;
-	string			mName;
-	string			mBaseDir;
+	long 			mVersion;                       //version of the saved project file
+	string			mName;                          //name of the project -- no extensions or naught
+	string			mProjectPath;                    //the projects directory  --> mProjectsRoot/mName/mName.dpro (usually)
+    string          mSystemRoot;                  //the default root directory for all projects (for me its ~/projects/)
 	TARGET			mType;
 	
 	LIST[string]	mLists;
@@ -133,12 +134,15 @@ class PROJECTD
 	{
 		mVersion = PROJECT_VERSION;
 		mName = "";
+        mSystemRoot = Config.getString("DPROJECT", "root_projects_folder", "/home/anthony/projects");
+        mProjectPath = buildPath(mSystemRoot, ".");
+        
 		mType = TARGET.NULL;
-		mBaseDir =absolutePath( getcwd());
+		//mBaseDir =absolutePath( getcwd());
 		
 		mUseManualCmdLine = false;
-        mManualCmdLine = " ";
-        mOtherArgs = " ";
+        mManualCmdLine = "";
+        mOtherArgs = "";
 		
 		//DEFAULT KEYS
 		AddList(SRCFILES);
@@ -200,16 +204,19 @@ class PROJECTD
         }
         string Name() {return mName.idup;}
 	
-        void   BaseDir(string nudir)
+        void   ProjectDir(string nudir)
         {
-            auto ProDir = buildPath(nudir, Name);
-            
-            mBaseDir = nudir;
-            if(!exists(ProDir))mkdir(ProDir);
-            chdir(ProDir);
-            BaseDirChanged.emit(BaseDir);
+            scope(failure)Log.Entry("Invalid Project Path.", "ERROR");
+
+            mProjectPath = buildPath(nudir, mName);
+            writeln( "dproject ProjectDir = ", mProjectPath);
+            if(!exists(mProjectPath)) mkdir(mProjectPath);
+            chdir(mProjectPath);
+            BaseDirChanged.emit(mProjectPath);
         }
-        string BaseDir() {return mBaseDir.idup;}
+            
+        string ProjectDir() {return mProjectPath.idup;}
+        
 
         bool UseManualBuild(){return mUseManualCmdLine;}
         void UseManualBuild(bool NuVal){mUseManualCmdLine = NuVal;}
@@ -227,7 +234,8 @@ class PROJECTD
         Save();
 
         mVersion = PROJECT_VERSION;
-        mBaseDir = Config.getString("DPROJECT", "default_project_folder", "/home/anthony/projects");
+        mSystemRoot = Config.getString("DPROJECT", "root_projects_folder", "/home/anthony/projects");
+        mProjectPath = mSystemRoot;
         ReadFlags(Config().getString("DPROJECT","flags_file"));
         foreach ( key, L; mLists) mLists[key].clear;
         mManualCmdLine.length = 0;
@@ -240,8 +248,8 @@ class PROJECTD
 	
 	void Save()
 	{
-        auto ProDir = buildPath(BaseDir, Name);
-		string Pfile = buildPath(ProDir, Name);
+        
+		string Pfile = mProjectPath;
 		Pfile = Pfile.setExtension("dpro");
 		string jstring;
 		JSONValue jval;
@@ -258,7 +266,7 @@ class PROJECTD
 		
 		jval.object["basedir"] 		= JSONValue();
 		jval.object["basedir"].type	= JSON_TYPE.STRING;
-		jval.object["basedir"].str	= mBaseDir;
+		jval.object["basedir"].str	= mProjectPath;
 		
 		jval.object["type"] 		= JSONValue();
 		jval.object["type"].type	= JSON_TYPE.INTEGER;
@@ -325,6 +333,7 @@ class PROJECTD
 	
 	void Open(string pfile)
 	{
+        //Close();
         scope(failure)
         {
             Log.Entry("Failed to open Project : " ~ pfile, "Error");
@@ -369,7 +378,7 @@ class PROJECTD
 				{
 					//name basedir otherargs
 					if(key == "name") 		mName      	= j.str;
-					if(key == "basedir") 	mBaseDir   	= j.str;
+					if(key == "basedir") 	mProjectPath= j.str;
 					if(key == "other")		mOtherArgs 	= j.str;
 					break;
 				}
@@ -385,9 +394,12 @@ class PROJECTD
 		}
 
         if(mVersion > PROJECT_VERSION)Version.emit();
-
-        chdir(buildPath(BaseDir, Name));
+        
+        chdir(mProjectPath);
+        writeln("here");
         NameChanged.emit(mName);//sure this was here before but I removed it for some reason ... now its back see what it messes up
+        BaseDirChanged.emit(mProjectPath);
+        writeln("emitted basedirchanged ", mProjectPath);
 		Opened.emit(pfile);
 
         CreateTags();
@@ -405,10 +417,8 @@ class PROJECTD
         //this = new PROJECTD;
         Name = nuName;
         Type = nuType;
-        BaseDir = Config.getString("DPROJECT","default_project_folder","/home/anthony/projects");
-        auto ProDir = buildPath(BaseDir,Name);
-        if(!exists(ProDir))mkdir(ProDir);
-        chdir(ProDir);
+        mProjectPath = buildPath(mSystemRoot, Name);
+
     }
     	
 	string BuildCommand()
@@ -418,11 +428,11 @@ class PROJECTD
         
         string cmdline = "dmd ";
 
-        auto ProDir = buildPath(mBaseDir, mName);
+        
         
 		foreach(s; mLists[SRCFILES])
 		{
-			auto tstr = relativePath(s, ProDir);
+			auto tstr = relativePath(s, mProjectPath);
 			tstr = buildNormalizedPath(tstr);
 			cmdline ~= tstr ~ " ";
 			//cmdline ~= s ~ " ";

@@ -119,7 +119,7 @@ class DIR_VIEW : ELEMENT
 
     void GoHome(ToolButton x)
     {
-        if(Project.Type != TARGET.NULL) Folder = Project.BaseDir;
+        if(Project.Type != TARGET.NULL) Folder = Project.ProjectDir;
         else Folder = expandTilde("~");
     }
 

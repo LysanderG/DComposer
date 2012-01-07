@@ -42,7 +42,7 @@ class LOG
 	public:
 
     this(){}
-	this(string FileName, ulong MaxLineBuffer = 128, ulong MaxAppendFileSize = 524288)
+	this(string FileName, ulong MaxLineBuffer = 5, ulong MaxAppendFileSize = 524288)
 	{
 		mLogFileName = absolutePath(FileName);
 		mMaxLines = MaxLineBuffer;
@@ -63,6 +63,7 @@ class LOG
 	}
     ~this()
     {
+        //Flush();
         if(!mFinalFlush)Disengage();
     }
 
@@ -116,8 +117,11 @@ class LOG
 	}
 	void		Flush()
 	{
+        writeln("Flushing ...");
 		auto f = File(mLogFileName, "a");
 		foreach (l; mEntries) f.writeln(l);
+        f.flush;
+        writeln("Flushing ...", f);
 		mEntries.length = 0;
 	}	
 	mixin Signal!(string, string, string);

@@ -66,7 +66,7 @@ class DEBUG_UI : ELEMENT
     //watch for project open signal and try to load the target app
     void Load(string ProjectFile)
     {
-        Debugger.Load(Project.Name, Project.BaseDir);
+        Debugger.Load(Project.Name, Project.ProjectDir);
         mExecLoaded = true; //don't forget to FIX THIS!
     }
 

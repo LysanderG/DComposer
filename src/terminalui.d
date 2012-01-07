@@ -21,6 +21,7 @@
 module terminalui;
 
 import std.string;
+import std.stdio;
 
 import dcore;
 import ui;
@@ -52,7 +53,14 @@ class TERMINAL_UI : ELEMENT
     ScrolledWindow      mScrWin;
     Widget              mTerminal;
     GtkWidget *         cvte;
-    
+
+    void NewDirectory(string dir)
+    {
+        
+        immutable(char) * cdcmd = toStringz("cd " ~ dir ~ "\n");
+        //writeln("terminalui.d -- testing NewDirectory ",dir);
+        vte_terminal_feed_child(cvte, cdcmd, dir.length +4); 
+    }
 
     public:
 
@@ -85,6 +93,8 @@ class TERMINAL_UI : ELEMENT
         vte_terminal_fork_command (cvte, null, null, null, null,true, true, true);
         g_signal_connect_object(cvte, cast(char*)toStringz("child-exited"),&Reset,null, cast(GConnectFlags)0);
 
+       // Project.BaseDirChanged.connect(&NewDirectory);
+
         Log.Entry("Engaged TERMINAL_UI element");
 
         
@@ -108,3 +118,4 @@ extern (C) void Reset()
 {
     vte_terminal_fork_command (g_cvte, null, null, null, null,true, true, true);
 }
+

@@ -320,7 +320,7 @@ class PROJECT_UI : ELEMENT
 
     void RefreshSymbols(Action X)
     {
-        if(Project.CreateTags() == 0)
+        if(Project.CreateTagsx() == 0)
         {
             Log.Entry("Tag file for Project : "~Project.Name~" created.");
         }
@@ -380,8 +380,8 @@ writeln(Project.CmdLine);
 		TreeIter tmpIter = new TreeIter;
 		//basics
 		mName.setText(Project.Name);
-		mRootDir.setFilename(Project.BaseDir);
-        mProPath.setText("Project path : " ~ Project.BaseDir ~ "/" ~ Project.Name ~ "/" ~ Project.Name ~ ".dpro");
+		mRootDir.setFilename(Project.ProjectDir);
+        mProPath.setText("Project path : " ~ Project.ProjectDir  ~"/"~ Project.Name ~ ".dpro");
         
         Log.Entry(mRootDir.getFilename(),"Debug");
 
@@ -427,7 +427,7 @@ writeln(Project.CmdLine);
 		TreeIter tmpiter = new TreeIter;
 		
 		Project.Name = mName.getText();
-		Project.BaseDir = mRootDir.getFilename();
+		Project.ProjectDir = mRootDir.getFilename();
 
 		Project.UseManualBuild = cast(bool)mUseManCmdLine.getActive();
 		Project.CmdLine = mManCmdLine.getText();
