@@ -27,7 +27,7 @@ import std.stdio;
 import ui;
 import dcore;
 import elements;
-import dproject;
+import project;
 import docman;
 
 import gtk.Builder;
@@ -119,7 +119,7 @@ class DIR_VIEW : ELEMENT
 
     void GoHome(ToolButton x)
     {
-        if(Project.Type != TARGET.NULL) Folder = Project.ProjectDir;
+        if((Project.Target != TARGET.NULL) || (Project.Target != TARGET.UNDEFINED)) Folder = Project.WorkingPath;
         else Folder = expandTilde("~");
     }
 

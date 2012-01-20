@@ -105,9 +105,10 @@ class SYMBOL_VIEW : ELEMENT
     }
 
 
-    void UpdateProjectTags(string ProjectName)
+    void UpdateProjectTags(string EventName)
     {
-        Symbols.Load(ProjectName, ProjectName ~ ".tags");
+        if(EventName != "TagsCreated") return;
+        Symbols.Load(Project.Name, Project.Name ~ ".tags");
         Refresh();
     }
         
@@ -140,7 +141,7 @@ class SYMBOL_VIEW : ELEMENT
     {
         mState = true;
 
-        Project.TagsUpdated.connect(&UpdateProjectTags);
+        Project.Event.connect(&UpdateProjectTags);
 
         mRoot.showAll();
         dui.GetSidePane.appendPage(mRoot, "SYMBOLS");

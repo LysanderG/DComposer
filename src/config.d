@@ -25,37 +25,60 @@ import std.signals;
 import std.getopt;
 import std.string;
 import std.path;
+import std.file;
 
 import glib.KeyFile;
 
 
+
+
 class CONFIG
 {
-	string mCfgFile;
-	KeyFile	mKeyFile;
+	string mCfgFile;                //name of the CONFIG file
+	KeyFile	mKeyFile;               //CONFIG file object... didn't want dcore to depend on gtk+ libs, must fix
 
-    alias mKeyFile this;
+    alias mKeyFile this;            
 
     this()
     {
-        mCfgFile = "/home/anthony/.neontotem/dcomposer/dcomposer.cfg";
+        //mCfgFile = "/home/anthony/.neontotem/dcomposer/dcomposer.cfg";
+        mCfgFile = expandTilde("~/.neontotem/dcomposer/dcomposer.cfg");
+        
         mKeyFile = new KeyFile;
     }
 
     void Engage(string[] CmdArgs)
     {
 
-        string TmpForLog = " ";
-        string openers;
+        string TmpForLog = " ";                 //can't pass a space as a commandline arg
+        string openers;                         //put files on cmdline in ';' seperated list store in mKeyfile to be
+                                                //read when Docman is Engaged
+                                                
         
         getopt(CmdArgs, config.passThrough, "c|config", &mCfgFile, "l|log", &TmpForLog);
 
+
+        if(!mCfgFile.exists)
+        {
+            {
+            scope(failure)
+            {
+                Log.Entry("Unable to create configuration file: " ~ mCfgFile, "Error");
+                return;
+            }
+            File tmp;
+            tmp.open(mCfgFile, "w");
+            tmp.write("[CONFIG]\nthis_file="~mCfgFile~"\n");
+            
+            }
+        }
+
         mKeyFile.loadFromFile(mCfgFile, GKeyFileFlags.KEEP_COMMENTS);
+        
+        mKeyFile.setString("CONFIG", "this_file", mCfgFile);
 
-        mKeyFile.setString("CONFIG", "this_file",mCfgFile);
 
-        //getopt(CmdArgs,std.getopt.config.passThrough);
-        if(TmpForLog != " ") mKeyFile.setString("LOG","log_file", TmpForLog);
+        if(TmpForLog != " ") mKeyFile.setString("LOG","interim_log_file", TmpForLog);
 
         foreach(filetoopen; CmdArgs[1..$])
         {
@@ -87,7 +110,9 @@ class CONFIG
     {
         scope (failure)
         {
+            Default = Default.expandTilde();
             mKeyFile.setString(GroupName, Key, Default);
+            //Save();
             return Default;
         }
         string rVal  = mKeyFile.getString(GroupName, Key);
@@ -101,6 +126,7 @@ class CONFIG
         scope(failure)
         {
             mKeyFile.setBoolean(GroupName, Key, Default);
+            //Save();
             return Default;
         }
         bool rVal = cast(bool)mKeyFile.getBoolean(GroupName, Key);
@@ -111,15 +137,29 @@ class CONFIG
 
     int getInteger(string GroupName, string Key, int Default = 0)
     {
-       int rVal = mKeyFile.getInteger(GroupName,  Key);
        scope(failure)
        {
            mKeyFile.setInteger(GroupName, Key , Default);
+           //Save();
            return Default;
        }
+       int rVal = mKeyFile.getInteger(GroupName,  Key);
+
        return rVal;
     }
-        
+
+    ulong getUint64(string GroupName, string Key, ulong Default = 0uL)
+    {
+        scope(failure)
+        {
+            mKeyFile.setUint64(GroupName, Key, Default);
+            Save();
+            return Default;
+        }
+        ulong rVal = mKeyFile.getUint64(GroupName, Key);
+
+        return rVal;
+    }
         
 
 
@@ -127,7 +167,7 @@ class CONFIG
 
 }
 
-
+import dcore :Log;
 /*
  * list of all the configuration stuff i can think of (as i think of it)
  *

@@ -122,11 +122,11 @@
   </object>
   <object class="GtkVBox" id="vbox1">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
+    <property name="can_focus">True</property>
     <child>
       <object class="GtkFrame" id="frame1">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can_focus">True</property>
         <property name="label_xalign">0</property>
         <child>
           <object class="GtkAlignment" id="alignment1">
@@ -187,7 +187,7 @@
     <child>
       <object class="GtkHButtonBox" id="hbuttonbox1">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can_focus">True</property>
         <property name="layout_style">spread</property>
         <child>
           <object class="GtkButton" id="buttonadd">

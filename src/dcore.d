@@ -25,7 +25,7 @@ module dcore;
 
 import config;
 import log;
-import dproject;
+import project;
 import symbols;
 import debugger;
 
@@ -36,7 +36,7 @@ private :
 
 CONFIG		mConfig;
 LOG 		mLog;
-PROJECTD	mProject;
+PROJECT 	mProject;
 SYMBOLS	    mSymbols;
 DEBUGGER    mDebugger;
 
@@ -45,11 +45,10 @@ static this()
 {
     mConfig	    = new CONFIG;
 	mLog	    = new LOG;
-	mProject    = new PROJECTD;
+	mProject    = new PROJECT;
 	mSymbols    = new SYMBOLS;
     mDebugger   = new DEBUGGER;
 }
-
 
 public:
 
@@ -70,12 +69,13 @@ void Disengage()
 	mSymbols .Disengage();
 	mProject .Disengage();
 	mConfig  .Disengage();
-    Log()    .Entry("Disengaged dcore");
+    
+    Log      .Entry("Disengaged dcore");
 	mLog     .Disengage();
 }
 
 CONFIG		Config() {return mConfig;}
 LOG 		Log()    {return mLog;}
-PROJECTD	Project(){return mProject;}
+PROJECT 	Project(){return mProject;}
 SYMBOLS		Symbols(){return mSymbols;}
 DEBUGGER    Debugger(){return mDebugger;}

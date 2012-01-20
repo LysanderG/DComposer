@@ -32,60 +32,62 @@ import dcore;
 class LOG
 {
 	private :
-	string[]        mEntries;
-	string          mLogFileName;
-    ulong           mMaxLines;
-    ulong           mMaxFileSize;
-    bool            mFinalFlush;
-
+	string[]        mEntries;                       //buffer of log entries not yet saved to file
+    
+	string          mSystemDefaultLogName;          //system log file can be overridden be interimfilename but reverts
+                                                    //if no -l option on command line
+    string          mInterimFileName;               //override regular log file name from cmdline for one session
+    string          mLogFile;                       //which of the two above is actually being used this session
+    
+    ulong           mMaxLines;                      //flush entries buffer
+    ulong           mMaxFileSize;                   //if log is this size then don't append overwrite
+   
 
 	public:
 
-    this(){}
-	this(string FileName, ulong MaxLineBuffer = 5, ulong MaxAppendFileSize = 524288)
-	{
-		mLogFileName = absolutePath(FileName);
-		mMaxLines = MaxLineBuffer;
-		
-		string mode = "w";
-		if(exists(FileName))
-		{
-			if ( getSize(FileName) < MaxAppendFileSize) mode = "a";
-		}
+    this()
+    {
+        mSystemDefaultLogName = expandTilde(Config.getString("LOG", "default_log_file", "~/.neontotem/dcomposer/dcomposer.log"));
+        mInterimFileName = "unspecifiedlogfile.cfg";
+        mLogFile = mSystemDefaultLogName;
+        
+        mMaxFileSize = 18_105;
+        mMaxLines = 24;
+    }
 
-		auto rightnow = Clock.currTime();
-		auto logtime = rightnow.toISOExtString();
-		
-		auto f = File(mLogFileName, mode);
-
-		f.writeln("<<++	LOG BEGINS ++>>");
-		f.writeln(logtime);
-	}
     ~this()
     {
-        //Flush();
-        if(!mFinalFlush)Disengage();
+        //Flush(); //silly flush allocates a file ... guess gc doen't like that in a dtor
     }
 
     void Engage()
     {
-        mLogFileName = Config().getString("LOG", "log_file");
-        mMaxLines = Config().getInteger("LOG", "max_lines_buffer");
-        mMaxFileSize = Config().getUint64("LOG", "max_file_size");
+               
+        if(Config.hasKey("LOG", "interim_log_file"))
+        {
+            mLogFile = Config.getString("LOG", "interim_log_file","error.log");
+            Config.removeKey("LOG", "interim_log_file");
+        }
+        else mLogFile = mSystemDefaultLogName;
+        
+        mMaxLines = Config.getUint64("LOG", "max_lines_buffer", mMaxLines);
+        mMaxFileSize = Config.getUint64("LOG", "max_file_size", mMaxFileSize);
 
         string mode = "w";
-        if(exists(mLogFileName))
+        if(exists(mLogFile))
         {
-            if(getSize(mLogFileName) < mMaxFileSize) mode = "a";
+            if(getSize(mLogFile) < mMaxFileSize) mode = "a";
         }
 
         auto rightnow = Clock.currTime();
         auto logtime = rightnow.toISOExtString();
         
-        auto f = File(mLogFileName, mode);
+        auto f = File(mLogFile, mode);
 
         f.writeln("<<++	LOG BEGINS ++>>");
 		f.writeln(logtime);
+
+        Entry("Engaged LOG");
     }
 
     void Disengage()
@@ -100,11 +102,10 @@ class LOG
 		mEntries[$-2] = logtime;
 		mEntries[$-1] = "<<-- LOG ENDS -->>\n";
 		Flush();
-        mFinalFlush = true;
 	}     
 
 	
-	void Entry(string Message, string Level = "Info", string Module = null, )
+	void Entry(string Message, string Level = "Info", string Module = null )
 	{
 		//Level can be any string
 		//but for now "Debug", "Info", and "Error" will be expected (but not required)
@@ -115,18 +116,24 @@ class LOG
 		if(Module !is null) mEntries[$-1] ~= " in " ~ Module;
 		if(mEntries.length >= mMaxLines) Flush();
 	}
-	void		Flush()
+    
+	void Flush()
 	{
-        writeln("Flushing ...");
-		auto f = File(mLogFileName, "a");
+		auto f = File(mLogFile, "a");
 		foreach (l; mEntries) f.writeln(l);
         f.flush;
-        writeln("Flushing ...", f);
 		mEntries.length = 0;
-	}	
-	mixin Signal!(string, string, string);
+	}
+    
+    mixin Signal!(string, string, string);
 
-
+    //this only returns the current buffer of entries!
+    //the only point of this is to catch entries made before LOG_UI is engaged
+    //(you can't show log entries in a gui before the gui is instantiated)
+    //.. ok but what if the buffer is like 1 and 100 entries have been made when LOG_UI is engaged?
+    //well the file is still there, maybe LOG_UI should just process the file
+    //.. then mLogFile will have to be exposed
+    //-- why have a max lines anyway?? It's silly just extra crap, maybe have a flush every BackUpAtLineCount
     string[] GetEntries(){return mEntries.dup;}
 }
 

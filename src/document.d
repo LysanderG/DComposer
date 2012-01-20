@@ -393,7 +393,6 @@ string MultiRead(string FileName)
     if(TryAsc.isValid())
     {
         TryAsc = sanitize(TryAsc);
-        writeln("Ascii Encoding");
         transcode(TryAsc, myUtfString);
         
         return myUtfString;
@@ -404,7 +403,6 @@ string MultiRead(string FileName)
     {
         
         TryLatin = sanitize(TryLatin);
-        writeln("Latin Encoding");
         transcode(TryLatin, myUtfString);
         return myUtfString;
     }

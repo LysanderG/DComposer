@@ -37,21 +37,22 @@ class DEBUGGER
 {
     private :
 
-    bool        mRunning;
+    bool        mRunning;                   //is gdb actually running?
 
-    ulong       mCmdId;
+    ulong       mCmdId;                     //a running id passed to each gdb mi command -- not used for anything yet
     
 
-    Spawn       mGdbProcess;
-    IOChannel   mReadFromGdb;
+    Spawn       mGdbProcess;                //the gdb process
+    IOChannel   mReadFromGdb;               
     IOChannel   mWriteToGdb;
 
-    ulong[string] mBreakpoints;
+    ulong[string] mBreakpoints;         
     ulong         mBreakCounter;
 
     ulong[string] mDisplayExpressions;
    
 
+    //
     bool ReadGdbOutput(string Data)
     {
         scope(failure)return true;
@@ -62,7 +63,7 @@ class DEBUGGER
 
     bool ReadGdbError(string Data)
     {
-        writeln("ERROR ",Data);
+        
         return true;
     }
 
@@ -129,6 +130,7 @@ class DEBUGGER
 
     void Load(string AppName, string SourceDirectories)
     {
+        
         size_t BytesWritten;
         
         mRunning = true;
@@ -164,6 +166,7 @@ class DEBUGGER
     }
     ulong Run()
     {
+        if(!mRunning)return false;
         size_t BytesWritten;
         mCmdId++;
         string Id = to!string(mCmdId);
@@ -174,6 +177,7 @@ class DEBUGGER
 
     ulong Continue()
     {
+        if(!mRunning)return mCmdId;
         size_t BytesWritten;
         mCmdId++;
         string Id = to!string(mCmdId);
@@ -183,6 +187,7 @@ class DEBUGGER
     }
     ulong Abort()
     {
+        if(!mRunning)return mCmdId;
         size_t BytesWritten;
         mCmdId++;
         string Id = to!string(mCmdId);
@@ -198,6 +203,7 @@ class DEBUGGER
         
     ulong StepIn()
     {
+        if(!mRunning)return mCmdId;
         size_t BytesWritten;
         mCmdId++;
         string Id = to!string(mCmdId);
@@ -207,6 +213,7 @@ class DEBUGGER
     }
     ulong StepOver()
     {
+        if(!mRunning)return mCmdId;
         size_t BytesWritten;
         mCmdId++;
         string Id = to!string(mCmdId);
@@ -217,6 +224,7 @@ class DEBUGGER
 
     void CatchBreakPoint(string Action, string FileName, int LineNo)
     {
+        if (!mRunning) return;
         size_t BytesWritten;
         string BreakKey = FileName ~ ':' ~ to!string(LineNo);
 
@@ -226,8 +234,6 @@ class DEBUGGER
             mBreakpoints[BreakKey] = ++mBreakCounter;
             mCmdId++;
             string Id = to!string(mCmdId);
-            writeln("-break-insert " ~ BreakKey);
-            writeln(mWriteToGdb);
             mWriteToGdb.writeChars(Id~"-break-insert " ~ BreakKey ~ "\n", -1, BytesWritten);
             mWriteToGdb.flush();
             return;
@@ -248,6 +254,7 @@ class DEBUGGER
 
     ulong AddWatchSymbol(string WatchSymbol)
     {
+        if(!mRunning)return mCmdId;
         if(WatchSymbol in mDisplayExpressions) return 0;
         mDisplayExpressions[WatchSymbol] = mDisplayExpressions.length+1;
         size_t BytesWritten;
@@ -260,6 +267,7 @@ class DEBUGGER
 
     ulong RemoveWatchSymbol(string WatchSymbol)
     {
+        if(!mRunning)return mCmdId;
         if(WatchSymbol in mDisplayExpressions)
         {
             size_t BytesWritten;

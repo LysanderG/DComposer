@@ -30,7 +30,7 @@ import elements;
 import ui;
 import dcore;
 
-import dproject;
+import project;
 
 
 import gtk.Builder;
@@ -75,7 +75,6 @@ class PROJECT_VIEW : ELEMENT
     
     void UpdateList(ComboBox X)
     {
-        Log.Entry("updatelist");
         GC.disable;
         
         TreeIter ti = new TreeIter;
@@ -83,7 +82,7 @@ class PROJECT_VIEW : ELEMENT
 
         string key = mComboStore.getValueString(ti, 0);
 
-        if( (key == VERSIONS ) || (key == DEBUGS))
+        if( (key == VERSIONS ) || (key == DEBUGS)  || (key == "DESCRIPTION") || (key == "misc"))
         {
             mCellText.setProperty("mode", CellRendererMode.MODE_EDITABLE);
             mCellText.setProperty("editable",true);
@@ -97,7 +96,7 @@ class PROJECT_VIEW : ELEMENT
         Value x = new Value(GType.INT);
         mCellText.getProperty("mode", x);
                         
-        auto values = Project.Get(key);
+        auto values = Project[key];
 
 
 
@@ -119,7 +118,7 @@ class PROJECT_VIEW : ELEMENT
         version(all)
         {
         GC.disable;
-        if( (key == VERSIONS ) || (key == DEBUGS))
+        if( (key == VERSIONS ) || (key == DEBUGS) || (key == "DESCRIPTION") || (key == "misc") )
         {
             mCellText.setProperty("mode", CellRendererMode.MODE_EDITABLE);
             mCellText.setProperty("editable",true);
@@ -171,8 +170,19 @@ class PROJECT_VIEW : ELEMENT
             string Filename = ti.getValueString(1);
             dui.GetDocMan.OpenDoc(Filename);
         }
-    }  
+    }
 
+    void UpdateProject(string EventType)
+    {
+        if(EventType == "ListChange")UpdateList(mKeyBox);
+        if(EventType == "Name")mLabel.setText(Project.Name);
+        if(EventType == "Open")
+        {
+            UpdateList(mKeyBox);
+            mLabel.setText(Project.Name);
+        }
+        
+    }
     void AppendToolItems()
     {
 
@@ -212,9 +222,10 @@ class PROJECT_VIEW : ELEMENT
             case 3 :
             case 4 :
             case 5 : AddAPath(CurrentKey); break;
-            case 6 :
-            case 7 : AddAIdentifier(CurrentKey); break;
-            default : return;
+            default : AddAIdentifier(CurrentKey);
+            //case 6 :
+            //case 7 : AddAIdentifier(CurrentKey); break;
+            //default : return;
         }
         return;
     }
@@ -232,7 +243,7 @@ class PROJECT_VIEW : ELEMENT
 
         ti = mListView.getSelectedIter();
         
-        Project.Remove(CurrentKey, mViewStore.getValueString(ti,1));
+        Project.RemoveItem(CurrentKey, mViewStore.getValueString(ti,1));
         
         
     }
@@ -256,7 +267,7 @@ class PROJECT_VIEW : ELEMENT
 		while(SelFiles !is null)
 		{
             afile = toImpl!(string, char *)(cast(char *)SelFiles.data()); 
-            Project.Add(CurrentKey, afile);
+            Project.AddItem(CurrentKey, afile);
             SelFiles = SelFiles.next();
 		}
 
@@ -279,7 +290,7 @@ class PROJECT_VIEW : ELEMENT
 		while(SelFiles !is null)
 		{
 			afile = toImpl!(string, char *)(cast(char *)SelFiles.data()); 
-			Project.Add(CurrentKey, afile);
+			Project.AddItem(CurrentKey, afile);
 			SelFiles = SelFiles.next();
 		}
 		
@@ -301,7 +312,7 @@ class PROJECT_VIEW : ELEMENT
         if(mKeyBox.getActiveIter(ti))
         {
             string CurrentKey = mComboStore.getValueString(ti,0);
-            if(mKeyBox.getActive > 5) Project.Add(CurrentKey, text);
+            if(mKeyBox.getActive > 5) Project.AddItem(CurrentKey, text);
         }
     }
         
@@ -357,8 +368,7 @@ class PROJECT_VIEW : ELEMENT
         
         mRemove.addOnClicked(&Remove); 
         mAdd.addOnClicked(&Add);
-        Project.ListChanged.connect(&UpdateList);
-        Project.NameChanged.connect(&UpdateName);
+        Project.Event.connect(&UpdateProject);
 
         mKeyBox.setActive(-1);
         UpdateList(mKeyBox);

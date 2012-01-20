@@ -20,7 +20,7 @@
 
 module projectdui;
 
-import dproject;
+import project;
 import dcore;
 import ui;
 import elements;
@@ -114,6 +114,9 @@ class PROJECT_UI : ELEMENT
 	AccelGroup		mAccels;
 	ActionGroup 	mActions;
 
+
+    bool            mSkipWatchingProject; //multiple connects and disconnect is causing an error
+
     public:
     
     @property string Name() { return "PROJECT_UI";}
@@ -188,21 +191,15 @@ class PROJECT_UI : ELEMENT
     {
         mState = true;
 
-        Project().ListChanged.connect(&WatchingProjectLists);
-        Project().BaseDirChanged.connect(&WatchingProject);
-        Project().NameChanged.connect(&WatchingProject);
-        Project().OtherArgsChanged.connect(&WatchingProject);
-        Project().Opened.connect(&WatchingProject);
-        Project().Saved.connect(&WatchingProject);
+        Project.Event.connect(&WatchingProject);
                 
-        if(Project.Type != TARGET.NULL) mRootVBox.showAll();
-        if(Project.Type == TARGET.NULL) mRootVBox.hide();
+        if(Project.Target != TARGET.NULL) mRootVBox.showAll();
+        if(Project.Target == TARGET.NULL) mRootVBox.hide();
         dui.GetCenterPane.prependPage(mRootVBox, mTabLabel);
 
 
         EngageActions();
-        
-        
+              
 
         Log.Entry("Engaged PROJECT_UI element");
     }
@@ -280,7 +277,7 @@ class PROJECT_UI : ELEMENT
 
     void New(Action X)
     {
-        Project.New("NewProject");
+        Project.New();
         FillGuiData();
         mRootVBox.showAll();
         dui.GetCenterPane.setCurrentPage(mRootVBox);
@@ -302,7 +299,7 @@ class PROJECT_UI : ELEMENT
 		if(rt != ResponseType.GTK_RESPONSE_OK) return;
         
         Project.Open(fcd.getFilename);
-        //chdir(Project.BaseDir);
+
         FillGuiData();
 
         Config.setString("DPROJECT", "last_open_dialog_folder", fcd.getCurrentFolder());
@@ -311,8 +308,10 @@ class PROJECT_UI : ELEMENT
 
     void ShowOptions(Action X)
     {
+        Log.Entry("projectui.ShowOptions", "Debug");
+        Log.Entry(" Project.Target == " ~ to!string(Project.Target), "Debug");
         if(!State) return;
-        if(Project.Type == TARGET.NULL) return;
+        if(Project.Target == TARGET.NULL) return;
         mRootVBox.showAll();
         dui.GetCenterPane.setCurrentPage(mRootVBox);
         mRootVBox.grabFocus();
@@ -320,7 +319,7 @@ class PROJECT_UI : ELEMENT
 
     void RefreshSymbols(Action X)
     {
-        if(Project.CreateTagsx() == 0)
+        if(Project.CreateTags())
         {
             Log.Entry("Tag file for Project : "~Project.Name~" created.");
         }
@@ -330,27 +329,7 @@ class PROJECT_UI : ELEMENT
         }
     }
 
-    /*void Build(Action x)
-    {
-        //hey you stupid ... you have this same function in dproject.d  no reason to have it here much less use it!
 
-        dui.GetDocMan.SaveAllDocs();
-        std.stdio.File Process = File("tmp","w");
-
-        scope(failure)foreach(string L; lines(Process) )Log.Entry(chomp(L),"Error");
-writeln(getcwd());
-writeln(Project.CmdLine);
-        Process.popen("sh /home/anthony/.neontotem/dcomposer/childrunner.sh " ~ Project.CmdLine ~ " 2>&1 ", "r");
-
-        string[] output;
-        foreach(string L; lines(Process) )
-        {
-            output.length = output.length +1;
-            output[$-1] = chomp(L);
-            Log.Entry(SimpleXML.escapeText(chomp(L), -1));
-        }
-        scope(exit) Process.close();
-    }*/
 
     void Build(Action x)
     {
@@ -360,36 +339,27 @@ writeln(Project.CmdLine);
                
     void Run(Action X)
     {
-        scope(failure) return;
-        std.stdio.File Process;
-        Process.popen("./"~Project.Name,"r");
-        string[] output;
-        foreach(string L; lines(Process) )
-        {
-            output.length = output.length +1;
-            output[$-1] = chomp(L);
-            Log.Entry(chomp(L));
-        }
-        Process.close();
-        
+        Project.Run();        
     }
 
     //fills the gui stuff with data from the actual project (reverts to original on discard) (and on new project or open project)
 	void FillGuiData()
 	{
+
+        mSkipWatchingProject = true;
+        
 		TreeIter tmpIter = new TreeIter;
 		//basics
 		mName.setText(Project.Name);
-		mRootDir.setFilename(Project.ProjectDir);
-        mProPath.setText("Project path : " ~ Project.ProjectDir  ~"/"~ Project.Name ~ ".dpro");
-        
-        Log.Entry(mRootDir.getFilename(),"Debug");
+		mRootDir.setCurrentFolder(Project.WorkingPath);
 
-		mUseManCmdLine.setActive(Project.UseManualBuild);
-		mManCmdLine.setText(Project.CmdLine);
+        mProPath.setText("Project path : " ~ Project.WorkingPath  ~"/"~ Project.Name ~ ".dpro");
+        
+		mUseManCmdLine.setActive(Project.UseCustomBuild);
+		mManCmdLine.setText(Project.CustomBuildCommand);
 		mAutoCmdLine.setText(Project.BuildCommand);
-		mSrcList.SetItems(Project.Get(SRCFILES));
-		mRelList.SetItems(Project.Get(RELFILES));
+		mSrcList.SetItems(Project[SRCFILES]);
+		mRelList.SetItems(Project[RELFILES]);
 		//flags
         mFlagStore.clear();
         foreach(index, flag; Project.GetFlags())
@@ -407,32 +377,34 @@ writeln(Project.CmdLine);
             mFlagStore.setValue(tmpIter, 4, flag.Brief);
         }
 
-        mVerList.SetItems(Project.Get(VERSIONS));
-        mDbgList.SetItems(Project.Get(DEBUGS));
-        mImpList.SetItems(Project.Get(INCPATHS));
-        mExpList.SetItems(Project.Get(JPATHS));
-        mLibList.SetItems(Project.Get(LIBFILES));
-        mLLPList.SetItems(Project.Get(LIBPATHS));
+        mVerList.SetItems(Project[VERSIONS]);
+        mDbgList.SetItems(Project[DEBUGS]);
+        mImpList.SetItems(Project[IMPPATHS]);
+        mExpList.SetItems(Project[JPATHS]);
+        mLibList.SetItems(Project[LIBFILES]);
+        mLLPList.SetItems(Project[LIBPATHS]);
 
-        //string TmpExtraOpts;
-        //foreach(lnkopt; mProject.Get("LinkOpts"))TmpExtraOpts ~=lnkopt ~ " ";
-        mMiscLinkOptions.setText(" "~Project.OtherArgs);
-        mDescription.getBuffer().setText(Project.GetFirst("DESCRIPTION"));
+
+        mMiscLinkOptions.setText("No longer used");
+        mDescription.getBuffer().setText(cast (string)Project["DESCRIPTION"]);
+
+        mSkipWatchingProject = false;
 	}
 
     void FillProjectData()
 	{
-        DisconnectProjectWatchers();
+        mSkipWatchingProject = true;
         
 		TreeIter tmpiter = new TreeIter;
 		
 		Project.Name = mName.getText();
-		Project.ProjectDir = mRootDir.getFilename();
+		Project.WorkingPath = mRootDir.getFilename();
+        Log.Entry(Project.WorkingPath ~ " " ~ mRootDir.getUri());
 
-		Project.UseManualBuild = cast(bool)mUseManCmdLine.getActive();
-		Project.CmdLine = mManCmdLine.getText();
-		Project.Set(SRCFILES, mSrcList.GetFullItems());
-		Project.Set(RELFILES, mRelList.GetFullItems());
+		Project.UseCustomBuild = cast(bool)mUseManCmdLine.getActive();
+		Project.CustomBuildCommand = mManCmdLine.getText();
+		Project.SetList(SRCFILES, mSrcList.GetFullItems());
+		Project.SetList(RELFILES, mRelList.GetFullItems());
 		//SAVE flags
         if(mFlagStore.getIterFirst(tmpiter))
         {
@@ -450,52 +422,27 @@ writeln(Project.CmdLine);
                 Project.SetFlag(key, nustate, arg);
             }while (mFlagStore.iterNext(tmpiter));
 		}
-		Project.Set(VERSIONS, mVerList.GetFullItems());
-		Project.Set(DEBUGS, mDbgList.GetFullItems());
-		Project.Set(INCPATHS, mImpList.GetFullItems());
-		Project.Set(JPATHS, mExpList.GetFullItems());
-		Project.Set(LIBFILES, mLibList.GetFullItems());
-		Project.Set(LIBPATHS, mLLPList.GetFullItems());
-		Project.OtherArgs = mMiscLinkOptions.getText();
+		Project.SetList(VERSIONS, mVerList.GetFullItems());
+		Project.SetList(DEBUGS  , mDbgList.GetFullItems());
+		Project.SetList(IMPPATHS, mImpList.GetFullItems());
+		Project.SetList(JPATHS  , mExpList.GetFullItems());
+		Project.SetList(LIBFILES, mLibList.GetFullItems());
+		Project.SetList(LIBPATHS, mLLPList.GetFullItems());
 
 		//mProject.AddList("DESCRIPTION");
-		Project.Set("DESCRIPTION", mDescription.getBuffer().getText());
+		Project.SetList("DESCRIPTION", mDescription.getBuffer().getText());
         Project.Save();
-
-        ConnectProjectWatchers();
+        mSkipWatchingProject = false;
 	}
 
 
-
-    void WatchingProjectLists(string x1, string[] x2)
-    {
-        WatchingProject(x1);
-    }
     void WatchingProject(string x)
     {
-        //Log.Entry("Watching project (from projectui) -- " ~ x, "Debug");
+        if(mSkipWatchingProject == true) return;
         FillGuiData();
     }
 
-    void DisconnectProjectWatchers()
-    {
-        Project().ListChanged.disconnect(&WatchingProjectLists);
-        Project().BaseDirChanged.disconnect(&WatchingProject);
-        Project().NameChanged.disconnect(&WatchingProject);
-        Project().OtherArgsChanged.disconnect(&WatchingProject);
-        Project().Opened.disconnect(&WatchingProject);
-        Project().Saved.disconnect(&WatchingProject);
-    }
-
-    void ConnectProjectWatchers()
-    {
-        Project().ListChanged.connect(&WatchingProjectLists);
-        Project().BaseDirChanged.connect(&WatchingProject);
-        Project().NameChanged.connect(&WatchingProject);
-        Project().OtherArgsChanged.connect(&WatchingProject);
-        Project().Opened.connect(&WatchingProject);
-        Project().Saved.connect(&WatchingProject);
-    }
+    
 
     
 }

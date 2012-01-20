@@ -162,7 +162,7 @@ class PROJECTD
 
     void Engage()
     {
-        auto FlagFile = Config().getString("DPROJECT","flags_file");
+        auto FlagFile = Config.getString("DPROJECT","flags_file");
 		ReadFlags(FlagFile);
         Log().Entry("Engaged D_PROJECT");
     }
@@ -209,7 +209,6 @@ class PROJECTD
             scope(failure)Log.Entry("Invalid Project Path.", "ERROR");
 
             mProjectPath = buildPath(nudir, mName);
-            writeln( "dproject ProjectDir = ", mProjectPath);
             if(!exists(mProjectPath)) mkdir(mProjectPath);
             chdir(mProjectPath);
             BaseDirChanged.emit(mProjectPath);
@@ -396,10 +395,8 @@ class PROJECTD
         if(mVersion > PROJECT_VERSION)Version.emit();
         
         chdir(mProjectPath);
-        writeln("here");
         NameChanged.emit(mName);//sure this was here before but I removed it for some reason ... now its back see what it messes up
         BaseDirChanged.emit(mProjectPath);
-        writeln("emitted basedirchanged ", mProjectPath);
 		Opened.emit(pfile);
 
         CreateTags();

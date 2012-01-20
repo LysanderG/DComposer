@@ -34,9 +34,7 @@ Sun, 30 Oct 2011 01:22:10 -0400
 *   to do before i make this thing public
     
     dcore
-    - a search enging
-   
-    ui
+    - a search engine
     - ??? trying to keep ui minimal
     
     elements
@@ -162,7 +160,34 @@ So, I'm thinking keep it very simple, just the most basic functions.
     -- no register view no assembly stuff 
     -- simple call stack
 ========================================================================================================================
+Fri, 6 Jan 2012 22:35:15 -0500
 
+I've had a long break from DComposer.
+Now It's time to get back in head first.
+But... where to start?
+Errors and bugs abound.
+Lots of stuff just doesn't work the way I want it to (much less the way it should.)
+I'm satisfied with the basic structure, so I'm thinking of just going file by file; function by function and rewriting
+everything.  No not a complete rewrite, just make sure everything is what it is supposed to be.
+Thinking it will be easier than finding mistakes strung out through all the code.
+But I must admit I'm reluctant to start working on anything that prevents me from seeing and testing immediate results.
+It just feels better to add a few lines of code and then be able to see the results.
+
+Okay... some thoughts on improvements (new stuff vs fixes.) 
+Still need to add search as a core component.
+Seperate Dproject so its just Project and then have dmd/gdc/ldc subprojects
+
+OMG I almost forgot the most important feature of my ide!!
+The help system. That was the biggest reason for starting this project.
+Now I haven't even thought about it in months.  Gotta be done.
+
+Actually decided to buckle down and learn vim... (using gvim right now)
+two things
+1. Makes me reconsider making an ide, at least with gtksourceview.  How can I compete with vim?
+2. Makes me consider replacing gtksourceview with vim (how hard would it be to make a gtkvim widget??) or use vim keys
+
+
+my 10 year old: instead of a toilet seat ... a toilet couch 
 ========================================================================================================================
 
 ========================================================================================================================

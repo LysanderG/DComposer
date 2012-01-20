@@ -58,7 +58,6 @@ class TERMINAL_UI : ELEMENT
     {
         
         immutable(char) * cdcmd = toStringz("cd " ~ dir ~ "\n");
-        //writeln("terminalui.d -- testing NewDirectory ",dir);
         vte_terminal_feed_child(cvte, cdcmd, dir.length +4); 
     }
 

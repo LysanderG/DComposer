@@ -6,7 +6,7 @@
     <property name="width_request">10</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="resize_mode">queue</property>
+    <property name="resize_mode">parent</property>
     <property name="shadow_type">etched-out</property>
     <child>
       <object class="GtkVPaned" id="vpaned1">
@@ -46,7 +46,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="limit">15</property>
-            <property name="select_multiple">True</property>
+            <property name="select_multiple">False</property>
             <property name="sort_type">mru</property>
             <child>
               <object class="GtkLabel" id="label2">

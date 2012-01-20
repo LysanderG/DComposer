@@ -102,7 +102,7 @@ class MESSAGE_UI :ELEMENT
     this()
     {
         mName = "MESSAGE_UI";
-        mInfo = "Display and jump to Compiler error points.";
+        mInfo = "Display compiler output (and allow navigating to error lines)";
     }
         
     @property string Name() {return mName;}

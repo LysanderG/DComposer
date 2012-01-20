@@ -18,7 +18,7 @@
 //      MA 02110-1301, USA.
 
 
-///hello
+
 module dcomposer;
 
 import core.memory;
@@ -33,22 +33,16 @@ import elements;
 
 int main(string[] args)
 {
-    //GC.disable();
-    //scope(exit) Log().Flush();
 
 	dcore.Engage(args);
 	dui.Engage(args);
 	elements.Engage();
 
 	dui.Run();
-
-    
     
 	elements.Disengage();
 	dui.Disengage();
 	dcore.Disengage();
 
-    //GC.enable();
-    scope(exit)Log().Flush();
 	return 0;
 }

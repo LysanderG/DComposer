@@ -64,9 +64,11 @@ class DEBUG_UI : ELEMENT
     TextView            mInfoConsole;
 
     //watch for project open signal and try to load the target app
-    void Load(string ProjectFile)
+    void Load(string EventType)
     {
-        Debugger.Load(Project.Name, Project.ProjectDir);
+        //this don't make no sense no way nope nada
+        if( EventType != "Open") return; //hey what about new ...??
+        Debugger.Load(Project.Name, Project.WorkingPath);
         mExecLoaded = true; //don't forget to FIX THIS!
     }
 
@@ -96,7 +98,7 @@ class DEBUG_UI : ELEMENT
     void Engage()
     {
 
-        Project.Opened.connect(&Load);
+        Project.Event.connect(&Load);
         
         mBuilder    = new Builder;
         mBuilder.addFromFile(Config.getString("DEBUG", "debug_ui", "/home/anthony/.neontotem/dcomposer/dbugx.glade"));

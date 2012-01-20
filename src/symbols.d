@@ -130,6 +130,7 @@ class SYMBOLS
         return RV;
     }
 
+    //returns all symbols in this object
     DSYMBOL[] AllSymbols()
     {
         DSYMBOL[] rv;
@@ -153,6 +154,7 @@ class SYMBOLS
     }           
        
 
+    //given jval from a json file fills up the symbols in this object
     void BuildSymbols(JSONValue jval, ref DSYMBOL sym , string Module = "")
     {
         switch (jval.type)
@@ -233,7 +235,7 @@ class SYMBOLS
 
         foreach(key; keys)
         {
-            auto tmp = Config().getString("SYMBOLS", key);
+            auto tmp = Config().getString("SYMBOLS", key, "huh");
             
             Load(key, tmp);
         }
@@ -246,13 +248,16 @@ class SYMBOLS
         Log().Entry("Disengaged SYMBOLS");
     }
 
+
+    //add a tag file to config that will always be in the symbol tree
+    //need a remove commontagfile too
     void AddCommonTagFile(string key, string TagFile)
     {
         Config().setString("SYMBOLS", key, TagFile);
     }       
 
     
-    //this will replace mSymbol[key] if it exists
+    //this will replace mSymbol[key] if it exists (otherwise adds of course)
     //actually loads a json file from dmd -X into this structure
     void Load(string key, string symfile)
     {
@@ -311,6 +316,8 @@ class SYMBOLS
         return rv;
     }
 
+    //returns children of Candidate (all possible)
+    //useful for scopelists
     string[] GetMembers(string Candidate)
     {
         string[] rv;
@@ -353,6 +360,7 @@ class SYMBOLS
         return rv;
     }
 
+    //returns any symbols that Candidate might be
     string[] Match(string Candidate)
     {
         if(Candidate.length < 2) return null;
@@ -387,24 +395,7 @@ class SYMBOLS
 
     
     DSYMBOL[string] Symbols(){return  mSymbols.dup;}
-
-    string GetValueFromType(string type)
-    {
-        if(type == "module")        return `<span foreground="red" >▣</span>`;
-        if(type == "template")      return `<span foreground="green" >◌</span>`;
-        if(type == "function")      return `<span foreground="yellow">▶</span>`;
-        if(type == "struct")        return `<span foreground="black">◎</span>`;
-        if(type == "class")         return `<span foreground="black">◉</span>`;
-        if(type == "variable")      return `<span foreground="green">▶</span>`;
-        if(type == "alias")         return `<span foreground="black">▰</span>`;
-        if(type == "constructor")   return `<span foreground="black">✵</span>`;
-        if(type == "enum")          return `<span foreground="cyan">▲</span>`;
-        if(type == "enum member")   return `<span foreground="cyan">◬ </span>`;
-        if(type == "union")         return `<span foreground="black">○</span>`;
-        return " ";
         
-        //◈
-    }            
 
     mixin Signal!();
 }

@@ -92,7 +92,7 @@ class MAIN_UI
         mDocMan.Engage();
 
         mWindow.show();
-        Log().Entry("testing logui", "Debug");
+        
         Log().Entry("Engaged UI");
     }
 
@@ -113,7 +113,7 @@ class MAIN_UI
     void EngageWidgets()
     {
         mBuilder = new Builder;
-        mBuilder.addFromFile(Config().getString("UI", "ui_glade_file"));
+        mBuilder.addFromFile(Config().getString("UI", "ui_glade_file", "~/.neontotem/dcomposer/dcomui2.glade") );
 
         mWindow     = cast(Window)      mBuilder.getObject("window1");
         mMenuBar    = cast(MenuBar)     mBuilder.getObject("menubar");
@@ -169,7 +169,7 @@ class MAIN_UI
         AddMenuItem("_View", ViewExtraPaneAct.createMenuItem());
         AddMenuItem("_View", ViewStatusBarAct.createMenuItem());
 
-        Project().NameChanged.connect(&WatchProjectName);
+        Project.Event.connect(&WatchProjectName);
     }
     
 
@@ -240,7 +240,11 @@ class MAIN_UI
     DOC_POP         GetDocPop(){return mDocPop;}
 
         
-    void WatchProjectName(string nuname){mIndicator.setText("Project :" ~ nuname);}
+    void WatchProjectName(string EventType)
+    {
+        if(EventType == "Name") mIndicator.setText("Project: " ~ Project.Name);
+    }
+
 }
 
 enum :int { TYPE_NONE, TYPE_CALLTIP, TYPE_SCOPELIST, TYPE_SYMCOM}
