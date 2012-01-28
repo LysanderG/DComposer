@@ -42,7 +42,7 @@ class BRACE_INDENT : ELEMENT
 
     bool mState;
 
-    void CatchNewDocs(DOCUMENT_IF nu_doc)
+    void CatchNewDocs(string EventId, DOCUMENT_IF nu_doc)
     {
         auto docX = cast (DOCUMENT) nu_doc;
 
@@ -110,7 +110,7 @@ class BRACE_INDENT : ELEMENT
     void Engage()
     {
         mState = true;
-        dui.GetDocMan.Appended.connect(&CatchNewDocs);
+        dui.GetDocMan.Event.connect(&CatchNewDocs);
         Log.Entry("Engaged BRACE_INDENT element");
     }
 

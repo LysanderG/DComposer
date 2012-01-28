@@ -47,7 +47,7 @@ class SYMBOL_COMPLETION : ELEMENT
     DOCUMENT[]  mConnections;
 
 
-    void WatchForNewDocument(DOCUMENT_IF NuDoc)
+    void WatchForNewDocument(string EventId, DOCUMENT_IF NuDoc)
     {
         DOCUMENT Doc = cast(DOCUMENT) NuDoc;
 
@@ -117,7 +117,7 @@ class SYMBOL_COMPLETION : ELEMENT
     {
         mState = true;
 
-        dui.GetDocMan.Appended.connect(&WatchForNewDocument);
+        dui.GetDocMan.Event.connect(&WatchForNewDocument);
 
         Log.Entry("Engaged SYMBOL_COMPLETION element");
     }
@@ -127,7 +127,7 @@ class SYMBOL_COMPLETION : ELEMENT
     {
         mState = false;
         foreach (cnx; mConnections) cnx.TextInserted.disconnect(&WatchDoc);
-        dui.GetDocMan.Appended.disconnect(&WatchForNewDocument);
+        dui.GetDocMan.Event.disconnect(&WatchForNewDocument);
     }
    
 }  

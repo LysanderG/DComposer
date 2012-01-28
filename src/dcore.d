@@ -29,6 +29,8 @@ import project;
 import symbols;
 import debugger;
 
+public import search;
+
 
 import std.stdio;
 

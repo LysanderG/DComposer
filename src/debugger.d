@@ -279,11 +279,7 @@ class DEBUGGER
         }
         return 0;
     }
-            
-    
-        
-        
-            
+
 }
 
 static extern (C) int C_WatchKidOutput(GIOChannel* channel, GIOCondition Condition, void* Data)

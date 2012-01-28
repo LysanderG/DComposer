@@ -105,6 +105,8 @@ class MAIN_UI
 
     void Run()
     {
+        GetDocMan.OpenInitialDocs();
+        
         Log().Entry("Entering GTK Main Loop\n");
         Main.run();
         Log().Entry("Exiting GTK Main Loop");
@@ -123,6 +125,7 @@ class MAIN_UI
         mExtraPane  = cast(Notebook)    mBuilder.getObject("extrapane");
         mStatusBar  = cast(Statusbar)   mBuilder.getObject("statusbar");
         mIndicator  = cast(Label)       mBuilder.getObject("label1");
+        
         mActions    = new ActionGroup("global");
         mAccelerators=new AccelGroup();
 
@@ -134,7 +137,7 @@ class MAIN_UI
         QuitAction.setAccelGroup(mAccelerators);
         mActions.addActionWithAccel(QuitAction, null);
         AddMenuItem("System", QuitAction.createMenuItem());
-        AddToolBarItem(QuitAction.createToolItem(), -1);
+        AddToolBarItem(QuitAction.createToolItem());
         AddToolBarItem(new SeparatorToolItem);
 
 
@@ -156,12 +159,12 @@ class MAIN_UI
         ViewStatusBarAct.setActive(Config.getBoolean("UI", "view_statusbar", false));
         (ViewToolBarAct.getActive())?mToolBar.show() : mToolBar.hide();
         (ViewSidePaneAct.getActive())?mSidePane.show() : mSidePane.hide();
-        (ViewExtraPaneAct.getActive())?mExtraPane.show() : mExtraPane.hide();
+        (ViewExtraPaneAct.getActive())?mExtraPane.getParent.show() : mExtraPane.getParent.hide();
         (ViewStatusBarAct.getActive())?mStatusBar.show() : mStatusBar.hide();
 
         ViewToolBarAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mToolBar.show() : mToolBar.hide(); Config.setBoolean("UI","view_toolbar", cast(bool)x.getActive());});
         ViewSidePaneAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mSidePane.show() : mSidePane.hide();Config.setBoolean("UI","view_sidepane",cast(bool)x.getActive());});
-        ViewExtraPaneAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mExtraPane.show() : mExtraPane.hide();Config.setBoolean("UI","view_extrapane",cast(bool)x.getActive());});
+        ViewExtraPaneAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mExtraPane.getParent.show() : mExtraPane.getParent.hide();Config.setBoolean("UI","view_extrapane",cast(bool)x.getActive());});
         ViewStatusBarAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mStatusBar.show() : mStatusBar.hide();Config.setBoolean("UI","view_statusbar",cast(bool)x.getActive());});
         
         AddMenuItem("_View", ViewToolBarAct.createMenuItem());
@@ -187,7 +190,7 @@ class MAIN_UI
         //if(!rv)Main.quit();
         //return rv;
 
-        //mDocMan.CloseAllDocs(true);
+        //mDocMan.CloseAllDocs(true); if close all docs here nothing will be saved to config (ie "files_last_session" will be null)
         Main.quit();
         return false;
     }
@@ -232,7 +235,7 @@ class MAIN_UI
     Notebook        GetCenterPane(){return mCenterPane;}
     Notebook        GetSidePane(){return mSidePane;}
     Notebook        GetExtraPane() { return mExtraPane;}
-    ActionGroup     GetActions() {return mActions;}
+    ActionGroup     Actions() {return mActions;}
     MenuBar         GetMenuBar(){return mMenuBar;}
     AccelGroup      GetAccel(){return mAccelerators;}
 
@@ -247,7 +250,11 @@ class MAIN_UI
 
 }
 
+
+//popdoc types??
 enum :int { TYPE_NONE, TYPE_CALLTIP, TYPE_SCOPELIST, TYPE_SYMCOM}
+
+
 // --- menu
 //system        view        Document        edit        search      project     tools       elements        help
 //      qu    it  w         

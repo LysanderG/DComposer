@@ -22,6 +22,7 @@ module terminalui;
 
 import std.string;
 import std.stdio;
+import std.file;
 
 import dcore;
 import ui;
@@ -54,11 +55,14 @@ class TERMINAL_UI : ELEMENT
     Widget              mTerminal;
     GtkWidget *         cvte;
 
-    void NewDirectory(string dir)
+    void NewDirectory(string EventType)
     {
-        
-        immutable(char) * cdcmd = toStringz("cd " ~ dir ~ "\n");
-        vte_terminal_feed_child(cvte, cdcmd, dir.length +4); 
+        if(EventType == "WorkingPath")
+        {
+            
+            immutable(char) * cdcmd = toStringz("cd " ~ getcwd() ~ "\n");
+            vte_terminal_feed_child(cvte, cdcmd, getcwd().length +4);
+        }
     }
 
     public:
@@ -92,7 +96,7 @@ class TERMINAL_UI : ELEMENT
         vte_terminal_fork_command (cvte, null, null, null, null,true, true, true);
         g_signal_connect_object(cvte, cast(char*)toStringz("child-exited"),&Reset,null, cast(GConnectFlags)0);
 
-       // Project.BaseDirChanged.connect(&NewDirectory);
+        Project.Event.connect(&NewDirectory);
 
         Log.Entry("Engaged TERMINAL_UI element");
 

@@ -6,17 +6,17 @@
 #   ELEMENTS 
 
 logui.LOG_UI
-#searchui.SEARCH_UI
+searchui.SEARCH_UI
 projectui.PROJECT_UI
-#symbolview.SYMBOL_VIEW
-#indent.BRACE_INDENT
-#symcompletion.SYMBOL_COMPLETION
-#scopelist.SCOPE_LIST
-#calltips.CALL_TIPS
-#terminalui.TERMINAL_UI
+symbolview.SYMBOL_VIEW
+indent.BRACE_INDENT
+symcompletion.SYMBOL_COMPLETION
+scopelist.SCOPE_LIST
+calltips.CALL_TIPS
+terminalui.TERMINAL_UI
 proview.PROJECT_VIEW
-#dirview.DIR_VIEW
-#historyview.HISTORY_VIEW
-#messageui.MESSAGE_UI
-#debugui.DEBUG_UI
+dirview.DIR_VIEW
+historyview.HISTORY_VIEW
+messageui.MESSAGE_UI
+debugui.DEBUG_UI
 

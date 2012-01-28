@@ -49,7 +49,7 @@ class SCOPE_LIST : ELEMENT
     bool        mState;
 
 
-    void WatchForNewDocument(DOCUMENT_IF DocIF)
+    void WatchForNewDocument(string EventId, DOCUMENT_IF DocIF)
     {
         DOCUMENT DocX = cast (DOCUMENT) DocIF;
 
@@ -125,7 +125,7 @@ class SCOPE_LIST : ELEMENT
     void Engage()
     {
         
-        dui.GetDocMan.Appended.connect(&WatchForNewDocument);
+        dui.GetDocMan.Event.connect(&WatchForNewDocument);
 
         Log.Entry("Engaged SCOPE_LIST element");
     }

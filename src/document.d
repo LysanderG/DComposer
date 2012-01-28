@@ -65,34 +65,35 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
     void ModifyTabLabel(TextBuffer tb)
     {
-        if(IsModified()) mTabLabel.setMarkup(`<span foreground="black" > [* </span> <b>` ~ DisplayName ~ `</b><span foreground="black"  > *]</span>`);
+        if(Modified()) mTabLabel.setMarkup(`<span foreground="black" > [* </span> <b>` ~ DisplayName ~ `</b><span foreground="black"  > *]</span>`);
         else mTabLabel.setMarkup(DisplayName);
-        mTabLabel.setTooltipText(FullName);
+        mTabLabel.setTooltipText(FullPathName);
         
     }
 
-    //check for external modification ... stupid name I was like "what the hell is that" and I named it!
-    bool CheckExtMod(GdkEventFocus* Event, Widget widget)
+    bool CheckForExternalChanges(GdkEventFocus* Event, Widget widget)
     {
-        if(IsVirgin) return false;
+        if(Virgin) return false;
 
-        if(mTimeStamp < timeLastModified(FullName))
+        if(mTimeStamp < timeLastModified(FullPathName))
         {
             auto msg = new MessageDialog(dui.GetWindow, DialogFlags.MODAL, MessageType.QUESTION, ButtonsType.NONE, true,null);
-            msg.setMarkup(FullName ~ " has been modified externally.\nWould you like to reload it with any changes\nor ignore changes?");
+            msg.setMarkup(FullPathName ~ " has been modified externally.\nWould you like to reload it with any changes\nor ignore changes?");
             msg.addButton("Reload", 1000);
             msg.addButton("Ignore", 2000);
 
             auto rv = msg.run();
             msg.destroy();
-            if(rv == 1000)Open(FullName);
-            else mTimeStamp = timeLastModified(FullName);
+            if(rv == 1000)Open(FullPathName);
+            else mTimeStamp = timeLastModified(FullPathName);
         }
         return false;
     }
 
     void SetBreakPoint(TextIter ti, GdkEvent * event, SourceView sv)
     {
+        scope(failure){Log.Entry("Error setting/removing breakpoint.","Error");return;}
+        
         auto x = getBuffer.getSourceMarksAtIter(ti,"breakpoint");
         if(x is null)
         {
@@ -104,13 +105,60 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         BreakPoint.emit("remove", DisplayName, ti.getLine());
     }        
 
-    
+    void TabXButton(Button x)
+    {
+        dui.GetDocMan().CloseDoc(mFullName);
+    }
+
+    void SetupSourceView()
+    {
+        auto Language = SourceLanguageManager.getDefault().guessLanguage(FullPathName,null);
+        if(Language!is null) getBuffer.setLanguage(Language);
+
+        string StyleId = Config.getString("DOCMAN","style_scheme", "mnml");
+        writeln(StyleId);
+        getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleId));
+
+
+
+        setTabWidth(Config.getInteger("DOCMAN", "tab_width", 4));
+
+        setInsertSpacesInsteadOfTabs(Config.getBoolean("DOCMAN","spaces_for_tabs", true));
+        setAutoIndent(true);
+        setShowLineNumbers(true);
+
+        string fontname = Config.getString("DOCMAN", "font_name", "Anonymous Pro");
+        int fontsize = Config.getInteger("DOCMAN", "font_size", 12);
+        modifyFont(fontname,fontsize);
+
+        setSmartHomeEnd(SourceSmartHomeEndType.AFTER);
+        
+        setShowLineMarks(true);
+        setMarkCategoryIconFromStock ("breakpoint", "gtk-yes");
+        setMarkCategoryIconFromStock ("lineindicator", "gtk-go-forward");
+        addOnLineMarkActivated(&SetBreakPoint);
+        BreakPoint.connect(&Debugger.CatchBreakPoint);
+
+        getBuffer.createTag("hiliteback", "background", "green");
+        getBuffer.createTag("hilitefore", "foreground", "yellow");
+
+        getBuffer.addOnInsertText(&OnInsertText, cast(GConnectFlags)1);
+    }
 
     public:
 
-    @property string DisplayName(){return baseName(mFullName);}
-    @property string FullName(){return mFullName;}
-    @property void FullName(string NuName){mFullName = NuName; mTabLabel.setMarkup(DisplayName);}
+    @property string    DisplayName(){return baseName(mFullName);}
+    @property void      DisplayName(string DisplayName){}
+    @property string    FullPathName(){return mFullName;}
+    @property void      FullPathName(string NuName){mFullName = NuName; mTabLabel.setMarkup(DisplayName);}
+    @property bool      Virgin(){return mVirgin;}
+    @property void      Virgin(bool still){if (still == false)mVirgin = false;}
+    @property bool      Modified() {return cast(bool)getBuffer.getModified();}
+    @property void      Modified(bool modded){getBuffer.setModified(modded);}
+
+    ubyte[] RawData(){ return cast(ubyte[]) getBuffer.getText();}
+
+
 
     this()
     {
@@ -119,26 +167,21 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         getBuffer().addOnModifiedChanged(&ModifyTabLabel);
 
         addOnKeyPress(&dui.GetDocPop.CatchKey);
-        addOnButtonPress(&dui.GetDocPop.CatchButton);    
-
-        addOnFocusIn(&CheckExtMod);
+        addOnButtonPress(&dui.GetDocPop.CatchButton); 
+        addOnFocusIn(&CheckForExternalChanges);
     }
     
     bool Create(string identifier)
     {
-        FullName = identifier;
+        FullPathName = identifier;
         mVirgin = true;
-
-        SetupSourceView();
-        
+        SetupSourceView();        
         return true;
     }
 
     bool Open(string FileName, ulong LineNo = 1)
     {
-
         string DocText;
-
         try
         {
             DocText = readText(FileName);
@@ -155,50 +198,46 @@ class DOCUMENT : SourceView, DOCUMENT_IF
             //DocText = MultiRead(FileName);
             DocText = null;
             return false;
-        }
-
-        //if(DocText is null) return false;
-
-        
+        }        
         
         getBuffer.beginNotUndoableAction();
         getBuffer.setText(DocText);
         getBuffer.endNotUndoableAction();
-        FullName = FileName;
-        mTimeStamp = timeLastModified(FullName);
+        FullPathName = FileName;
+        mTimeStamp = timeLastModified(FullPathName);
         mVirgin = false;
         getBuffer.setModified(false);
 
         SetupSourceView();
         return true;
     }
-
     
     bool    Save()
     {
-        if(IsVirgin()) return false;
+                
+        if(Virgin) return false;
 
-        if(!IsModified) return false; //no need to save
+        if(!Modified) return false; //no need to save
 
         string saveText = getBuffer.getText();
 
-        std.file.write(FullName, saveText);
+        std.file.write(FullPathName, saveText);
 
         getBuffer.setModified(0);
-        mTimeStamp = timeLastModified(FullName);
+        mTimeStamp = timeLastModified(FullPathName);
         mVirgin = false;
                 
         return true;
     }
     bool    SaveAs(string NewName)
     {
-        FullName = NewName;
+        FullPathName = NewName;
         string saveText = getBuffer.getText();
 
-        std.file.write(FullName, saveText);
+        std.file.write(FullPathName, saveText);
 
         getBuffer.setModified(0);
-        mTimeStamp = timeLastModified(FullName);
+        mTimeStamp = timeLastModified(FullPathName);
         mVirgin = false;
         ModifyTabLabel(getBuffer);
                 
@@ -206,7 +245,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
     }
     bool    Close(bool Quitting = false)
     {
-        if(!IsModified())return true;
+        if(!Modified())return true;
 
         auto ToSaveDiscardOrKeepOpen = new MessageDialog(dui.GetWindow(), DialogFlags.DESTROY_WITH_PARENT, GtkMessageType.INFO, ButtonsType.NONE, true, null); 
         ToSaveDiscardOrKeepOpen.setMarkup("Closing a modified file :" ~ DisplayName ~ "\nWhat do you wish to do?");
@@ -227,14 +266,9 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
         return true;
 
-    }
+    }    
 
-    string  GetDisplayName(){return mFullName;}
-    string  GetFullFileName(){return mFullName;}
-    bool    IsModified(){return cast(bool)getBuffer().getModified();}
-    
-    bool    IsVirgin(){return mVirgin;}
-    Widget  GetTab()
+    Widget TabWidget()
     {
         HBox Tab = new HBox(0,1);
         Button xbtn = new Button(StockID.CLOSE, &TabXButton, true);
@@ -248,51 +282,17 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         Tab.setChildPacking (mTabLabel, 1, 1,0, GtkPackType.START);
         Tab.setChildPacking (xbtn, 1, 1,0, GtkPackType.END);
         
-        mTabLabel.setTooltipText(FullName);
+        mTabLabel.setTooltipText(FullPathName);
         Tab.showAll();
         
         return Tab;
     }
-    Widget  GetPage(){return this;}
+    Widget  GetWidget(){return this;}
+    Widget  GetPage(){return getParent();}
 
-
-    void TabXButton(Button x)
-    {
-        dui.GetDocMan().CloseDoc(mFullName);
-    }
-
-    void GrabFocus()
+    void Focus()
     {
         grabFocus();
-    }
-
-
-    void SetupSourceView()
-    {
-        auto Language = SourceLanguageManager.getDefault().guessLanguage(FullName,null);
-        if(Language!is null) getBuffer.setLanguage(Language);
-
-        string StyleId = Config().getString("DOCMAN","style_scheme");
-        getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleId));
-
-        setTabWidth(Config().getInteger("DOCMAN", "tab_width"));
-
-        setInsertSpacesInsteadOfTabs(Config().getBoolean("DOCMAN","spaces_for_tabs"));
-        setAutoIndent(true);
-        setShowLineNumbers(true);
-        modifyFont("Anonymous Pro", 12);
-
-        setSmartHomeEnd(SourceSmartHomeEndType.AFTER);
-        
-        setShowLineMarks(true);
-        setMarkCategoryIconFromStock ("breakpoint", "gtk-yes");
-        addOnLineMarkActivated(&SetBreakPoint);
-        BreakPoint.connect(&Debugger.CatchBreakPoint);
-
-        getBuffer.createTag("hiliteback", "background", "green");
-        getBuffer.createTag("hilitefore", "foreground", "yellow");
-
-        getBuffer.addOnInsertText(&OnInsertText, cast(GConnectFlags)1);
     }
 
     void Edit(string Verb)
@@ -313,7 +313,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
             
     }
 
-    void GotoLine(int Line)
+    void GotoLine(uint Line)
     {
         TextIter ti = new TextIter;
 
@@ -324,7 +324,15 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         auto mark = getBuffer.createMark("scroller", ti, 1);
         //scrollToIter(ti , 0.25, true, 0.0, 0.0);
         //scrollMarkOnscreen(mark);
-        scrollToMark (mark, 0.00, true , 0.000, 0.000); 
+        scrollToMark (mark, 0.00, true , 0.000, 0.000);
+        TextIter tistart, tiend;
+        tistart = new TextIter;
+        tiend = new TextIter;
+        getBuffer.getStartIter(tistart);
+        getBuffer.getEndIter(tiend);
+        getBuffer.removeSourceMarks(tistart, tiend, "lineindicator");
+        getBuffer.createSourceMark(null, "lineindicator", ti);
+        
     }
 
     void HiliteFindMatch(int Line, int start, int len)
@@ -356,7 +364,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
         TextInserted.emit(this, ti, text, getBuffer);
 
-        getBuffer.getIterAtMark(ti, mark);       
+        //getBuffer.getIterAtMark(ti, mark);       
         
     }
 

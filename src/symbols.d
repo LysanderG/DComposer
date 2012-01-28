@@ -225,20 +225,45 @@ class SYMBOLS
         }
         
     }
+
+    void ProjectWatch(string EventType)
+    {
+
+        if(EventType == "Close")
+        {
+            mSymbols.remove(Project.Name());
+            emit();
+            return;
+        }
+
+        if(EventType == "CreateTags")
+        {
+            scope(failure){Log.Entry("Failed to load project symbols","Error");return;}
+            Load(Project.Name(), Project.Name() ~ ".tags");
+            return;
+        }
+    }
+    
     public :
 
     void Engage()
     {
         ulong waste;
                 
-        string[] keys = Config().getKeys("SYMBOLS", waste);
+        string[] keys = Config().getKeys("SYMBOL_LIBS", waste);
 
         foreach(key; keys)
         {
-            auto tmp = Config().getString("SYMBOLS", key, "huh");
+            auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");
             
             Load(key, tmp);
         }
+
+        if(Config.getBoolean("SYMBOLS", "auto_load_project_symbols", true))
+        {
+            Project.Event.connect(&ProjectWatch);
+        }
+            
 
         Log().Entry("Engaged SYMBOLS");        
     }

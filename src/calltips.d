@@ -76,7 +76,7 @@ class CALL_TIPS : ELEMENT
     {
         mState = true;
 
-        dui.GetDocMan.Appended.connect(&WatchForNewDocument);
+        dui.GetDocMan.Event.connect(&WatchForNewDocument);
 
         //can read preopened docs from config ... they dont change til docman.disengage
         //or just flip thru centerpane?
@@ -87,7 +87,7 @@ class CALL_TIPS : ELEMENT
     void Disengage()
     {
         mState = false;
-        dui.GetDocMan.Appended.disconnect(&WatchForNewDocument);
+        dui.GetDocMan.Event.disconnect(&WatchForNewDocument);
         foreach(Doc; ConnectedDocs) Doc.TextInserted.disconnect(&WatchDoc);
         mStack.length = 0;
         ConnectedDocs.length = 0;
@@ -95,7 +95,7 @@ class CALL_TIPS : ELEMENT
                 
     }
 
-    void WatchForNewDocument(DOCUMENT_IF docIF)
+    void WatchForNewDocument(string EventId, DOCUMENT_IF docIF)
     {
         DOCUMENT DocX = cast(DOCUMENT) docIF;
 

@@ -440,13 +440,13 @@ class PROJECT_UI : ELEMENT
         ProRunAct           .setAccelGroup(dui.GetAccel());
         ProRunArgsAct       .setAccelGroup(dui.GetAccel());
 
-        dui.GetActions().addActionWithAccel(ProNewAct    , "F5");
-        dui.GetActions().addActionWithAccel(ProOpenAct   , "F6");
-        dui.GetActions().addActionWithAccel(ProOptsAct   , "F7");
-        dui.GetActions().addActionWithAccel(ProRefAct    , "F8");
-        dui.GetActions().addActionWithAccel(ProBuildAct  , "F9");
-        dui.GetActions().addActionWithAccel(ProRunAct    , "F10");
-        dui.GetActions().addActionWithAccel(ProRunArgsAct, "<SHIFT>F10");
+        dui.Actions().addActionWithAccel(ProNewAct    , "F5");
+        dui.Actions().addActionWithAccel(ProOpenAct   , "F6");
+        dui.Actions().addActionWithAccel(ProOptsAct   , "F7");
+        dui.Actions().addActionWithAccel(ProRefAct    , "F8");
+        dui.Actions().addActionWithAccel(ProBuildAct  , "F9");
+        dui.Actions().addActionWithAccel(ProRunAct    , "F10");
+        dui.Actions().addActionWithAccel(ProRunArgsAct, "<SHIFT>F10");
 
 
         dui.AddMenuItem("_Project", ProNewAct    .createMenuItem());

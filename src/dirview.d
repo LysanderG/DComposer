@@ -119,8 +119,8 @@ class DIR_VIEW : ELEMENT
 
     void GoHome(ToolButton x)
     {
-        if((Project.Target != TARGET.NULL) || (Project.Target != TARGET.UNDEFINED)) Folder = Project.WorkingPath;
-        else Folder = expandTilde("~");
+        if((Project.Target == TARGET.NULL) || (Project.Target == TARGET.UNDEFINED))Folder = expandTilde("~"); 
+        else Folder = Project.WorkingPath;
     }
 
     void GoToCurrentDocFolder(ToolButton x)
@@ -128,7 +128,7 @@ class DIR_VIEW : ELEMENT
         auto docX = dui.GetDocMan.GetDocX();
         if(docX is null) return;
 
-        Folder = dirName(docX.FullName);
+        Folder = dirName(docX.FullPathName);
     }
 
     void FileClicked( TreePath tp, TreeViewColumn tvc, TreeView tv)

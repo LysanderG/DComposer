@@ -18,12 +18,21 @@ long_line_behaviour=1
 long_line_column=120
 
 [files]
-current_page=0
-FILE_NAME_0=15635;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fproject.d;0;4
-FILE_NAME_1=20366;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fprojectui.d;0;4
-FILE_NAME_2=0;Conf;0;16;0;1;0;%2Fhome%2Fanthony%2F.neontotem%2Fdcomposer%2Fdcomposer.cfg;0;4
-FILE_NAME_3=4898;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsearchui.d;0;4
-FILE_NAME_4=7575;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbols.d;0;4
+current_page=6
+FILE_NAME_0=949;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdcomposer.d;0;4
+FILE_NAME_1=1008;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdcore.d;0;4
+FILE_NAME_2=7650;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbols.d;0;4
+FILE_NAME_3=445;Conf;0;16;0;1;0;%2Fhome%2Fanthony%2F.neontotem%2Fdcomposer%2Fdcomposer.cfg;0;4
+FILE_NAME_4=13518;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fproject.d;0;4
+FILE_NAME_5=11377;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsearchui.d;0;4
+FILE_NAME_6=1693;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsearch.d;0;4
+FILE_NAME_7=0;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fterminal.d;0;4
+FILE_NAME_8=2249;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fterminalui.d;0;4
+FILE_NAME_9=6356;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fui.d;0;4
+FILE_NAME_10=20481;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdocman.d;0;4
+FILE_NAME_11=3125;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fcalltips.d;0;4
+FILE_NAME_12=3864;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fconfig.d;0;4
+FILE_NAME_13=3286;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdocument.d;0;4
 
 [build-menu]
 DFT_01_LB=_Build
@@ -48,6 +57,12 @@ source_patterns=*;
 header_patterns=*.di;
 ignored_dirs_patterns=.*;CVS;
 generate_tags=true
+
+[file_prefs]
+final_new_line=true
+ensure_convert_new_lines=false
+strip_trailing_spaces=false
+replace_tabs=false
 
 [debugger]
 target=/home/anthony/projects/dcomposer2/dcomposer

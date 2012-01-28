@@ -531,12 +531,14 @@ class PROJECT
     //====================
     //List stuff -- lvalue ?? lvalue?? wtf  this didnt work so well
 
+    //if target is null should return null!
+
     void opOpAssign(string s = "+=")(string Key)                    {   mList.AddKey(Key);          Event.emit("ListChange");}
     void opOpAssign(string s = "-=")(string Key)                    {   mList.RemoveKey(Key);       Event.emit("ListChange");} 
     void opIndexAssign(LIST Data, string Key)                       {   mList.SetKey(Key, Data);    Event.emit("ListChange");}
     void opOpIndexAssign(string s = "~=")(LIST Data, string Key)    {   mList.ConcatData(Key, Data);Event.emit("ListChange");}
     void opOpIndexAssign(string s = "~=")(string Data, string Key)  {   mList.ConcatData(Key, Data);Event.emit("ListChange");}
-    string[] opIndex(string Key)                                    {   return mList.GetData(Key);  Event.emit("ListChange");}
+    string[] opIndex(string Key)                                    {   return mList.GetData(Key);  }//Event.emit("ListChange");}
 
     void SetList(string Key, LIST Data)                             {   mList.SetKey(Key, Data);Event.emit("ListChange");}
     void SetList(string Key, string Data)                           {   mList.SetKey(Key, [Data]);Event.emit("ListChange");}

@@ -187,19 +187,19 @@ class PROJECT_VIEW : ELEMENT
     {
 
         
-        auto tmp = dui.GetActions.getAction("ProNewAct"    );
+        auto tmp = dui.Actions.getAction("ProNewAct"    );
         mToolBar.insert(tmp.createToolItem());
-        tmp = dui.GetActions.getAction("ProOpenAct"   );
+        tmp = dui.Actions.getAction("ProOpenAct"   );
         mToolBar.insert(tmp.createToolItem());
-        tmp = dui.GetActions.getAction("ProOptsAct"   );
+        tmp = dui.Actions.getAction("ProOptsAct"   );
         mToolBar.insert(tmp.createToolItem());
-        tmp = dui.GetActions.getAction("ProRefAct"    );
+        tmp = dui.Actions.getAction("ProRefAct"    );
         mToolBar.insert(tmp.createToolItem());
-        tmp = dui.GetActions.getAction("ProBuildAct"  );
+        tmp = dui.Actions.getAction("ProBuildAct"  );
         mToolBar.insert(tmp.createToolItem());
-        tmp = dui.GetActions.getAction("ProRunAct"    );
+        tmp = dui.Actions.getAction("ProRunAct"    );
         mToolBar.insert(tmp.createToolItem());
-        tmp = dui.GetActions.getAction("ProRunArgsAcg");
+        tmp = dui.Actions.getAction("ProRunArgsAcg");
         mToolBar.insert(tmp.createToolItem());
     }
 
@@ -354,6 +354,7 @@ class PROJECT_VIEW : ELEMENT
         mRemove     = cast(ToolButton)  mBuilding.getObject("toolbutton2");
         mCellText   = cast(CellRendererText) mBuilding.getObject("cellrenderertext2");
 
+        dui.GetSidePane.appendPage(mRoot, "Project");
 
           
 
@@ -377,7 +378,7 @@ class PROJECT_VIEW : ELEMENT
         mRoot.showAll();
         mToolBar.setFocusChild(mRemove);
 
-        dui.GetSidePane.appendPage(mRoot, "Project");
+        
 
         Log.Entry("Engaged PROJECT_VIEW element");
     }
