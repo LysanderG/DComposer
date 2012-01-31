@@ -385,6 +385,7 @@ class PROJECT_VIEW : ELEMENT
 
     void Disengage()
     {
+        Project.Event.disconnect(&UpdateProject);
         Log.Entry("Disengaged PROJECT_VIEW element");
     }
 }

@@ -579,7 +579,7 @@ class DOCMAN
     }
 
 
-    void AppendDocument(DOCUMENT_IF Doc, uint LineNo = 1)
+    void AppendDocument(DOCUMENT_IF Doc, uint LineNo = 0)
     {
         ScrolledWindow ScrollWin = new ScrolledWindow(null, null);
 		ScrollWin.add(Doc.GetWidget());
@@ -590,7 +590,7 @@ class DOCMAN
         dui.GetCenterPane().appendPage(ScrollWin, Doc.TabWidget());
         dui.GetCenterPane().setTabReorderable(ScrollWin, 1);
         dui.GetCenterPane().setCurrentPage(ScrollWin);
-        Doc.GetPage().grabFocus();
+        Doc.GetWidget().grabFocus();
         Doc.GotoLine(LineNo);
 
         Event.emit("AppendDocument", Doc);

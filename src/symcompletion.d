@@ -57,13 +57,17 @@ class SYMBOL_COMPLETION : ELEMENT
 
     void WatchDoc(DOCUMENT doc, TextIter ti, string text, SourceBuffer buffer)
     {
-        if ((text == ".") || (text == "(") || text == ")") return;
+        if(doc.IsPasting) return;
+        
         if(active)
         {
             active = false;
             dui.GetDocPop.Close(TYPE_SYMCOM);
         }
-
+		
+		if ((text == ".") || (text == "(") || text == ")") return;
+		
+		
         if(text.length > 1) return;
         if( !( (isAlphaNum(text[0])) || (text == "_"))) return;
         
@@ -80,6 +84,7 @@ class SYMBOL_COMPLETION : ELEMENT
         if(CouldMoveback)WordStart.forwardChar();
 
         string Candidate = WordStart.getText(ti);
+        writeln("SymCompletion Candidate = ", Candidate);
 
         auto tmp = Symbols.Match(Candidate);
      

@@ -382,7 +382,7 @@ class PROJECT_UI : ELEMENT
         mFlagToggle.addOnToggled(delegate void(string x, CellRendererToggle t){TreeIter ti = new TreeIter(mFlagStore, x);Value gval = new Value;ti.getValue(0, gval);gval.setBoolean(!gval.getBoolean());mFlagStore.setValue(ti, 0, gval);});
         mFlagArg.addOnEdited(delegate void(string pth, string txt, CellRendererText t){ TreeIter ti = new TreeIter(mFlagStore, pth); mFlagStore.setValue(ti,2,txt);});
 
-        Project.Event.connect(&ProjEventWatcher);
+        
 
         mBtnApply.addOnClicked(delegate void (Button X){SyncProjectToGui(); mSkipWatchingProject=true; Project.Save(); mSkipWatchingProject = false;});
 		mBtnHide.addOnClicked(delegate void (Button X){mRootVBox.hide();});
@@ -403,10 +403,12 @@ class PROJECT_UI : ELEMENT
         mRootVBox.hide();
         dui.GetCenterPane.prependPage(mRootVBox, mTabLabel);
         EngageActions();
+        Project.Event.connect(&ProjEventWatcher);
         Log.Entry("Engaged PROJECT_UI element");
     }
     void Disengage()
     {
+        Project.Event.disconnect(&ProjEventWatcher);
         mState = false;
         mRootVBox.hide();
     }

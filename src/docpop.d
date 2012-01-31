@@ -27,6 +27,7 @@ import dcore;
 
 import std.stdio;
 import std.algorithm;
+import core.memory;
 
 
 import gtk.Builder;
@@ -50,6 +51,7 @@ import glib.SimpleXML;
 
 
 
+
 struct STACK
 {
     string[]    Possibles;
@@ -58,11 +60,14 @@ struct STACK
     int         Type;
     DOCUMENT    Owner;
 
-    void        FillModel(ref ListStore x)
+    void        FillModel(out ListStore x)
     {
+        writeln(">fillmodel");
         TreeIter ti = new TreeIter;
         //ListStore ls = cast(ListStore)(tv.getModel());
-        x.clear();
+        x = new ListStore([GType.STRING, GType.STRING]);
+        
+
         foreach(P; Possibles)
         {
             //P = SimpleXML.escapeText(P, -1);
@@ -70,10 +75,10 @@ struct STACK
             x.setValue(ti, 0, P);
             x.setValue(ti, 1, "anything");
         }
-        
+
+        writeln("fillmodel >");
     }
-}
-    
+}    
 
 
 class DOC_POP
@@ -86,6 +91,7 @@ class DOC_POP
     Window          mWindow;
     TreeView        mTreeView;
     ListStore       mListStore;
+    ListStore       mListStoreExtra;
 
     STACK[128]      mStack;
     int             mCurStack;
@@ -120,6 +126,8 @@ class DOC_POP
 
     void Push(DOCUMENT doc, TextIter where, string[] ListOfPossibles, int Type )
     {
+
+        sort(ListOfPossibles);
         mCurStack++;
         
         //find location
@@ -148,9 +156,10 @@ class DOC_POP
 
         mTreeView.setCursor(new TreePath("0"), null, false);
              
-        mWindow.resize(doc.getAllocation().width/2, 120);
+        mWindow.resize(doc.getAllocation().width, 160);
         mWindow.move(wx, wy);
 
+        mTreeView.setModel(mListStore);
         mWindow.show();      
     }
 
@@ -208,13 +217,14 @@ class DOC_POP
         TreeViewColumn tvc = new TreeViewColumn;
         auto key = EvntKey.keyval;
 
-        if ( key == GdkKeysyms.GDK_Escape)
+        if ( key == GdkKeysyms.GDK_Escape) 
         {
             Hide();
             return true;
         }
 
         if ((key == GdkKeysyms.GDK_Return ) || (key == GdkKeysyms.GDK_KP_Enter))
+        //if(key == GdkKeysyms.GDK_Tab)
         {
             
             if((mCurrentType == TYPE_SYMCOM) || (mCurrentType == TYPE_SCOPELIST))
@@ -256,7 +266,7 @@ class DOC_POP
             return true;
         }
 
-        if ( (key == GdkKeysyms.GDK_Down) || (key == GdkKeysyms.GDK_KP_Down))
+        if ( (key == GdkKeysyms.GDK_Down) || (key == GdkKeysyms.GDK_KP_Down) || (key == GdkKeysyms.GDK_Tab))
         {
             
             mTreeView.getCursor(tp, tvc);

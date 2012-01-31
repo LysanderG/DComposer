@@ -111,7 +111,7 @@ class SEARCH_UI : ELEMENT
 
     void EditedFind(CellEditableIF ci)
     {
-
+        TI = new TreeIter;
         mFindList.append(TI);
         mFindList.setValue(TI,0, mFind.getText());
 
@@ -233,6 +233,7 @@ class SEARCH_UI : ELEMENT
             if (Splits[1].empty) return;
             
             TI = new TreeIter;
+            writeln("---");
             mResultsList.append(TI);
             mResultsList.setValue(TI, 0, result.DocName);
             mResultsList.setValue(TI, 1, cast(int)result.LineNumber);
@@ -241,7 +242,11 @@ class SEARCH_UI : ELEMENT
             mResultsList.setValue(TI, 4, cast(int)result.StartOffset);
             mResultsList.setValue(TI, 5, cast(int)result.EndOffset);
         }
-                    
+        writeln("here!");
+        mResultsView.setCursor(new TreePath(true), null, false);
+        writeln("here@@");
+        mResultsView.grabFocus();
+        writeln("here@@@");
     }
 
     
@@ -391,7 +396,7 @@ class SEARCH_UI : ELEMENT
         string filename = mResultsList.getValueString(TI, 3);
         int line        = mResultsList.getValueInt(TI,1);
         int offstart    = mResultsList.getValueInt(TI, 4);
-        int offend      = mResultsList.getValueInt(TI, 5) + offstart;
+        int offend      = mResultsList.getValueInt(TI, 5);
         DOCUMENT tmp = cast (DOCUMENT) dui.GetDocMan.GetDocX();
         if (tmp is null) return;
 
@@ -401,7 +406,10 @@ class SEARCH_UI : ELEMENT
         tmp.getBuffer.getIterAtLineOffset (txti1, line-1, offstart);
         tmp.getBuffer.getIterAtLineOffset (txti2, line-1, offend);
         tmp.getBuffer.delet(txti1, txti2);
+        //tmp.getBuffer.getIterAtLineOffset(txti1,line-1,offstart);
         tmp.getBuffer.insert(txti1, mReplace.getText(), -1);
+        mResultsList.remove(TI);
+        writeln("replaceone");
     }
         
     

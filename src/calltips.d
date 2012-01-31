@@ -78,8 +78,6 @@ class CALL_TIPS : ELEMENT
 
         dui.GetDocMan.Event.connect(&WatchForNewDocument);
 
-        //can read preopened docs from config ... they dont change til docman.disengage
-        //or just flip thru centerpane?
 
         Log.Entry("Engaged CALL_TIPS element");
     }
@@ -99,7 +97,7 @@ class CALL_TIPS : ELEMENT
     {
         DOCUMENT DocX = cast(DOCUMENT) docIF;
 
-        DocX.addOnFocusOut (delegate bool (GdkEventFocus* ev, Widget w){dui.GetDocPop.Hide();return false;}); 
+        //DocX.addOnFocusOut (delegate bool (GdkEventFocus* ev, Widget w){dui.GetDocPop.Hide();return false;}); 
 
         
         DocX.TextInserted.connect(&WatchDoc);
@@ -109,6 +107,7 @@ class CALL_TIPS : ELEMENT
 
     void WatchDoc(DOCUMENT sv , TextIter ti, string Text, SourceBuffer Buffer)
     {
+        if(sv.IsPasting) return;
         switch(Text)
         {
             case "(" :

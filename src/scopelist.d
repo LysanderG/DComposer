@@ -60,6 +60,7 @@ class SCOPE_LIST : ELEMENT
 
     void WatchDoc(DOCUMENT sv, TextIter ti, string text, SourceBuffer buffer)
     {
+        if (sv.IsPasting) return;
         if (text != ".")
         {
             if(mState)

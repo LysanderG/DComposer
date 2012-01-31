@@ -1,0 +1,5424 @@
+[
+{
+"name" : "ui",
+"kind" : "module",
+"file" : "src\/ui.d",
+"members" : [
+{
+"name" : "dui",
+"kind" : "variable",
+"protection" : "public",
+"type" : "ui.MAIN_UI",
+"line" : 50}
+,
+{
+"name" : "MAIN_UI",
+"kind" : "class",
+"protection" : "public",
+"line" : 58,
+"base" : "Object",
+"members" : [
+{
+"name" : "mBuilder",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Builder.Builder",
+"line" : 62}
+,
+{
+"name" : "mWindow",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Window.Window",
+"line" : 64}
+,
+{
+"name" : "mMenuBar",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.MenuBar.MenuBar",
+"line" : 65}
+,
+{
+"name" : "mToolBar",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Toolbar.Toolbar",
+"line" : 66}
+,
+{
+"name" : "mCenterPane",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Notebook.Notebook",
+"line" : 67}
+,
+{
+"name" : "mSidePane",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Notebook.Notebook",
+"line" : 68}
+,
+{
+"name" : "mExtraPane",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Notebook.Notebook",
+"line" : 69}
+,
+{
+"name" : "mStatusBar",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Statusbar.Statusbar",
+"line" : 70}
+,
+{
+"name" : "mActions",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ActionGroup.ActionGroup",
+"line" : 71}
+,
+{
+"name" : "mAccelerators",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.AccelGroup.AccelGroup",
+"line" : 72}
+,
+{
+"name" : "mIndicator",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Label.Label",
+"line" : 73}
+,
+{
+"name" : "mSubMenus",
+"kind" : "variable",
+"protection" : "private",
+"type" : "Menu[string]",
+"line" : 75}
+,
+{
+"name" : "mDocMan",
+"kind" : "variable",
+"protection" : "private",
+"type" : "docman.DOCMAN",
+"line" : 76}
+,
+{
+"name" : "mDocPop",
+"kind" : "variable",
+"protection" : "private",
+"type" : "docpop.DOC_POP",
+"line" : 77}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string[] CmdArgs)",
+"line" : 81}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 99}
+,
+{
+"name" : "Run",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 106}
+,
+{
+"name" : "EngageWidgets",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 115}
+,
+{
+"name" : "ConfirmQuit",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool(Event e, Widget w)",
+"line" : 180}
+,
+{
+"name" : "AddMenuItem",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string MenuID, Widget Addition, int Position = -1)",
+"line" : 198}
+,
+{
+"name" : "AddToolBarItem",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(ToolItem NuItem, int Position = -2)",
+"line" : 215}
+,
+{
+"name" : "PerformAction",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string ActionName)",
+"line" : 227}
+,
+{
+"name" : "GetWindow",
+"kind" : "function",
+"protection" : "public",
+"type" : "Window()",
+"line" : 234}
+,
+{
+"name" : "GetCenterPane",
+"kind" : "function",
+"protection" : "public",
+"type" : "Notebook()",
+"line" : 235}
+,
+{
+"name" : "GetSidePane",
+"kind" : "function",
+"protection" : "public",
+"type" : "Notebook()",
+"line" : 236}
+,
+{
+"name" : "GetExtraPane",
+"kind" : "function",
+"protection" : "public",
+"type" : "Notebook()",
+"line" : 237}
+,
+{
+"name" : "Actions",
+"kind" : "function",
+"protection" : "public",
+"type" : "ActionGroup()",
+"line" : 238}
+,
+{
+"name" : "GetMenuBar",
+"kind" : "function",
+"protection" : "public",
+"type" : "MenuBar()",
+"line" : 239}
+,
+{
+"name" : "GetAccel",
+"kind" : "function",
+"protection" : "public",
+"type" : "AccelGroup()",
+"line" : 240}
+,
+{
+"name" : "GetDocMan",
+"kind" : "function",
+"protection" : "public",
+"type" : "DOCMAN()",
+"line" : 242}
+,
+{
+"name" : "GetDocPop",
+"kind" : "function",
+"protection" : "public",
+"type" : "DOC_POP()",
+"line" : 243}
+,
+{
+"name" : "WatchProjectName",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string EventType)",
+"line" : 246}
+]
+}
+,
+{
+"name" : "TYPE_NONE",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 255}
+,
+{
+"name" : "TYPE_CALLTIP",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 255}
+,
+{
+"name" : "TYPE_SCOPELIST",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 255}
+,
+{
+"name" : "TYPE_SYMCOM",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 255}
+]
+}
+,
+{
+"name" : "terminalui",
+"kind" : "module",
+"file" : "src\/terminalui.d",
+"members" : [
+{
+"name" : "vte_terminal_new",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) GtkWidget*()",
+"line" : 37}
+,
+{
+"name" : "vte_terminal_fork_command_full",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) int(GtkWidget* terminal, int pty_flags, const const(char*) working_directory, const const(char**) argv, char** envv, int spawn_flags, void* child_setup, void* child_setup_data, void* child_pid, void* error)",
+"line" : 38}
+,
+{
+"name" : "vte_terminal_feed_child",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkWidget* terminal, const const(char*) data, long length)",
+"line" : 39}
+,
+{
+"name" : "vte_terminal_fork_command",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) int(GtkWidget* terminal, const const(char*) command, char** argv, char** envv, const const(char*) working_directory, int lastlog, int utmp, int wtmp)",
+"line" : 40}
+,
+{
+"name" : "vte_terminal_reset",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkWidget* terminal, int clear_tabstops, int clear_history)",
+"line" : 41}
+,
+{
+"name" : "TERMINAL_UI",
+"kind" : "class",
+"protection" : "public",
+"line" : 45,
+"base" : "Object",
+"interfaces" : [
+"ELEMENT"],
+"members" : [
+{
+"name" : "mName",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 49}
+,
+{
+"name" : "mInfo",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 50}
+,
+{
+"name" : "mState",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 51}
+,
+{
+"name" : "mScrWin",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ScrolledWindow.ScrolledWindow",
+"line" : 54}
+,
+{
+"name" : "mTerminal",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Widget.Widget",
+"line" : 55}
+,
+{
+"name" : "cvte",
+"kind" : "variable",
+"protection" : "private",
+"type" : "GtkWidget*",
+"line" : 56}
+,
+{
+"name" : "NewDirectory",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string EventType)",
+"line" : 58}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "TERMINAL_UI()",
+"line" : 70}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 77}
+,
+{
+"name" : "Information",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 78}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 79}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool nuState)",
+"line" : 80}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 85}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 108}
+]
+}
+,
+{
+"name" : "g_cvte",
+"kind" : "variable",
+"protection" : "private",
+"type" : "GtkWidget*",
+"line" : 118}
+,
+{
+"name" : "Reset",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void()",
+"line" : 120}
+]
+}
+,
+{
+"name" : "symcompletion",
+"kind" : "module",
+"file" : "src\/symcompletion.d",
+"members" : [
+{
+"name" : "SYMBOL_COMPLETION",
+"kind" : "class",
+"protection" : "public",
+"line" : 38,
+"base" : "Object",
+"interfaces" : [
+"ELEMENT"],
+"members" : [
+{
+"name" : "mName",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 42}
+,
+{
+"name" : "mInfo",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 43}
+,
+{
+"name" : "mState",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 44}
+,
+{
+"name" : "active",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 45}
+,
+{
+"name" : "mConnections",
+"kind" : "variable",
+"protection" : "private",
+"type" : "DOCUMENT[]",
+"line" : 47}
+,
+{
+"name" : "WatchForNewDocument",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string EventId, DOCUMENT_IF NuDoc)",
+"line" : 50}
+,
+{
+"name" : "WatchDoc",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(DOCUMENT doc, TextIter ti, string text, SourceBuffer buffer)",
+"line" : 58}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SYMBOL_COMPLETION()",
+"line" : 103}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 110}
+,
+{
+"name" : "Information",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 111}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 112}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool nuState)",
+"line" : 113}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 121}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 131}
+]
+}
+]
+}
+,
+{
+"name" : "symbolview",
+"kind" : "module",
+"file" : "src\/symbolview.d",
+"members" : [
+{
+"name" : "SYMBOL_VIEW",
+"kind" : "class",
+"protection" : "public",
+"line" : 39,
+"base" : "Object",
+"interfaces" : [
+"ELEMENT"],
+"members" : [
+{
+"name" : "mState",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 43}
+,
+{
+"name" : "mSymBuilder",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Builder.Builder",
+"line" : 45}
+,
+{
+"name" : "mRoot",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ScrolledWindow.ScrolledWindow",
+"line" : 46}
+,
+{
+"name" : "mSymbolTree",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.TreeView.TreeView",
+"line" : 47}
+,
+{
+"name" : "mSymbolStore",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.TreeStore.TreeStore",
+"line" : 48}
+,
+{
+"name" : "FillTreeStore",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(ref TreeStore ts)",
+"line" : 51}
+,
+{
+"name" : "Refresh",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 84}
+,
+{
+"name" : "JumpTo",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 92}
+,
+{
+"name" : "UpdateProjectTags",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string EventName)",
+"line" : 108}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 119}
+,
+{
+"name" : "Information",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 120}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 121}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool nustate)",
+"line" : 122}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SYMBOL_VIEW()",
+"line" : 124}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 140}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 152}
+]
+}
+]
+}
+,
+{
+"name" : "symbols",
+"kind" : "module",
+"file" : "src\/symbols.d",
+"members" : [
+{
+"name" : "DSYMBOL",
+"kind" : "class",
+"protection" : "public",
+"line" : 44,
+"base" : "Object",
+"members" : [
+{
+"name" : "Name",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 45}
+,
+{
+"name" : "Scoped",
+"kind" : "variable",
+"protection" : "public",
+"type" : "bool",
+"line" : 46}
+,
+{
+"name" : "Type",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 47}
+,
+{
+"name" : "Kind",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 48}
+,
+{
+"name" : "Comment",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 49}
+,
+{
+"name" : "Base",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 50}
+,
+{
+"name" : "Protection",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 51}
+,
+{
+"name" : "InFile",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 53}
+,
+{
+"name" : "OnLine",
+"kind" : "variable",
+"protection" : "public",
+"type" : "int",
+"line" : 54}
+,
+{
+"name" : "Path",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 56}
+,
+{
+"name" : "Children",
+"kind" : "variable",
+"protection" : "public",
+"type" : "DSYMBOL[]",
+"line" : 58}
+,
+{
+"name" : "ScopedChildren",
+"kind" : "variable",
+"protection" : "public",
+"type" : "DSYMBOL[string]",
+"line" : 59}
+,
+{
+"name" : "GetIcon",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"line" : 62}
+]
+}
+,
+{
+"name" : "SYMBOLS",
+"kind" : "class",
+"protection" : "public",
+"line" : 98,
+"base" : "Object",
+"members" : [
+{
+"name" : "mSymbols",
+"kind" : "variable",
+"protection" : "private",
+"type" : "DSYMBOL[string]",
+"line" : 103}
+,
+{
+"name" : "FindScope",
+"kind" : "function",
+"protection" : "private",
+"type" : "DSYMBOL[](string[] Scopes)",
+"line" : 106}
+,
+{
+"name" : "AllSymbols",
+"kind" : "function",
+"protection" : "private",
+"type" : "DSYMBOL[]()",
+"line" : 134}
+,
+{
+"name" : "BuildSymbols",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(JSONValue jval, ref DSYMBOL sym, string Module = \"\")",
+"line" : 158}
+,
+{
+"name" : "ProjectWatch",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string EventType)",
+"line" : 229}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 249}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 271}
+,
+{
+"name" : "AddCommonTagFile",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string key, string TagFile)",
+"line" : 279}
+,
+{
+"name" : "Load",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string key, string symfile)",
+"line" : 287}
+,
+{
+"name" : "Load",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string symfile)",
+"line" : 301}
+,
+{
+"name" : "GetLocation",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[](string ScopedCandidate, out string[] Modules, out int[] LineNo)",
+"line" : 309}
+,
+{
+"name" : "GetCallTips",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[](string Candidate)",
+"line" : 324}
+,
+{
+"name" : "GetMembers",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[](string Candidate)",
+"line" : 346}
+,
+{
+"name" : "Match",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[](string Candidate)",
+"line" : 389}
+,
+{
+"name" : "Symbols",
+"kind" : "function",
+"protection" : "public",
+"type" : "DSYMBOL[string]()",
+"line" : 422}
+]
+}
+]
+}
+,
+{
+"name" : "searchui",
+"kind" : "module",
+"file" : "src\/searchui.d",
+"members" : [
+{
+"name" : "SEARCH_UI",
+"kind" : "class",
+"protection" : "public",
+"line" : 73,
+"base" : "Object",
+"interfaces" : [
+"ELEMENT"],
+"members" : [
+{
+"name" : "mName",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 76}
+,
+{
+"name" : "mInfo",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 77}
+,
+{
+"name" : "mState",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 78}
+,
+{
+"name" : "mBuilder",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Builder.Builder",
+"line" : 82}
+,
+{
+"name" : "mPage",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.VBox.VBox",
+"line" : 83}
+,
+{
+"name" : "mOptions",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Viewport.Viewport",
+"line" : 84}
+,
+{
+"name" : "mFindComboBox",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ComboBoxEntry.ComboBoxEntry",
+"line" : 85}
+,
+{
+"name" : "mReplaceComboBox",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ComboBoxEntry.ComboBoxEntry",
+"line" : 86}
+,
+{
+"name" : "mFind",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Entry.Entry",
+"line" : 87}
+,
+{
+"name" : "mReplace",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Entry.Entry",
+"line" : 88}
+,
+{
+"name" : "mReplaceBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Button.Button",
+"line" : 89}
+,
+{
+"name" : "mFindNextBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Button.Button",
+"line" : 90}
+,
+{
+"name" : "mFindPrevBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Button.Button",
+"line" : 91}
+,
+{
+"name" : "mHideOptionsBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Button.Button",
+"line" : 92}
+,
+{
+"name" : "mHideAllBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Button.Button",
+"line" : 93}
+,
+{
+"name" : "mCaseSensitive",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.CheckButton.CheckButton",
+"line" : 94}
+,
+{
+"name" : "mRegex",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.CheckButton.CheckButton",
+"line" : 95}
+,
+{
+"name" : "mScopeSelection",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.RadioButton.RadioButton",
+"line" : 97}
+,
+{
+"name" : "mScopeFile",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.RadioButton.RadioButton",
+"line" : 98}
+,
+{
+"name" : "mScopeSession",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.RadioButton.RadioButton",
+"line" : 99}
+,
+{
+"name" : "mScopeFolder",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.RadioButton.RadioButton",
+"line" : 100}
+,
+{
+"name" : "mScopeProject",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.RadioButton.RadioButton",
+"line" : 101}
+,
+{
+"name" : "mResultsView",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.TreeView.TreeView",
+"line" : 103}
+,
+{
+"name" : "mFindList",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ListStore.ListStore",
+"line" : 104}
+,
+{
+"name" : "mReplaceList",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ListStore.ListStore",
+"line" : 105}
+,
+{
+"name" : "mResultsList",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ListStore.ListStore",
+"line" : 106}
+,
+{
+"name" : "TI",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.TreeIter.TreeIter",
+"line" : 108}
+,
+{
+"name" : "EditedFind",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(CellEditableIF ci)",
+"line" : 112}
+,
+{
+"name" : "FindNextBtnClicked",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(Button X)",
+"line" : 124}
+,
+{
+"name" : "FindPrevBtnClicked",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(Button X)",
+"line" : 140}
+,
+{
+"name" : "GetResults",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 152}
+,
+{
+"name" : "FillResultsListFromFile",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 255}
+,
+{
+"name" : "FillResultsList",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 313}
+,
+{
+"name" : "GotoResult",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 336}
+,
+{
+"name" : "GotoResult2",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(TreeSelection ts)",
+"line" : 359}
+,
+{
+"name" : "BeginSearch",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(Action X)",
+"line" : 381}
+,
+{
+"name" : "ReplaceOne",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 391}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SEARCH_UI()",
+"line" : 418}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 496}
+,
+{
+"name" : "Information",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 497}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 498}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool NuState)",
+"line" : 499}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 506}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 521}
+]
+}
+]
+}
+,
+{
+"name" : "search",
+"kind" : "module",
+"file" : "src\/search.d",
+"members" : [
+{
+"name" : "SEARCH_OPTIONS",
+"kind" : "struct",
+"protection" : "public",
+"line" : 35,
+"members" : [
+{
+"name" : "UseRegex",
+"kind" : "variable",
+"protection" : "public",
+"type" : "bool",
+"line" : 36}
+,
+{
+"name" : "CaseInSensitive",
+"kind" : "variable",
+"protection" : "public",
+"type" : "bool",
+"line" : 37}
+,
+{
+"name" : "WholeWordOnly",
+"kind" : "variable",
+"protection" : "public",
+"type" : "bool",
+"line" : 38}
+,
+{
+"name" : "WordStart",
+"kind" : "variable",
+"protection" : "public",
+"type" : "bool",
+"line" : 39}
+,
+{
+"name" : "RecurseFolder",
+"kind" : "variable",
+"protection" : "public",
+"type" : "bool",
+"line" : 40}
+]
+}
+,
+{
+"name" : "SEARCH_RESULT",
+"kind" : "struct",
+"protection" : "public",
+"line" : 46,
+"members" : [
+{
+"name" : "DocName",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 47}
+,
+{
+"name" : "LineNumber",
+"kind" : "variable",
+"protection" : "public",
+"type" : "int",
+"line" : 48}
+,
+{
+"name" : "LineText",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 49}
+,
+{
+"name" : "StartOffset",
+"kind" : "variable",
+"protection" : "public",
+"type" : "ulong",
+"line" : 51}
+,
+{
+"name" : "EndOffset",
+"kind" : "variable",
+"protection" : "public",
+"type" : "ulong",
+"line" : 52}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "ref SEARCH_RESULT(string title, int line, string text, ulong start, ulong end)",
+"line" : 54}
+]
+}
+,
+{
+"name" : "FindInString",
+"kind" : "function",
+"protection" : "public",
+"type" : "SEARCH_RESULT[](string HayStack, string Needle, string DocTitle, SEARCH_OPTIONS opts)",
+"line" : 66}
+,
+{
+"name" : "FindInFile",
+"kind" : "function",
+"protection" : "public",
+"type" : "SEARCH_RESULT[](string FileName, string Needle, SEARCH_OPTIONS Opts)",
+"line" : 145}
+,
+{
+"name" : "FindInStrings",
+"kind" : "function",
+"protection" : "public",
+"type" : "SEARCH_RESULT[](string[string] HayStacks, string Needle, SEARCH_OPTIONS Opts)",
+"line" : 152}
+,
+{
+"name" : "FindInFiles",
+"kind" : "function",
+"protection" : "public",
+"type" : "SEARCH_RESULT[](string[] Filenames, string Needle, SEARCH_OPTIONS Opts)",
+"line" : 164}
+]
+}
+,
+{
+"name" : "scopelist",
+"kind" : "module",
+"file" : "src\/scopelist.d",
+"members" : [
+{
+"name" : "SCOPE_LIST",
+"kind" : "class",
+"protection" : "public",
+"line" : 43,
+"base" : "Object",
+"interfaces" : [
+"ELEMENT"],
+"members" : [
+{
+"name" : "mName",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 47}
+,
+{
+"name" : "mInfo",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 48}
+,
+{
+"name" : "mState",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 49}
+,
+{
+"name" : "WatchForNewDocument",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string EventId, DOCUMENT_IF DocIF)",
+"line" : 52}
+,
+{
+"name" : "WatchDoc",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(DOCUMENT sv, TextIter ti, string text, SourceBuffer buffer)",
+"line" : 61}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SCOPE_LIST()",
+"line" : 105}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 113}
+,
+{
+"name" : "Information",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 114}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 115}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool nuState)",
+"line" : 116}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 126}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 134}
+]
+}
+]
+}
+,
+{
+"name" : "proview",
+"kind" : "module",
+"file" : "src\/proview.d",
+"members" : [
+{
+"name" : "PROJECT_VIEW",
+"kind" : "class",
+"protection" : "public",
+"line" : 52,
+"base" : "Object",
+"interfaces" : [
+"ELEMENT"],
+"members" : [
+{
+"name" : "mName",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 56}
+,
+{
+"name" : "mInfo",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 57}
+,
+{
+"name" : "mState",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 58}
+,
+{
+"name" : "mBuilding",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Builder.Builder",
+"line" : 60}
+,
+{
+"name" : "mRoot",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.VBox.VBox",
+"line" : 61}
+,
+{
+"name" : "mLabel",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Label.Label",
+"line" : 63}
+,
+{
+"name" : "mToolBar",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Toolbar.Toolbar",
+"line" : 64}
+,
+{
+"name" : "mKeyBox",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ComboBox.ComboBox",
+"line" : 65}
+,
+{
+"name" : "mListView",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.TreeView.TreeView",
+"line" : 67}
+,
+{
+"name" : "mCellText",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.CellRendererText.CellRendererText",
+"line" : 68}
+,
+{
+"name" : "mViewStore",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ListStore.ListStore",
+"line" : 69}
+,
+{
+"name" : "mComboStore",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ListStore.ListStore",
+"line" : 70}
+,
+{
+"name" : "mAdd",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ToolButton.ToolButton",
+"line" : 72}
+,
+{
+"name" : "mRemove",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ToolButton.ToolButton",
+"line" : 73}
+,
+{
+"name" : "UpdateList",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(ComboBox X)",
+"line" : 76}
+,
+{
+"name" : "UpdateList",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string key, string[] Values)",
+"line" : 116}
+,
+{
+"name" : "UpdateName",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string nuName)",
+"line" : 157}
+,
+{
+"name" : "OpenFile",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(TreePath tp, TreeViewColumn tvc, TreeView tv)",
+"line" : 162}
+,
+{
+"name" : "UpdateProject",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string EventType)",
+"line" : 175}
+,
+{
+"name" : "AppendToolItems",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 186}
+,
+{
+"name" : "Add",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(ToolButton x)",
+"line" : 206}
+,
+{
+"name" : "Remove",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(ToolButton x)",
+"line" : 233}
+,
+{
+"name" : "AddAFile",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string CurrentKey)",
+"line" : 252}
+,
+{
+"name" : "AddAPath",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string CurrentKey)",
+"line" : 275}
+,
+{
+"name" : "AddAIdentifier",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string CurrentKey)",
+"line" : 298}
+,
+{
+"name" : "EditIdentifier",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string Path, string text, CellRendererText crt)",
+"line" : 308}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "PROJECT_VIEW()",
+"line" : 324}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 330}
+,
+{
+"name" : "Information",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 331}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 332}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool nuState)",
+"line" : 333}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 340}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 386}
+]
+}
+]
+}
+,
+{
+"name" : "projectui",
+"kind" : "module",
+"file" : "src\/projectui.d",
+"members" : [
+{
+"name" : "ListType",
+"kind" : "enum",
+"protection" : "public",
+"line" : 62,
+"base" : "int",
+"members" : [
+{
+"name" : "FILES",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 62}
+,
+{
+"name" : "PATHS",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 62}
+,
+{
+"name" : "IDENTIFIERS",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 62}
+]
+}
+,
+{
+"name" : "LISTUI",
+"kind" : "class",
+"protection" : "public",
+"line" : 65,
+"base" : "Object",
+"members" : [
+{
+"name" : "mBuilder",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Builder.Builder",
+"line" : 67}
+,
+{
+"name" : "mVBox",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.VBox.VBox",
+"line" : 69}
+,
+{
+"name" : "mFrameLabel",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Label.Label",
+"line" : 70}
+,
+{
+"name" : "mListView",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.TreeView.TreeView",
+"line" : 71}
+,
+{
+"name" : "mListStore",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.ListStore.ListStore",
+"line" : 72}
+,
+{
+"name" : "mAddButton",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Button.Button",
+"line" : 73}
+,
+{
+"name" : "mRemoveButton",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Button.Button",
+"line" : 74}
+,
+{
+"name" : "mClearButton",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Button.Button",
+"line" : 75}
+,
+{
+"name" : "mAddItemDialog",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Dialog.Dialog",
+"line" : 76}
+,
+{
+"name" : "mAddItemEntry",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Entry.Entry",
+"line" : 77}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "LISTUI(string ListTitle, ListType Type, string GladeFile)",
+"line" : 79}
+,
+{
+"name" : "SetItems",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string[] Items)",
+"line" : 113}
+,
+{
+"name" : "GetShortItems",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[](int col = 0)",
+"line" : 126}
+,
+{
+"name" : "GetFullItems",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[]()",
+"line" : 139}
+,
+{
+"name" : "AddFiles",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(Button btn)",
+"line" : 144}
+,
+{
+"name" : "AddPaths",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(Button btn)",
+"line" : 169}
+,
+{
+"name" : "AddItem",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(Button btn)",
+"line" : 194}
+,
+{
+"name" : "RemoveItems",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(Button btn)",
+"line" : 210}
+,
+{
+"name" : "ClearItems",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(Button btn)",
+"line" : 221}
+,
+{
+"name" : "GetWidget",
+"kind" : "function",
+"protection" : "public",
+"type" : "Widget()",
+"line" : 227}
+]
+}
+,
+{
+"name" : "PROJECT_UI",
+"kind" : "class",
+"protection" : "public",
+"line" : 232,
+"base" : "Object",
+"interfaces" : [
+"ELEMENT"],
+"members" : [
+{
+"name" : "mName",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 235}
+,
+{
+"name" : "mInfo",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 236}
+,
+{
+"name" : "mState",
+"kind" : "variable",
+"protection" : "public",
+"type" : "bool",
+"line" : 237}
+,
+{
+"name" : "mProBuilder",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Builder.Builder",
+"line" : 240}
+,
+{
+"name" : "mRootVBox",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.VBox.VBox",
+"line" : 242}
+,
+{
+"name" : "mTabLabel",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Label.Label",
+"line" : 243}
+,
+{
+"name" : "mBtnApply",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Button.Button",
+"line" : 246}
+,
+{
+"name" : "mBtnRevert",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Button.Button",
+"line" : 247}
+,
+{
+"name" : "mBtnHide",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Button.Button",
+"line" : 248}
+,
+{
+"name" : "mProjName",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Entry.Entry",
+"line" : 251}
+,
+{
+"name" : "mFolder",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Entry.Entry",
+"line" : 252}
+,
+{
+"name" : "mFolderBrowse",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Button.Button",
+"line" : 253}
+,
+{
+"name" : "mFullPath",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Label.Label",
+"line" : 254}
+,
+{
+"name" : "mTargetBox",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.ComboBox.ComboBox",
+"line" : 255}
+,
+{
+"name" : "mTargetTypes",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.ListStore.ListStore",
+"line" : 256}
+,
+{
+"name" : "mInformation",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.TextView.TextView",
+"line" : 257}
+,
+{
+"name" : "mProjBaseFolder",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 259}
+,
+{
+"name" : "mFilesHBox",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.HBox.HBox",
+"line" : 262}
+,
+{
+"name" : "mSrcList",
+"kind" : "variable",
+"protection" : "public",
+"type" : "projectui.LISTUI",
+"line" : 263}
+,
+{
+"name" : "mRelList",
+"kind" : "variable",
+"protection" : "public",
+"type" : "projectui.LISTUI",
+"line" : 264}
+,
+{
+"name" : "mFlagStore",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.ListStore.ListStore",
+"line" : 267}
+,
+{
+"name" : "mFlagToggle",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.CellRendererToggle.CellRendererToggle",
+"line" : 268}
+,
+{
+"name" : "mFlagArg",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.CellRendererText.CellRendererText",
+"line" : 269}
+,
+{
+"name" : "mConditionalsHBox",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.HBox.HBox",
+"line" : 270}
+,
+{
+"name" : "mVerList",
+"kind" : "variable",
+"protection" : "public",
+"type" : "projectui.LISTUI",
+"line" : 271}
+,
+{
+"name" : "mDbgList",
+"kind" : "variable",
+"protection" : "public",
+"type" : "projectui.LISTUI",
+"line" : 272}
+,
+{
+"name" : "mPathsHBox",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.HBox.HBox",
+"line" : 273}
+,
+{
+"name" : "mImpList",
+"kind" : "variable",
+"protection" : "public",
+"type" : "projectui.LISTUI",
+"line" : 274}
+,
+{
+"name" : "mExpList",
+"kind" : "variable",
+"protection" : "public",
+"type" : "projectui.LISTUI",
+"line" : 275}
+,
+{
+"name" : "mLinkerHBox",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.HBox.HBox",
+"line" : 278}
+,
+{
+"name" : "mLibList",
+"kind" : "variable",
+"protection" : "public",
+"type" : "projectui.LISTUI",
+"line" : 279}
+,
+{
+"name" : "mLLPList",
+"kind" : "variable",
+"protection" : "public",
+"type" : "projectui.LISTUI",
+"line" : 280}
+,
+{
+"name" : "mMiscAlign",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Alignment.Alignment",
+"line" : 283}
+,
+{
+"name" : "mMiscList",
+"kind" : "variable",
+"protection" : "public",
+"type" : "projectui.LISTUI",
+"line" : 284}
+,
+{
+"name" : "mAutoCmdLine",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Label.Label",
+"line" : 285}
+,
+{
+"name" : "mUseCustomBuild",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.CheckButton.CheckButton",
+"line" : 286}
+,
+{
+"name" : "mCustomBuild",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Entry.Entry",
+"line" : 287}
+,
+{
+"name" : "mPreBuild",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Entry.Entry",
+"line" : 288}
+,
+{
+"name" : "mPostBuild",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Entry.Entry",
+"line" : 289}
+,
+{
+"name" : "mRunArguments",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.Entry.Entry",
+"line" : 290}
+,
+{
+"name" : "mAccels",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.AccelGroup.AccelGroup",
+"line" : 294}
+,
+{
+"name" : "mActions",
+"kind" : "variable",
+"protection" : "public",
+"type" : "gtk.ActionGroup.ActionGroup",
+"line" : 295}
+,
+{
+"name" : "mSkipWatchingProject",
+"kind" : "variable",
+"protection" : "public",
+"type" : "bool",
+"line" : 298}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 302}
+,
+{
+"name" : "Information",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 303}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 304}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool nuState)",
+"line" : 305}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "PROJECT_UI()",
+"line" : 313}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 400}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 409}
+,
+{
+"name" : "EngageActions",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 416}
+,
+{
+"name" : "SyncGuiToProject",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 480}
+,
+{
+"name" : "SyncProjectToGui",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 555}
+,
+{
+"name" : "ProjEventWatcher",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string EventType)",
+"line" : 604}
+,
+{
+"name" : "New",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(Action x)",
+"line" : 617}
+,
+{
+"name" : "Open",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(Action x)",
+"line" : 622}
+,
+{
+"name" : "ShowOptions",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(Action x)",
+"line" : 642}
+,
+{
+"name" : "Build",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(Action x)",
+"line" : 650}
+,
+{
+"name" : "Run",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(Action x)",
+"line" : 656}
+,
+{
+"name" : "RunWithArgs",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(Action x)",
+"line" : 662}
+,
+{
+"name" : "RefreshTags",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(Action x)",
+"line" : 668}
+,
+{
+"name" : "FixProjectPath",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(EditableIF EntryWidget)",
+"line" : 673}
+]
+}
+]
+}
+,
+{
+"name" : "project",
+"kind" : "module",
+"file" : "src\/project.d",
+"members" : [
+{
+"name" : "PROJECT_VERSION",
+"kind" : "variable",
+"protection" : "public",
+"type" : "immutable(long)",
+"line" : 33}
+,
+{
+"name" : "FLAG",
+"kind" : "class",
+"protection" : "public",
+"line" : 38,
+"base" : "Object",
+"members" : [
+{
+"name" : "m_On",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 48}
+,
+{
+"name" : "m_HasArgument",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 49}
+,
+{
+"name" : "m_Brief",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 50}
+,
+{
+"name" : "m_String",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 51}
+,
+{
+"name" : "m_Argument",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 52}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "FLAG()",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 56}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "FLAG(string String, string Brief, bool HasArg, string Argument = \" \")",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 59}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool NuState)",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 70}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 71}
+,
+{
+"name" : "HasAnArg",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 73}
+,
+{
+"name" : "InitHasArg",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool DoesIt)",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 74}
+,
+{
+"name" : "Brief",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 76}
+,
+{
+"name" : "Brief",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(string s)",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 77}
+,
+{
+"name" : "CmdString",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 79}
+,
+{
+"name" : "CmdString",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(string s)",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 80}
+,
+{
+"name" : "Argument",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(string Arg)",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 82}
+,
+{
+"name" : "Argument",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 83}
+]
+}
+,
+{
+"name" : "LIST",
+"kind" : "alias",
+"type" : "string[]",
+"line" : 88}
+,
+{
+"name" : "LISTS",
+"kind" : "struct",
+"protection" : "public",
+"line" : 91,
+"members" : [
+{
+"name" : "mLists",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string[][string]",
+"line" : 92}
+,
+{
+"name" : "GetKeys",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[]()",
+"line" : 94}
+,
+{
+"name" : "AddKey",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string Key)",
+"line" : 99}
+,
+{
+"name" : "SetKey",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string Key, string[] Data)",
+"line" : 105}
+,
+{
+"name" : "RemoveKey",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string Key)",
+"line" : 110}
+,
+{
+"name" : "GetData",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[](string Key)",
+"line" : 116}
+,
+{
+"name" : "SetData",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string Key, string[] Data)",
+"line" : 122}
+,
+{
+"name" : "ConcatData",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[](string Key, string[] Data)",
+"line" : 126}
+,
+{
+"name" : "ConcatData",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string Key, string Data)",
+"line" : 131}
+,
+{
+"name" : "RemoveData",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string Key, string Item)",
+"line" : 136}
+,
+{
+"name" : "Zero",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 144}
+]
+}
+,
+{
+"name" : "TARGET",
+"kind" : "enum",
+"protection" : "public",
+"line" : 152,
+"base" : "int",
+"members" : [
+{
+"name" : "NULL",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 152}
+,
+{
+"name" : "UNDEFINED",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 152}
+,
+{
+"name" : "APP",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 152}
+,
+{
+"name" : "SHARED",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 152}
+,
+{
+"name" : "STATIC",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 152}
+,
+{
+"name" : "OBJECT",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 152}
+,
+{
+"name" : "OTHER",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 152}
+]
+}
+,
+{
+"name" : "SRCFILES",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 153}
+,
+{
+"name" : "RELFILES",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 153}
+,
+{
+"name" : "LIBFILES",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 153}
+,
+{
+"name" : "IMPPATHS",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 153}
+,
+{
+"name" : "LIBPATHS",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 153}
+,
+{
+"name" : "JPATHS",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 153}
+,
+{
+"name" : "VERSIONS",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 153}
+,
+{
+"name" : "DEBUGS",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 153}
+,
+{
+"name" : "MISC",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 153}
+,
+{
+"name" : "PROJECT",
+"kind" : "class",
+"protection" : "public",
+"line" : 158,
+"base" : "Object",
+"members" : [
+{
+"name" : "mName",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 160}
+,
+{
+"name" : "mWorkingPath",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 161}
+,
+{
+"name" : "mTarget",
+"kind" : "variable",
+"protection" : "private",
+"type" : "TARGET",
+"line" : 163}
+,
+{
+"name" : "mCompiler",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 165}
+,
+{
+"name" : "mVersion",
+"kind" : "variable",
+"protection" : "private",
+"type" : "ulong",
+"line" : 167}
+,
+{
+"name" : "mFlags",
+"kind" : "variable",
+"protection" : "private",
+"type" : "FLAG[string]",
+"line" : 170}
+,
+{
+"name" : "mList",
+"kind" : "variable",
+"protection" : "private",
+"type" : "LISTS",
+"line" : 171}
+,
+{
+"name" : "mUseCustomBuild",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 173}
+,
+{
+"name" : "mCustomBuildCommand",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 174}
+,
+{
+"name" : "ReadFlags",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string FlagFile)",
+"line" : 177}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "PROJECT()",
+"line" : 203}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 210}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 219}
+,
+{
+"name" : "New",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 225}
+,
+{
+"name" : "Open",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string pfile)",
+"line" : 232}
+,
+{
+"name" : "Close",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 302}
+,
+{
+"name" : "Save",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 321}
+,
+{
+"name" : "GetFlags",
+"kind" : "function",
+"protection" : "public",
+"type" : "FLAG[string]()",
+"line" : 408}
+,
+{
+"name" : "SetFlag",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool(string key, bool NuState, string NuArgument = \"\")",
+"line" : 412}
+,
+{
+"name" : "CreateTags",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool()",
+"line" : 421}
+,
+{
+"name" : "Build",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool()",
+"line" : 446}
+,
+{
+"name" : "BuildCommand",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"line" : 464}
+,
+{
+"name" : "Run",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool(string args = null)",
+"line" : 502}
+,
+{
+"name" : "opOpAssign(string s = \"+=\")",
+"kind" : "template",
+"protection" : "public",
+"line" : 536,
+"members" : [
+{
+"name" : "opOpAssign",
+"kind" : "function",
+"type" : "void(string Key)",
+"line" : 536}
+]
+}
+,
+{
+"name" : "opOpAssign(string s = \"-=\")",
+"kind" : "template",
+"protection" : "public",
+"line" : 537,
+"members" : [
+{
+"name" : "opOpAssign",
+"kind" : "function",
+"type" : "void(string Key)",
+"line" : 537}
+]
+}
+,
+{
+"name" : "opIndexAssign",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string[] Data, string Key)",
+"line" : 538}
+,
+{
+"name" : "opOpIndexAssign(string s = \"~=\")",
+"kind" : "template",
+"protection" : "public",
+"line" : 539,
+"members" : [
+{
+"name" : "opOpIndexAssign",
+"kind" : "function",
+"type" : "void(LIST Data, string Key)",
+"line" : 539}
+]
+}
+,
+{
+"name" : "opOpIndexAssign(string s = \"~=\")",
+"kind" : "template",
+"protection" : "public",
+"line" : 540,
+"members" : [
+{
+"name" : "opOpIndexAssign",
+"kind" : "function",
+"type" : "void(string Data, string Key)",
+"line" : 540}
+]
+}
+,
+{
+"name" : "opIndex",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[](string Key)",
+"line" : 541}
+,
+{
+"name" : "SetList",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string Key, string[] Data)",
+"line" : 543}
+,
+{
+"name" : "SetList",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string Key, string Data)",
+"line" : 544}
+,
+{
+"name" : "RemoveItem",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string Key, string Item)",
+"line" : 545}
+,
+{
+"name" : "AddItem",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string Key, string Item)",
+"line" : 546}
+,
+{
+"name" : "GetList",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[](string Key)",
+"line" : 547}
+,
+{
+"name" : "GetCatList",
+"kind" : "function",
+"protection" : "public",
+"type" : "string(string Key)",
+"line" : 548}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 562}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(string nuName)",
+"line" : 563}
+,
+{
+"name" : "WorkingPath",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 569}
+,
+{
+"name" : "WorkingPath",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(string nuPath)",
+"line" : 570}
+,
+{
+"name" : "Compiler",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 584}
+,
+{
+"name" : "Compiler",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(string nuCompiler)",
+"line" : 585}
+,
+{
+"name" : "UseCustomBuild",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 587}
+,
+{
+"name" : "UseCustomBuild",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool UseIt)",
+"line" : 588}
+,
+{
+"name" : "CustomBuildCommand",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 590}
+,
+{
+"name" : "CustomBuildCommand",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(string nuCommand)",
+"line" : 591}
+,
+{
+"name" : "Target",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property int()",
+"line" : 593}
+,
+{
+"name" : "Target",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(int nuTarget)",
+"line" : 594}
+]
+}
+,
+{
+"name" : "LibName",
+"kind" : "function",
+"protection" : "public",
+"type" : "string(string Lib)",
+"line" : 602}
+]
+}
+,
+{
+"name" : "messageui",
+"kind" : "module",
+"file" : "src\/messageui.d",
+"members" : [
+{
+"name" : "MESSAGE_UI",
+"kind" : "class",
+"protection" : "public",
+"line" : 42,
+"base" : "Object",
+"interfaces" : [
+"ELEMENT"],
+"members" : [
+{
+"name" : "mName",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 46}
+,
+{
+"name" : "mInfo",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 47}
+,
+{
+"name" : "mState",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 48}
+,
+{
+"name" : "mRoot",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Viewport.Viewport",
+"line" : 50}
+,
+{
+"name" : "mScrWin",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ScrolledWindow.ScrolledWindow",
+"line" : 51}
+,
+{
+"name" : "mErrorView",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.TreeView.TreeView",
+"line" : 52}
+,
+{
+"name" : "mStore",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ListStore.ListStore",
+"line" : 53}
+,
+{
+"name" : "WatchDMD",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string line)",
+"line" : 55}
+,
+{
+"name" : "RowActivated",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(TreePath tp, TreeViewColumn tvc, TreeView tv)",
+"line" : 88}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "MESSAGE_UI()",
+"line" : 102}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 108}
+,
+{
+"name" : "Information",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 109}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 110}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool nuState)",
+"line" : 111}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 119}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 147}
+]
+}
+]
+}
+,
+{
+"name" : "logui",
+"kind" : "module",
+"file" : "src\/logui.d",
+"members" : [
+{
+"name" : "AcquireElement",
+"kind" : "function",
+"protection" : "public",
+"type" : "ELEMENT()",
+"line" : 43}
+,
+{
+"name" : "LOG_UI",
+"kind" : "class",
+"protection" : "public",
+"line" : 48,
+"base" : "Object",
+"interfaces" : [
+"ELEMENT"],
+"members" : [
+{
+"name" : "mName",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 52}
+,
+{
+"name" : "mInformation",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 53}
+,
+{
+"name" : "mScroller",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ScrolledWindow.ScrolledWindow",
+"line" : 55}
+,
+{
+"name" : "mTreeView",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.TreeView.TreeView",
+"line" : 56}
+,
+{
+"name" : "mList",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ListStore.ListStore",
+"line" : 57}
+,
+{
+"name" : "mLabel",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Label.Label",
+"line" : 58}
+,
+{
+"name" : "mState",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 60}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 64}
+,
+{
+"name" : "Information",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 65}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 66}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool NuState)",
+"line" : 67}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 75}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 116}
+,
+{
+"name" : "CatchLog",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string mesg, string level, string mod)",
+"line" : 126}
+]
+}
+]
+}
+,
+{
+"name" : "log",
+"kind" : "module",
+"file" : "src\/log.d",
+"members" : [
+{
+"name" : "LOG",
+"kind" : "class",
+"protection" : "public",
+"line" : 33,
+"base" : "Object",
+"members" : [
+{
+"name" : "mEntries",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string[]",
+"line" : 35}
+,
+{
+"name" : "mSystemDefaultLogName",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 37}
+,
+{
+"name" : "mInterimFileName",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 39}
+,
+{
+"name" : "mLogFile",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 40}
+,
+{
+"name" : "mMaxLines",
+"kind" : "variable",
+"protection" : "private",
+"type" : "ulong",
+"line" : 42}
+,
+{
+"name" : "mMaxFileSize",
+"kind" : "variable",
+"protection" : "private",
+"type" : "ulong",
+"line" : 43}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "LOG()",
+"line" : 48}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 63}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 93}
+,
+{
+"name" : "Entry",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string Message, string Level = \"Info\", string Module = null)",
+"line" : 108}
+,
+{
+"name" : "Flush",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 120}
+,
+{
+"name" : "GetEntries",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[]()",
+"line" : 137}
+]
+}
+]
+}
+,
+{
+"name" : "indent",
+"kind" : "module",
+"file" : "src\/indent.d",
+"members" : [
+{
+"name" : "BRACE_INDENT",
+"kind" : "class",
+"protection" : "public",
+"line" : 39,
+"base" : "Object",
+"interfaces" : [
+"ELEMENT"],
+"members" : [
+{
+"name" : "mState",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 43}
+,
+{
+"name" : "CatchNewDocs",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string EventId, DOCUMENT_IF nu_doc)",
+"line" : 45}
+,
+{
+"name" : "CatchNewLine",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(TextIter ti, string text, TextBuffer Buffer)",
+"line" : 53}
+,
+{
+"name" : "CatchCloseBrace",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(TextIter ti, string text, TextBuffer Buffer)",
+"line" : 75}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 104}
+,
+{
+"name" : "Information",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 105}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 106}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool nuState)",
+"line" : 107}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 110}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 119}
+]
+}
+]
+}
+,
+{
+"name" : "historyview",
+"kind" : "module",
+"file" : "src\/historyview.d",
+"members" : [
+{
+"name" : "HISTORY_VIEW",
+"kind" : "class",
+"protection" : "public",
+"line" : 36,
+"base" : "Object",
+"interfaces" : [
+"ELEMENT"],
+"members" : [
+{
+"name" : "mName",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 40}
+,
+{
+"name" : "mInfo",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 41}
+,
+{
+"name" : "mState",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 42}
+,
+{
+"name" : "mBuilder",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Builder.Builder",
+"line" : 44}
+,
+{
+"name" : "mRoot",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Viewport.Viewport",
+"line" : 45}
+,
+{
+"name" : "mRecentProjects",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.RecentChooserWidget.RecentChooserWidget",
+"line" : 46}
+,
+{
+"name" : "mRecentFiles",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.RecentChooserWidget.RecentChooserWidget",
+"line" : 47}
+,
+{
+"name" : "mFilterProjects",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.RecentFilter.RecentFilter",
+"line" : 49}
+,
+{
+"name" : "mFilterFiles",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.RecentFilter.RecentFilter",
+"line" : 50}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 55}
+,
+{
+"name" : "Information",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 56}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 57}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool nuState)",
+"line" : 58}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "HISTORY_VIEW()",
+"line" : 66}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 74}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 114}
+]
+}
+]
+}
+,
+{
+"name" : "elements",
+"kind" : "module",
+"file" : "src\/elements.d",
+"members" : [
+{
+"name" : "ELEMENT",
+"kind" : "interface",
+"protection" : "public",
+"line" : 31,
+"members" : [
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 32}
+,
+{
+"name" : "Information",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 33}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 34}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool)",
+"line" : 35}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 37}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 39}
+]
+}
+,
+{
+"name" : "mElements",
+"kind" : "variable",
+"protection" : "public",
+"type" : "ELEMENT[string]",
+"line" : 42}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 45}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 53}
+,
+{
+"name" : "AcquireElements",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 59}
+]
+}
+,
+{
+"name" : "document",
+"kind" : "module",
+"file" : "src\/document.d",
+"members" : [
+{
+"name" : "DOCUMENT",
+"kind" : "class",
+"protection" : "public",
+"line" : 56,
+"base" : "SourceView",
+"interfaces" : [
+"DOCUMENT_IF"],
+"members" : [
+{
+"name" : "mTabLabel",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Label.Label",
+"line" : 60}
+,
+{
+"name" : "mFullName",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 61}
+,
+{
+"name" : "mTimeStamp",
+"kind" : "variable",
+"protection" : "private",
+"type" : "SysTime",
+"line" : 63}
+,
+{
+"name" : "mVirgin",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 64}
+,
+{
+"name" : "mPasting",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 66}
+,
+{
+"name" : "ModifyTabLabel",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(TextBuffer tb)",
+"line" : 68}
+,
+{
+"name" : "CheckForExternalChanges",
+"kind" : "function",
+"protection" : "private",
+"type" : "bool(GdkEventFocus* Event, Widget widget)",
+"line" : 76}
+,
+{
+"name" : "SetBreakPoint",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(TextIter ti, GdkEvent* event, SourceView sv)",
+"line" : 95}
+,
+{
+"name" : "TabXButton",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(Button x)",
+"line" : 110}
+,
+{
+"name" : "SetupSourceView",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 115}
+,
+{
+"name" : "DisplayName",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 152}
+,
+{
+"name" : "DisplayName",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(string DisplayName)",
+"line" : 153}
+,
+{
+"name" : "FullPathName",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 154}
+,
+{
+"name" : "FullPathName",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(string NuName)",
+"line" : 155}
+,
+{
+"name" : "Virgin",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 156}
+,
+{
+"name" : "Virgin",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool still)",
+"line" : 157}
+,
+{
+"name" : "Modified",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 158}
+,
+{
+"name" : "Modified",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool modded)",
+"line" : 159}
+,
+{
+"name" : "RawData",
+"kind" : "function",
+"protection" : "public",
+"type" : "ubyte[]()",
+"line" : 161}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "DOCUMENT()",
+"line" : 165}
+,
+{
+"name" : "Create",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool(string identifier)",
+"line" : 178}
+,
+{
+"name" : "Open",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool(string FileName, ulong LineNo = cast(ulong)0)",
+"line" : 186}
+,
+{
+"name" : "Save",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool()",
+"line" : 220}
+,
+{
+"name" : "SaveAs",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool(string NewName)",
+"line" : 237}
+,
+{
+"name" : "Close",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool(bool Quitting = false)",
+"line" : 251}
+,
+{
+"name" : "TabWidget",
+"kind" : "function",
+"protection" : "public",
+"type" : "Widget()",
+"line" : 276}
+,
+{
+"name" : "GetWidget",
+"kind" : "function",
+"protection" : "public",
+"type" : "Widget()",
+"line" : 295}
+,
+{
+"name" : "GetPage",
+"kind" : "function",
+"protection" : "public",
+"type" : "Widget()",
+"line" : 296}
+,
+{
+"name" : "IsPasting",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool()",
+"line" : 297}
+,
+{
+"name" : "Focus",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 299}
+,
+{
+"name" : "Edit",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string Verb)",
+"line" : 304}
+,
+{
+"name" : "GotoLine",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(uint Line)",
+"line" : 322}
+,
+{
+"name" : "HiliteFindMatch",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int Line, int start, int len)",
+"line" : 344}
+,
+{
+"name" : "OnInsertText",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(TextIter ti, string text, int len, TextBuffer huh)",
+"line" : 364}
+]
+}
+,
+{
+"name" : "MultiRead",
+"kind" : "function",
+"protection" : "public",
+"type" : "string(string FileName)",
+"line" : 386}
+]
+}
+,
+{
+"name" : "docpop",
+"kind" : "module",
+"file" : "src\/docpop.d",
+"members" : [
+{
+"name" : "STACK",
+"kind" : "struct",
+"protection" : "public",
+"line" : 55,
+"members" : [
+{
+"name" : "Possibles",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string[]",
+"line" : 56}
+,
+{
+"name" : "Xpos",
+"kind" : "variable",
+"protection" : "public",
+"type" : "int",
+"line" : 57}
+,
+{
+"name" : "Ypos",
+"kind" : "variable",
+"protection" : "public",
+"type" : "int",
+"line" : 58}
+,
+{
+"name" : "Type",
+"kind" : "variable",
+"protection" : "public",
+"type" : "int",
+"line" : 59}
+,
+{
+"name" : "Owner",
+"kind" : "variable",
+"protection" : "public",
+"type" : "document.DOCUMENT",
+"line" : 60}
+,
+{
+"name" : "FillModel",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(ref ListStore x)",
+"line" : 62}
+]
+}
+,
+{
+"name" : "DOC_POP",
+"kind" : "class",
+"protection" : "public",
+"line" : 83,
+"base" : "Object",
+"members" : [
+{
+"name" : "IDLE",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 86}
+,
+{
+"name" : "ACTIVE",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 86}
+,
+{
+"name" : "INTERRUPTED",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 86}
+,
+{
+"name" : "mBuilder",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Builder.Builder",
+"line" : 88}
+,
+{
+"name" : "mWindow",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Window.Window",
+"line" : 89}
+,
+{
+"name" : "mTreeView",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.TreeView.TreeView",
+"line" : 90}
+,
+{
+"name" : "mListStore",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ListStore.ListStore",
+"line" : 91}
+,
+{
+"name" : "mStack",
+"kind" : "variable",
+"protection" : "private",
+"type" : "STACK[128LU]",
+"line" : 93}
+,
+{
+"name" : "mCurStack",
+"kind" : "variable",
+"protection" : "private",
+"type" : "int",
+"line" : 94}
+,
+{
+"name" : "mCurrentType",
+"kind" : "variable",
+"protection" : "private",
+"type" : "int",
+"line" : 96}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 101}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 118}
+,
+{
+"name" : "Push",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(DOCUMENT doc, TextIter where, string[] ListOfPossibles, int Type)",
+"line" : 124}
+,
+{
+"name" : "Hide",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 163}
+,
+{
+"name" : "Close",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int type)",
+"line" : 183}
+,
+{
+"name" : "CatchButton",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool(GdkEventButton* EvntBtn, Widget Wydjit)",
+"line" : 200}
+,
+{
+"name" : "CatchKey",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool(GdkEventKey* EvntKey, Widget Wydjit)",
+"line" : 206}
+]
+}
+]
+}
+,
+{
+"name" : "docman",
+"kind" : "module",
+"file" : "src\/docman.d",
+"members" : [
+{
+"name" : "DOCUMENT_IF",
+"kind" : "interface",
+"protection" : "public",
+"line" : 51,
+"members" : [
+{
+"name" : "Create",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool(string Identifier)",
+"line" : 52}
+,
+{
+"name" : "Open",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool(string FileName, ulong LineNo = cast(ulong)1)",
+"line" : 53}
+,
+{
+"name" : "Save",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool()",
+"line" : 54}
+,
+{
+"name" : "SaveAs",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool(string NewName)",
+"line" : 55}
+,
+{
+"name" : "Close",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool(bool Quitting = false)",
+"line" : 56}
+,
+{
+"name" : "DisplayName",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 58}
+,
+{
+"name" : "DisplayName",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(string NuName)",
+"line" : 59}
+,
+{
+"name" : "FullPathName",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 60}
+,
+{
+"name" : "FullPathName",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(string NuPath)",
+"line" : 61}
+,
+{
+"name" : "Modified",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 62}
+,
+{
+"name" : "Modified",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool Modded)",
+"line" : 63}
+,
+{
+"name" : "Virgin",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 64}
+,
+{
+"name" : "Virgin",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool Still)",
+"line" : 65}
+,
+{
+"name" : "TabWidget",
+"kind" : "function",
+"protection" : "public",
+"type" : "Widget()",
+"line" : 67}
+,
+{
+"name" : "GetPage",
+"kind" : "function",
+"protection" : "public",
+"type" : "Widget()",
+"line" : 68}
+,
+{
+"name" : "GetWidget",
+"kind" : "function",
+"protection" : "public",
+"type" : "Widget()",
+"line" : 69}
+,
+{
+"name" : "Focus",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 70}
+,
+{
+"name" : "Edit",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string Verb)",
+"line" : 72}
+,
+{
+"name" : "RawData",
+"kind" : "function",
+"protection" : "public",
+"type" : "ubyte[]()",
+"line" : 73}
+,
+{
+"name" : "GotoLine",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(uint LineNumber)",
+"line" : 75}
+]
+}
+,
+{
+"name" : "DOCMAN",
+"kind" : "class",
+"protection" : "public",
+"line" : 81,
+"base" : "Object",
+"members" : [
+{
+"name" : "mUnTitledCount",
+"kind" : "variable",
+"protection" : "private",
+"type" : "uint",
+"line" : 84}
+,
+{
+"name" : "mFileDialogFolder",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 86}
+,
+{
+"name" : "mFileFilters",
+"kind" : "variable",
+"protection" : "private",
+"type" : "FileFilter[string]",
+"line" : 88}
+,
+{
+"name" : "mStartUpFiles",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string[]",
+"line" : 90}
+,
+{
+"name" : "LoadFileFilters",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 94}
+,
+{
+"name" : "LoadStartUpFileNames",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 121}
+,
+{
+"name" : "CreateActions",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 132}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 281}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 293}
+,
+{
+"name" : "CreateDoc",
+"kind" : "function",
+"protection" : "public",
+"type" : "DOCUMENT_IF(string DocType = \".d\")",
+"line" : 319}
+,
+{
+"name" : "OpenDoc",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string FullFileName, int LineNo = 0)",
+"line" : 345}
+,
+{
+"name" : "OpenDoc",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 371}
+,
+{
+"name" : "OpenDocs",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string[] FullFileNames)",
+"line" : 404}
+,
+{
+"name" : "OpenInitialDocs",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 429}
+,
+{
+"name" : "SaveDoc",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 435}
+,
+{
+"name" : "SaveAsDoc",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(DOCUMENT_IF docX = cast(DOCUMENT_IF)null)",
+"line" : 450}
+,
+{
+"name" : "SaveAllDocs",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 480}
+,
+{
+"name" : "CloseDoc",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string FullFileName = null)",
+"line" : 494}
+,
+{
+"name" : "CloseAllDocs",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(bool Quitting = false)",
+"line" : 524}
+,
+{
+"name" : "Edit",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string WhichEdit)",
+"line" : 545}
+,
+{
+"name" : "GetDocX",
+"kind" : "function",
+"protection" : "public",
+"type" : "DOCUMENT_IF(string FullFileName)",
+"line" : 554}
+,
+{
+"name" : "GetDocX",
+"kind" : "function",
+"protection" : "public",
+"type" : "DOCUMENT_IF(int index = -1)",
+"line" : 569}
+,
+{
+"name" : "AppendDocument",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(DOCUMENT_IF Doc, uint LineNo = cast(uint)0)",
+"line" : 582}
+,
+{
+"name" : "IsOpenDoc",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool(string FullFileName, bool SetFocus = false)",
+"line" : 600}
+]
+}
+]
+}
+,
+{
+"name" : "dirview",
+"kind" : "module",
+"file" : "src\/dirview.d",
+"members" : [
+{
+"name" : "DIR_VIEW",
+"kind" : "class",
+"protection" : "public",
+"line" : 48,
+"base" : "Object",
+"interfaces" : [
+"ELEMENT"],
+"members" : [
+{
+"name" : "mName",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 52}
+,
+{
+"name" : "mInfo",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 53}
+,
+{
+"name" : "mState",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 54}
+,
+{
+"name" : "mFolder",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 56}
+,
+{
+"name" : "mContents",
+"kind" : "variable",
+"protection" : "private",
+"type" : "DirEntry[]",
+"line" : 58}
+,
+{
+"name" : "mBuilder",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Builder.Builder",
+"line" : 62}
+,
+{
+"name" : "mRoot",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Viewport.Viewport",
+"line" : 64}
+,
+{
+"name" : "mUpBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ToolButton.ToolButton",
+"line" : 65}
+,
+{
+"name" : "mRefreshBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ToolButton.ToolButton",
+"line" : 66}
+,
+{
+"name" : "mHomeBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ToolButton.ToolButton",
+"line" : 67}
+,
+{
+"name" : "mSetBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ToolButton.ToolButton",
+"line" : 68}
+,
+{
+"name" : "mHiddenBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ToggleToolButton.ToggleToolButton",
+"line" : 69}
+,
+{
+"name" : "mDirLabel",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Label.Label",
+"line" : 71}
+,
+{
+"name" : "mFilter",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Entry.Entry",
+"line" : 72}
+,
+{
+"name" : "mFolderView",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.TreeView.TreeView",
+"line" : 74}
+,
+{
+"name" : "mStore",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ListStore.ListStore",
+"line" : 76}
+,
+{
+"name" : "Refresh",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 82}
+,
+{
+"name" : "UpClicked",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(ToolButton x)",
+"line" : 115}
+,
+{
+"name" : "GoHome",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(ToolButton x)",
+"line" : 120}
+,
+{
+"name" : "GoToCurrentDocFolder",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(ToolButton x)",
+"line" : 126}
+,
+{
+"name" : "FileClicked",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(TreePath tp, TreeViewColumn tvc, TreeView tv)",
+"line" : 134}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "DIR_VIEW()",
+"line" : 151}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 160}
+,
+{
+"name" : "Information",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 161}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 162}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool nuState)",
+"line" : 163}
+,
+{
+"name" : "Folder",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(string nuFolder)",
+"line" : 172}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 178}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 213}
+]
+}
+]
+}
+,
+{
+"name" : "debugui",
+"kind" : "module",
+"file" : "src\/debugui.d",
+"members" : [
+{
+"name" : "DEBUG_UI",
+"kind" : "class",
+"protection" : "public",
+"line" : 41,
+"base" : "Object",
+"interfaces" : [
+"ELEMENT"],
+"members" : [
+{
+"name" : "mName",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 45}
+,
+{
+"name" : "mInfo",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 46}
+,
+{
+"name" : "mState",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 47}
+,
+{
+"name" : "mExecLoaded",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 49}
+,
+{
+"name" : "mBuilder",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Builder.Builder",
+"line" : 51}
+,
+{
+"name" : "mRoot",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ScrolledWindow.ScrolledWindow",
+"line" : 52}
+,
+{
+"name" : "mRunBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ToolButton.ToolButton",
+"line" : 53}
+,
+{
+"name" : "mContinueBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ToolButton.ToolButton",
+"line" : 54}
+,
+{
+"name" : "mRestartBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ToolButton.ToolButton",
+"line" : 55}
+,
+{
+"name" : "mStopBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ToolButton.ToolButton",
+"line" : 56}
+,
+{
+"name" : "mStepOverBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ToolButton.ToolButton",
+"line" : 57}
+,
+{
+"name" : "mStepInBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ToolButton.ToolButton",
+"line" : 58}
+,
+{
+"name" : "mAddWatch",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ToolButton.ToolButton",
+"line" : 59}
+,
+{
+"name" : "mQuitBtn",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ToolButton.ToolButton",
+"line" : 60}
+,
+{
+"name" : "mWatchExpression",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Entry.Entry",
+"line" : 62}
+,
+{
+"name" : "mTextConsole",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.TextView.TextView",
+"line" : 63}
+,
+{
+"name" : "mInfoConsole",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.TextView.TextView",
+"line" : 64}
+,
+{
+"name" : "Load",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(string EventType)",
+"line" : 67}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 78}
+,
+{
+"name" : "Information",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 79}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 80}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool nuState)",
+"line" : 81}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "DEBUG_UI()",
+"line" : 90}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 98}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 138}
+,
+{
+"name" : "GdbCatcher",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string GdbText)",
+"line" : 143}
+,
+{
+"name" : "JumpToPosition",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string Record)",
+"line" : 156}
+,
+{
+"name" : "ShowDisplayExpressions",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string DisplayText)",
+"line" : 174}
+]
+}
+]
+}
+,
+{
+"name" : "debugger",
+"kind" : "module",
+"file" : "src\/debugger.d",
+"members" : [
+{
+"name" : "DEBUGGER",
+"kind" : "class",
+"protection" : "public",
+"line" : 37,
+"base" : "Object",
+"members" : [
+{
+"name" : "mRunning",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 40}
+,
+{
+"name" : "mCmdId",
+"kind" : "variable",
+"protection" : "private",
+"type" : "ulong",
+"line" : 42}
+,
+{
+"name" : "mGdbProcess",
+"kind" : "variable",
+"protection" : "private",
+"type" : "glib.Spawn.Spawn",
+"line" : 45}
+,
+{
+"name" : "mReadFromGdb",
+"kind" : "variable",
+"protection" : "private",
+"type" : "glib.IOChannel.IOChannel",
+"line" : 46}
+,
+{
+"name" : "mWriteToGdb",
+"kind" : "variable",
+"protection" : "private",
+"type" : "glib.IOChannel.IOChannel",
+"line" : 47}
+,
+{
+"name" : "mBreakpoints",
+"kind" : "variable",
+"protection" : "private",
+"type" : "ulong[string]",
+"line" : 49}
+,
+{
+"name" : "mBreakCounter",
+"kind" : "variable",
+"protection" : "private",
+"type" : "ulong",
+"line" : 50}
+,
+{
+"name" : "mDisplayExpressions",
+"kind" : "variable",
+"protection" : "private",
+"type" : "ulong[string]",
+"line" : 52}
+,
+{
+"name" : "ReadGdbOutput",
+"kind" : "function",
+"protection" : "private",
+"type" : "bool(string Data)",
+"line" : 56}
+,
+{
+"name" : "ReadGdbError",
+"kind" : "function",
+"protection" : "private",
+"type" : "bool(string Data)",
+"line" : 64}
+,
+{
+"name" : "WatchKidOutput",
+"kind" : "function",
+"protection" : "private",
+"type" : "int(GIOCondition Condition)",
+"line" : 70}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 116}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 124}
+,
+{
+"name" : "Load",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string AppName, string SourceDirectories)",
+"line" : 131}
+,
+{
+"name" : "Unload",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 151}
+,
+{
+"name" : "Run",
+"kind" : "function",
+"protection" : "public",
+"type" : "ulong()",
+"line" : 167}
+,
+{
+"name" : "Continue",
+"kind" : "function",
+"protection" : "public",
+"type" : "ulong()",
+"line" : 178}
+,
+{
+"name" : "Abort",
+"kind" : "function",
+"protection" : "public",
+"type" : "ulong()",
+"line" : 188}
+,
+{
+"name" : "StepIn",
+"kind" : "function",
+"protection" : "public",
+"type" : "ulong()",
+"line" : 204}
+,
+{
+"name" : "StepOver",
+"kind" : "function",
+"protection" : "public",
+"type" : "ulong()",
+"line" : 214}
+,
+{
+"name" : "CatchBreakPoint",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string Action, string FileName, int LineNo)",
+"line" : 225}
+,
+{
+"name" : "AddWatchSymbol",
+"kind" : "function",
+"protection" : "public",
+"type" : "ulong(string WatchSymbol)",
+"line" : 255}
+,
+{
+"name" : "RemoveWatchSymbol",
+"kind" : "function",
+"protection" : "public",
+"type" : "ulong(string WatchSymbol)",
+"line" : 268}
+]
+}
+,
+{
+"name" : "C_WatchKidOutput",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) int(GIOChannel* channel, GIOCondition Condition, void* Data)",
+"line" : 285}
+]
+}
+,
+{
+"name" : "dcore",
+"kind" : "module",
+"file" : "src\/dcore.d",
+"members" : [
+{
+"name" : "mConfig",
+"kind" : "variable",
+"protection" : "private",
+"type" : "config.CONFIG",
+"line" : 39}
+,
+{
+"name" : "mLog",
+"kind" : "variable",
+"protection" : "private",
+"type" : "log.LOG",
+"line" : 40}
+,
+{
+"name" : "mProject",
+"kind" : "variable",
+"protection" : "private",
+"type" : "project.PROJECT",
+"line" : 41}
+,
+{
+"name" : "mSymbols",
+"kind" : "variable",
+"protection" : "private",
+"type" : "symbols.SYMBOLS",
+"line" : 42}
+,
+{
+"name" : "mDebugger",
+"kind" : "variable",
+"protection" : "private",
+"type" : "debugger.DEBUGGER",
+"line" : 43}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string[] CmdArgs)",
+"line" : 57}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 68}
+,
+{
+"name" : "Config",
+"kind" : "function",
+"protection" : "public",
+"type" : "CONFIG()",
+"line" : 79}
+,
+{
+"name" : "Log",
+"kind" : "function",
+"protection" : "public",
+"type" : "LOG()",
+"line" : 80}
+,
+{
+"name" : "Project",
+"kind" : "function",
+"protection" : "public",
+"type" : "PROJECT()",
+"line" : 81}
+,
+{
+"name" : "Symbols",
+"kind" : "function",
+"protection" : "public",
+"type" : "SYMBOLS()",
+"line" : 82}
+,
+{
+"name" : "Debugger",
+"kind" : "function",
+"protection" : "public",
+"type" : "DEBUGGER()",
+"line" : 83}
+]
+}
+,
+{
+"name" : "dcomposer",
+"kind" : "module",
+"file" : "src\/dcomposer.d",
+"members" : [
+{
+"name" : "main",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(string[] args)",
+"line" : 34}
+]
+}
+,
+{
+"name" : "config",
+"kind" : "module",
+"file" : "src\/config.d",
+"members" : [
+{
+"name" : "CONFIG",
+"kind" : "class",
+"protection" : "public",
+"line" : 36,
+"base" : "Object",
+"members" : [
+{
+"name" : "mCfgFile",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 37}
+,
+{
+"name" : "mKeyFile",
+"kind" : "variable",
+"protection" : "public",
+"type" : "glib.KeyFile.KeyFile",
+"line" : 38}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "CONFIG()",
+"line" : 42}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string[] CmdArgs)",
+"line" : 50}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 92}
+,
+{
+"name" : "Save",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 101}
+,
+{
+"name" : "getString",
+"kind" : "function",
+"protection" : "public",
+"type" : "string(string GroupName, string Key, string Default = \"\")",
+"line" : 109}
+,
+{
+"name" : "getBoolean",
+"kind" : "function",
+"protection" : "public",
+"type" : "bool(string GroupName, string Key, bool Default = false)",
+"line" : 123}
+,
+{
+"name" : "getInteger",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(string GroupName, string Key, int Default = 0)",
+"line" : 138}
+,
+{
+"name" : "getUint64",
+"kind" : "function",
+"protection" : "public",
+"type" : "ulong(string GroupName, string Key, ulong Default = 0LU)",
+"line" : 151}
+]
+}
+]
+}
+,
+{
+"name" : "calltips",
+"kind" : "module",
+"file" : "src\/calltips.d",
+"members" : [
+{
+"name" : "CALL_TIPS",
+"kind" : "class",
+"protection" : "public",
+"line" : 43,
+"base" : "Object",
+"interfaces" : [
+"ELEMENT"],
+"members" : [
+{
+"name" : "mName",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 47}
+,
+{
+"name" : "mInfo",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 48}
+,
+{
+"name" : "mState",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 49}
+,
+{
+"name" : "mStack",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string[]",
+"line" : 51}
+,
+{
+"name" : "ConnectedDocs",
+"kind" : "variable",
+"protection" : "private",
+"type" : "DOCUMENT[]",
+"line" : 53}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "CALL_TIPS()",
+"line" : 58}
+,
+{
+"name" : "Name",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 64}
+,
+{
+"name" : "Information",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 65}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 66}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool nuState)",
+"line" : 67}
+,
+{
+"name" : "Engage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 75}
+,
+{
+"name" : "Disengage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 85}
+,
+{
+"name" : "WatchForNewDocument",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string EventId, DOCUMENT_IF docIF)",
+"line" : 96}
+,
+{
+"name" : "WatchDoc",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(DOCUMENT sv, TextIter ti, string Text, SourceBuffer Buffer)",
+"line" : 108}
+]
+}
+]
+}
+]

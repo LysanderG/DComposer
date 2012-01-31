@@ -63,6 +63,8 @@ class DOCUMENT : SourceView, DOCUMENT_IF
     SysTime     mTimeStamp;
     bool        mVirgin;
 
+    bool        mPasting; //completion/calltips/scopelist screw up pasting operations that include a ".", "(" so if pasting dont do those ops
+
     void ModifyTabLabel(TextBuffer tb)
     {
         if(Modified()) mTabLabel.setMarkup(`<span foreground="black" > [* </span> <b>` ~ DisplayName ~ `</b><span foreground="black"  > *]</span>`);
@@ -165,21 +167,23 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         mTabLabel = new Label("untitled");
         
         getBuffer().addOnModifiedChanged(&ModifyTabLabel);
-
+        getBuffer.addOnPasteDone (delegate void (Clipboard cb, TextBuffer tb) {mPasting = false;});
+        
         addOnKeyPress(&dui.GetDocPop.CatchKey);
         addOnButtonPress(&dui.GetDocPop.CatchButton); 
         addOnFocusIn(&CheckForExternalChanges);
+        
     }
     
     bool Create(string identifier)
     {
         FullPathName = identifier;
         mVirgin = true;
-        SetupSourceView();        
+        SetupSourceView();
         return true;
     }
 
-    bool Open(string FileName, ulong LineNo = 1)
+    bool Open(string FileName, ulong LineNo = 0)
     {
         string DocText;
         try
@@ -209,6 +213,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         getBuffer.setModified(false);
 
         SetupSourceView();
+        
         return true;
     }
     
@@ -289,6 +294,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
     }
     Widget  GetWidget(){return this;}
     Widget  GetPage(){return getParent();}
+    bool IsPasting(){return mPasting;}
 
     void Focus()
     {
@@ -305,7 +311,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
             case "REDO"  :   getBuffer.redo();   break;
             case "CUT"   :   getBuffer.cutClipboard(Clipboard.get(cast(GdkAtom)69),1); break;
             case "COPY"  :   getBuffer.copyClipboard(Clipboard.get(cast(GdkAtom)69)); break;
-            case "PASTE" :   getBuffer.pasteClipboard(Clipboard.get(cast(GdkAtom)69),null, 1); break;
+            case "PASTE" :   mPasting = true; getBuffer.pasteClipboard(Clipboard.get(cast(GdkAtom)69),null, 1); break;
             case "DELETE":   getBuffer.deleteSelection(1,1);break;
 
             default : Log.Entry("Currently unavailable function :"~Verb,"Debug");

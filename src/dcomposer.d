@@ -38,10 +38,8 @@ int main(string[] args)
 	dui.Engage(args);
 	elements.Engage();
 
-
-
 	dui.Run();
-    
+        
 	elements.Disengage();
 	dui.Disengage();
 	dcore.Disengage();
