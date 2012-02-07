@@ -92,6 +92,7 @@ SEARCH_RESULT[] FindInString(string HayStack, string Needle, string DocTitle, SE
 
 	void SearchLineRegex(string lineText, int lineNo)
 	{
+        ulong MultiMatchAddToOffset = 0;
 		string FullLineText = lineText;
 
 		do
@@ -101,7 +102,9 @@ SEARCH_RESULT[] FindInString(string HayStack, string Needle, string DocTitle, SE
 			auto foundMatch = match(lineText, regex(Needle));
 			if(foundMatch.empty) break;
 			Results.length +=1;
-			Results[$-1] = SEARCH_RESULT(DocTitle, lineNo+1, FullLineText, foundMatch.pre.length, (foundMatch.pre ~ foundMatch.hit).length);
+			Results[$-1] = SEARCH_RESULT(DocTitle, lineNo+1, FullLineText, foundMatch.pre.length + MultiMatchAddToOffset, (foundMatch.pre ~ foundMatch.hit).length + MultiMatchAddToOffset);
+
+            MultiMatchAddToOffset = Results[$-1].EndOffset;
 			lineText = foundMatch.post;
 		}while(true);
 	}

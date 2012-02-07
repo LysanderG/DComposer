@@ -1345,21 +1345,21 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "SEARCH_RESULT[](string FileName, string Needle, SEARCH_OPTIONS Opts)",
-"line" : 145}
+"line" : 148}
 ,
 {
 "name" : "FindInStrings",
 "kind" : "function",
 "protection" : "public",
 "type" : "SEARCH_RESULT[](string[string] HayStacks, string Needle, SEARCH_OPTIONS Opts)",
-"line" : 152}
+"line" : 155}
 ,
 {
 "name" : "FindInFiles",
 "kind" : "function",
 "protection" : "public",
 "type" : "SEARCH_RESULT[](string[] Filenames, string Needle, SEARCH_OPTIONS Opts)",
-"line" : 164}
+"line" : 167}
 ]
 }
 ,
@@ -1715,7 +1715,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 386}
+"line" : 387}
 ]
 }
 ]
@@ -4126,109 +4126,123 @@
 "line" : 100}
 ,
 {
-"name" : "mDataChain",
+"name" : "mCompletionData",
 "kind" : "variable",
 "protection" : "private",
-"type" : "DATA_STORE[24LU]",
+"type" : "DATA_STORE",
 "line" : 102}
 ,
 {
-"name" : "mCurrentDataIndex",
+"name" : "mCompletionDataSet",
+"kind" : "variable",
+"protection" : "private",
+"type" : "bool",
+"line" : 103}
+,
+{
+"name" : "mTipChain",
+"kind" : "variable",
+"protection" : "private",
+"type" : "DATA_STORE[24LU]",
+"line" : 105}
+,
+{
+"name" : "mCurrentTipIndex",
 "kind" : "variable",
 "protection" : "private",
 "type" : "int",
-"line" : 103}
+"line" : 106}
 ,
 {
 "name" : "WatchForNewDocuments",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(string EventType, DOCUMENT_IF DocXIf)",
-"line" : 107}
+"line" : 110}
 ,
 {
 "name" : "CaptureDocumentKeys",
 "kind" : "function",
 "protection" : "private",
 "type" : "bool(GdkEventKey* EvntKey, Widget Wydjit)",
-"line" : 117}
+"line" : 120}
 ,
 {
 "name" : "CaptureDocumentButtons",
 "kind" : "function",
 "protection" : "private",
 "type" : "bool(GdkEventButton* EvntKey, Widget Wydjit)",
-"line" : 153}
+"line" : 156}
 ,
 {
 "name" : "MoveSelectionUp",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(Widget Wydjit)",
-"line" : 159}
+"line" : 162}
 ,
 {
 "name" : "MoveSelectionDown",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(Widget Wydjit)",
-"line" : 176}
+"line" : 179}
 ,
 {
 "name" : "PresentDialog",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 198}
+"line" : 201}
 ,
 {
 "name" : "CompleteText",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(Widget Wydjit)",
-"line" : 208}
+"line" : 221}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "DOC_POP()",
-"line" : 233}
+"line" : 248}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 245}
+"line" : 260}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 252}
+"line" : 267}
 ,
 {
 "name" : "Push",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(int Type, string[] Candidates, string[] ExtraInfo, int Xlocation, int Ylocation)",
-"line" : 258}
+"line" : 273}
 ,
 {
 "name" : "Pop",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 270}
+"line" : 305}
 ,
 {
 "name" : "KillChain",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 279}
+"line" : 322}
 ]
 }
 ]

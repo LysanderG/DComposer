@@ -76,14 +76,14 @@ class SYMBOL_COMPLETION : ELEMENT
         
         TextIter WordStart = ti.copy();
         WordStart.backwardWordStart();
-       //int CouldMoveback = WordStart.backwardChar();
-       //        
-       //while('.' == WordStart.getChar())
-       //{
-       //    WordStart.backwardWordStart();
-       //    CouldMoveback = WordStart.backwardChar();
-       //}
-       //if(CouldMoveback)WordStart.forwardChar();
+       int CouldMoveback = WordStart.backwardChar();
+               
+       while('.' == WordStart.getChar())
+       {
+           WordStart.backwardWordStart();
+           CouldMoveback = WordStart.backwardChar();
+       }
+       if(CouldMoveback)WordStart.forwardChar();
         
         int xpos, ypos;
         IterGetPostion(doc, WordStart, xpos, ypos);
