@@ -46,6 +46,7 @@ import gtk.TreeViewColumn;
 import gtk.ToolButton;
 import gtk.FileChooserDialog;
 import gtk.CellRendererText;
+import gtk.Viewport;
 
 import gobject.Value;
 
@@ -58,7 +59,7 @@ class PROJECT_VIEW : ELEMENT
     bool            mState;
 
     Builder         mBuilding;
-    VBox            mRoot;
+    Viewport            mRoot;
 
     Label           mLabel;
     Toolbar         mToolBar;
@@ -339,11 +340,11 @@ class PROJECT_VIEW : ELEMENT
 
     void Engage()
     {
-
         mBuilding = new Builder;
-        mBuilding.addFromFile(Config.getString("PROJECT_VIEW", "glade_file", "/home/anthony/.neontotem/dcomposer/proview.glade"));
 
-        mRoot       = cast(VBox)        mBuilding.getObject("vbox1");
+        mBuilding.addFromFile(Config.getString("PROJECT_VIEW", "glade_file", "/home/anthony/.neontotem/dcomposer/proview.glade"));
+        
+        mRoot       = cast(Viewport)        mBuilding.getObject("viewport1");
         mLabel      = cast(Label)       mBuilding.getObject("label1");
         mToolBar    = cast(Toolbar)     mBuilding.getObject("toolbar1");
         mListView   = cast(TreeView)    mBuilding.getObject("treeview1");
@@ -356,8 +357,6 @@ class PROJECT_VIEW : ELEMENT
 
         dui.GetSidePane.appendPage(mRoot, "Project");
 
-          
-
         mCellText.addOnEdited(&EditIdentifier);
 
         AppendToolItems();
@@ -366,19 +365,15 @@ class PROJECT_VIEW : ELEMENT
         
         mListView.addOnRowActivated(&OpenFile);
 
-        
         mRemove.addOnClicked(&Remove); 
         mAdd.addOnClicked(&Add);
         Project.Event.connect(&UpdateProject);
 
         mKeyBox.setActive(-1);
         UpdateList(mKeyBox);
-        
 
         mRoot.showAll();
         mToolBar.setFocusChild(mRemove);
-
-        
 
         Log.Entry("Engaged PROJECT_VIEW element");
     }

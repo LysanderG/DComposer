@@ -55,6 +55,7 @@ import gtk.TreeIter;
 import gtk.TreeView;
 import gtk.VBox;
 import gtk.Widget;
+import gtk.ScrolledWindow;
 
 import gobject.Value;
 
@@ -239,7 +240,7 @@ class PROJECT_UI : ELEMENT
 
     Builder			    mProBuilder;
     
-	VBox			    mRootVBox;
+	ScrolledWindow			    mRootVBox;
 	Label 			    mTabLabel;
 
     //button bar
@@ -316,11 +317,12 @@ class PROJECT_UI : ELEMENT
 
         string gladefile = expandTilde(Config.getString("PROJECT","glade_file", "~/.neontotem/dcomposer/projopts.glade"));
         string listgladefile = expandTilde(Config.getString("PROJECT", "list_glad_file", "~/.neontotem/dcomposer/multilist.glade"));
-        
+
         mProBuilder.addFromFile(gladefile);
 
-        mRootVBox           = cast(VBox)    mProBuilder.getObject("projoptions");
+        mRootVBox           = cast(ScrolledWindow)    mProBuilder.getObject("scrolledwindow1");
         mTabLabel           = new           Label(Project.Name ~" project options");
+        
 
         mBtnApply           = cast(Button)  mProBuilder.getObject("button1");
         mBtnRevert          = cast(Button)  mProBuilder.getObject("button2");
