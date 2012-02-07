@@ -503,56 +503,56 @@
 "kind" : "function",
 "protection" : "private",
 "type" : "void(DOCUMENT Doc, TextIter ti, out int xpos, out int ypos)",
-"line" : 106}
+"line" : 105}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "SYMBOL_COMPLETION()",
-"line" : 125}
+"line" : 124}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 132}
+"line" : 131}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 133}
+"line" : 132}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 134}
+"line" : 133}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool nuState)",
-"line" : 135}
+"line" : 134}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 143}
+"line" : 142}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 153}
+"line" : 152}
 ]
 }
 ]
@@ -1145,91 +1145,91 @@
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 255}
+"line" : 250}
 ,
 {
 "name" : "FillResultsList",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 313}
+"line" : 308}
 ,
 {
 "name" : "GotoResult",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 336}
+"line" : 331}
 ,
 {
 "name" : "GotoResult2",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(TreeSelection ts)",
-"line" : 359}
+"line" : 354}
 ,
 {
 "name" : "BeginSearch",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(Action X)",
-"line" : 381}
+"line" : 376}
 ,
 {
 "name" : "ReplaceOne",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 391}
+"line" : 386}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "SEARCH_UI()",
-"line" : 418}
+"line" : 412}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 496}
+"line" : 490}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 497}
+"line" : 491}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 498}
+"line" : 492}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool NuState)",
-"line" : 499}
+"line" : 493}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 506}
+"line" : 500}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 521}
+"line" : 515}
 ]
 }
 ]
@@ -1345,21 +1345,21 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "SEARCH_RESULT[](string FileName, string Needle, SEARCH_OPTIONS Opts)",
-"line" : 148}
+"line" : 146}
 ,
 {
 "name" : "FindInStrings",
 "kind" : "function",
 "protection" : "public",
 "type" : "SEARCH_RESULT[](string[string] HayStacks, string Needle, SEARCH_OPTIONS Opts)",
-"line" : 155}
+"line" : 153}
 ,
 {
 "name" : "FindInFiles",
 "kind" : "function",
 "protection" : "public",
 "type" : "SEARCH_RESULT[](string[] Filenames, string Needle, SEARCH_OPTIONS Opts)",
-"line" : 167}
+"line" : 165}
 ]
 }
 ,
@@ -1715,7 +1715,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 387}
+"line" : 386}
 ]
 }
 ]
@@ -3317,14 +3317,14 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 116}
+"line" : 117}
 ,
 {
 "name" : "CatchLog",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string mesg, string level, string mod)",
-"line" : 126}
+"line" : 127}
 ]
 }
 ]
@@ -3742,7 +3742,7 @@
 "name" : "DOCUMENT",
 "kind" : "class",
 "protection" : "public",
-"line" : 56,
+"line" : 53,
 "base" : "SourceView",
 "interfaces" : [
 "DOCUMENT_IF"],
@@ -3752,238 +3752,238 @@
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Label.Label",
-"line" : 60}
+"line" : 57}
 ,
 {
 "name" : "mFullName",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 61}
+"line" : 58}
 ,
 {
 "name" : "mTimeStamp",
 "kind" : "variable",
 "protection" : "private",
 "type" : "SysTime",
-"line" : 63}
+"line" : 60}
 ,
 {
 "name" : "mVirgin",
 "kind" : "variable",
 "protection" : "private",
 "type" : "bool",
-"line" : 64}
+"line" : 61}
 ,
 {
 "name" : "mPasting",
 "kind" : "variable",
 "protection" : "private",
 "type" : "bool",
-"line" : 66}
+"line" : 63}
 ,
 {
 "name" : "ModifyTabLabel",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(TextBuffer tb)",
-"line" : 68}
+"line" : 65}
 ,
 {
 "name" : "CheckForExternalChanges",
 "kind" : "function",
 "protection" : "private",
 "type" : "bool(GdkEventFocus* Event, Widget widget)",
-"line" : 76}
+"line" : 73}
 ,
 {
 "name" : "SetBreakPoint",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(TextIter ti, GdkEvent* event, SourceView sv)",
-"line" : 95}
+"line" : 92}
 ,
 {
 "name" : "TabXButton",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(Button x)",
-"line" : 110}
+"line" : 107}
 ,
 {
 "name" : "SetupSourceView",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 115}
+"line" : 112}
 ,
 {
 "name" : "DisplayName",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 152}
+"line" : 148}
 ,
 {
 "name" : "DisplayName",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string DisplayName)",
-"line" : 153}
+"line" : 149}
 ,
 {
 "name" : "FullPathName",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 154}
+"line" : 150}
 ,
 {
 "name" : "FullPathName",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string NuName)",
-"line" : 155}
+"line" : 151}
 ,
 {
 "name" : "Virgin",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 156}
+"line" : 152}
 ,
 {
 "name" : "Virgin",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool still)",
-"line" : 157}
+"line" : 153}
 ,
 {
 "name" : "Modified",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 158}
+"line" : 154}
 ,
 {
 "name" : "Modified",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool modded)",
-"line" : 159}
+"line" : 155}
 ,
 {
 "name" : "RawData",
 "kind" : "function",
 "protection" : "public",
 "type" : "ubyte[]()",
-"line" : 161}
+"line" : 157}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "DOCUMENT()",
-"line" : 165}
+"line" : 161}
 ,
 {
 "name" : "Create",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string identifier)",
-"line" : 178}
+"line" : 174}
 ,
 {
 "name" : "Open",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string FileName, ulong LineNo = cast(ulong)0)",
-"line" : 186}
+"line" : 182}
 ,
 {
 "name" : "Save",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool()",
-"line" : 220}
+"line" : 216}
 ,
 {
 "name" : "SaveAs",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string NewName)",
-"line" : 237}
+"line" : 233}
 ,
 {
 "name" : "Close",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(bool Quitting = false)",
-"line" : 251}
+"line" : 247}
 ,
 {
 "name" : "TabWidget",
 "kind" : "function",
 "protection" : "public",
 "type" : "Widget()",
-"line" : 276}
+"line" : 271}
 ,
 {
 "name" : "GetWidget",
 "kind" : "function",
 "protection" : "public",
 "type" : "Widget()",
-"line" : 295}
+"line" : 290}
 ,
 {
 "name" : "GetPage",
 "kind" : "function",
 "protection" : "public",
 "type" : "Widget()",
-"line" : 296}
+"line" : 291}
 ,
 {
 "name" : "IsPasting",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool()",
-"line" : 297}
+"line" : 292}
 ,
 {
 "name" : "Focus",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 299}
+"line" : 294}
 ,
 {
 "name" : "Edit",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Verb)",
-"line" : 304}
+"line" : 299}
 ,
 {
 "name" : "GotoLine",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(uint Line)",
-"line" : 322}
+"line" : 315}
 ,
 {
 "name" : "HiliteFindMatch",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(int Line, int start, int len)",
-"line" : 344}
+"line" : 337}
 ,
 {
 "name" : "OnInsertText",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(TextIter ti, string text, int len, TextBuffer huh)",
-"line" : 364}
+"line" : 355}
 ]
 }
 ,
@@ -3992,7 +3992,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string FileName)",
-"line" : 386}
+"line" : 374}
 ]
 }
 ,
@@ -4448,133 +4448,133 @@
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 121}
+"line" : 118}
 ,
 {
 "name" : "CreateActions",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 132}
+"line" : 129}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 281}
+"line" : 278}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 293}
+"line" : 290}
 ,
 {
 "name" : "CreateDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "DOCUMENT_IF(string DocType = \".d\")",
-"line" : 319}
+"line" : 316}
 ,
 {
 "name" : "OpenDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string FullFileName, int LineNo = 0)",
-"line" : 345}
+"line" : 342}
 ,
 {
 "name" : "OpenDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 371}
+"line" : 368}
 ,
 {
 "name" : "OpenDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string[] FullFileNames)",
-"line" : 404}
+"line" : 401}
 ,
 {
 "name" : "OpenInitialDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 429}
+"line" : 426}
 ,
 {
 "name" : "SaveDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 435}
+"line" : 432}
 ,
 {
 "name" : "SaveAsDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(DOCUMENT_IF docX = cast(DOCUMENT_IF)null)",
-"line" : 450}
+"line" : 447}
 ,
 {
 "name" : "SaveAllDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 480}
+"line" : 477}
 ,
 {
 "name" : "CloseDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string FullFileName = null)",
-"line" : 494}
+"line" : 491}
 ,
 {
 "name" : "CloseAllDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(bool Quitting = false)",
-"line" : 524}
+"line" : 521}
 ,
 {
 "name" : "Edit",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string WhichEdit)",
-"line" : 545}
+"line" : 542}
 ,
 {
 "name" : "GetDocX",
 "kind" : "function",
 "protection" : "public",
 "type" : "DOCUMENT_IF(string FullFileName)",
-"line" : 554}
+"line" : 551}
 ,
 {
 "name" : "GetDocX",
 "kind" : "function",
 "protection" : "public",
 "type" : "DOCUMENT_IF(int index = -1)",
-"line" : 569}
+"line" : 566}
 ,
 {
 "name" : "AppendDocument",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(DOCUMENT_IF Doc, uint LineNo = cast(uint)0)",
-"line" : 582}
+"line" : 579}
 ,
 {
 "name" : "IsOpenDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string FullFileName, bool SetFocus = false)",
-"line" : 600}
+"line" : 597}
 ]
 }
 ]

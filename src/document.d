@@ -40,7 +40,6 @@ import gsv.SourceStyleSchemeManager;
 import gsv.SourceLanguageManager;
 import gsv.SourceMark;
 
-
 import gtk.Label;
 import gtk.Widget;
 import gtk.HBox;
@@ -49,8 +48,6 @@ import gtk.TextBuffer;
 import gtk.MessageDialog;
 import gtk.Clipboard;
 import gtk.TextIter;
-
-
 
 
 class DOCUMENT : SourceView, DOCUMENT_IF
@@ -269,7 +266,6 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         }
 
         return true;
-
     }    
 
     Widget TabWidget()
@@ -314,10 +310,8 @@ class DOCUMENT : SourceView, DOCUMENT_IF
             case "DELETE":   getBuffer.deleteSelection(1,1);break;
 
             default : Log.Entry("Currently unavailable function :"~Verb,"Debug");
-        }
-            
+        }            
     }
-
     void GotoLine(uint Line)
     {
         TextIter ti = new TextIter;
@@ -358,8 +352,6 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         getBuffer.applyTagByName("hilitefore", tstart, tend);
     }
 
-
-
     void OnInsertText(TextIter ti, string text, int len, TextBuffer huh)
     {
         auto mark = huh.createMark("huhx", ti, 0);
@@ -371,10 +363,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
         //getBuffer.getIterAtMark(ti, mark);       
         
-    }
-
-
-    
+    }    
     mixin Signal!(TextIter, string, TextBuffer) NewLine;
     mixin Signal!(TextIter, string, TextBuffer) CloseBrace;
     mixin Signal!(DOCUMENT, TextIter, string, SourceBuffer) TextInserted;
@@ -395,7 +384,6 @@ string MultiRead(string FileName)
 }
 
 /*
-
 string MultiRead(string FileName)
 {
     string myUtfString;
@@ -419,7 +407,6 @@ string MultiRead(string FileName)
         transcode(TryLatin, myUtfString);
         return myUtfString;
     }
-
     return null;
 }
 */    

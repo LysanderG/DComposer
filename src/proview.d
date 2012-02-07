@@ -78,7 +78,7 @@ class PROJECT_VIEW : ELEMENT
         GC.disable;
         
         TreeIter ti = new TreeIter;
-        X.getActiveIter(ti);
+        if (!X.getActiveIter(ti)) return;
 
         string key = mComboStore.getValueString(ti, 0);
 
