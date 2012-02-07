@@ -270,6 +270,10 @@ class SYMBOLS
 
     void Disengage()
     {
+        if(Config.getBoolean("SYMBOLS", "auto_load_project_symbols", true))
+        {
+            Project.Event.disconnect(&ProjectWatch);
+        }
         Log().Entry("Disengaged SYMBOLS");
     }
 

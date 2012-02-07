@@ -24,6 +24,7 @@ import ui;
 import dcore;
 import elements;
 
+import docpop;
 import docman;
 import document;
 
@@ -37,6 +38,8 @@ import gsv.SourceBuffer;
 
 import gtk.TextIter;
 import gtk.Widget;
+
+import gdk.Rectangle;
 
 
 
@@ -53,20 +56,21 @@ class SCOPE_LIST : ELEMENT
     {
         DOCUMENT DocX = cast (DOCUMENT) DocIF;
 
-        DocX.addOnFocusOut (delegate bool (GdkEventFocus* ev, Widget w){dui.GetDocPop.Hide();return false;}); 
+        //DocX.addOnFocusOut (delegate bool (GdkEventFocus* ev, Widget w){dui.GetDocPop.KillChain();return false;}); 
 
         DocX.TextInserted.connect(&WatchDoc);
     }
 
     void WatchDoc(DOCUMENT sv, TextIter ti, string text, SourceBuffer buffer)
     {
+        int xpos, ypos;
         if (sv.IsPasting) return;
         if (text != ".")
         {
             if(mState)
             {
                 mState = false;
-                dui.GetDocPop.Close(TYPE_SCOPELIST);
+                //dui.GetDocPop.Pop();
             }
             return;            
         }
@@ -93,11 +97,24 @@ class SCOPE_LIST : ELEMENT
         if(possibles.length < 1) return;
         
         mState = true;
-
-
-        dui.GetDocPop.Push(sv, ti, possibles, TYPE_SCOPELIST);
+        
+        IterGetPostion(sv, ti, xpos, ypos);
+        dui.GetDocPop.Push(POP_TYPE_SCOPE, possibles, possibles, xpos, ypos);
     }
 
+    void IterGetPostion(DOCUMENT Doc, TextIter ti, out int xpos, out int ypos)
+    {
+        GdkRectangle gdkRect;
+        int winX, winY, OrigX, OrigY;
+
+        Rectangle LocationRect = new Rectangle(&gdkRect);
+        Doc.getIterLocation(ti, LocationRect);
+        Doc.bufferToWindowCoords(GtkTextWindowType.TEXT, gdkRect.x, gdkRect.y, winX, winY);
+        Doc.getWindow(GtkTextWindowType.TEXT).getOrigin(OrigX, OrigY);
+        xpos = winX + OrigX;
+        ypos = winY + OrigY + gdkRect.height;
+        return;        
+    }
 
     public:
     

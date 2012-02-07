@@ -85,12 +85,12 @@ class MAIN_UI
 
         EngageWidgets();
         
+        mDocMan     = new DOCMAN; 
+        mDocMan.Engage();
+        
         mDocPop = new DOC_POP;
         mDocPop.Engage();
         
-        mDocMan     = new DOCMAN; 
-        mDocMan.Engage();
-
         mWindow.show();
         
         Log().Entry("Engaged UI");
@@ -98,6 +98,7 @@ class MAIN_UI
 
     void Disengage()
     {
+        Project.Event.disconnect(&WatchProjectName);
         mDocPop.Disengage();
         mDocMan.Disengage();        
         Log().Entry("Disengaged UI");

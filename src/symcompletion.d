@@ -23,6 +23,7 @@ module symcompletion;
 import dcore;
 import ui;
 import elements;
+import docpop;
 import docman;
 import document;
 
@@ -33,6 +34,7 @@ import std.ascii;
 
 
 import gtk.TextIter;
+import gdk.Rectangle;
 import gsv.SourceBuffer;
 
 class SYMBOL_COMPLETION : ELEMENT
@@ -59,44 +61,64 @@ class SYMBOL_COMPLETION : ELEMENT
     {
         if(doc.IsPasting) return;
         
-        if(active)
-        {
-            active = false;
-            dui.GetDocPop.Close(TYPE_SYMCOM);
-        }
+        //if(active)
+        //{
+        //    active = false;
+        //    //dui.GetDocPop.Pop();
+        //}
 		
-		if ((text == ".") || (text == "(") || text == ")") return;
+		if ((text == ".") || (text == "(") || (text == ")")) return;
 		
 		
         if(text.length > 1) return;
-        if( !( (isAlphaNum(text[0])) || (text == "_"))) return;
+        //if( !( (isAlphaNum(text[0])) || (text == "_"))) return;
         
         
         TextIter WordStart = ti.copy();
         WordStart.backwardWordStart();
-        int CouldMoveback = WordStart.backwardChar();
-                
-        while('.' == WordStart.getChar())
-        {
-            WordStart.backwardWordStart();
-            CouldMoveback = WordStart.backwardChar();
-        }
-        if(CouldMoveback)WordStart.forwardChar();
+       //int CouldMoveback = WordStart.backwardChar();
+       //        
+       //while('.' == WordStart.getChar())
+       //{
+       //    WordStart.backwardWordStart();
+       //    CouldMoveback = WordStart.backwardChar();
+       //}
+       //if(CouldMoveback)WordStart.forwardChar();
+        
+        int xpos, ypos;
+        IterGetPostion(doc, WordStart, xpos, ypos);
 
         string Candidate = WordStart.getText(ti);
-        writeln("SymCompletion Candidate = ", Candidate);
+        writeln("SymCompletion Candidate = ", Candidate, "-");
 
         auto tmp = Symbols.Match(Candidate);
      
         string[] Possibles;
         
         foreach(item; tmp.uniq) Possibles ~= item;
-        if (Possibles.length < 1) return;
+        //if (Possibles.length < 1) return;
 
-        dui.GetDocPop.Push(doc, WordStart, Possibles, TYPE_SYMCOM);
+        dui.GetDocPop.Push(POP_TYPE_COMPLETION, Possibles, Possibles, xpos, ypos);
         active = true;
         
     }
+
+    void IterGetPostion(DOCUMENT Doc, TextIter ti, out int xpos, out int ypos)
+    {
+        GdkRectangle gdkRect;
+        int winX, winY, OrigX, OrigY;
+
+        Rectangle LocationRect = new Rectangle(&gdkRect);
+        Doc.getIterLocation(ti, LocationRect);
+        Doc.bufferToWindowCoords(GtkTextWindowType.TEXT, gdkRect.x, gdkRect.y, winX, winY);
+        Doc.getWindow(GtkTextWindowType.TEXT).getOrigin(OrigX, OrigY);
+        xpos = winX + OrigX;
+        ypos = winY + OrigY + gdkRect.height;
+        return;        
+    }
+        
+
+    
     
     public:
 

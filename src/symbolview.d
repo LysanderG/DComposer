@@ -153,6 +153,7 @@ class SYMBOL_VIEW : ELEMENT
     {
         mState = false;
         mRoot.hide();
+         Project.Event.disconnect(&UpdateProjectTags);
         Log.Entry("Disengaged SYMBOL_VIEW element");
     }       
 }

@@ -135,112 +135,112 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 106}
+"line" : 107}
 ,
 {
 "name" : "EngageWidgets",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 115}
+"line" : 116}
 ,
 {
 "name" : "ConfirmQuit",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(Event e, Widget w)",
-"line" : 180}
+"line" : 181}
 ,
 {
 "name" : "AddMenuItem",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string MenuID, Widget Addition, int Position = -1)",
-"line" : 198}
+"line" : 199}
 ,
 {
 "name" : "AddToolBarItem",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(ToolItem NuItem, int Position = -2)",
-"line" : 215}
+"line" : 216}
 ,
 {
 "name" : "PerformAction",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string ActionName)",
-"line" : 227}
+"line" : 228}
 ,
 {
 "name" : "GetWindow",
 "kind" : "function",
 "protection" : "public",
 "type" : "Window()",
-"line" : 234}
+"line" : 235}
 ,
 {
 "name" : "GetCenterPane",
 "kind" : "function",
 "protection" : "public",
 "type" : "Notebook()",
-"line" : 235}
+"line" : 236}
 ,
 {
 "name" : "GetSidePane",
 "kind" : "function",
 "protection" : "public",
 "type" : "Notebook()",
-"line" : 236}
+"line" : 237}
 ,
 {
 "name" : "GetExtraPane",
 "kind" : "function",
 "protection" : "public",
 "type" : "Notebook()",
-"line" : 237}
+"line" : 238}
 ,
 {
 "name" : "Actions",
 "kind" : "function",
 "protection" : "public",
 "type" : "ActionGroup()",
-"line" : 238}
+"line" : 239}
 ,
 {
 "name" : "GetMenuBar",
 "kind" : "function",
 "protection" : "public",
 "type" : "MenuBar()",
-"line" : 239}
+"line" : 240}
 ,
 {
 "name" : "GetAccel",
 "kind" : "function",
 "protection" : "public",
 "type" : "AccelGroup()",
-"line" : 240}
+"line" : 241}
 ,
 {
 "name" : "GetDocMan",
 "kind" : "function",
 "protection" : "public",
 "type" : "DOCMAN()",
-"line" : 242}
+"line" : 243}
 ,
 {
 "name" : "GetDocPop",
 "kind" : "function",
 "protection" : "public",
 "type" : "DOC_POP()",
-"line" : 243}
+"line" : 244}
 ,
 {
 "name" : "WatchProjectName",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string EventType)",
-"line" : 246}
+"line" : 247}
 ]
 }
 ,
@@ -248,25 +248,25 @@
 "name" : "TYPE_NONE",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 255}
+"line" : 256}
 ,
 {
 "name" : "TYPE_CALLTIP",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 255}
+"line" : 256}
 ,
 {
 "name" : "TYPE_SCOPELIST",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 255}
+"line" : 256}
 ,
 {
 "name" : "TYPE_SYMCOM",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 255}
+"line" : 256}
 ]
 }
 ,
@@ -444,7 +444,7 @@
 "name" : "SYMBOL_COMPLETION",
 "kind" : "class",
 "protection" : "public",
-"line" : 38,
+"line" : 40,
 "base" : "Object",
 "interfaces" : [
 "ELEMENT"],
@@ -454,98 +454,105 @@
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 42}
+"line" : 44}
 ,
 {
 "name" : "mInfo",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 43}
+"line" : 45}
 ,
 {
 "name" : "mState",
 "kind" : "variable",
 "protection" : "private",
 "type" : "bool",
-"line" : 44}
+"line" : 46}
 ,
 {
 "name" : "active",
 "kind" : "variable",
 "protection" : "private",
 "type" : "bool",
-"line" : 45}
+"line" : 47}
 ,
 {
 "name" : "mConnections",
 "kind" : "variable",
 "protection" : "private",
 "type" : "DOCUMENT[]",
-"line" : 47}
+"line" : 49}
 ,
 {
 "name" : "WatchForNewDocument",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(string EventId, DOCUMENT_IF NuDoc)",
-"line" : 50}
+"line" : 52}
 ,
 {
 "name" : "WatchDoc",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(DOCUMENT doc, TextIter ti, string text, SourceBuffer buffer)",
-"line" : 58}
+"line" : 60}
+,
+{
+"name" : "IterGetPostion",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(DOCUMENT Doc, TextIter ti, out int xpos, out int ypos)",
+"line" : 106}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "SYMBOL_COMPLETION()",
-"line" : 103}
+"line" : 125}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 110}
+"line" : 132}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 111}
+"line" : 133}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 112}
+"line" : 134}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool nuState)",
-"line" : 113}
+"line" : 135}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 121}
+"line" : 143}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 131}
+"line" : 153}
 ]
 }
 ]
@@ -847,56 +854,56 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string key, string TagFile)",
-"line" : 279}
+"line" : 283}
 ,
 {
 "name" : "Load",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string key, string symfile)",
-"line" : 287}
+"line" : 291}
 ,
 {
 "name" : "Load",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string symfile)",
-"line" : 301}
+"line" : 305}
 ,
 {
 "name" : "GetLocation",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string ScopedCandidate, out string[] Modules, out int[] LineNo)",
-"line" : 309}
+"line" : 313}
 ,
 {
 "name" : "GetCallTips",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Candidate)",
-"line" : 324}
+"line" : 328}
 ,
 {
 "name" : "GetMembers",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Candidate)",
-"line" : 346}
+"line" : 350}
 ,
 {
 "name" : "Match",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Candidate)",
-"line" : 389}
+"line" : 393}
 ,
 {
 "name" : "Symbols",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[string]()",
-"line" : 422}
+"line" : 426}
 ]
 }
 ]
@@ -1365,7 +1372,7 @@
 "name" : "SCOPE_LIST",
 "kind" : "class",
 "protection" : "public",
-"line" : 43,
+"line" : 46,
 "base" : "Object",
 "interfaces" : [
 "ELEMENT"],
@@ -1375,84 +1382,91 @@
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 47}
+"line" : 50}
 ,
 {
 "name" : "mInfo",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 48}
+"line" : 51}
 ,
 {
 "name" : "mState",
 "kind" : "variable",
 "protection" : "private",
 "type" : "bool",
-"line" : 49}
+"line" : 52}
 ,
 {
 "name" : "WatchForNewDocument",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(string EventId, DOCUMENT_IF DocIF)",
-"line" : 52}
+"line" : 55}
 ,
 {
 "name" : "WatchDoc",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(DOCUMENT sv, TextIter ti, string text, SourceBuffer buffer)",
-"line" : 61}
+"line" : 64}
+,
+{
+"name" : "IterGetPostion",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(DOCUMENT Doc, TextIter ti, out int xpos, out int ypos)",
+"line" : 105}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "SCOPE_LIST()",
-"line" : 105}
+"line" : 122}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 113}
+"line" : 130}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 114}
+"line" : 131}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 115}
+"line" : 132}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool nuState)",
-"line" : 116}
+"line" : 133}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 126}
+"line" : 143}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 134}
+"line" : 151}
 ]
 }
 ]
@@ -3001,56 +3015,56 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 584}
+"line" : 585}
 ,
 {
 "name" : "Compiler",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuCompiler)",
-"line" : 585}
+"line" : 586}
 ,
 {
 "name" : "UseCustomBuild",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 587}
+"line" : 588}
 ,
 {
 "name" : "UseCustomBuild",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool UseIt)",
-"line" : 588}
+"line" : 589}
 ,
 {
 "name" : "CustomBuildCommand",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 590}
+"line" : 591}
 ,
 {
 "name" : "CustomBuildCommand",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuCommand)",
-"line" : 591}
+"line" : 592}
 ,
 {
 "name" : "Target",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property int()",
-"line" : 593}
+"line" : 594}
 ,
 {
 "name" : "Target",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(int nuTarget)",
-"line" : 594}
+"line" : 595}
 ]
 }
 ,
@@ -3059,7 +3073,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string Lib)",
-"line" : 602}
+"line" : 603}
 ]
 }
 ,
@@ -3988,52 +4002,98 @@
 "file" : "src\/docpop.d",
 "members" : [
 {
-"name" : "STACK",
-"kind" : "struct",
+"name" : "POP_TYPE_TIP",
+"kind" : "enum member",
 "protection" : "public",
-"line" : 55,
-"members" : [
+"line" : 54}
+,
 {
-"name" : "Possibles",
+"name" : "POP_TYPE_SCOPE",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 54}
+,
+{
+"name" : "POP_TYPE_COMPLETION",
+"kind" : "enum member",
+"protection" : "public",
+"line" : 54}
+,
+{
+"name" : "DATA_DEPTH",
 "kind" : "variable",
 "protection" : "public",
-"type" : "string[]",
+"type" : "immutable(int)",
 "line" : 56}
 ,
 {
-"name" : "Xpos",
-"kind" : "variable",
-"protection" : "public",
-"type" : "int",
-"line" : 57}
-,
+"name" : "DATA_STORE",
+"kind" : "struct",
+"protection" : "private",
+"line" : 59,
+"members" : [
 {
-"name" : "Ypos",
+"name" : "mStore",
 "kind" : "variable",
-"protection" : "public",
-"type" : "int",
-"line" : 58}
-,
-{
-"name" : "Type",
-"kind" : "variable",
-"protection" : "public",
-"type" : "int",
-"line" : 59}
-,
-{
-"name" : "Owner",
-"kind" : "variable",
-"protection" : "public",
-"type" : "document.DOCUMENT",
+"protection" : "private",
+"type" : "gtk.ListStore.ListStore",
 "line" : 60}
 ,
 {
-"name" : "FillModel",
+"name" : "mIter",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.TreeIter.TreeIter",
+"line" : 61}
+,
+{
+"name" : "mPossibles",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string[]",
+"line" : 62}
+,
+{
+"name" : "mExtraInfo",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string[]",
+"line" : 63}
+,
+{
+"name" : "mType",
+"kind" : "variable",
+"protection" : "public",
+"type" : "int",
+"line" : 64}
+,
+{
+"name" : "mXPos",
+"kind" : "variable",
+"protection" : "public",
+"type" : "int",
+"line" : 66}
+,
+{
+"name" : "mYPos",
+"kind" : "variable",
+"protection" : "public",
+"type" : "int",
+"line" : 67}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "ref DATA_STORE(string[] nuPossibles, string[] info, int Type, int Xpos, int Ypos)",
+"line" : 69}
+,
+{
+"name" : "GetModel",
 "kind" : "function",
 "protection" : "public",
-"type" : "void(ref ListStore x)",
-"line" : 62}
+"type" : "ListStore()",
+"line" : 90}
 ]
 }
 ,
@@ -4041,124 +4101,134 @@
 "name" : "DOC_POP",
 "kind" : "class",
 "protection" : "public",
-"line" : 83,
+"line" : 95,
 "base" : "Object",
 "members" : [
-{
-"name" : "IDLE",
-"kind" : "enum member",
-"protection" : "public",
-"line" : 86}
-,
-{
-"name" : "ACTIVE",
-"kind" : "enum member",
-"protection" : "public",
-"line" : 86}
-,
-{
-"name" : "INTERRUPTED",
-"kind" : "enum member",
-"protection" : "public",
-"line" : 86}
-,
 {
 "name" : "mBuilder",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Builder.Builder",
-"line" : 88}
+"line" : 98}
 ,
 {
 "name" : "mWindow",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Window.Window",
-"line" : 89}
+"line" : 99}
 ,
 {
 "name" : "mTreeView",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.TreeView.TreeView",
-"line" : 90}
+"line" : 100}
 ,
 {
-"name" : "mListStore",
+"name" : "mDataChain",
 "kind" : "variable",
 "protection" : "private",
-"type" : "gtk.ListStore.ListStore",
-"line" : 91}
+"type" : "DATA_STORE[24LU]",
+"line" : 102}
 ,
 {
-"name" : "mStack",
-"kind" : "variable",
-"protection" : "private",
-"type" : "STACK[128LU]",
-"line" : 93}
-,
-{
-"name" : "mCurStack",
+"name" : "mCurrentDataIndex",
 "kind" : "variable",
 "protection" : "private",
 "type" : "int",
-"line" : 94}
+"line" : 103}
 ,
 {
-"name" : "mCurrentType",
-"kind" : "variable",
+"name" : "WatchForNewDocuments",
+"kind" : "function",
 "protection" : "private",
-"type" : "int",
-"line" : 96}
+"type" : "void(string EventType, DOCUMENT_IF DocXIf)",
+"line" : 107}
+,
+{
+"name" : "CaptureDocumentKeys",
+"kind" : "function",
+"protection" : "private",
+"type" : "bool(GdkEventKey* EvntKey, Widget Wydjit)",
+"line" : 117}
+,
+{
+"name" : "CaptureDocumentButtons",
+"kind" : "function",
+"protection" : "private",
+"type" : "bool(GdkEventButton* EvntKey, Widget Wydjit)",
+"line" : 153}
+,
+{
+"name" : "MoveSelectionUp",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(Widget Wydjit)",
+"line" : 159}
+,
+{
+"name" : "MoveSelectionDown",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(Widget Wydjit)",
+"line" : 176}
+,
+{
+"name" : "PresentDialog",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 198}
+,
+{
+"name" : "CompleteText",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(Widget Wydjit)",
+"line" : 208}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "DOC_POP()",
+"line" : 233}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 101}
+"line" : 245}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 118}
+"line" : 252}
 ,
 {
 "name" : "Push",
 "kind" : "function",
 "protection" : "public",
-"type" : "void(DOCUMENT doc, TextIter where, string[] ListOfPossibles, int Type)",
-"line" : 124}
+"type" : "void(int Type, string[] Candidates, string[] ExtraInfo, int Xlocation, int Ylocation)",
+"line" : 258}
 ,
 {
-"name" : "Hide",
+"name" : "Pop",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 163}
+"line" : 270}
 ,
 {
-"name" : "Close",
+"name" : "KillChain",
 "kind" : "function",
 "protection" : "public",
-"type" : "void(int type)",
-"line" : 183}
-,
-{
-"name" : "CatchButton",
-"kind" : "function",
-"protection" : "public",
-"type" : "bool(GdkEventButton* EvntBtn, Widget Wydjit)",
-"line" : 200}
-,
-{
-"name" : "CatchKey",
-"kind" : "function",
-"protection" : "public",
-"type" : "bool(GdkEventKey* EvntKey, Widget Wydjit)",
-"line" : 206}
+"type" : "void()",
+"line" : 279}
 ]
 }
 ]
@@ -5315,7 +5385,7 @@
 "name" : "CALL_TIPS",
 "kind" : "class",
 "protection" : "public",
-"line" : 43,
+"line" : 45,
 "base" : "Object",
 "interfaces" : [
 "ELEMENT"],
@@ -5325,98 +5395,105 @@
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 47}
+"line" : 49}
 ,
 {
 "name" : "mInfo",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 48}
+"line" : 50}
 ,
 {
 "name" : "mState",
 "kind" : "variable",
 "protection" : "private",
 "type" : "bool",
-"line" : 49}
+"line" : 51}
 ,
 {
 "name" : "mStack",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string[]",
-"line" : 51}
+"line" : 53}
 ,
 {
 "name" : "ConnectedDocs",
 "kind" : "variable",
 "protection" : "private",
 "type" : "DOCUMENT[]",
-"line" : 53}
+"line" : 55}
+,
+{
+"name" : "IterGetPostion",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(DOCUMENT Doc, TextIter ti, out int xpos, out int ypos)",
+"line" : 57}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "CALL_TIPS()",
-"line" : 58}
+"line" : 74}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 64}
+"line" : 80}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 65}
+"line" : 81}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 66}
+"line" : 82}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool nuState)",
-"line" : 67}
+"line" : 83}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 75}
+"line" : 91}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 85}
+"line" : 101}
 ,
 {
 "name" : "WatchForNewDocument",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string EventId, DOCUMENT_IF docIF)",
-"line" : 96}
+"line" : 112}
 ,
 {
 "name" : "WatchDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(DOCUMENT sv, TextIter ti, string Text, SourceBuffer Buffer)",
-"line" : 108}
+"line" : 124}
 ]
 }
 ]

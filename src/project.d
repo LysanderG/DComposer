@@ -301,12 +301,12 @@ class PROJECT
 	}    
     void Close()                                            //return target type to null , and nothing doing
     {
+        Log.Entry("Closing Project", "Debug");
         if(mTarget != TARGET.NULL)   Save();
         mTarget = TARGET.NULL;
         
-        Name = "";
-        WorkingPath = "";
-        Target = TARGET.NULL;
+        mName = "";
+        mWorkingPath = "";
 
         scope(failure)Log.Entry("Unable to open Flags File", "Error");
         string FlagsFile = expandTilde(Config.getString("PROJECT","flags_file", "~/neontotem/dcomposer/flagsfile.json" ));
@@ -569,6 +569,7 @@ class PROJECT
         string WorkingPath() {return mWorkingPath;}
         void WorkingPath(string nuPath)
         {
+            
             scope(failure)
             {
                 mWorkingPath = "";

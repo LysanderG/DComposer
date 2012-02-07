@@ -37,6 +37,8 @@ import gsv.SourceBuffer;
 import gtk.TextIter;
 import gtk.Widget;
 
+import gdk.Rectangle;
+
 import glib.SimpleXML;
 
 
@@ -50,7 +52,21 @@ class CALL_TIPS : ELEMENT
 
     string[]    mStack; //y is this still here?
 
-    DOCUMENT[] ConnectedDocs;  
+    DOCUMENT[] ConnectedDocs;
+
+    void IterGetPostion(DOCUMENT Doc, TextIter ti, out int xpos, out int ypos)
+    {
+        GdkRectangle gdkRect;
+        int winX, winY, OrigX, OrigY;
+
+        Rectangle LocationRect = new Rectangle(&gdkRect);
+        Doc.getIterLocation(ti, LocationRect);
+        Doc.bufferToWindowCoords(GtkTextWindowType.TEXT, gdkRect.x, gdkRect.y, winX, winY);
+        Doc.getWindow(GtkTextWindowType.TEXT).getOrigin(OrigX, OrigY);
+        xpos = winX + OrigX;
+        ypos = winY + OrigY + gdkRect.height;
+        return;        
+    }
         
 
     public:
@@ -137,12 +153,15 @@ class CALL_TIPS : ELEMENT
                 
                 if(Possibles.length == 0) break;
 
-                dui.GetDocPop.Push(sv, ti, Possibles, TYPE_CALLTIP);
+                int xpos, ypos;
+                IterGetPostion(sv, ti, xpos, ypos);
+
+                dui.GetDocPop.Push(docpop.POP_TYPE_TIP, Possibles, Possibles, xpos, ypos);
                 break;
             }
             case ")" :
             {
-                dui.GetDocPop.Close(TYPE_CALLTIP);
+                dui.GetDocPop.Pop();
                 break;
             }
             default : break;

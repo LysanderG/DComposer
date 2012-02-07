@@ -169,8 +169,8 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         getBuffer().addOnModifiedChanged(&ModifyTabLabel);
         getBuffer.addOnPasteDone (delegate void (Clipboard cb, TextBuffer tb) {mPasting = false;});
         
-        addOnKeyPress(&dui.GetDocPop.CatchKey);
-        addOnButtonPress(&dui.GetDocPop.CatchButton); 
+        //addOnKeyPress(&dui.GetDocPop.CatchKey);
+        //addOnButtonPress(&dui.GetDocPop.CatchButton); 
         addOnFocusIn(&CheckForExternalChanges);
         
     }

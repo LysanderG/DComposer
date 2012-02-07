@@ -109,7 +109,7 @@ class TERMINAL_UI : ELEMENT
     {
         mState = false;
         mScrWin.hide();
-
+        Project.Event.disconnect(&NewDirectory);
         Log.Entry("Disengaged TERMINAL_UI element");
         
     }
