@@ -170,7 +170,6 @@ class SEARCH_UI : ELEMENT
             string HayStack = tmpDocument.getBuffer.getText();
             string DocTitle = dui.GetDocMan.GetDocX.FullPathName();
             Results = FindInString(HayStack, Needle, DocTitle, Options);
-            writeln("here");
         }
         if(mScopeProject.getActive())
         {
@@ -233,7 +232,6 @@ class SEARCH_UI : ELEMENT
             if (Splits[1].empty) return;
             
             TI = new TreeIter;
-            writeln("---");
             mResultsList.append(TI);
             mResultsList.setValue(TI, 0, result.DocName);
             mResultsList.setValue(TI, 1, cast(int)result.LineNumber);
@@ -242,11 +240,8 @@ class SEARCH_UI : ELEMENT
             mResultsList.setValue(TI, 4, cast(int)result.StartOffset);
             mResultsList.setValue(TI, 5, cast(int)result.EndOffset);
         }
-        writeln("here!");
         mResultsView.setCursor(new TreePath(true), null, false);
-        writeln("here@@");
         mResultsView.grabFocus();
-        writeln("here@@@");
     }
 
     
@@ -409,7 +404,6 @@ class SEARCH_UI : ELEMENT
         //tmp.getBuffer.getIterAtLineOffset(txti1,line-1,offstart);
         tmp.getBuffer.insert(txti1, mReplace.getText(), -1);
         mResultsList.remove(TI);
-        writeln("replaceone");
     }
         
     

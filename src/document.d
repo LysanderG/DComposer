@@ -118,7 +118,6 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         if(Language!is null) getBuffer.setLanguage(Language);
 
         string StyleId = Config.getString("DOCMAN","style_scheme", "mnml");
-        writeln(StyleId);
         getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleId));
 
 

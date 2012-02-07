@@ -344,7 +344,6 @@ class PROJECT_VIEW : ELEMENT
         mBuilding.addFromFile(Config.getString("PROJECT_VIEW", "glade_file", "/home/anthony/.neontotem/dcomposer/proview.glade"));
 
         mRoot       = cast(VBox)        mBuilding.getObject("vbox1");
-        writeln("temp");
         mLabel      = cast(Label)       mBuilding.getObject("label1");
         mToolBar    = cast(Toolbar)     mBuilding.getObject("toolbar1");
         mListView   = cast(TreeView)    mBuilding.getObject("treeview1");

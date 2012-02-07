@@ -89,7 +89,6 @@ class SYMBOL_COMPLETION : ELEMENT
         IterGetPostion(doc, WordStart, xpos, ypos);
 
         string Candidate = WordStart.getText(ti);
-        writeln("SymCompletion Candidate = ", Candidate, "-");
 
         auto tmp = Symbols.Match(Candidate);
      

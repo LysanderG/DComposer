@@ -100,13 +100,10 @@ class DOCMAN
 
         ulong KeyCount;
         string[] FilterKeys = Config.getKeys("DOC_FILTERS", KeyCount);
-        writeln(KeyCount);
 
         foreach(i, key; FilterKeys)
         {
-            writeln(key);
             string[] data = Config.getString("DOC_FILTERS", key).split(";");
-            writeln(data);
             mFileFilters[key] = new FileFilter;
             mFileFilters[key].setName(data[0]);
             

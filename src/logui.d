@@ -94,7 +94,8 @@ class LOG_UI : ELEMENT
 		mScroller.add(mTreeView);
 
 		mScroller.showAll();
-		dui.GetExtraPane.appendPage(mScroller, mLabel);
+		dui.GetExtraPane.prependPage(mScroller, mLabel);
+        dui.GetExtraPane.setCurrentPage(mScroller);
 		
 		Log.connect(&CatchLog);
 

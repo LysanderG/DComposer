@@ -83,8 +83,6 @@ SEARCH_RESULT[] FindInString(string HayStack, string Needle, string DocTitle, SE
             if (foundSplits[1].empty) break;
             Results.length += 1;
             Results[$-1] = SEARCH_RESULT(DocTitle, lineNo+1, FullLineText, foundSplits[0].length + MultiMatchAddToOffset, (foundSplits[0] ~ foundSplits[1]).length + MultiMatchAddToOffset );
-            writeln(Results[$-1].DocName, " ", Results[$-1].LineNumber, " ", Results[$-1].StartOffset, " ", Results[$-1].EndOffset);
-
             MultiMatchAddToOffset = Results[$-1].EndOffset;
             lineText = foundSplits[2];
         }while (true);
