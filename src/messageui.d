@@ -55,6 +55,7 @@ class MESSAGE_UI :ELEMENT
     void WatchDMD(string line)
     {
 
+        dui.GetExtraPane.setCurrentPage(mRoot);
         scope(exit)mErrorView.setModel(mStore);
         if(line == `BEGIN`)
         {

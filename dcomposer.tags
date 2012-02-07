@@ -3152,56 +3152,56 @@
 "kind" : "function",
 "protection" : "private",
 "type" : "void(TreePath tp, TreeViewColumn tvc, TreeView tv)",
-"line" : 88}
+"line" : 89}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "MESSAGE_UI()",
-"line" : 102}
+"line" : 103}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 108}
+"line" : 109}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 109}
-,
-{
-"name" : "State",
-"kind" : "function",
-"protection" : "public",
-"type" : "@property bool()",
 "line" : 110}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
-"type" : "@property void(bool nuState)",
+"type" : "@property bool()",
 "line" : 111}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool nuState)",
+"line" : 112}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 119}
+"line" : 120}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 147}
+"line" : 148}
 ]
 }
 ]
