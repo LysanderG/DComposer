@@ -384,7 +384,8 @@
                               <object class="GtkRadioButton" id="radiobutton6">
                                 <property name="label" translatable="yes">_Selection</property>
                                 <property name="visible">True</property>
-                                <property name="can_focus">True</property>
+                                <property name="sensitive">False</property>
+                                <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
                                 <property name="use_action_appearance">False</property>
                                 <property name="use_underline">True</property>
@@ -428,7 +429,8 @@
                               <object class="GtkRadioButton" id="radiobutton9">
                                 <property name="label" translatable="yes">Folder</property>
                                 <property name="visible">True</property>
-                                <property name="can_focus">True</property>
+                                <property name="sensitive">False</property>
+                                <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
                                 <property name="use_action_appearance">False</property>
                                 <property name="draw_indicator">True</property>
