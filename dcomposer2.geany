@@ -18,14 +18,25 @@ long_line_behaviour=1
 long_line_column=120
 
 [files]
-current_page=4
-FILE_NAME_0=7433;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdocpop.d;0;4
-FILE_NAME_1=63;Sh;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fbuilddcomp.sh;0;4
-FILE_NAME_2=359;None;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Felementlist;0;4
-FILE_NAME_3=8044;D;0;16;0;1;0;%2Fusr%2Finclude%2Fd%2Fdmd%2Fphobos%2Fstd%2Fsignals.d;0;4
-FILE_NAME_4=1757;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymcompletion.d;0;4
-FILE_NAME_5=4529;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fcalltips.d;0;4
-FILE_NAME_6=0;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fscopelist.d;0;4
+current_page=0
+FILE_NAME_0=2978;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fmessageui.d;0;4
+FILE_NAME_1=3830;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fui.d;0;4
+FILE_NAME_2=2460;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Flogui.d;0;4
+FILE_NAME_3=0;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdcomposer.d;0;4
+FILE_NAME_4=0;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Felements.d;0;4
+FILE_NAME_5=4360;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdocman.d;0;4
+FILE_NAME_6=2430;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymcompletion.d;0;4
+FILE_NAME_7=7575;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbols.d;0;4
+FILE_NAME_8=4553;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsearchui.d;0;4
+FILE_NAME_9=2283;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsearch.d;0;4
+FILE_NAME_10=9010;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fproview.d;0;4
+FILE_NAME_11=2969;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Flog.d;0;4
+FILE_NAME_12=1253;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdocument.d;0;4
+FILE_NAME_13=8193;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fprojectui.d;0;4
+FILE_NAME_14=4105;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbolview.d;0;4
+FILE_NAME_15=4208;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdirview.d;0;4
+FILE_NAME_16=0;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fhistoryview.d;0;4
+FILE_NAME_17=0;Conf;0;16;0;1;0;%2Fhome%2Fanthony%2F.neontotem%2Fdcomposer%2Fdcomposer.cfg;0;4
 
 [build-menu]
 DFT_01_LB=_Build

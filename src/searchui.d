@@ -507,8 +507,9 @@ class SEARCH_UI : ELEMENT
         SearchAct.addOnActivate(&BeginSearch);
         SearchAct.setAccelGroup(dui.GetAccel());
         dui.Actions().addActionWithAccel(SearchAct, null);
-        dui.AddMenuItem("_Edit", SearchAct.createMenuItem());   
-    
+        dui.AddMenuItem("_Edit", SearchAct.createMenuItem());
+		dui.AddToolBarItem(SearchAct.createToolItem());
+    	
         Log.Entry("Engaged SearchUI element.");
     }
 

@@ -2252,98 +2252,98 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 401}
+"line" : 402}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 410}
+"line" : 411}
 ,
 {
 "name" : "EngageActions",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 417}
+"line" : 418}
 ,
 {
 "name" : "SyncGuiToProject",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 481}
+"line" : 482}
 ,
 {
 "name" : "SyncProjectToGui",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 556}
+"line" : 557}
 ,
 {
 "name" : "ProjEventWatcher",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string EventType)",
-"line" : 605}
+"line" : 606}
 ,
 {
 "name" : "New",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 618}
+"line" : 619}
 ,
 {
 "name" : "Open",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 623}
+"line" : 624}
 ,
 {
 "name" : "ShowOptions",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 643}
+"line" : 644}
 ,
 {
 "name" : "Build",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 651}
+"line" : 652}
 ,
 {
 "name" : "Run",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 657}
+"line" : 658}
 ,
 {
 "name" : "RunWithArgs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 663}
+"line" : 664}
 ,
 {
 "name" : "RefreshTags",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 669}
+"line" : 670}
 ,
 {
 "name" : "FixProjectPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(EditableIF EntryWidget)",
-"line" : 674}
+"line" : 675}
 ]
 }
 ]
