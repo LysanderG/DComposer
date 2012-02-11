@@ -53,6 +53,7 @@ class DSYMBOL
     string		InFile;             //the file where symbol is defined 
 	int			OnLine;             //the line on which it is defined on
 
+
     string      Path;               //full path of this symbol
 
     DSYMBOL[]   Children;           //All children
@@ -109,9 +110,10 @@ class SYMBOLS
 
         void _FindScope(DSYMBOL symX, string[] scopeX)
         {
+           
             if(symX.Name == scopeX[0])
             {
-                
+               
                 if (scopeX.length == 1) 
                 {
                     RV.length = RV.length +1;
@@ -119,6 +121,7 @@ class SYMBOLS
                     return;
                 }
                 scopeX = scopeX[1..$];
+                
             }
             foreach(kid; symX.Children) _FindScope(kid, scopeX);
 
@@ -129,6 +132,77 @@ class SYMBOLS
         }
         return RV;
     }
+
+    DSYMBOL[] FindScope(string Path)
+    {
+        DSYMBOL[] RV;
+        void _FindScope(DSYMBOL symX)
+        {
+            //if ((symX.Path == Path) || (symX.Name == Path))
+            if(endsWith(symX.Path, Path))
+            {
+                RV.length = RV.length + 1;
+                RV[$-1] = symX;
+                return;
+            }
+            foreach(kid; symX.Children) _FindScope(kid);
+        }
+
+        foreach (sym; mSymbols) _FindScope(sym);
+        return RV;
+    }
+
+    DSYMBOL[] Find( string Needle)
+    {
+        DSYMBOL[] RV;
+        string Path;
+        string Name;
+        
+        long lastdot = Needle.lastIndexOf(".");
+        
+        if (lastdot > -1)
+        {
+            Name = Needle[lastdot+1 .. $];
+            Path = Needle[0 .. lastdot];
+        }
+        else
+        {
+            Name = Needle;
+            Path = "";
+        }
+
+         
+
+        writeln("name - ", Name, " Path - ", Path);
+        void _Find(DSYMBOL symX)
+        {
+            
+            if(startsWith(symX.Name,Name))
+            {
+                writeln("  ", symX.Name, " ", Name);
+                if(Path.length > 0)
+                {
+                    if(endsWith(chomp(symX.Path, "."~symX.Name), Path))
+                    {
+                        RV.length += 1;
+                        RV[$-1] = symX;
+                        return;
+                    }
+                }
+                else /*Path is empty so any and every path to Name should match*/
+                {
+                    RV.length += 1;
+                    RV[$-1] = symX;
+                }
+            }
+            foreach (kid; symX.Children) _Find(kid);
+        }        
+
+        foreach(sym; mSymbols) _Find( sym);
+
+        return RV;
+    }
+            
 
     //returns all symbols in this object
     DSYMBOL[] AllSymbols()
@@ -330,10 +404,11 @@ class SYMBOLS
         string[] rv;
         string[] CandiPath = Candidate.split(".");
 
-        DSYMBOL[] matches = FindScope(CandiPath);
-       
+        //DSYMBOL[] matches = FindScope(CandiPath);
+        DSYMBOL[] matches = FindScope(Candidate);
         foreach(match; matches)
         {
+
             if(match.Kind == "function")
             {
                 auto cut = findSplit(match.Type,"(");
@@ -352,7 +427,8 @@ class SYMBOLS
         string[] rv;
         string[] CandiPath = Candidate.split(".");
 
-        DSYMBOL[] PREmatches = FindScope(CandiPath);
+        //DSYMBOL[] PREmatches = FindScope(CandiPath);
+        DSYMBOL[] PREmatches = FindScope(Candidate);
 
         foreach(preM; PREmatches)
         {
@@ -390,34 +466,49 @@ class SYMBOLS
     }
 
     //returns any symbols that Candidate might be
-    string[] Match(string Candidate)
-    {
-        if(Candidate.length < 2) return null;
-        string[] rv;
-        string[] CandiPath = Candidate.split(".");
-        
-        DSYMBOL[] matches;
-        if(CandiPath.length  == 1) matches = AllSymbols();
-        else matches = FindScope(CandiPath[0..$-1]);
-        foreach (match; matches)
-        {
-
-            /*if(startsWith(match.Name, CandiPath[$-1]) > 0)
-            {
-                
-                rv ~= match.GetIcon() ~ " " ~ SimpleXML.escapeText(match.Name, -1);
-            }*/
-            foreach(kid; match.Children)
-            {
-                if(kid.Kind == "template") continue;
-                if(startsWith(kid.Name, CandiPath[$-1]) > 0) rv ~= kid.GetIcon() ~ " " ~ SimpleXML.escapeText(kid.Name, -1);
-            }
-        }
-        return rv;
-    }
+    //string[] Match(string Candidate)
+    //{
+    //    if(Candidate.length < 2) return null;
+    //    string[] rv;
+    //    string[] CandiPath = Candidate.split(".");
+    //    
+    //    DSYMBOL[] matches;
+    //    if(CandiPath.length  == 1) matches = AllSymbols();
+    //    else matches = FindScope(CandiPath[0..$-1]);
+    //    foreach (match; matches)
+    //    {
+//
+    //        /*if(startsWith(match.Name, CandiPath[$-1]) > 0)
+    //        {
+    //            
+    //            rv ~= match.GetIcon() ~ " " ~ SimpleXML.escapeText(match.Name, -1);
+    //        }*/
+    //        foreach(kid; match.Children)
+    //        {
+    //            if(kid.Kind == "template") continue;
+    //            if(startsWith(kid.Name, CandiPath[$-1]) > 0) rv ~= kid.GetIcon() ~ " " ~ SimpleXML.escapeText(kid.Name, -1);
+    //        }
+    //    }
+    //    return rv;
+    //}
 
 
  
+    string[] Match(string Candidate)
+    {
+        string[] rv;
+
+        DSYMBOL[] matches = Find(Candidate);
+
+        foreach(match; matches)
+        {
+            rv ~= match.GetIcon ~ " " ~ SimpleXML.escapeText(match.Name, -1);
+        }
+
+        return rv;
+
+    }
+
         
 
         

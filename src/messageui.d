@@ -53,13 +53,14 @@ class MESSAGE_UI :ELEMENT
     ListStore       mStore;
 
     void WatchDMD(string line)
-    {
-
-        dui.GetExtraPane.setCurrentPage(mRoot);
+    {       
         scope(exit)mErrorView.setModel(mStore);
         if(line == `BEGIN`)
         {
+            Log.Entry("messageui.WatchDMD line = 'BEGIN'");
+            
             mStore.clear();
+            dui.GetExtraPane.setCurrentPage(mRoot);
             return;
         }
         auto m = line.match(regex(`\(\d+\)`));

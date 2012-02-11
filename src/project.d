@@ -447,7 +447,8 @@ class PROJECT
     {
         if( (mTarget == TARGET.NULL) || (mTarget == TARGET.UNDEFINED) ) return false;
 
-        BuildMsg.emit(`BEGIN`);
+        //BuildMsg.emit(`BEGIN`);
+        //BuildMsg.emit("BEGIN");
         BuildMsg.emit(BuildCommand());   
 
         std.stdio.File Process = File("tmp","w");

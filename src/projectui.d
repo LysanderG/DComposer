@@ -652,6 +652,7 @@ class PROJECT_UI : ELEMENT
     void Build(Action x)
     {
         dui.GetDocMan.SaveAllDocs();
+        Project.BuildMsg.emit(`BEGIN`);
         Project.Build();
     }
 

@@ -1229,7 +1229,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 515}
+"line" : 516}
 ]
 }
 ]
@@ -2322,28 +2322,28 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 658}
+"line" : 659}
 ,
 {
 "name" : "RunWithArgs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 664}
+"line" : 665}
 ,
 {
 "name" : "RefreshTags",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 670}
+"line" : 671}
 ,
 {
 "name" : "FixProjectPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(EditableIF EntryWidget)",
-"line" : 675}
+"line" : 676}
 ]
 }
 ]
@@ -2861,31 +2861,17 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string()",
-"line" : 464}
+"line" : 465}
 ,
 {
 "name" : "Run",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string args = null)",
-"line" : 502}
+"line" : 503}
 ,
 {
 "name" : "opOpAssign(string s = \"+=\")",
-"kind" : "template",
-"protection" : "public",
-"line" : 536,
-"members" : [
-{
-"name" : "opOpAssign",
-"kind" : "function",
-"type" : "void(string Key)",
-"line" : 536}
-]
-}
-,
-{
-"name" : "opOpAssign(string s = \"-=\")",
 "kind" : "template",
 "protection" : "public",
 "line" : 537,
@@ -2899,25 +2885,25 @@
 }
 ,
 {
+"name" : "opOpAssign(string s = \"-=\")",
+"kind" : "template",
+"protection" : "public",
+"line" : 538,
+"members" : [
+{
+"name" : "opOpAssign",
+"kind" : "function",
+"type" : "void(string Key)",
+"line" : 538}
+]
+}
+,
+{
 "name" : "opIndexAssign",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string[] Data, string Key)",
-"line" : 538}
-,
-{
-"name" : "opOpIndexAssign(string s = \"~=\")",
-"kind" : "template",
-"protection" : "public",
-"line" : 539,
-"members" : [
-{
-"name" : "opOpIndexAssign",
-"kind" : "function",
-"type" : "void(LIST Data, string Key)",
 "line" : 539}
-]
-}
 ,
 {
 "name" : "opOpIndexAssign(string s = \"~=\")",
@@ -2928,8 +2914,22 @@
 {
 "name" : "opOpIndexAssign",
 "kind" : "function",
-"type" : "void(string Data, string Key)",
+"type" : "void(LIST Data, string Key)",
 "line" : 540}
+]
+}
+,
+{
+"name" : "opOpIndexAssign(string s = \"~=\")",
+"kind" : "template",
+"protection" : "public",
+"line" : 541,
+"members" : [
+{
+"name" : "opOpIndexAssign",
+"kind" : "function",
+"type" : "void(string Data, string Key)",
+"line" : 541}
 ]
 }
 ,
@@ -2938,133 +2938,133 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Key)",
-"line" : 541}
+"line" : 542}
 ,
 {
 "name" : "SetList",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string[] Data)",
-"line" : 543}
+"line" : 544}
 ,
 {
 "name" : "SetList",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Data)",
-"line" : 544}
+"line" : 545}
 ,
 {
 "name" : "RemoveItem",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Item)",
-"line" : 545}
+"line" : 546}
 ,
 {
 "name" : "AddItem",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Item)",
-"line" : 546}
+"line" : 547}
 ,
 {
 "name" : "GetList",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Key)",
-"line" : 547}
+"line" : 548}
 ,
 {
 "name" : "GetCatList",
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string Key)",
-"line" : 548}
+"line" : 549}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 562}
+"line" : 563}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuName)",
-"line" : 563}
+"line" : 564}
 ,
 {
 "name" : "WorkingPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 569}
+"line" : 570}
 ,
 {
 "name" : "WorkingPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuPath)",
-"line" : 570}
+"line" : 571}
 ,
 {
 "name" : "Compiler",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 585}
+"line" : 586}
 ,
 {
 "name" : "Compiler",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuCompiler)",
-"line" : 586}
+"line" : 587}
 ,
 {
 "name" : "UseCustomBuild",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 588}
+"line" : 589}
 ,
 {
 "name" : "UseCustomBuild",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool UseIt)",
-"line" : 589}
+"line" : 590}
 ,
 {
 "name" : "CustomBuildCommand",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 591}
+"line" : 592}
 ,
 {
 "name" : "CustomBuildCommand",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuCommand)",
-"line" : 592}
+"line" : 593}
 ,
 {
 "name" : "Target",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property int()",
-"line" : 594}
+"line" : 595}
 ,
 {
 "name" : "Target",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(int nuTarget)",
-"line" : 595}
+"line" : 596}
 ]
 }
 ,
@@ -3073,7 +3073,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string Lib)",
-"line" : 603}
+"line" : 604}
 ]
 }
 ,
@@ -3152,56 +3152,56 @@
 "kind" : "function",
 "protection" : "private",
 "type" : "void(TreePath tp, TreeViewColumn tvc, TreeView tv)",
-"line" : 89}
+"line" : 90}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "MESSAGE_UI()",
-"line" : 103}
+"line" : 104}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 109}
+"line" : 110}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 110}
-,
-{
-"name" : "State",
-"kind" : "function",
-"protection" : "public",
-"type" : "@property bool()",
 "line" : 111}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
-"type" : "@property void(bool nuState)",
+"type" : "@property bool()",
 "line" : 112}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool nuState)",
+"line" : 113}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 120}
+"line" : 121}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 148}
+"line" : 149}
 ]
 }
 ]

@@ -112,7 +112,7 @@ class DOC_POP
         auto DocX = cast(DOCUMENT)DocXIf;
         if(EventType != "AppendDocument") return;
 
-        //DocX.TextInserted.connect(&CaptureDocumentKeys);
+        DocX.addOnFocusOut(delegate bool (GdkEventFocus* EvntFocus, Widget wydjit) {KillChain();return false;}); 
         DocX.addOnKeyPress(&CaptureDocumentKeys);
         DocX.addOnButtonPress(&CaptureDocumentButtons);
     }
@@ -139,12 +139,9 @@ class DOC_POP
             case GdkKeysyms.GDK_Return      :
             case GdkKeysyms.GDK_KP_Enter    :
             {
-                if(mCompletionDataSet)
-                {
-                    CompleteText(Wydjit);
-                    return true;
-                }
-                else break;
+                if(mCompletionDataSet) CompleteText(Wydjit);
+                else Pop();
+                return true;
             }
             default : return false;
         }
