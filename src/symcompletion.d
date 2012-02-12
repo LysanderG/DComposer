@@ -44,7 +44,9 @@ class SYMBOL_COMPLETION : ELEMENT
     string      mName;
     string      mInfo;
     bool        mState;
-    bool        active;
+    bool        mActive;
+
+    int         mMinCompletionLength;
 
     DOCUMENT[]  mConnections;
 
@@ -58,6 +60,35 @@ class SYMBOL_COMPLETION : ELEMENT
     }
 
     void WatchDoc(DOCUMENT doc, TextIter ti, string text, SourceBuffer buffer)
+    {
+        if(doc.IsPasting) return;
+
+		
+		if ((text == ".") || (text == "(") || (text == ")")) return;		
+		
+        if(text.length > 1) return; 
+        
+        TextIter WordStart = new TextIter;
+        WordStart = GetCandidate(ti);
+        string Candidate = WordStart.getText(ti);
+        
+        if(Candidate.length < mMinCompletionLength) return;
+        
+        int xpos, ypos;
+        IterGetPostion(doc, WordStart, xpos, ypos);
+               
+        auto tmp = Symbols.Match(Candidate);
+     
+        string[] Possibles;
+        
+        foreach(item; tmp.uniq) Possibles ~= item;
+        //if (Possibles.length < 1) return;
+
+        dui.GetDocPop.Push(POP_TYPE_COMPLETION, Possibles, Possibles, xpos, ypos);
+        mActive = true;
+        
+    }
+    void WatchDoc_deprecated(DOCUMENT doc, TextIter ti, string text, SourceBuffer buffer)
     {
         if(doc.IsPasting) return;
         
@@ -87,9 +118,9 @@ class SYMBOL_COMPLETION : ELEMENT
         
         int xpos, ypos;
         IterGetPostion(doc, WordStart, xpos, ypos);
-
+        
         string Candidate = WordStart.getText(ti);
-
+        if(Candidate.length < Config.getInteger("SYMBOLS", "minimum_completion_length", 4)) return;
         auto tmp = Symbols.Match(Candidate);
      
         string[] Possibles;
@@ -98,7 +129,7 @@ class SYMBOL_COMPLETION : ELEMENT
         //if (Possibles.length < 1) return;
 
         dui.GetDocPop.Push(POP_TYPE_COMPLETION, Possibles, Possibles, xpos, ypos);
-        active = true;
+        mActive = true;
         
     }
 
@@ -117,6 +148,23 @@ class SYMBOL_COMPLETION : ELEMENT
     }
         
 
+    TextIter GetCandidate(TextIter ti)
+    {
+        string growingtext;
+        TextIter tstart = new TextIter;
+        tstart = ti.copy();
+        do
+        {
+            if(!tstart.backwardChar()) break;
+            growingtext = tstart.getText(ti);
+        }
+        while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_'));
+
+        return tstart;
+        
+    }
+        
+            
     
     
     public:
@@ -126,6 +174,8 @@ class SYMBOL_COMPLETION : ELEMENT
         mName = "SYMBOL_COMPLETION";
         mInfo = "Retrieve any symbol for auto/code/symbol/tag completion (except for pesky local stuff)";
         mState = false;
+
+        mMinCompletionLength =  Config.getInteger("SYMBOLS", "minimum_completion_length", 4);
     }
     
     @property string Name() {return mName;}

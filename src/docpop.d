@@ -200,6 +200,7 @@ class DOC_POP
         if(mCompletionDataSet)
         {
             mTreeView.setModel(mCompletionData.GetModel());
+            mTreeView.setCursor(new TreePath("0"), null, false);
             mWindow.resize(300, 160);
             mWindow.move(mCompletionData.mXPos, mCompletionData.mYPos);
             mWindow.showAll();
@@ -209,6 +210,7 @@ class DOC_POP
         if(mCurrentTipIndex < 0) return;
         
         mTreeView.setModel(mTipChain[mCurrentTipIndex].GetModel());
+        mTreeView.setCursor(new TreePath("0"), null, false);
         mWindow.resize(300, 160);
         mWindow.move(mTipChain[mCurrentTipIndex].mXPos, mTipChain[mCurrentTipIndex].mYPos);
         mWindow.showAll();

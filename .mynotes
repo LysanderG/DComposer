@@ -213,3 +213,11 @@ What I'm going to work on tonight.  After I take the kids to Sandpiper to meet E
 CodeCompletion -- fix scope errors --> std.file.File.  multiple '.'s do not work correctly
 Icons -- something I can see and feel
 Help  -- get started on this
+
+
+========================================================================================================================
+Saturday, 11 February 2012
+
+CodeCompletion is much better.
+BUT ... sometimes crashes on '.' input (std.c. == crash , or any one letter .l. combo?)
+

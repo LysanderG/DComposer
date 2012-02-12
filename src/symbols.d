@@ -173,16 +173,18 @@ class SYMBOLS
 
          
 
-        writeln("name - ", Name, " Path - ", Path);
         void _Find(DSYMBOL symX)
         {
             
             if(startsWith(symX.Name,Name))
             {
-                writeln("  ", symX.Name, " ", Name);
                 if(Path.length > 0)
                 {
-                    if(endsWith(chomp(symX.Path, "."~symX.Name), Path))
+                    auto  Tindx = std.string.indexOf(symX.Path, "(");
+                    if(Tindx == -1) Tindx = symX.Path.length;
+                    auto ModSymPathForTemplates = symX.Path[0..Tindx];
+                    //if(endsWith(chomp(symX.Path, "."~symX.Name), Path))
+                    if(endsWith(chomp(ModSymPathForTemplates, "." ~ symX.Name), Path))
                     {
                         RV.length += 1;
                         RV[$-1] = symX;
@@ -402,15 +404,21 @@ class SYMBOLS
     string[] GetCallTips(string Candidate)
     {
         string[] rv;
-        string[] CandiPath = Candidate.split(".");
+        string CandidateName;
+        long lastdot = Candidate.lastIndexOf(".");
+        
+        if (lastdot > -1) CandidateName = Candidate[lastdot+1 .. $];
+        else CandidateName = Candidate;
 
         //DSYMBOL[] matches = FindScope(CandiPath);
-        DSYMBOL[] matches = FindScope(Candidate);
+        //DSYMBOL[] matches = FindScope(Candidate);
+        DSYMBOL[] matches = Find(Candidate);
         foreach(match; matches)
         {
 
-            if(match.Kind == "function")
+            if((match.Kind == "function") && (match.Name == CandidateName))
             {
+                //if(match.Name != CandiName)continue;
                 auto cut = findSplit(match.Type,"(");
                 //= " " ~ cut[0] ~ " " ~ match.Name ~ cut[1] ~ cut[2];
                 rv ~= match.GetIcon() ~ SimpleXML.escapeText(" " ~ cut[0] ~ " " ~ match.Name ~ cut[1] ~ cut[2],-1);
@@ -428,7 +436,8 @@ class SYMBOLS
         string[] CandiPath = Candidate.split(".");
 
         //DSYMBOL[] PREmatches = FindScope(CandiPath);
-        DSYMBOL[] PREmatches = FindScope(Candidate);
+        //DSYMBOL[] PREmatches = FindScope(Candidate);
+        DSYMBOL[] PREmatches = Find(Candidate);
 
         foreach(preM; PREmatches)
         {
@@ -502,7 +511,7 @@ class SYMBOLS
 
         foreach(match; matches)
         {
-            rv ~= match.GetIcon ~ " " ~ SimpleXML.escapeText(match.Name, -1);
+            if(match.Kind != "template") rv ~= match.GetIcon ~ " " ~ SimpleXML.escapeText(match.Name, -1);
         }
 
         return rv;
