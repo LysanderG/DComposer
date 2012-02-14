@@ -432,26 +432,32 @@ class SYMBOLS
     //useful for scopelists
     string[] GetMembers(string Candidate)
     {
+        writeln(`symbols `, __LINE__);
         string[] rv;
         string[] CandiPath = Candidate.split(".");
 
         //DSYMBOL[] PREmatches = FindScope(CandiPath);
         //DSYMBOL[] PREmatches = FindScope(Candidate);
         DSYMBOL[] PREmatches = Find(Candidate);
+        writeln(`symbols `, __LINE__);
 
         foreach(preM; PREmatches)
         {
+                    writeln(`symbols `, preM.Name, " ", __LINE__);
+
             //if prem has kids add those to rv
             //if prem is a variable of a type that has kids add those to rv
             //if prem is a function with a return type that has kids add those to rv
 
             if(preM.Scoped) foreach(kid; preM.Children)
             {
+                    writeln(`symbols `, preM.Name, " ", __LINE__);
                 rv ~= kid.GetIcon() ~ " " ~  SimpleXML.escapeText(kid.Name, -1);
                 continue;
             }
             if(preM.Kind == "variable")
             {
+                    writeln(`symbols `, preM.Name, " ", __LINE__);
                 auto scp = split(preM.Type, ".");
                 DSYMBOL[] POSTmatches = FindScope(scp);
                 foreach(sym; POSTmatches)
@@ -459,9 +465,13 @@ class SYMBOLS
                     if(sym.Scoped) foreach(kid; sym.Children) rv ~= kid.GetIcon() ~ " " ~  SimpleXML.escapeText(kid.Name, -1);
                 }
             }
-            if (preM.Kind == "function")
+            if (preM.Kind == "function")//do functions have members???!!!
+            //oh i see my error!! some template "functions" have no return type (auto?) so... segfaults on trying to use it.
+            //really shows me I need to be more prepared for unexpected data! ASSUME NOTHING!
             {
+                    writeln(`symbols `, preM.Type, " ", __LINE__);
                 string[] FuncRetType = split(preM.Type, "(");
+                writeln( FuncRetType);
                 auto tmp = split(FuncRetType[0], ".");
                 DSYMBOL[] POSTmatches = FindScope(tmp);
                 foreach(sym; POSTmatches)
@@ -470,6 +480,7 @@ class SYMBOLS
                 }
             }
         }
+        writeln(`symbols `, __LINE__);
 
         return rv;
     }

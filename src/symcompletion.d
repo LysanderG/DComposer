@@ -72,7 +72,7 @@ class SYMBOL_COMPLETION : ELEMENT
         WordStart = GetCandidate(ti);
         string Candidate = WordStart.getText(ti);
         
-        if(Candidate.length < mMinCompletionLength) return;
+        if(Candidate.length < mMinCompletionLength) Candidate = " "; //return;
         
         int xpos, ypos;
         IterGetPostion(doc, WordStart, xpos, ypos);
@@ -150,16 +150,24 @@ class SYMBOL_COMPLETION : ELEMENT
 
     TextIter GetCandidate(TextIter ti)
     {
+        bool GoForward = true;
+        
         string growingtext;
         TextIter tstart = new TextIter;
         tstart = ti.copy();
         do
         {
-            if(!tstart.backwardChar()) break;
+            if(!tstart.backwardChar())
+            {
+                GoForward = false;
+                break;
+            }
             growingtext = tstart.getText(ti);
+            writeln("growingtext ", growingtext, ":");
         }
         while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_'));
-
+        if(GoForward)tstart.forwardChar();
+        
         return tstart;
         
     }

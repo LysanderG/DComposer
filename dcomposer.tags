@@ -471,88 +471,109 @@
 "line" : 46}
 ,
 {
-"name" : "active",
+"name" : "mActive",
 "kind" : "variable",
 "protection" : "private",
 "type" : "bool",
 "line" : 47}
 ,
 {
+"name" : "mMinCompletionLength",
+"kind" : "variable",
+"protection" : "private",
+"type" : "int",
+"line" : 49}
+,
+{
 "name" : "mConnections",
 "kind" : "variable",
 "protection" : "private",
 "type" : "DOCUMENT[]",
-"line" : 49}
+"line" : 51}
 ,
 {
 "name" : "WatchForNewDocument",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(string EventId, DOCUMENT_IF NuDoc)",
-"line" : 52}
+"line" : 54}
 ,
 {
 "name" : "WatchDoc",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(DOCUMENT doc, TextIter ti, string text, SourceBuffer buffer)",
-"line" : 60}
+"line" : 62}
+,
+{
+"name" : "WatchDoc_deprecated",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(DOCUMENT doc, TextIter ti, string text, SourceBuffer buffer)",
+"line" : 91}
 ,
 {
 "name" : "IterGetPostion",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(DOCUMENT Doc, TextIter ti, out int xpos, out int ypos)",
-"line" : 105}
+"line" : 136}
+,
+{
+"name" : "GetCandidate",
+"kind" : "function",
+"protection" : "private",
+"type" : "TextIter(TextIter ti)",
+"line" : 151}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "SYMBOL_COMPLETION()",
-"line" : 124}
+"line" : 180}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 131}
+"line" : 189}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 132}
+"line" : 190}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 133}
+"line" : 191}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool nuState)",
-"line" : 134}
+"line" : 192}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 142}
+"line" : 200}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 152}
+"line" : 210}
 ]
 }
 ]
@@ -768,28 +789,28 @@
 "kind" : "variable",
 "protection" : "public",
 "type" : "string",
-"line" : 56}
+"line" : 57}
 ,
 {
 "name" : "Children",
 "kind" : "variable",
 "protection" : "public",
 "type" : "DSYMBOL[]",
-"line" : 58}
+"line" : 59}
 ,
 {
 "name" : "ScopedChildren",
 "kind" : "variable",
 "protection" : "public",
 "type" : "DSYMBOL[string]",
-"line" : 59}
+"line" : 60}
 ,
 {
 "name" : "GetIcon",
 "kind" : "function",
 "protection" : "public",
 "type" : "string()",
-"line" : 62}
+"line" : 63}
 ]
 }
 ,
@@ -797,7 +818,7 @@
 "name" : "SYMBOLS",
 "kind" : "class",
 "protection" : "public",
-"line" : 98,
+"line" : 99,
 "base" : "Object",
 "members" : [
 {
@@ -805,105 +826,119 @@
 "kind" : "variable",
 "protection" : "private",
 "type" : "DSYMBOL[string]",
-"line" : 103}
+"line" : 104}
 ,
 {
 "name" : "FindScope",
 "kind" : "function",
 "protection" : "private",
 "type" : "DSYMBOL[](string[] Scopes)",
-"line" : 106}
+"line" : 107}
+,
+{
+"name" : "FindScope",
+"kind" : "function",
+"protection" : "private",
+"type" : "DSYMBOL[](string Path)",
+"line" : 136}
+,
+{
+"name" : "Find",
+"kind" : "function",
+"protection" : "private",
+"type" : "DSYMBOL[](string Needle)",
+"line" : 155}
 ,
 {
 "name" : "AllSymbols",
 "kind" : "function",
 "protection" : "private",
 "type" : "DSYMBOL[]()",
-"line" : 134}
+"line" : 210}
 ,
 {
 "name" : "BuildSymbols",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(JSONValue jval, ref DSYMBOL sym, string Module = \"\")",
-"line" : 158}
+"line" : 234}
 ,
 {
 "name" : "ProjectWatch",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(string EventType)",
-"line" : 229}
+"line" : 305}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 249}
+"line" : 325}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 271}
+"line" : 347}
 ,
 {
 "name" : "AddCommonTagFile",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string key, string TagFile)",
-"line" : 283}
+"line" : 359}
 ,
 {
 "name" : "Load",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string key, string symfile)",
-"line" : 291}
+"line" : 367}
 ,
 {
 "name" : "Load",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string symfile)",
-"line" : 305}
+"line" : 381}
 ,
 {
 "name" : "GetLocation",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string ScopedCandidate, out string[] Modules, out int[] LineNo)",
-"line" : 313}
+"line" : 389}
 ,
 {
 "name" : "GetCallTips",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Candidate)",
-"line" : 328}
+"line" : 404}
 ,
 {
 "name" : "GetMembers",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Candidate)",
-"line" : 350}
+"line" : 433}
 ,
 {
 "name" : "Match",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Candidate)",
-"line" : 393}
+"line" : 506}
 ,
 {
 "name" : "Symbols",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[string]()",
-"line" : 426}
+"line" : 526}
 ]
 }
 ]
@@ -4172,77 +4207,77 @@
 "kind" : "function",
 "protection" : "private",
 "type" : "bool(GdkEventButton* EvntKey, Widget Wydjit)",
-"line" : 156}
+"line" : 153}
 ,
 {
 "name" : "MoveSelectionUp",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(Widget Wydjit)",
-"line" : 162}
+"line" : 159}
 ,
 {
 "name" : "MoveSelectionDown",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(Widget Wydjit)",
-"line" : 179}
+"line" : 176}
 ,
 {
 "name" : "PresentDialog",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 201}
+"line" : 198}
 ,
 {
 "name" : "CompleteText",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(Widget Wydjit)",
-"line" : 221}
+"line" : 220}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "DOC_POP()",
-"line" : 248}
+"line" : 247}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 260}
+"line" : 259}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 267}
+"line" : 266}
 ,
 {
 "name" : "Push",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(int Type, string[] Candidates, string[] ExtraInfo, int Xlocation, int Ylocation)",
-"line" : 273}
+"line" : 272}
 ,
 {
 "name" : "Pop",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 305}
+"line" : 304}
 ,
 {
 "name" : "KillChain",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 322}
+"line" : 321}
 ]
 }
 ]

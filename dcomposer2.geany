@@ -18,15 +18,15 @@ long_line_behaviour=1
 long_line_column=120
 
 [files]
-current_page=7
+current_page=5
 FILE_NAME_0=2136;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fmessageui.d;0;4
 FILE_NAME_1=1382;Conf;0;16;0;1;0;%2Fhome%2Fanthony%2F.neontotem%2Fdcomposer%2Fdcomposer.cfg;0;4
 FILE_NAME_2=13754;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fproject.d;0;4
 FILE_NAME_3=21734;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fprojectui.d;0;4
 FILE_NAME_4=7809;None;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2F.mynotes;0;4
-FILE_NAME_5=12611;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbols.d;0;4
-FILE_NAME_6=4044;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdocpop.d;0;4
-FILE_NAME_7=4653;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymcompletion.d;0;4
+FILE_NAME_5=5052;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbols.d;0;4
+FILE_NAME_6=8125;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdocpop.d;0;4
+FILE_NAME_7=1995;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymcompletion.d;0;4
 
 [build-menu]
 DFT_01_LB=_Build
