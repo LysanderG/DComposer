@@ -30,6 +30,7 @@ import std.string;
 import std.conv;
 import std.path;
 import std.signals;
+import std.file;
 
 import  gtk.Action;
 import  gtk.Menu;
@@ -277,7 +278,7 @@ class DOCMAN
 
     void Engage()
     {
-        mFileDialogFolder = Config.getString("DOCMAN", "last_folder", ".");
+        mFileDialogFolder = Config.getString("DOCMAN", "last_folder", "./");
 
         LoadFileFilters();
         LoadStartUpFileNames();
@@ -376,6 +377,7 @@ class DOCMAN
         DocFiler.addShortcutFolder(".");
         DocFiler.addShortcutFolder("/usr/include/d/dmd/phobos/std/");
         DocFiler.setSelectMultiple(1);
+        
         DocFiler.setCurrentFolder(mFileDialogFolder);
         foreach(filter; mFileFilters)DocFiler.addFilter(filter);
         DocFiler.setFilter(mFileFilters["dsrc"]);

@@ -286,21 +286,21 @@
 "name" : "vte_terminal_fork_command_full",
 "kind" : "function",
 "protection" : "public",
-"type" : "extern (C) int(GtkWidget* terminal, int pty_flags, const const(char*) working_directory, const const(char**) argv, char** envv, int spawn_flags, void* child_setup, void* child_setup_data, void* child_pid, void* error)",
+"type" : "extern (C) int(GtkWidget* terminal, int pty_flags, const(char*) working_directory, const(char**) argv, char** envv, int spawn_flags, void* child_setup, void* child_setup_data, void* child_pid, void* error)",
 "line" : 38}
 ,
 {
 "name" : "vte_terminal_feed_child",
 "kind" : "function",
 "protection" : "public",
-"type" : "extern (C) void(GtkWidget* terminal, const const(char*) data, long length)",
+"type" : "extern (C) void(GtkWidget* terminal, const(char*) data, long length)",
 "line" : 39}
 ,
 {
 "name" : "vte_terminal_fork_command",
 "kind" : "function",
 "protection" : "public",
-"type" : "extern (C) int(GtkWidget* terminal, const const(char*) command, char** argv, char** envv, const const(char*) working_directory, int lastlog, int utmp, int wtmp)",
+"type" : "extern (C) int(GtkWidget* terminal, const(char*) command, char** argv, char** envv, const(char*) working_directory, int lastlog, int utmp, int wtmp)",
 "line" : 40}
 ,
 {
@@ -931,14 +931,14 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Candidate)",
-"line" : 506}
+"line" : 521}
 ,
 {
 "name" : "Symbols",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[string]()",
-"line" : 526}
+"line" : 541}
 ]
 }
 ]
@@ -2544,6 +2544,7 @@
 {
 "name" : "LIST",
 "kind" : "alias",
+"protection" : "public",
 "type" : "string[]",
 "line" : 88}
 ,
@@ -4552,7 +4553,7 @@
 "name" : "SaveAsDoc",
 "kind" : "function",
 "protection" : "public",
-"type" : "void(DOCUMENT_IF docX = cast(DOCUMENT_IF)null)",
+"type" : "void(DOCUMENT_IF docX = null)",
 "line" : 447}
 ,
 {
@@ -5434,7 +5435,7 @@
 "name" : "CALL_TIPS",
 "kind" : "class",
 "protection" : "public",
-"line" : 45,
+"line" : 46,
 "base" : "Object",
 "interfaces" : [
 "ELEMENT"],
@@ -5444,105 +5445,112 @@
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 49}
+"line" : 50}
 ,
 {
 "name" : "mInfo",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 50}
+"line" : 51}
 ,
 {
 "name" : "mState",
 "kind" : "variable",
 "protection" : "private",
 "type" : "bool",
-"line" : 51}
+"line" : 52}
 ,
 {
 "name" : "mStack",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string[]",
-"line" : 53}
+"line" : 54}
 ,
 {
 "name" : "ConnectedDocs",
 "kind" : "variable",
 "protection" : "private",
 "type" : "DOCUMENT[]",
-"line" : 55}
+"line" : 56}
 ,
 {
 "name" : "IterGetPostion",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(DOCUMENT Doc, TextIter ti, out int xpos, out int ypos)",
-"line" : 57}
+"line" : 58}
+,
+{
+"name" : "GetCandidate",
+"kind" : "function",
+"protection" : "private",
+"type" : "TextIter(TextIter ti)",
+"line" : 72}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "CALL_TIPS()",
-"line" : 74}
+"line" : 98}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 80}
+"line" : 104}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 81}
+"line" : 105}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 82}
+"line" : 106}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool nuState)",
-"line" : 83}
+"line" : 107}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 91}
+"line" : 115}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 101}
+"line" : 125}
 ,
 {
 "name" : "WatchForNewDocument",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string EventId, DOCUMENT_IF docIF)",
-"line" : 112}
+"line" : 136}
 ,
 {
 "name" : "WatchDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(DOCUMENT sv, TextIter ti, string Text, SourceBuffer Buffer)",
-"line" : 124}
+"line" : 148}
 ]
 }
 ]

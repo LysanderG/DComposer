@@ -94,7 +94,7 @@ class SCOPE_LIST : ELEMENT
 
         string[] possibles = Symbols.GetMembers(Candidate);
 
-        if(possibles.length < 1) return;
+        //if(possibles.length < 1) return;
         
         mState = true;
         

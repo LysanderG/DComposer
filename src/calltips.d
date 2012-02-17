@@ -30,6 +30,7 @@ import document;
 
 import std.stdio;
 import std.algorithm;
+import std.ascii;
 
 import gsv.SourceView;
 import gsv.SourceBuffer;
@@ -67,7 +68,30 @@ class CALL_TIPS : ELEMENT
         ypos = winY + OrigY + gdkRect.height;
         return;        
     }
+
+    TextIter GetCandidate(TextIter ti)
+    {
+        bool GoForward = true;
         
+        string growingtext;
+        TextIter tstart = new TextIter;
+        tstart = ti.copy();
+        do
+        {
+            if(!tstart.backwardChar())
+            {
+                GoForward = false;
+                break;
+            }
+            growingtext = tstart.getText(ti);
+            writeln("growingtext ", growingtext, ":");
+        }
+        while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_'));
+        if(GoForward)tstart.forwardChar();
+        
+        return tstart;
+        
+    }
 
     public:
 
@@ -128,22 +152,11 @@ class CALL_TIPS : ELEMENT
         {
             case "(" :
             {
-                //pull out candidate
                 ti.backwardChar();
-                ti.backwardWordStart();
-                TextIter tiEnd = ti.copy();
-                tiEnd.forwardWordEnd();
-
-                int CouldMoveback = ti.backwardChar();
+                auto TStart = GetCandidate(ti);
                 
-                while('.' == ti.getChar())
-                {
-                    ti.backwardWordStart();
-                    CouldMoveback = ti.backwardChar();
-                }
-                if(CouldMoveback)ti.forwardChar();
 
-                string Candidate = ti.getText(tiEnd);
+                string Candidate = TStart.getText(ti);
 
                 string[] tmp = Symbols.GetCallTips(Candidate);
                 string[] Possibles;
@@ -151,10 +164,10 @@ class CALL_TIPS : ELEMENT
                 //foreach(p; tmp.uniq()) Possibles ~= SimpleXML.escapeText(p, -1);
                 foreach(p; tmp.uniq()) Possibles ~= p;
                 
-                if(Possibles.length == 0) break;
+                //if(Possibles.length == 0) break;
 
                 int xpos, ypos;
-                IterGetPostion(sv, ti, xpos, ypos);
+                IterGetPostion(sv, TStart, xpos, ypos);
 
                 dui.GetDocPop.Push(docpop.POP_TYPE_TIP, Possibles, Possibles, xpos, ypos);
                 break;
