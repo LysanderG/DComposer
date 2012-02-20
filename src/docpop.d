@@ -69,7 +69,7 @@ private struct DATA_STORE
     this(string[] nuPossibles, string[] info, int Type, int Xpos, int Ypos)
     {
         assert(nuPossibles.length == info.length);
-
+        writeln("here");
         mPossibles = nuPossibles;
         mExtraInfo = info;
         mType = Type;
@@ -79,6 +79,8 @@ private struct DATA_STORE
         mStore = new ListStore([GType.STRING, GType.STRING]);
         mIter = new TreeIter;
 
+
+       
         foreach(pindex, PossibleItem; mPossibles)
         {
             mStore.append(mIter);
@@ -123,6 +125,7 @@ class DOC_POP
         DOCUMENT docX = cast(DOCUMENT) Wydjit;
         
         auto key = EvntKey.keyval;
+        auto shifted = ((EvntKey.state & GdkModifierType.SHIFT_MASK) == true);
 
         switch (key)
         {
@@ -134,7 +137,8 @@ class DOC_POP
             case GdkKeysyms.GDK_Down        :
             case GdkKeysyms.GDK_KP_Down     :   MoveSelectionDown(Wydjit);return true;
             
-            case GdkKeysyms.GDK_Tab         :   (EvntKey.state & GdkModifierType.SHIFT_MASK) ? MoveSelectionUp(Wydjit) : MoveSelectionDown(Wydjit); return true;
+            case GdkKeysyms.GDK_Tab         :   if(shifted){MoveSelectionUp(Wydjit);}else {MoveSelectionDown(Wydjit) ;} return true;
+            case GdkKeysyms.GDK_ISO_Left_Tab:   MoveSelectionUp(Wydjit);return true; //X -> no shift tab ... instead iso_left_tab (wtf ever)
             
             case GdkKeysyms.GDK_Return      :
             case GdkKeysyms.GDK_KP_Enter    :
@@ -169,9 +173,7 @@ class DOC_POP
             return;
         }
 
-        if(tp.prev()) mTreeView.setCursor(tp, null, 0);
-
-        
+        if(tp.prev()) mTreeView.setCursor(tp, null, 0);        
     }
     void MoveSelectionDown(Widget Wydjit)
     {
@@ -187,6 +189,7 @@ class DOC_POP
         }  
         tp.next();
         mTreeView.setCursor(tp, null, 0);
+        mTreeView.getCursor(tp, tvc);
         if(tp is null)
         {
             tp = new TreePath(true);
@@ -201,7 +204,7 @@ class DOC_POP
         {
             mTreeView.setModel(mCompletionData.GetModel());
             mTreeView.setCursor(new TreePath("0"), null, false);
-            mWindow.resize(300, 160);
+            mWindow.resize(5000, 160);
             mWindow.move(mCompletionData.mXPos, mCompletionData.mYPos);
             mWindow.showAll();
             return;
@@ -211,7 +214,7 @@ class DOC_POP
         
         mTreeView.setModel(mTipChain[mCurrentTipIndex].GetModel());
         mTreeView.setCursor(new TreePath("0"), null, false);
-        mWindow.resize(300, 160);
+        //mWindow.resize(300, 160);
         mWindow.move(mTipChain[mCurrentTipIndex].mXPos, mTipChain[mCurrentTipIndex].mYPos);
         mWindow.showAll();
     }
@@ -277,7 +280,7 @@ class DOC_POP
             return;
         }
 
-        sort(Candidates);
+        //sort(Candidates);
 
         if(mCompletionDataSet)
         {

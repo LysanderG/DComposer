@@ -47,7 +47,7 @@ class DSYMBOL
 	string		Type;               //basically the signature (w/o the name) ie void(int, string) or uint or not always present
 	string		Kind;               //variable function constructor template struct class module union enum alias ... 
 	string		Comment;            //ddoc comment associated with symbol (only if compiled with -D)
-	string		Base;               //what the symbol inheirits (enum's can inherit a type?)
+	string		Base;               //what the symbol inherits (enum's can inherit a type?)
     string      Protection;         //this is newly added ... going to screw me up!
         
     string		InFile;             //the file where symbol is defined 
@@ -60,7 +60,7 @@ class DSYMBOL
 	DSYMBOL[string]	ScopedChildren; //subset of children that have members
 
 
-    string GetIcon()
+    string GetIcon()                //WHY IS THIS A FUNCTION??? compute once and cache stupid!
     {
         string color;
         string rv;
@@ -441,10 +441,7 @@ class SYMBOLS
 
         foreach(preM; PREmatches)
         {
-            writeln(preM.Name);
-            writeln(preM.Scoped);
             if(preM.Name != CandiPath[$-1]) continue;
-                    writeln(`symbols `, preM.Name, " ", __LINE__);
 
             //if prem has kids add those to rv
             //if prem is a variable of a type that has kids add those to rv
@@ -452,7 +449,6 @@ class SYMBOLS
 
             if(preM.ScopedChildren.length > 0) foreach(kid; preM.Children)
             {
-                    writeln(`symbols `, preM.Name, " ", __LINE__);
                 rv ~= kid.GetIcon() ~ " " ~  SimpleXML.escapeText(kid.Name, -1);
                 continue;
             }
@@ -520,6 +516,7 @@ class SYMBOLS
 
         DSYMBOL[] matches = Find(Candidate);
 
+        sort!("a.Name < b.Name")(matches);
         foreach(match; matches)
         {
             if(match.Kind != "template") rv ~= match.GetIcon ~ " " ~ SimpleXML.escapeText(match.Name, -1);

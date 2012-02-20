@@ -383,10 +383,12 @@ class DOCMAN
         DocFiler.setFilter(mFileFilters["dsrc"]);
         auto DialogReturned = DocFiler.run();
         DocFiler.hide();
+       
         
         if (DialogReturned != ResponseType.GTK_RESPONSE_OK) return;
         
         mFileDialogFolder = DocFiler.getCurrentFolder();
+        Config.setString("DOCMAN", "last_folder", mFileDialogFolder);
 
         string[] ArrayOfFiles;
         ListSG   ListOfFiles = DocFiler.getFilenames();
@@ -472,6 +474,7 @@ class DOCMAN
         DocFiler.run();
         DocFiler.hide();
         mFileDialogFolder = DocFiler.getCurrentFolder();
+        Config.setString("DOCMAN", "last_folder", mFileDialogFolder);
 
         docX.SaveAs(DocFiler.getFilename);        
     }

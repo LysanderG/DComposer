@@ -84,7 +84,6 @@ class CALL_TIPS : ELEMENT
                 break;
             }
             growingtext = tstart.getText(ti);
-            writeln("growingtext ", growingtext, ":");
         }
         while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_'));
         if(GoForward)tstart.forwardChar();

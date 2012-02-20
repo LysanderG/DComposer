@@ -163,9 +163,8 @@ class SYMBOL_COMPLETION : ELEMENT
                 break;
             }
             growingtext = tstart.getText(ti);
-            writeln("growingtext ", growingtext, ":");
         }
-        while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_'));
+        while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_') || (growingtext[0] == '.'));
         if(GoForward)tstart.forwardChar();
         
         return tstart;
