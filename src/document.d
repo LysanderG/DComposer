@@ -23,7 +23,6 @@ module document;
 import dcore;
 import ui;
 import docman;
-import docpop;
 
 import std.path;
 import std.stdio;

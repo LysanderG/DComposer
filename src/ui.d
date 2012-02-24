@@ -22,7 +22,7 @@ module ui;
 
 import dcore;
 import docman;
-import docpop;
+import autopopups;
 
 import  std.stdio;
 
@@ -74,7 +74,7 @@ class MAIN_UI
 
     Menu[string] mSubMenus;
     DOCMAN      mDocMan;
-    DOC_POP     mDocPop;
+    AUTO_POP_UPS mAutoPopUps;
 
     public :
 
@@ -88,8 +88,8 @@ class MAIN_UI
         mDocMan     = new DOCMAN; 
         mDocMan.Engage();
         
-        mDocPop = new DOC_POP;
-        mDocPop.Engage();
+        mAutoPopUps = new AUTO_POP_UPS;
+        mAutoPopUps.Engage();
         
         mWindow.show();
         
@@ -99,7 +99,7 @@ class MAIN_UI
     void Disengage()
     {
         Project.Event.disconnect(&WatchProjectName);
-        mDocPop.Disengage();
+        mAutoPopUps.Disengage();
         mDocMan.Disengage();        
         Log().Entry("Disengaged UI");
     }
@@ -193,7 +193,7 @@ class MAIN_UI
 
         //mDocMan.CloseAllDocs(true); if close all docs here nothing will be saved to config (ie "files_last_session" will be null)
         Main.quit();
-        return false;
+        return true;
     }
 
     void AddMenuItem(string MenuID, Widget Addition, int Position =-1)
@@ -241,7 +241,7 @@ class MAIN_UI
     AccelGroup      GetAccel(){return mAccelerators;}
 
     DOCMAN          GetDocMan(){return mDocMan;}
-    DOC_POP         GetDocPop(){return mDocPop;}
+    AUTO_POP_UPS    GetAutoPopUps(){return mAutoPopUps;}
 
         
     void WatchProjectName(string EventType)

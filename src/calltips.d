@@ -25,6 +25,7 @@ import symbols;
 
 import ui;
 import docman;
+import autopopups;
 import elements;
 import document;
 
@@ -84,6 +85,7 @@ class CALL_TIPS : ELEMENT
                 break;
             }
             growingtext = tstart.getText(ti);
+            writeln(growingtext);
         }
         while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_'));
         if(GoForward)tstart.forwardChar();
@@ -135,9 +137,6 @@ class CALL_TIPS : ELEMENT
     void WatchForNewDocument(string EventId, DOCUMENT_IF docIF)
     {
         DOCUMENT DocX = cast(DOCUMENT) docIF;
-
-        //DocX.addOnFocusOut (delegate bool (GdkEventFocus* ev, Widget w){dui.GetDocPop.Hide();return false;}); 
-
         
         DocX.TextInserted.connect(&WatchDoc);
 
@@ -157,23 +156,18 @@ class CALL_TIPS : ELEMENT
 
                 string Candidate = TStart.getText(ti);
 
-                string[] tmp = Symbols.GetCallTips(Candidate);
-                string[] Possibles;
-
-                //foreach(p; tmp.uniq()) Possibles ~= SimpleXML.escapeText(p, -1);
-                foreach(p; tmp.uniq()) Possibles ~= p;
+                auto Possibles = Symbols.GetCallTips(Candidate);
                 
-                //if(Possibles.length == 0) break;
 
                 int xpos, ypos;
                 IterGetPostion(sv, TStart, xpos, ypos);
 
-                dui.GetDocPop.Push(docpop.POP_TYPE_TIP, Possibles, Possibles, xpos, ypos);
+                dui.GetAutoPopUps.TipPush(Possibles, xpos, ypos);
                 break;
             }
             case ")" :
             {
-                dui.GetDocPop.Pop();
+                dui.GetAutoPopUps.TipPop();
                 break;
             }
             default : break;

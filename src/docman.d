@@ -374,7 +374,7 @@ class DOCMAN
                                 dui.GetWindow(),
                                 FileChooserAction.OPEN
                             );
-        DocFiler.addShortcutFolder(".");
+        //DocFiler.addShortcutFolder(".");
         DocFiler.addShortcutFolder("/usr/include/d/dmd/phobos/std/");
         DocFiler.setSelectMultiple(1);
         
@@ -459,24 +459,25 @@ class DOCMAN
                                 FileChooserAction.SAVE
                             );        
         
-        scope(success)Log.Entry("Document :"~ presaveas ~ " saved as " ~ docX.FullPathName ~ ".");
-        scope(failure){Log.Entry("Document :"~ presaveas ~ " failed to save as "~ DocFiler.getFilename ~ ".", "Error"); return;}
+        scope(failure){Log.Entry("Document :"~ presaveas ~ " failed to save as "~ DocFiler.getFilename ~ ".", "Error"); return; }
         
         if(docX is null) docX = GetDocX();
         if(docX is null) return;
         presaveas = docX.FullPathName;
 
-
-        DocFiler.addShortcutFolder(".");
         DocFiler.setCurrentFolder(mFileDialogFolder);
         DocFiler.setCurrentName(presaveas);
         foreach(filter; mFileFilters)DocFiler.addFilter(filter);
-        DocFiler.run();
+        auto DialogResponse = DocFiler.run();
         DocFiler.hide();
+        if(DialogResponse !=  ResponseType.GTK_RESPONSE_OK) return;
         mFileDialogFolder = DocFiler.getCurrentFolder();
         Config.setString("DOCMAN", "last_folder", mFileDialogFolder);
 
-        docX.SaveAs(DocFiler.getFilename);        
+        docX.SaveAs(DocFiler.getFilename);
+        scope(success)Log.Entry("Document :"~ presaveas ~ " saved as " ~ docX.FullPathName ~ ".");
+
+             
     }
 
         void SaveAllDocs()

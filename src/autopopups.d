@@ -68,7 +68,7 @@ private struct DATA_STORE
     long        mXPos;
     long        mYPos;
 
-    this(DSYMBOL[] nuPossibles, long Xpos, long Ypos)
+    this(DSYMBOL[] nuPossibles, long Xpos, long Ypos, bool tip = false)
     {
         mMatches = nuPossibles;
         mXPos = Xpos;
@@ -78,11 +78,26 @@ private struct DATA_STORE
         mIter = new TreeIter;
 
 
-       
+        sort!("a.Name < b.Name")(mMatches);
+        if(tip) //this is a call tip needs to show the call signature
+        {
+            foreach(match; mMatches)
+            {
+                mStore.append(mIter);
+                auto x = indexOf(match.Type, "(");
+                
+                string signature = match.Type[0..x] ~" "~ match.Name ~" "~ match.Type[x..$];
+                mStore.setValue(mIter, 0, signature);
+                mStore.setValue(mIter, 1, match.Path);
+            }
+            return;
+        }
+
+        
         foreach(match; mMatches)
         {
             mStore.append(mIter);
-            mStore.setValue(mIter, 0, match.Name);
+            mStore.setValue(mIter, 0, match.GetIcon() ~ match.Name);
             mStore.setValue(mIter, 1, match.Path);
         }
     }
@@ -226,12 +241,12 @@ class AUTO_POP_UPS
         TextIter ti = new TextIter;
 
         DocX.getBuffer.getIterAtMark(ti, DocX.getBuffer.getInsert());
-        auto tple = repl.findSplitAfter("</span> ");
+        auto tple = repl.findSplitAfter("</span>");
 
 
         TextIter tiStart = ti.copy();
         tiStart.backwardWordStart();
-        DocX.getBuffer.delet(tiStart, ti);                
+        if(mCompletionStatus == STATUS_COMPLETION) DocX.getBuffer.delet(tiStart, ti);                
         
         DocX.getBuffer().insert(ti, tple[1]);
         CompletionPop();        
@@ -239,12 +254,12 @@ class AUTO_POP_UPS
 
     void Present()
     {
-        if(mCompletionStatus == STATUS_COMPLETION)
+        if(mCompletionStatus != STATUS_OFF)
         {
             mTipsWin.hide();
             mCompletionView.setModel(mCompletionStore.GetModel());
             mCompletionView.setCursor(new TreePath("0"), null, false);
-            //mCompletionWin.resize(300, 160);
+            mCompletionWin.resize(600, 160);
             mCompletionWin.move(mCompletionStore.mXPos, mCompletionStore.mYPos);
             mCompletionWin.showAll();
             return;
@@ -252,16 +267,15 @@ class AUTO_POP_UPS
         else
         {
             mCompletionWin.hide();
-            if (mTipsIndex < 0)
-            {
-                mTipsWin.hide();
-                return;
-            }
+            mTipsWin.hide();
+            
+            if (mTipsIndex < 0)  return;
+
             mTipsView.setModel(mTipsStore[mTipsIndex].GetModel());
             mTipsView.setCursor(new TreePath(true), null, false);
-            //mCompletionWin.resize(300, 160);
+            mTipsWin.resize(600, 160);
             mTipsWin.move(mTipsStore[mTipsIndex].mXPos, mTipsStore[mTipsIndex].mYPos);
-            mTipsWin.showAll();
+            if(mTipsStore[mTipsIndex].mMatches.length > 0)mTipsWin.showAll();
             return;
         }
     }
@@ -300,12 +314,13 @@ class AUTO_POP_UPS
     }
 
 
-    void CompletionPush(DSYMBOL[] Possibles, long xpos, long ypos)
+    void CompletionPush(DSYMBOL[] Possibles, long xpos, long ypos, int Status = STATUS_COMPLETION)
     {
+        //if( (mCompletionStatus != Status) && ( Possibles.length < 1)) return;
         CompletionPop();
         if(Possibles.length < 1) return;
         
-        mCompletionStatus = STATUS_COMPLETION;
+        mCompletionStatus = Status;
         mCompletionStore = DATA_STORE(Possibles, xpos, ypos);
         Present();
         
@@ -313,19 +328,35 @@ class AUTO_POP_UPS
 
     void CompletionPop()
     {
+        mCompletionStatus = STATUS_OFF;
+        Present();
+        
     }
 
     void TipPush(DSYMBOL[] Possibles, long xpos, long ypos)
     {
+        CompletionPop();
+        mTipsIndex++;
+        if (mTipsIndex >= MAX_TIP_DEPTH)
+        {
+            mTipsIndex = MAX_TIP_DEPTH;
+            return;
+        }
+        mTipsStore[mTipsIndex] = DATA_STORE(Possibles, xpos, ypos, true);
+        Present();
+        
     }
 
     void TipPop()
     {
+        mTipsIndex--;
+        if (mTipsIndex < -1) mTipsIndex = -1;
+        Present();
     }
 
     void Kill()
     {
         CompletionPop();
-        while(mTipsIndex > -1) TipPop();
+        TipPop();
     }
 }

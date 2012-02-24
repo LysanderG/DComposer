@@ -152,7 +152,7 @@ class SYMBOLS
         return RV;
     }
 
-    DSYMBOL[] Find( string Needle)
+    DSYMBOL[] Find( string Needle, DSYMBOL[] HayStack = null)
     {
         DSYMBOL[] RV;
         string Path;
@@ -171,8 +171,6 @@ class SYMBOLS
             Path = "";
         }
 
-         
-
         void _Find(DSYMBOL symX)
         {
             
@@ -189,7 +187,7 @@ class SYMBOLS
                         RV.length += 1;
                         RV[$-1] = symX;
                         return;
-                    }
+                    }                    
                 }
                 else /*Path is empty so any and every path to Name should match*/
                 {
@@ -200,7 +198,8 @@ class SYMBOLS
             foreach (kid; symX.Children) _Find(kid);
         }        
 
-        foreach(sym; mSymbols) _Find( sym);
+        if(HayStack is null) foreach(sym; mSymbols) _Find(sym);
+        else foreach(sym; HayStack) _Find( sym);
 
         return RV;
     }
@@ -401,27 +400,23 @@ class SYMBOLS
         return rv;
     }
 
-    string[] GetCallTips(string Candidate)
+    DSYMBOL[] GetCallTips(string Candidate)
     {
-        string[] rv;
+        DSYMBOL[] rv;
         string CandidateName;
         long lastdot = Candidate.lastIndexOf(".");
         
         if (lastdot > -1) CandidateName = Candidate[lastdot+1 .. $];
         else CandidateName = Candidate;
 
-        //DSYMBOL[] matches = FindScope(CandiPath);
-        //DSYMBOL[] matches = FindScope(Candidate);
         DSYMBOL[] matches = Find(Candidate);
         foreach(match; matches)
         {
 
             if((match.Kind == "function") && (match.Name == CandidateName))
             {
-                //if(match.Name != CandiName)continue;
-                auto cut = findSplit(match.Type,"(");
-                //= " " ~ cut[0] ~ " " ~ match.Name ~ cut[1] ~ cut[2];
-                rv ~= match.GetIcon() ~ SimpleXML.escapeText(" " ~ cut[0] ~ " " ~ match.Name ~ cut[1] ~ cut[2],-1);
+                
+                rv ~= match;
             }
         }
 
@@ -430,99 +425,66 @@ class SYMBOLS
 
     //returns children of Candidate (all possible)
     //useful for scopelists
-    string[] GetMembers(string Candidate)
+    DSYMBOL[] GetMembers(string Candidate)
     {
-        string[] rv;
-        string[] CandiPath = Candidate.split(".");
 
-        DSYMBOL[] PREmatches = Find(Candidate);
-        
+        DSYMBOL[] rv;
 
+        DSYMBOL[] PreMatch = Find(Candidate);
 
-        foreach(preM; PREmatches)
+        foreach(match; PreMatch)
         {
-            if(preM.Name != CandiPath[$-1]) continue;
-
-            //if prem has kids add those to rv
-            //if prem is a variable of a type that has kids add those to rv
-            //if prem is a function with a return type that has kids add those to rv
-
-            if(preM.ScopedChildren.length > 0) foreach(kid; preM.Children)
+            if(!endsWith(match.Path, Candidate))continue;
+            if(match.Kind == "variable") rv ~= GetMembers(match.Type);
+            if(match.Kind == "function")
             {
-                rv ~= kid.GetIcon() ~ " " ~  SimpleXML.escapeText(kid.Name, -1);
-                continue;
+                auto indx = std.string.indexOf(match.Type, "(");
+                if (indx > 1) rv ~= GetMembers(match.Type[0..indx]);
             }
-            if(preM.Kind == "variable")
+            if(match.Base.length > 0)// rv ~= GetMembers(match.Base);
             {
-                if(preM.Type.empty) continue;
-                auto scp = split(preM.Type, ".");
-                if (scp.empty) continue;
-                DSYMBOL[] POSTmatches = FindScope(scp);
-                foreach(sym; POSTmatches)
+                auto bases = Find(match.Base);
+                foreach (base; bases)
                 {
-                    if(sym.Scoped) foreach(kid; sym.Children) rv ~= kid.GetIcon() ~ " " ~  SimpleXML.escapeText(kid.Name, -1);
+                    if (base.Name != match.Base) continue;
+                    rv ~= GetMembers(base.Path);
                 }
+                
+                //foreach(BaseKid; Find(chomp(match.Path, "." ~ match.Name))) rv ~= GetMembers(BaseKid.Path);
+                //auto basematches = Find(match.Base);
+                //foreach(base;basematches)
+                //{
+                //    foreach(basekid; base.Children)
+                //    {
+                //        if(basekid.Name != match.Base) continue;
+                //        rv ~= GetMembers(basekid.Name);
+                //    }
+                //}                    
             }
-            if (preM.Kind == "function")//do functions have members???!!!
-            //oh i see my error!! some template "functions" have no return type (auto?) so... segfaults on trying to use it.
-            //really shows me I need to be more prepared for unexpected data! ASSUME NOTHING!
-            {
-                string[] FuncRetType = split(preM.Type, "(");
-                if(FuncRetType[0].empty) continue;
-                auto tmp = split(FuncRetType[0], ".");
-                DSYMBOL[] POSTmatches = FindScope(tmp);
-                foreach(sym; POSTmatches)
-                {
-                    if(sym.Scoped) foreach(kid; sym.Children) rv ~= kid.GetIcon() ~ " " ~  SimpleXML.escapeText(kid.Name, -1);
-                }
-            }
+            foreach(kid; match.Children) rv ~= kid;
         }
-
         return rv;
     }
-
-    //returns any symbols that Candidate might be
-    //string[] Match(string Candidate)
-    //{
-    //    if(Candidate.length < 2) return null;
-    //    string[] rv;
-    //    string[] CandiPath = Candidate.split(".");
-    //    
-    //    DSYMBOL[] matches;
-    //    if(CandiPath.length  == 1) matches = AllSymbols();
-    //    else matches = FindScope(CandiPath[0..$-1]);
-    //    foreach (match; matches)
-    //    {
-//
-    //        /*if(startsWith(match.Name, CandiPath[$-1]) > 0)
-    //        {
-    //            
-    //            rv ~= match.GetIcon() ~ " " ~ SimpleXML.escapeText(match.Name, -1);
-    //        }*/
-    //        foreach(kid; match.Children)
-    //        {
-    //            if(kid.Kind == "template") continue;
-    //            if(startsWith(kid.Name, CandiPath[$-1]) > 0) rv ~= kid.GetIcon() ~ " " ~ SimpleXML.escapeText(kid.Name, -1);
-    //        }
-    //    }
-    //    return rv;
-    //}
-
-
  
-    string[] Match(string Candidate)
+    DSYMBOL[] Match(string Candidate)
     {
-        string[] rv;
+       
 
-        DSYMBOL[] matches = Find(Candidate);
+        DSYMBOL[] matches;
 
-        sort!("a.Name < b.Name")(matches);
-        foreach(match; matches)
+        auto LastDot = lastIndexOf(Candidate, ".");
+
+        if(LastDot > -1)
         {
-            if(match.Kind != "template") rv ~= match.GetIcon ~ " " ~ SimpleXML.escapeText(match.Name, -1);
+            auto prematches = GetMembers(Candidate[0..LastDot]);
+            matches = Find(Candidate[LastDot+1..$], prematches);
+        }
+        else
+        {
+            matches = Find(Candidate);
         }
 
-        return rv;
+        return matches;
 
     }
 

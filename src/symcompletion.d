@@ -23,9 +23,10 @@ module symcompletion;
 import dcore;
 import ui;
 import elements;
-import docpop;
+import autopopups;
 import docman;
 import document;
+import symbols;
 
 import std.stdio;
 import std.algorithm;
@@ -44,7 +45,6 @@ class SYMBOL_COMPLETION : ELEMENT
     string      mName;
     string      mInfo;
     bool        mState;
-    bool        mActive;
 
     int         mMinCompletionLength;
 
@@ -62,76 +62,39 @@ class SYMBOL_COMPLETION : ELEMENT
     void WatchDoc(DOCUMENT doc, TextIter ti, string text, SourceBuffer buffer)
     {
         if(doc.IsPasting) return;
-
+        if (text == ".") return;
 		
-		if ((text == ".") || (text == "(") || (text == ")")) return;		
+		if((text == "(") || (text == ")"))
+        {
+            dui.GetAutoPopUps.CompletionPop();
+            return;
+        }
 		
         if(text.length > 1) return; 
         
         TextIter WordStart = new TextIter;
         WordStart = GetCandidate(ti);
         string Candidate = WordStart.getText(ti);
+
+
+        DSYMBOL[] Possibles;
         
-        if(Candidate.length < mMinCompletionLength) Candidate = " "; //return;
+        if(Candidate.length < mMinCompletionLength)
+        {
+            Possibles.length = 0;
+        }
+        else
+        {
+            Possibles = Symbols.Match(Candidate);
+        }
         
         int xpos, ypos;
         IterGetPostion(doc, WordStart, xpos, ypos);
-               
-        auto tmp = Symbols.Match(Candidate);
-     
-        string[] Possibles;
-        
-        foreach(item; tmp.uniq) Possibles ~= item;
-        //if (Possibles.length < 1) return;
 
-        dui.GetDocPop.Push(POP_TYPE_COMPLETION, Possibles, Possibles, xpos, ypos);
-        mActive = true;
+        dui.GetAutoPopUps.CompletionPush(Possibles, xpos, ypos);
         
     }
-    void WatchDoc_deprecated(DOCUMENT doc, TextIter ti, string text, SourceBuffer buffer)
-    {
-        if(doc.IsPasting) return;
-        
-        //if(active)
-        //{
-        //    active = false;
-        //    //dui.GetDocPop.Pop();
-        //}
-		
-		if ((text == ".") || (text == "(") || (text == ")")) return;
-		
-		
-        if(text.length > 1) return;
-        //if( !( (isAlphaNum(text[0])) || (text == "_"))) return;
-        
-        
-        TextIter WordStart = ti.copy();
-        WordStart.backwardWordStart();
-       int CouldMoveback = WordStart.backwardChar();
-               
-       while('.' == WordStart.getChar())
-       {
-           WordStart.backwardWordStart();
-           CouldMoveback = WordStart.backwardChar();
-       }
-       if(CouldMoveback)WordStart.forwardChar();
-        
-        int xpos, ypos;
-        IterGetPostion(doc, WordStart, xpos, ypos);
-        
-        string Candidate = WordStart.getText(ti);
-        if(Candidate.length < Config.getInteger("SYMBOLS", "minimum_completion_length", 4)) return;
-        auto tmp = Symbols.Match(Candidate);
-     
-        string[] Possibles;
-        
-        foreach(item; tmp.uniq) Possibles ~= item;
-        //if (Possibles.length < 1) return;
 
-        dui.GetDocPop.Push(POP_TYPE_COMPLETION, Possibles, Possibles, xpos, ypos);
-        mActive = true;
-        
-    }
 
     void IterGetPostion(DOCUMENT Doc, TextIter ti, out int xpos, out int ypos)
     {

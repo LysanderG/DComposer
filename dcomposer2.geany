@@ -18,15 +18,13 @@ long_line_behaviour=1
 long_line_column=120
 
 [files]
-current_page=5
-FILE_NAME_0=129;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymcompletion.d;0;4
-FILE_NAME_1=7006;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbols.d;0;4
-FILE_NAME_2=2295;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fcalltips.d;0;4
-FILE_NAME_3=4497;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdocpop.d;0;4
-FILE_NAME_4=0;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fscopelist.d;0;4
-FILE_NAME_5=5254;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fautopopups.d;0;4
-FILE_NAME_6=0;Conf;0;16;0;1;0;%2Fhome%2Fanthony%2F.neontotem%2Fdcomposer%2Fdcomposer.cfg;0;4
-FILE_NAME_7=23632;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdocman.d;0;4
+current_page=0
+FILE_NAME_0=14419;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbols.d;0;4
+FILE_NAME_1=267080;None;0;16;0;1;0;%2Fhome%2Fanthony%2F.neontotem%2Fdcomposer%2Fstdlib.json;0;4
+FILE_NAME_2=772;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fscopelist.d;0;4
+FILE_NAME_3=776;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymcompletion.d;0;4
+FILE_NAME_4=771;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fcalltips.d;0;4
+FILE_NAME_5=167473;None;0;16;0;1;0;%2Fhome%2Fanthony%2F.neontotem%2Fdcomposer%2Fgtklib.json;0;4
 
 [build-menu]
 DFT_01_LB=_Build

@@ -22,14 +22,17 @@ module scopelist;
 
 import ui;
 import dcore;
+import symbols;
 import elements;
 
-import docpop;
+import autopopups;
 import docman;
 import document;
 
 
 import std.stdio;
+import std.ascii;
+import std.string;
 
 
 
@@ -56,8 +59,6 @@ class SCOPE_LIST : ELEMENT
     {
         DOCUMENT DocX = cast (DOCUMENT) DocIF;
 
-        //DocX.addOnFocusOut (delegate bool (GdkEventFocus* ev, Widget w){dui.GetDocPop.KillChain();return false;}); 
-
         DocX.TextInserted.connect(&WatchDoc);
     }
 
@@ -65,41 +66,20 @@ class SCOPE_LIST : ELEMENT
     {
         int xpos, ypos;
         if (sv.IsPasting) return;
-        if (text != ".")
-        {
-            if(mState)
-            {
-                mState = false;
-                //dui.GetDocPop.Pop();
-            }
-            return;            
-        }
+        if (text != ".") return;
         
         //pull out candidate
-        ti.backwardChar();
-        ti.backwardWordStart();
-        TextIter tiEnd = ti.copy();
-        tiEnd.forwardWordEnd();
+        TextIter WordStart = new TextIter;
+        WordStart = GetCandidate(ti);
+        string Candidate = WordStart.getText(ti);
+        Candidate = Candidate.chomp(".");
 
-        //int CouldMoveback = ti.backwardChar();
-        
-       // while('.' == ti.getChar())
-        //{
-         //   ti.backwardWordStart();
-         //   CouldMoveback = ti.backwardChar();
-        //}
-        //if(CouldMoveback)ti.forwardChar();
+        if(Candidate.length < 1) return;
+        DSYMBOL[] possibles = Symbols.GetMembers(Candidate);
 
-        string Candidate = ti.getText(tiEnd);
 
-        string[] possibles = Symbols.GetMembers(Candidate);
-
-        //if(possibles.length < 1) return;
-        
-        mState = true;
-        
         IterGetPostion(sv, ti, xpos, ypos);
-        dui.GetDocPop.Push(POP_TYPE_SCOPE, possibles, possibles, xpos, ypos);
+        dui.GetAutoPopUps.CompletionPush(possibles, xpos, ypos, STATUS_SCOPE);
     }
 
     void IterGetPostion(DOCUMENT Doc, TextIter ti, out int xpos, out int ypos)
@@ -114,6 +94,30 @@ class SCOPE_LIST : ELEMENT
         xpos = winX + OrigX;
         ypos = winY + OrigY + gdkRect.height;
         return;        
+    }
+
+    TextIter GetCandidate(TextIter ti)
+    {
+        bool GoForward = true;
+        
+        string growingtext;
+        TextIter tstart = new TextIter;
+        tstart = ti.copy();
+        do
+        {
+            if(!tstart.backwardChar())
+            {
+                GoForward = false;
+                break;
+            }
+            growingtext = tstart.getText(ti);
+            writeln(growingtext[0]);
+        }
+        while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_') || (growingtext[0] == '.'));
+        if(GoForward)tstart.forwardChar();
+        
+        return tstart;
+        
     }
 
     public:
