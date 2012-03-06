@@ -20,6 +20,7 @@
 
 
 module dcomposer;
+import std.json;
 
 import core.memory;
 import std.stdio;

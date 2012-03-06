@@ -103,6 +103,8 @@ class SYMBOLS
     //or if project type is null foreach opendoc mSymbol["docname"].load ...
     DSYMBOL[string] mSymbols;
 
+    string LastComment;
+
 
     DSYMBOL[] FindScope(string[] Scopes)
     {
@@ -263,7 +265,13 @@ class SYMBOLS
                         case "type"         : sym.Type          = obj.str;break;
                         case "kind"         : sym.Kind          = obj.str;break;
                         case "base"         : sym.Base          = obj.str;break;
-                        case "comment"      : sym.Comment       = obj.str;break;
+                        case "comment"      :
+                        {
+                            sym.Comment       = obj.str;
+                            if(canFind(toLower(sym.Comment), "ditto")) sym.Comment = "~" ~ LastComment;
+                            LastComment = sym.Comment;
+                            break;
+                        }
                         case "protection"   : sym.Protection    = obj.str;break;
                         case "file"         : Module            = obj.str;break;
                         case "line"         : sym.OnLine        = cast(int)obj.integer;break;

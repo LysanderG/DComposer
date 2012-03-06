@@ -30,7 +30,9 @@ import symbols;
 
 import std.stdio;
 import std.algorithm;
-import core.memory;
+import std.xml;
+import std.signals;
+//import core.memory;
 
 
 import gtk.Builder;
@@ -49,7 +51,7 @@ import gtk.TreeModelIF;
 import gdk.Rectangle;
 import gdk.Keysyms;
 
-import glib.SimpleXML;
+//import glib.SimpleXML;
 
 
 enum :int {POP_TYPE_TIP, POP_TYPE_SCOPE, POP_TYPE_COMPLETION}
@@ -74,7 +76,7 @@ private struct DATA_STORE
         mXPos = Xpos;
         mYPos = Ypos;
 
-        mStore = new ListStore([GType.STRING, GType.STRING]);
+        mStore = new ListStore([GType.STRING, GType.STRING, GType.STRING]);
         mIter = new TreeIter;
 
 
@@ -87,8 +89,9 @@ private struct DATA_STORE
                 auto x = indexOf(match.Type, "(");
                 
                 string signature = match.Type[0..x] ~" "~ match.Name ~" "~ match.Type[x..$];
-                mStore.setValue(mIter, 0, signature);
-                mStore.setValue(mIter, 1, match.Path);
+                mStore.setValue(mIter, 0, std.xml.decode(signature));
+                mStore.setValue(mIter, 1, std.xml.decode(match.Path));
+                mStore.setValue(mIter, 2, std.xml.decode(match.Comment));
             }
             return;
         }
@@ -97,8 +100,9 @@ private struct DATA_STORE
         foreach(match; mMatches)
         {
             mStore.append(mIter);
-            mStore.setValue(mIter, 0, match.GetIcon() ~ match.Name);
-            mStore.setValue(mIter, 1, match.Path);
+            mStore.setValue(mIter, 0, std.xml.decode(match.GetIcon() ~ match.Name));
+            mStore.setValue(mIter, 1, std.xml.decode(match.Path));
+            mStore.setValue(mIter, 2, std.xml.decode(match.Comment));
         }
     }
 
@@ -279,7 +283,19 @@ class AUTO_POP_UPS
             return;
         }
     }
+
+    
+    void UpdateComments(TreeView tv)
+    {
+        auto treeiter = tv.getSelectedIter();
+        auto store = tv.getModel();
+        auto symname = store.getValueString(treeiter, 0);
+        auto DocComment = store.getValueString(treeiter, 2);
+        dui.Status.push(0, DocComment);
+
+        emit(symname, DocComment);
         
+    }
 //********************************************************************************************************************
 //********************************************************************************************************************
 //********************************************************************************************************************
@@ -299,6 +315,9 @@ class AUTO_POP_UPS
         mTipsWin = cast (Window)mTipsBuilder.getObject("window1");
         mTipsView = cast (TreeView)mTipsBuilder.getObject("treeview1");
         mTipsIndex = -1;
+
+        mTipsView.addOnCursorChanged (&UpdateComments);
+        mCompletionView.addOnCursorChanged(&UpdateComments); 
     }
 
     void Engage()
@@ -359,4 +378,6 @@ class AUTO_POP_UPS
         CompletionPop();
         TipPop();
     }
+
+    mixin Signal!(string, string);
 }

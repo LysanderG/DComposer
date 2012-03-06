@@ -239,6 +239,7 @@ class MAIN_UI
     ActionGroup     Actions() {return mActions;}
     MenuBar         GetMenuBar(){return mMenuBar;}
     AccelGroup      GetAccel(){return mAccelerators;}
+    Statusbar       Status(){return mStatusBar;}
 
     DOCMAN          GetDocMan(){return mDocMan;}
     AUTO_POP_UPS    GetAutoPopUps(){return mAutoPopUps;}

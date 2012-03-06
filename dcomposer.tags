@@ -225,7 +225,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "int(string[] args)",
-"line" : 34}
+"line" : 35}
 ]
 }
 ,
@@ -4486,116 +4486,123 @@
 "line" : 104}
 ,
 {
+"name" : "LastComment",
+"kind" : "variable",
+"protection" : "private",
+"type" : "string",
+"line" : 106}
+,
+{
 "name" : "FindScope",
 "kind" : "function",
 "protection" : "private",
 "type" : "DSYMBOL[](string[] Scopes)",
-"line" : 107}
+"line" : 109}
 ,
 {
 "name" : "FindScope",
 "kind" : "function",
 "protection" : "private",
 "type" : "DSYMBOL[](string Path)",
-"line" : 136}
+"line" : 138}
 ,
 {
 "name" : "Find",
 "kind" : "function",
 "protection" : "private",
 "type" : "DSYMBOL[](string Needle, DSYMBOL[] HayStack = null)",
-"line" : 155}
+"line" : 157}
 ,
 {
 "name" : "AllSymbols",
 "kind" : "function",
 "protection" : "private",
 "type" : "DSYMBOL[]()",
-"line" : 209}
+"line" : 211}
 ,
 {
 "name" : "BuildSymbols",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(JSONValue jval, ref DSYMBOL sym, string Module = \"\")",
-"line" : 233}
+"line" : 235}
 ,
 {
 "name" : "ProjectWatch",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(string EventType)",
-"line" : 304}
+"line" : 312}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 324}
+"line" : 332}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 346}
+"line" : 354}
 ,
 {
 "name" : "AddCommonTagFile",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string key, string TagFile)",
-"line" : 358}
-,
-{
-"name" : "Load",
-"kind" : "function",
-"protection" : "public",
-"type" : "void(string key, string symfile)",
 "line" : 366}
 ,
 {
 "name" : "Load",
 "kind" : "function",
 "protection" : "public",
+"type" : "void(string key, string symfile)",
+"line" : 374}
+,
+{
+"name" : "Load",
+"kind" : "function",
+"protection" : "public",
 "type" : "void(string symfile)",
-"line" : 380}
+"line" : 388}
 ,
 {
 "name" : "GetLocation",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string ScopedCandidate, out string[] Modules, out int[] LineNo)",
-"line" : 388}
+"line" : 396}
 ,
 {
 "name" : "GetCallTips",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Candidate)",
-"line" : 403}
+"line" : 411}
 ,
 {
 "name" : "GetMembers",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Candidate)",
-"line" : 428}
+"line" : 436}
 ,
 {
 "name" : "Match",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Candidate)",
-"line" : 469}
+"line" : 477}
 ,
 {
 "name" : "Symbols",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[string]()",
-"line" : 496}
+"line" : 504}
 ]
 }
 ]
@@ -5249,25 +5256,32 @@
 "line" : 241}
 ,
 {
+"name" : "Status",
+"kind" : "function",
+"protection" : "public",
+"type" : "Statusbar()",
+"line" : 242}
+,
+{
 "name" : "GetDocMan",
 "kind" : "function",
 "protection" : "public",
 "type" : "DOCMAN()",
-"line" : 243}
+"line" : 244}
 ,
 {
 "name" : "GetAutoPopUps",
 "kind" : "function",
 "protection" : "public",
 "type" : "AUTO_POP_UPS()",
-"line" : 244}
+"line" : 245}
 ,
 {
 "name" : "WatchProjectName",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string EventType)",
-"line" : 247}
+"line" : 248}
 ]
 }
 ,
@@ -5275,25 +5289,25 @@
 "name" : "TYPE_NONE",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 256}
+"line" : 257}
 ,
 {
 "name" : "TYPE_CALLTIP",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 256}
+"line" : 257}
 ,
 {
 "name" : "TYPE_SCOPELIST",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 256}
+"line" : 257}
 ,
 {
 "name" : "TYPE_SYMCOM",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 256}
+"line" : 257}
 ]
 }
 ,
@@ -5306,99 +5320,99 @@
 "name" : "POP_TYPE_TIP",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 55}
+"line" : 57}
 ,
 {
 "name" : "POP_TYPE_SCOPE",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 55}
+"line" : 57}
 ,
 {
 "name" : "POP_TYPE_COMPLETION",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 55}
+"line" : 57}
 ,
 {
 "name" : "STATUS_OFF",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 56}
+"line" : 58}
 ,
 {
 "name" : "STATUS_COMPLETION",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 56}
+"line" : 58}
 ,
 {
 "name" : "STATUS_SCOPE",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 56}
+"line" : 58}
 ,
 {
 "name" : "MAX_TIP_DEPTH",
 "kind" : "variable",
 "protection" : "public",
 "type" : "immutable(uint)",
-"line" : 58}
+"line" : 60}
 ,
 {
 "name" : "DATA_STORE",
 "kind" : "struct",
 "protection" : "private",
-"line" : 62,
+"line" : 64,
 "members" : [
 {
 "name" : "mStore",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.ListStore.ListStore",
-"line" : 63}
+"line" : 65}
 ,
 {
 "name" : "mIter",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.TreeIter.TreeIter",
-"line" : 64}
+"line" : 66}
 ,
 {
 "name" : "mMatches",
 "kind" : "variable",
 "protection" : "public",
 "type" : "DSYMBOL[]",
-"line" : 66}
+"line" : 68}
 ,
 {
 "name" : "mXPos",
 "kind" : "variable",
 "protection" : "public",
 "type" : "long",
-"line" : 68}
+"line" : 70}
 ,
 {
 "name" : "mYPos",
 "kind" : "variable",
 "protection" : "public",
 "type" : "long",
-"line" : 69}
+"line" : 71}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "ref DATA_STORE(DSYMBOL[] nuPossibles, long Xpos, long Ypos, bool tip = false)",
-"line" : 71}
+"line" : 73}
 ,
 {
 "name" : "GetModel",
 "kind" : "function",
 "protection" : "public",
 "type" : "ListStore()",
-"line" : 105}
+"line" : 109}
 ]
 }
 ,
@@ -5406,7 +5420,7 @@
 "name" : "AUTO_POP_UPS",
 "kind" : "class",
 "protection" : "public",
-"line" : 111,
+"line" : 115,
 "base" : "Object",
 "members" : [
 {
@@ -5414,182 +5428,189 @@
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Builder.Builder",
-"line" : 115}
+"line" : 119}
 ,
 {
 "name" : "mTipsBuilder",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Builder.Builder",
-"line" : 116}
+"line" : 120}
 ,
 {
 "name" : "mCompletionWin",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Window.Window",
-"line" : 118}
+"line" : 122}
 ,
 {
 "name" : "mCompletionStore",
 "kind" : "variable",
 "protection" : "private",
 "type" : "DATA_STORE",
-"line" : 119}
+"line" : 123}
 ,
 {
 "name" : "mCompletionStatus",
 "kind" : "variable",
 "protection" : "private",
 "type" : "int",
-"line" : 120}
+"line" : 124}
 ,
 {
 "name" : "mCompletionView",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.TreeView.TreeView",
-"line" : 121}
+"line" : 125}
 ,
 {
 "name" : "mTipsWin",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Window.Window",
-"line" : 124}
+"line" : 128}
 ,
 {
 "name" : "mTipsStore",
 "kind" : "variable",
 "protection" : "private",
 "type" : "DATA_STORE[24LU]",
-"line" : 125}
+"line" : 129}
 ,
 {
 "name" : "mTipsIndex",
 "kind" : "variable",
 "protection" : "private",
 "type" : "long",
-"line" : 126}
+"line" : 130}
 ,
 {
 "name" : "mTipsView",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.TreeView.TreeView",
-"line" : 127}
+"line" : 131}
 ,
 {
 "name" : "WatchForNewDocuments",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(string EventType, DOCUMENT_IF DocXIf)",
-"line" : 129}
+"line" : 133}
 ,
 {
 "name" : "CaptureDocumentKeys",
 "kind" : "function",
 "protection" : "private",
 "type" : "bool(GdkEventKey* EvntKey, Widget Wydjit)",
-"line" : 139}
+"line" : 143}
 ,
 {
 "name" : "CaptureDocumentButtons",
 "kind" : "function",
 "protection" : "private",
 "type" : "bool(GdkEventButton* EvntKey, Widget Wydjit)",
-"line" : 170}
+"line" : 174}
 ,
 {
 "name" : "PopUpVisible",
 "kind" : "function",
 "protection" : "private",
 "type" : "bool()",
-"line" : 176}
+"line" : 180}
 ,
 {
 "name" : "MoveSelectionDown",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(Widget Wydjit)",
-"line" : 182}
+"line" : 186}
 ,
 {
 "name" : "MoveSelectionUp",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(Widget Wydjit)",
-"line" : 209}
+"line" : 213}
 ,
 {
 "name" : "CompleteText",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(Widget OriginDoc)",
-"line" : 229}
+"line" : 233}
 ,
 {
 "name" : "Present",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 255}
+"line" : 259}
+,
+{
+"name" : "UpdateComments",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(TreeView tv)",
+"line" : 288}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "AUTO_POP_UPS()",
-"line" : 289}
+"line" : 305}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 304}
+"line" : 323}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 310}
+"line" : 329}
 ,
 {
 "name" : "CompletionPush",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(DSYMBOL[] Possibles, long xpos, long ypos, int Status = 1)",
-"line" : 317}
+"line" : 336}
 ,
 {
 "name" : "CompletionPop",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 329}
+"line" : 348}
 ,
 {
 "name" : "TipPush",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(DSYMBOL[] Possibles, long xpos, long ypos)",
-"line" : 336}
+"line" : 355}
 ,
 {
 "name" : "TipPop",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 350}
+"line" : 369}
 ,
 {
 "name" : "Kill",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 357}
+"line" : 376}
 ]
 }
 ]
