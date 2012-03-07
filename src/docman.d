@@ -122,7 +122,7 @@ class DOCMAN
         mStartUpFiles ~=  Config().getString("DOCMAN", "files_to_open").split(";");      //files from command line
 
         string report;
-        foreach(f; mStartUpFiles) report ~= f ~":";
+        foreach(f; mStartUpFiles) if(f.length > 0)report ~= f ~":";
         Log.Entry("Start Up Files = " ~ report, "Debug");
     }
 
@@ -407,6 +407,7 @@ class DOCMAN
 
         foreach(f;FullFileNames)
         {
+            if(f.length < 1) continue;
 
             scope(failure){Log.Entry("Document: "~f~" failed to open.", "Error"); continue;}
             scope(success)Log.Entry("Document: "~f~" opened.");

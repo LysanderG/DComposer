@@ -320,7 +320,7 @@ class SEARCH_UI : ELEMENT
         mResultsView.setCursor(new TreePath(true), null, false);
         mResultsView.grabFocus();
 
-        scope(failure){Log.Entry(`Possible attempt to set treepath'0' on an empty treeview`,"Debug"); return;};
+        scope(failure){Log.Entry(`Possible attempt to set treepath'0' on an empty treeview`,"Debug"); return;}
     }
 
     

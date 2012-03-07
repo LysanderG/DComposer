@@ -177,7 +177,7 @@ class PROJECT_VIEW : ELEMENT
     {
         if(EventType == "ListChange")UpdateList(mKeyBox);
         if(EventType == "Name")mLabel.setText(Project.Name);
-        if(EventType == "Open")
+        if(EventType == "Opened")
         {
             UpdateList(mKeyBox);
             mLabel.setText(Project.Name);

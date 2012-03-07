@@ -67,7 +67,7 @@ class DEBUG_UI : ELEMENT
     void Load(string EventType)
     {
         //this don't make no sense no way nope nada
-        if( EventType != "Open") return; //hey what about new ...??
+        if( EventType != "Opened") return; //hey what about new ...??
         Debugger.Load(Project.Name, Project.WorkingPath);
         mExecLoaded = true; //don't forget to FIX THIS!
     }

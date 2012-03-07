@@ -143,7 +143,7 @@ struct LISTS
 
     void Zero()
     {
-        foreach(key, ref LIST L; mLists) L = null;
+        foreach(key,  L; mLists) mLists[key].length = 0;
     }
 
 }
@@ -231,32 +231,35 @@ class PROJECT
         
     void Open(string pfile)                                             //open a .dpro file and we're off
     {
-        Close();
+        Event.emit("StartOpen");
+        New();
+
         scope(failure)
         {
-            Log.Entry("Failed to open Project : " ~ pfile, "Error");
+            Log.Entry("Failed to OPEN Project : " ~ pfile, "Error");
             mTarget = TARGET.NULL;
             Close();
             return;
         }
         scope(success)Log.Entry("Project opened: " ~ mName);
         
-		auto jstring = readText(pfile);        
+		auto jstring = readText(pfile);
 		
 		auto jval = parseJSON(jstring);
-		
+
 		foreach( key, j; jval.object)
 		{
 			switch (j.type)
 			{
 				case JSON_TYPE.ARRAY :
 				{
+
 					if(key == "flags")
 					{
 						//I inadvertantly added an extra level to flags json object ... makes it harder to parse!
 						//each object (flag) is preceeded by the cmd switch, no good reason for this.(I really should fix this)
 						foreach ( f; j.array)
-						{	
+						{
 							auto SwitchKeys = f.object.keys; // this should be length = 1 ... really not needed
 							if (SwitchKeys.length < 1) break;
 							SetFlag(f.object[SwitchKeys[0]].object["cmdstring"].str, (f.object[SwitchKeys[0]].object["state"].type == JSON_TYPE.TRUE), f.object[SwitchKeys[0]].object["argument"].str);
@@ -268,7 +271,9 @@ class PROJECT
 					string[] tmp;
 					foreach (l; j.array) tmp ~= l.str;
 					SetList(key, tmp);
+                    
                     //this[key] = tmp;
+
 					break;
 				}
 				
@@ -289,32 +294,30 @@ class PROJECT
 				
 				default : break;
 			}
+            
 		}
 
-        
         if(mVersion > PROJECT_VERSION)throw new Exception("bad version");
-        
-        CreateTags();
 
-        Event.emit("Open");
+        Event.emit("Opened");
+
+        CreateTags();
 
 	}    
     void Close()                                            //return target type to null , and nothing doing
     {
-        Log.Entry("Closing Project", "Debug");
         if(mTarget != TARGET.NULL)   Save();
         mTarget = TARGET.NULL;
         
-        mName = "";
-        mWorkingPath = "";
+        mName.length = 0;
+        mWorkingPath.length = 0;
 
         scope(failure)Log.Entry("Unable to open Flags File", "Error");
         string FlagsFile = expandTilde(Config.getString("PROJECT","flags_file", "~/neontotem/dcomposer/flagsfile.json" ));
 		ReadFlags(FlagsFile);
         mList.Zero();
         mUseCustomBuild = false;
-        mCustomBuildCommand = "";
-
+        mCustomBuildCommand.length = 0;
         Event.emit("Close");  
     }
 
@@ -453,7 +456,10 @@ class PROJECT
 
         std.stdio.File Process = File("tmp","w");
 
+        foreach (prescript; Project["PRE_BUILD_SCRIPTS"])writeln(shell(prescript));
         Process.popen("sh /home/anthony/.neontotem/dcomposer/childrunner.sh " ~ BuildCommand() ~ " 2>&1 ", "r");
+
+        foreach (postscript; Project["POST_BUILD_SCRIPTS"])writeln(shell(postscript));
 
         foreach(string L; lines(Process) ) BuildMsg.emit(chomp(L));
 
@@ -510,7 +516,7 @@ class PROJECT
             return false;
         }
 
-        string ProcessCommand =  "./" ~ Project.Name;
+        string ProcessCommand =  "xterm -e ./" ~ Project.Name;
         if(args !is null) ProcessCommand ~= " " ~ args;
         
         std.stdio.File Process;

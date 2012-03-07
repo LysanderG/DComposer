@@ -168,7 +168,7 @@ class AUTO_POP_UPS
             }
             default : return false;
         }
-        return false;
+        //return false;
     }
 
     bool CaptureDocumentButtons(GdkEventButton * EvntKey, Widget Wydjit)

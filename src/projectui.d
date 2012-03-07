@@ -413,6 +413,7 @@ class PROJECT_UI : ELEMENT
         Project.Event.disconnect(&ProjEventWatcher);
         mState = false;
         mRootVBox.hide();
+        Log.Entry("Disengaged PROJECT_UI element");
     }
 
     void EngageActions()
@@ -481,6 +482,8 @@ class PROJECT_UI : ELEMENT
 
     void SyncGuiToProject()
     {
+        
+        scope (exit)mSkipWatchingProject =false;
         mSkipWatchingProject = true;
         
         TreeIter tmpIter = new TreeIter;
@@ -491,6 +494,7 @@ class PROJECT_UI : ELEMENT
         
 		//basics
 		mProjName.setText(Project.Name);
+        mFolder.setText("");
 		mFolder.setText(baseName(Project.WorkingPath));
         //do I need to set mFullPath or will that handle it self??
         mTargetBox.setActive(Project.Target());
@@ -551,7 +555,7 @@ class PROJECT_UI : ELEMENT
             mPostBuild.setText(Project.GetCatList("POST_BUILD_SCRIPTS"));
         }
 
-        mSkipWatchingProject =false;
+        scope (exit)mSkipWatchingProject =false;
 
     }
     void SyncProjectToGui()
@@ -605,9 +609,11 @@ class PROJECT_UI : ELEMENT
 
     void ProjEventWatcher(string EventType)
     {
+        if(EventType == "StartOpen") mSkipWatchingProject = true;
+        if(EventType == "Opened") mSkipWatchingProject = false;
+        
         if(mSkipWatchingProject == true) return;
         SyncGuiToProject();
-        //mTabLabel.setText("Project: " ~ Project.Name);
         
     }
     
