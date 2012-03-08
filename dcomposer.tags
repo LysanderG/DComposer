@@ -882,63 +882,63 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 354}
+"line" : 356}
 ,
 {
 "name" : "AddCommonTagFile",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string key, string TagFile)",
-"line" : 366}
+"line" : 368}
 ,
 {
 "name" : "Load",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string key, string symfile)",
-"line" : 374}
+"line" : 376}
 ,
 {
 "name" : "Load",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string symfile)",
-"line" : 388}
+"line" : 390}
 ,
 {
 "name" : "GetLocation",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string ScopedCandidate, out string[] Modules, out int[] LineNo)",
-"line" : 396}
+"line" : 398}
 ,
 {
 "name" : "GetCallTips",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Candidate)",
-"line" : 411}
+"line" : 413}
 ,
 {
 "name" : "GetMembers",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Candidate)",
-"line" : 436}
+"line" : 438}
 ,
 {
 "name" : "Match",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Candidate)",
-"line" : 477}
+"line" : 479}
 ,
 {
 "name" : "Symbols",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[string]()",
-"line" : 504}
+"line" : 508}
 ]
 }
 ]
@@ -1408,7 +1408,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 516}
+"line" : 519}
 ]
 }
 ]
@@ -2452,14 +2452,14 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 418}
+"line" : 419}
 ,
 {
 "name" : "SyncGuiToProject",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 482}
+"line" : 483}
 ,
 {
 "name" : "SyncProjectToGui",
@@ -2480,56 +2480,56 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 626}
+"line" : 625}
 ,
 {
 "name" : "Open",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 631}
+"line" : 630}
 ,
 {
 "name" : "ShowOptions",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 651}
+"line" : 650}
 ,
 {
 "name" : "Build",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 659}
+"line" : 658}
 ,
 {
 "name" : "Run",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 666}
+"line" : 665}
 ,
 {
 "name" : "RunWithArgs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 672}
+"line" : 671}
 ,
 {
 "name" : "RefreshTags",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 678}
+"line" : 677}
 ,
 {
 "name" : "FixProjectPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(EditableIF EntryWidget)",
-"line" : 683}
+"line" : 682}
 ]
 }
 ]
@@ -2738,49 +2738,49 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key)",
-"line" : 111}
+"line" : 110}
 ,
 {
 "name" : "GetData",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Key)",
-"line" : 117}
+"line" : 116}
 ,
 {
 "name" : "SetData",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string[] Data)",
-"line" : 123}
+"line" : 122}
 ,
 {
 "name" : "ConcatData",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Key, string[] Data)",
-"line" : 127}
+"line" : 126}
 ,
 {
 "name" : "ConcatData",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Data)",
-"line" : 132}
+"line" : 131}
 ,
 {
 "name" : "RemoveData",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Item)",
-"line" : 137}
+"line" : 136}
 ,
 {
 "name" : "Zero",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 145}
+"line" : 144}
 ]
 }
 ,
@@ -2788,50 +2788,50 @@
 "name" : "TARGET",
 "kind" : "enum",
 "protection" : "public",
-"line" : 153,
+"line" : 152,
 "base" : "int",
 "members" : [
 {
 "name" : "NULL",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 152}
 ,
 {
 "name" : "UNDEFINED",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 152}
 ,
 {
 "name" : "APP",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 152}
 ,
 {
 "name" : "SHARED",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 152}
 ,
 {
 "name" : "STATIC",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 152}
 ,
 {
 "name" : "OBJECT",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 152}
 ,
 {
 "name" : "OTHER",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 152}
 ]
 }
 ,
@@ -2839,61 +2839,61 @@
 "name" : "SRCFILES",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 154}
+"line" : 153}
 ,
 {
 "name" : "RELFILES",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 154}
+"line" : 153}
 ,
 {
 "name" : "LIBFILES",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 154}
+"line" : 153}
 ,
 {
 "name" : "IMPPATHS",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 154}
+"line" : 153}
 ,
 {
 "name" : "LIBPATHS",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 154}
+"line" : 153}
 ,
 {
 "name" : "JPATHS",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 154}
+"line" : 153}
 ,
 {
 "name" : "VERSIONS",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 154}
+"line" : 153}
 ,
 {
 "name" : "DEBUGS",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 154}
+"line" : 153}
 ,
 {
 "name" : "MISC",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 154}
+"line" : 153}
 ,
 {
 "name" : "PROJECT",
 "kind" : "class",
 "protection" : "public",
-"line" : 159,
+"line" : 158,
 "base" : "Object",
 "members" : [
 {
@@ -2901,173 +2901,173 @@
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 161}
+"line" : 160}
 ,
 {
 "name" : "mWorkingPath",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 162}
+"line" : 161}
 ,
 {
 "name" : "mTarget",
 "kind" : "variable",
 "protection" : "private",
 "type" : "TARGET",
-"line" : 164}
+"line" : 163}
 ,
 {
 "name" : "mCompiler",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 166}
+"line" : 165}
 ,
 {
 "name" : "mVersion",
 "kind" : "variable",
 "protection" : "private",
 "type" : "ulong",
-"line" : 168}
+"line" : 167}
 ,
 {
 "name" : "mFlags",
 "kind" : "variable",
 "protection" : "private",
 "type" : "FLAG[string]",
-"line" : 171}
+"line" : 170}
 ,
 {
 "name" : "mList",
 "kind" : "variable",
 "protection" : "private",
 "type" : "LISTS",
-"line" : 172}
+"line" : 171}
 ,
 {
 "name" : "mUseCustomBuild",
 "kind" : "variable",
 "protection" : "private",
 "type" : "bool",
-"line" : 174}
+"line" : 173}
 ,
 {
 "name" : "mCustomBuildCommand",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 175}
+"line" : 174}
 ,
 {
 "name" : "ReadFlags",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(string FlagFile)",
-"line" : 178}
+"line" : 177}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "PROJECT()",
-"line" : 204}
+"line" : 203}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 211}
+"line" : 210}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 220}
+"line" : 219}
 ,
 {
 "name" : "New",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 226}
+"line" : 225}
 ,
 {
 "name" : "Open",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string pfile)",
-"line" : 233}
+"line" : 232}
 ,
 {
 "name" : "Close",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 315}
+"line" : 307}
 ,
 {
 "name" : "Save",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 332}
+"line" : 324}
 ,
 {
 "name" : "GetFlags",
 "kind" : "function",
 "protection" : "public",
 "type" : "FLAG[string]()",
-"line" : 419}
+"line" : 411}
 ,
 {
 "name" : "SetFlag",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string key, bool NuState, string NuArgument = \"\")",
-"line" : 423}
+"line" : 415}
 ,
 {
 "name" : "CreateTags",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool()",
-"line" : 432}
+"line" : 424}
 ,
 {
 "name" : "Build",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool()",
-"line" : 457}
+"line" : 449}
 ,
 {
 "name" : "BuildCommand",
 "kind" : "function",
 "protection" : "public",
 "type" : "string()",
-"line" : 479}
+"line" : 471}
 ,
 {
 "name" : "Run",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string args = null)",
-"line" : 517}
+"line" : 509}
 ,
 {
 "name" : "opOpAssign(string s = \"+=\")",
 "kind" : "template",
 "protection" : "public",
-"line" : 551,
+"line" : 543,
 "members" : [
 {
 "name" : "opOpAssign",
 "kind" : "function",
 "type" : "void(string Key)",
-"line" : 551}
+"line" : 543}
 ]
 }
 ,
@@ -3075,13 +3075,13 @@
 "name" : "opOpAssign(string s = \"-=\")",
 "kind" : "template",
 "protection" : "public",
-"line" : 552,
+"line" : 544,
 "members" : [
 {
 "name" : "opOpAssign",
 "kind" : "function",
 "type" : "void(string Key)",
-"line" : 552}
+"line" : 544}
 ]
 }
 ,
@@ -3090,19 +3090,19 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string[] Data, string Key)",
-"line" : 553}
+"line" : 545}
 ,
 {
 "name" : "opOpIndexAssign(string s = \"~=\")",
 "kind" : "template",
 "protection" : "public",
-"line" : 554,
+"line" : 546,
 "members" : [
 {
 "name" : "opOpIndexAssign",
 "kind" : "function",
 "type" : "void(LIST Data, string Key)",
-"line" : 554}
+"line" : 546}
 ]
 }
 ,
@@ -3110,13 +3110,13 @@
 "name" : "opOpIndexAssign(string s = \"~=\")",
 "kind" : "template",
 "protection" : "public",
-"line" : 555,
+"line" : 547,
 "members" : [
 {
 "name" : "opOpIndexAssign",
 "kind" : "function",
 "type" : "void(string Data, string Key)",
-"line" : 555}
+"line" : 547}
 ]
 }
 ,
@@ -3125,133 +3125,133 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Key)",
-"line" : 556}
+"line" : 548}
 ,
 {
 "name" : "SetList",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string[] Data)",
-"line" : 558}
+"line" : 550}
 ,
 {
 "name" : "SetList",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Data)",
-"line" : 559}
+"line" : 551}
 ,
 {
 "name" : "RemoveItem",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Item)",
-"line" : 560}
+"line" : 552}
 ,
 {
 "name" : "AddItem",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Item)",
-"line" : 561}
+"line" : 553}
 ,
 {
 "name" : "GetList",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Key)",
-"line" : 562}
+"line" : 554}
 ,
 {
 "name" : "GetCatList",
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string Key)",
-"line" : 563}
+"line" : 555}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 577}
+"line" : 569}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuName)",
-"line" : 578}
+"line" : 570}
 ,
 {
 "name" : "WorkingPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 584}
+"line" : 576}
 ,
 {
 "name" : "WorkingPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuPath)",
-"line" : 585}
+"line" : 577}
 ,
 {
 "name" : "Compiler",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 600}
+"line" : 592}
 ,
 {
 "name" : "Compiler",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuCompiler)",
-"line" : 601}
+"line" : 593}
 ,
 {
 "name" : "UseCustomBuild",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 603}
+"line" : 595}
 ,
 {
 "name" : "UseCustomBuild",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool UseIt)",
-"line" : 604}
+"line" : 596}
 ,
 {
 "name" : "CustomBuildCommand",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 606}
+"line" : 598}
 ,
 {
 "name" : "CustomBuildCommand",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuCommand)",
-"line" : 607}
+"line" : 599}
 ,
 {
 "name" : "Target",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property int()",
-"line" : 609}
+"line" : 601}
 ,
 {
 "name" : "Target",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(int nuTarget)",
-"line" : 610}
+"line" : 602}
 ]
 }
 ,
@@ -3260,7 +3260,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string Lib)",
-"line" : 618}
+"line" : 610}
 ]
 }
 ,
@@ -3929,7 +3929,7 @@
 "name" : "DOCUMENT",
 "kind" : "class",
 "protection" : "public",
-"line" : 52,
+"line" : 56,
 "base" : "SourceView",
 "interfaces" : [
 "DOCUMENT_IF"],
@@ -3939,238 +3939,245 @@
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Label.Label",
-"line" : 56}
+"line" : 60}
 ,
 {
 "name" : "mFullName",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 57}
+"line" : 61}
 ,
 {
 "name" : "mTimeStamp",
 "kind" : "variable",
 "protection" : "private",
 "type" : "SysTime",
-"line" : 59}
+"line" : 63}
 ,
 {
 "name" : "mVirgin",
 "kind" : "variable",
 "protection" : "private",
 "type" : "bool",
-"line" : 60}
+"line" : 64}
 ,
 {
 "name" : "mPasting",
 "kind" : "variable",
 "protection" : "private",
 "type" : "bool",
-"line" : 62}
+"line" : 66}
 ,
 {
 "name" : "ModifyTabLabel",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(TextBuffer tb)",
-"line" : 64}
+"line" : 68}
 ,
 {
 "name" : "CheckForExternalChanges",
 "kind" : "function",
 "protection" : "private",
 "type" : "bool(GdkEventFocus* Event, Widget widget)",
-"line" : 72}
+"line" : 76}
 ,
 {
 "name" : "SetBreakPoint",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(TextIter ti, GdkEvent* event, SourceView sv)",
-"line" : 91}
+"line" : 95}
 ,
 {
 "name" : "TabXButton",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(Button x)",
-"line" : 106}
+"line" : 110}
 ,
 {
 "name" : "SetupSourceView",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 111}
+"line" : 115}
+,
+{
+"name" : "PopulateContextMenu",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(GtkMenu* gtkBigMenu, TextView ThisOne)",
+"line" : 150}
 ,
 {
 "name" : "DisplayName",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 147}
+"line" : 163}
 ,
 {
 "name" : "DisplayName",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string DisplayName)",
-"line" : 148}
+"line" : 164}
 ,
 {
 "name" : "FullPathName",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 149}
+"line" : 165}
 ,
 {
 "name" : "FullPathName",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string NuName)",
-"line" : 150}
+"line" : 166}
 ,
 {
 "name" : "Virgin",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 151}
+"line" : 167}
 ,
 {
 "name" : "Virgin",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool still)",
-"line" : 152}
+"line" : 168}
 ,
 {
 "name" : "Modified",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 153}
+"line" : 169}
 ,
 {
 "name" : "Modified",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool modded)",
-"line" : 154}
+"line" : 170}
 ,
 {
 "name" : "RawData",
 "kind" : "function",
 "protection" : "public",
 "type" : "ubyte[]()",
-"line" : 156}
+"line" : 172}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "DOCUMENT()",
-"line" : 160}
+"line" : 176}
 ,
 {
 "name" : "Create",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string identifier)",
-"line" : 173}
+"line" : 188}
 ,
 {
 "name" : "Open",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string FileName, ulong LineNo = cast(ulong)0)",
-"line" : 181}
+"line" : 196}
 ,
 {
 "name" : "Save",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool()",
-"line" : 215}
+"line" : 230}
 ,
 {
 "name" : "SaveAs",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string NewName)",
-"line" : 232}
+"line" : 247}
 ,
 {
 "name" : "Close",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(bool Quitting = false)",
-"line" : 246}
+"line" : 261}
 ,
 {
 "name" : "TabWidget",
 "kind" : "function",
 "protection" : "public",
 "type" : "Widget()",
-"line" : 270}
+"line" : 285}
 ,
 {
 "name" : "GetWidget",
 "kind" : "function",
 "protection" : "public",
 "type" : "Widget()",
-"line" : 289}
+"line" : 304}
 ,
 {
 "name" : "GetPage",
 "kind" : "function",
 "protection" : "public",
 "type" : "Widget()",
-"line" : 290}
+"line" : 305}
 ,
 {
 "name" : "IsPasting",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool()",
-"line" : 291}
+"line" : 306}
 ,
 {
 "name" : "Focus",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 293}
+"line" : 308}
 ,
 {
 "name" : "Edit",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Verb)",
-"line" : 298}
+"line" : 313}
 ,
 {
 "name" : "GotoLine",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(uint Line)",
-"line" : 314}
+"line" : 329}
 ,
 {
 "name" : "HiliteFindMatch",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(int Line, int start, int len)",
-"line" : 336}
+"line" : 351}
 ,
 {
 "name" : "OnInsertText",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(TextIter ti, string text, int len, TextBuffer huh)",
-"line" : 354}
+"line" : 369}
 ]
 }
 ,
@@ -4179,7 +4186,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string FileName)",
-"line" : 373}
+"line" : 388}
 ]
 }
 ,
@@ -4624,144 +4631,165 @@
 "line" : 91}
 ,
 {
+"name" : "mContextActions",
+"kind" : "variable",
+"protection" : "private",
+"type" : "Action[]",
+"line" : 93}
+,
+{
 "name" : "LoadFileFilters",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 95}
+"line" : 97}
 ,
 {
 "name" : "LoadStartUpFileNames",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 119}
+"line" : 121}
 ,
 {
 "name" : "CreateActions",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 130}
+"line" : 132}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 279}
+"line" : 281}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 291}
+"line" : 293}
 ,
 {
 "name" : "CreateDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "DOCUMENT_IF(string DocType = \".d\")",
-"line" : 317}
+"line" : 319}
 ,
 {
 "name" : "OpenDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string FullFileName, int LineNo = 0)",
-"line" : 343}
+"line" : 345}
 ,
 {
 "name" : "OpenDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 369}
+"line" : 371}
 ,
 {
 "name" : "OpenDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string[] FullFileNames)",
-"line" : 405}
+"line" : 407}
 ,
 {
 "name" : "OpenInitialDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 430}
+"line" : 433}
 ,
 {
 "name" : "SaveDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 436}
+"line" : 439}
 ,
 {
 "name" : "SaveAsDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(DOCUMENT_IF docX = null)",
-"line" : 451}
+"line" : 454}
 ,
 {
 "name" : "SaveAllDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 483}
+"line" : 486}
 ,
 {
 "name" : "CloseDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string FullFileName = null)",
-"line" : 497}
+"line" : 500}
 ,
 {
 "name" : "CloseAllDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(bool Quitting = false)",
-"line" : 527}
+"line" : 530}
 ,
 {
 "name" : "Edit",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string WhichEdit)",
-"line" : 548}
+"line" : 551}
 ,
 {
 "name" : "GetDocX",
 "kind" : "function",
 "protection" : "public",
 "type" : "DOCUMENT_IF(string FullFileName)",
-"line" : 557}
+"line" : 560}
 ,
 {
 "name" : "GetDocX",
 "kind" : "function",
 "protection" : "public",
 "type" : "DOCUMENT_IF(int index = -1)",
-"line" : 572}
+"line" : 575}
 ,
 {
 "name" : "AppendDocument",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(DOCUMENT_IF Doc, uint LineNo = cast(uint)0)",
-"line" : 585}
+"line" : 588}
 ,
 {
 "name" : "IsOpenDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string FullFileName, bool SetFocus = false)",
-"line" : 603}
+"line" : 608}
+,
+{
+"name" : "ContextActions",
+"kind" : "function",
+"protection" : "public",
+"type" : "Action[]()",
+"line" : 629}
+,
+{
+"name" : "AddContextAction",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(Action Item)",
+"line" : 634}
 ]
 }
 ]

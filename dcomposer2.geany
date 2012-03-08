@@ -18,10 +18,16 @@ long_line_behaviour=1
 long_line_column=120
 
 [files]
-current_page=1
-FILE_NAME_0=6804;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fproject.d;0;4
-FILE_NAME_1=20424;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fprojectui.d;0;4
-FILE_NAME_2=880;Sh;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fbuilddcomp.sh;0;4
+current_page=8
+FILE_NAME_0=3156;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdocman.d;0;4
+FILE_NAME_1=9698;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdocument.d;0;4
+FILE_NAME_2=4119;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fui.d;0;4
+FILE_NAME_3=12198;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbols.d;0;4
+FILE_NAME_4=5910;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fproject.d;0;4
+FILE_NAME_5=0;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdcomposer.d;0;4
+FILE_NAME_6=17353;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsearchui.d;0;4
+FILE_NAME_7=2715;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbolview.d;0;4
+FILE_NAME_8=2940;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymcompletion.d;0;4
 
 [build-menu]
 DFT_01_LB=_Build

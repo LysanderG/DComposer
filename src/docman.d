@@ -90,6 +90,8 @@ class DOCMAN
 
     string[]            mStartUpFiles;                              //files left open last session and/or on the command line to be opened
 
+    Action[]            mContextActions;                              //this menu prepends to text documents context popup menu
+  
 
 
     void LoadFileFilters()
@@ -597,7 +599,9 @@ class DOCMAN
         Doc.GetWidget().grabFocus();
         Doc.GotoLine(LineNo);
 
-        Event.emit("AppendDocument", Doc);
+        //this signal has become the signal to allow other modules to connect to all docs, so
+        //it is now important to call AppendDocument exactly one time for each new document.
+        Event.emit("AppendDocument", Doc); 
     }
 
 
@@ -621,6 +625,18 @@ class DOCMAN
         }            
         return false;
     }
+
+    Action[] ContextActions()
+    {
+        return mContextActions;
+    }
+
+    void AddContextAction(Action Item)
+    {
+
+        mContextActions ~=  Item;
+    }
+
     
     mixin Signal!(string, DOCUMENT_IF) Event;
 }    

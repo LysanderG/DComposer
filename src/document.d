@@ -39,14 +39,18 @@ import gsv.SourceStyleSchemeManager;
 import gsv.SourceLanguageManager;
 import gsv.SourceMark;
 
+import gtk.Action;
 import gtk.Label;
 import gtk.Widget;
 import gtk.HBox;
 import gtk.Button;
+import gtk.TextView;
 import gtk.TextBuffer;
+import gtk.Menu;
 import gtk.MessageDialog;
 import gtk.Clipboard;
 import gtk.TextIter;
+import gtkc.gtk;
 
 
 class DOCUMENT : SourceView, DOCUMENT_IF
@@ -142,6 +146,18 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         getBuffer.addOnInsertText(&OnInsertText, cast(GConnectFlags)1);
     }
 
+
+    void PopulateContextMenu(GtkMenu* gtkBigMenu, TextView ThisOne)
+    {
+        
+        Menu X = new Menu(gtkBigMenu);
+
+        Action[] ActionItems = dui.GetDocMan.ContextActions();
+
+        foreach(action; ActionItems)X.prepend(action.createMenuItem());
+    }
+    
+
     public:
 
     @property string    DisplayName(){return baseName(mFullName);}
@@ -164,8 +180,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         getBuffer().addOnModifiedChanged(&ModifyTabLabel);
         getBuffer.addOnPasteDone (delegate void (Clipboard cb, TextBuffer tb) {mPasting = false;});
         
-        //addOnKeyPress(&dui.GetDocPop.CatchKey);
-        //addOnButtonPress(&dui.GetDocPop.CatchButton); 
+        addOnPopulatePopup (&PopulateContextMenu); 
         addOnFocusIn(&CheckForExternalChanges);
         
     }
