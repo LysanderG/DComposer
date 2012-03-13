@@ -85,9 +85,8 @@ class CALL_TIPS : ELEMENT
                 break;
             }
             growingtext = tstart.getText(ti);
-            writeln(growingtext);
         }
-        while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_'));
+        while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_') || (growingtext[0] == '.'));
         if(GoForward)tstart.forwardChar();
         
         return tstart;
@@ -156,13 +155,20 @@ class CALL_TIPS : ELEMENT
 
                 string Candidate = TStart.getText(ti);
 
-                auto Possibles = Symbols.GetCallTips(Candidate);
                 
+                if(Candidate.length < 1) return;
+                auto Possibles = Symbols.Match(Candidate);
+
+                DSYMBOL[] FuncPossibles;
+
+                foreach (dsym; Possibles) if(dsym.Kind == "function") FuncPossibles ~= dsym;
+                if(FuncPossibles.length < 1) break;
+
 
                 int xpos, ypos;
                 IterGetPostion(sv, TStart, xpos, ypos);
 
-                dui.GetAutoPopUps.TipPush(Possibles, xpos, ypos);
+                dui.GetAutoPopUps.TipPush(FuncPossibles, xpos, ypos);
                 break;
             }
             case ")" :

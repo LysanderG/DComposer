@@ -647,56 +647,56 @@
 "kind" : "function",
 "protection" : "private",
 "type" : "void(string EventName)",
-"line" : 108}
+"line" : 113}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 119}
+"line" : 124}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 120}
+"line" : 125}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 121}
+"line" : 126}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool nustate)",
-"line" : 122}
+"line" : 127}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "SYMBOL_VIEW()",
-"line" : 124}
+"line" : 129}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 140}
+"line" : 145}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 152}
+"line" : 157}
 ]
 }
 ]
@@ -722,88 +722,102 @@
 "line" : 45}
 ,
 {
-"name" : "Scoped",
+"name" : "Path",
 "kind" : "variable",
 "protection" : "public",
-"type" : "bool",
+"type" : "string",
 "line" : 46}
 ,
 {
-"name" : "Type",
+"name" : "Scope",
 "kind" : "variable",
 "protection" : "public",
-"type" : "string",
+"type" : "string[]",
 "line" : 47}
-,
-{
-"name" : "Kind",
-"kind" : "variable",
-"protection" : "public",
-"type" : "string",
-"line" : 48}
-,
-{
-"name" : "Comment",
-"kind" : "variable",
-"protection" : "public",
-"type" : "string",
-"line" : 49}
 ,
 {
 "name" : "Base",
 "kind" : "variable",
 "protection" : "public",
 "type" : "string",
-"line" : 50}
+"line" : 49}
 ,
 {
-"name" : "Protection",
+"name" : "Type",
 "kind" : "variable",
 "protection" : "public",
 "type" : "string",
 "line" : 51}
 ,
 {
-"name" : "InFile",
+"name" : "Kind",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 52}
+,
+{
+"name" : "ReturnType",
 "kind" : "variable",
 "protection" : "public",
 "type" : "string",
 "line" : 53}
 ,
 {
-"name" : "OnLine",
+"name" : "Comment",
 "kind" : "variable",
 "protection" : "public",
-"type" : "int",
-"line" : 54}
+"type" : "string",
+"line" : 55}
 ,
 {
-"name" : "Path",
+"name" : "Protection",
 "kind" : "variable",
 "protection" : "public",
 "type" : "string",
 "line" : 57}
 ,
 {
+"name" : "InFile",
+"kind" : "variable",
+"protection" : "public",
+"type" : "string",
+"line" : 59}
+,
+{
+"name" : "OnLine",
+"kind" : "variable",
+"protection" : "public",
+"type" : "int",
+"line" : 60}
+,
+{
+"name" : "Scoped",
+"kind" : "variable",
+"protection" : "public",
+"type" : "bool",
+"line" : 64}
+,
+{
 "name" : "Children",
 "kind" : "variable",
 "protection" : "public",
 "type" : "DSYMBOL[]",
-"line" : 59}
+"line" : 65}
 ,
 {
-"name" : "ScopedChildren",
+"name" : "Icon",
 "kind" : "variable",
 "protection" : "public",
-"type" : "DSYMBOL[string]",
-"line" : 60}
+"type" : "string",
+"line" : 66}
 ,
 {
 "name" : "GetIcon",
 "kind" : "function",
 "protection" : "public",
 "type" : "string()",
-"line" : 63}
+"line" : 69}
 ]
 }
 ,
@@ -811,7 +825,7 @@
 "name" : "SYMBOLS",
 "kind" : "class",
 "protection" : "public",
-"line" : 99,
+"line" : 106,
 "base" : "Object",
 "members" : [
 {
@@ -819,126 +833,112 @@
 "kind" : "variable",
 "protection" : "private",
 "type" : "DSYMBOL[string]",
-"line" : 104}
+"line" : 111}
 ,
 {
 "name" : "LastComment",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 106}
-,
-{
-"name" : "FindScope",
-"kind" : "function",
-"protection" : "private",
-"type" : "DSYMBOL[](string[] Scopes)",
-"line" : 109}
-,
-{
-"name" : "FindScope",
-"kind" : "function",
-"protection" : "private",
-"type" : "DSYMBOL[](string Path)",
-"line" : 138}
-,
-{
-"name" : "Find",
-"kind" : "function",
-"protection" : "private",
-"type" : "DSYMBOL[](string Needle, DSYMBOL[] HayStack = null)",
-"line" : 157}
-,
-{
-"name" : "AllSymbols",
-"kind" : "function",
-"protection" : "private",
-"type" : "DSYMBOL[]()",
-"line" : 211}
+"line" : 113}
 ,
 {
 "name" : "BuildSymbols",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(JSONValue jval, ref DSYMBOL sym, string Module = \"\")",
-"line" : 235}
+"line" : 118}
 ,
 {
 "name" : "ProjectWatch",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(string EventType)",
-"line" : 312}
+"line" : 213}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 332}
+"line" : 233}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 356}
+"line" : 257}
 ,
 {
 "name" : "AddCommonTagFile",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string key, string TagFile)",
-"line" : 368}
+"line" : 269}
+,
+{
+"name" : "XX",
+"kind" : "variable",
+"protection" : "public",
+"type" : "File",
+"line" : 277}
 ,
 {
 "name" : "Load",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string key, string symfile)",
-"line" : 376}
+"line" : 278}
 ,
 {
-"name" : "Load",
-"kind" : "function",
-"protection" : "public",
-"type" : "void(string symfile)",
-"line" : 390}
-,
-{
-"name" : "GetLocation",
-"kind" : "function",
-"protection" : "public",
-"type" : "string[](string ScopedCandidate, out string[] Modules, out int[] LineNo)",
-"line" : 398}
-,
-{
-"name" : "GetCallTips",
+"name" : "PossibleMatches",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Candidate)",
-"line" : 413}
+"line" : 297}
+,
+{
+"name" : "ExactMatches",
+"kind" : "function",
+"protection" : "public",
+"type" : "DSYMBOL[](string Candidate)",
+"line" : 331}
 ,
 {
 "name" : "GetMembers",
 "kind" : "function",
 "protection" : "public",
-"type" : "DSYMBOL[](string Candidate)",
-"line" : 438}
-,
-{
-"name" : "Match",
-"kind" : "function",
-"protection" : "public",
-"type" : "DSYMBOL[](string Candidate)",
-"line" : 479}
+"type" : "DSYMBOL[](string Base, DSYMBOL[] HayStack = null)",
+"line" : 371}
 ,
 {
 "name" : "Symbols",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[string]()",
-"line" : 508}
+"line" : 396}
+,
+{
+"name" : "StringPath",
+"kind" : "function",
+"protection" : "public",
+"type" : "string(string Candidate)",
+"line" : 402}
+,
+{
+"name" : "GetCandidatePath",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[](string Candidate)",
+"line" : 412}
+,
+{
+"name" : "GetCandidateName",
+"kind" : "function",
+"protection" : "public",
+"type" : "string(string Candidate)",
+"line" : 419}
 ]
 }
 ]
@@ -1610,49 +1610,49 @@
 "kind" : "constructor",
 "protection" : "public",
 "type" : "SCOPE_LIST()",
-"line" : 126}
+"line" : 125}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 134}
+"line" : 133}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 135}
+"line" : 134}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 136}
+"line" : 135}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool nuState)",
-"line" : 137}
+"line" : 136}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 147}
+"line" : 146}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 155}
+"line" : 154}
 ]
 }
 ]
@@ -5673,63 +5673,63 @@
 "kind" : "constructor",
 "protection" : "public",
 "type" : "CALL_TIPS()",
-"line" : 99}
+"line" : 98}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 105}
+"line" : 104}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 106}
+"line" : 105}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 107}
+"line" : 106}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool nuState)",
-"line" : 108}
+"line" : 107}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 116}
+"line" : 115}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 126}
+"line" : 125}
 ,
 {
 "name" : "WatchForNewDocument",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string EventId, DOCUMENT_IF docIF)",
-"line" : 137}
+"line" : 136}
 ,
 {
 "name" : "WatchDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(DOCUMENT sv, TextIter ti, string Text, SourceBuffer Buffer)",
-"line" : 146}
+"line" : 145}
 ]
 }
 ]

@@ -83,11 +83,12 @@ private struct DATA_STORE
         sort!("a.Name < b.Name")(mMatches);
         if(tip) //this is a call tip needs to show the call signature
         {
+            
             foreach(match; mMatches)
             {
+                if(match.Kind != "function") continue;
                 mStore.append(mIter);
                 auto x = indexOf(match.Type, "(");
-                
                 string signature = match.Type[0..x] ~" "~ match.Name ~" "~ match.Type[x..$];
                 mStore.setValue(mIter, 0, std.xml.decode(signature));
                 mStore.setValue(mIter, 1, std.xml.decode(match.Path));
@@ -291,7 +292,7 @@ class AUTO_POP_UPS
         auto store = tv.getModel();
         auto symname = store.getValueString(treeiter, 0);
         auto DocComment = store.getValueString(treeiter, 2);
-        dui.Status.push(0, DocComment);
+        if(DocComment.length > 0)dui.Status.push(0, DocComment);
 
         emit(symname, DocComment);
         

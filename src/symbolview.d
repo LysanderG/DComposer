@@ -94,14 +94,19 @@ class SYMBOL_VIEW : ELEMENT
         TreeIter ti = mSymbolTree.getSelectedIter();
 
         
-        string[] FileToOPen;
-        int[] AtLineNo;
+        string FileToOPen;
+        int AtLineNo;
 
-        Symbols.GetLocation(ti.getValueString(3), FileToOPen, AtLineNo);
+        //Symbols.GetLocation(ti.getValueString(3), FileToOPen, AtLineNo);
+        auto sym = Symbols.Match(ti.getValueString(3));
 
+        FileToOPen = sym[0].InFile;
+        AtLineNo = sym[0].OnLine;
+
+        
         if(FileToOPen.length < 1)return;
         
-        dui.GetDocMan.OpenDoc(FileToOPen[0], AtLineNo[0]-1);
+        dui.GetDocMan.OpenDoc(FileToOPen, AtLineNo-1);
     }
 
 

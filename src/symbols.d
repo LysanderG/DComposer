@@ -43,21 +43,27 @@ import glib.SimpleXML;
 class DSYMBOL
 {
     string		Name;               //symbol name
-	bool		Scoped;             //does this symbol have children
-	string		Type;               //basically the signature (w/o the name) ie void(int, string) or uint or not always present
-	string		Kind;               //variable function constructor template struct class module union enum alias ... 
-	string		Comment;            //ddoc comment associated with symbol (only if compiled with -D)
-	string		Base;               //what the symbol inherits (enum's can inherit a type?)
+    string      Path;               //full path of this symbol
+    string[]    Scope;              //scope path to this symbol (path without Name)
+
+	string		Base;               //what the symbol inherits (enum's can inherit a type?)    
+
+    string		Type;               //basically the signature (w/o the name) ie void(int, string) or uint or not always present
+	string		Kind;               //variable function constructor template struct class module union enum alias ...
+    string      ReturnType;         //if symbol is a function (or a Template?) what does it return? We can do somelib.getAnInterface(input).getData().x
+
+    string		Comment;            //ddoc comment associated with symbol (only if compiled with -D)
+
     string      Protection;         //this is newly added ... going to screw me up!
         
     string		InFile;             //the file where symbol is defined 
 	int			OnLine;             //the line on which it is defined on
 
 
-    string      Path;               //full path of this symbol
-
+    
+    bool		Scoped;             //does this symbol have children
     DSYMBOL[]   Children;           //All children
-	DSYMBOL[string]	ScopedChildren; //subset of children that have members
+    string      Icon;
 
 
     string GetIcon()                //WHY IS THIS A FUNCTION??? compute once and cache stupid!
@@ -76,17 +82,18 @@ class DSYMBOL
         
         switch(Kind)
         {
-            case "module"       :rv = color ~ `▣</span>`;break;
-            case "template"     :rv = color ~ `◌</span>`;break;
-            case "function"     :rv = color ~ `◈</span>`;break;
-            case "struct"       :rv = color ~ `◎</span>`;break;
-            case "class"        :rv = color ~ `◉</span>`;break;
-            case "variable"     :rv = color ~ `◇</span>`;break;
-            case "alias"        :rv = color ~ `↭</span>`;break;
-            case "constructor"  :rv = color ~ `✵</span>`;break;
-            case "enum"         :rv = color ~ `◬</span>`;break;
-            case "enum member"  :rv = color ~ `△ </span>`;break;
-            case "union"        :rv = color ~ `○</span>`;break;
+            case "module"       :rv = color ~ `Ⓜ</span>`;break;
+            case "template"     :rv = color ~ `Ⓣ</span>`;break;
+            case "function"     :rv = color ~ `⒡</span>`;break;
+            case "struct"       :rv = color ~ `Ⓢ</span>`;break;
+            case "class"        :rv = color ~ `Ⓒ</span>`;break;
+            case "interface"    :rv = color ~ `😐</span>`;break;
+            case "variable"     :rv = color ~ `⒱</span>`;break;
+            case "alias"        :rv = color ~ `ⓐ</span>`;break;
+            case "constructor"  :rv = color ~ `⒞</span>`;break;
+            case "enum"         :rv = color ~ `Ⓔ</span>`;break;
+            case "enum member"  :rv = color ~ `⒠</span>`;break;
+            case "union"        :rv = color ~ `Ⓤ</span>`;break;
 
             default : rv = color ~ `X</span>`;
         }
@@ -105,130 +112,6 @@ class SYMBOLS
 
     string LastComment; //holds last comment before dittos
 
-
-    DSYMBOL[] FindScope(string[] Scopes)
-    {
-        DSYMBOL[] RV;
-
-        void _FindScope(DSYMBOL symX, string[] scopeX)
-        {
-           
-            if(symX.Name == scopeX[0])
-            {
-               
-                if (scopeX.length == 1) 
-                {
-                    RV.length = RV.length +1;
-                    RV[$-1] = symX;
-                    return;
-                }
-                scopeX = scopeX[1..$];
-                
-            }
-            foreach(kid; symX.Children) _FindScope(kid, scopeX);
-
-        }
-        foreach (sym; mSymbols)
-        {
-            _FindScope(sym, Scopes);
-        }
-        return RV;
-    }
-
-    DSYMBOL[] FindScope(string Path)
-    {
-        DSYMBOL[] RV;
-        void _FindScope(DSYMBOL symX)
-        {
-            //if ((symX.Path == Path) || (symX.Name == Path))
-            if(endsWith(symX.Path, Path))
-            {
-                RV.length = RV.length + 1;
-                RV[$-1] = symX;
-                return;
-            }
-            foreach(kid; symX.Children) _FindScope(kid);
-        }
-
-        foreach (sym; mSymbols) _FindScope(sym);
-        return RV;
-    }
-
-    DSYMBOL[] Find( string Needle, DSYMBOL[] HayStack = null)
-    {
-        DSYMBOL[] RV;
-        string Path;
-        string Name;
-        
-        long lastdot = Needle.lastIndexOf(".");
-        
-        if (lastdot > -1)
-        {
-            Name = Needle[lastdot+1 .. $];
-            Path = Needle[0 .. lastdot];
-        }
-        else
-        {
-            Name = Needle;
-            Path = "";
-        }
-
-        void _Find(DSYMBOL symX)
-        {
-            
-            if(startsWith(symX.Name,Name))
-            {
-                if(Path.length > 0)
-                {
-                    auto  Tindx = std.string.indexOf(symX.Path, "(");
-                    if(Tindx == -1) Tindx = symX.Path.length;
-                    auto ModSymPathForTemplates = symX.Path[0..Tindx];
-                    //if(endsWith(chomp(symX.Path, "."~symX.Name), Path))
-                    if(endsWith(chomp(ModSymPathForTemplates, "." ~ symX.Name), Path))
-                    {
-                        RV.length += 1;
-                        RV[$-1] = symX;
-                        return;
-                    }                    
-                }
-                else /*Path is empty so any and every path to Name should match*/
-                {
-                    RV.length += 1;
-                    RV[$-1] = symX;
-                }
-            }
-            foreach (kid; symX.Children) _Find(kid);
-        }        
-
-        if(HayStack is null) foreach(sym; mSymbols) _Find(sym);
-        else foreach(sym; HayStack) _Find( sym);
-
-        return RV;
-    }
-            
-
-    //returns all symbols in this object
-    DSYMBOL[] AllSymbols()
-    {
-        DSYMBOL[] rv;
-
-        void GetSyms(DSYMBOL symX)
-        {
-            rv ~= symX;
-            foreach(kid; symX.Children)
-            {
-                GetSyms(kid);
-            }
-        }
-                
-        
-        foreach(sym; mSymbols)
-        {
-            GetSyms(sym);
-        }
-
-        return rv;
-    }           
        
 
     //given jval from a json file fills up the symbols in this object
@@ -249,8 +132,6 @@ class SYMBOLS
 
                     sym.Children[indx] = tsym;
 
-                    
-                    if(tsym.Scoped)sym.ScopedChildren[tsym.Name] = tsym;
                 }
             }
             break;
@@ -280,12 +161,26 @@ class SYMBOLS
                 }
                 if(sym.Kind != "module")
                 {
-                    sym.Name = sym.Name.replace(".","﹒");
-                }      
+                    sym.Name = sym.Name.replace(".","﹒"); //this is a terrible hack!! gonna screw someone up one day
+                }
+                else
+                {
+                    auto ndx = std.string.indexOf(sym.Name,".");
+                    sym.Name = sym.Name[ndx+1..$];
+                }
+                if(sym.Kind == "function")
+                {
+                    auto indx = std.string.indexOf(sym.Type, "(");
+                    if (indx > 0)sym.ReturnType = sym.Type[0..indx];
+                    else sym.ReturnType.length = 0;
+                }
+                sym.Icon = sym.GetIcon();
+                
                 sym.InFile = Module;
                 if(sym.Name is null)sym.Name = baseName(Module.chomp(".d"));
                 if(!sym.Path.empty)sym.Path ~= "." ~ sym.Name;
                 else sym.Path = sym.Name;
+                sym.Scope = split(sym.Path, ".");
                 if("members" in jval.object)
                 {
                     sym.Scoped = true;
@@ -305,6 +200,12 @@ class SYMBOLS
             }
             break;
             default : writeln("default"); break;
+        }
+
+        with(sym)
+        {
+            
+            XX.writeln(Name,"\n\tPath=", Path,"\n\tScope=", Scope,"\n\tBase=", Base,"\n\tType=", Type,"\n\tKind=", Kind, "\n\tReturnType=",ReturnType,"\n\tIcon=",Icon);
         }
         
     }
@@ -373,135 +274,207 @@ class SYMBOLS
     
     //this will replace mSymbol[key] if it exists (otherwise adds of course)
     //actually loads a json file from dmd -X into this structure
+    File XX;
     void Load(string key, string symfile)
     {
+        XX.open(key ~".tmptags", "w");
         auto JRoot = parseJSON(readText(symfile));
         
         DSYMBOL X = new DSYMBOL;
         X.Name = key;
-        //X.Path = key;
+        X.Path = key;
+        X.Scope = [key];
+        X.Kind = "package";
+        
         BuildSymbols(JRoot, X);
 
         mSymbols[key] = X;
         emit();
+        XX.close();
     }
-
-    //same as Load above but infers the key from the actual tag file
-    void Load(string symfile)
-    {}
-
-    
 
         
-    //given the Candidate (preferably fully scoped -- std.stdio.File.writef --
-    //return return found scopes and set refs modules[] and lineno[] to locations
-    string[] GetLocation(string ScopedCandidate, out string[] Modules, out int[] LineNo)
+    DSYMBOL[] PossibleMatches(string Candidate)
     {
-        string[] rv;
-        string[] Candidate = ScopedCandidate.split(".");
-        DSYMBOL[] matches = FindScope(Candidate);
+        DSYMBOL[] RetSyms;
+        auto CandiPath = GetCandidatePath(Candidate);
+        auto CandiName = GetCandidateName(Candidate);
 
-        foreach (match; matches)
+        //if (CandiName.length == 0) return RetSyms;
+
+        void _Process(DSYMBOL x)
         {
-            rv ~= match.Path;
-            Modules ~= match.InFile;
-            LineNo ~= match.OnLine;
-        }
-        return rv;
-    }
-
-    DSYMBOL[] GetCallTips(string Candidate)
-    {
-        DSYMBOL[] rv;
-        string CandidateName;
-        long lastdot = Candidate.lastIndexOf(".");
-        
-        if (lastdot > -1) CandidateName = Candidate[lastdot+1 .. $];
-        else CandidateName = Candidate;
-
-        DSYMBOL[] matches = Find(Candidate);
-        foreach(match; matches)
-        {
-
-            if((match.Kind == "function") && (match.Name == CandidateName))
-            {
-                
-                rv ~= match;
-            }
-        }
-
-        return rv;
-    }
-
-    //returns children of Candidate (all possible)
-    //useful for scopelists
-    DSYMBOL[] GetMembers(string Candidate)
-    {
-
-        DSYMBOL[] rv;
-
-        DSYMBOL[] PreMatch = Find(Candidate);
-
-        foreach(match; PreMatch)
-        {
-            if(!endsWith(match.Path, Candidate))continue;
-            if(match.Kind == "variable") rv ~= GetMembers(match.Type);
-            if(match.Kind == "function")
-            {
-                auto indx = std.string.indexOf(match.Type, "(");
-                if (indx > 1) rv ~= GetMembers(match.Type[0..indx]);
-            }
-            if(match.Base.length > 0)// rv ~= GetMembers(match.Base);
-            {
-                auto bases = Find(match.Base);
-                foreach (base; bases)
+            if( startsWith(x.Name, CandiName))
+            {               
+               
+                if(CandiPath.length > 0)
                 {
-                    if (base.Name != match.Base) continue;
-                    rv ~= GetMembers(base.Path);
+                    
+                    if( endsWith(x.Scope, CandiPath) )
+                    {
+                        RetSyms ~= x;
+                                            
+                    }
+  
+                }
+                else
+                {
+                    RetSyms ~= x;
                 }
                 
-                //foreach(BaseKid; Find(chomp(match.Path, "." ~ match.Name))) rv ~= GetMembers(BaseKid.Path);
-                //auto basematches = Find(match.Base);
-                //foreach(base;basematches)
-                //{
-                //    foreach(basekid; base.Children)
-                //    {
-                //        if(basekid.Name != match.Base) continue;
-                //        rv ~= GetMembers(basekid.Name);
-                //    }
-                //}                    
             }
-            foreach(kid; match.Children) rv ~= kid;
+            if((x.Base.length > 0) && (CandiPath.length > 1) && (x.Scope.length > 1) && endsWith(x.Scope[$-1], CandiPath[$-1]) )
+            {
+                auto memsyms = GetMembers(x.Base);
+                foreach (member;memsyms) if( startsWith(member.Name, CandiName)) RetSyms ~= member; 
+            }
+
+            foreach(kid; x.Children) _Process(kid);
         }
-        return rv;
+
+        foreach(symbol; mSymbols) _Process(symbol);        
+
+        return RetSyms;
     }
- 
+    
+
+    DSYMBOL[] ExactMatches(string Candidate)
+    {
+        DSYMBOL[] RetSyms;
+        auto CandiPath = GetCandidatePath(Candidate);
+        auto CandiName = GetCandidateName(Candidate);
+
+
+
+        void _Process(DSYMBOL x)
+        {
+            if( (CandiName.length < 1) ||  (x.Name == CandiName) )
+            {
+                if(CandiPath.length > 0)
+                {
+                    if( endsWith(x.Scope, CandiPath) )
+                    {
+                        RetSyms ~= x;
+
+                        if(x.Base.length > 1)
+                        {
+                            RetSyms ~= GetMembers(x.Base);
+                        }
+                    }
+                }
+                else
+                {
+                    RetSyms ~= x;
+                }
+            }
+            
+            if(x.Kind == "function")RetSyms ~= GetMembers(x.ReturnType);
+            
+
+            foreach(kid; x.Children) _Process(kid);
+        }
+
+        foreach(symbol; mSymbols) _Process(symbol);
+        
+        
+        return RetSyms;
+    }
+
+    DSYMBOL[] GetMembers(string Base, DSYMBOL[] HayStack = null)
+    {
+        if(HayStack is null) HayStack = mSymbols.values;
+        DSYMBOL[] RetSyms;
+
+        void _Process(DSYMBOL Sym)
+        {
+            if(Sym.Name == Base)
+            {
+                foreach(kid; Sym.Children) RetSyms ~= kid;
+                if(Sym.Base.length > 0)RetSyms ~= GetMembers(Sym.Base );
+            }
+            foreach(kid; Sym.Children) _Process(kid);
+        }
+        foreach(sym; HayStack) _Process(sym);
+
+
+        return RetSyms;
+    }
+
+
     DSYMBOL[] Match(string Candidate)
     {
-       
+        DSYMBOL[] ReturnSyms;
+        DSYMBOL[] InScopeSyms;
 
-        DSYMBOL[] matches;
+        auto CandiPath = GetCandidatePath(Candidate);
+        auto CandiName = GetCandidateName(Candidate);
 
-        auto LastDot = lastIndexOf(Candidate, ".");
+        if(CandiPath.length > 0) InScopeSyms = GetInScopeSymbols(CandiPath);
+        else InScopeSyms = mSymbols.values;
 
-        if(LastDot > -1)
+        if(CandiName.length > 0) ReturnSyms = GetCompletionSymbols(CandiName, InScopeSyms, (CandiPath.length < 1));
+        else ReturnSyms = InScopeSyms;
+
+        return ReturnSyms;
+        
+    }
+
+    DSYMBOL[] GetCompletionSymbols(string Candidate,  DSYMBOL[] Symbols, bool ParseKids = false)
+    {
+        DSYMBOL[] ReturnSyms;
+
+        void _Process(DSYMBOL Sym)
         {
-            auto prematches = GetMembers(Candidate[0..LastDot]);
-            //string[] splitscopes = split(Candidate[0..LastDot], ".");
-            //auto prematches = FindScope(splitscopes);
-            matches = Find(Candidate[LastDot+1..$], prematches);
+            if(startsWith(Sym.Name, Candidate))
+            {
+                ReturnSyms ~= Sym;
+            }
+            if(ParseKids)foreach(kid; Sym.Children) _Process(kid);
         }
-        else
+
+        foreach(sym; Symbols) _Process(sym);
+        return ReturnSyms;
+    }
+
+    //alias GetCompletionSymbols Match;
+    DSYMBOL[] GetInScopeSymbols(string[] Scope)
+    {
+        
+        DSYMBOL[] ReturnSyms;
+        string[] Bases;
+
+        void _Process(DSYMBOL Sym)
         {
-            matches = Find(Candidate);
+
+            foreach(kid; Sym.Children) _Process(kid);
+            
+            if(endsWith(Sym.Scope[0..$-1]   , Scope))
+            {
+                ReturnSyms ~= Sym;
+            }
+
+            
+            
+            if(endsWith(Sym.Scope, Scope))
+            {
+                writeln(Sym.Scope, " / ", Scope);
+                writeln("..",Sym.Base);
+                if(Sym.Base.length > 0) ReturnSyms ~= GetInScopeSymbols([Sym.Base]);
+
+            }                      
+            
         }
+        foreach(sym; mSymbols) _Process(sym);
 
-        return matches;
 
+        
+        
+        return ReturnSyms;
     }
 
         
-
+        
+        
         
 
     
@@ -509,7 +482,50 @@ class SYMBOLS
         
 
     mixin Signal!();
+
+
+    string StringPath(string Candidate)
+    {
+        string rv;
+        rv = Candidate.removechars(std.ascii.whitespace);
+        auto indx = rv.lastIndexOf(".");
+        if(indx > 0) rv = rv[0..indx];
+        else rv.length = 0;
+        return rv;
+    }
+
+    string[] GetCandidatePath(string Candidate)
+    {
+        
+        string[] rv = split(StringPath(Candidate), ".");
+
+        return rv;
+    }
+         
+
+    string GetCandidateName(string Candidate)
+    {
+        string rv;
+        auto indx = std.string.lastIndexOf(Candidate,".");
+        if(indx < 0)
+        {
+            rv = Candidate;
+            return rv;
+        }
+        
+        if(indx >= Candidate.length-1)
+        {
+            rv.length = 0;
+            return rv;
+        }
+        if( indx < Candidate.length-1)
+        {
+            rv = Candidate[indx+1..$];
+            return rv;
+        }
+        return rv;
+    }
+        
+
+
 }
-
-
-

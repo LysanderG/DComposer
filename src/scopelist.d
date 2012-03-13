@@ -72,10 +72,10 @@ class SCOPE_LIST : ELEMENT
         TextIter WordStart = new TextIter;
         WordStart = GetCandidate(ti);
         string Candidate = WordStart.getText(ti);
-        Candidate = Candidate.chomp(".");
+        //Candidate = Candidate.chomp(".");
 
         if(Candidate.length < 1) return;
-        DSYMBOL[] possibles = Symbols.GetMembers(Candidate);
+        DSYMBOL[] possibles = Symbols.Match(Candidate);
 
 
         IterGetPostion(sv, ti, xpos, ypos);
@@ -111,7 +111,6 @@ class SCOPE_LIST : ELEMENT
                 break;
             }
             growingtext = tstart.getText(ti);
-            writeln(growingtext[0]);
         }
         while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_') || (growingtext[0] == '.'));
         if(GoForward)tstart.forwardChar();

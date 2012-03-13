@@ -80,9 +80,7 @@ class SYMBOL_ASSIST : ELEMENT
         auto end = cursor.copy();
 
         bool GoForward = true;
-        bool GoBack = true;
-        
-        
+        bool GoBack = true;        
         
         
         do //back
@@ -104,7 +102,7 @@ class SYMBOL_ASSIST : ELEMENT
                 break;
             }
         }
-        while( (isAlphaNum(end.getChar())) || (end.getChar() == '_') || (start.getChar() == '.'));
+        while( (isAlphaNum(end.getChar())) || (end.getChar() == '_') || (end.getChar() == '.'));
         if(GoBack)end.backwardChar();
 
 
