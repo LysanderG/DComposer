@@ -406,13 +406,24 @@ class SYMBOLS
         DSYMBOL[] ReturnSyms;
         DSYMBOL[] InScopeSyms;
 
+        bool NoScopeResults;
+
         auto CandiPath = GetCandidatePath(Candidate);
         auto CandiName = GetCandidateName(Candidate);
 
-        if(CandiPath.length > 0) InScopeSyms = GetInScopeSymbols(CandiPath);
-        else InScopeSyms = mSymbols.values;
+        if(CandiPath.length > 0)
+        {
+            InScopeSyms = GetInScopeSymbols(CandiPath);
+            NoScopeResults = (InScopeSyms.length < 1);            
+            if(InScopeSyms.length < 1) InScopeSyms = mSymbols.values;
+        }
+        else
+        {
+            InScopeSyms = mSymbols.values;
+            NoScopeResults = true;
+        }
 
-        if(CandiName.length > 0) ReturnSyms = GetCompletionSymbols(CandiName, InScopeSyms, (CandiPath.length < 1));
+        if(CandiName.length > 0) ReturnSyms = GetCompletionSymbols(CandiName, InScopeSyms, NoScopeResults);
         else ReturnSyms = InScopeSyms;
 
         return ReturnSyms;
@@ -451,6 +462,7 @@ class SYMBOLS
             if(endsWith(Sym.Scope[0..$-1]   , Scope))
             {
                 ReturnSyms ~= Sym;
+
             }
 
             
@@ -460,6 +472,10 @@ class SYMBOLS
                 writeln(Sym.Scope, " / ", Scope);
                 writeln("..",Sym.Base);
                 if(Sym.Base.length > 0) ReturnSyms ~= GetInScopeSymbols([Sym.Base]);
+
+                writeln("~~",Sym.Kind, "~~", Sym.Type, "~~", Sym.ReturnType);
+                if(Sym.Kind == "variable") ReturnSyms ~= GetInScopeSymbols(split(Sym.Type, "."));
+                if(Sym.Kind == "function") ReturnSyms ~= GetInScopeSymbols(split(Sym.ReturnType,"."));
 
             }                      
             

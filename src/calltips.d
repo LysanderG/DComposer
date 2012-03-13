@@ -161,7 +161,13 @@ class CALL_TIPS : ELEMENT
 
                 DSYMBOL[] FuncPossibles;
 
-                foreach (dsym; Possibles) if(dsym.Kind == "function") FuncPossibles ~= dsym;
+                foreach (dsym; Possibles)
+                {
+                    if(dsym.Kind != "function") continue;
+                    if( !endsWith(dsym.Path, Candidate)) continue;
+                    FuncPossibles ~= dsym;
+                }
+                
                 if(FuncPossibles.length < 1) break;
 
 
