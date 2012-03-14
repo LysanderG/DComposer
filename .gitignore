@@ -3,4 +3,6 @@
 *.dpro
 dcomposer
 dcomposerA
+*.tags
+*.tag
 
