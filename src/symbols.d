@@ -202,11 +202,11 @@ class SYMBOLS
             default : writeln("default"); break;
         }
 
-        with(sym)
-        {
-            
-            XX.writeln(Name,"\n\tPath=", Path,"\n\tScope=", Scope,"\n\tBase=", Base,"\n\tType=", Type,"\n\tKind=", Kind, "\n\tReturnType=",ReturnType,"\n\tIcon=",Icon);
-        }
+        //with(sym)
+        //{
+        //    
+        //    XX.writeln(Name,"\n\tPath=", Path,"\n\tScope=", Scope,"\n\tBase=", Base,"\n\tType=", Type,"\n\tKind=", Kind, "\n\tReturnType=",ReturnType,"\n\tIcon=",Icon);
+        //}
         
     }
 
@@ -400,6 +400,29 @@ class SYMBOLS
         return RetSyms;
     }
 
+    DSYMBOL[] MatchCallTips( string Candidate)
+    {
+        writeln("\n------------\nhello");
+        DSYMBOL[] ReturnSyms;
+
+        ReturnSyms = Match(Candidate);
+        writeln(Candidate,"/",GetCandidateName(Candidate));
+
+        foreach(i, retsym; ReturnSyms)std.stdio.write(i,". ",retsym.Name,"/",retsym.Kind, " --" );
+
+        writeln("\n!!!!len === ",ReturnSyms.length);
+        if(ReturnSyms.length > 1) return ReturnSyms;
+
+        auto CandiName = GetCandidateName(Candidate);
+        writeln("calltip candiname = ", CandiName);
+        if(CandiName.length > 0) ReturnSyms = Match("."~CandiName );
+
+        foreach(i, retsym; ReturnSyms)std.stdio.write(i,". ",retsym.Name,"/",retsym.Kind, " --" );
+        writeln("\n!!!!len === ",ReturnSyms.length);
+
+        return ReturnSyms;
+    }
+        
 
     DSYMBOL[] Match(string Candidate)
     {
@@ -414,8 +437,8 @@ class SYMBOLS
         if(CandiPath.length > 0)
         {
             InScopeSyms = GetInScopeSymbols(CandiPath);
-            NoScopeResults = (InScopeSyms.length < 1);            
-            if(InScopeSyms.length < 1) InScopeSyms = mSymbols.values;
+            NoScopeResults = (InScopeSyms.length < 1);           
+            if(NoScopeResults) InScopeSyms = mSymbols.values;
         }
         else
         {
@@ -424,7 +447,7 @@ class SYMBOLS
         }
 
         if(CandiName.length > 0) ReturnSyms = GetCompletionSymbols(CandiName, InScopeSyms, NoScopeResults);
-        else ReturnSyms = InScopeSyms;
+        else if(!NoScopeResults) ReturnSyms = InScopeSyms;
 
         return ReturnSyms;
         
@@ -469,11 +492,9 @@ class SYMBOLS
             
             if(endsWith(Sym.Scope, Scope))
             {
-                writeln(Sym.Scope, " / ", Scope);
-                writeln("..",Sym.Base);
+
                 if(Sym.Base.length > 0) ReturnSyms ~= GetInScopeSymbols([Sym.Base]);
 
-                writeln("~~",Sym.Kind, "~~", Sym.Type, "~~", Sym.ReturnType);
                 if(Sym.Kind == "variable") ReturnSyms ~= GetInScopeSymbols(split(Sym.Type, "."));
                 if(Sym.Kind == "function") ReturnSyms ~= GetInScopeSymbols(split(Sym.ReturnType,"."));
 

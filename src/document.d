@@ -271,11 +271,13 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         int rVal = cast(int) ToSaveDiscardOrKeepOpen.run();
         ToSaveDiscardOrKeepOpen.destroy();
 
+        writeln(rVal);
         switch(rVal)
         {
             case 1: if(mVirgin)SaveAs(DisplayName); else Save();return true;
             case 2: return true;
             case 3: return false;
+            case GtkResponseType.GTK_RESPONSE_DELETE_EVENT : return true;
             default : Log().Entry("Bad ResponseType from Confirm CloseFileDialog", "Error");
         }
 

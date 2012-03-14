@@ -18,16 +18,12 @@ long_line_behaviour=1
 long_line_column=120
 
 [files]
-current_page=0
-FILE_NAME_0=14473;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbols.d;0;4
-FILE_NAME_1=3275;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbolview.d;0;4
-FILE_NAME_2=4502;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fcalltips.d;0;4
-FILE_NAME_3=1954;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fscopelist.d;0;4
-FILE_NAME_4=2212;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymcompletion.d;0;4
-FILE_NAME_5=2704;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymassistui.d;0;4
-FILE_NAME_6=64;Sh;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fbuilddcomp.sh;0;4
-FILE_NAME_7=2260;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdirview.d;0;4
-FILE_NAME_8=1480;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fautopopups.d;0;4
+current_page=4
+FILE_NAME_0=0;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdcomposer.d;0;4
+FILE_NAME_1=0;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdcore.d;0;4
+FILE_NAME_2=13627;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbols.d;0;4
+FILE_NAME_3=4440;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fcalltips.d;0;4
+FILE_NAME_4=9936;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fautopopups.d;0;4
 
 [build-menu]
 DFT_01_LB=_Build
