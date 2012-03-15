@@ -23,6 +23,7 @@ module dirview;
 import std.file;
 import std.path;
 import std.stdio;
+import std.array;
 
 import ui;
 import dcore;
@@ -42,6 +43,13 @@ import gtk.Label;
 import gtk.Viewport;
 import gtk.ListStore;
 import gtk.EditableIF;
+import gtk.ComboBox;
+import gtk.ComboBoxEntry;
+import gtk.CellEditableIF;
+import gtk.HBox;
+
+import gtkc.gtk;
+
 
 
 
@@ -69,30 +77,36 @@ class DIR_VIEW : ELEMENT
     ToggleToolButton    mHiddenBtn;
 
     Label               mDirLabel;
-    Entry               mFilter;
+    ComboBoxEntry       mComboFilter;
+    Entry               mEntryFilter;
+    HBox                mhbox;
 
     TreeView            mFolderView;
 
     ListStore           mStore;
-
-
-
+    ListStore           mStore2;
 
 
     void Refresh()
     {
         scope(failure)
         {
-            mFilter.setText("*");
+            mComboFilter.setActiveText("");
             Refresh();
         }
         TreeIter ti = new TreeIter;
         mDirLabel.setText(mFolder);        
-        mStore.clear();        
+        mStore.clear();
+
+        string theFileFilter;
+
+        theFileFilter = mComboFilter.getActiveText();
+        if(theFileFilter.length < 1) theFileFilter = "*";
 
         version(DMD)
         {
-            auto Contents = dirEntries(mFolder, mFilter.getText(), SpanMode.shallow);
+            //auto Contents = dirEntries(mFolder, mFilter.getText(), SpanMode.shallow);
+            auto Contents = dirEntries(mFolder, theFileFilter, SpanMode.shallow);
         }
         version(GDMD)
         {
@@ -142,7 +156,13 @@ class DIR_VIEW : ELEMENT
         if(type == " ") Folder = buildPath(mFolder , mStore.getValueString(ti,1));
         if(type == " ") dui.GetDocMan.OpenDoc(buildPath(mFolder, mStore.getValueString(ti,1)));
     }
-        
+
+
+    void AddFilter()
+    {
+        writeln("hello!!!");
+        mComboFilter.appendText(mEntryFilter.getText());
+    }
     
     
 
@@ -181,7 +201,7 @@ class DIR_VIEW : ELEMENT
         mBuilder.addFromFile(Config.getString("DIRVIEW","glade_file", "/home/anthony/.neontotem/dcomposer/dirview.glade"));
         
         mRoot           = cast(Viewport)    mBuilder.getObject("viewport1");
-        mFilter         = cast(Entry)       mBuilder.getObject("entry1");
+
         mFolderView     = cast(TreeView)    mBuilder.getObject("treeview1");
         mStore          = cast(ListStore)   mBuilder.getObject("liststore1");
         mDirLabel       = cast(Label)       mBuilder.getObject("addresslabel");
@@ -190,19 +210,57 @@ class DIR_VIEW : ELEMENT
         mHomeBtn        = cast(ToolButton)  mBuilder.getObject("toolbutton3");
         mSetBtn         = cast(ToolButton)  mBuilder.getObject("toolbutton4");
         mHiddenBtn      = cast(ToggleToolButton)  mBuilder.getObject("toolbutton5");
-
+        
+        mStore2         = cast(ListStore)   mBuilder.getObject("liststore2");
 
         mUpBtn.addOnClicked(&UpClicked);
         mRefreshBtn.addOnClicked(delegate void (ToolButton x){Refresh();});
         mHomeBtn.addOnClicked(&GoHome);
         mSetBtn.addOnClicked(&GoToCurrentDocFolder);
         mHiddenBtn.addOnClicked(delegate void (ToolButton x){Refresh();});
-        //mFilter.addOnChanged(delegate void (EditableIF x){Refresh();});
-        mFilter.addOnActivate(delegate void (Entry x){Refresh();});
+
+
+        //all the following section is for the comboboxentry crap that wont work out of the box
+
+        auto c_mComboFilter = gtk_combo_box_entry_new_text();
+        auto c_mComboEntry  = gtk_bin_get_child(cast(GtkBin *)c_mComboFilter);
+
+        mComboFilter = new ComboBoxEntry(cast(GtkComboBoxEntry*) c_mComboFilter);
+
+        mEntryFilter = new Entry(cast(GtkEntry*)c_mComboEntry);
+        mEntryFilter.setStockId(EntryIconPosition.SECONDARY, StockID.APPLY);
+
+        mComboFilter.setModel(mStore2);
+
+        mComboFilter.addOnChanged(delegate void (ComboBox x){Refresh();});
+        mEntryFilter.addOnActivate(delegate void (Entry x){AddFilter();});
+        mEntryFilter.addOnIconPress(delegate void (GtkEntryIconPosition pos, GdkEvent* event, Entry entry) {AddFilter();}); 
+
+        mhbox = cast(HBox)mBuilder.getObject("hbox1");
+
+        mhbox.add(mComboFilter);
+
+            //ok now load the liststore filter data
+            mStore2.clear();
+            TreeIter ti = new TreeIter;
+            string x = Config.getString("DIRVIEW", "file_filter", "*.d:*.di:*.dpro");
+
+            auto xarray = x.split(":");
+
+            foreach(filter; xarray)
+            {
+                mStore2.append(ti);
+                mStore2.setValue(ti, 0, filter);
+            }
+            //ok
+                
+
+        //end of comboentrycrap   
+
+        
 
         mFolderView.addOnRowActivated(&FileClicked);
 
-        
         Refresh();
         mRoot.showAll();
         dui.GetSidePane.appendPage(mRoot, "Files");
@@ -212,6 +270,20 @@ class DIR_VIEW : ELEMENT
 
     void Disengage()
     {
+        string FilterString;
+        TreeIter x = new TreeIter;
+        
+
+        if(mStore2.getIterFirst(x))
+        {
+            FilterString = mStore2.getValueString(x,0);
+            
+            while(mStore2.iterNext(x)) FilterString ~= ":" ~ mStore2.getValueString(x, 0);
+        }
+        writeln("Filterstring = ",FilterString);
+        if(FilterString.length < 1) FilterString = "*.d:*.di:*.dpro";
+
+        Config.setString("DIRVIEW", "file_filter", FilterString);
         Log.Entry("Disengaged DIRECTORY_VIEW element");
     }
     

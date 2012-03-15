@@ -4149,63 +4149,63 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "Widget()",
-"line" : 285}
+"line" : 287}
 ,
 {
 "name" : "GetWidget",
 "kind" : "function",
 "protection" : "public",
 "type" : "Widget()",
-"line" : 304}
+"line" : 306}
 ,
 {
 "name" : "GetPage",
 "kind" : "function",
 "protection" : "public",
 "type" : "Widget()",
-"line" : 305}
+"line" : 307}
 ,
 {
 "name" : "IsPasting",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool()",
-"line" : 306}
+"line" : 308}
 ,
 {
 "name" : "Focus",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 308}
+"line" : 310}
 ,
 {
 "name" : "Edit",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Verb)",
-"line" : 313}
+"line" : 315}
 ,
 {
 "name" : "GotoLine",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(uint Line)",
-"line" : 329}
+"line" : 331}
 ,
 {
 "name" : "HiliteFindMatch",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(int Line, int start, int len)",
-"line" : 351}
+"line" : 353}
 ,
 {
 "name" : "OnInsertText",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(TextIter ti, string text, int len, TextBuffer huh)",
-"line" : 369}
+"line" : 371}
 ]
 }
 ,
@@ -4214,7 +4214,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string FileName)",
-"line" : 388}
+"line" : 390}
 ]
 }
 ,
@@ -4832,7 +4832,7 @@
 "name" : "DIR_VIEW",
 "kind" : "class",
 "protection" : "public",
-"line" : 48,
+"line" : 56,
 "base" : "Object",
 "interfaces" : [
 "ELEMENT"],
@@ -4842,203 +4842,231 @@
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 52}
+"line" : 60}
 ,
 {
 "name" : "mInfo",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 53}
+"line" : 61}
 ,
 {
 "name" : "mState",
 "kind" : "variable",
 "protection" : "private",
 "type" : "bool",
-"line" : 54}
+"line" : 62}
 ,
 {
 "name" : "mFolder",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 56}
+"line" : 64}
 ,
 {
 "name" : "mContents",
 "kind" : "variable",
 "protection" : "private",
 "type" : "DirEntry[]",
-"line" : 58}
+"line" : 66}
 ,
 {
 "name" : "mBuilder",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Builder.Builder",
-"line" : 62}
+"line" : 70}
 ,
 {
 "name" : "mRoot",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Viewport.Viewport",
-"line" : 64}
+"line" : 72}
 ,
 {
 "name" : "mUpBtn",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.ToolButton.ToolButton",
-"line" : 65}
+"line" : 73}
 ,
 {
 "name" : "mRefreshBtn",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.ToolButton.ToolButton",
-"line" : 66}
+"line" : 74}
 ,
 {
 "name" : "mHomeBtn",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.ToolButton.ToolButton",
-"line" : 67}
+"line" : 75}
 ,
 {
 "name" : "mSetBtn",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.ToolButton.ToolButton",
-"line" : 68}
+"line" : 76}
 ,
 {
 "name" : "mHiddenBtn",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.ToggleToolButton.ToggleToolButton",
-"line" : 69}
+"line" : 77}
 ,
 {
 "name" : "mDirLabel",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Label.Label",
-"line" : 71}
+"line" : 79}
 ,
 {
-"name" : "mFilter",
+"name" : "mComboFilter",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ComboBoxEntry.ComboBoxEntry",
+"line" : 80}
+,
+{
+"name" : "mEntryFilter",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Entry.Entry",
-"line" : 72}
+"line" : 81}
+,
+{
+"name" : "mhbox",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.HBox.HBox",
+"line" : 82}
 ,
 {
 "name" : "mFolderView",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.TreeView.TreeView",
-"line" : 74}
+"line" : 84}
 ,
 {
 "name" : "mStore",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.ListStore.ListStore",
-"line" : 76}
+"line" : 86}
+,
+{
+"name" : "mStore2",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.ListStore.ListStore",
+"line" : 87}
 ,
 {
 "name" : "Refresh",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 82}
+"line" : 90}
 ,
 {
 "name" : "UpClicked",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(ToolButton x)",
-"line" : 115}
+"line" : 129}
 ,
 {
 "name" : "GoHome",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(ToolButton x)",
-"line" : 120}
+"line" : 134}
 ,
 {
 "name" : "GoToCurrentDocFolder",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(ToolButton x)",
-"line" : 126}
+"line" : 140}
 ,
 {
 "name" : "FileClicked",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(TreePath tp, TreeViewColumn tvc, TreeView tv)",
-"line" : 134}
+"line" : 148}
+,
+{
+"name" : "AddFilter",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 161}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "DIR_VIEW()",
-"line" : 151}
+"line" : 171}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 160}
+"line" : 180}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 161}
+"line" : 181}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 162}
+"line" : 182}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool nuState)",
-"line" : 163}
+"line" : 183}
 ,
 {
 "name" : "Folder",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuFolder)",
-"line" : 172}
+"line" : 192}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 178}
+"line" : 198}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 213}
+"line" : 271}
 ]
 }
 ]
