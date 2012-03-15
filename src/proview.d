@@ -356,6 +356,7 @@ class PROJECT_VIEW : ELEMENT
         mCellText   = cast(CellRendererText) mBuilding.getObject("cellrenderertext2");
 
         dui.GetSidePane.appendPage(mRoot, "Project");
+        dui.GetSidePane.setTabReorderable ( mRoot, true); 
 
         mCellText.addOnEdited(&EditIdentifier);
 

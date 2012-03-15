@@ -104,6 +104,7 @@ class HISTORY_VIEW : ELEMENT
         
 
         dui.GetSidePane.appendPage(mRoot, "History");
+        dui.GetSidePane.setTabReorderable (mRoot, true); 
         mRoot.showAll();
 
         Log.Entry("Engaged HISTORY_VIEW element");

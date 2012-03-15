@@ -264,6 +264,7 @@ class DIR_VIEW : ELEMENT
         Refresh();
         mRoot.showAll();
         dui.GetSidePane.appendPage(mRoot, "Files");
+        dui.GetSidePane.setTabReorderable (mRoot, true); 
         Log.Entry("Engaged DIRECTORY_VIEW element");
     }
         

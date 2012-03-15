@@ -502,6 +502,8 @@ class SEARCH_UI : ELEMENT
         mState = true;
         mPage.showAll();
         dui.GetExtraPane().appendPage(mPage, "Search");
+        dui.GetExtraPane.setTabReorderable ( mPage, true); 
+        
 
         Action  SearchAct = new Action("SearchAct", "_Search", "Seek out that which is hidden", StockID.FIND);
         SearchAct.addOnActivate(&BeginSearch);

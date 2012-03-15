@@ -139,6 +139,8 @@ class MESSAGE_UI :ELEMENT
         mRoot.showAll();
 
         dui.GetExtraPane.appendPage(mRoot, "Build Messages");
+        dui.GetExtraPane.setTabReorderable ( mRoot, true); 
+        
 
         Project.BuildMsg.connect(&WatchDMD);
 

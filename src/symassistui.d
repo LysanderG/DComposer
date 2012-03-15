@@ -167,6 +167,8 @@ class SYMBOL_ASSIST : ELEMENT
         mText = cast(TextView) mBuilder.getObject("textview1");
 
         dui.GetExtraPane.appendPage(mRootWidget, "Assistance");
+        dui.GetExtraPane.setTabReorderable ( mRootWidget, true); 
+        
         mRootWidget.showAll();
 
         dui.GetAutoPopUps.connect(&CatchSymbol);

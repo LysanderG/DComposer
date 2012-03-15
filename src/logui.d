@@ -95,6 +95,8 @@ class LOG_UI : ELEMENT
 
 		mScroller.showAll();
 		dui.GetExtraPane.prependPage(mScroller, mLabel);
+        dui.GetExtraPane.setTabReorderable ( mScroller, false); 
+
         dui.GetExtraPane.setCurrentPage(mScroller);
 		
 		Log.connect(&CatchLog);

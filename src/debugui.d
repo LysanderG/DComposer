@@ -130,6 +130,7 @@ class DEBUG_UI : ELEMENT
         mRoot.showAll();
 
         dui.GetExtraPane.appendPage(mRoot, "Debugger");
+        dui.GetExtraPane.setTabReorderable ( mRoot, true); 
 
         Log.Entry("Engaged DEBUG_UI element");
                 

@@ -91,6 +91,8 @@ class TERMINAL_UI : ELEMENT
         mScrWin.add(mTerminal);
         mScrWin.showAll();
         dui.GetExtraPane.appendPage(mScrWin, "Terminal");
+        dui.GetExtraPane.setTabReorderable ( mScrWin, true); 
+        
 
         g_cvte = cvte;
         vte_terminal_fork_command (cvte, null, null, null, null,true, true, true);
