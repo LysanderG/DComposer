@@ -26,6 +26,7 @@ import dcore;
 import ui;
 import elements;
 
+import gtk.Action;
 import gtk.Builder;
 import gtk.Viewport;
 import gtk.RecentChooserWidget;
@@ -48,6 +49,8 @@ class HISTORY_VIEW : ELEMENT
 
     RecentFilter        mFilterProjects;
     RecentFilter        mFilterFiles;
+
+    Action              mHistoryAct;
 
 
     public:
@@ -101,7 +104,15 @@ class HISTORY_VIEW : ELEMENT
         mRecentProjects.addOnItemActivated ( delegate void(RecentChooserIF x) {string str = x.getCurrentUri(); Project.Open(str[7..$]);}); 
 
         mRecentFiles.addOnItemActivated(delegate void (RecentChooserIF x) {string str = x.getCurrentUri(); dui.GetDocMan.OpenDoc(str[7..$]);});
+
+
+        mHistoryAct = new Action("HistoryAct", "_History", "Bring the past only if you are going to build from it.  ~Doménico Cieri Estrada", null);
+        mHistoryAct.addOnActivate(&ShowHistory);
+        mHistoryAct.setAccelGroup(dui.GetAccel());
+        dui.Actions().addActionWithAccel(mHistoryAct, "<Ctrl>h");
         
+        dui.AddMenuItem("View", mHistoryAct.createMenuItem());
+		//dui.AddToolBarItem(SearchAct.createToolItem());
 
         dui.GetSidePane.appendPage(mRoot, "History");
         dui.GetSidePane.setTabReorderable (mRoot, true); 
@@ -118,7 +129,11 @@ class HISTORY_VIEW : ELEMENT
         Log.Entry("Disengaged HISTORY_VIEW element");
     } 
     
-
+    void ShowHistory(Action X)
+    {
+        mRoot.showAll();
+        dui.GetSidePane.setCurrentPage(mRoot);
+    }
 }
 
     

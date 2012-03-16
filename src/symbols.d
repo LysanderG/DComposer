@@ -201,12 +201,6 @@ class SYMBOLS
             break;
             default : writeln("default"); break;
         }
-
-        //with(sym)
-        //{
-        //    
-        //    XX.writeln(Name,"\n\tPath=", Path,"\n\tScope=", Scope,"\n\tBase=", Base,"\n\tType=", Type,"\n\tKind=", Kind, "\n\tReturnType=",ReturnType,"\n\tIcon=",Icon);
-        //}
         
     }
 
@@ -277,7 +271,7 @@ class SYMBOLS
     File XX;
     void Load(string key, string symfile)
     {
-        XX.open(key ~".tmptags", "w");
+
         auto JRoot = parseJSON(readText(symfile));
         
         DSYMBOL X = new DSYMBOL;
@@ -290,7 +284,7 @@ class SYMBOLS
 
         mSymbols[key] = X;
         emit();
-        XX.close();
+
     }
 
         

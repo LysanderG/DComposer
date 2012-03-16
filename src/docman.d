@@ -344,6 +344,7 @@ class DOCMAN
     //not going to add open project functionality here ... shouldn't need it
     void OpenDoc(string FullFileName, int LineNo = 0)
     {
+        writeln(FullFileName, ":file , line:", LineNo);
         FullFileName = FullFileName.absolutePath;
         
         //ok this is wierd syntax here .. if not open(and focus if it is) do this(open) now do this(goto)
@@ -356,7 +357,11 @@ class DOCMAN
             if(DocX.Open(FullFileName))
             {
                 AppendDocument(DocX, LineNo);
+                
             }
+            DocX.GotoLine(LineNo); //this is not good but didn't have time to figure out why appenddocument(doc, line) didn't position on cursor
+                                   //stupid scroll to mark has wierd behavior can't figure it out.
+            
             return;
         }        
         auto DocX = GetDocX(FullFileName);

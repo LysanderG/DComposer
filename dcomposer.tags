@@ -422,7 +422,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 108}
+"line" : 110}
 ]
 }
 ,
@@ -431,14 +431,14 @@
 "kind" : "variable",
 "protection" : "private",
 "type" : "GtkWidget*",
-"line" : 118}
+"line" : 120}
 ,
 {
 "name" : "Reset",
 "kind" : "function",
 "protection" : "public",
 "type" : "extern (C) void()",
-"line" : 120}
+"line" : 122}
 ]
 }
 ,
@@ -696,7 +696,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 157}
+"line" : 158}
 ]
 }
 ]
@@ -854,119 +854,119 @@
 "kind" : "function",
 "protection" : "private",
 "type" : "void(string EventType)",
-"line" : 213}
+"line" : 207}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 233}
+"line" : 227}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 257}
+"line" : 251}
 ,
 {
 "name" : "AddCommonTagFile",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string key, string TagFile)",
-"line" : 269}
+"line" : 263}
 ,
 {
 "name" : "XX",
 "kind" : "variable",
 "protection" : "public",
 "type" : "File",
-"line" : 277}
+"line" : 271}
 ,
 {
 "name" : "Load",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string key, string symfile)",
-"line" : 278}
+"line" : 272}
 ,
 {
 "name" : "PossibleMatches",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Candidate)",
-"line" : 297}
+"line" : 291}
 ,
 {
 "name" : "ExactMatches",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Candidate)",
-"line" : 341}
+"line" : 335}
 ,
 {
 "name" : "GetMembers",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Base, DSYMBOL[] HayStack = null)",
-"line" : 383}
+"line" : 377}
 ,
 {
 "name" : "MatchCallTips",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Candidate)",
-"line" : 403}
+"line" : 397}
 ,
 {
 "name" : "Match",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Candidate)",
-"line" : 427}
+"line" : 421}
 ,
 {
 "name" : "GetCompletionSymbols",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Candidate, DSYMBOL[] Symbols, bool ParseKids = false)",
-"line" : 456}
+"line" : 450}
 ,
 {
 "name" : "GetInScopeSymbols",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string[] Scope)",
-"line" : 474}
+"line" : 468}
 ,
 {
 "name" : "Symbols",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[string]()",
-"line" : 518}
+"line" : 512}
 ,
 {
 "name" : "StringPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string Candidate)",
-"line" : 524}
+"line" : 518}
 ,
 {
 "name" : "GetCandidatePath",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Candidate)",
-"line" : 534}
+"line" : 528}
 ,
 {
 "name" : "GetCandidateName",
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string Candidate)",
-"line" : 543}
+"line" : 537}
 ]
 }
 ]
@@ -1110,7 +1110,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 177}
+"line" : 179}
 ]
 }
 ]
@@ -1436,7 +1436,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 519}
+"line" : 521}
 ]
 }
 ]
@@ -1929,7 +1929,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 381}
+"line" : 382}
 ]
 }
 ]
@@ -3416,7 +3416,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 149}
+"line" : 151}
 ]
 }
 ]
@@ -3532,14 +3532,14 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 117}
+"line" : 119}
 ,
 {
 "name" : "CatchLog",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string mesg, string level, string mod)",
-"line" : 127}
+"line" : 129}
 ]
 }
 ]
@@ -3857,7 +3857,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 114}
+"line" : 115}
 ]
 }
 ]
@@ -5066,7 +5066,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 271}
+"line" : 272}
 ]
 }
 ]
@@ -5259,28 +5259,28 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 138}
+"line" : 139}
 ,
 {
 "name" : "GdbCatcher",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string GdbText)",
-"line" : 143}
+"line" : 144}
 ,
 {
 "name" : "JumpToPosition",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Record)",
-"line" : 156}
+"line" : 157}
 ,
 {
 "name" : "ShowDisplayExpressions",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string DisplayText)",
-"line" : 174}
+"line" : 175}
 ]
 }
 ]

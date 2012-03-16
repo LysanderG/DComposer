@@ -105,7 +105,7 @@ class SYMBOL_VIEW : ELEMENT
 
         
         if(FileToOPen.length < 1)return;
-        
+
         dui.GetDocMan.OpenDoc(FileToOPen, AtLineNo-1);
     }
 

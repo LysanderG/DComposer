@@ -221,3 +221,79 @@ Saturday, 11 February 2012
 CodeCompletion is much better.
 BUT ... sometimes crashes on '.' input (std.c. == crash , or any one letter .l. combo?)
 
+========================================================================================================================
+Thursday, 15 March 2012
+
+CodeCompletion is even Better now!! (still crappy tho :)
+
+planned menu (who uses menus anymore)
+
+SYSTEM		:	VIEW		:	DOCUMENTS	:	EDIT	:	PROJECT	:	TOOLS	:	HELP
+Print 		:	Toolbar		:	New			:	Undo	:	New		:			:	Manual
+Search 		: 	Side		:	New Type >	:	Redo	:	Open 	:			: 	Elements >
+Preference	:	Extra 		:	Open 		: 	Cut		:	Options :			:	About 
+Quit		:	Status 		:	Save 		:	Copy	: 	Refresh :			:
+			:	Elements >	:	Save As		:	Paste	:	Build 	:			:
+			:				:	Save All	:	Delete	:	Run		:			:
+			:				:	Close 		:	Sel All	:	Run/Args:			:
+			:				:	Close All	:	Sel None:			:			:
+			
+Big list of stuff to tweak (doesn't count things to add)
+
+Menu 			-> organize (see above)
+Toolbar 		-> icons!!!! (maybe I'll stick with unicode strings for icons??)
+				-> User configurable
+SidePane
+	Symbols		-> show symbol ddoc comments
+				-> add/remove tags from ui?
+				-> if not doc stuff then something to show user more info about the symbol (ie signature or whatever)
+	History		-> ctrl-H switches to page ✔
+				-> allow filtering
+	Project 	-> two toolbars? to see all buttons or remove some (no don't remove any)
+				-> actually I kind of like this page
+	Dirview		-> add a context menu
+				-> real icons
+				-> better sorting (sort by name but with folders first (or last))
+ExtraPane
+	LogView		-> maybe (big maybe) color code for engaging/disengaging vs in loop stuff (who doesn't like colors)
+	Buildmsgs	-> needs to indicate when changed (if build messages are exactly the same can't be sure if anything happened at all)
+	Debugger 	-> amputate and reattach a new one that actually makes sense
+	Search 		-> implement all the features
+				-> lots of room here for tweaks
+	Terminal	-> Simple works not lots to do here
+				-> maybe allow color font preferences if not to much c coding is needed
+	Assistance	-> show more symbol info than just doc comments 
+				-> prettify  the whole thing with colors and fonts .... blah blah blah
+
+CenterPane
+    Documents   -> turn off completion/calltip stuff when not editing D source code
+                -> better context menu stuff
+
+StatusBar       -> Find a Better use for it! Or any use.                
+
+
+	
+				
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~				
+Features I'm thinking of right now
+	Config/Preferences
+		this is bigger than it looks.
+		have to add a Reconfigure function to each core/ui/element module to allow on the fly changes
+		have to supply a gui for each module
+		should have took this in to account at design beginning.  Price of being a noob I guess. 
+		
+	External Tools
+		allow using external shell commands to run with dcomposer variables
+		
+	VCS
+		yes I want this now (force me to learn more about git at least)
+	
+	Print
+
+    Format
+
+    Bookmarks
+
+    Auto save/backup
+
+    Snippets
