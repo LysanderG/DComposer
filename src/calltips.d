@@ -166,7 +166,7 @@ class CALL_TIPS : ELEMENT
                 {
                     if(dsym.Kind != "function") continue;
                     writeln(dsym.Scope[$-1],"\\", Candidate);
-                    if( !endsWith(Candidate, dsym.Scope[$-1])) continue; //omg what the hell did I put this here for???
+                    if( !endsWith(Candidate, dsym.Scope[$-1])) continue;
                     FuncPossibles ~= dsym;
                 }
                 

@@ -255,7 +255,7 @@ SidePane
 				-> real icons
 				-> better sorting (sort by name but with folders first (or last))
 ExtraPane
-	LogView		-> maybe (big maybe) color code for engaging/disengaging vs in loop stuff (who doesn't like colors)
+	LogView		-> maybe (big maybe) color code for engaging/disengaging vs in mainloop stuff (who doesn't like colors)
 	Buildmsgs	-> needs to indicate when changed (if build messages are exactly the same can't be sure if anything happened at all)
 	Debugger 	-> amputate and reattach a new one that actually makes sense
 	Search 		-> implement all the features
@@ -297,3 +297,10 @@ Features I'm thinking of right now
     Auto save/backup
 
     Snippets
+    
+========================================================================================================================
+Friday, 16 March 2012
+
+Nothing accomplished today!
+Feels so wrong.
+

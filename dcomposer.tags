@@ -1436,7 +1436,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 521}
+"line" : 520}
 ]
 }
 ]
@@ -3742,7 +3742,7 @@
 "name" : "HISTORY_VIEW",
 "kind" : "class",
 "protection" : "public",
-"line" : 36,
+"line" : 37,
 "base" : "Object",
 "interfaces" : [
 "ELEMENT"],
@@ -3752,112 +3752,126 @@
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 40}
+"line" : 41}
 ,
 {
 "name" : "mInfo",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 41}
+"line" : 42}
 ,
 {
 "name" : "mState",
 "kind" : "variable",
 "protection" : "private",
 "type" : "bool",
-"line" : 42}
+"line" : 43}
 ,
 {
 "name" : "mBuilder",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Builder.Builder",
-"line" : 44}
+"line" : 45}
 ,
 {
 "name" : "mRoot",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Viewport.Viewport",
-"line" : 45}
+"line" : 46}
 ,
 {
 "name" : "mRecentProjects",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.RecentChooserWidget.RecentChooserWidget",
-"line" : 46}
+"line" : 47}
 ,
 {
 "name" : "mRecentFiles",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.RecentChooserWidget.RecentChooserWidget",
-"line" : 47}
+"line" : 48}
 ,
 {
 "name" : "mFilterProjects",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.RecentFilter.RecentFilter",
-"line" : 49}
+"line" : 50}
 ,
 {
 "name" : "mFilterFiles",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.RecentFilter.RecentFilter",
-"line" : 50}
+"line" : 51}
+,
+{
+"name" : "mHistoryAct",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.Action.Action",
+"line" : 53}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 55}
+"line" : 58}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 56}
+"line" : 59}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 57}
+"line" : 60}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool nuState)",
-"line" : 58}
+"line" : 61}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "HISTORY_VIEW()",
-"line" : 66}
+"line" : 69}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 74}
+"line" : 77}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 115}
+"line" : 126}
+,
+{
+"name" : "ShowHistory",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(Action X)",
+"line" : 132}
 ]
 }
 ]
@@ -4719,105 +4733,105 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 371}
+"line" : 376}
 ,
 {
 "name" : "OpenDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string[] FullFileNames)",
-"line" : 407}
+"line" : 412}
 ,
 {
 "name" : "OpenInitialDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 433}
+"line" : 438}
 ,
 {
 "name" : "SaveDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 439}
+"line" : 444}
 ,
 {
 "name" : "SaveAsDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(DOCUMENT_IF docX = null)",
-"line" : 454}
+"line" : 459}
 ,
 {
 "name" : "SaveAllDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 486}
+"line" : 491}
 ,
 {
 "name" : "CloseDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string FullFileName = null)",
-"line" : 500}
+"line" : 505}
 ,
 {
 "name" : "CloseAllDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(bool Quitting = false)",
-"line" : 530}
+"line" : 535}
 ,
 {
 "name" : "Edit",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string WhichEdit)",
-"line" : 551}
+"line" : 556}
 ,
 {
 "name" : "GetDocX",
 "kind" : "function",
 "protection" : "public",
 "type" : "DOCUMENT_IF(string FullFileName)",
-"line" : 560}
+"line" : 565}
 ,
 {
 "name" : "GetDocX",
 "kind" : "function",
 "protection" : "public",
 "type" : "DOCUMENT_IF(int index = -1)",
-"line" : 575}
+"line" : 580}
 ,
 {
 "name" : "AppendDocument",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(DOCUMENT_IF Doc, uint LineNo = cast(uint)0)",
-"line" : 588}
+"line" : 593}
 ,
 {
 "name" : "IsOpenDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string FullFileName, bool SetFocus = false)",
-"line" : 608}
+"line" : 613}
 ,
 {
 "name" : "ContextActions",
 "kind" : "function",
 "protection" : "public",
 "type" : "Action[]()",
-"line" : 629}
+"line" : 634}
 ,
 {
 "name" : "AddContextAction",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action Item)",
-"line" : 634}
+"line" : 639}
 ]
 }
 ]
