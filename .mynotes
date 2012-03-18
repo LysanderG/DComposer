@@ -312,3 +312,33 @@ so far ..
 works ok with autopopups
 
 just realized that call tips wont work when a ( returns no possible calltips throws off the whole call tip treeview
+
+========================================================================================================================
+Sunday, 17 March 2012
+
+Done with assistant for now.
+What it does...
+    1.  Shows symbol information for items in autopopups
+    2.  Shows a screwy kind of tooltip feature for mouse hovering
+    3.  Shows symbol information when symbolview cursor changes
+    4.  Jumps to symbol definitions
+    5.  Follows children symbols when clicked on
+
+Where it fails
+    1.  Mouse hover feature is really annoying (unexpectedly changes the symbol)
+    2.  No web link yet (can't imagine this will be too hard)
+    3.  Crippled by symbols module short comings (ie unable to correctly follow function return values and/or member scoped objects)
+    4.  TextView for comments is not pretty.
+    5.  Child treeview model could be a treestore vs a liststore.
+
+Other stuff
+    1.  Replace insert button with a parent button.
+    2.  ???
+
+Over all I'm very satisfied.  Of course it's not perfect and others might think it's silly.
+But it is mine, I made it, I think it has potential.
+
+Anyway, I'm done with the assistant branch for now.
+
+The critical question now is ... "What's next?"
+
