@@ -221,6 +221,61 @@ class SYMBOLS
             return;
         }
     }
+    DSYMBOL[] GetInScopeSymbols(string[] Scope)
+    {
+        
+        DSYMBOL[] ReturnSyms;
+        string[] Bases;
+
+        void _Process(DSYMBOL Sym)
+        {
+
+            foreach(kid; Sym.Children) _Process(kid);
+            
+            if(endsWith(Sym.Scope[0..$-1]   , Scope))
+            {
+                ReturnSyms ~= Sym;
+
+            }
+
+            
+            
+            if(endsWith(Sym.Scope, Scope))
+            {
+
+                if(Sym.Base.length > 0) ReturnSyms ~= GetInScopeSymbols([Sym.Base]);
+
+                if(Sym.Kind == "variable") ReturnSyms ~= GetInScopeSymbols(split(Sym.Type, "."));
+                if(Sym.Kind == "function") ReturnSyms ~= GetInScopeSymbols(split(Sym.ReturnType,"."));
+
+            }                      
+            
+        }
+        foreach(sym; mSymbols) _Process(sym);
+
+
+        
+        
+        return ReturnSyms;
+    }
+
+    DSYMBOL[] GetCompletionSymbols(string Candidate,  DSYMBOL[] Symbols, bool ParseKids = false)
+    {
+        DSYMBOL[] ReturnSyms;
+
+        void _Process(DSYMBOL Sym)
+        {
+            if(startsWith(Sym.Name, Candidate))
+            {
+                ReturnSyms ~= Sym;
+            }
+            if(ParseKids)foreach(kid; Sym.Children) _Process(kid);
+        }
+
+        foreach(sym; Symbols) _Process(sym);
+        return ReturnSyms;
+    }
+
     
     public :
 
@@ -332,48 +387,7 @@ class SYMBOLS
     }
     
 
-    DSYMBOL[] ExactMatches(string Candidate)
-    {
-        DSYMBOL[] RetSyms;
-        auto CandiPath = GetCandidatePath(Candidate);
-        auto CandiName = GetCandidateName(Candidate);
-
-
-
-        void _Process(DSYMBOL x)
-        {
-            if( (CandiName.length < 1) ||  (x.Name == CandiName) )
-            {
-                if(CandiPath.length > 0)
-                {
-                    if( endsWith(x.Scope, CandiPath) )
-                    {
-                        RetSyms ~= x;
-
-                        if(x.Base.length > 1)
-                        {
-                            RetSyms ~= GetMembers(x.Base);
-                        }
-                    }
-                }
-                else
-                {
-                    RetSyms ~= x;
-                }
-            }
-            
-            if(x.Kind == "function")RetSyms ~= GetMembers(x.ReturnType);
-            
-
-            foreach(kid; x.Children) _Process(kid);
-        }
-
-        foreach(symbol; mSymbols) _Process(symbol);
-        
-        
-        return RetSyms;
-    }
-
+    
     DSYMBOL[] GetMembers(string Base, DSYMBOL[] HayStack = null)
     {
         if(HayStack is null) HayStack = mSymbols.values;
@@ -442,68 +456,20 @@ class SYMBOLS
         
     }
 
-    DSYMBOL[] GetCompletionSymbols(string Candidate,  DSYMBOL[] Symbols, bool ParseKids = false)
+   DSYMBOL[] ExactMatches(string Candidate)
     {
-        DSYMBOL[] ReturnSyms;
+        DSYMBOL[] RetSyms;
+        auto CandiPath = GetCandidatePath(Candidate);
+        auto CandiName = GetCandidateName(Candidate);
 
-        void _Process(DSYMBOL Sym)
-        {
-            if(startsWith(Sym.Name, Candidate))
-            {
-                ReturnSyms ~= Sym;
-            }
-            if(ParseKids)foreach(kid; Sym.Children) _Process(kid);
-        }
 
-        foreach(sym; Symbols) _Process(sym);
-        return ReturnSyms;
+        auto tmpSyms = Match(Candidate);
+
+        foreach(ts; tmpSyms) if (ts.Scope[$-1] == CandiName) RetSyms ~=  ts;
+               
+        return RetSyms;
     }
-
-    //alias GetCompletionSymbols Match;
-    DSYMBOL[] GetInScopeSymbols(string[] Scope)
-    {
-        
-        DSYMBOL[] ReturnSyms;
-        string[] Bases;
-
-        void _Process(DSYMBOL Sym)
-        {
-
-            foreach(kid; Sym.Children) _Process(kid);
-            
-            if(endsWith(Sym.Scope[0..$-1]   , Scope))
-            {
-                ReturnSyms ~= Sym;
-
-            }
-
-            
-            
-            if(endsWith(Sym.Scope, Scope))
-            {
-
-                if(Sym.Base.length > 0) ReturnSyms ~= GetInScopeSymbols([Sym.Base]);
-
-                if(Sym.Kind == "variable") ReturnSyms ~= GetInScopeSymbols(split(Sym.Type, "."));
-                if(Sym.Kind == "function") ReturnSyms ~= GetInScopeSymbols(split(Sym.ReturnType,"."));
-
-            }                      
-            
-        }
-        foreach(sym; mSymbols) _Process(sym);
-
-
-        
-        
-        return ReturnSyms;
-    }
-
-        
-        
-        
-        
-
-    
+ 
     DSYMBOL[string] Symbols(){return  mSymbols.dup;}
         
 

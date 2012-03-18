@@ -20,6 +20,7 @@
 module assistantui;
 
 import std.stdio;
+import std.datetime;
 
 import dcore;
 import symbols;
@@ -54,6 +55,10 @@ class ASSISTANT_UI : ELEMENT
     string      mInfo;
     bool        mState;
 
+    StopWatch   mTTipTimer;
+    TickDuration mMinTime;
+
+    
     Builder     mBuilder;
     VBox        mRoot;
     ComboBox    mPossibles;
@@ -79,7 +84,17 @@ class ASSISTANT_UI : ELEMENT
 
     bool CatchDocToolTip(int x , int y, int key_mode, GtkTooltip* TTipPtr, Widget WidDoc)
     {
-        if (key_mode)return false;
+        mTTipTimer.stop();
+        writeln(mTTipTimer.peek, " <--> ", mMinTime );
+        if(mTTipTimer.peek.seconds <  2)
+        {
+            mTTipTimer.start();
+            return false;
+        }
+        mTTipTimer.reset();
+        mTTipTimer.start();
+        
+        //if (key_mode)return false;
         //get symbol at x, y
         int bufx, bufy, trailing;
         TextIter ti = new TextIter;
@@ -97,8 +112,8 @@ class ASSISTANT_UI : ELEMENT
 
         string Candidate = start.getText(end);
 
-        writeln(cast(char)ti.getChar());
-        auto Possibles = Symbols.Match(Candidate);
+        //writeln(cast(char)ti.getChar());
+        auto Possibles = Symbols.ExactMatches(Candidate);
         if (Possibles.length < 1)return false;
 
         CatchSymbols(Possibles);
@@ -114,7 +129,7 @@ class ASSISTANT_UI : ELEMENT
         
         mPossibleStore.clear();
 
-        foreach(sym; Symbols)
+        foreach(sym; mList)
         {
             mPossibleStore.append(ti);
             mPossibleStore.setValue(ti, 0, sym.Path);
@@ -156,6 +171,8 @@ class ASSISTANT_UI : ELEMENT
     void UpdateAssistant()
     {
         int indx = mPossibles.getActive();
+        writeln(indx);
+        if(( indx < 0) || (indx >= mList.length)) return;
         TreeIter ti = new TreeIter;
 
         mChildrenStore.clear();
@@ -218,8 +235,13 @@ class ASSISTANT_UI : ELEMENT
         mRoot.showAll();
         dui.GetExtraPane.appendPage(mRoot, "Assistant");
 
+        mPossibles.addOnChanged(delegate void(ComboBox cbx){UpdateAssistant();});
+
         dui.GetAutoPopUps.connect(&CatchSymbol);
         dui.GetDocMan.Event.connect(&WatchForNewDoc);
+
+        mTTipTimer.start();
+        mMinTime.from!"msecs"(5000);
 
         Log.Entry("Engaged ASSISTANT_UI element");
     }
