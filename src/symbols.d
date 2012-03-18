@@ -474,6 +474,7 @@ class SYMBOLS
         
 
     mixin Signal!();
+    mixin Signal!(DSYMBOL[]) Forward;
 
 
     string StringPath(string Candidate)
@@ -516,6 +517,12 @@ class SYMBOLS
             return rv;
         }
         return rv;
+    }
+
+
+    void TriggerSignal(DSYMBOL[] SymbolsToPass)
+    {
+        Forward.emit(SymbolsToPass);
     }
         
 

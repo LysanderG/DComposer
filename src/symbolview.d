@@ -98,7 +98,7 @@ class SYMBOL_VIEW : ELEMENT
         int AtLineNo;
 
         //Symbols.GetLocation(ti.getValueString(3), FileToOPen, AtLineNo);
-        auto sym = Symbols.Match(ti.getValueString(3));
+        auto sym = Symbols.ExactMatches(ti.getValueString(3));
 
         FileToOPen = sym[0].InFile;
         AtLineNo = sym[0].OnLine;
@@ -116,7 +116,17 @@ class SYMBOL_VIEW : ELEMENT
         Symbols.Load(Project.Name, Project.Name ~ ".tags");
         Refresh();
     }
-        
+
+    void ForwardSymbol(TreeView tv)
+    {
+        TreeIter ti = mSymbolTree.getSelectedIter();
+
+        if(ti is null) return;
+
+        auto sym = Symbols.ExactMatches(ti.getValueString(3));
+
+        Symbols.TriggerSignal(sym);
+    }
 
 
     public:
@@ -145,6 +155,8 @@ class SYMBOL_VIEW : ELEMENT
     void Engage()
     {
         mState = true;
+
+        mSymbolTree.addOnCursorChanged(&ForwardSymbol);
 
         Project.Event.connect(&UpdateProjectTags);
 

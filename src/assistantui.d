@@ -44,6 +44,8 @@ import gtk.TreeIter;
 import gtk.ListStore;
 import gtk.Widget;
 
+import gtk.TreePath;
+import gtk.TreeViewColumn;
 
 
 class ASSISTANT_UI : ELEMENT
@@ -189,6 +191,34 @@ class ASSISTANT_UI : ELEMENT
         if(mList[indx].Type.length > 0) mSignature.setText(mList[indx].Type);
         else mSignature.setText(" ");
     }
+
+    void FollowChild()
+    {
+        TreeIter ti = mChildren.getSelectedIter();
+        if(ti is null) return;
+
+        auto indx = mPossibles.getActive();
+        if(indx < 0) return;
+        string Lookup = mList[indx].Path ~ "." ~ ti.getValueString(0);
+
+        
+        auto sym = Symbols.ExactMatches(Lookup);
+
+        CatchSymbols(sym);
+    }
+
+    void JumpTo()
+    {
+        auto indx = mPossibles.getActive();
+        if(indx < 0) return;
+
+        dui.GetDocMan.OpenDoc(mList[indx].InFile, mList[indx].OnLine);
+    }
+    
+
+    
+
+        
         
 
     public:
@@ -242,6 +272,12 @@ class ASSISTANT_UI : ELEMENT
 
         mTTipTimer.start();
         mMinTime.from!"msecs"(5000);
+
+        Symbols.Forward.connect(&CatchSymbols);
+        mChildren.addOnRowActivated(delegate void (TreePath tp, TreeViewColumn tvc, TreeView tv){FollowChild();});
+        mBtnJumpTo.addOnClicked(delegate void(Button btn){JumpTo();});
+
+        
 
         Log.Entry("Engaged ASSISTANT_UI element");
     }

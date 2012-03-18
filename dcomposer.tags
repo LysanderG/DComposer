@@ -650,53 +650,60 @@
 "line" : 113}
 ,
 {
+"name" : "ForwardSymbol",
+"kind" : "function",
+"protection" : "private",
+"type" : "void(TreeView tv)",
+"line" : 120}
+,
+{
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 124}
+"line" : 134}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 125}
+"line" : 135}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 126}
+"line" : 136}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool nustate)",
-"line" : 127}
+"line" : 137}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "SYMBOL_VIEW()",
-"line" : 129}
+"line" : 139}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 145}
+"line" : 155}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 158}
+"line" : 170}
 ]
 }
 ]
@@ -857,116 +864,123 @@
 "line" : 207}
 ,
 {
+"name" : "GetInScopeSymbols",
+"kind" : "function",
+"protection" : "private",
+"type" : "DSYMBOL[](string[] Scope)",
+"line" : 224}
+,
+{
+"name" : "GetCompletionSymbols",
+"kind" : "function",
+"protection" : "private",
+"type" : "DSYMBOL[](string Candidate, DSYMBOL[] Symbols, bool ParseKids = false)",
+"line" : 262}
+,
+{
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 227}
+"line" : 282}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 251}
+"line" : 306}
 ,
 {
 "name" : "AddCommonTagFile",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string key, string TagFile)",
-"line" : 263}
+"line" : 318}
 ,
 {
 "name" : "XX",
 "kind" : "variable",
 "protection" : "public",
 "type" : "File",
-"line" : 271}
+"line" : 326}
 ,
 {
 "name" : "Load",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string key, string symfile)",
-"line" : 272}
+"line" : 327}
 ,
 {
 "name" : "PossibleMatches",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Candidate)",
-"line" : 291}
-,
-{
-"name" : "ExactMatches",
-"kind" : "function",
-"protection" : "public",
-"type" : "DSYMBOL[](string Candidate)",
-"line" : 335}
+"line" : 346}
 ,
 {
 "name" : "GetMembers",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Base, DSYMBOL[] HayStack = null)",
-"line" : 377}
+"line" : 391}
 ,
 {
 "name" : "MatchCallTips",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Candidate)",
-"line" : 397}
+"line" : 411}
 ,
 {
 "name" : "Match",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[](string Candidate)",
-"line" : 421}
+"line" : 430}
 ,
 {
-"name" : "GetCompletionSymbols",
+"name" : "ExactMatches",
 "kind" : "function",
 "protection" : "public",
-"type" : "DSYMBOL[](string Candidate, DSYMBOL[] Symbols, bool ParseKids = false)",
-"line" : 450}
-,
-{
-"name" : "GetInScopeSymbols",
-"kind" : "function",
-"protection" : "public",
-"type" : "DSYMBOL[](string[] Scope)",
-"line" : 468}
+"type" : "DSYMBOL[](string Candidate)",
+"line" : 459}
 ,
 {
 "name" : "Symbols",
 "kind" : "function",
 "protection" : "public",
 "type" : "DSYMBOL[string]()",
-"line" : 512}
+"line" : 473}
 ,
 {
 "name" : "StringPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string Candidate)",
-"line" : 518}
+"line" : 480}
 ,
 {
 "name" : "GetCandidatePath",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Candidate)",
-"line" : 528}
+"line" : 490}
 ,
 {
 "name" : "GetCandidateName",
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string Candidate)",
-"line" : 537}
+"line" : 499}
+,
+{
+"name" : "TriggerSignal",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(DSYMBOL[] SymbolsToPass)",
+"line" : 523}
 ]
 }
 ]
@@ -4051,175 +4065,175 @@
 "kind" : "function",
 "protection" : "private",
 "type" : "void(GtkMenu* gtkBigMenu, TextView ThisOne)",
-"line" : 150}
+"line" : 152}
 ,
 {
 "name" : "DisplayName",
-"kind" : "function",
-"protection" : "public",
-"type" : "@property string()",
-"line" : 163}
-,
-{
-"name" : "DisplayName",
-"kind" : "function",
-"protection" : "public",
-"type" : "@property void(string DisplayName)",
-"line" : 164}
-,
-{
-"name" : "FullPathName",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
 "line" : 165}
 ,
 {
+"name" : "DisplayName",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(string DisplayName)",
+"line" : 166}
+,
+{
+"name" : "FullPathName",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property string()",
+"line" : 167}
+,
+{
 "name" : "FullPathName",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string NuName)",
-"line" : 166}
-,
-{
-"name" : "Virgin",
-"kind" : "function",
-"protection" : "public",
-"type" : "@property bool()",
-"line" : 167}
-,
-{
-"name" : "Virgin",
-"kind" : "function",
-"protection" : "public",
-"type" : "@property void(bool still)",
 "line" : 168}
 ,
 {
-"name" : "Modified",
+"name" : "Virgin",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
 "line" : 169}
 ,
 {
+"name" : "Virgin",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool still)",
+"line" : 170}
+,
+{
+"name" : "Modified",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property bool()",
+"line" : 171}
+,
+{
 "name" : "Modified",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool modded)",
-"line" : 170}
+"line" : 172}
 ,
 {
 "name" : "RawData",
 "kind" : "function",
 "protection" : "public",
 "type" : "ubyte[]()",
-"line" : 172}
+"line" : 174}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "DOCUMENT()",
-"line" : 176}
+"line" : 178}
 ,
 {
 "name" : "Create",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string identifier)",
-"line" : 188}
+"line" : 190}
 ,
 {
 "name" : "Open",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string FileName, ulong LineNo = cast(ulong)0)",
-"line" : 196}
+"line" : 198}
 ,
 {
 "name" : "Save",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool()",
-"line" : 230}
+"line" : 232}
 ,
 {
 "name" : "SaveAs",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string NewName)",
-"line" : 247}
+"line" : 249}
 ,
 {
 "name" : "Close",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(bool Quitting = false)",
-"line" : 261}
+"line" : 263}
 ,
 {
 "name" : "TabWidget",
 "kind" : "function",
 "protection" : "public",
 "type" : "Widget()",
-"line" : 287}
+"line" : 288}
 ,
 {
 "name" : "GetWidget",
 "kind" : "function",
 "protection" : "public",
 "type" : "Widget()",
-"line" : 306}
+"line" : 307}
 ,
 {
 "name" : "GetPage",
 "kind" : "function",
 "protection" : "public",
 "type" : "Widget()",
-"line" : 307}
+"line" : 308}
 ,
 {
 "name" : "IsPasting",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool()",
-"line" : 308}
+"line" : 309}
 ,
 {
 "name" : "Focus",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 310}
+"line" : 311}
 ,
 {
 "name" : "Edit",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Verb)",
-"line" : 315}
+"line" : 316}
 ,
 {
 "name" : "GotoLine",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(uint Line)",
-"line" : 331}
+"line" : 332}
 ,
 {
 "name" : "HiliteFindMatch",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(int Line, int start, int len)",
-"line" : 353}
+"line" : 354}
 ,
 {
 "name" : "OnInsertText",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(TextIter ti, string text, int len, TextBuffer huh)",
-"line" : 371}
+"line" : 372}
 ]
 }
 ,
@@ -4228,7 +4242,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string FileName)",
-"line" : 390}
+"line" : 391}
 ]
 }
 ,
@@ -4733,105 +4747,105 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 376}
+"line" : 375}
 ,
 {
 "name" : "OpenDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string[] FullFileNames)",
-"line" : 412}
+"line" : 411}
 ,
 {
 "name" : "OpenInitialDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 438}
+"line" : 437}
 ,
 {
 "name" : "SaveDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 444}
+"line" : 443}
 ,
 {
 "name" : "SaveAsDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(DOCUMENT_IF docX = null)",
-"line" : 459}
+"line" : 458}
 ,
 {
 "name" : "SaveAllDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 491}
+"line" : 490}
 ,
 {
 "name" : "CloseDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string FullFileName = null)",
-"line" : 505}
+"line" : 504}
 ,
 {
 "name" : "CloseAllDocs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(bool Quitting = false)",
-"line" : 535}
+"line" : 534}
 ,
 {
 "name" : "Edit",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string WhichEdit)",
-"line" : 556}
+"line" : 555}
 ,
 {
 "name" : "GetDocX",
 "kind" : "function",
 "protection" : "public",
 "type" : "DOCUMENT_IF(string FullFileName)",
-"line" : 565}
+"line" : 564}
 ,
 {
 "name" : "GetDocX",
 "kind" : "function",
 "protection" : "public",
 "type" : "DOCUMENT_IF(int index = -1)",
-"line" : 580}
+"line" : 579}
 ,
 {
 "name" : "AppendDocument",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(DOCUMENT_IF Doc, uint LineNo = cast(uint)0)",
-"line" : 593}
+"line" : 592}
 ,
 {
 "name" : "IsOpenDoc",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string FullFileName, bool SetFocus = false)",
-"line" : 613}
+"line" : 612}
 ,
 {
 "name" : "ContextActions",
 "kind" : "function",
 "protection" : "public",
 "type" : "Action[]()",
-"line" : 634}
+"line" : 633}
 ,
 {
 "name" : "AddContextAction",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action Item)",
-"line" : 639}
+"line" : 638}
 ]
 }
 ]
@@ -5031,56 +5045,56 @@
 "kind" : "constructor",
 "protection" : "public",
 "type" : "DIR_VIEW()",
-"line" : 171}
+"line" : 170}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 180}
+"line" : 179}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 181}
+"line" : 180}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 182}
+"line" : 181}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool nuState)",
-"line" : 183}
+"line" : 182}
 ,
 {
 "name" : "Folder",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuFolder)",
-"line" : 192}
+"line" : 191}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 198}
+"line" : 197}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 272}
+"line" : 271}
 ]
 }
 ]
@@ -6048,73 +6062,65 @@
 "kind" : "function",
 "protection" : "private",
 "type" : "void(TreeView tv)",
-"line" : 289}
+"line" : 294}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "AUTO_POP_UPS()",
-"line" : 306}
+"line" : 321}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 324}
+"line" : 339}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 330}
+"line" : 345}
 ,
 {
 "name" : "CompletionPush",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(DSYMBOL[] Possibles, long xpos, long ypos, int Status = 1)",
-"line" : 337}
+"line" : 352}
 ,
 {
 "name" : "CompletionPop",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 349}
+"line" : 364}
 ,
 {
 "name" : "TipPush",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(DSYMBOL[] Possibles, long xpos, long ypos)",
-"line" : 356}
+"line" : 371}
 ,
 {
 "name" : "TipPop",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 370}
+"line" : 385}
 ,
 {
 "name" : "Kill",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 377}
+"line" : 392}
 ]
 }
-]
-}
-,
-{
-"name" : "assist",
-"kind" : "module",
-"file" : "src\/assist.d",
-"members" : [
 ]
 }
 ]
