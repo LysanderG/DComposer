@@ -20,5 +20,4 @@ historyview.HISTORY_VIEW
 messageui.MESSAGE_UI
 debugui.DEBUG_UI
 symassistui.SYMBOL_ASSIST
-
-
+assistantui.ASSISTANT_UI

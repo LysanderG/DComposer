@@ -267,6 +267,7 @@ class AUTO_POP_UPS
             mCompletionWin.resize(600, 160);
             mCompletionWin.move(mCompletionStore.mXPos, mCompletionStore.mYPos);
             mCompletionWin.showAll();
+            emit(mCompletionStore.mMatches[0]);
             return;
         }
         else
@@ -280,7 +281,11 @@ class AUTO_POP_UPS
             mTipsView.setCursor(new TreePath(true), null, false);
             mTipsWin.resize(600, 160);
             mTipsWin.move(mTipsStore[mTipsIndex].mXPos, mTipsStore[mTipsIndex].mYPos);
-            if(mTipsStore[mTipsIndex].mMatches.length > 0)mTipsWin.showAll();
+            if(mTipsStore[mTipsIndex].mMatches.length > 0)
+            {
+                mTipsWin.showAll();
+                emit(mTipsStore[mTipsIndex].mMatches[0]);
+            }
             return;
         }
     }
@@ -288,14 +293,24 @@ class AUTO_POP_UPS
     
     void UpdateComments(TreeView tv)
     {
-        auto treeiter = tv.getSelectedIter();
-        auto store = tv.getModel();
-        auto symname = store.getValueString(treeiter, 0);
-        auto DocComment = store.getValueString(treeiter, 2);
-        if(DocComment.length > 0)dui.Status.push(0, DocComment);
-
-        emit(symname, DocComment);
-        
+        int indx;
+        TreeModelIF nix = new ListStore([GType.STRING]);
+        if(mCompletionStatus == STATUS_OFF)
+        {
+            auto Path = mTipsView.getSelection().getSelectedRows(nix);
+            if(Path.length < 1) return;
+            int[] xes = Path[0].getIndices();
+            indx = xes[0];
+            emit(mTipsStore[mTipsIndex].mMatches[indx]);
+        }
+        else 
+        {
+            auto Path = mCompletionView.getSelection().getSelectedRows(nix);
+            if(Path.length < 1) return;
+            int[] xes = Path[0].getIndices();
+            indx = xes[0];
+            emit(mCompletionStore.mMatches[indx]);
+        }        
     }
 //********************************************************************************************************************
 //********************************************************************************************************************
@@ -380,5 +395,6 @@ class AUTO_POP_UPS
         TipPop();
     }
 
-    mixin Signal!(string, string);
+    //mixin Signal!(string, string);
+    mixin Signal!(DSYMBOL);
 }

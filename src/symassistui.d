@@ -171,14 +171,15 @@ class SYMBOL_ASSIST : ELEMENT
         
         mRootWidget.showAll();
 
-        dui.GetAutoPopUps.connect(&CatchSymbol);
+        //dui.GetAutoPopUps.connect(&CatchSymbol);
         dui.GetDocMan.Event.connect(&WatchForNewDoc);
         
         Log.Entry("Engaged SYMBOL ASSIST element");
     }
     void Disengage()
     {
-        dui.GetAutoPopUps.disconnect(&CatchSymbol);
+        //dui.GetAutoPopUps.disconnect(&CatchSymbol);
+        
         Log.Entry("Disengaged SYMBOL_ASSIST element");
     }
 }

@@ -304,3 +304,11 @@ Friday, 16 March 2012
 Nothing accomplished today!
 Feels so wrong.
 
+========================================================================================================================
+Saturday, 17 March 2012
+
+working on new branch for assistant
+so far ..
+works ok with autopopups
+
+just realized that call tips wont work when a ( returns no possible calltips throws off the whole call tip treeview

@@ -157,7 +157,6 @@ class CALL_TIPS : ELEMENT
 
                 
                 if(Candidate.length < 1) return;
-                writeln(Candidate);
                 auto Possibles = Symbols.MatchCallTips(Candidate);
 
                 DSYMBOL[] FuncPossibles;
@@ -165,7 +164,6 @@ class CALL_TIPS : ELEMENT
                 foreach (dsym; Possibles)
                 {
                     if(dsym.Kind != "function") continue;
-                    writeln(dsym.Scope[$-1],"\\", Candidate);
                     if( !endsWith(Candidate, dsym.Scope[$-1])) continue;
                     FuncPossibles ~= dsym;
                 }

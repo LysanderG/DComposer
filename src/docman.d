@@ -344,7 +344,6 @@ class DOCMAN
     //not going to add open project functionality here ... shouldn't need it
     void OpenDoc(string FullFileName, int LineNo = 0)
     {
-        writeln(FullFileName, ":file , line:", LineNo);
         FullFileName = FullFileName.absolutePath;
         
         //ok this is wierd syntax here .. if not open(and focus if it is) do this(open) now do this(goto)

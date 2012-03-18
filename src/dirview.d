@@ -160,7 +160,6 @@ class DIR_VIEW : ELEMENT
 
     void AddFilter()
     {
-        writeln("hello!!!");
         mComboFilter.appendText(mEntryFilter.getText());
     }
     
@@ -281,7 +280,6 @@ class DIR_VIEW : ELEMENT
             
             while(mStore2.iterNext(x)) FilterString ~= ":" ~ mStore2.getValueString(x, 0);
         }
-        writeln("Filterstring = ",FilterString);
         if(FilterString.length < 1) FilterString = "*.d:*.di:*.dpro";
 
         Config.setString("DIRVIEW", "file_filter", FilterString);

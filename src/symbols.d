@@ -396,23 +396,18 @@ class SYMBOLS
 
     DSYMBOL[] MatchCallTips( string Candidate)
     {
-        writeln("\n------------\nhello");
         DSYMBOL[] ReturnSyms;
 
         ReturnSyms = Match(Candidate);
-        writeln(Candidate,"/",GetCandidateName(Candidate));
 
         foreach(i, retsym; ReturnSyms)std.stdio.write(i,". ",retsym.Name,"/",retsym.Kind, " --" );
 
-        writeln("\n!!!!len === ",ReturnSyms.length);
         if(ReturnSyms.length > 1) return ReturnSyms;
 
         auto CandiName = GetCandidateName(Candidate);
-        writeln("calltip candiname = ", CandiName);
         if(CandiName.length > 0) ReturnSyms = Match("."~CandiName );
 
         foreach(i, retsym; ReturnSyms)std.stdio.write(i,". ",retsym.Name,"/",retsym.Kind, " --" );
-        writeln("\n!!!!len === ",ReturnSyms.length);
 
         return ReturnSyms;
     }

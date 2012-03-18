@@ -143,6 +143,8 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         getBuffer.createTag("hiliteback", "background", "green");
         getBuffer.createTag("hilitefore", "foreground", "yellow");
 
+        setHasTooltip(true);
+
         getBuffer.addOnInsertText(&OnInsertText, cast(GConnectFlags)1);
     }
 
@@ -271,7 +273,6 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         int rVal = cast(int) ToSaveDiscardOrKeepOpen.run();
         ToSaveDiscardOrKeepOpen.destroy();
 
-        writeln(rVal);
         switch(rVal)
         {
             case 1: if(mVirgin)SaveAs(DisplayName); else Save();return true;
