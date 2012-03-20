@@ -18,10 +18,15 @@ long_line_behaviour=1
 long_line_column=120
 
 [files]
-current_page=2
-FILE_NAME_0=14468;None;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2F.mynotes;0;4
-FILE_NAME_1=649;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fassist.d;0;4
-FILE_NAME_2=834;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fassistant.d;0;4
+current_page=7
+FILE_NAME_0=14726;None;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2F.mynotes;0;4
+FILE_NAME_1=15747;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbols.d;0;4
+FILE_NAME_2=4394;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fcalltips.d;0;4
+FILE_NAME_3=3550;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsymbolview.d;0;4
+FILE_NAME_4=0;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Felements.d;0;4
+FILE_NAME_5=19872;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fproject.d;0;4
+FILE_NAME_6=2095;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fassistantui.d;0;4
+FILE_NAME_7=13453;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fdocman.d;0;4
 
 [build-menu]
 DFT_01_LB=_Build

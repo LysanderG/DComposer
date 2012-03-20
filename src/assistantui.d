@@ -87,7 +87,6 @@ class ASSISTANT_UI : ELEMENT
     bool CatchDocToolTip(int x , int y, int key_mode, GtkTooltip* TTipPtr, Widget WidDoc)
     {
         mTTipTimer.stop();
-        writeln(mTTipTimer.peek, " <--> ", mMinTime );
         if(mTTipTimer.peek.seconds <  2)
         {
             mTTipTimer.start();
@@ -114,7 +113,6 @@ class ASSISTANT_UI : ELEMENT
 
         string Candidate = start.getText(end);
 
-        //writeln(cast(char)ti.getChar());
         auto Possibles = Symbols.ExactMatches(Candidate);
         if (Possibles.length < 1)return false;
 
@@ -173,7 +171,6 @@ class ASSISTANT_UI : ELEMENT
     void UpdateAssistant()
     {
         int indx = mPossibles.getActive();
-        writeln(indx);
         if(( indx < 0) || (indx >= mList.length)) return;
         TreeIter ti = new TreeIter;
 
