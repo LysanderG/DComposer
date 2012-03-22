@@ -23,7 +23,6 @@ module messageui;
 import dcore;
 import ui;
 import elements;
-
 import std.regex;
 import std.conv;
 import std.stdio;
@@ -37,7 +36,6 @@ import gtk.TreeIter;
 import gtk.ListStore;
 import gtk.CellRendererText;
 import gtk.TreePath;
-
 
 class MESSAGE_UI :ELEMENT
 {
@@ -54,13 +52,23 @@ class MESSAGE_UI :ELEMENT
 
     void WatchDMD(string line)
     {       
+    	static int ActivityIndicator = 0;
+    	
         scope(exit)mErrorView.setModel(mStore);
         if(line == `BEGIN`)
         {
-            Log.Entry("messageui.WatchDMD line = 'BEGIN'");
+            
+            dui.Status.push (0, "Building  " ~ Project.Name ~ " ...");
+            if(ActivityIndicator-- < -2) ActivityIndicator = -1;
+            //Log.Entry("messageui.WatchDMD line = 'BEGIN'");
             
             mStore.clear();
             dui.GetExtraPane.setCurrentPage(mRoot);
+            return;
+        }
+        if(line == `END`)
+        {
+           dui.Status.push (0, "Building  " ~ Project.Name ~ " ...  Done");
             return;
         }
         auto m = line.match(regex(`\(\d+\)`));
@@ -69,6 +77,7 @@ class MESSAGE_UI :ELEMENT
         if(m.empty)
         {
             mStore.append(ti);
+            mStore.setValue(ti, 1, ActivityIndicator);
             mStore.setValue(ti, 2, line);
             return;
         }
@@ -95,6 +104,7 @@ class MESSAGE_UI :ELEMENT
         string file = mStore.getValueString(ti, 0);
         int line = mStore.getValueInt(ti, 1) -1;
 
+        if(line < 0) return; //if this is not an error line (ie an info line) then do not try to open
         dui.GetDocMan.OpenDoc(file, line);
     }
         

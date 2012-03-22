@@ -1958,26 +1958,26 @@
 "name" : "ListType",
 "kind" : "enum",
 "protection" : "public",
-"line" : 63,
+"line" : 64,
 "base" : "int",
 "members" : [
 {
 "name" : "FILES",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 63}
+"line" : 64}
 ,
 {
 "name" : "PATHS",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 63}
+"line" : 64}
 ,
 {
 "name" : "IDENTIFIERS",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 63}
+"line" : 64}
 ]
 }
 ,
@@ -1985,7 +1985,7 @@
 "name" : "LISTUI",
 "kind" : "class",
 "protection" : "public",
-"line" : 66,
+"line" : 67,
 "base" : "Object",
 "members" : [
 {
@@ -1993,140 +1993,140 @@
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Builder.Builder",
-"line" : 68}
+"line" : 69}
 ,
 {
 "name" : "mVBox",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.VBox.VBox",
-"line" : 70}
+"line" : 71}
 ,
 {
 "name" : "mFrameLabel",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Label.Label",
-"line" : 71}
+"line" : 72}
 ,
 {
 "name" : "mListView",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.TreeView.TreeView",
-"line" : 72}
+"line" : 73}
 ,
 {
 "name" : "mListStore",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.ListStore.ListStore",
-"line" : 73}
+"line" : 74}
 ,
 {
 "name" : "mAddButton",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Button.Button",
-"line" : 74}
+"line" : 75}
 ,
 {
 "name" : "mRemoveButton",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Button.Button",
-"line" : 75}
+"line" : 76}
 ,
 {
 "name" : "mClearButton",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Button.Button",
-"line" : 76}
+"line" : 77}
 ,
 {
 "name" : "mAddItemDialog",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Dialog.Dialog",
-"line" : 77}
+"line" : 78}
 ,
 {
 "name" : "mAddItemEntry",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Entry.Entry",
-"line" : 78}
+"line" : 79}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "LISTUI(string ListTitle, ListType Type, string GladeFile)",
-"line" : 80}
+"line" : 81}
 ,
 {
 "name" : "SetItems",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string[] Items)",
-"line" : 114}
+"line" : 115}
 ,
 {
 "name" : "GetShortItems",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](int col = 0)",
-"line" : 127}
+"line" : 128}
 ,
 {
 "name" : "GetFullItems",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[]()",
-"line" : 140}
+"line" : 141}
 ,
 {
 "name" : "AddFiles",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Button btn)",
-"line" : 145}
+"line" : 146}
 ,
 {
 "name" : "AddPaths",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Button btn)",
-"line" : 170}
+"line" : 171}
 ,
 {
 "name" : "AddItem",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Button btn)",
-"line" : 195}
+"line" : 196}
 ,
 {
 "name" : "RemoveItems",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Button btn)",
-"line" : 211}
+"line" : 212}
 ,
 {
 "name" : "ClearItems",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Button btn)",
-"line" : 222}
+"line" : 223}
 ,
 {
 "name" : "GetWidget",
 "kind" : "function",
 "protection" : "public",
 "type" : "Widget()",
-"line" : 228}
+"line" : 229}
 ]
 }
 ,
@@ -2134,7 +2134,7 @@
 "name" : "PROJECT_UI",
 "kind" : "class",
 "protection" : "public",
-"line" : 233,
+"line" : 234,
 "base" : "Object",
 "interfaces" : [
 "ELEMENT"],
@@ -2144,434 +2144,434 @@
 "kind" : "variable",
 "protection" : "public",
 "type" : "string",
-"line" : 236}
+"line" : 237}
 ,
 {
 "name" : "mInfo",
 "kind" : "variable",
 "protection" : "public",
 "type" : "string",
-"line" : 237}
+"line" : 238}
 ,
 {
 "name" : "mState",
 "kind" : "variable",
 "protection" : "public",
 "type" : "bool",
-"line" : 238}
+"line" : 239}
 ,
 {
 "name" : "mProBuilder",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Builder.Builder",
-"line" : 241}
+"line" : 242}
 ,
 {
 "name" : "mRootVBox",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.ScrolledWindow.ScrolledWindow",
-"line" : 243}
+"line" : 244}
 ,
 {
 "name" : "mTabLabel",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Label.Label",
-"line" : 244}
+"line" : 245}
 ,
 {
 "name" : "mBtnApply",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Button.Button",
-"line" : 247}
+"line" : 248}
 ,
 {
 "name" : "mBtnRevert",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Button.Button",
-"line" : 248}
+"line" : 249}
 ,
 {
 "name" : "mBtnHide",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Button.Button",
-"line" : 249}
+"line" : 250}
 ,
 {
 "name" : "mProjName",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Entry.Entry",
-"line" : 252}
+"line" : 253}
 ,
 {
 "name" : "mFolder",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Entry.Entry",
-"line" : 253}
+"line" : 254}
 ,
 {
 "name" : "mFolderBrowse",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Button.Button",
-"line" : 254}
+"line" : 255}
 ,
 {
 "name" : "mFullPath",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Label.Label",
-"line" : 255}
+"line" : 256}
 ,
 {
 "name" : "mTargetBox",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.ComboBox.ComboBox",
-"line" : 256}
+"line" : 257}
 ,
 {
 "name" : "mTargetTypes",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.ListStore.ListStore",
-"line" : 257}
+"line" : 258}
 ,
 {
 "name" : "mInformation",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.TextView.TextView",
-"line" : 258}
+"line" : 259}
 ,
 {
 "name" : "mProjBaseFolder",
 "kind" : "variable",
 "protection" : "public",
 "type" : "string",
-"line" : 260}
+"line" : 261}
 ,
 {
 "name" : "mFilesHBox",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.HBox.HBox",
-"line" : 263}
+"line" : 264}
 ,
 {
 "name" : "mSrcList",
 "kind" : "variable",
 "protection" : "public",
 "type" : "projectui.LISTUI",
-"line" : 264}
+"line" : 265}
 ,
 {
 "name" : "mRelList",
 "kind" : "variable",
 "protection" : "public",
 "type" : "projectui.LISTUI",
-"line" : 265}
+"line" : 266}
 ,
 {
 "name" : "mFlagStore",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.ListStore.ListStore",
-"line" : 268}
+"line" : 269}
 ,
 {
 "name" : "mFlagToggle",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.CellRendererToggle.CellRendererToggle",
-"line" : 269}
+"line" : 270}
 ,
 {
 "name" : "mFlagArg",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.CellRendererText.CellRendererText",
-"line" : 270}
+"line" : 271}
 ,
 {
 "name" : "mConditionalsHBox",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.HBox.HBox",
-"line" : 271}
+"line" : 272}
 ,
 {
 "name" : "mVerList",
 "kind" : "variable",
 "protection" : "public",
 "type" : "projectui.LISTUI",
-"line" : 272}
+"line" : 273}
 ,
 {
 "name" : "mDbgList",
 "kind" : "variable",
 "protection" : "public",
 "type" : "projectui.LISTUI",
-"line" : 273}
+"line" : 274}
 ,
 {
 "name" : "mPathsHBox",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.HBox.HBox",
-"line" : 274}
+"line" : 275}
 ,
 {
 "name" : "mImpList",
 "kind" : "variable",
 "protection" : "public",
 "type" : "projectui.LISTUI",
-"line" : 275}
+"line" : 276}
 ,
 {
 "name" : "mExpList",
 "kind" : "variable",
 "protection" : "public",
 "type" : "projectui.LISTUI",
-"line" : 276}
+"line" : 277}
 ,
 {
 "name" : "mLinkerHBox",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.HBox.HBox",
-"line" : 279}
+"line" : 280}
 ,
 {
 "name" : "mLibList",
 "kind" : "variable",
 "protection" : "public",
 "type" : "projectui.LISTUI",
-"line" : 280}
+"line" : 281}
 ,
 {
 "name" : "mLLPList",
 "kind" : "variable",
 "protection" : "public",
 "type" : "projectui.LISTUI",
-"line" : 281}
+"line" : 282}
 ,
 {
 "name" : "mMiscAlign",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Alignment.Alignment",
-"line" : 284}
+"line" : 285}
 ,
 {
 "name" : "mMiscList",
 "kind" : "variable",
 "protection" : "public",
 "type" : "projectui.LISTUI",
-"line" : 285}
+"line" : 286}
 ,
 {
 "name" : "mAutoCmdLine",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Label.Label",
-"line" : 286}
+"line" : 287}
 ,
 {
 "name" : "mUseCustomBuild",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.CheckButton.CheckButton",
-"line" : 287}
+"line" : 288}
 ,
 {
 "name" : "mCustomBuild",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Entry.Entry",
-"line" : 288}
+"line" : 289}
 ,
 {
 "name" : "mPreBuild",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Entry.Entry",
-"line" : 289}
+"line" : 290}
 ,
 {
 "name" : "mPostBuild",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Entry.Entry",
-"line" : 290}
+"line" : 291}
 ,
 {
 "name" : "mRunArguments",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.Entry.Entry",
-"line" : 291}
+"line" : 292}
 ,
 {
 "name" : "mAccels",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.AccelGroup.AccelGroup",
-"line" : 295}
+"line" : 296}
 ,
 {
 "name" : "mActions",
 "kind" : "variable",
 "protection" : "public",
 "type" : "gtk.ActionGroup.ActionGroup",
-"line" : 296}
+"line" : 297}
 ,
 {
 "name" : "mSkipWatchingProject",
 "kind" : "variable",
 "protection" : "public",
 "type" : "bool",
-"line" : 299}
+"line" : 300}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 303}
+"line" : 304}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 304}
-,
-{
-"name" : "State",
-"kind" : "function",
-"protection" : "public",
-"type" : "@property bool()",
 "line" : 305}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
-"type" : "@property void(bool nuState)",
+"type" : "@property bool()",
 "line" : 306}
+,
+{
+"name" : "State",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(bool nuState)",
+"line" : 307}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "PROJECT_UI()",
-"line" : 314}
+"line" : 315}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 402}
+"line" : 403}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 411}
+"line" : 412}
 ,
 {
 "name" : "EngageActions",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 419}
+"line" : 420}
 ,
 {
 "name" : "SyncGuiToProject",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 483}
+"line" : 484}
 ,
 {
 "name" : "SyncProjectToGui",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 561}
+"line" : 562}
 ,
 {
 "name" : "ProjEventWatcher",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string EventType)",
-"line" : 610}
+"line" : 611}
 ,
 {
 "name" : "New",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 625}
+"line" : 626}
 ,
 {
 "name" : "Open",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 630}
+"line" : 631}
 ,
 {
 "name" : "ShowOptions",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 650}
+"line" : 651}
 ,
 {
 "name" : "Build",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 658}
+"line" : 659}
 ,
 {
 "name" : "Run",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 665}
+"line" : 670}
 ,
 {
 "name" : "RunWithArgs",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 671}
+"line" : 676}
 ,
 {
 "name" : "RefreshTags",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(Action x)",
-"line" : 677}
+"line" : 682}
 ,
 {
 "name" : "FixProjectPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(EditableIF EntryWidget)",
-"line" : 682}
+"line" : 687}
 ]
 }
 ]
@@ -3090,26 +3090,26 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string()",
-"line" : 471}
+"line" : 473}
 ,
 {
 "name" : "Run",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string args = null)",
-"line" : 509}
+"line" : 511}
 ,
 {
 "name" : "opOpAssign(string s = \"+=\")",
 "kind" : "template",
 "protection" : "public",
-"line" : 543,
+"line" : 545,
 "members" : [
 {
 "name" : "opOpAssign",
 "kind" : "function",
 "type" : "void(string Key)",
-"line" : 543}
+"line" : 545}
 ]
 }
 ,
@@ -3117,13 +3117,13 @@
 "name" : "opOpAssign(string s = \"-=\")",
 "kind" : "template",
 "protection" : "public",
-"line" : 544,
+"line" : 546,
 "members" : [
 {
 "name" : "opOpAssign",
 "kind" : "function",
 "type" : "void(string Key)",
-"line" : 544}
+"line" : 546}
 ]
 }
 ,
@@ -3132,19 +3132,19 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string[] Data, string Key)",
-"line" : 545}
+"line" : 547}
 ,
 {
 "name" : "opOpIndexAssign(string s = \"~=\")",
 "kind" : "template",
 "protection" : "public",
-"line" : 546,
+"line" : 548,
 "members" : [
 {
 "name" : "opOpIndexAssign",
 "kind" : "function",
 "type" : "void(LIST Data, string Key)",
-"line" : 546}
+"line" : 548}
 ]
 }
 ,
@@ -3152,13 +3152,13 @@
 "name" : "opOpIndexAssign(string s = \"~=\")",
 "kind" : "template",
 "protection" : "public",
-"line" : 547,
+"line" : 549,
 "members" : [
 {
 "name" : "opOpIndexAssign",
 "kind" : "function",
 "type" : "void(string Data, string Key)",
-"line" : 547}
+"line" : 549}
 ]
 }
 ,
@@ -3167,133 +3167,133 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Key)",
-"line" : 548}
-,
-{
-"name" : "SetList",
-"kind" : "function",
-"protection" : "public",
-"type" : "void(string Key, string[] Data)",
 "line" : 550}
 ,
 {
 "name" : "SetList",
 "kind" : "function",
 "protection" : "public",
+"type" : "void(string Key, string[] Data)",
+"line" : 552}
+,
+{
+"name" : "SetList",
+"kind" : "function",
+"protection" : "public",
 "type" : "void(string Key, string Data)",
-"line" : 551}
+"line" : 553}
 ,
 {
 "name" : "RemoveItem",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Item)",
-"line" : 552}
+"line" : 554}
 ,
 {
 "name" : "AddItem",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Item)",
-"line" : 553}
+"line" : 555}
 ,
 {
 "name" : "GetList",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Key)",
-"line" : 554}
+"line" : 556}
 ,
 {
 "name" : "GetCatList",
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string Key)",
-"line" : 555}
+"line" : 557}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 569}
+"line" : 571}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuName)",
-"line" : 570}
+"line" : 572}
 ,
 {
 "name" : "WorkingPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 576}
+"line" : 578}
 ,
 {
 "name" : "WorkingPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuPath)",
-"line" : 577}
+"line" : 579}
 ,
 {
 "name" : "Compiler",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 592}
+"line" : 594}
 ,
 {
 "name" : "Compiler",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuCompiler)",
-"line" : 593}
-,
-{
-"name" : "UseCustomBuild",
-"kind" : "function",
-"protection" : "public",
-"type" : "@property bool()",
 "line" : 595}
 ,
 {
 "name" : "UseCustomBuild",
 "kind" : "function",
 "protection" : "public",
-"type" : "@property void(bool UseIt)",
-"line" : 596}
+"type" : "@property bool()",
+"line" : 597}
 ,
 {
-"name" : "CustomBuildCommand",
+"name" : "UseCustomBuild",
 "kind" : "function",
 "protection" : "public",
-"type" : "@property string()",
+"type" : "@property void(bool UseIt)",
 "line" : 598}
 ,
 {
 "name" : "CustomBuildCommand",
 "kind" : "function",
 "protection" : "public",
-"type" : "@property void(string nuCommand)",
-"line" : 599}
+"type" : "@property string()",
+"line" : 600}
 ,
 {
-"name" : "Target",
+"name" : "CustomBuildCommand",
 "kind" : "function",
 "protection" : "public",
-"type" : "@property int()",
+"type" : "@property void(string nuCommand)",
 "line" : 601}
 ,
 {
 "name" : "Target",
 "kind" : "function",
 "protection" : "public",
+"type" : "@property int()",
+"line" : 603}
+,
+{
+"name" : "Target",
+"kind" : "function",
+"protection" : "public",
 "type" : "@property void(int nuTarget)",
-"line" : 602}
+"line" : 604}
 ]
 }
 ,
@@ -3302,7 +3302,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string Lib)",
-"line" : 610}
+"line" : 612}
 ]
 }
 ,
@@ -3315,7 +3315,7 @@
 "name" : "MESSAGE_UI",
 "kind" : "class",
 "protection" : "public",
-"line" : 42,
+"line" : 40,
 "base" : "Object",
 "interfaces" : [
 "ELEMENT"],
@@ -3325,112 +3325,112 @@
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 46}
+"line" : 44}
 ,
 {
 "name" : "mInfo",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 47}
+"line" : 45}
 ,
 {
 "name" : "mState",
 "kind" : "variable",
 "protection" : "private",
 "type" : "bool",
-"line" : 48}
+"line" : 46}
 ,
 {
 "name" : "mRoot",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Viewport.Viewport",
-"line" : 50}
+"line" : 48}
 ,
 {
 "name" : "mScrWin",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.ScrolledWindow.ScrolledWindow",
-"line" : 51}
+"line" : 49}
 ,
 {
 "name" : "mErrorView",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.TreeView.TreeView",
-"line" : 52}
+"line" : 50}
 ,
 {
 "name" : "mStore",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.ListStore.ListStore",
-"line" : 53}
+"line" : 51}
 ,
 {
 "name" : "WatchDMD",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(string line)",
-"line" : 55}
+"line" : 53}
 ,
 {
 "name" : "RowActivated",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(TreePath tp, TreeViewColumn tvc, TreeView tv)",
-"line" : 90}
+"line" : 99}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "MESSAGE_UI()",
-"line" : 104}
+"line" : 114}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 110}
+"line" : 120}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 111}
+"line" : 121}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 112}
+"line" : 122}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool nuState)",
-"line" : 113}
+"line" : 123}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 121}
+"line" : 131}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 151}
+"line" : 161}
 ]
 }
 ]

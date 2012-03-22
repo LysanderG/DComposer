@@ -123,6 +123,9 @@ class SEARCH_UI : ELEMENT
 
     void FindNextBtnClicked(Button X)
     {
+        TreeIter tiFirst = new TreeIter;
+        if(!mResultsList.getIterFirst(tiFirst))GetResults();
+        
         TreePath tp = new TreePath(true);
         TreePath errortp;
         TreeViewColumn tvc = new TreeViewColumn;
@@ -139,6 +142,9 @@ class SEARCH_UI : ELEMENT
 
     void FindPrevBtnClicked(Button X)
     {
+        TreeIter tiFirst = new TreeIter;
+        if(!mResultsList.getIterFirst(tiFirst))GetResults();
+        
         TreeViewColumn tvc = new TreeViewColumn;
         TreePath tp = new TreePath(true);
         mResultsView.getCursor(tp, tvc);
@@ -386,6 +392,10 @@ class SEARCH_UI : ELEMENT
     void ReplaceOne()
     {
         TI = mResultsView.getSelection.getSelected();
+
+        if (TI is null) return;
+
+        
         if(!mResultsList.iterIsValid(TI)) return;
 
         string filename = mResultsList.getValueString(TI, 3);
@@ -403,7 +413,10 @@ class SEARCH_UI : ELEMENT
         tmp.getBuffer.delet(txti1, txti2);
         //tmp.getBuffer.getIterAtLineOffset(txti1,line-1,offstart);
         tmp.getBuffer.insert(txti1, mReplace.getText(), -1);
+        
+        auto DeletedPath = TI.getTreePath(); //after removing the row there will be nothing selected so must reselect the "deleted path"
         mResultsList.remove(TI);
+        mResultsView.getSelection.selectPath(DeletedPath);
     }
         
     
@@ -437,6 +450,8 @@ class SEARCH_UI : ELEMENT
         mScopeProject       = cast (RadioButton)    mBuilder.getObject("radiobutton10");
         mFindComboBox       = new  ComboBoxEntry(true);
         mReplaceComboBox    = new  ComboBoxEntry(true);
+
+        mResultsList.clear();
         
 
         mFindList           = new                   ListStore([GType.STRING]);
@@ -461,6 +476,7 @@ class SEARCH_UI : ELEMENT
 
         
         mFind.addOnActivate(delegate void(Entry X){mFindComboBox.editingDone();});
+        mReplace.addOnActivate(delegate void(Entry X){mFindComboBox.editingDone();});
         mFindComboBox.addOnEditingDone (&EditedFind);
 
         

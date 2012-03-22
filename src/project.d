@@ -27,6 +27,7 @@ import std.path;
 import std.process;
 import std.string;
 import std.conv;
+import std.xml;
 
 import dcore;
 
@@ -188,7 +189,7 @@ class PROJECT
 			indx = j.object["cmdstring"].str;
 			mFlags[indx] = new FLAG;
 			mFlags[indx].State = false;
-			mFlags[indx].Brief = j.object["brief"].str;
+			mFlags[indx].Brief = std.xml.encode(j.object["brief"].str);
 			mFlags[indx].CmdString = j.object["cmdstring"].str;
 			mFlags[indx].Argument = " ";
 			mFlags[indx].InitHasArg = (j.object["hasargument"].type == JSON_TYPE.TRUE) ? true : false;
@@ -450,21 +451,23 @@ class PROJECT
     {
         if( (mTarget == TARGET.NULL) || (mTarget == TARGET.UNDEFINED) ) return false;
 
-        //BuildMsg.emit(`BEGIN`);
-        //BuildMsg.emit("BEGIN");
+
         BuildMsg.emit(BuildCommand());   
 
         std.stdio.File Process = File("tmp","w");
 
         foreach (prescript; Project["PRE_BUILD_SCRIPTS"])writeln(shell(prescript));
+
         Process.popen("sh /home/anthony/.neontotem/dcomposer/childrunner.sh " ~ BuildCommand() ~ " 2>&1 ", "r");
 
-        foreach (postscript; Project["POST_BUILD_SCRIPTS"])writeln(shell(postscript));
+        foreach (postscript; Project["POST_BUILD_SCRIPTS"]) writeln(shell(postscript));
 
         foreach(string L; lines(Process) ) BuildMsg.emit(chomp(L));
 
+
         scope(exit) Process.close();
         Event.emit("Build");
+        Log.Entry("Building Project " ~ mName);
         
         return true;
     }

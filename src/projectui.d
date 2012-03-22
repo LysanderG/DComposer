@@ -28,6 +28,7 @@ import project;
 import std.conv;
 import std.path;
 import std.stdio;
+import std.parallelism;
 
 import gtk.AccelGroup;
 import gtk.Action;
@@ -657,10 +658,14 @@ class PROJECT_UI : ELEMENT
 
     void Build(Action x)
     {
+
         dui.GetDocMan.SaveAllDocs();
-        Project.BuildMsg.emit(`BEGIN`);
+        Project.BuildMsg.emit(`BEGIN`);        
         Project.Build();
+        Project.BuildMsg.emit(`END`);
     }
+    
+
 
     void Run(Action x)
     {
