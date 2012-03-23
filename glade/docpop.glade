@@ -25,7 +25,7 @@
     <property name="border_width">2</property>
     <property name="type">popup</property>
     <property name="accept_focus">False</property>
-    <property name="opacity">0.77000000000000002</property>
+    <property name="opacity">0.66000000000000003</property>
     <property name="ubuntu_no_proxy">True</property>
     <property name="mnemonics_visible">False</property>
     <child>

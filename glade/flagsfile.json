@@ -1,26 +1,26 @@
 [
 {
-"brief":"compile only ,do not link",
+"brief":"do not link",
 "cmdstring":"-c",
 "hasargument":false
 },
 {
-"brief":"instrument for code coverage analysis",
+"brief":"do code coverage analysis",
 "cmdstring":"-cov",
 "hasargument":false
 },
 {
-"brief":"generate documentation from source",
+"brief":"generate documentation",
 "cmdstring":"-D",
 "hasargument":false
 },
 {
-"brief":"write documentation file to ARGUMENT directory",
+"brief":"write documentation file to docdir directory",
 "cmdstring":"-Dd",
 "hasargument":true
 },
 {
-"brief":"write documentation file to ARGUMENT filename",
+"brief":"write documentation file to filename",
 "cmdstring":"-Df",
 "hasargument":true
 },
@@ -35,58 +35,58 @@
 "hasargument":false
 },
 {
-"brief":"link in ARGUMENT as the default library when compiling for symbolic debugging instead of libphobos2.a",
-"cmdstring":"-debuglib=",
+"brief":"set symbolic debug library to name",
+"cmdstring":"-debuglib",
 "hasargument":true
 },
 {
-"brief":"linkin ARGUMENT as the default library when not compiling for symbolic debugging instead of libphobos2.a",
-"cmdstring":"-defaultlib=",
+"brief":"set default library to name",
+"cmdstring":"-defaultlib",
 "hasargument":true
 },
 {
-"brief":"write module dependencies as text to ARGUMENT",
-"cmdstring":"-deps=",
+"brief":"write module dependencies to filename",
+"cmdstring":"-deps",
 "hasargument":true
 },
 {
-"brief":"generate Position Independent Code (which is used for building shared libraries)",
+"brief":"generate position independent code",
 "cmdstring":"-fPIC",
 "hasargument":false
 },
 {
-"brief":"add Dwarf symbolic debug info with D extensions for debuggers such as ZeroBUGS",
+"brief":"add symbolic debug info",
 "cmdstring":"-g",
-"hasargument":true
+"hasargument":false
 },
 {
-"brief":"add Dwarf symbolic debug info in C format for debuggers such as gdb",
+"brief":"add symbolic debug info, pretend to be C",
 "cmdstring":"-gc",
 "hasargument":false
 },
 {
-"brief":"generate D interface file",
+"brief":"always emit stack frame",
+"cmdstring":"-gs",
+"hasargument":false
+},
+{
+"brief":"generate 'header' file",
 "cmdstring":"-H",
 "hasargument":false
 },
 {
-"brief":"write D interface file to ARGUMENT directory",
+"brief":"write 'header' file to directory",
 "cmdstring":"-Hd",
 "hasargument":true
 },
 {
-"brief":"write D interface file to ARUGMENT file name",
+"brief":"write 'header' file to filename",
 "cmdstring":"-Hf",
 "hasargument":true
 },
 {
-"brief":"prin brief help to console",
+"brief":"print help",
 "cmdstring":"--help",
-"hasargument":false
-},
-{
-"brief":"inline expand functions at the discretion of the compiler. This can imporve performance, at the expense of making it more difficult to use a debugger on it",
-"cmdstring":"-inline",
 "hasargument":false
 },
 {
@@ -95,72 +95,102 @@
 "hasargument":false
 },
 {
-"brief":"compile a 32 bit executable. This is the default for the 32 bit dmd.",
+"brief":"do function inlining",
+"cmdstring":"-inline",
+"hasargument":false
+},
+{
+"brief":"generate library rather than object files",
+"cmdstring":"-lib",
+"hasargument":false
+},
+{
+"brief":"generate 32 bit code",
 "cmdstring":"-m32",
 "hasargument":false
 },
 {
-"brief":"compile a 64 bit executable.This is the default for the 64 bit dmd.",
+"brief":"generate 64 bit code",
 "cmdstring":"-m64",
 "hasargument":false
 },
 {
-"brief":"open browser specified by the BROWSER environment variable to dmd manpage.  If BROWSER is undefined, x-www-browser is assumed.",
+"brief":"open web browser on manual page",
 "cmdstring":"-man",
 "hasargument":false
 },
 {
-"brief":"turns off all array bounds checking, even for save functions",
+"brief":"generate linker .map file",
+"cmdstring":"-map",
+"hasargument":false
+},
+{
+"brief":"turns off array bounds checking for all functions",
 "cmdstring":"-noboundscheck",
 "hasargument":false
 },
 {
-"brief":"Optimize generated code.  For fastest executables, compile with the -O -release -inline switches together.",
+"brief":"do not emit reference to floating point",
+"cmdstring":"-nofloat",
+"hasargument":false
+},
+{
+"brief":"optimize",
 "cmdstring":"-O",
 "hasargument":false
 },
 {
-"brief":"Suppressgenerationofobjectfile.Usefulinconjunctionwith-Dor-Hflags.",
+"brief":"do not write object file",
 "cmdstring":"-o-",
 "hasargument":false
 },
 {
-"brief":"writeobjectfilesrelativetodirectoryARGUMENTinsteadoftothecurrentdirectory",
+"brief":"write object & library files to directory objdir",
 "cmdstring":"-od",
 "hasargument":true
 },
 {
-"brief":"SetoutputfilenametoARGUMENTintheoutputdirectory.Theoutputfilecanbeanobjectfile,executablefile,orlibraryfiledependingontheotherswitches.",
+"brief":"name output file to filename",
 "cmdstring":"-of",
 "hasargument":true
 },
 {
-"brief":"normallythepathfor.dsourcefilesisstrippedoffwhengeneratinganobjectfilename.-opwillleaveiton.",
+"brief":"do not strip paths from source file",
 "cmdstring":"-op",
 "hasargument":false
 },
 {
-"brief":"profiletheruntimeperformanceofthegeneratedcode",
+"brief":"profile runtime performance of generated code",
 "cmdstring":"-profile",
 "hasargument":false
 },
 {
-"brief":"suppressnon-essentialcompilermessages",
+"brief":"enforce property syntax",
+"cmdstring":"-property",
+"hasargument":false
+},
+{
+"brief":"suppress unnecessary messages",
 "cmdstring":"-quiet",
 "hasargument":false
 },
 {
-"brief":"compilereleaseversion,whichmeansnotgeneratingcodeforcontractsandasserts.Arrayboundscheckingisnotdoneofrsystemandtrustedfunctions.",
+"brief":"compile release version",
 "cmdstring":"-release",
 "hasargument":false
 },
 {
-"brief":"link,andruntheprogramwithARGUMENTastheargumentstotheprogram.No.oorexecutablefileisleftbehind.",
+"brief":"srcfile args...   run resulting program, passing args",
 "cmdstring":"-run",
 "hasargument":true
 },
 {
-"brief":"compileinunittestcode,turnsonasserts,andsetstheunitestversionidentifier",
+"brief":"generate shared library",
+"cmdstring":"-shared",
+"hasargument":false
+},
+{
+"brief":"compile in unit tests",
 "cmdstring":"-unittest",
 "hasargument":false
 },
@@ -170,7 +200,7 @@
 "hasargument":false
 },
 {
-"brief":"print informational messages identifying variables defaulting to thread local storage.  Handy for migrating to shared model.",
+"brief":"list all variables going into thread local storage",
 "cmdstring":"-vtls",
 "hasargument":false
 },
@@ -180,8 +210,18 @@
 "hasargument":false
 },
 {
-"brief":"enable informational warnings(i.e. compilation still proceeds normally)",
+"brief":"enable informational warnings",
 "cmdstring":"-wi",
 "hasargument":false
+},
+{
+"brief":"generate JSON file",
+"cmdstring":"-X",
+"hasargument":false
+},
+{
+"brief":"write JSON file to filename",
+"cmdstring":"-Xf",
+"hasargument":true
 }
 ]

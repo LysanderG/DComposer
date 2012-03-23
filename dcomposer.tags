@@ -1222,235 +1222,249 @@
 "line" : 89}
 ,
 {
-"name" : "mFindNextBtn",
+"name" : "mReplaceAllBtn",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Button.Button",
 "line" : 90}
 ,
 {
-"name" : "mFindPrevBtn",
+"name" : "mFindNextBtn",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Button.Button",
 "line" : 91}
 ,
 {
-"name" : "mHideOptionsBtn",
+"name" : "mFindPrevBtn",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Button.Button",
 "line" : 92}
 ,
 {
-"name" : "mHideAllBtn",
+"name" : "mHideOptionsBtn",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.Button.Button",
 "line" : 93}
 ,
 {
-"name" : "mCaseSensitive",
+"name" : "mHideAllBtn",
 "kind" : "variable",
 "protection" : "private",
-"type" : "gtk.CheckButton.CheckButton",
+"type" : "gtk.Button.Button",
 "line" : 94}
 ,
 {
-"name" : "mRegex",
+"name" : "mCaseSensitive",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.CheckButton.CheckButton",
 "line" : 95}
 ,
 {
-"name" : "mScopeSelection",
+"name" : "mRegex",
 "kind" : "variable",
 "protection" : "private",
-"type" : "gtk.RadioButton.RadioButton",
-"line" : 97}
+"type" : "gtk.CheckButton.CheckButton",
+"line" : 96}
 ,
 {
-"name" : "mScopeFile",
+"name" : "mScopeSelection",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.RadioButton.RadioButton",
 "line" : 98}
 ,
 {
-"name" : "mScopeSession",
+"name" : "mScopeFile",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.RadioButton.RadioButton",
 "line" : 99}
 ,
 {
-"name" : "mScopeFolder",
+"name" : "mScopeSession",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.RadioButton.RadioButton",
 "line" : 100}
 ,
 {
-"name" : "mScopeProject",
+"name" : "mScopeFolder",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.RadioButton.RadioButton",
 "line" : 101}
 ,
 {
+"name" : "mScopeProject",
+"kind" : "variable",
+"protection" : "private",
+"type" : "gtk.RadioButton.RadioButton",
+"line" : 102}
+,
+{
 "name" : "mResultsView",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.TreeView.TreeView",
-"line" : 103}
+"line" : 104}
 ,
 {
 "name" : "mFindList",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.ListStore.ListStore",
-"line" : 104}
+"line" : 105}
 ,
 {
 "name" : "mReplaceList",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.ListStore.ListStore",
-"line" : 105}
+"line" : 106}
 ,
 {
 "name" : "mResultsList",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.ListStore.ListStore",
-"line" : 106}
+"line" : 107}
 ,
 {
 "name" : "TI",
 "kind" : "variable",
 "protection" : "private",
 "type" : "gtk.TreeIter.TreeIter",
-"line" : 108}
+"line" : 109}
 ,
 {
 "name" : "EditedFind",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(CellEditableIF ci)",
-"line" : 112}
+"line" : 113}
 ,
 {
 "name" : "FindNextBtnClicked",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(Button X)",
-"line" : 124}
+"line" : 125}
 ,
 {
 "name" : "FindPrevBtnClicked",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(Button X)",
-"line" : 140}
+"line" : 144}
 ,
 {
 "name" : "GetResults",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 152}
+"line" : 159}
 ,
 {
 "name" : "FillResultsListFromFile",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 250}
+"line" : 257}
 ,
 {
 "name" : "FillResultsList",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 308}
+"line" : 315}
 ,
 {
 "name" : "GotoResult",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 331}
+"line" : 338}
 ,
 {
 "name" : "GotoResult2",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(TreeSelection ts)",
-"line" : 354}
+"line" : 361}
 ,
 {
 "name" : "BeginSearch",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(Action X)",
-"line" : 376}
+"line" : 383}
 ,
 {
 "name" : "ReplaceOne",
 "kind" : "function",
 "protection" : "private",
 "type" : "void()",
-"line" : 386}
+"line" : 393}
+,
+{
+"name" : "ReplaceAll",
+"kind" : "function",
+"protection" : "private",
+"type" : "void()",
+"line" : 423}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "SEARCH_UI()",
-"line" : 412}
+"line" : 435}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 490}
+"line" : 518}
 ,
 {
 "name" : "Information",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 491}
+"line" : 519}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 492}
+"line" : 520}
 ,
 {
 "name" : "State",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool NuState)",
-"line" : 493}
+"line" : 521}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 500}
+"line" : 528}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 520}
+"line" : 548}
 ]
 }
 ]
@@ -2587,13 +2601,13 @@
 "kind" : "variable",
 "protection" : "public",
 "type" : "immutable(long)",
-"line" : 33}
+"line" : 34}
 ,
 {
 "name" : "FLAG",
 "kind" : "class",
 "protection" : "public",
-"line" : 38,
+"line" : 39,
 "base" : "Object",
 "members" : [
 {
@@ -2602,7 +2616,7 @@
 "protection" : "private",
 "type" : "bool",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 48}
+"line" : 49}
 ,
 {
 "name" : "m_HasArgument",
@@ -2610,7 +2624,7 @@
 "protection" : "private",
 "type" : "bool",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 49}
+"line" : 50}
 ,
 {
 "name" : "m_Brief",
@@ -2618,7 +2632,7 @@
 "protection" : "private",
 "type" : "string",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 50}
+"line" : 51}
 ,
 {
 "name" : "m_String",
@@ -2626,7 +2640,7 @@
 "protection" : "private",
 "type" : "string",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 51}
+"line" : 52}
 ,
 {
 "name" : "m_Argument",
@@ -2634,7 +2648,7 @@
 "protection" : "private",
 "type" : "string",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 52}
+"line" : 53}
 ,
 {
 "name" : "this",
@@ -2642,7 +2656,7 @@
 "protection" : "public",
 "type" : "FLAG()",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 56}
+"line" : 57}
 ,
 {
 "name" : "this",
@@ -2650,7 +2664,7 @@
 "protection" : "public",
 "type" : "FLAG(string String, string Brief, bool HasArg, string Argument = \" \")",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 59}
+"line" : 60}
 ,
 {
 "name" : "State",
@@ -2658,7 +2672,7 @@
 "protection" : "public",
 "type" : "@property void(bool NuState)",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 70}
+"line" : 71}
 ,
 {
 "name" : "State",
@@ -2666,7 +2680,7 @@
 "protection" : "public",
 "type" : "@property bool()",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 71}
+"line" : 72}
 ,
 {
 "name" : "HasAnArg",
@@ -2674,7 +2688,7 @@
 "protection" : "public",
 "type" : "@property bool()",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 73}
+"line" : 74}
 ,
 {
 "name" : "InitHasArg",
@@ -2682,31 +2696,31 @@
 "protection" : "public",
 "type" : "@property void(bool DoesIt)",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 74}
+"line" : 75}
 ,
 {
 "name" : "Brief",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 76}
-,
-{
-"name" : "Brief",
-"kind" : "function",
-"protection" : "public",
-"type" : "@property void(string s)",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
 "line" : 77}
 ,
 {
+"name" : "Brief",
+"kind" : "function",
+"protection" : "public",
+"type" : "@property void(string s)",
+"comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
+"line" : 78}
+,
+{
 "name" : "CmdString",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 79}
+"line" : 80}
 ,
 {
 "name" : "CmdString",
@@ -2714,7 +2728,7 @@
 "protection" : "public",
 "type" : "@property void(string s)",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 80}
+"line" : 81}
 ,
 {
 "name" : "Argument",
@@ -2722,7 +2736,7 @@
 "protection" : "public",
 "type" : "@property void(string Arg)",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 82}
+"line" : 83}
 ,
 {
 "name" : "Argument",
@@ -2730,7 +2744,7 @@
 "protection" : "public",
 "type" : "@property string()",
 "comment" : "\n        This class defines single instance parameters for the dmd commandline\n        they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)\n        or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)\n        flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)\n    \n",
-"line" : 83}
+"line" : 84}
 ]
 }
 ,
@@ -2739,90 +2753,90 @@
 "kind" : "alias",
 "protection" : "public",
 "type" : "string[]",
-"line" : 88}
+"line" : 89}
 ,
 {
 "name" : "LISTS",
 "kind" : "struct",
 "protection" : "public",
-"line" : 91,
+"line" : 92,
 "members" : [
 {
 "name" : "mLists",
 "kind" : "variable",
 "protection" : "public",
 "type" : "string[][string]",
-"line" : 92}
+"line" : 93}
 ,
 {
 "name" : "GetKeys",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[]()",
-"line" : 94}
+"line" : 95}
 ,
 {
 "name" : "AddKey",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key)",
-"line" : 99}
+"line" : 100}
 ,
 {
 "name" : "SetKey",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string[] Data)",
-"line" : 105}
+"line" : 106}
 ,
 {
 "name" : "RemoveKey",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key)",
-"line" : 110}
+"line" : 111}
 ,
 {
 "name" : "GetData",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Key)",
-"line" : 116}
+"line" : 117}
 ,
 {
 "name" : "SetData",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string[] Data)",
-"line" : 122}
+"line" : 123}
 ,
 {
 "name" : "ConcatData",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Key, string[] Data)",
-"line" : 126}
+"line" : 127}
 ,
 {
 "name" : "ConcatData",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Data)",
-"line" : 131}
+"line" : 132}
 ,
 {
 "name" : "RemoveData",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Item)",
-"line" : 136}
+"line" : 137}
 ,
 {
 "name" : "Zero",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 144}
+"line" : 145}
 ]
 }
 ,
@@ -2830,50 +2844,50 @@
 "name" : "TARGET",
 "kind" : "enum",
 "protection" : "public",
-"line" : 152,
+"line" : 153,
 "base" : "int",
 "members" : [
 {
 "name" : "NULL",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 152}
+"line" : 153}
 ,
 {
 "name" : "UNDEFINED",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 152}
+"line" : 153}
 ,
 {
 "name" : "APP",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 152}
+"line" : 153}
 ,
 {
 "name" : "SHARED",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 152}
+"line" : 153}
 ,
 {
 "name" : "STATIC",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 152}
+"line" : 153}
 ,
 {
 "name" : "OBJECT",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 152}
+"line" : 153}
 ,
 {
 "name" : "OTHER",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 152}
+"line" : 153}
 ]
 }
 ,
@@ -2881,61 +2895,61 @@
 "name" : "SRCFILES",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 154}
 ,
 {
 "name" : "RELFILES",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 154}
 ,
 {
 "name" : "LIBFILES",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 154}
 ,
 {
 "name" : "IMPPATHS",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 154}
 ,
 {
 "name" : "LIBPATHS",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 154}
 ,
 {
 "name" : "JPATHS",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 154}
 ,
 {
 "name" : "VERSIONS",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 154}
 ,
 {
 "name" : "DEBUGS",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 154}
 ,
 {
 "name" : "MISC",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 153}
+"line" : 154}
 ,
 {
 "name" : "PROJECT",
 "kind" : "class",
 "protection" : "public",
-"line" : 158,
+"line" : 159,
 "base" : "Object",
 "members" : [
 {
@@ -2943,178 +2957,164 @@
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 160}
+"line" : 161}
 ,
 {
 "name" : "mWorkingPath",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 161}
+"line" : 162}
 ,
 {
 "name" : "mTarget",
 "kind" : "variable",
 "protection" : "private",
 "type" : "TARGET",
-"line" : 163}
+"line" : 164}
 ,
 {
 "name" : "mCompiler",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 165}
+"line" : 166}
 ,
 {
 "name" : "mVersion",
 "kind" : "variable",
 "protection" : "private",
 "type" : "ulong",
-"line" : 167}
+"line" : 168}
 ,
 {
 "name" : "mFlags",
 "kind" : "variable",
 "protection" : "private",
 "type" : "FLAG[string]",
-"line" : 170}
+"line" : 171}
 ,
 {
 "name" : "mList",
 "kind" : "variable",
 "protection" : "private",
 "type" : "LISTS",
-"line" : 171}
+"line" : 172}
 ,
 {
 "name" : "mUseCustomBuild",
 "kind" : "variable",
 "protection" : "private",
 "type" : "bool",
-"line" : 173}
+"line" : 174}
 ,
 {
 "name" : "mCustomBuildCommand",
 "kind" : "variable",
 "protection" : "private",
 "type" : "string",
-"line" : 174}
+"line" : 175}
 ,
 {
 "name" : "ReadFlags",
 "kind" : "function",
 "protection" : "private",
 "type" : "void(string FlagFile)",
-"line" : 177}
+"line" : 178}
 ,
 {
 "name" : "this",
 "kind" : "constructor",
 "protection" : "public",
 "type" : "PROJECT()",
-"line" : 203}
+"line" : 204}
 ,
 {
 "name" : "Engage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 210}
+"line" : 211}
 ,
 {
 "name" : "Disengage",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 219}
+"line" : 220}
 ,
 {
 "name" : "New",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 225}
+"line" : 226}
 ,
 {
 "name" : "Open",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string pfile)",
-"line" : 232}
+"line" : 233}
 ,
 {
 "name" : "Close",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 307}
+"line" : 308}
 ,
 {
 "name" : "Save",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 324}
+"line" : 325}
 ,
 {
 "name" : "GetFlags",
 "kind" : "function",
 "protection" : "public",
 "type" : "FLAG[string]()",
-"line" : 411}
+"line" : 412}
 ,
 {
 "name" : "SetFlag",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string key, bool NuState, string NuArgument = \"\")",
-"line" : 415}
+"line" : 416}
 ,
 {
 "name" : "CreateTags",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool()",
-"line" : 424}
+"line" : 425}
 ,
 {
 "name" : "Build",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool()",
-"line" : 449}
+"line" : 450}
 ,
 {
 "name" : "BuildCommand",
 "kind" : "function",
 "protection" : "public",
 "type" : "string()",
-"line" : 473}
+"line" : 474}
 ,
 {
 "name" : "Run",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string args = null)",
-"line" : 511}
+"line" : 512}
 ,
 {
 "name" : "opOpAssign(string s = \"+=\")",
-"kind" : "template",
-"protection" : "public",
-"line" : 545,
-"members" : [
-{
-"name" : "opOpAssign",
-"kind" : "function",
-"type" : "void(string Key)",
-"line" : 545}
-]
-}
-,
-{
-"name" : "opOpAssign(string s = \"-=\")",
 "kind" : "template",
 "protection" : "public",
 "line" : 546,
@@ -3128,25 +3128,25 @@
 }
 ,
 {
+"name" : "opOpAssign(string s = \"-=\")",
+"kind" : "template",
+"protection" : "public",
+"line" : 547,
+"members" : [
+{
+"name" : "opOpAssign",
+"kind" : "function",
+"type" : "void(string Key)",
+"line" : 547}
+]
+}
+,
+{
 "name" : "opIndexAssign",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string[] Data, string Key)",
-"line" : 547}
-,
-{
-"name" : "opOpIndexAssign(string s = \"~=\")",
-"kind" : "template",
-"protection" : "public",
-"line" : 548,
-"members" : [
-{
-"name" : "opOpIndexAssign",
-"kind" : "function",
-"type" : "void(LIST Data, string Key)",
 "line" : 548}
-]
-}
 ,
 {
 "name" : "opOpIndexAssign(string s = \"~=\")",
@@ -3157,8 +3157,22 @@
 {
 "name" : "opOpIndexAssign",
 "kind" : "function",
-"type" : "void(string Data, string Key)",
+"type" : "void(LIST Data, string Key)",
 "line" : 549}
+]
+}
+,
+{
+"name" : "opOpIndexAssign(string s = \"~=\")",
+"kind" : "template",
+"protection" : "public",
+"line" : 550,
+"members" : [
+{
+"name" : "opOpIndexAssign",
+"kind" : "function",
+"type" : "void(string Data, string Key)",
+"line" : 550}
 ]
 }
 ,
@@ -3167,133 +3181,133 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Key)",
-"line" : 550}
+"line" : 551}
 ,
 {
 "name" : "SetList",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string[] Data)",
-"line" : 552}
+"line" : 553}
 ,
 {
 "name" : "SetList",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Data)",
-"line" : 553}
+"line" : 554}
 ,
 {
 "name" : "RemoveItem",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Item)",
-"line" : 554}
+"line" : 555}
 ,
 {
 "name" : "AddItem",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Item)",
-"line" : 555}
+"line" : 556}
 ,
 {
 "name" : "GetList",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Key)",
-"line" : 556}
+"line" : 557}
 ,
 {
 "name" : "GetCatList",
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string Key)",
-"line" : 557}
+"line" : 558}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 571}
+"line" : 572}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuName)",
-"line" : 572}
+"line" : 573}
 ,
 {
 "name" : "WorkingPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 578}
+"line" : 579}
 ,
 {
 "name" : "WorkingPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuPath)",
-"line" : 579}
+"line" : 580}
 ,
 {
 "name" : "Compiler",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 594}
+"line" : 595}
 ,
 {
 "name" : "Compiler",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuCompiler)",
-"line" : 595}
+"line" : 596}
 ,
 {
 "name" : "UseCustomBuild",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 597}
+"line" : 598}
 ,
 {
 "name" : "UseCustomBuild",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool UseIt)",
-"line" : 598}
+"line" : 599}
 ,
 {
 "name" : "CustomBuildCommand",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 600}
+"line" : 601}
 ,
 {
 "name" : "CustomBuildCommand",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuCommand)",
-"line" : 601}
+"line" : 602}
 ,
 {
 "name" : "Target",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property int()",
-"line" : 603}
+"line" : 604}
 ,
 {
 "name" : "Target",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(int nuTarget)",
-"line" : 604}
+"line" : 605}
 ]
 }
 ,
@@ -3302,7 +3316,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string Lib)",
-"line" : 612}
+"line" : 613}
 ]
 }
 ,

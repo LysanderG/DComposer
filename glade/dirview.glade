@@ -24,6 +24,26 @@
       </row>
     </data>
   </object>
+  <object class="GtkListStore" id="liststore2">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">*.d</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">*.di</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">*.dpro</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">empty</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkViewport" id="viewport1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -203,8 +223,10 @@
             </child>
             <child>
               <object class="GtkEntry" id="entry1">
-                <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
+                <property name="no_show_all">True</property>
+                <property name="visibility">False</property>
                 <property name="invisible_char">•</property>
                 <property name="text" translatable="yes">*.d</property>
                 <property name="primary_icon_activatable">False</property>
@@ -213,10 +235,13 @@
                 <property name="secondary_icon_sensitive">True</property>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">2</property>
               </packing>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
