@@ -87,6 +87,7 @@ class SEARCH_UI : ELEMENT
     Entry           mFind;
     Entry           mReplace;
     Button          mReplaceBtn;
+    Button          mReplaceAllBtn;
     Button          mFindNextBtn;
     Button          mFindPrevBtn;
     Button          mHideOptionsBtn;
@@ -105,7 +106,7 @@ class SEARCH_UI : ELEMENT
     ListStore       mReplaceList;
     ListStore       mResultsList;
 
-    TreeIter        TI; //see if makings this a class members stops d's gc from screwing up my treeview/treemodel stuff
+    TreeIter        TI; //see if makings this a class member stops d's gc from screwing up my treeview/treemodel stuff
 
 
 
@@ -418,7 +419,16 @@ class SEARCH_UI : ELEMENT
         mResultsList.remove(TI);
         mResultsView.getSelection.selectPath(DeletedPath);
     }
-        
+
+    void ReplaceAll()
+    {
+        mResultsView.getSelection.selectPath(new TreePath("0"));
+
+        do
+        {
+            ReplaceOne();
+        }while(mResultsList.iterIsValid(TI));
+    }
     
     public:
 
@@ -439,6 +449,7 @@ class SEARCH_UI : ELEMENT
         mFindNextBtn        = cast (Button)         mBuilder.getObject("findnext");
         mFindPrevBtn        = cast (Button)         mBuilder.getObject("findprev");
         mReplaceBtn         = cast (Button)         mBuilder.getObject("replacebtn");
+        mReplaceAllBtn      = cast (Button)         mBuilder.getObject("button9");
         mResultsView        = cast (TreeView)       mBuilder.getObject("treeview2");
         mResultsList        = cast (ListStore)      mBuilder.getObject("liststore1");
         mCaseSensitive      = cast (CheckButton)    mBuilder.getObject("checkbutton5");
@@ -500,6 +511,7 @@ class SEARCH_UI : ELEMENT
         mFindPrevBtn.addOnClicked(&FindPrevBtnClicked);
 
         mReplaceBtn.addOnClicked(delegate void(Button X){ReplaceOne();});
+        mReplaceAllBtn.addOnClicked(delegate void(Button X) {ReplaceAll();});
     
     }
     

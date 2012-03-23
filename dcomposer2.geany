@@ -20,7 +20,7 @@ long_line_column=120
 [files]
 current_page=1
 FILE_NAME_0=1494;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsearch.d;0;4
-FILE_NAME_1=18875;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsearchui.d;0;4
+FILE_NAME_1=3791;D;0;16;0;1;0;%2Fhome%2Fanthony%2Fprojects%2Fdcomposer2%2Fsrc%2Fsearchui.d;0;4
 
 [build-menu]
 DFT_01_LB=_Build
@@ -38,7 +38,7 @@ DFT_00_CM=dmd -c "%f"
 DFT_00_WD=
 
 [VTE]
-last_dir=/home/anthony/projects/dcomposer2/src
+last_dir=/home/anthony/projects/dcomposer2
 
 [gproject]
 source_patterns=*;
