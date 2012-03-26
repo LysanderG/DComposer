@@ -107,6 +107,7 @@ class MAIN_UI
     void Run()
     {
         GetDocMan.OpenInitialDocs();
+        Project.OpenLastSession();
         
         Log().Entry("Entering GTK Main Loop\n");
         Main.run();
