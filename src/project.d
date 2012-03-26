@@ -219,6 +219,9 @@ class PROJECT
     
     void Disengage()                                        //dcore disengage
     {
+
+        if( (mTarget != TARGET.NULL) && (mName.length > 0)) Config.setString("PROJECT", "last_project", mWorkingPath ~ "/" ~ mName ~ ".dpro");
+        else Config.setString("PROJECT", "last_project", "no_project");
         Close();
         Log.Entry("Disengaged PROJECT");
     }
@@ -408,6 +411,12 @@ class PROJECT
 		
 	}
 	
+    void OpenLastSession()
+    {
+        auto lastProject = Config.getString("PROJECT", "last_project", "no_project");
+        if (lastProject == "no_project")return;
+        Open(lastProject);
+    }
         
     FLAG[string] GetFlags()                                 //returns all flags or a copy of em
     {

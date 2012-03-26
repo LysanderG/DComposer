@@ -142,112 +142,112 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 116}
+"line" : 117}
 ,
 {
 "name" : "ConfirmQuit",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(Event e, Widget w)",
-"line" : 181}
+"line" : 182}
 ,
 {
 "name" : "AddMenuItem",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string MenuID, Widget Addition, int Position = -1)",
-"line" : 199}
+"line" : 200}
 ,
 {
 "name" : "AddToolBarItem",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(ToolItem NuItem, int Position = -2)",
-"line" : 216}
+"line" : 217}
 ,
 {
 "name" : "PerformAction",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string ActionName)",
-"line" : 228}
+"line" : 229}
 ,
 {
 "name" : "GetWindow",
 "kind" : "function",
 "protection" : "public",
 "type" : "Window()",
-"line" : 235}
+"line" : 236}
 ,
 {
 "name" : "GetCenterPane",
 "kind" : "function",
 "protection" : "public",
 "type" : "Notebook()",
-"line" : 236}
+"line" : 237}
 ,
 {
 "name" : "GetSidePane",
 "kind" : "function",
 "protection" : "public",
 "type" : "Notebook()",
-"line" : 237}
+"line" : 238}
 ,
 {
 "name" : "GetExtraPane",
 "kind" : "function",
 "protection" : "public",
 "type" : "Notebook()",
-"line" : 238}
+"line" : 239}
 ,
 {
 "name" : "Actions",
 "kind" : "function",
 "protection" : "public",
 "type" : "ActionGroup()",
-"line" : 239}
+"line" : 240}
 ,
 {
 "name" : "GetMenuBar",
 "kind" : "function",
 "protection" : "public",
 "type" : "MenuBar()",
-"line" : 240}
+"line" : 241}
 ,
 {
 "name" : "GetAccel",
 "kind" : "function",
 "protection" : "public",
 "type" : "AccelGroup()",
-"line" : 241}
+"line" : 242}
 ,
 {
 "name" : "Status",
 "kind" : "function",
 "protection" : "public",
 "type" : "Statusbar()",
-"line" : 242}
+"line" : 243}
 ,
 {
 "name" : "GetDocMan",
 "kind" : "function",
 "protection" : "public",
 "type" : "DOCMAN()",
-"line" : 244}
+"line" : 245}
 ,
 {
 "name" : "GetAutoPopUps",
 "kind" : "function",
 "protection" : "public",
 "type" : "AUTO_POP_UPS()",
-"line" : 245}
+"line" : 246}
 ,
 {
 "name" : "WatchProjectName",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string EventType)",
-"line" : 248}
+"line" : 249}
 ]
 }
 ,
@@ -255,25 +255,25 @@
 "name" : "TYPE_NONE",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 257}
+"line" : 258}
 ,
 {
 "name" : "TYPE_CALLTIP",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 257}
+"line" : 258}
 ,
 {
 "name" : "TYPE_SCOPELIST",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 257}
+"line" : 258}
 ,
 {
 "name" : "TYPE_SYMCOM",
 "kind" : "enum member",
 "protection" : "public",
-"line" : 257}
+"line" : 258}
 ]
 }
 ,
@@ -3048,82 +3048,89 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 226}
+"line" : 229}
 ,
 {
 "name" : "Open",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string pfile)",
-"line" : 233}
+"line" : 236}
 ,
 {
 "name" : "Close",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 308}
+"line" : 311}
 ,
 {
 "name" : "Save",
 "kind" : "function",
 "protection" : "public",
 "type" : "void()",
-"line" : 325}
+"line" : 328}
+,
+{
+"name" : "OpenLastSession",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"line" : 414}
 ,
 {
 "name" : "GetFlags",
 "kind" : "function",
 "protection" : "public",
 "type" : "FLAG[string]()",
-"line" : 412}
+"line" : 421}
 ,
 {
 "name" : "SetFlag",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string key, bool NuState, string NuArgument = \"\")",
-"line" : 416}
+"line" : 425}
 ,
 {
 "name" : "CreateTags",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool()",
-"line" : 425}
+"line" : 434}
 ,
 {
 "name" : "Build",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool()",
-"line" : 450}
+"line" : 459}
 ,
 {
 "name" : "BuildCommand",
 "kind" : "function",
 "protection" : "public",
 "type" : "string()",
-"line" : 474}
+"line" : 483}
 ,
 {
 "name" : "Run",
 "kind" : "function",
 "protection" : "public",
 "type" : "bool(string args = null)",
-"line" : 512}
+"line" : 521}
 ,
 {
 "name" : "opOpAssign(string s = \"+=\")",
 "kind" : "template",
 "protection" : "public",
-"line" : 546,
+"line" : 555,
 "members" : [
 {
 "name" : "opOpAssign",
 "kind" : "function",
 "type" : "void(string Key)",
-"line" : 546}
+"line" : 555}
 ]
 }
 ,
@@ -3131,13 +3138,13 @@
 "name" : "opOpAssign(string s = \"-=\")",
 "kind" : "template",
 "protection" : "public",
-"line" : 547,
+"line" : 556,
 "members" : [
 {
 "name" : "opOpAssign",
 "kind" : "function",
 "type" : "void(string Key)",
-"line" : 547}
+"line" : 556}
 ]
 }
 ,
@@ -3146,19 +3153,19 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string[] Data, string Key)",
-"line" : 548}
+"line" : 557}
 ,
 {
 "name" : "opOpIndexAssign(string s = \"~=\")",
 "kind" : "template",
 "protection" : "public",
-"line" : 549,
+"line" : 558,
 "members" : [
 {
 "name" : "opOpIndexAssign",
 "kind" : "function",
 "type" : "void(LIST Data, string Key)",
-"line" : 549}
+"line" : 558}
 ]
 }
 ,
@@ -3166,13 +3173,13 @@
 "name" : "opOpIndexAssign(string s = \"~=\")",
 "kind" : "template",
 "protection" : "public",
-"line" : 550,
+"line" : 559,
 "members" : [
 {
 "name" : "opOpIndexAssign",
 "kind" : "function",
 "type" : "void(string Data, string Key)",
-"line" : 550}
+"line" : 559}
 ]
 }
 ,
@@ -3181,133 +3188,133 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Key)",
-"line" : 551}
+"line" : 560}
 ,
 {
 "name" : "SetList",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string[] Data)",
-"line" : 553}
+"line" : 562}
 ,
 {
 "name" : "SetList",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Data)",
-"line" : 554}
+"line" : 563}
 ,
 {
 "name" : "RemoveItem",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Item)",
-"line" : 555}
+"line" : 564}
 ,
 {
 "name" : "AddItem",
 "kind" : "function",
 "protection" : "public",
 "type" : "void(string Key, string Item)",
-"line" : 556}
+"line" : 565}
 ,
 {
 "name" : "GetList",
 "kind" : "function",
 "protection" : "public",
 "type" : "string[](string Key)",
-"line" : 557}
+"line" : 566}
 ,
 {
 "name" : "GetCatList",
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string Key)",
-"line" : 558}
+"line" : 567}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 572}
+"line" : 581}
 ,
 {
 "name" : "Name",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuName)",
-"line" : 573}
+"line" : 582}
 ,
 {
 "name" : "WorkingPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 579}
+"line" : 588}
 ,
 {
 "name" : "WorkingPath",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuPath)",
-"line" : 580}
+"line" : 589}
 ,
 {
 "name" : "Compiler",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 595}
+"line" : 604}
 ,
 {
 "name" : "Compiler",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuCompiler)",
-"line" : 596}
+"line" : 605}
 ,
 {
 "name" : "UseCustomBuild",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property bool()",
-"line" : 598}
+"line" : 607}
 ,
 {
 "name" : "UseCustomBuild",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(bool UseIt)",
-"line" : 599}
+"line" : 608}
 ,
 {
 "name" : "CustomBuildCommand",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property string()",
-"line" : 601}
+"line" : 610}
 ,
 {
 "name" : "CustomBuildCommand",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(string nuCommand)",
-"line" : 602}
+"line" : 611}
 ,
 {
 "name" : "Target",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property int()",
-"line" : 604}
+"line" : 613}
 ,
 {
 "name" : "Target",
 "kind" : "function",
 "protection" : "public",
 "type" : "@property void(int nuTarget)",
-"line" : 605}
+"line" : 614}
 ]
 }
 ,
@@ -3316,7 +3323,7 @@
 "kind" : "function",
 "protection" : "public",
 "type" : "string(string Lib)",
-"line" : 613}
+"line" : 622}
 ]
 }
 ,
