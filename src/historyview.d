@@ -111,7 +111,7 @@ class HISTORY_VIEW : ELEMENT
         mHistoryAct.setAccelGroup(dui.GetAccel());
         dui.Actions().addActionWithAccel(mHistoryAct, "<Ctrl>h");
         
-        dui.AddMenuItem("View", mHistoryAct.createMenuItem());
+        dui.AddMenuItem("_View", mHistoryAct.createMenuItem());
 		//dui.AddToolBarItem(SearchAct.createToolItem());
 
         dui.GetSidePane.appendPage(mRoot, "History");
