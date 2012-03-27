@@ -281,9 +281,8 @@ class SYMBOLS
 
     void Engage()
     {
-        ulong waste;
-                
-        string[] keys = Config().getKeys("SYMBOL_LIBS", waste);
+                        
+        string[] keys = Config().getKeys("SYMBOL_LIBS");
 
         foreach(key; keys)
         {
@@ -323,7 +322,7 @@ class SYMBOLS
     
     //this will replace mSymbol[key] if it exists (otherwise adds of course)
     //actually loads a json file from dmd -X into this structure
-    File XX;
+
     void Load(string key, string symfile)
     {
 

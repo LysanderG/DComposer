@@ -46,6 +46,7 @@ import  gtk.Widget;
 import  gtk.MessageDialog;
 import  gdk.Event;
 import  gtk.ToggleAction;
+import  gtk.AboutDialog;
 
 MAIN_UI dui;
 
@@ -174,6 +175,8 @@ class MAIN_UI
         AddMenuItem("_View", ViewExtraPaneAct.createMenuItem());
         AddMenuItem("_View", ViewStatusBarAct.createMenuItem());
 
+        AddMenuItem("_Help", new MenuItem(delegate void(MenuItem mi){ShowAboutDialog();}, "About"));
+
         Project.Event.connect(&WatchProjectName);
     }
     
@@ -249,6 +252,18 @@ class MAIN_UI
     void WatchProjectName(string EventType)
     {
         if(EventType == "Name") mIndicator.setText("Project: " ~ Project.Name);
+    }
+
+
+    void ShowAboutDialog()
+    {
+        Builder AboutBuilder = new Builder;
+        AboutBuilder.addFromFile(Config.getString("UI", "about_glade_file", "~/.neontotem/dcomposer/about.glade"));
+
+        auto About = cast(AboutDialog) AboutBuilder.getObject("aboutdialog1");
+
+        About.run();
+        About.hide();
     }
 
 }

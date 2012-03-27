@@ -101,8 +101,8 @@ class DOCMAN
         Config.setString("DOC_FILTERS", "text", "Text files;mime;text/plain");
         Config.setString("DOC_FILTERS", "dpro", "DComposer project files;pattern;*.dpro");
 
-        ulong KeyCount;
-        string[] FilterKeys = Config.getKeys("DOC_FILTERS", KeyCount);
+        
+        string[] FilterKeys = Config.getKeys("DOC_FILTERS");
 
         foreach(i, key; FilterKeys)
         {
@@ -196,8 +196,7 @@ class DOCMAN
         Config.setString("DOC_NEW_TYPES", ".tcl", "Tcl source file");
         Config.setString("DOC_NEW_TYPES", ".html", "HTML source file");
 
-        ulong KeyCount;
-        string[] DocTypes = Config.getKeys("DOC_NEW_TYPES", KeyCount);
+        string[] DocTypes = Config.getKeys("DOC_NEW_TYPES");
         foreach(Type; DocTypes)
         {
             m.insert(new MenuItem(delegate void(MenuItem mi){CreateDoc(Type);},     Config.getString("DOC_NEW_TYPES", Type)), 0);
@@ -603,7 +602,7 @@ class DOCMAN
         Doc.GetWidget().grabFocus();
         Doc.GotoLine(LineNo);
 
-        //this signal has become the signal to allow other modules to connect to all docs, so
+        //this signal has become the signal to allow other modules/elements to connect to all docs, so
         //it is now important to call AppendDocument exactly one time for each new document.
         Event.emit("AppendDocument", Doc); 
     }

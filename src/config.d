@@ -160,6 +160,15 @@ class CONFIG
 
         return rVal;
     }
+
+    string[] getKeys (string groupName)
+    {
+        scope (failure) return null;
+
+        ulong waste;
+        string[] rVal =  mKeyFile.getKeys(groupName, waste);
+        return rVal;
+    }
         
 
 
