@@ -58,7 +58,11 @@ class SCOPE_LIST : ELEMENT
     void WatchForNewDocument(string EventId, DOCUMENT_IF DocIF)
     {
         DOCUMENT DocX = cast (DOCUMENT) DocIF;
-
+        if (DocX.GetType != DOC_TYPE.D_SOURCE)
+        {
+            writeln(cast(long)DocX.GetType);
+            return;
+        }
         DocX.TextInserted.connect(&WatchDoc);
     }
 

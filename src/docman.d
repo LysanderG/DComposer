@@ -48,6 +48,8 @@ import  glib.ListSG;
 
 
 
+enum DOC_TYPE : long    {D_SOURCE, TEXT};
+
 interface DOCUMENT_IF
 {
     bool        Create(string Identifier);                          //create a new document DComposerxxxx.d
@@ -64,6 +66,7 @@ interface DOCUMENT_IF
     @property void        Modified(bool Modded);                              //setter
     @property bool        Virgin();                                           //ever been on disk??
     @property void        Virgin(bool Still);                                 //obviously can't be returned to true
+    @property DOC_TYPE    GetType();                                          //for now either d source or other text
 
     Widget      TabWidget();                                        //the tab that shows up on the centerpane notebook
     Widget      GetPage();                                          //actually the parent of this page? (ie scrollwindow
@@ -74,6 +77,8 @@ interface DOCUMENT_IF
     ubyte[]     RawData();                                          //return whachagot
 
     void        GotoLine(uint LineNumber);                         //put cursor on linenumber and show it
+
+    
 }
 
 

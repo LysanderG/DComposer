@@ -65,6 +65,8 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
     bool        mPasting; //completion/calltips/scopelist screw up pasting operations that include a ".", "(" so if pasting dont do those ops
 
+    DOC_TYPE    mType;
+
     void ModifyTabLabel(TextBuffer tb)
     {
         if(Modified()) mTabLabel.setMarkup(`<span foreground="black" > [* </span> <b>` ~ DisplayName ~ `</b><span foreground="black"  > *]</span>`);
@@ -115,7 +117,12 @@ class DOCUMENT : SourceView, DOCUMENT_IF
     void SetupSourceView()
     {
         auto Language = SourceLanguageManager.getDefault().guessLanguage(FullPathName,null);
-        if(Language!is null) getBuffer.setLanguage(Language);
+        mType = DOC_TYPE.TEXT;
+        if(Language!is null)
+        {
+            getBuffer.setLanguage(Language);
+            if(Language.gtkSourceLanguageGetName() == "D") mType = DOC_TYPE.D_SOURCE;
+        }
 
         string StyleId = Config.getString("DOCMAN","style_scheme", "mnml");
         getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleId));
@@ -170,6 +177,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
     @property void      Virgin(bool still){if (still == false)mVirgin = false;}
     @property bool      Modified() {return cast(bool)getBuffer.getModified();}
     @property void      Modified(bool modded){getBuffer.setModified(modded);}
+    @property DOC_TYPE  GetType(){return mType;}
 
     ubyte[] RawData(){ return cast(ubyte[]) getBuffer.getText();}
 

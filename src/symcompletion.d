@@ -54,7 +54,11 @@ class SYMBOL_COMPLETION : ELEMENT
     void WatchForNewDocument(string EventId, DOCUMENT_IF NuDoc)
     {
         DOCUMENT Doc = cast(DOCUMENT) NuDoc;
-
+        if (Doc.GetType != DOC_TYPE.D_SOURCE)
+        {
+            writeln(cast(long)Doc.GetType);
+            return;
+        }
         mConnections ~= Doc;
         Doc.TextInserted.connect(&WatchDoc);
     }
