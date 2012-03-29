@@ -52,6 +52,9 @@ import gtk.Clipboard;
 import gtk.TextIter;
 import gtkc.gtk;
 
+import gobject.ObjectG;
+import gobject.ParamSpec;
+
 
 class DOCUMENT : SourceView, DOCUMENT_IF
 {
@@ -64,6 +67,8 @@ class DOCUMENT : SourceView, DOCUMENT_IF
     bool        mVirgin;
 
     bool        mPasting; //completion/calltips/scopelist screw up pasting operations that include a ".", "(" so if pasting dont do those ops
+
+    DOC_TYPE    mType;
 
     void ModifyTabLabel(TextBuffer tb)
     {
@@ -115,7 +120,12 @@ class DOCUMENT : SourceView, DOCUMENT_IF
     void SetupSourceView()
     {
         auto Language = SourceLanguageManager.getDefault().guessLanguage(FullPathName,null);
-        if(Language!is null) getBuffer.setLanguage(Language);
+        mType = DOC_TYPE.TEXT;
+        if(Language!is null)
+        {
+            getBuffer.setLanguage(Language);
+            if(Language.gtkSourceLanguageGetName() == "D") mType = DOC_TYPE.D_SOURCE;
+        }
 
         string StyleId = Config.getString("DOCMAN","style_scheme", "mnml");
         getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleId));
@@ -146,6 +156,21 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         setHasTooltip(true);
 
         getBuffer.addOnInsertText(&OnInsertText, cast(GConnectFlags)1);
+
+        //clipboard edit enable disable stuff
+        auto TheClipBoard = Clipboard.get(cast(GdkAtom)69);
+
+        addOnNotify(&SetUpEditSensitivity);
+    }
+
+    void SetUpEditSensitivity(ParamSpec ps, ObjectG og)
+    {
+        auto Clpbd = Clipboard.get(cast(GdkAtom)69);
+
+        dui.Actions.getAction("PasteAct").setSensitive(Clpbd.waitIsTextAvailable());
+        dui.Actions.getAction("CutAct").setSensitive(getBuffer.getHasSelection());
+        dui.Actions.getAction("CopyAct").setSensitive(getBuffer.getHasSelection());
+        return ;
     }
 
 
@@ -170,6 +195,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
     @property void      Virgin(bool still){if (still == false)mVirgin = false;}
     @property bool      Modified() {return cast(bool)getBuffer.getModified();}
     @property void      Modified(bool modded){getBuffer.setModified(modded);}
+    @property DOC_TYPE  GetType(){return mType;}
 
     ubyte[] RawData(){ return cast(ubyte[]) getBuffer.getText();}
 
@@ -181,6 +207,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         
         getBuffer().addOnModifiedChanged(&ModifyTabLabel);
         getBuffer.addOnPasteDone (delegate void (Clipboard cb, TextBuffer tb) {mPasting = false;});
+
         
         addOnPopulatePopup (&PopulateContextMenu); 
         addOnFocusIn(&CheckForExternalChanges);
@@ -315,7 +342,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
     void Edit(string Verb)
     {
-        Log.Entry("Edit action received --- "~ Verb,"Debug");
+        //Log.Entry("Edit action received --- "~ Verb,"Debug");
 
         switch (Verb)
         {

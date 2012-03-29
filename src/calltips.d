@@ -136,7 +136,7 @@ class CALL_TIPS : ELEMENT
     void WatchForNewDocument(string EventId, DOCUMENT_IF docIF)
     {
         DOCUMENT DocX = cast(DOCUMENT) docIF;
-        
+        if (DocX.GetType != DOC_TYPE.D_SOURCE) return;        
         DocX.TextInserted.connect(&WatchDoc);
 
         ConnectedDocs ~= DocX;

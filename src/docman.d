@@ -31,6 +31,7 @@ import std.conv;
 import std.path;
 import std.signals;
 import std.file;
+import std.algorithm;
 
 import  gtk.Action;
 import  gtk.Menu;
@@ -48,6 +49,8 @@ import  glib.ListSG;
 
 
 
+enum DOC_TYPE : long    {D_SOURCE, TEXT};
+
 interface DOCUMENT_IF
 {
     bool        Create(string Identifier);                          //create a new document DComposerxxxx.d
@@ -64,6 +67,7 @@ interface DOCUMENT_IF
     @property void        Modified(bool Modded);                              //setter
     @property bool        Virgin();                                           //ever been on disk??
     @property void        Virgin(bool Still);                                 //obviously can't be returned to true
+    @property DOC_TYPE    GetType();                                          //for now either d source or other text
 
     Widget      TabWidget();                                        //the tab that shows up on the centerpane notebook
     Widget      GetPage();                                          //actually the parent of this page? (ie scrollwindow
@@ -74,6 +78,8 @@ interface DOCUMENT_IF
     ubyte[]     RawData();                                          //return whachagot
 
     void        GotoLine(uint LineNumber);                         //put cursor on linenumber and show it
+
+    
 }
 
 
@@ -91,6 +97,8 @@ class DOCMAN
     string[]            mStartUpFiles;                              //files left open last session and/or on the command line to be opened
 
     Action[]            mContextActions;                              //this menu prepends to text documents context popup menu
+
+    string[]            mNewDocTypes;
   
 
 
@@ -121,6 +129,7 @@ class DOCMAN
     void LoadStartUpFileNames()
     {
         mStartUpFiles = Config().getString("DOCMAN", "files_last_session").split(";");   //files open last session
+        mStartUpFiles.reverse();
         mStartUpFiles ~=  Config().getString("DOCMAN", "files_to_open").split(";");      //files from command line
 
         string report;
@@ -196,11 +205,11 @@ class DOCMAN
         Config.setString("DOC_NEW_TYPES", ".tcl", "Tcl source file");
         Config.setString("DOC_NEW_TYPES", ".html", "HTML source file");
 
-        string[] DocTypes = Config.getKeys("DOC_NEW_TYPES");
-        foreach(Type; DocTypes)
+        mNewDocTypes = Config.getKeys("DOC_NEW_TYPES");
+        foreach(indx, Type; mNewDocTypes)
         {
-            m.insert(new MenuItem(delegate void(MenuItem mi){CreateDoc(Type);},     Config.getString("DOC_NEW_TYPES", Type)), 0);
-
+            m.insert(new MenuItem(delegate void(MenuItem mi){CreateDoc(mi.getLabel());}, Type), cast(int)indx);//   Config.getString("DOC_NEW_TYPES", Type)), cast(int)indx);
+            writeln(indx,Type);
         }        
         
         mi.setSubmenu(m);        
@@ -217,7 +226,7 @@ class DOCMAN
         //ok now the edit actions
         Action      UndoAct     = new Action("UndoAct","_Undo", "Undo last action", StockID.UNDO);
         Action      RedoAct     = new Action("RedoAct","_Redo", "Undo the last undo(ie redo)", StockID.REDO);
-        Action      CutAct      = new Action("CutAct", "_Save", "Remove selected text to clipboard", StockID.CUT);
+        Action      CutAct      = new Action("CutAct", "_Cut", "Remove selected text to clipboard", StockID.CUT);
         Action      CopyAct     = new Action("CopyAct", "_Copy","Copy selected text", StockID.COPY);
         Action      PasteAct    = new Action("PasteAct", "_Paste", "Paste clipboard into document", StockID.PASTE);
         Action      DeleteAct   = new Action("DeleteAct", "_Delete", "Delete selected text", StockID.DELETE);
@@ -294,16 +303,26 @@ class DOCMAN
         //save all docs open in session to config file
         string DocsToOpenNextSession;
 
-        DOCUMENT_IF docX;
+        DOCUMENT docX;
 
         auto openCount = dui.GetCenterPane().getNPages();
         while(openCount > 0)
         {
             openCount--;
-            docX = GetDocX(openCount);
+            docX = cast(DOCUMENT)GetDocX(openCount);
             if(docX is null) continue;
             if(docX.Virgin())continue;
-            DocsToOpenNextSession~= docX.FullPathName() ~ ";";
+
+            //line number stuff
+            TextIter ti = new TextIter;
+            auto InsertMark = docX.getBuffer.getInsert();
+            
+            docX.getBuffer.getIterAtMark(ti, InsertMark); 
+
+            auto LineNumber = ti.getLine();
+
+
+            DocsToOpenNextSession~= docX.FullPathName() ~ ":" ~ to!string(LineNumber) ~ ";";
         }
         //DocsToOpenNextSession = DocsToOpenNextSession.chomp(";");
         if(DocsToOpenNextSession.empty)DocsToOpenNextSession =  "";
@@ -317,6 +336,7 @@ class DOCMAN
 
      DOCUMENT_IF CreateDoc(string DocType = ".d")
     {
+        writeln(DocType, "<-doctype");
         string TitleString = std.string.format("DComposer%.3s", mUnTitledCount++);
         TitleString ~= DocType;
 
@@ -435,8 +455,28 @@ class DOCMAN
 
     void OpenInitialDocs()
     {
+        int LineInFile;
+        
         if (mStartUpFiles.length > 1)Log.Entry("Opening Initial Document(s)...");
-        OpenDocs(mStartUpFiles);
+        foreach(startup; mStartUpFiles)
+        {
+            auto colon = std.string.indexOf(startup,":");
+            if (colon < 1)
+            {
+                LineInFile = 0;
+                colon = startup.length;
+            }
+            else
+            {
+                LineInFile = to!int(startup[colon+1..$]);
+            }
+
+            auto NameOfFile = startup[0..colon];
+
+            OpenDoc(NameOfFile, LineInFile);
+        }
+
+        //OpenDocs(mStartUpFiles);
     }
 
     void SaveDoc()
@@ -553,8 +593,7 @@ class DOCMAN
 
     void Edit(string WhichEdit)
     {
-        
-        
+
         auto docX = GetDocX();
         if(docX is null)return;        
         docX.Edit(WhichEdit);
