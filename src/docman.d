@@ -31,6 +31,7 @@ import std.conv;
 import std.path;
 import std.signals;
 import std.file;
+import std.algorithm;
 
 import  gtk.Action;
 import  gtk.Menu;
@@ -128,6 +129,7 @@ class DOCMAN
     void LoadStartUpFileNames()
     {
         mStartUpFiles = Config().getString("DOCMAN", "files_last_session").split(";");   //files open last session
+        mStartUpFiles.reverse();
         mStartUpFiles ~=  Config().getString("DOCMAN", "files_to_open").split(";");      //files from command line
 
         string report;
@@ -301,16 +303,26 @@ class DOCMAN
         //save all docs open in session to config file
         string DocsToOpenNextSession;
 
-        DOCUMENT_IF docX;
+        DOCUMENT docX;
 
         auto openCount = dui.GetCenterPane().getNPages();
         while(openCount > 0)
         {
             openCount--;
-            docX = GetDocX(openCount);
+            docX = cast(DOCUMENT)GetDocX(openCount);
             if(docX is null) continue;
             if(docX.Virgin())continue;
-            DocsToOpenNextSession~= docX.FullPathName() ~ ";";
+
+            //line number stuff
+            TextIter ti = new TextIter;
+            auto InsertMark = docX.getBuffer.getInsert();
+            
+            docX.getBuffer.getIterAtMark(ti, InsertMark); 
+
+            auto LineNumber = ti.getLine();
+
+
+            DocsToOpenNextSession~= docX.FullPathName() ~ ":" ~ to!string(LineNumber) ~ ";";
         }
         //DocsToOpenNextSession = DocsToOpenNextSession.chomp(";");
         if(DocsToOpenNextSession.empty)DocsToOpenNextSession =  "";
@@ -443,8 +455,28 @@ class DOCMAN
 
     void OpenInitialDocs()
     {
+        int LineInFile;
+        
         if (mStartUpFiles.length > 1)Log.Entry("Opening Initial Document(s)...");
-        OpenDocs(mStartUpFiles);
+        foreach(startup; mStartUpFiles)
+        {
+            auto colon = std.string.indexOf(startup,":");
+            if (colon < 1)
+            {
+                LineInFile = 0;
+                colon = startup.length;
+            }
+            else
+            {
+                LineInFile = to!int(startup[colon+1..$]);
+            }
+
+            auto NameOfFile = startup[0..colon];
+
+            OpenDoc(NameOfFile, LineInFile);
+        }
+
+        //OpenDocs(mStartUpFiles);
     }
 
     void SaveDoc()

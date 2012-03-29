@@ -5,4 +5,5 @@ dcomposer
 dcomposerA
 *.tags
 *.tag
+dcomposer.tags
 
