@@ -96,6 +96,8 @@ class DOCMAN
     string[]            mStartUpFiles;                              //files left open last session and/or on the command line to be opened
 
     Action[]            mContextActions;                              //this menu prepends to text documents context popup menu
+
+    string[]            mNewDocTypes;
   
 
 
@@ -201,11 +203,11 @@ class DOCMAN
         Config.setString("DOC_NEW_TYPES", ".tcl", "Tcl source file");
         Config.setString("DOC_NEW_TYPES", ".html", "HTML source file");
 
-        string[] DocTypes = Config.getKeys("DOC_NEW_TYPES");
-        foreach(Type; DocTypes)
+        mNewDocTypes = Config.getKeys("DOC_NEW_TYPES");
+        foreach(indx, Type; mNewDocTypes)
         {
-            m.insert(new MenuItem(delegate void(MenuItem mi){CreateDoc(Type);},     Config.getString("DOC_NEW_TYPES", Type)), 0);
-
+            m.insert(new MenuItem(delegate void(MenuItem mi){CreateDoc(mi.getLabel());}, Type), cast(int)indx);//   Config.getString("DOC_NEW_TYPES", Type)), cast(int)indx);
+            writeln(indx,Type);
         }        
         
         mi.setSubmenu(m);        
@@ -222,7 +224,7 @@ class DOCMAN
         //ok now the edit actions
         Action      UndoAct     = new Action("UndoAct","_Undo", "Undo last action", StockID.UNDO);
         Action      RedoAct     = new Action("RedoAct","_Redo", "Undo the last undo(ie redo)", StockID.REDO);
-        Action      CutAct      = new Action("CutAct", "_Save", "Remove selected text to clipboard", StockID.CUT);
+        Action      CutAct      = new Action("CutAct", "_Cut", "Remove selected text to clipboard", StockID.CUT);
         Action      CopyAct     = new Action("CopyAct", "_Copy","Copy selected text", StockID.COPY);
         Action      PasteAct    = new Action("PasteAct", "_Paste", "Paste clipboard into document", StockID.PASTE);
         Action      DeleteAct   = new Action("DeleteAct", "_Delete", "Delete selected text", StockID.DELETE);
@@ -322,6 +324,7 @@ class DOCMAN
 
      DOCUMENT_IF CreateDoc(string DocType = ".d")
     {
+        writeln(DocType, "<-doctype");
         string TitleString = std.string.format("DComposer%.3s", mUnTitledCount++);
         TitleString ~= DocType;
 
@@ -558,8 +561,7 @@ class DOCMAN
 
     void Edit(string WhichEdit)
     {
-        
-        
+
         auto docX = GetDocX();
         if(docX is null)return;        
         docX.Edit(WhichEdit);

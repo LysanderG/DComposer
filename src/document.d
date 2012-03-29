@@ -52,6 +52,9 @@ import gtk.Clipboard;
 import gtk.TextIter;
 import gtkc.gtk;
 
+import gobject.ObjectG;
+import gobject.ParamSpec;
+
 
 class DOCUMENT : SourceView, DOCUMENT_IF
 {
@@ -153,6 +156,21 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         setHasTooltip(true);
 
         getBuffer.addOnInsertText(&OnInsertText, cast(GConnectFlags)1);
+
+        //clipboard edit enable disable stuff
+        auto TheClipBoard = Clipboard.get(cast(GdkAtom)69);
+
+        addOnNotify(&SetUpEditSensitivity);
+    }
+
+    void SetUpEditSensitivity(ParamSpec ps, ObjectG og)
+    {
+        auto Clpbd = Clipboard.get(cast(GdkAtom)69);
+
+        dui.Actions.getAction("PasteAct").setSensitive(Clpbd.waitIsTextAvailable());
+        dui.Actions.getAction("CutAct").setSensitive(getBuffer.getHasSelection());
+        dui.Actions.getAction("CopyAct").setSensitive(getBuffer.getHasSelection());
+        return ;
     }
 
 
@@ -189,6 +207,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         
         getBuffer().addOnModifiedChanged(&ModifyTabLabel);
         getBuffer.addOnPasteDone (delegate void (Clipboard cb, TextBuffer tb) {mPasting = false;});
+
         
         addOnPopulatePopup (&PopulateContextMenu); 
         addOnFocusIn(&CheckForExternalChanges);
@@ -323,7 +342,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
     void Edit(string Verb)
     {
-        Log.Entry("Edit action received --- "~ Verb,"Debug");
+        //Log.Entry("Edit action received --- "~ Verb,"Debug");
 
         switch (Verb)
         {
