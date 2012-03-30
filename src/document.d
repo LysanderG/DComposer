@@ -258,6 +258,8 @@ class DOCUMENT : SourceView, DOCUMENT_IF
     
     bool    Save()
     {
+        dui.Status.push(8690, "Saving ...");
+        scope (exit)dui.Status.pop(8690);
                 
         if(Virgin) return false;
 
@@ -270,7 +272,8 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         getBuffer.setModified(0);
         mTimeStamp = timeLastModified(FullPathName);
         mVirgin = false;
-                
+
+        
         return true;
     }
     bool    SaveAs(string NewName)

@@ -24,6 +24,7 @@ import std.file;
 import std.path;
 import std.stdio;
 import std.array;
+import std.conv;
 
 import ui;
 import dcore;
@@ -120,6 +121,7 @@ class DIR_VIEW : ELEMENT
             if(item.isDir) mStore.setValue(ti, 0, " " );
             else mStore.setValue(ti, 0, " ");
             mStore.setValue(ti, 1, baseName(item.name));
+            mStore.setValue(ti, 2, to!string(item.size));
         }
 
         mFolderView.setModel(mStore);
@@ -155,7 +157,25 @@ class DIR_VIEW : ELEMENT
 
         if(type == " ") Folder = buildPath(mFolder , mStore.getValueString(ti,1));
         if(type == " ") dui.GetDocMan.OpenDoc(buildPath(mFolder, mStore.getValueString(ti,1)));
+
+        dui.Status.push(0, type ~ " : " ~ mStore.getValueString(ti,1) ~ to!string(mStore.getValueString(ti,2)) ~ ": size");
     }
+
+    void FileSelected(TreeView tv)
+    {
+        writeln("Hello!!");
+
+        
+        TreeIter ti = new TreeIter;
+
+        ti = tv.getSelectedIter();
+        if(ti is null) return;
+
+        dui.Status.push(0, mStore.getValueString(ti,0) ~ ": " ~ mStore.getValueString(ti, 1) ~ "\t:\t\tsize " ~ mStore.getValueString(ti,2));
+        
+        
+    }
+        
 
 
     void AddFilter()
@@ -163,11 +183,9 @@ class DIR_VIEW : ELEMENT
         
         CHECK SendData;
         SendData.Text = mEntryFilter.getText();
-        SendData.Bool = true;
+        SendData.Bool = true;        
         
-        
-        mComboFilter.getModel().foreac(&Check, &SendData);       
-            
+        mComboFilter.getModel().foreac(&Check, &SendData);            
         
        if(SendData.Bool) mComboFilter.appendText(mEntryFilter.getText());
     }
@@ -260,13 +278,11 @@ class DIR_VIEW : ELEMENT
                 mStore2.append(ti);
                 mStore2.setValue(ti, 0, filter);
             }
-            //ok
-                
+            //ok                
 
-        //end of comboentrycrap   
+        //end of comboentrycrap           
 
-        
-
+        mFolderView.addOnCursorChanged(&FileSelected);
         mFolderView.addOnRowActivated(&FileClicked);
 
         Refresh();
