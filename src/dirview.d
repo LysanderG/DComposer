@@ -160,7 +160,16 @@ class DIR_VIEW : ELEMENT
 
     void AddFilter()
     {
-        mComboFilter.appendText(mEntryFilter.getText());
+        
+        CHECK SendData;
+        SendData.Text = mEntryFilter.getText();
+        SendData.Bool = true;
+        
+        
+        mComboFilter.getModel().foreac(&Check, &SendData);       
+            
+        
+       if(SendData.Bool) mComboFilter.appendText(mEntryFilter.getText());
     }
     
     
@@ -286,4 +295,30 @@ class DIR_VIEW : ELEMENT
         Log.Entry("Disengaged DIRECTORY_VIEW element");
     }
     
+}
+
+
+extern (C) int Check (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter,  void * data)
+{
+    
+    CHECK * retData = cast(CHECK *) data;
+    writeln(retData.Text);
+
+    ListStore ls = new ListStore(cast(GtkListStore*)model);
+    
+    TreeIter ti = new TreeIter(iter);
+    writeln(ti);
+    if( retData.Text == ls.getValueString(ti,0))
+    {
+        retData.Bool = false;
+        writeln(retData.Bool);
+        return true;
+    }
+    return false;
+}
+
+struct CHECK
+{
+    string Text;
+    bool    Bool;
 }
