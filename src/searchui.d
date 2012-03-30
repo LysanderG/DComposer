@@ -537,7 +537,7 @@ class SEARCH_UI : ELEMENT
         SearchAct.addOnActivate(&BeginSearch);
         SearchAct.setAccelGroup(dui.GetAccel());
         dui.Actions().addActionWithAccel(SearchAct, null);
-        dui.AddMenuItem("System", SearchAct.createMenuItem(), 0);
+        dui.AddMenuItem("_System", SearchAct.createMenuItem(), 0);
 		dui.AddToolBarItem(SearchAct.createToolItem());
 
         dui.GetDocMan.AddContextAction(SearchAct);

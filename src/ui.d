@@ -132,6 +132,40 @@ class MAIN_UI
         mActions    = new ActionGroup("global");
         mAccelerators=new AccelGroup();
 
+        //setup menubar
+        mSubMenus["_System"] = new Menu;
+        MenuItem tmp = new MenuItem("_System");
+        tmp.setSubmenu(mSubMenus["_System"]);
+        //mSubMenus[MenuID].insert(Addition, Position);
+        mMenuBar.append(tmp);
+
+        mSubMenus["_View"] = new Menu;
+        tmp = new MenuItem("_View");
+        tmp.setSubmenu(mSubMenus["_View"]);
+        //mSubMenus[MenuID].insert(Addition, Position);
+        mMenuBar.append(tmp);
+
+        mSubMenus["_Edit"] = new Menu;
+        tmp = new MenuItem("_Edit");
+        tmp.setSubmenu(mSubMenus["_Edit"]);
+        //mSubMenus[MenuID].insert(Addition, Position);
+        mMenuBar.append(tmp);
+
+        mSubMenus["_Documents"] = new Menu;
+        tmp = new MenuItem("_Documents");
+        tmp.setSubmenu(mSubMenus["_Documents"]);
+        //mSubMenus[MenuID].insert(Addition, Position);
+        mMenuBar.append(tmp);
+
+        mSubMenus["_Project"] = new Menu;
+        tmp = new MenuItem("_Project");
+        tmp.setSubmenu(mSubMenus["_Project"]);
+        //mSubMenus[MenuID].insert(Addition, Position);
+        mMenuBar.append(tmp);
+
+        
+
+
         mWindow.addAccelGroup(mAccelerators);
         mWindow.addOnDelete(&ConfirmQuit);
         mWindow.addOnDestroy(&ConfirmQuit);
@@ -139,7 +173,7 @@ class MAIN_UI
         QuitAction.addOnActivate(delegate void(Action x){ConfirmQuit(null,null);});
         QuitAction.setAccelGroup(mAccelerators);
         mActions.addActionWithAccel(QuitAction, null);
-        AddMenuItem("System", QuitAction.createMenuItem());
+        AddMenuItem("_System", QuitAction.createMenuItem());
         AddToolBarItem(QuitAction.createToolItem());
         AddToolBarItem(new SeparatorToolItem);
 

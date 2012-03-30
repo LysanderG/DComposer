@@ -460,6 +460,7 @@ class DOCMAN
         if (mStartUpFiles.length > 1)Log.Entry("Opening Initial Document(s)...");
         foreach(startup; mStartUpFiles)
         {
+            
             auto colon = std.string.indexOf(startup,":");
             if (colon < 1)
             {
@@ -472,6 +473,7 @@ class DOCMAN
             }
 
             auto NameOfFile = startup[0..colon];
+            if(NameOfFile.length < 1) continue;
 
             OpenDoc(NameOfFile, LineInFile);
         }
