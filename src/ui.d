@@ -85,15 +85,15 @@ class MAIN_UI
         Main.initMultiThread (CmdArgs);
 
         EngageWidgets();
+
+        mWindow.move(Config.getInteger("UI", "save_state_window_x",0), Config.getInteger("UI", "save_state_window_y", 0));
         
         mDocMan     = new DOCMAN; 
         mDocMan.Engage();
         
         mAutoPopUps = new AUTO_POP_UPS;
         mAutoPopUps.Engage();
-        
-        mWindow.show();
-        
+                
         Log().Entry("Engaged UI");
     }
 
@@ -109,10 +109,15 @@ class MAIN_UI
     {
         GetDocMan.OpenInitialDocs();
         Project.OpenLastSession();
+
+        mWindow.show();
         
         Log().Entry("Entering GTK Main Loop\n");
         Main.run();
         Log().Entry("Exiting GTK Main Loop");
+
+        SaveGuiState();
+        mWindow.hide();
     }
     
     void EngageWidgets()
@@ -299,6 +304,25 @@ class MAIN_UI
         About.run();
         About.hide();
     }
+
+
+    void SaveGuiState()
+    {
+        int xdata, ydata;
+        //window xy pos
+        mWindow.getPosition(xdata, ydata);
+        writeln(xdata, " ", ydata);
+        Config.setInteger("UI", "save_state_window_x", xdata);
+        Config.setInteger("UI", "save_state_window_y", ydata);
+        
+        
+
+        //window xy len
+        //vertical pane pos
+        //horizontal pane pos
+    }
+        
+        
 
 }
 

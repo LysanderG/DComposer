@@ -32,6 +32,7 @@ import gtk.Viewport;
 import gtk.RecentChooserWidget;
 import gtk.RecentFilter;
 import gtk.RecentChooserIF;
+import gtk.ScrolledWindow;
 
 
 class HISTORY_VIEW : ELEMENT
@@ -43,7 +44,7 @@ class HISTORY_VIEW : ELEMENT
     bool                mState;
 
     Builder             mBuilder;
-    Viewport            mRoot;
+    ScrolledWindow      mRoot;
     RecentChooserWidget mRecentProjects;
     RecentChooserWidget mRecentFiles;
 
@@ -79,7 +80,7 @@ class HISTORY_VIEW : ELEMENT
         mBuilder = new Builder;
         mBuilder.addFromFile(Config.getString("RECENT_VIEW", "glade_file", "/home/anthony/.neontotem/dcomposer/historyview.glade"));
 
-        mRoot               =   cast(Viewport)              mBuilder.getObject("viewport1");
+        mRoot               =   cast(ScrolledWindow)              mBuilder.getObject("scrolledwindow1");
         mRecentProjects     =   cast(RecentChooserWidget)   mBuilder.getObject("recentchooser1");
         mRecentFiles        =   cast(RecentChooserWidget)   mBuilder.getObject("recentchooser2");
 

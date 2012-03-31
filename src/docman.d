@@ -32,6 +32,7 @@ import std.path;
 import std.signals;
 import std.file;
 import std.algorithm;
+import std.parallelism;
 
 import  gtk.Action;
 import  gtk.Menu;
