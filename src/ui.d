@@ -47,6 +47,8 @@ import  gtk.MessageDialog;
 import  gdk.Event;
 import  gtk.ToggleAction;
 import  gtk.AboutDialog;
+import  gtk.VPaned;
+import  gtk.HPaned;
 
 MAIN_UI dui;
 
@@ -72,10 +74,15 @@ class MAIN_UI
     ActionGroup	mActions;
     AccelGroup  mAccelerators;
     Label       mIndicator;
+    HPaned      mHPaned;
+    VPaned      mVPaned;
+    
 
     Menu[string] mSubMenus;
     DOCMAN      mDocMan;
     AUTO_POP_UPS mAutoPopUps;
+
+    bool        mIsWindowMaximized;
 
     public :
 
@@ -86,7 +93,6 @@ class MAIN_UI
 
         EngageWidgets();
 
-        mWindow.move(Config.getInteger("UI", "save_state_window_x",0), Config.getInteger("UI", "save_state_window_y", 0));
         
         mDocMan     = new DOCMAN; 
         mDocMan.Engage();
@@ -109,14 +115,15 @@ class MAIN_UI
     {
         GetDocMan.OpenInitialDocs();
         Project.OpenLastSession();
+        ReStoreGuiState();
 
         mWindow.show();
-        
+
         Log().Entry("Entering GTK Main Loop\n");
         Main.run();
         Log().Entry("Exiting GTK Main Loop");
 
-        SaveGuiState();
+        StoreGuiState();
         mWindow.hide();
     }
     
@@ -133,9 +140,17 @@ class MAIN_UI
         mExtraPane  = cast(Notebook)    mBuilder.getObject("extrapane");
         mStatusBar  = cast(Statusbar)   mBuilder.getObject("statusbar");
         mIndicator  = cast(Label)       mBuilder.getObject("label1");
+        mHPaned     = cast(HPaned)      mBuilder.getObject("hpaned1");
+        mVPaned     = cast(VPaned)      mBuilder.getObject("vpaned1");
         
         mActions    = new ActionGroup("global");
         mAccelerators=new AccelGroup();
+
+        mWindow.addOnWindowState(delegate bool(GdkEventWindowState* WS, Widget Windough)
+        {
+            mIsWindowMaximized = (WS.newWindowState == WindowState.MAXIMIZED);
+            return false;
+        }); 
 
         //setup menubar
         mSubMenus["_System"] = new Menu;
@@ -306,9 +321,23 @@ class MAIN_UI
     }
 
 
-    void SaveGuiState()
+    void StoreGuiState()
     {
         int xdata, ydata;
+
+        //vertical pane pos
+        ydata = mVPaned.getPosition();
+        Config.setInteger("UI", "save_state_vpaned", ydata);
+        
+        //horizontal pane pos
+        xdata = mHPaned.getPosition();
+        Config.setInteger("UI", "save_state_hpaned", xdata);
+                writeln(xdata, " panes ", ydata);
+
+
+        //are we maximized?  Not going to store if minimized
+        Config.setBoolean("UI", "save_state_window_maximized", mIsWindowMaximized);
+        
         //window xy pos
         mWindow.getPosition(xdata, ydata);
         writeln(xdata, " ", ydata);
@@ -318,9 +347,42 @@ class MAIN_UI
         
 
         //window xy len
-        //vertical pane pos
-        //horizontal pane pos
+        mWindow.getSize(xdata, ydata);
+        Config.setInteger("UI", "save_state_window_xlen", xdata);
+        Config.setInteger("UI", "save_state_window_ylen", ydata);
+        
+        
+        
+        
     }
+
+    void ReStoreGuiState()
+    {
+        int xdata, ydata;
+
+        mIsWindowMaximized = Config.getBoolean("UI", "save_state_window_maximized", false);
+        if(mIsWindowMaximized) mWindow.maximize();
+        else
+        {
+            xdata = Config.getInteger("UI", "save_state_window_x", 64);
+            ydata = Config.getInteger("UI", "save_state_window_y", 48);
+            mWindow.move(xdata, ydata);
+
+            xdata = Config.getInteger("UI", "save_state_window_xlen", 640);
+            ydata = Config.getInteger("UI", "save_state_window_ylen", 480);
+            mWindow.resize(xdata, ydata);
+        }
+        
+        ydata = Config.getInteger("UI", "save_state_vpaned", 10);
+        xdata = Config.getInteger("UI", "save_state_hpaned", 10);
+        mVPaned.setPosition(ydata);
+        mHPaned.setPosition(xdata);         
+
+       
+    }
+
+            
+            
         
         
 
