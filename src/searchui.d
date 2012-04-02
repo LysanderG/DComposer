@@ -529,7 +529,7 @@ class SEARCH_UI : ELEMENT
     {
         mState = true;
         mPage.showAll();
-        dui.GetExtraPane().appendPage(mPage, "Search");
+        dui.GetExtraPane().appendPage(mPage.getParent.getParent, "Search");
         dui.GetExtraPane.setTabReorderable ( mPage, true); 
         
 

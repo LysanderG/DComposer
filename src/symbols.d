@@ -31,6 +31,7 @@ import std.stdio;
 import std.path;
 import std.algorithm;
 import std.signals;
+import std.parallelism;
 
 import glib.SimpleXML;
 
