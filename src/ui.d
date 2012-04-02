@@ -364,19 +364,13 @@ class MAIN_UI
         int hpanePos = Config.getInteger("UI", "store_gui_hpaned_pos", 0);
 
         
-        mHPaned.setPosition(hpanePos); //this does not work right!!!
+        mHPaned.setPosition(hpanePos); 
         mVPaned.setPosition(vpanePos);
 
         writeln("mVPanedPosition = ", mVPaned.getPosition());
         writeln("should be :: ", vpanePos);
-      
-       
-    }
 
-            
-            
-        
-        
+    }
 
 }
 

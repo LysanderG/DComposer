@@ -384,7 +384,7 @@ class SEARCH_UI : ELEMENT
     {
         if(!dui.GetExtraPane.getVisible()) dui.PerformAction("ViewExtraPaneAct");
         mPage.showAll();
-        dui.GetExtraPane.setCurrentPage(mPage);
+        dui.GetExtraPane.setCurrentPage(mPage.getParent.getParent);
         
         mFindComboBox.grabFocus();
     }

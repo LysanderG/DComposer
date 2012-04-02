@@ -222,6 +222,12 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         return true;
     }
 
+
+    //LineNo parameter is completely unused
+    //must either remove it or implement it
+    //calling functions are now using doc.open(filename); doc.GotoLine(x);
+    //if I recall scroll to mark (and similiar functions) were a real headache
+    //not working as I anticipated.
     bool Open(string FileName, ulong LineNo = 0)
     {
         string DocText;
@@ -370,7 +376,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         auto mark = getBuffer.createMark("scroller", ti, 1);
         //scrollToIter(ti , 0.25, true, 0.0, 0.0);
         //scrollMarkOnscreen(mark);
-        scrollToMark (mark, 0.00, true , 0.000, 0.000);
+        scrollToMark (mark, 0.1, true , 0.000, 0.2500);
         TextIter tistart, tiend;
         tistart = new TextIter;
         tiend = new TextIter;
