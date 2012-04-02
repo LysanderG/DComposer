@@ -115,8 +115,9 @@ class MAIN_UI
     {
         GetDocMan.OpenInitialDocs();
         Project.OpenLastSession();
-        ReStoreGuiState();
 
+        
+        ReStoreGuiState();
         mWindow.show();
 
         Log().Entry("Entering GTK Main Loop\n");
@@ -216,12 +217,12 @@ class MAIN_UI
         ViewStatusBarAct.setActive(Config.getBoolean("UI", "view_statusbar", false));
         (ViewToolBarAct.getActive())?mToolBar.show() : mToolBar.hide();
         (ViewSidePaneAct.getActive())?mSidePane.show() : mSidePane.hide();
-        (ViewExtraPaneAct.getActive())?mExtraPane.getParent.show() : mExtraPane.getParent.hide();
+        (ViewExtraPaneAct.getActive())?mExtraPane.show() : mExtraPane.hide();
         (ViewStatusBarAct.getActive())?mStatusBar.show() : mStatusBar.hide();
 
         ViewToolBarAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mToolBar.show() : mToolBar.hide(); Config.setBoolean("UI","view_toolbar", cast(bool)x.getActive());});
         ViewSidePaneAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mSidePane.show() : mSidePane.hide();Config.setBoolean("UI","view_sidepane",cast(bool)x.getActive());});
-        ViewExtraPaneAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mExtraPane.getParent.show() : mExtraPane.getParent.hide();Config.setBoolean("UI","view_extrapane",cast(bool)x.getActive());});
+        ViewExtraPaneAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mExtraPane.show() : mExtraPane.hide();Config.setBoolean("UI","view_extrapane",cast(bool)x.getActive());});
         ViewStatusBarAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mStatusBar.show() : mStatusBar.hide();Config.setBoolean("UI","view_statusbar",cast(bool)x.getActive());});
         
         AddMenuItem("_View", ViewToolBarAct.createMenuItem());
@@ -323,61 +324,61 @@ class MAIN_UI
 
     void StoreGuiState()
     {
-        int xdata, ydata;
+        int xpos, xlen, ypos, ylen;
+        
+        Config.setBoolean("UI", "store_gui_window_maxed", mIsWindowMaximized);
 
-        //vertical pane pos
-        ydata = mVPaned.getPosition();
-        Config.setInteger("UI", "save_state_vpaned", ydata);
-        
-        //horizontal pane pos
-        xdata = mHPaned.getPosition();
-        Config.setInteger("UI", "save_state_hpaned", xdata);
-                writeln(xdata, " panes ", ydata);
+        mWindow.getPosition(xpos, ypos);
+        mWindow.getSize(xlen, ylen);
 
+        Config.setInteger("UI", "store_gui_window_xpos", xpos);
+        Config.setInteger("UI", "store_gui_window_ypos", ypos);
+        Config.setInteger("UI", "store_gui_window_xlen", xlen);
+        Config.setInteger("UI", "store_gui_window_ylen", ylen);
 
-        //are we maximized?  Not going to store if minimized
-        Config.setBoolean("UI", "save_state_window_maximized", mIsWindowMaximized);
-        
-        //window xy pos
-        mWindow.getPosition(xdata, ydata);
-        writeln(xdata, " ", ydata);
-        Config.setInteger("UI", "save_state_window_x", xdata);
-        Config.setInteger("UI", "save_state_window_y", ydata);
-        
-        
+        int hpanePos = mHPaned.getPosition;
+        int vpanePos = mVPaned.getPosition;
 
-        //window xy len
-        mWindow.getSize(xdata, ydata);
-        Config.setInteger("UI", "save_state_window_xlen", xdata);
-        Config.setInteger("UI", "save_state_window_ylen", ydata);
-        
-        
-        
+        Config.setInteger("UI", "store_gui_hpaned_pos", hpanePos);
+        Config.setInteger("UI", "store_gui_vpaned_pos", vpanePos);
+       
         
     }
 
     void ReStoreGuiState()
     {
-        int xdata, ydata;
+        int xpos, ypos, xlen, ylen;
 
-        mIsWindowMaximized = Config.getBoolean("UI", "save_state_window_maximized", false);
-        if(mIsWindowMaximized) mWindow.maximize();
+        bool Maxed = Config.getBoolean("UI", "store_gui_window_maxed", false);
+
+        xpos = Config.getInteger("UI", "store_gui_window_xpos", 1);
+        ypos = Config.getInteger("UI", "store_gui_window_ypos", 1);
+        xlen = Config.getInteger("UI", "store_gui_window_xlen", 1);
+        ylen = Config.getInteger("UI", "store_gui_window_ylen", 1);
+
+        if(Maxed)
+        {
+            mWindow.maximize();
+        }
         else
         {
-            xdata = Config.getInteger("UI", "save_state_window_x", 64);
-            ydata = Config.getInteger("UI", "save_state_window_y", 48);
-            mWindow.move(xdata, ydata);
-
-            xdata = Config.getInteger("UI", "save_state_window_xlen", 640);
-            ydata = Config.getInteger("UI", "save_state_window_ylen", 480);
-            mWindow.resize(xdata, ydata);
+            mWindow.move(xpos, ypos);
+            mWindow.resize(xlen, ylen);
         }
-        
-        ydata = Config.getInteger("UI", "save_state_vpaned", 10);
-        xdata = Config.getInteger("UI", "save_state_hpaned", 10);
-        mVPaned.setPosition(ydata);
-        mHPaned.setPosition(xdata);         
 
+        
+        
+        
+        int vpanePos = Config.getInteger("UI", "store_gui_vpaned_pos", 0);
+        int hpanePos = Config.getInteger("UI", "store_gui_hpaned_pos", 0);
+
+        
+        mHPaned.setPosition(hpanePos); //this does not work right!!!
+        mVPaned.setPosition(vpanePos);
+
+        writeln("mVPanedPosition = ", mVPaned.getPosition());
+        writeln("should be :: ", vpanePos);
+      
        
     }
 
