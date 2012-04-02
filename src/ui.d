@@ -356,18 +356,9 @@ class MAIN_UI
         xlen = Config.getInteger("UI", "store_gui_window_xlen", 1);
         ylen = Config.getInteger("UI", "store_gui_window_ylen", 1);
 
-        if(Maxed)
-        {
-            mWindow.maximize();
-        }
-        else
-        {
-            mWindow.move(xpos, ypos);
-            mWindow.resize(xlen, ylen);
-        }
-
-        
-        
+        mWindow.move(xpos, ypos);
+        mWindow.resize(xlen, ylen);
+        if(Maxed) mWindow.maximize();
         
         int vpanePos = Config.getInteger("UI", "store_gui_vpaned_pos", 0);
         int hpanePos = Config.getInteger("UI", "store_gui_hpaned_pos", 0);
