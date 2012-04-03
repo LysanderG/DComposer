@@ -667,15 +667,28 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkLabel" id="label21">
+                                          <object class="GtkScrolledWindow" id="scrolledwindow7">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
-                                            <property name="label" translatable="yes">auto build cmd : </property>
+                                            <property name="can_focus">True</property>
+                                            <property name="vscrollbar_policy">never</property>
+                                            <child>
+                                              <object class="GtkViewport" id="viewport6">
+                                                <property name="visible">True</property>
+                                                <property name="can_focus">False</property>
+                                                <child>
+                                                  <object class="GtkLabel" id="label21">
+                                                    <property name="visible">True</property>
+                                                    <property name="can_focus">False</property>
+                                                    <property name="xalign">0</property>
+                                                    <property name="label" translatable="yes">auto build cmd : </property>
+                                                  </object>
+                                                </child>
+                                              </object>
+                                            </child>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
-                                            <property name="fill">True</property>
+                                            <property name="fill">False</property>
                                             <property name="padding">2</property>
                                             <property name="position">1</property>
                                           </packing>

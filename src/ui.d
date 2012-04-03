@@ -99,7 +99,7 @@ class MAIN_UI
         
         mAutoPopUps = new AUTO_POP_UPS;
         mAutoPopUps.Engage();
-                
+        
         Log().Entry("Engaged UI");
     }
 
@@ -116,10 +116,9 @@ class MAIN_UI
         GetDocMan.OpenInitialDocs();
         Project.OpenLastSession();
 
-        
         ReStoreGuiState();
         mWindow.show();
-
+        
         Log().Entry("Entering GTK Main Loop\n");
         Main.run();
         Log().Entry("Exiting GTK Main Loop");
@@ -232,6 +231,7 @@ class MAIN_UI
 
         AddMenuItem("_Help", new MenuItem(delegate void(MenuItem mi){ShowAboutDialog();}, "About"));
 
+        
         Project.Event.connect(&WatchProjectName);
     }
     
@@ -359,17 +359,18 @@ class MAIN_UI
         mWindow.move(xpos, ypos);
         mWindow.resize(xlen, ylen);
         if(Maxed) mWindow.maximize();
+
+        mWindow.show();
         
         int vpanePos = Config.getInteger("UI", "store_gui_vpaned_pos", 0);
         int hpanePos = Config.getInteger("UI", "store_gui_hpaned_pos", 0);
 
-        
+       
         mHPaned.setPosition(hpanePos); 
         mVPaned.setPosition(vpanePos);
 
         writeln("mVPanedPosition = ", mVPaned.getPosition());
-        writeln("should be :: ", vpanePos);
-
+        writeln("should be :: ", vpanePos); 
     }
 
 }

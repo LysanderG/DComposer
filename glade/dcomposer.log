@@ -1,0 +1,77 @@
+<<++	LOG BEGINS ++>>
+2012-04-03T00:01:24.4537759
+Info: Engaged LOG
+Info: Engaged PROJECT
+Info: Engaged SYMBOLS ["std","gtk","gio","glib","gdk"]
+Info: Engaged DEBUGGER
+Info: Engaged dcore
+Debug: Start Up Files = /home/anthony/projects/dcomposer2/src/document.d:4:/home/anthony/projects/dcomposer2/src/dirview.d:0:
+Info: Engaged DOCMAN
+Info: Engaged AUTO_POP_UPS
+Info: Engaged UI
+Info: Acquired logui.LOG_UI element.
+Info: Acquired searchui.SEARCH_UI element.
+Info: Acquired projectui.PROJECT_UI element.
+Info: Acquired symbolview.SYMBOL_VIEW element.
+Info: Acquired indent.BRACE_INDENT element.
+Info: Acquired symcompletion.SYMBOL_COMPLETION element.
+Info: Acquired scopelist.SCOPE_LIST element.
+Info: Acquired calltips.CALL_TIPS element.
+Info: Acquired terminalui.TERMINAL_UI element.
+Info: Acquired proview.PROJECT_VIEW element.
+Info: Acquired dirview.DIR_VIEW element.
+Info: Acquired historyview.HISTORY_VIEW element.
+Info: Acquired messageui.MESSAGE_UI element.
+Info: Acquired debugui.DEBUG_UI element.
+Info: Acquired assistantui.ASSISTANT_UI element.
+Info: Engaging Elements ...
+Info: Engaged SYMBOL_VIEW element
+Info: Engaged BRACE_INDENT element
+Info: Engaged HISTORY_VIEW element
+Info: Engaged MESSAGE_UI element
+Info: Engaged DEBUG_UI element
+Info: Engaged SCOPE_LIST element
+Info: Engaged CALL_TIPS element
+Info: Engaged ASSISTANT_UI element
+Info: Engaged PROJECT_UI element
+Info: Engaged LogUI element.
+Info: Engaged SearchUI element.
+Info: Engaged SYMBOL_COMPLETION element
+Info: Engaged TERMINAL_UI element
+Info: Engaged PROJECT_VIEW element
+Info: Engaged DIRECTORY_VIEW element
+Info: Opening Initial Document(s)...
+Info: Document: /home/anthony/projects/dcomposer2/src/document.d opened.
+Info: Document: /home/anthony/projects/dcomposer2/src/dirview.d opened.
+Info: Entering GTK Main Loop
+
+Info: Exiting GTK Main Loop
+Info: Disengaging Elements ...
+Info: Disengaged SYMBOL_VIEW element
+Info: Disengaged BRACE_INDENT element
+Info: Disengaged HISTORY_VIEW element
+Info: Disengaged MESSAGE_UI element
+Info: Disengaged DEBUG_UI element
+Info: Disengaging SCOPE_LIST element
+Info: Disengaged CALL_TIPS element
+Info: Disengaged ASSISTANT_UI element
+Info: Disengaged PROJECT_UI element
+Info: Disengaged LogUI element
+Info: Disengaged SearchUI element.
+Info: Disengaged TERMINAL_UI element
+Info: Disengaged PROJECT_VIEW element
+Info: Disengaged DIRECTORY_VIEW element
+Info: Disengaged AUTO_POP_UPS
+Info: Documents, Closing All...
+Info:     Document /home/anthony/projects/dcomposer2/src/dirview.d closed.
+Info:     Document /home/anthony/projects/dcomposer2/src/document.d closed.
+Info: Disengaged DOCMAN
+Info: Disengaged UI
+Info: Disengaged DEBUGGER
+Info: Disengaged SYMBOLS
+Info: Disengaged PROJECT
+Info: Disengaged dcore
+Info: Disengaged LOG
+2012-04-03T00:01:32.3363396
+<<-- LOG ENDS -->>
+

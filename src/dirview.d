@@ -48,6 +48,7 @@ import gtk.ComboBox;
 import gtk.ComboBoxEntry;
 import gtk.CellEditableIF;
 import gtk.HBox;
+import gtk.VBox;
 
 import gtkc.gtk;
 
@@ -70,7 +71,8 @@ class DIR_VIEW : ELEMENT
 
     Builder             mBuilder;
 
-    Viewport            mRoot;
+    //Viewport            mRoot;
+    VBox                mRoot;
     ToolButton          mUpBtn;
     ToolButton          mRefreshBtn;
     ToolButton          mHomeBtn;
@@ -226,7 +228,8 @@ class DIR_VIEW : ELEMENT
         mBuilder = new Builder;
         mBuilder.addFromFile(Config.getString("DIRVIEW","glade_file", "/home/anthony/.neontotem/dcomposer/dirview.glade"));
         
-        mRoot           = cast(Viewport)    mBuilder.getObject("viewport1");
+        //mRoot           = cast(Viewport)    mBuilder.getObject("viewport1");
+        mRoot           = cast(VBox)    mBuilder.getObject("vbox1");
 
         mFolderView     = cast(TreeView)    mBuilder.getObject("treeview1");
         mStore          = cast(ListStore)   mBuilder.getObject("liststore1");
