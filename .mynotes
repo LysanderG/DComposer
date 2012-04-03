@@ -342,3 +342,30 @@ Anyway, I'm done with the assistant branch for now.
 
 The critical question now is ... "What's next?"
 
+========================================================================================================================
+Monday, 3 April 2012
+
+OMG switch from glade-gtk2 to glade.
+I was actually trying to see if devhelp would be enabled in glade since it stopped working in glade-gtk2.
+Nope, apparently devhelp is too old in Ubuntu repo to work.
+
+Anyway... after opening and closing in glade several widget names had been changed.  This problem was hard to find at first
+because I knew I hadn't made any changes.  What a pain in the ass!  Builder.addFromFile should really complain if some object
+doesn't exist in the file. (ok ok I guess returning null is a complaint but who the hell checks return values?)
+
+A very frustrating day.  Also could not figure out how to reliably set window position and size to equal last session.  The hard 
+part was(is) setting the Paned.setPosition.  It seems to go fine, then just doesn't work. Something somewhere just resizes it
+to some 'default' value.  Experimented with all the glade options just figuring out what they do.  Guess what, ended up with
+a total mess.  Anyway it seems to work now (like a few times before) you just have to say the magic words before launching the app.
+I foresee coming back to this one.
+
+So what is next on the naive IDE horizon??
+
+Preferences, a fully implemented GUI preference dialog thingy.
+If I can pull this off I will be very pleased with myself.
+
+Work (real life postal work) is threatening 6 days 10 hours.  So unless my kids surprise me and learn to cut grass, wash cars, cook,
+do laundry, wash dishes, scrub toilets, etc. My programming (use loose definition plz) time may be cut back a little.
+
+One more thing before bed.  I have a list (limited to 3 things max for each module) of to-do stuff.  Small stuff for the most part
+but taken together could make a marked improvement. 

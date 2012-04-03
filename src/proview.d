@@ -177,6 +177,8 @@ class PROJECT_VIEW : ELEMENT
 
     void UpdateProject(string EventType)
     {
+        writeln(EventType, " ??? -", Project.Name,"-");
+        writeln(mLabel);
         if(EventType == "ListChange")UpdateList(mKeyBox);
         if(EventType == "Name")mLabel.setText(Project.Name);
         if(EventType == "Opened")
@@ -184,6 +186,7 @@ class PROJECT_VIEW : ELEMENT
             UpdateList(mKeyBox);
             mLabel.setText(Project.Name);
         }
+        writeln("here");
         
     }
     void AppendToolItems()
@@ -348,7 +351,7 @@ class PROJECT_VIEW : ELEMENT
         
         //mRoot       = cast(Viewport)    mBuilding.getObject("viewport1");
         mRoot       = cast(VBox)        mBuilding.getObject("vbox1");
-        mLabel      = cast(Label)       mBuilding.getObject("label1");
+        mLabel      = cast(Label)       mBuilding.getObject("label2");
         mToolBar    = cast(Toolbar)     mBuilding.getObject("toolbar1");
         mListView   = cast(TreeView)    mBuilding.getObject("treeview1");
         mKeyBox     = cast(ComboBox)    mBuilding.getObject("combobox1");
