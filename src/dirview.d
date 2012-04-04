@@ -165,8 +165,6 @@ class DIR_VIEW : ELEMENT
 
     void FileSelected(TreeView tv)
     {
-        writeln("Hello!!");
-
         
         TreeIter ti = new TreeIter;
 

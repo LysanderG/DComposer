@@ -357,7 +357,8 @@ class MAIN_UI
         ylen = Config.getInteger("UI", "store_gui_window_ylen", 1);
 
         mWindow.move(xpos, ypos);
-        mWindow.resize(xlen, ylen);
+        mWindow.setDefaultSize(xlen,ylen);
+        //mWindow.resize(xlen, ylen);
         if(Maxed) mWindow.maximize();
 
         mWindow.show();

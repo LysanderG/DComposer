@@ -177,8 +177,7 @@ class PROJECT_VIEW : ELEMENT
 
     void UpdateProject(string EventType)
     {
-        writeln(EventType, " ??? -", Project.Name,"-");
-        writeln(mLabel);
+
         if(EventType == "ListChange")UpdateList(mKeyBox);
         if(EventType == "Name")mLabel.setText(Project.Name);
         if(EventType == "Opened")
@@ -186,7 +185,6 @@ class PROJECT_VIEW : ELEMENT
             UpdateList(mKeyBox);
             mLabel.setText(Project.Name);
         }
-        writeln("here");
         
     }
     void AppendToolItems()

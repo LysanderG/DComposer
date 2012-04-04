@@ -20,6 +20,7 @@
 module assistantui;
 
 import std.stdio;
+import std.string;
 import std.datetime;
 
 import dcore;
@@ -43,6 +44,7 @@ import gtk.TreeView;
 import gtk.TreeIter;
 import gtk.ListStore;
 import gtk.Widget;
+import gtk.HPaned;
 
 import gtk.TreePath;
 import gtk.TreeViewColumn;
@@ -64,7 +66,7 @@ class ASSISTANT_UI : ELEMENT
     Builder     mBuilder;
     VBox        mRoot;
     ComboBox    mPossibles;
-    Button      mBtnInsert;
+    Button      mBtnParent;
     Button      mBtnJumpTo;
     Button      mBtnWebLink;
     Label       mSignature;
@@ -72,6 +74,7 @@ class ASSISTANT_UI : ELEMENT
     TreeView    mChildren;
     ListStore   mPossibleStore;
     ListStore   mChildrenStore;
+    HPaned      mHPane;
 
     DSYMBOL[]   mList;
 
@@ -185,8 +188,11 @@ class ASSISTANT_UI : ELEMENT
         if(mList[indx].Comment.length >0)mComments.getBuffer().setText(mList[indx].Comment);
         else mComments.getBuffer().setText("No documentation available");
 
-        if(mList[indx].Type.length > 0) mSignature.setText(mList[indx].Type);
-        else mSignature.setText(" ");
+        //if(mList[indx].Type.length > 0) mSignature.setText(mList[indx].Type);
+        //else mSignature.setText(" ");
+
+        string LabelText = "("~mList[indx].Kind~") -- Signature : " ~ mList[indx].Type;
+        mSignature.setText(LabelText);
     }
 
     void FollowChild()
@@ -212,7 +218,17 @@ class ASSISTANT_UI : ELEMENT
         dui.GetDocMan.OpenDoc(mList[indx].InFile, mList[indx].OnLine);
     }
     
+    void Parent()
+    {
+        auto indx = mPossibles.getActive();
 
+        auto LastDot = lastIndexOf(mList[indx].Path, ".");
+        if(LastDot < 1) return;
+        auto Lookup = mList[indx].Path[0..LastDot];
+        auto PossibleParentSyms = Symbols.ExactMatches(Lookup);
+        CatchSymbols(PossibleParentSyms);
+    }
+        
     
 
         
@@ -244,16 +260,18 @@ class ASSISTANT_UI : ELEMENT
 
         mRoot           =   cast(VBox)      mBuilder.getObject("vbox1");
         mPossibles      =   cast(ComboBox)  mBuilder.getObject("combobox1");
-        mBtnInsert      =   cast(Button)    mBuilder.getObject("button1");
+        mBtnParent      =   cast(Button)    mBuilder.getObject("button1");
         mBtnJumpTo      =   cast(Button)    mBuilder.getObject("button2");
         mBtnWebLink     =   cast(Button)    mBuilder.getObject("button3");
         mSignature      =   cast(Label)     mBuilder.getObject("label1");
         mComments       =   cast(TextView)  mBuilder.getObject("textview1");
         mChildren       =   cast(TreeView)  mBuilder.getObject("treeview2");
+        mHPane          =   cast(HPaned)    mBuilder.getObject("hpaned1");
 
         mPossibleStore  =   new ListStore([GType.STRING]);
         mChildrenStore  =   new ListStore([GType.STRING]);
 
+        mHPane.setPosition(Config.getInteger("ASSISTANT_UI", "store_gui_pane_position",10)); 
         
         mPossibles.setModel(mPossibleStore);        
         mChildren.setModel(mChildrenStore);
@@ -273,6 +291,7 @@ class ASSISTANT_UI : ELEMENT
         Symbols.Forward.connect(&CatchSymbols);
         mChildren.addOnRowActivated(delegate void (TreePath tp, TreeViewColumn tvc, TreeView tv){FollowChild();});
         mBtnJumpTo.addOnClicked(delegate void(Button btn){JumpTo();});
+        mBtnParent.addOnClicked(delegate void(Button btn){Parent();});
 
         
 
@@ -281,6 +300,8 @@ class ASSISTANT_UI : ELEMENT
 
     void Disengage()
     {
+
+        Config.setInteger("ASSISTANT_UI", "store_gui_pane_position", mHPane.getPosition()); 
         Log.Entry("Disengaged ASSISTANT_UI element");
     }
 }
