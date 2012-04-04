@@ -171,6 +171,7 @@ class AUTO_POP_UPS
             case GdkKeysyms.GDK_KP_Enter    :
             {
                 if(mCompletionStatus != STATUS_OFF) CompleteText(Wydjit);
+                else Kill();
                 return true;
             }
             default : return false;
