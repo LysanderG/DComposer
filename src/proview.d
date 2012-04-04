@@ -374,7 +374,7 @@ class PROJECT_VIEW : ELEMENT
         mAdd.addOnClicked(&Add);
         Project.Event.connect(&UpdateProject);
 
-        mKeyBox.setActive(-1);
+        mKeyBox.setActive(0);
         UpdateList(mKeyBox);
 
         mRoot.showAll();
