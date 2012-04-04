@@ -315,20 +315,22 @@ class DIR_VIEW : ELEMENT
 }
 
 
+/++
+ + Checks a possible new entry in combobox to see if it already exists.
+ + If it does then sets CHECK.Bool to false and returns true stopping the treemodel.foreac() loop.
+ + Otherwise returns false indicating possible candidate can be added.
+ +/
 extern (C) int Check (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter,  void * data)
 {
     
     CHECK * retData = cast(CHECK *) data;
-    writeln(retData.Text);
 
     ListStore ls = new ListStore(cast(GtkListStore*)model);
     
     TreeIter ti = new TreeIter(iter);
-    writeln(ti);
     if( retData.Text == ls.getValueString(ti,0))
     {
         retData.Bool = false;
-        writeln(retData.Bool);
         return true;
     }
     return false;

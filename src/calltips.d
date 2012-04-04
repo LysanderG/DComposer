@@ -67,6 +67,14 @@ class CALL_TIPS : ELEMENT
         Doc.getWindow(GtkTextWindowType.TEXT).getOrigin(OrigX, OrigY);
         xpos = winX + OrigX;
         ypos = winY + OrigY + gdkRect.height;
+        int OrigXlen, OrigYlen;
+        Doc.getWindow(GtkTextWindowType.TEXT).getSize(OrigXlen, OrigYlen);
+        if((ypos + dui.GetAutoPopUps.Height) > (OrigY + OrigYlen))
+        {
+            ypos = ypos - gdkRect.height - dui.GetAutoPopUps.Height;
+        }
+
+        
         return;        
     }
 

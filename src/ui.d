@@ -370,8 +370,6 @@ class MAIN_UI
         mHPaned.setPosition(hpanePos); 
         mVPaned.setPosition(vpanePos);
 
-        writeln("mVPanedPosition = ", mVPaned.getPosition());
-        writeln("should be :: ", vpanePos); 
     }
 
 }

@@ -210,7 +210,6 @@ class DOCMAN
         foreach(indx, Type; mNewDocTypes)
         {
             m.insert(new MenuItem(delegate void(MenuItem mi){CreateDoc(mi.getLabel());}, Type), cast(int)indx);//   Config.getString("DOC_NEW_TYPES", Type)), cast(int)indx);
-            writeln(indx,Type);
         }        
         
         mi.setSubmenu(m);        
@@ -337,7 +336,6 @@ class DOCMAN
 
      DOCUMENT_IF CreateDoc(string DocType = ".d")
     {
-        writeln(DocType, "<-doctype");
         string TitleString = std.string.format("DComposer%.3s", mUnTitledCount++);
         TitleString ~= DocType;
 

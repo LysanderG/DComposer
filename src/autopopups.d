@@ -32,7 +32,6 @@ import std.stdio;
 import std.algorithm;
 import std.xml;
 import std.signals;
-//import core.memory;
 
 
 import gtk.Builder;
@@ -50,8 +49,6 @@ import gtk.TreeModelIF;
 
 import gdk.Rectangle;
 import gdk.Keysyms;
-
-//import glib.SimpleXML;
 
 
 enum :int {POP_TYPE_TIP, POP_TYPE_SCOPE, POP_TYPE_COMPLETION}
@@ -73,6 +70,8 @@ private struct DATA_STORE
     this(DSYMBOL[] nuPossibles, long Xpos, long Ypos, bool tip = false)
     {
         mMatches = nuPossibles;
+
+        
         mXPos = Xpos;
         mYPos = Ypos;
 
@@ -119,17 +118,24 @@ class AUTO_POP_UPS
 
     Builder     mCompletionBuilder;
     Builder     mTipsBuilder;
+
+    int         mWinXlen;
+    int         mWinYlen;
+    double      mWinOpacity;
     
     Window      mCompletionWin;
     DATA_STORE  mCompletionStore;
     int         mCompletionStatus;
-    TreeView    mCompletionView;
-    
-    
+    TreeView    mCompletionView;  
+
     Window                      mTipsWin;
     DATA_STORE[MAX_TIP_DEPTH]   mTipsStore;
     long                        mTipsIndex;
     TreeView                    mTipsView;
+
+
+
+
     
     void WatchForNewDocuments(string EventType, DOCUMENT_IF DocXIf)
     {
@@ -264,7 +270,8 @@ class AUTO_POP_UPS
             mTipsWin.hide();
             mCompletionView.setModel(mCompletionStore.GetModel());
             mCompletionView.setCursor(new TreePath("0"), null, false);
-            mCompletionWin.resize(600, 160);
+            mCompletionWin.resize(mWinXlen, mWinYlen);
+            mCompletionWin.setOpacity(mWinOpacity);
             mCompletionWin.move(mCompletionStore.mXPos, mCompletionStore.mYPos);
             mCompletionWin.showAll();
             emit(mCompletionStore.mMatches[0]);
@@ -279,7 +286,8 @@ class AUTO_POP_UPS
 
             mTipsView.setModel(mTipsStore[mTipsIndex].GetModel());
             mTipsView.setCursor(new TreePath(true), null, false);
-            mTipsWin.resize(600, 160);
+            mTipsWin.resize(mWinXlen, mWinYlen);
+            mTipsWin.setOpacity(mWinOpacity);
             mTipsWin.move(mTipsStore[mTipsIndex].mXPos, mTipsStore[mTipsIndex].mYPos);
             if(mTipsStore[mTipsIndex].mMatches.length > 0)
             {
@@ -338,6 +346,13 @@ class AUTO_POP_UPS
 
     void Engage()
     {
+
+        mWinXlen = Config.getInteger("DOC_POP", "window_width", 600);
+        mWinYlen = Config.getInteger("DOC_POP", "window_heigth", 160);
+        auto x   = Config.getInteger("DOC_POP", "window_opacity", 75);
+
+        mWinOpacity = (cast(double)x)/100;
+        
         dui.GetDocMan.Event.connect(&WatchForNewDocuments);
         Log.Entry("Engaged AUTO_POP_UPS");
     }
@@ -393,6 +408,12 @@ class AUTO_POP_UPS
     {
         CompletionPop();
         TipPop();
+    }
+
+
+    int Height()
+    {
+        return mWinYlen;
     }
 
     //mixin Signal!(string, string);

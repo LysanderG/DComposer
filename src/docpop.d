@@ -69,7 +69,6 @@ private struct DATA_STORE
     this(string[] nuPossibles, string[] info, int Type, int Xpos, int Ypos)
     {
         assert(nuPossibles.length == info.length);
-        writeln("here");
         mPossibles = nuPossibles;
         mExtraInfo = info;
         mType = Type;
