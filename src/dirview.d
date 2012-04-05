@@ -25,6 +25,7 @@ import std.path;
 import std.stdio;
 import std.array;
 import std.conv;
+import std.string;
 
 import ui;
 import dcore;
@@ -95,7 +96,9 @@ class DIR_VIEW : ELEMENT
         scope(failure)
         {
             mComboFilter.setActiveText("");
-            Refresh();
+            mStore.clear();
+            return;
+            //Refresh(); //hey stupid you can't do this
         }
         TreeIter ti = new TreeIter;
         mDirLabel.setText(mFolder);        
@@ -109,7 +112,14 @@ class DIR_VIEW : ELEMENT
         version(DMD)
         {
             //auto Contents = dirEntries(mFolder, mFilter.getText(), SpanMode.shallow);
+            scope(failure)
+            {
+                mStore.append(ti);
+                mStore.setValue(ti, 1, "Check Folder/File permissions");
+                return;
+            }
             auto Contents = dirEntries(mFolder, theFileFilter, SpanMode.shallow);
+            
         }
         version(GDMD)
         {
@@ -172,11 +182,9 @@ class DIR_VIEW : ELEMENT
         if(ti is null) return;
 
         dui.Status.push(0, mStore.getValueString(ti,0) ~ ": " ~ mStore.getValueString(ti, 1) ~ "\t:\t\tsize " ~ mStore.getValueString(ti,2));
-        
-        
+          
     }
         
-
 
     void AddFilter()
     {
@@ -239,6 +247,9 @@ class DIR_VIEW : ELEMENT
         mHiddenBtn      = cast(ToggleToolButton)  mBuilder.getObject("toolbutton5");
         
         mStore2         = cast(ListStore)   mBuilder.getObject("liststore2");
+
+        mStore.setSortFunc(0, &SortFunciton, null, null);
+        mStore.setSortFunc(1, &SortFunciton, null, null);
 
         mUpBtn.addOnClicked(&UpClicked);
         mRefreshBtn.addOnClicked(delegate void (ToolButton x){Refresh();});
@@ -340,4 +351,30 @@ struct CHECK
 {
     string Text;
     bool    Bool;
+}
+
+/++
+ +  Sort the dir contents with folders up top
+ +  Removes leading '.' and is case insensitive
+ + 
++/
+
+extern (C) int SortFunciton(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data)
+{
+    ListStore ls = new ListStore(cast (GtkListStore *) model);
+    TreeIter tiA  = new TreeIter(a);
+    TreeIter tiB  = new TreeIter(b);
+writeln( ls.getValueString(tiA, 0), ls.getValueString(tiB,0));
+    if(ls.getValueString(tiA,0) < ls.getValueString(tiB,0)) return -1;
+    if(ls.getValueString(tiA,0) > ls.getValueString(tiB,0)) return 1;
+
+
+    string Aname = ls.getValueString(tiA,1);
+    Aname = chompPrefix(Aname, ".").toUpper();
+    string Bname = ls.getValueString(tiB,1);
+    Bname = chompPrefix(Bname, ".").toUpper();
+    if(Aname < Bname) return -1;
+    if(Aname > Bname) return 1;
+
+    return 0;
 }
