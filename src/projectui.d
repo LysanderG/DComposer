@@ -29,6 +29,7 @@ import std.conv;
 import std.path;
 import std.stdio;
 import std.parallelism;
+import std.string;
 
 import gtk.AccelGroup;
 import gtk.Action;
@@ -253,7 +254,9 @@ class PROJECT_UI : ELEMENT
 	Entry			    mProjName;
 	Entry               mFolder;
     Button              mFolderBrowse;
+    Button              mSetRootBtn;
     Label               mFullPath;
+    Label               mProjBaseLbl;
     ComboBox            mTargetBox;
     ListStore           mTargetTypes;
     TextView		    mInformation;
@@ -332,7 +335,9 @@ class PROJECT_UI : ELEMENT
         mProjName           = cast(Entry)   mProBuilder.getObject("entry1");
         mFolder             = cast(Entry)   mProBuilder.getObject("folderentry");
         mFolderBrowse       = cast(Button)  mProBuilder.getObject("folderbrowse");
+        mSetRootBtn         = cast(Button)  mProBuilder.getObject("button4");
         mFullPath           = cast(Label)   mProBuilder.getObject("label7");
+        mProjBaseLbl        = cast(Label)   mProBuilder.getObject("label24");
         mTargetBox          = cast(ComboBox)mProBuilder.getObject("combobox1");
         mInformation        = cast(TextView)mProBuilder.getObject("textview1");
 
@@ -397,6 +402,9 @@ class PROJECT_UI : ELEMENT
         mProjBaseFolder = Config.getString("PROJECT", "default_project_path", "~/projects");
 
         mProjBaseFolder = mProjBaseFolder.expandTilde();
+
+        mProjBaseLbl.setText("Projects root folder : " ~ mProjBaseFolder);
+        mSetRootBtn.addOnClicked(delegate void (Button btn){ChangeProjectBaseFolder;});
 
     }
 
@@ -689,9 +697,23 @@ class PROJECT_UI : ELEMENT
        auto tmpPath = buildPath(mProjBaseFolder, mFolder.getText, mProjName.getText);
        
        tmpPath = defaultExtension(tmpPath, "dpro");
-       mFullPath.setText(tmpPath);
+       mFullPath.setText("Projects full folder  : " ~ tmpPath);
     }
-    
+
+    void ChangeProjectBaseFolder()
+    {
+        auto FolderChoice = new FileChooserDialog("Select Projects Root Folder", dui.GetWindow(), FileChooserAction.SELECT_FOLDER);
+
+        FolderChoice.setCurrentFolder(mProjBaseFolder);
+        auto choice = FolderChoice.run();
+        FolderChoice.hide();
+        if (choice != ResponseType.GTK_RESPONSE_OK) return;
+
+        mProjBaseFolder = chompPrefix(FolderChoice.getUri(), "file://");
+        mProjBaseLbl.setText("Projects root folder : " ~ mProjBaseFolder);
+        FixProjectPath(null);
+    }
+        
 }
         
 
