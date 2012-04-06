@@ -540,6 +540,22 @@ class SEARCH_UI : ELEMENT
         dui.AddMenuItem("_System", SearchAct.createMenuItem(), 0);
 		dui.AddToolBarItem(SearchAct.createToolItem());
 
+        Action SearchNextAct = new Action("SearchNextAct", "ne_xt", "Step into the light", null);
+        SearchNextAct.addOnActivate(delegate void(Action X){FindNextBtnClicked(null);});
+        //SearchNextAct.setAccelPath("F3");        
+        SearchNextAct.setAccelGroup(dui.GetAccel());        
+        dui.Actions().addActionWithAccel(SearchNextAct, "F3");
+        SearchNextAct.connectAccelerator();
+        Action SearchPrevAct = new Action("SearchPrevAct", "ne_xt", "Step into the light", null);
+        SearchPrevAct.addOnActivate(delegate void(Action X){FindPrevBtnClicked(null);});
+        //SearchPrevAct.setAccelPath("<Shift>F3");        
+        SearchPrevAct.setAccelGroup(dui.GetAccel());        
+        dui.Actions().addActionWithAccel(SearchPrevAct, "<Shift>F3");
+        SearchPrevAct.connectAccelerator();
+
+
+
+        
         dui.GetDocMan.AddContextAction(SearchAct);
     	
         Log.Entry("Engaged SearchUI element.");
