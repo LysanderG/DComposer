@@ -143,4 +143,9 @@ class LOG_UI : ELEMENT
 
 		//mScroller.getVadjustment().setValue(mScroller.getVadjustment().getUpper());
 	}
+
+    Frame GetPreferenceWidget()
+    {
+        return null;
+    }
 }

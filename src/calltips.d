@@ -194,7 +194,11 @@ class CALL_TIPS : ELEMENT
         }
 
     }
-    
+
+    Frame GetPreferenceWidget()
+    {
+        return null;
+    }
     
 }  
 /*

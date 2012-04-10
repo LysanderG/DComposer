@@ -713,6 +713,11 @@ class PROJECT_UI : ELEMENT
         mProjBaseLbl.setText("Projects root folder : " ~ mProjBaseFolder);
         FixProjectPath(null);
     }
+
+    Frame GetPreferenceWidget()
+    {
+        return null;
+    }
         
 }
         

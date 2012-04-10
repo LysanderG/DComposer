@@ -322,6 +322,11 @@ class DIR_VIEW : ELEMENT
         Config.setString("DIRVIEW", "file_filter", FilterString);
         Log.Entry("Disengaged DIRECTORY_VIEW element");
     }
+
+    Frame GetPreferenceWidget()
+    {
+        return null;
+    }
     
 }
 

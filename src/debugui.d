@@ -182,5 +182,10 @@ class DEBUG_UI : ELEMENT
         
         mInfoConsole.appendText(DisplayText[colonindex+1..equalindex] ~"\t\t| " ~ DisplayText[equalindex+1..$] ~ '\n', true);        
     }
+
+    Frame GetPreferenceWidget()
+    {
+        return null;
+    }
  
 }

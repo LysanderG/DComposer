@@ -49,6 +49,7 @@ import  gtk.ToggleAction;
 import  gtk.AboutDialog;
 import  gtk.VPaned;
 import  gtk.HPaned;
+import  gtk.Frame;
 
 MAIN_UI dui;
 
@@ -371,6 +372,7 @@ class MAIN_UI
         mVPaned.setPosition(vpanePos);
 
     }
+
 
 }
 

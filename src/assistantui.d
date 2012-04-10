@@ -304,5 +304,10 @@ class ASSISTANT_UI : ELEMENT
         Config.setInteger("ASSISTANT_UI", "store_gui_pane_position", mHPane.getPosition()); 
         Log.Entry("Disengaged ASSISTANT_UI element");
     }
+
+    Frame GetPreferenceWidget()
+    {
+        return null;
+    } 
 }
         

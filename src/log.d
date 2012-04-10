@@ -47,7 +47,8 @@ class LOG
 
     this()
     {
-        mSystemDefaultLogName = expandTilde(Config.getString("LOG", "default_log_file", "~/.neontotem/dcomposer/dcomposer.log"));
+        //mSystemDefaultLogName = expandTilde(Config.getString("LOG", "default_log_file", "~/.neontotem/dcomposer/dcomposer.log"));
+        mSystemDefaultLogName =  "~/.neontotem/dcomposer/dcomposer.log";
         mInterimFileName = "unspecifiedlogfile.cfg";
         mLogFile = mSystemDefaultLogName;
         
@@ -55,14 +56,14 @@ class LOG
         mMaxLines = 24;
     }
 
-    ~this()
-    {
-        //Flush(); //silly flush allocates a file ... guess gc doen't like that in a dtor
-    }
+    //~this()
+    //{
+    //    //Flush(); //silly flush allocates a file ... guess gc doen't like that in a dtor
+    //}
 
     void Engage()
     {
-               
+        mSystemDefaultLogName = expandTilde(Config.getString("LOG", "default_log_file", "~/.neontotem/dcomposer/dcomposer.log"));
         if(Config.hasKey("LOG", "interim_log_file"))
         {
             mLogFile = Config.getString("LOG", "interim_log_file","error.log");

@@ -162,4 +162,9 @@ class SCOPE_LIST : ELEMENT
         Log.Entry("Disengaging SCOPE_LIST element");
     }
 
+
+    Frame GetPreferenceWidget()
+    {
+        return null;
+    }
 }

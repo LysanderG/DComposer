@@ -182,5 +182,10 @@ class SYMBOL_COMPLETION : ELEMENT
         foreach (cnx; mConnections) cnx.TextInserted.disconnect(&WatchDoc);
         dui.GetDocMan.Event.disconnect(&WatchForNewDocument);
     }
+
+    Frame GetPreferenceWidget()
+    {
+        return null;
+    } 
    
 }  

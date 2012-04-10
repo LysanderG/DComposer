@@ -388,6 +388,11 @@ class PROJECT_VIEW : ELEMENT
         Project.Event.disconnect(&UpdateProject);
         Log.Entry("Disengaged PROJECT_VIEW element");
     }
+
+    Frame GetPreferenceWidget()
+    {
+        return null;
+    }
 }
     
 

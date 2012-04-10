@@ -161,6 +161,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         auto TheClipBoard = Clipboard.get(cast(GdkAtom)69);
 
         addOnNotify(&SetUpEditSensitivity);
+        
     }
 
     void SetUpEditSensitivity(ParamSpec ps, ObjectG og)

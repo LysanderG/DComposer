@@ -115,6 +115,11 @@ class TERMINAL_UI : ELEMENT
         Log.Entry("Disengaged TERMINAL_UI element");
         
     }
+
+    Frame GetPreferenceWidget()
+    {
+        return null;
+    }
 }
 
 private GtkWidget * g_cvte;

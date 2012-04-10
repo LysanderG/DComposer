@@ -121,4 +121,9 @@ class BRACE_INDENT : ELEMENT
         mState = false;
         Log.Entry("Disengaged BRACE_INDENT element");
     }
+
+    Frame GetPreferenceWidget()
+    {
+        return null;
+    }
 }    

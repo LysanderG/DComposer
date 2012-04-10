@@ -27,6 +27,7 @@ import std.string;
 import std.path;
 import std.file;
 
+
 import glib.KeyFile;
 
 
@@ -41,7 +42,6 @@ class CONFIG
 
     this()
     {
-        //mCfgFile = "/home/anthony/.neontotem/dcomposer/dcomposer.cfg";
         mCfgFile = expandTilde("~/.neontotem/dcomposer/dcomposer.cfg");
         
         mKeyFile = new KeyFile;

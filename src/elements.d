@@ -26,6 +26,7 @@ import std.string;
 
 import dcore;
 import ui;
+public import gtk.Frame;
 
 interface ELEMENT
 {
@@ -37,17 +38,19 @@ interface ELEMENT
     void Engage();
 
     void Disengage();
+
+    Frame GetPreferenceWidget();
 }
 
-ELEMENT[string] mElements;
 
+ELEMENT[string] mElements;
 
 void Engage()
 {
     AcquireElements();
 
     Log.Entry("Engaging Elements ...");
-    foreach(E; mElements) E.Engage();    
+    foreach(E; mElements) E.Engage();
 }
 
 void Disengage()

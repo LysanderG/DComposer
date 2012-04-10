@@ -173,7 +173,7 @@ class DOCMAN
         dui.Actions.addActionWithAccel(SaveAsAct  , null);
         dui.Actions.addActionWithAccel(SaveAllAct , null);
         dui.Actions.addActionWithAccel(CloseAct   , null);
-        dui.Actions.addActionWithAccel(CloseAllAct, null);
+        dui.Actions.addActionWithAccel(CloseAllAct, "<Shift><Ctrl>W");
 
         dui.AddMenuItem("_Documents",CreateAct.createMenuItem() );
         dui.AddMenuItem("_Documents",OpenAct.createMenuItem()   );
@@ -634,6 +634,7 @@ class DOCMAN
 		ScrollWin.add(Doc.GetWidget());
 		ScrollWin.setPolicy(GtkPolicyType.AUTOMATIC, GtkPolicyType.AUTOMATIC);
 
+
         ScrollWin.showAll();
 
         dui.GetCenterPane().appendPage(ScrollWin, Doc.TabWidget());
@@ -641,10 +642,11 @@ class DOCMAN
         dui.GetCenterPane().setCurrentPage(ScrollWin);
         Doc.GetWidget().grabFocus();
         Doc.GotoLine(LineNo);
-
         //this signal has become the signal to allow other modules/elements to connect to all docs, so
         //it is now important to call AppendDocument exactly one time for each new document.
-        Event.emit("AppendDocument", Doc); 
+        Event.emit("AppendDocument", Doc);
+
+        
     }
 
 

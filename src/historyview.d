@@ -135,6 +135,11 @@ class HISTORY_VIEW : ELEMENT
         mRoot.showAll();
         dui.GetSidePane.setCurrentPage(mRoot);
     }
+
+    Frame GetPreferenceWidget()
+    {
+        return null;
+    }
 }
 
     

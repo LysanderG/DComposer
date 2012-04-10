@@ -173,7 +173,13 @@ class SYMBOL_VIEW : ELEMENT
         mRoot.hide();
          Project.Event.disconnect(&UpdateProjectTags);
         Log.Entry("Disengaged SYMBOL_VIEW element");
-    }       
+    }
+
+
+    Frame GetPreferenceWidget()
+    {
+        return null;
+    }     
 }
 
 

@@ -443,7 +443,7 @@ class SEARCH_UI : ELEMENT
         mBuilder.addFromFile(Config.getString("SEARCH", "glade_file", "/home/anthony/.neontotem/dcomposer/findui.glade"));
         
         mPage               = cast (VBox)           mBuilder.getObject("vbox5");
-        mOptions            = cast (Viewport)       mBuilder.getObject("viewport1");        
+        mOptions            = cast (Viewport)       mBuilder.getObject("viewport2");        
         mHideOptionsBtn     = cast (Button)         mBuilder.getObject("button6");
         mHideAllBtn         = cast (Button)         mBuilder.getObject("button5");        
         mFindNextBtn        = cast (Button)         mBuilder.getObject("findnext");
@@ -552,9 +552,6 @@ class SEARCH_UI : ELEMENT
         SearchPrevAct.setAccelGroup(dui.GetAccel());        
         dui.Actions().addActionWithAccel(SearchPrevAct, "<Shift>F3");
         SearchPrevAct.connectAccelerator();
-
-
-
         
         dui.GetDocMan.AddContextAction(SearchAct);
     	
@@ -566,7 +563,12 @@ class SEARCH_UI : ELEMENT
 
         mState = false;
         Log.Entry("Disengaged SearchUI element.");
-    } 
+    }
+
+    Frame GetPreferenceWidget()
+    {
+        return null;
+    }
        
 }
 
