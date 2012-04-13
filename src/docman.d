@@ -45,6 +45,12 @@ import  gtk.ScrolledWindow;
 import  gtk.FileChooserDialog;
 import  gtk.SeparatorToolItem;
 import  gtk.TextIter;
+import  gtk.CheckButton;
+import  gtk.SpinButton;
+import  gtk.FontButton;
+import  gtk.ComboBox;
+import  gtk.ListStore;
+import  gtk.TreeIter;
 
 import  glib.ListSG;
 
@@ -617,6 +623,7 @@ class DOCMAN
     }
     DOCUMENT_IF GetDocX(int index = -1)
     {
+        scope(failure)return null;
         if(index == -1) index = dui.GetCenterPane().getCurrentPage();
         if(index == -1) return null;
         
@@ -684,4 +691,107 @@ class DOCMAN
 
     
     mixin Signal!(string, DOCUMENT_IF) Event;
-}    
+}
+
+
+class DOC_PAGE : PREFERENCE_PAGE
+{
+    CheckButton     mAutoIndent;
+    CheckButton     mIndentOnTab;
+    CheckButton     mSpacesForTab;
+    CheckButton     mSmartHome;
+    CheckButton     mHiliteCurrentLine;
+    CheckButton     mShowLineNumbers;
+    CheckButton     mShowRightMargin;
+    CheckButton     mHiliteSyntax;
+    CheckButton     mMatchBrackets;
+
+    SpinButton      mRightMargin;
+    SpinButton      mIndentionWidth;
+    SpinButton      mTabWidth;
+    FontButton      mFontStuff;
+    ComboBox        mStyleBox;
+    ListStore       mStyleChoices;
+    
+
+    this(string PageName, string FrameTitle)
+    {
+        super(PageName, Config.getString("PREFERENCES", "glade_file_docman", "~/.neontotem/dcomposer/docprefs.glade"));
+        mFrame.showAll();
+
+        mAutoIndent         = cast(CheckButton) mBuilder.getObject("autoindentchkbtn");
+        mIndentOnTab        = cast(CheckButton) mBuilder.getObject("indentontabchkbtn");
+        mSpacesForTab       = cast(CheckButton) mBuilder.getObject("spacesfortabchkbtn");
+        mSmartHome          = cast(CheckButton) mBuilder.getObject("smarthomechkbtn");
+        mHiliteCurrentLine  = cast(CheckButton) mBuilder.getObject("hilitelinechkbtn");
+        mShowLineNumbers    = cast(CheckButton) mBuilder.getObject("linenumberschkbtn");
+        mShowRightMargin    = cast(CheckButton) mBuilder.getObject("showrightmarginchkbtn");
+        mHiliteSyntax       = cast(CheckButton) mBuilder.getObject("hilitesyntaxchkbtn");
+        mMatchBrackets      = cast(CheckButton) mBuilder.getObject("matchbracketschkbtn");
+
+        mRightMargin        = cast(SpinButton)  mBuilder.getObject("rightmarginspin");
+        mIndentionWidth     = cast(SpinButton)  mBuilder.getObject("indentionspin");
+        mTabWidth           = cast(SpinButton)  mBuilder.getObject("tabspin");
+        mFontStuff          = cast(FontButton)  mBuilder.getObject("fontbutton");
+        mStyleBox           = cast(ComboBox)    mBuilder.getObject("stylebox");
+
+        //lordy lordy what a powerful heap of typin' this here is turnin' out to be
+
+        mRightMargin.setRange(ulong.min, ulong.max);
+        mRightMargin.setIncrements(1, -1);
+        mIndentionWidth.setRange(ulong.min, ulong.max);
+        mIndentionWidth.setIncrements(1, -1);
+        mTabWidth.setRange(ulong.min, ulong.max);
+        mTabWidth.setIncrements(1, -1);
+
+        //test fontbutton return stuff
+        mFontStuff.addOnFontSet(delegate void (FontButton Fb){writeln(Fb.getFontName());});
+
+        mStyleChoices = new ListStore([GType.STRING]);
+
+        ReadSettings();
+        
+    }
+
+
+    void ReadSettings()
+    {
+        //load choices
+        auto currentStyle = Config.getString("DOCMAN", "style_scheme", "cobalt");
+        int ActiveChoice;
+        int indx;
+        TreeIter ti = new TreeIter;
+        string stylefolder = expandTilde("~/.neontotem/dcomposer/styles/");
+        auto StyleFiles = filter!`endsWith(a.name, ".xml")`(dirEntries(stylefolder, SpanMode.shallow));
+        mStyleChoices.clear();
+        foreach( xmlfile; StyleFiles)
+        {
+            writeln(xmlfile.name, "--",currentStyle);
+            mStyleChoices.append(ti);
+            mStyleChoices.setValue(ti, 0, baseName(xmlfile.name,".xml"));
+            if(currentStyle == mStyleChoices.getValueString(ti, 0)) ActiveChoice = indx;
+            
+            indx++;
+        }
+        mStyleBox.setModel(mStyleChoices);
+        mStyleBox.setActive(ActiveChoice);    
+        
+        mAutoIndent         .setActive(Config.getBoolean("DOCMAN", "auto_indent", true));
+        mIndentOnTab        .setActive(Config.getBoolean("DOCMAN", "indent_on_tab", true));
+        mSpacesForTab       .setActive(Config.getBoolean("DOCMAN", "spaces_for_tabs", true));
+        mSmartHome          .setActive(Config.getBoolean("DOCMAN", "smart_home_end", true));
+        mHiliteCurrentLine  .setActive(Config.getBoolean("DOCMAN", "hilite_current_line", true));
+        mShowLineNumbers    .setActive(Config.getBoolean("DOCMAN", "show_line_numbers", true));
+        mShowRightMargin    .setActive(Config.getBoolean("DOCMAN", "show_right_margin", true));
+        mHiliteSyntax       .setActive(Config.getBoolean("DOCMAN", "hilite_syntax", true));
+        mMatchBrackets      .setActive(Config.getBoolean("DOCMAN", "match_brackets", true));
+
+        mRightMargin.setValue(Config.getInteger("DOCMAN", "right_margin", 80));
+        mIndentionWidth.setValue(Config.getInteger("DOCMAN", "indention_width", 8));
+        mTabWidth.setValue(Config.getInteger("DOCMAN", "tab_width", 8));
+
+        mFontStuff.setFontName(Config.getString("DOCMAN", "font_name", "Droid Sans Mono"));
+
+    }
+}
+

@@ -369,7 +369,6 @@ extern (C) int SortFunciton(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b,
     ListStore ls = new ListStore(cast (GtkListStore *) model);
     TreeIter tiA  = new TreeIter(a);
     TreeIter tiB  = new TreeIter(b);
-writeln( ls.getValueString(tiA, 0), ls.getValueString(tiB,0));
     if(ls.getValueString(tiA,0) < ls.getValueString(tiB,0)) return -1;
     if(ls.getValueString(tiA,0) > ls.getValueString(tiB,0)) return 1;
 

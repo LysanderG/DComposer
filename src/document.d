@@ -127,7 +127,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
             if(Language.gtkSourceLanguageGetName() == "D") mType = DOC_TYPE.D_SOURCE;
         }
 
-        string StyleId = Config.getString("DOCMAN","style_scheme", "mnml");
+        string StyleId = Config.getString("DOCMAN","style_scheme", "cobalt");
         getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleId));
 
 
@@ -464,4 +464,4 @@ string MultiRead(string FileName)
     return null;
 }
 */    
-        
+ //notice how I have no idea what I am doing with text encoding?       

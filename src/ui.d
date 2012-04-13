@@ -50,6 +50,7 @@ import  gtk.AboutDialog;
 import  gtk.VPaned;
 import  gtk.HPaned;
 import  gtk.Frame;
+import  gtk.Alignment;
 
 MAIN_UI dui;
 
@@ -384,3 +385,41 @@ enum :int { TYPE_NONE, TYPE_CALLTIP, TYPE_SCOPELIST, TYPE_SYMCOM}
 // --- menu
 //system        view        Document        edit        search      project     tools       elements        help
 //      qu    it  w         
+
+
+
+//base class (probably should be abstract) for all gui preference widgets
+//any module/element with user changeable options will implement a child of this class
+//it must return a page/section gui
+//must connect to Config.ShowConfig to reset values to keyfile values
+//must connect to Config.ReConfig to apply changes to keyfile
+//then modules/elements will reconfigure themselves from the keyfile.
+class PREFERENCE_PAGE
+{
+    string      mPageName;
+    
+    Builder     mBuilder;
+    Frame       mFrame;
+    Alignment   mFrameKid;
+
+    this(string PageName, string gladefile)
+    {
+        mPageName = PageName;
+        
+        mBuilder = new Builder;
+        mBuilder.addFromFile(gladefile);
+
+        mFrame = cast(Frame)mBuilder.getObject("frame");
+
+        mFrameKid = cast(Alignment)mBuilder.getObject("alignment1");
+    }
+
+    Frame GetPrefWidget()
+    {
+        return mFrame;
+    }
+    string PageName()
+    {
+        return mPageName;
+    }    
+}

@@ -22,6 +22,7 @@ module preferencesui;
 import dcore;
 import ui;
 import elements;
+import docman;
 
 import std.stdio;
 
@@ -36,7 +37,10 @@ import gtk.Entry;
 import gtk.CellEditableIF;
 import gtk.Alignment;
 import gtk.SpinButton;
-
+import gtk.ScrolledWindow;
+import gtk.Button;
+import gtk.TextView;
+import gtk.ToggleButton;
 
 
 
@@ -49,10 +53,15 @@ class PREFERENCES_UI : ELEMENT
     bool            mState;
 
     bool            mGuiBuilt;
+
     Builder         mBuilder;
     VBox            mRoot;
     Notebook        mBook;
     VBox[string]    mPage;
+    PREFERENCE_PAGE[] mObjects;
+    Button          mApplyBtn;
+    Button          mDiscardBtn;
+    
 
 
     void ShowPrefPage()
@@ -73,14 +82,24 @@ class PREFERENCES_UI : ELEMENT
     void AddCorePrefs()
     {
         auto ConfPrefs = new CONFIG_PAGE("Core", "Configuration File :");
+        mObjects ~= ConfPrefs;
         AddPrefPart(ConfPrefs);
+
         auto LogPrefs  = new LOG_PAGE("Core", "Logging :");
+        mObjects ~= LogPrefs;
         AddPrefPart(LogPrefs);
+
+        auto SymbolPrefs = new SYMBOL_PAGE("Core", "Symbols :");
+        mObjects ~= SymbolPrefs;
+        AddPrefPart(SymbolPrefs);
 
     }
 
     void AddUIPrefs()
     {
+        auto DocPrefs = new DOC_PAGE("Documents", "Editor :");
+        mObjects ~= DocPrefs;
+        AddPrefPart(DocPrefs);
     }
 
     void AddElementPrefs()
@@ -95,9 +114,14 @@ class PREFERENCES_UI : ELEMENT
         }
         else
         {
+            ScrolledWindow sw = new ScrolledWindow;
+            sw.show();
+            sw.setPolicy(PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
             mPage[X.PageName] = new VBox(1,1);
             mPage[X.PageName].add(X.GetPrefWidget());
-            mBook.appendPage(mPage[X.PageName], X.PageName);
+            sw.addWithViewport(mPage[X.PageName]);
+            
+            mBook.appendPage(sw, X.PageName);
         }
         mPage[X.PageName].showAll();
     }
@@ -117,6 +141,7 @@ class PREFERENCES_UI : ELEMENT
         ShowPrefAct.setAccelGroup(dui.GetAccel());
         dui.Actions.addActionWithAccel(ShowPrefAct, "<Ctrl>P");
         dui.AddMenuItem("_System", ShowPrefAct.createMenuItem(), 0);
+
     }
     
     @property string Name(){return mName;}
@@ -134,9 +159,13 @@ class PREFERENCES_UI : ELEMENT
         mBuilder = new Builder;
         mBuilder.addFromFile(Config.getString("PREFERENCES", "glade_file", "~/.neontotem/dcomposer/preferences.glade"));
 
-        mRoot   =   cast(VBox)  mBuilder.getObject("root");
-        mBook   =   cast(Notebook)mBuilder.getObject("notebook");
-        
+        mRoot       =   cast(VBox)      mBuilder.getObject("root");
+        mBook       =   cast(Notebook)  mBuilder.getObject("notebook");
+        mApplyBtn   =   cast(Button)    mBuilder.getObject("applybtn");
+        mDiscardBtn =   cast(Button)    mBuilder.getObject("discardbtn");
+
+        mApplyBtn.addOnClicked(delegate void(Button X){Config.Reconfigure();});
+        mDiscardBtn.addOnClicked(delegate void(Button X){mRoot.hide();Log.Entry("discard preferences","Debug");});
 
         dui.GetCenterPane.prependPage(mRoot, new Label("Preferences"));
         
@@ -162,36 +191,7 @@ class PREFERENCES_UI : ELEMENT
 
 
 
-class PREFERENCE_PAGE
-{
-    string      mPageName;
-    
-    Builder     mBuilder;
-    Frame       mFrame;
-    Alignment   mFrameKid;
 
-    this(string PageName, string gladefile)
-    {
-        mPageName = PageName;
-        
-        mBuilder = new Builder;
-        mBuilder.addFromFile(gladefile);
-
-        mFrame = cast(Frame)mBuilder.getObject("frame");
-
-        mFrameKid = cast(Alignment)mBuilder.getObject("alignment1");
-    }
-
-    Frame GetPrefWidget()
-    {
-        return mFrame;
-    }
-    string PageName()
-    {
-        return mPageName;
-    }
-    
-}
         
 
 
@@ -206,7 +206,7 @@ class CONFIG_PAGE :PREFERENCE_PAGE
         mEntry = cast(Entry) mBuilder.getObject("entry1");
         mEntry.setText(Config.getString("CONFIG", "this_file", ""));
         
-        mFrameKid.add(mEntry);
+        //mFrameKid.add(mEntry);
 
         mEntry.addOnEditingDone(delegate void(CellEditableIF EditCell){Log.Entry("Preferences Test " ~ mEntry.getText());});
         mEntry.addOnActivate(delegate void(Entry x){Log.Entry("Preferences Test " ~ mEntry.getText());});
@@ -242,7 +242,26 @@ class LOG_PAGE : PREFERENCE_PAGE
         mFrame.showAll();
     }
 }
-        
-    
-    
 
+class SYMBOL_PAGE : PREFERENCE_PAGE
+{
+    CheckButton mCheckBtn;
+    TextView    mTagList;
+
+    this(string PageName, string SectionName)
+    {
+        super(PageName, Config.getString("PREFERENCES", "glade_file_symbols", "~/.neontotem/dcomposer/symbolpref.glade"));
+
+        mCheckBtn   = cast(CheckButton) mBuilder.getObject("checkbutton1");
+        mTagList    = cast(TextView)    mBuilder.getObject("textview1");
+
+        mCheckBtn.setActive(Config.getBoolean("SYMBOLS", "auto_load_project_symbols", 1));
+        mCheckBtn.addOnToggled(delegate void(ToggleButton tb){mTagList.setSensitive(mCheckBtn.getActive());});
+
+        mTagList.setSensitive(mCheckBtn.getActive());
+        mTagList.appendText("whatever is in symbol_libs goes here");
+        
+        
+        mFrame.showAll();
+    }
+}

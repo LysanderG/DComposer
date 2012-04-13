@@ -169,9 +169,20 @@ class CONFIG
         string[] rVal =  mKeyFile.getKeys(groupName, waste);
         return rVal;
     }
+
+    void Reconfigure()
+    {
+        Reconfig.emit();
+    }
+
+    void PrepPreferences()
+    {
+        //preps a gui dialog to set all elements to keyfile values
+        ShowConfig.emit();
+    }
         
-
-
+    mixin Signal!()ShowConfig;  //will be emitted before showing a gui pref dialog ... to set gui elements from keyfile
+    mixin Signal!()Reconfig;    //emitted when keyfile changes warrent all modules to reconfigure them selves
     mixin Signal!()Saved;     
 
 }
