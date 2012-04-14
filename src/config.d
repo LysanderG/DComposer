@@ -172,6 +172,8 @@ class CONFIG
 
     void Reconfigure()
     {
+        mCfgFile = getString("CONFIG", "this_file", mCfgFile);
+        Save();
         Reconfig.emit();
     }
 

@@ -55,6 +55,8 @@ import gtkc.gtk;
 import gobject.ObjectG;
 import gobject.ParamSpec;
 
+import pango.PgFontDescription;
+
 
 class DOCUMENT : SourceView, DOCUMENT_IF
 {
@@ -130,19 +132,29 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         string StyleId = Config.getString("DOCMAN","style_scheme", "cobalt");
         getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleId));
 
+        setAutoIndent(Config.getBoolean("DOCMAN", "auto_indent", true));
+        setIndentOnTab(Config.getBoolean("DOCMAN", "indent_on_tab", true));
+        setInsertSpacesInsteadOfTabs(Config.getBoolean("DOCMAN","spaces_for_tabs", true));
 
+        if(Config.getBoolean("DOCMAN", "smart_home_end", true))setSmartHomeEnd(SourceSmartHomeEndType.AFTER);
+        else setSmartHomeEnd(SourceSmartHomeEndType.DISABLED);
 
+        setHighlightCurrentLine(Config.getBoolean("DOCMAN", "hilite_current_line", false));
+        setShowLineNumbers(Config.getBoolean("DOCMAN", "show_line_numbers",true));
+        setShowRightMargin(Config.getBoolean("DOCMAN", "show_right_margin", true));
+        getBuffer.setHighlightSyntax(Config.getBoolean("DOCMAN", "hilite_syntax", true));
+        getBuffer.setHighlightMatchingBrackets(Config.getBoolean("DOCMAN", "match_brackets", true));
+        setRightMarginPosition(Config.getInteger("DOCMAN", "right_margin", 120));
+        setIndentWidth(Config.getInteger("DOCMAN", "indention_width", 8));
         setTabWidth(Config.getInteger("DOCMAN", "tab_width", 4));
 
-        setInsertSpacesInsteadOfTabs(Config.getBoolean("DOCMAN","spaces_for_tabs", true));
-        setAutoIndent(true);
-        setShowLineNumbers(true);
+        //modifyFont(Config.getString("DOCMAN", "font", "mono 18"), "");
+        modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.getString("DOCMAN", "font", "mono 18")));
 
-        string fontname = Config.getString("DOCMAN", "font_name", "Anonymous Pro");
-        int fontsize = Config.getInteger("DOCMAN", "font_size", 12);
-        modifyFont(fontname,fontsize);
+        //string fontname = Config.getString("DOCMAN", "font_name", "Anonymous Pro");
+        //int fontsize = Config.getInteger("DOCMAN", "font_size", 12);
+        //modifyFont(fontname,fontsize);
 
-        setSmartHomeEnd(SourceSmartHomeEndType.AFTER);
         
         setShowLineMarks(true);
         setMarkCategoryIconFromStock ("breakpoint", "gtk-yes");
@@ -212,6 +224,8 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         
         addOnPopulatePopup (&PopulateContextMenu); 
         addOnFocusIn(&CheckForExternalChanges);
+
+        Config.Reconfig.connect(&SetupSourceView);
         
     }
     

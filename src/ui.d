@@ -421,5 +421,7 @@ class PREFERENCE_PAGE
     string PageName()
     {
         return mPageName;
-    }    
+    }
+
+    abstract void Apply();
 }

@@ -696,6 +696,8 @@ class DOCMAN
 
 class DOC_PAGE : PREFERENCE_PAGE
 {
+    //indention??? I think I meant indentation.
+    
     CheckButton     mAutoIndent;
     CheckButton     mIndentOnTab;
     CheckButton     mSpacesForTab;
@@ -776,22 +778,49 @@ class DOC_PAGE : PREFERENCE_PAGE
         mStyleBox.setModel(mStyleChoices);
         mStyleBox.setActive(ActiveChoice);    
         
-        mAutoIndent         .setActive(Config.getBoolean("DOCMAN", "auto_indent", true));
-        mIndentOnTab        .setActive(Config.getBoolean("DOCMAN", "indent_on_tab", true));
-        mSpacesForTab       .setActive(Config.getBoolean("DOCMAN", "spaces_for_tabs", true));
-        mSmartHome          .setActive(Config.getBoolean("DOCMAN", "smart_home_end", true));
+        mAutoIndent         .setActive(Config.getBoolean("DOCMAN", "auto_indent"        , true));
+        mIndentOnTab        .setActive(Config.getBoolean("DOCMAN", "indent_on_tab"      , true));
+        mSpacesForTab       .setActive(Config.getBoolean("DOCMAN", "spaces_for_tabs"    , true));
+        mSmartHome          .setActive(Config.getBoolean("DOCMAN", "smart_home_end"     , true));
         mHiliteCurrentLine  .setActive(Config.getBoolean("DOCMAN", "hilite_current_line", true));
-        mShowLineNumbers    .setActive(Config.getBoolean("DOCMAN", "show_line_numbers", true));
-        mShowRightMargin    .setActive(Config.getBoolean("DOCMAN", "show_right_margin", true));
-        mHiliteSyntax       .setActive(Config.getBoolean("DOCMAN", "hilite_syntax", true));
-        mMatchBrackets      .setActive(Config.getBoolean("DOCMAN", "match_brackets", true));
+        mShowLineNumbers    .setActive(Config.getBoolean("DOCMAN", "show_line_numbers"  , true));
+        mShowRightMargin    .setActive(Config.getBoolean("DOCMAN", "show_right_margin"  , true));
+        mHiliteSyntax       .setActive(Config.getBoolean("DOCMAN", "hilite_syntax"      , true));
+        mMatchBrackets      .setActive(Config.getBoolean("DOCMAN", "match_brackets"     , true));
 
         mRightMargin.setValue(Config.getInteger("DOCMAN", "right_margin", 80));
         mIndentionWidth.setValue(Config.getInteger("DOCMAN", "indention_width", 8));
         mTabWidth.setValue(Config.getInteger("DOCMAN", "tab_width", 8));
 
-        mFontStuff.setFontName(Config.getString("DOCMAN", "font_name", "Droid Sans Mono"));
+        mFontStuff.setFontName(Config.getString("DOCMAN", "font", "Droid Sans Mono 16"));
 
     }
-}
+
+    override void Apply()
+    {
+        TreeIter ti = new TreeIter;
+        mStyleBox.getActiveIter(ti);
+        
+        Config.setString("DOCMAN", "style_scheme", mStyleChoices.getValueString(ti,0));
+
+        
+        Config.setBoolean("DOCMAN", "auto_indent"        , mAutoIndent         .getActive());
+        Config.setBoolean("DOCMAN", "indent_on_tab"      , mIndentOnTab        .getActive());
+        Config.setBoolean("DOCMAN", "spaces_for_tabs"    , mSpacesForTab       .getActive());
+        Config.setBoolean("DOCMAN", "smart_home_end"     , mSmartHome          .getActive());
+        Config.setBoolean("DOCMAN", "hilite_current_line", mHiliteCurrentLine  .getActive());
+        Config.setBoolean("DOCMAN", "show_line_numbers"  , mShowLineNumbers    .getActive());
+        Config.setBoolean("DOCMAN", "show_right_margin"  , mShowRightMargin    .getActive());
+        Config.setBoolean("DOCMAN", "hilite_syntax"      , mHiliteSyntax       .getActive());
+        Config.setBoolean("DOCMAN", "match_brackets"     , mMatchBrackets      .getActive());
+
+        Config.setInteger("DOCMAN", "right_margin"       , mRightMargin.getValueAsInt());
+        Config.setInteger("DOCMAN", "indention_width"    , mIndentionWidth.getValueAsInt());
+        Config.setInteger("DOCMAN", "tab_width"          , mTabWidth.getValueAsInt());
+
+        Config.setString("DOCMAN", "font"              , mFontStuff.getFontName());
+    }
+        
+
+}                                         
 

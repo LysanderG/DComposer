@@ -125,6 +125,11 @@ class PREFERENCES_UI : ELEMENT
         }
         mPage[X.PageName].showAll();
     }
+    void ApplyChanges()
+    {
+        foreach(obj; mObjects) obj.Apply;
+        Config.Reconfigure();
+    }
     
     public :
     
@@ -164,7 +169,7 @@ class PREFERENCES_UI : ELEMENT
         mApplyBtn   =   cast(Button)    mBuilder.getObject("applybtn");
         mDiscardBtn =   cast(Button)    mBuilder.getObject("discardbtn");
 
-        mApplyBtn.addOnClicked(delegate void(Button X){Config.Reconfigure();});
+        mApplyBtn.addOnClicked(delegate void(Button X){ApplyChanges();});
         mDiscardBtn.addOnClicked(delegate void(Button X){mRoot.hide();Log.Entry("discard preferences","Debug");});
 
         dui.GetCenterPane.prependPage(mRoot, new Label("Preferences"));
@@ -213,6 +218,11 @@ class CONFIG_PAGE :PREFERENCE_PAGE
 
         mFrame.showAll();
     }
+
+    override void Apply()
+    {
+        Config.setString("CONFIG", "this_file", mEntry.getText());
+    }
 }
 
 
@@ -241,6 +251,14 @@ class LOG_PAGE : PREFERENCE_PAGE
         mMaxLines.setValue(cast(double) Config.getInteger("LOG", "max_lines_buffer", 234));        
         mFrame.showAll();
     }
+
+    override void Apply()
+    {
+        Config.setString("LOG", "default_log_file", mEntry.getText());
+        Config.setInteger("LOG", "max_file_size", mMaxSize.getValueAsInt());
+        Config.setInteger("LOG", "max_lines_buffer", mMaxLines.getValueAsInt());
+    }
+    
 }
 
 class SYMBOL_PAGE : PREFERENCE_PAGE
@@ -263,5 +281,10 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
         
         
         mFrame.showAll();
+    }
+
+    override void Apply()
+    {
+        Config.setBoolean("SYMBOLS", "auto_load_project_symbols", mCheckBtn.getActive());
     }
 }
