@@ -565,7 +565,7 @@ class SEARCH_UI : ELEMENT
         Log.Entry("Disengaged SearchUI element.");
     }
 
-    Frame GetPreferenceWidget()
+    PREFERENCE_PAGE GetPreferenceObject()
     {
         return null;
     }

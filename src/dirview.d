@@ -27,6 +27,8 @@ import std.array;
 import std.conv;
 import std.string;
 
+import core.thread;
+
 import ui;
 import dcore;
 import elements;
@@ -72,7 +74,6 @@ class DIR_VIEW : ELEMENT
 
     Builder             mBuilder;
 
-    //Viewport            mRoot;
     VBox                mRoot;
     ToolButton          mUpBtn;
     ToolButton          mRefreshBtn;
@@ -93,6 +94,7 @@ class DIR_VIEW : ELEMENT
 
     void Refresh()
     {
+        writeln("refresh");
         scope(failure)
         {
             mComboFilter.setActiveText("");
@@ -104,6 +106,8 @@ class DIR_VIEW : ELEMENT
         mDirLabel.setText(mFolder);        
         mStore.clear();
 
+        ListStore xStore = new ListStore([GType.STRING, GType.STRING, GType.STRING]);
+
         string theFileFilter;
 
         theFileFilter = mComboFilter.getActiveText();
@@ -114,11 +118,12 @@ class DIR_VIEW : ELEMENT
             //auto Contents = dirEntries(mFolder, mFilter.getText(), SpanMode.shallow);
             scope(failure)
             {
-                mStore.append(ti);
-                mStore.setValue(ti, 1, "Check Folder/File permissions");
+                xStore.append(ti);
+                xStore.setValue(ti, 1, "Check Folder/File permissions");
                 return;
             }
-            auto Contents = dirEntries(mFolder, theFileFilter, SpanMode.shallow);
+            //auto Contents = dirEntries(mFolder, theFileFilter, SpanMode.shallow);
+            auto Contents = dirEntries(mFolder, SpanMode.shallow);
             
         }
         version(GDMD)
@@ -129,14 +134,28 @@ class DIR_VIEW : ELEMENT
         foreach(DirEntry item; Contents)
         {
             if((!mHiddenBtn.getActive) && (baseName(item.name)[0] == '.')) continue;
-            mStore.append(ti);
-            if(item.isDir) mStore.setValue(ti, 0, " " );
-            else mStore.setValue(ti, 0, " ");
-            mStore.setValue(ti, 1, baseName(item.name));
-            mStore.setValue(ti, 2, to!string(item.size));
+            
+            if(item.isDir)
+            {
+                xStore.append(ti);
+                xStore.setValue(ti, 0, " " );
+                xStore.setValue(ti, 1, baseName(item.name));
+                xStore.setValue(ti, 2, to!string(item.size));
+            }
+                 
+            else if (globMatch(baseName(item.name), theFileFilter))
+            {
+                xStore.append(ti);
+                xStore.setValue(ti, 0, " ");
+                xStore.setValue(ti, 1, baseName(item.name));
+                xStore.setValue(ti, 2, to!string(item.size));
+            }
         }
 
-        mFolderView.setModel(mStore);
+        writeln(mStore);
+        mStore = xStore;
+        mFolderView.setModel(xStore);
+        writeln("outfresh");
     }
                
 
@@ -161,6 +180,7 @@ class DIR_VIEW : ELEMENT
 
     void FileClicked( TreePath tp, TreeViewColumn tvc, TreeView tv)
     {
+        writeln("FileClicked");
         TreeIter ti = new TreeIter;
 
         if(!mStore.getIter(ti, tp)) return;
@@ -170,19 +190,21 @@ class DIR_VIEW : ELEMENT
         if(type == " ") Folder = buildPath(mFolder , mStore.getValueString(ti,1));
         if(type == " ") dui.GetDocMan.OpenDoc(buildPath(mFolder, mStore.getValueString(ti,1)));
 
-        dui.Status.push(0, type ~ " : " ~ mStore.getValueString(ti,1) ~ to!string(mStore.getValueString(ti,2)) ~ ": size");
+        //dui.Status.push(0, type ~ " : " ~ mStore.getValueString(ti,1) ~ to!string(mStore.getValueString(ti,2)) ~ ": size");
+         writeln("outFileClicked");
     }
 
     void FileSelected(TreeView tv)
     {
-        
+        writeln("FileSelected");
         TreeIter ti = new TreeIter;
 
         ti = tv.getSelectedIter();
         if(ti is null) return;
 
-        dui.Status.push(0, mStore.getValueString(ti,0) ~ ": " ~ mStore.getValueString(ti, 1) ~ "\t:\t\tsize " ~ mStore.getValueString(ti,2));
-          
+        //dui.Status.push(0, mStore.getValueString(ti,0) ~ ": " ~ mStore.getValueString(ti, 1) ~ "\t:\t\tsize " ~ mStore.getValueString(ti,2));
+
+        writeln("outFileSelected");
     }
         
 
@@ -225,8 +247,10 @@ class DIR_VIEW : ELEMENT
     }
     @property void Folder(string nuFolder)
     {
+        writeln("folder");
         mFolder = nuFolder;
         Refresh();
+        writeln("outfolder");
     }
     
     void Engage()
@@ -323,7 +347,7 @@ class DIR_VIEW : ELEMENT
         Log.Entry("Disengaged DIRECTORY_VIEW element");
     }
 
-    Frame GetPreferenceWidget()
+    PREFERENCE_PAGE GetPreferenceObject()
     {
         return null;
     }

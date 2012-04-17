@@ -25,6 +25,7 @@ import ui;
 import symbols;
 
 import std.stdio;
+import core.memory;
 
 import gtk.Builder;
 import gtk.TreeView;
@@ -83,9 +84,11 @@ class SYMBOL_VIEW : ELEMENT
 
     void Refresh()
     {
+        GC.disable();
         mSymbolStore.clear();
         FillTreeStore(mSymbolStore);
         mSymbolTree.setModel(mSymbolStore);
+        GC.enable();
     }
 
 
@@ -176,7 +179,7 @@ class SYMBOL_VIEW : ELEMENT
     }
 
 
-    Frame GetPreferenceWidget()
+    PREFERENCE_PAGE GetPreferenceObject()
     {
         return null;
     }     

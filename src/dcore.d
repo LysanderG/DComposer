@@ -52,6 +52,11 @@ static this()
     mDebugger   = new DEBUGGER;
 }
 
+static ~this()
+{
+    delete mLog;
+}
+
 public:
 
 void Engage(string[] CmdArgs)

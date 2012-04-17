@@ -39,7 +39,8 @@ interface ELEMENT
 
     void Disengage();
 
-    Frame GetPreferenceWidget();
+    PREFERENCE_PAGE GetPreferenceObject();
+    
 }
 
 

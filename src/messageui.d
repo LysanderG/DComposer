@@ -164,7 +164,7 @@ class MESSAGE_UI :ELEMENT
         Log.Entry("Disengaged MESSAGE_UI element");
     }
 
-    Frame GetPreferenceWidget()
+    PREFERENCE_PAGE GetPreferenceObject()
     {
         return null;
     }

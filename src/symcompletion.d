@@ -183,7 +183,7 @@ class SYMBOL_COMPLETION : ELEMENT
         dui.GetDocMan.Event.disconnect(&WatchForNewDocument);
     }
 
-    Frame GetPreferenceWidget()
+    PREFERENCE_PAGE GetPreferenceObject()
     {
         return null;
     } 

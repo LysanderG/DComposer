@@ -163,7 +163,7 @@ class SCOPE_LIST : ELEMENT
     }
 
 
-    Frame GetPreferenceWidget()
+    PREFERENCE_PAGE GetPreferenceObject()
     {
         return null;
     }

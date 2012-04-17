@@ -46,6 +46,8 @@ import gtk.ListStore;
 import gtk.Widget;
 import gtk.HPaned;
 
+import gtk.CheckButton;
+
 import gtk.TreePath;
 import gtk.TreeViewColumn;
 
@@ -58,6 +60,8 @@ class ASSISTANT_UI : ELEMENT
     string      mName;
     string      mInfo;
     bool        mState;
+
+    ASSISTANT_PAGE mPreferenceObject;
 
     StopWatch   mTTipTimer;
     TickDuration mMinTime;
@@ -78,6 +82,10 @@ class ASSISTANT_UI : ELEMENT
 
     DSYMBOL[]   mList;
 
+    bool        mMouseHover;
+    bool        mEnabled; //this should be State !! but not sure that will work as planned 6 months ago.
+                           //... look into this
+
     
     void WatchForNewDoc(string EventType, DOCUMENT_IF NuDoc)
     {
@@ -89,6 +97,7 @@ class ASSISTANT_UI : ELEMENT
 
     bool CatchDocToolTip(int x , int y, int key_mode, GtkTooltip* TTipPtr, Widget WidDoc)
     {
+        if(!mMouseHover) return false;
         mTTipTimer.stop();
         if(mTTipTimer.peek.seconds <  2)
         {
@@ -229,7 +238,13 @@ class ASSISTANT_UI : ELEMENT
         CatchSymbols(PossibleParentSyms);
     }
         
-    
+    void Reconfigure()
+    {
+        mMouseHover = Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", false);
+        mEnabled    = Config.getBoolean("ASSISTANT_UI", "enabled", true);
+        
+        mRoot.setVisible(mEnabled);
+    }
 
         
         
@@ -241,6 +256,8 @@ class ASSISTANT_UI : ELEMENT
         mName = "ASSISTANT_UI";
         mInfo = "Show Symbol information";
         mState = false;
+
+        mPreferenceObject = new ASSISTANT_PAGE("Elements", "Assistant");
 
     }
 
@@ -276,8 +293,10 @@ class ASSISTANT_UI : ELEMENT
         mPossibles.setModel(mPossibleStore);        
         mChildren.setModel(mChildrenStore);
 
-
-        mRoot.showAll();
+        mMouseHover = Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", false);
+        mEnabled    = Config.getBoolean("ASSISTANT_UI", "enabled", true);
+        
+        mRoot.setVisible(mEnabled);
         dui.GetExtraPane.appendPage(mRoot, "Assistant");
 
         mPossibles.addOnChanged(delegate void(ComboBox cbx){UpdateAssistant();});
@@ -288,12 +307,14 @@ class ASSISTANT_UI : ELEMENT
         mTTipTimer.start();
         mMinTime.from!"msecs"(5000);
 
+        
+
         Symbols.Forward.connect(&CatchSymbols);
         mChildren.addOnRowActivated(delegate void (TreePath tp, TreeViewColumn tvc, TreeView tv){FollowChild();});
         mBtnJumpTo.addOnClicked(delegate void(Button btn){JumpTo();});
         mBtnParent.addOnClicked(delegate void(Button btn){Parent();});
 
-        
+        Config.Reconfig.connect(&Reconfigure);
 
         Log.Entry("Engaged ASSISTANT_UI element");
     }
@@ -301,13 +322,46 @@ class ASSISTANT_UI : ELEMENT
     void Disengage()
     {
 
+        dui.GetAutoPopUps.disconnect(&CatchSymbol);
+        dui.GetDocMan.Event.disconnect(&WatchForNewDoc);
         Config.setInteger("ASSISTANT_UI", "store_gui_pane_position", mHPane.getPosition()); 
         Log.Entry("Disengaged ASSISTANT_UI element");
     }
 
-    Frame GetPreferenceWidget()
-    {
-        return null;
+    PREFERENCE_PAGE GetPreferenceObject()
+    {        
+        return mPreferenceObject;
     } 
 }
+
+
+
+//PREFRENCES STUFF
+
+class ASSISTANT_PAGE : PREFERENCE_PAGE
+{
+    CheckButton    mEnabled;
+    CheckButton    mPseudoToolTipEnabled;
+
+    this(string PageName, string SectionName)
+    {
+        super(PageName, Config.getString("PREFERENCES", "glade_file_assistant", "~/.neontotem/dcomposer/assistpref.glade"));
+
+        mEnabled = cast (CheckButton) mBuilder.getObject("checkbutton1");
+        mPseudoToolTipEnabled = cast (CheckButton) mBuilder.getObject("checkbutton2");
+
+        mEnabled.setActive(Config.getBoolean("ASSISTANT_UI","enabled", true));
+        mPseudoToolTipEnabled.setActive(Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", true));
+        mFrame.showAll();
+    }
+
+    override void Apply()
+    {
+        Config.setBoolean("ASSISTANT_UI", "enabled", mEnabled.getActive());
+        Config.setBoolean("ASSISTANT_UI", "follow_doc_tool_tip", mPseudoToolTipEnabled.getActive());
+    }
+}
+    
+
+    
         

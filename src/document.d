@@ -196,7 +196,46 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
         foreach(action; ActionItems)X.prepend(action.createMenuItem());
     }
-    
+
+    bool Finalize()
+    {
+        BreakPoint.disconnect(&Debugger.CatchBreakPoint);
+        Config.Reconfig.disconnect(&SetupSourceView);
+        return true;
+    }
+
+    void Reconfigure()
+    {
+        auto Language = SourceLanguageManager.getDefault().guessLanguage(FullPathName,null);
+        mType = DOC_TYPE.TEXT;
+        if(Language!is null)
+        {
+            getBuffer.setLanguage(Language);
+            if(Language.gtkSourceLanguageGetName() == "D") mType = DOC_TYPE.D_SOURCE;
+        }
+
+        string StyleId = Config.getString("DOCMAN","style_scheme", "cobalt");
+        getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleId));
+
+        setAutoIndent(Config.getBoolean("DOCMAN", "auto_indent", true));
+        setIndentOnTab(Config.getBoolean("DOCMAN", "indent_on_tab", true));
+        setInsertSpacesInsteadOfTabs(Config.getBoolean("DOCMAN","spaces_for_tabs", true));
+
+        if(Config.getBoolean("DOCMAN", "smart_home_end", true))setSmartHomeEnd(SourceSmartHomeEndType.AFTER);
+        else setSmartHomeEnd(SourceSmartHomeEndType.DISABLED);
+
+        setHighlightCurrentLine(Config.getBoolean("DOCMAN", "hilite_current_line", false));
+        setShowLineNumbers(Config.getBoolean("DOCMAN", "show_line_numbers",true));
+        setShowRightMargin(Config.getBoolean("DOCMAN", "show_right_margin", true));
+        getBuffer.setHighlightSyntax(Config.getBoolean("DOCMAN", "hilite_syntax", true));
+        getBuffer.setHighlightMatchingBrackets(Config.getBoolean("DOCMAN", "match_brackets", true));
+        setRightMarginPosition(Config.getInteger("DOCMAN", "right_margin", 120));
+        setIndentWidth(Config.getInteger("DOCMAN", "indention_width", 8));
+        setTabWidth(Config.getInteger("DOCMAN", "tab_width", 4));
+
+        //modifyFont(Config.getString("DOCMAN", "font", "mono 18"), "");
+        modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.getString("DOCMAN", "font", "mono 18")));
+    }
 
     public:
 
@@ -225,7 +264,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         addOnPopulatePopup (&PopulateContextMenu); 
         addOnFocusIn(&CheckForExternalChanges);
 
-        Config.Reconfig.connect(&SetupSourceView);
+        Config.Reconfig.connect(&Reconfigure);
         
     }
     
@@ -313,7 +352,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
     }
     bool    Close(bool Quitting = false)
     {
-        if(!Modified())return true;
+        if(!Modified())return Finalize();
 
         auto ToSaveDiscardOrKeepOpen = new MessageDialog(dui.GetWindow(), DialogFlags.DESTROY_WITH_PARENT, GtkMessageType.INFO, ButtonsType.NONE, true, null); 
         ToSaveDiscardOrKeepOpen.setMarkup("Closing a modified file :" ~ DisplayName ~ "\nWhat do you wish to do?");
@@ -326,14 +365,14 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
         switch(rVal)
         {
-            case 1: if(mVirgin)SaveAs(DisplayName); else Save();return true;
-            case 2: return true;
+            case 1: if(mVirgin)SaveAs(DisplayName); else Save();return Finalize();
+            case 2: return Finalize();
             case 3: return false;
-            case GtkResponseType.GTK_RESPONSE_DELETE_EVENT : return true;
+            case GtkResponseType.GTK_RESPONSE_DELETE_EVENT : return Finalize();
             default : Log().Entry("Bad ResponseType from Confirm CloseFileDialog", "Error");
         }
 
-        return true;
+        return Finalize();
     }    
 
     Widget TabWidget()

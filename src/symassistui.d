@@ -183,7 +183,7 @@ class SYMBOL_ASSIST : ELEMENT
         Log.Entry("Disengaged SYMBOL_ASSIST element");
     }
 
-    Frame GetPreferenceWidget()
+    PREFERENCE_PAGE GetPreferenceObject()
     {
         return null;
     }

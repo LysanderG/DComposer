@@ -56,10 +56,10 @@ class LOG
         mMaxLines = 24;
     }
 
-    //~this()
-    //{
-    //    //Flush(); //silly flush allocates a file ... guess gc doen't like that in a dtor
-    //}
+    ~this()
+    {
+        Flush(); //silly flush allocates a file ... guess gc doen't like that in a dtor
+    }
 
     void Engage()
     {

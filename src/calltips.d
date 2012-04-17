@@ -195,7 +195,7 @@ class CALL_TIPS : ELEMENT
 
     }
 
-    Frame GetPreferenceWidget()
+    PREFERENCE_PAGE GetPreferenceObject()
     {
         return null;
     }

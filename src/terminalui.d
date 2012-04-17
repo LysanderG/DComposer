@@ -116,7 +116,7 @@ class TERMINAL_UI : ELEMENT
         
     }
 
-    Frame GetPreferenceWidget()
+    PREFERENCE_PAGE GetPreferenceObject()
     {
         return null;
     }

@@ -136,7 +136,7 @@ class HISTORY_VIEW : ELEMENT
         dui.GetSidePane.setCurrentPage(mRoot);
     }
 
-    Frame GetPreferenceWidget()
+    PREFERENCE_PAGE GetPreferenceObject()
     {
         return null;
     }

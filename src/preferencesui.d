@@ -25,6 +25,8 @@ import elements;
 import docman;
 
 import std.stdio;
+import std.path;
+import std.string;
 
 import gtk.Builder;
 import gtk.VBox;
@@ -66,9 +68,11 @@ class PREFERENCES_UI : ELEMENT
 
     void ShowPrefPage()
     {
+        
         if(!mGuiBuilt) BuildGui();
         mRoot.show();
-        dui.GetCenterPane().setCurrentPage(mRoot);
+        dui.GetExtraPane().setCurrentPage(mRoot);
+
     }
 
 
@@ -104,6 +108,14 @@ class PREFERENCES_UI : ELEMENT
 
     void AddElementPrefs()
     {
+        foreach( element; mElements)
+        {
+            auto tmpobj = element.GetPreferenceObject();
+            if(tmpobj is null) continue;
+            mObjects ~= tmpobj;
+            AddPrefPart(tmpobj);
+        }
+
     }
 
     void AddPrefPart(PREFERENCE_PAGE X)
@@ -172,8 +184,8 @@ class PREFERENCES_UI : ELEMENT
         mApplyBtn.addOnClicked(delegate void(Button X){ApplyChanges();});
         mDiscardBtn.addOnClicked(delegate void(Button X){mRoot.hide();Log.Entry("discard preferences","Debug");});
 
-        dui.GetCenterPane.prependPage(mRoot, new Label("Preferences"));
-        
+        //dui.GetCenterPane.prependPage(mRoot, new Label("Preferences"));
+        dui.GetExtraPane.prependPage(mRoot, new Label("Preferences"));
         
 	    Log.Entry("Engaged PREFERENCES_UI element");
     }
@@ -184,7 +196,7 @@ class PREFERENCES_UI : ELEMENT
     }
 
 
-    Frame GetPreferenceWidget()
+    PREFERENCE_PAGE GetPreferenceObject()
     {
         //of course preferences has no preferences page
         return null;
@@ -264,21 +276,40 @@ class LOG_PAGE : PREFERENCE_PAGE
 class SYMBOL_PAGE : PREFERENCE_PAGE
 {
     CheckButton mCheckBtn;
-    TextView    mTagList;
+    LISTUI      mTagFiles;
+    VBox        mVBox;
+    
 
     this(string PageName, string SectionName)
     {
+        string listgladefile = expandTilde(Config.getString("PROJECT", "list_glad_file", "~/.neontotem/dcomposer/multilist.glade"));
+        
         super(PageName, Config.getString("PREFERENCES", "glade_file_symbols", "~/.neontotem/dcomposer/symbolpref.glade"));
 
+        mTagFiles = new LISTUI("Symbol files to load at start up", ListType.FILES, listgladefile);
+
+        
+
         mCheckBtn   = cast(CheckButton) mBuilder.getObject("checkbutton1");
-        mTagList    = cast(TextView)    mBuilder.getObject("textview1");
+
+        mTagFiles.ClearItems(null);
+        string[] ItemstoSet;
+        foreach(key; Config.getKeys("SYMBOL_LIBS"))
+        {
+            ItemstoSet ~=Config.getString("SYMBOL_LIBS", key);
+        }
+        mTagFiles.SetItems(ItemstoSet);
+            
+            
 
         mCheckBtn.setActive(Config.getBoolean("SYMBOLS", "auto_load_project_symbols", 1));
-        mCheckBtn.addOnToggled(delegate void(ToggleButton tb){mTagList.setSensitive(mCheckBtn.getActive());});
 
-        mTagList.setSensitive(mCheckBtn.getActive());
-        mTagList.appendText("whatever is in symbol_libs goes here");
+        mTagFiles.GetWidget.setSensitive(mCheckBtn.getActive());
+
+        mCheckBtn.addOnToggled(delegate void(ToggleButton x){mTagFiles.GetWidget.setSensitive(mCheckBtn.getActive());});
+                
         
+        Add(mTagFiles.GetWidget());
         
         mFrame.showAll();
     }
@@ -286,5 +317,16 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
     override void Apply()
     {
         Config.setBoolean("SYMBOLS", "auto_load_project_symbols", mCheckBtn.getActive());
+
+        string[] Names = mTagFiles.GetShortItems();
+        string[] Files = mTagFiles.GetFullItems();
+
+        Config.removeGroup("SYMBOL_LIBS");
+        foreach(int i, name; Names)
+        {
+            name = name.chomp("lib.json");
+            Config.setString("SYMBOL_LIBS", name, Files[i]);
+        }
     }
+    
 }

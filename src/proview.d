@@ -389,7 +389,7 @@ class PROJECT_VIEW : ELEMENT
         Log.Entry("Disengaged PROJECT_VIEW element");
     }
 
-    Frame GetPreferenceWidget()
+    PREFERENCE_PAGE GetPreferenceObject()
     {
         return null;
     }

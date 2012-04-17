@@ -110,6 +110,7 @@ class SYMBOLS
     //ok symbols will be like mSymbols["std"] or mSymbols["gtk"] mSymbols[Project().Name]
     //or if project type is null foreach opendoc mSymbol["docname"].load ...
     DSYMBOL[string] mSymbols;
+    
 
     string LastComment; //holds last comment before dittos
 
@@ -277,12 +278,28 @@ class SYMBOLS
         return ReturnSyms;
     }
 
+    void Reconfigure()
+    {
+        foreach(name; mSymbols.keys)
+        {
+            if(name != Project.Name()) mSymbols.remove(name);
+        }
+        string[] keys = Config().getKeys("SYMBOL_LIBS");
+
+        foreach(key; keys)
+        {
+            auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");
+            
+            Load(key, tmp);
+        }        
+    }
+    
     
     public :
 
     void Engage()
     {
-                        
+                    
         string[] keys = Config().getKeys("SYMBOL_LIBS");
 
         foreach(key; keys)
@@ -296,6 +313,8 @@ class SYMBOLS
         {
             Project.Event.connect(&ProjectWatch);
         }
+
+        Config.Reconfig.connect(&Reconfigure);
             
         string x = "Engaged SYMBOLS [";
         foreach(ii, key; keys){if(ii != 0)x ~= `,`; x ~= `"` ~ key ~`"`;}

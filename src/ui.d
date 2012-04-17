@@ -25,6 +25,8 @@ import docman;
 import autopopups;
 
 import  std.stdio;
+import  std.path;
+import  std.conv;
 
 import  gtk.Main;
 import  gtk.Builder;
@@ -51,6 +53,16 @@ import  gtk.VPaned;
 import  gtk.HPaned;
 import  gtk.Frame;
 import  gtk.Alignment;
+import  gtk.VBox;
+import  gtk.TreeView;
+import  gtk.ListStore;
+import  gtk.Button;
+import  gtk.Entry;
+import  gtk.Dialog;
+import  gtk.TreeIter;
+import  gtk.FileChooserDialog;
+
+
 
 MAIN_UI dui;
 
@@ -91,7 +103,8 @@ class MAIN_UI
     void Engage(string[] CmdArgs)
     {
 
-        Main.initMultiThread (CmdArgs);
+        Main.initMultiThread(CmdArgs);
+        //Main.init(CmdArgs);
 
         EngageWidgets();
 
@@ -401,6 +414,7 @@ class PREFERENCE_PAGE
     Builder     mBuilder;
     Frame       mFrame;
     Alignment   mFrameKid;
+    VBox        mVBox;
 
     this(string PageName, string gladefile)
     {
@@ -412,6 +426,7 @@ class PREFERENCE_PAGE
         mFrame = cast(Frame)mBuilder.getObject("frame");
 
         mFrameKid = cast(Alignment)mBuilder.getObject("alignment1");
+        mVBox = cast(VBox)mBuilder.getObject("vbox1");
     }
 
     Frame GetPrefWidget()
@@ -423,5 +438,181 @@ class PREFERENCE_PAGE
         return mPageName;
     }
 
+    void Add(Widget Addition)
+    {
+        mVBox.add(Addition);
+    }
+
     abstract void Apply();
+}
+
+
+enum ListType {FILES, PATHS, IDENTIFIERS};
+
+class LISTUI
+{
+    
+	Builder		mBuilder;
+
+	VBox		mVBox;
+	Label		mFrameLabel;
+	TreeView	mListView;
+	ListStore	mListStore;
+	Button		mAddButton;
+	Button		mRemoveButton;
+	Button		mClearButton;
+	Dialog 		mAddItemDialog;
+	Entry		mAddItemEntry;
+
+	this(string ListTitle, ListType Type, string GladeFile )
+	{
+        scope(failure) Log.Entry("Failed to instantiate LISTUI!!", "Debug");
+            
+		mBuilder = new Builder;
+		mBuilder.addFromFile(GladeFile);
+
+		mVBox 			= cast(VBox)mBuilder.getObject("vbox1");
+		mFrameLabel 	= cast(Label)mBuilder.getObject("label1");
+		mListView 		= cast(TreeView)mBuilder.getObject("treeview");
+		mListStore		= cast(ListStore)mBuilder.getObject("thestore");
+		mAddButton 		= cast(Button)mBuilder.getObject("buttonadd");
+		mRemoveButton 	= cast(Button)mBuilder.getObject("buttonremove");
+		mClearButton 	= cast(Button)mBuilder.getObject("buttonclear");
+
+		mAddItemDialog = cast(Dialog)mBuilder.getObject("dialog1");
+		mAddItemEntry 	= cast(Entry)mBuilder.getObject("entry");		
+
+		if(Type == ListType.FILES) mAddButton.addOnClicked(&AddFiles);
+		if(Type == ListType.PATHS) mAddButton.addOnClicked(&AddPaths);
+		if(Type == ListType.IDENTIFIERS) mAddButton.addOnClicked(&AddItem);
+
+		mRemoveButton.addOnClicked(&RemoveItems);
+		mClearButton.addOnClicked(&ClearItems);
+		
+		mFrameLabel.setText(ListTitle);
+
+		mListView.getSelection().setMode(GtkSelectionMode.MULTIPLE);
+		mListView.setRubberBanding(false);
+		mListView.setReorderable(true);
+
+		mVBox.showAll();
+	}
+
+	void SetItems(string[] Items)
+	{
+		TreeIter ti = new TreeIter;		
+		mListStore.clear();
+		foreach (index, i; Items)
+		{
+			mListStore.insert(ti, 0);
+			mListStore.setValue(ti, 0, baseName(i));
+			//mListStore.setValue(ti, 1, relativePath(i));
+            mListStore.setValue(ti, 1, i);
+		}
+		mListView.setModel(mListStore);
+	}
+
+	string[] GetShortItems(int col = 0)
+	{
+		string[] rval;
+		TreeIter ti = new TreeIter;
+		
+		if (!mListStore.getIterFirst(ti)) return rval;
+	
+		rval ~= mListStore.getValueString(ti,col);
+		while(mListStore.iterNext(ti)) rval ~= mListStore.getValueString(ti,col);
+
+		return rval;
+	}
+		
+	string[] GetFullItems()
+	{
+		return GetShortItems(1);
+	}
+
+	void AddFiles(Button btn)
+	{
+		string afile;
+		TreeIter ti = new TreeIter;
+
+		auto FileDialog = new FileChooserDialog("Select Files", dui.GetWindow(), FileChooserAction.OPEN);
+		FileDialog.setSelectMultiple(true);
+
+		auto DialogResponse = FileDialog.run();
+		FileDialog.hide();
+
+		if(DialogResponse != ResponseType.GTK_RESPONSE_OK)return;
+
+		auto SelFiles = FileDialog.getFilenames();
+		while(SelFiles !is null)
+		{
+			afile = toImpl!(string, char *)(cast(char *)SelFiles.data()); 
+			mListStore.append(ti);
+			mListStore.setValue(ti, 0, baseName(afile));
+			mListStore.setValue(ti, 1, afile);
+			SelFiles = SelFiles.next();
+		}
+		mListView.setModel(mListStore);
+	}
+
+	void AddPaths(Button btn)
+	{
+		string afile;
+		TreeIter ti = new TreeIter;
+
+		auto FileDialog = new FileChooserDialog("Select Files", dui.GetWindow(), FileChooserAction.SELECT_FOLDER);
+		FileDialog.setSelectMultiple(true);
+
+		auto DialogResponse = FileDialog.run();
+		FileDialog.hide();
+
+		if(DialogResponse != ResponseType.GTK_RESPONSE_OK)return;
+
+		auto SelFiles = FileDialog.getFilenames();
+		while(SelFiles !is null)
+		{
+			afile = toImpl!(string, char *)(cast(char *)SelFiles.data()); 
+			mListStore.append(ti);
+			mListStore.setValue(ti, 0, baseName(afile));
+			mListStore.setValue(ti, 1, afile);
+			SelFiles = SelFiles.next();
+		}
+		mListView.setModel(mListStore);
+	}
+
+	void AddItem(Button btn)
+	{
+		TreeIter ti = new TreeIter;
+		auto rv = mAddItemDialog.run();
+		mAddItemDialog.hide();
+		if(rv == 0) return;
+
+		string x = mAddItemEntry.getText();
+
+		if (x.length < 1) return;
+		mListStore.append(ti);
+		mListStore.setValue(ti, 0, x);
+		mListStore.setValue(ti, 1, x);
+		mListView.setModel(mListStore);
+	}
+
+	void RemoveItems(Button btn)
+	{
+		TreeIter[] xs = mListView.getSelectedIters();
+
+		foreach(x; xs)
+		{
+			mListStore.remove(x);
+		}
+		mListView.setModel(mListStore);
+	}
+
+	void ClearItems(Button btn)
+	{
+		mListStore.clear();
+		mListView.setModel(mListStore);
+	}
+
+	Widget GetWidget() { return mVBox;}
+		
 }

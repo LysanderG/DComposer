@@ -122,7 +122,7 @@ class BRACE_INDENT : ELEMENT
         Log.Entry("Disengaged BRACE_INDENT element");
     }
 
-    Frame GetPreferenceWidget()
+    PREFERENCE_PAGE GetPreferenceObject()
     {
         return null;
     }
