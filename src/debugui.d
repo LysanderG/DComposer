@@ -63,14 +63,7 @@ class DEBUG_UI : ELEMENT
     TextView            mTextConsole;
     TextView            mInfoConsole;
 
-    //watch for project open signal and try to load the target app
-    void Load(string EventType)
-    {
-        //this don't make no sense no way nope nada
-        if( EventType != "Opened") return; //hey what about new ...??
-        Debugger.Load(Project.Name, Project.WorkingPath);
-        mExecLoaded = true; //don't forget to FIX THIS!
-    }
+
 
     
     public :
@@ -98,7 +91,6 @@ class DEBUG_UI : ELEMENT
     void Engage()
     {
 
-        Project.Event.connect(&Load);
         
         mBuilder    = new Builder;
         mBuilder.addFromFile(Config.getString("DEBUG", "debug_ui", "/home/anthony/.neontotem/dcomposer/dbugx.glade"));
@@ -116,15 +108,15 @@ class DEBUG_UI : ELEMENT
         mTextConsole= cast(TextView)mBuilder.getObject("textview1");
         mInfoConsole= cast(TextView)mBuilder.getObject("textview2");
 
-        mRunBtn.addOnClicked(delegate void(ToolButton x){if(!mExecLoaded)return; Debugger.Run();});
-        mContinueBtn.addOnClicked(delegate void(ToolButton x){if(!mExecLoaded)return;  Debugger.Continue();});
-        mStepOverBtn.addOnClicked(delegate void(ToolButton x){if(!mExecLoaded)return;  Debugger.StepOver();});
-        mStepInBtn.addOnClicked(delegate void(ToolButton x){if(!mExecLoaded)return; Debugger.StepIn();});
-        mAddWatch.addOnClicked(delegate void(ToolButton x){if(!mExecLoaded)return; Debugger.AddWatchSymbol(mWatchExpression.getText);});
-        mQuitBtn.addOnClicked(delegate void(ToolButton x ){if(!mExecLoaded)return; Debugger.Abort();});
+        mRunBtn.addOnClicked(delegate void(ToolButton x)        {/*if(!mExecLoaded)return; */Debugger.Cmd_Run();});
+        mContinueBtn.addOnClicked(delegate void(ToolButton x)   { Debugger.Cmd_Continue();});
+        mStepOverBtn.addOnClicked(delegate void(ToolButton x)   { Debugger.Cmd_StepOver();});
+        //mStepInBtn.addOnClicked(delegate void(ToolButton x)     { Debugger.Cmd_StepIn();});
+        ////mAddWatch.addOnClicked(delegate void(ToolButton x)    { Debugger.AddWatchSymbol(mWatchExpression.getText);});
+        //mQuitBtn.addOnClicked(delegate void(ToolButton x )      { Debugger.Cmd_Abort();});
         
 
-        Debugger.GdbOutput.connect(&GdbCatcher);
+        Debugger.Output.connect(&GdbCatcher);
         
 
         mRoot.showAll();
@@ -143,13 +135,13 @@ class DEBUG_UI : ELEMENT
 
     void GdbCatcher(string GdbText)
     {
-        if(GdbText is null) return;
-        if(GdbText[0] == '=') return;
-
         
+        if(GdbText is null) return;
+        //if(GdbText[0] == '=') return;
+
 
         JumpToPosition(GdbText);
-        ShowDisplayExpressions(GdbText);
+        //ShowDisplayExpressions(GdbText);
         
         mTextConsole.appendText(GdbText  ~'\n', true);
     }

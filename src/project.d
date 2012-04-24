@@ -476,7 +476,7 @@ class PROJECT
 
         scope(exit) Process.close();
         Event.emit("Build");
-        Log.Entry("Building Project " ~ mName);
+        CreateTags();
         
         return true;
     }
@@ -632,3 +632,6 @@ string LibName(string Lib)
     retstr = retstr[0..pos];
     return retstr;
 }
+
+
+//need an exec name which will return -of flag name

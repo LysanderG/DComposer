@@ -24,265 +24,192 @@ import std.conv;
 import std.signals;
 import std.stdio;
 import std.utf;
+import std.string;
+
 
 
 import dcore;
 
 import glib.Spawn;
 import glib.IOChannel;
+import glib.Source;
 
 
+
+enum GDB_PROMPT = "(gdb)";
 
 class DEBUGGER
 {
     private :
 
-    bool        mRunning;                   //is gdb actually running?
+    Spawn       mGdbProcess;
+    IOChannel   mGdbOutput;
+    IOChannel   mGdbInput;
 
-    ulong       mCmdId;                     //a running id passed to each gdb mi command -- not used for anything yet
-    
+    int         mSourceId;
 
-    Spawn       mGdbProcess;                //the gdb process
-    IOChannel   mReadFromGdb;               
-    IOChannel   mWriteToGdb;
+    int[string]  mBreakPoints;
+    int           mBreakCounter;
 
-    ulong[string] mBreakpoints;         
-    ulong         mBreakCounter;
-
-    ulong[string] mDisplayExpressions;
-   
-
-    //
-    bool ReadGdbOutput(string Data)
+    void ReadGdbToPrompt()
     {
-        scope(failure)return true;
+        Source.remove(mSourceId);
+        string readbuffer;
+        ulong TermPos;
+        IOStatus RetStatus;
+        while(!readbuffer.startsWith(GDB_PROMPT))
+        {
+            RetStatus = mGdbOutput.readLine(readbuffer, TermPos);
 
-        validate(Data);
-        return false;
+            if(RetStatus == IOStatus.NORMAL)
+            {
+                Output.emit(readbuffer);
+                writeln(">",readbuffer);
+            }
+        }
     }
 
-    bool ReadGdbError(string Data)
+    void Load()
     {
         
-        return true;
+        mGdbProcess = new Spawn(["gdb","--interpreter=mi", Project.WorkingPath ~"/"~Project.Name]);
+
+        
+        mGdbProcess.execAsyncWithPipes();
+        //setpgid?
+        //gdbprocess exit callback?
+        
+        mGdbOutput = IOChannel.unixNew(mGdbProcess.stdOut);
+        mGdbInput  = IOChannel.unixNew(mGdbProcess.stdIn);
+
+        ReadGdbToPrompt();
+        
     }
 
-    int  WatchKidOutput(GIOCondition Condition)
+    void SendSyncCommand(string Command)
     {
-        string RetrievedText;
-        size_t TerminatorPos;
+        ulong UnusedWriteSize;
+        ulong TermPos;
+        
+        mGdbInput.writeChars(Command ~ "\n", -1, UnusedWriteSize);
+        
+        mGdbInput.flush();
 
-        if (Condition == GIOCondition.HUP)
-        {
-            //channel.unref();
-            mReadFromGdb.unref();
-            return 0;
-        }
-        //channel.readLine(OutText, TerminatorPos);
-        mReadFromGdb.readLine(RetrievedText, TerminatorPos);
+        ReadGdbToPrompt();
+    }
 
-        GdbOutput.emit(RetrievedText);
+    void SendCommand(string Command)
+    {
+
+        ulong UnusedWriteSize;
+        
+        mGdbInput.writeChars(Command ~ "\n", -1, UnusedWriteSize);
+       
+        mGdbInput.flush();
+
+        ReadGdbToPrompt();
                 
-        return 1;
+        mSourceId = mGdbOutput.gIoAddWatch(IOCondition.IN, &GdbOutputWatcher, null);
+        
     }
-
-    version (none)
-    {
-        static extern (C) int  WatchKidOutput(GIOChannel* channel, GIOCondition Condition, void* Data)
-        {
-            string RetrievedText;
-            size_t TerminatorPos;
-
-            DEBUGGER self = cast(DEBUGGER)Data;
-            if (Condition == GIOCondition.HUP)
-            {
-                //channel.unref();
-                self.mReadFromGdb.unref();
-                return 0;
-            }
-            //channel.readLine(OutText, TerminatorPos);
-            self.mReadFromGdb.readLine(RetrievedText, TerminatorPos);
-
-            self.GdbOutput.emit(RetrievedText);
-                    
-            return 1;
-        }
-    }
+    
 
     public :
 
-    mixin Signal!(string) GdbOutput;
+    this()
+    {
+    }
 
     void Engage()
     {
-        mGdbProcess = null;
-        mRunning = false;
-                
-        Log.Entry("Engaged DEBUGGER");
+        Log.Entry("Engaged DEBBUGER");
     }
 
     void Disengage()
     {
-        Unload();
         Log.Entry("Disengaged DEBUGGER");
     }
 
 
-    void Load(string AppName, string SourceDirectories)
+    void Cmd_Run()
     {
-        
-        size_t BytesWritten;
-        
-        mRunning = true;
+        Load();
 
-        mGdbProcess = new Spawn(["gdb","--interpreter=mi", AppName]);
+        SendSyncCommand("-gdb-set target-async 1");
 
-        //mGdbProcess.execAsyncWithPipes(null, &ReadGdbOutput, &ReadGdbError);
-        mGdbProcess.execAsyncWithPipes();
+        SendSyncCommand("-break-insert _Dmain");
 
-        mReadFromGdb = IOChannel.unixNew(mGdbProcess.stdOut);
-        mReadFromGdb.gIoAddWatch(GIOCondition.IN | GIOCondition.HUP, &C_WatchKidOutput, cast(void*) this);
-        mWriteToGdb = IOChannel.unixNew(mGdbProcess.stdIn);
-        mWriteToGdb.writeChars("-break-insert _Dmain\n", -1, BytesWritten);
-
+        SendCommand("-exec-run");
+       
     }
-        
-    
-    void Unload()
+
+    void Cmd_Continue()
     {
-        if(mRunning)
+        SendCommand("-exec-continue");
+    }
+
+    void Cmd_StepOver()
+    {
+        SendCommand("-exec-step");
+    }
+    void CatchBreakPoint(string Action, string SourceFile, int Line)
+    {
+        if ( mGdbProcess is null) return;
+        string BreakKey =  SourceFile ~ ":" ~ to!string(Line);
+        switch (Action)
         {
-            size_t BytesWritten;
-            mWriteToGdb.writeChars("-exec-abort\n", -1, BytesWritten);
-            mWriteToGdb.flush();
-            mWriteToGdb.writeChars("-gdb-exit\n", -1, BytesWritten);
-            mWriteToGdb.flush();
-            
-            
-            mWriteToGdb.shutdown(true);
-            mGdbProcess.close();        
-            mRunning = false;
-        }
-    }
-    ulong Run()
-    {
-        if(!mRunning)return false;
-        size_t BytesWritten;
-        mCmdId++;
-        string Id = to!string(mCmdId);
-        mWriteToGdb.writeChars(Id~"-exec-run\n", -1, BytesWritten);
-        mWriteToGdb.flush();
-        return mCmdId;
-    }
-
-    ulong Continue()
-    {
-        if(!mRunning)return mCmdId;
-        size_t BytesWritten;
-        mCmdId++;
-        string Id = to!string(mCmdId);
-        mWriteToGdb.writeChars(Id~"-exec-continue\n", -1, BytesWritten);
-        mWriteToGdb.flush();
-        return mCmdId;
-    }
-    ulong Abort()
-    {
-        if(!mRunning)return mCmdId;
-        size_t BytesWritten;
-        mCmdId++;
-        string Id = to!string(mCmdId);
-        //mWriteToGdb.writeChars(Id~"-exec-abort\n", -1, BytesWritten);
-        mWriteToGdb.writeChars(Id~"kill\n", -1, BytesWritten);
-
-        mWriteToGdb.flush();
-
-        //foreach(key, value ; mDisplayExpressions) mDisplayExpressions.remove(key);
-        
-        return mCmdId;
-    }
-        
-    ulong StepIn()
-    {
-        if(!mRunning)return mCmdId;
-        size_t BytesWritten;
-        mCmdId++;
-        string Id = to!string(mCmdId);
-        mWriteToGdb.writeChars(Id~"-exec-step\n", -1, BytesWritten);
-        mWriteToGdb.flush();
-        return mCmdId;
-    }
-    ulong StepOver()
-    {
-        if(!mRunning)return mCmdId;
-        size_t BytesWritten;
-        mCmdId++;
-        string Id = to!string(mCmdId);
-        mWriteToGdb.writeChars(Id~"-exec-next\n", -1, BytesWritten);
-        mWriteToGdb.flush();
-        return mCmdId;
+            case "add" :
+            {                
+                if(BreakKey in mBreakPoints)
+                {
+                    SendSyncCommand("-break-enable " ~ to!string(mBreakPoints[BreakKey]));
+                    break;
+                }
+                    
+                mBreakPoints[BreakKey] = ++mBreakCounter;
+                SendSyncCommand("-break-insert " ~ BreakKey);
+                break;
+            }
+            case "remove" :
+            {
+                if(BreakKey in mBreakPoints)
+                {
+                    SendSyncCommand("-break-disable " ~ to!string(mBreakPoints[BreakKey]));
+                }
+                    
+                break;
+            }
+            default : return;
+        }   
     }
 
-    void CatchBreakPoint(string Action, string FileName, int LineNo)
-    {
-        if (!mRunning) return;
-        size_t BytesWritten;
-        string BreakKey = FileName ~ ':' ~ to!string(LineNo);
-
-        if(Action == "add")
-        {
-            if(BreakKey in mBreakpoints) return;
-            mBreakpoints[BreakKey] = ++mBreakCounter;
-            mCmdId++;
-            string Id = to!string(mCmdId);
-            mWriteToGdb.writeChars(Id~"-break-insert " ~ BreakKey ~ "\n", -1, BytesWritten);
-            mWriteToGdb.flush();
-            return;
-        }
-        if(Action == "remove")
-        {
-            if (BreakKey !in mBreakpoints) return;
-            
-            mCmdId++;
-            string Id = to!string(mCmdId);
-            mWriteToGdb.writeChars(Id~"-break-delete " ~to!string(mBreakpoints[BreakKey])~ "\n", -1, BytesWritten);
-            mWriteToGdb.flush();
-            mBreakpoints.remove(BreakKey);
-
-            return;
-        }
-    }
-
-    ulong AddWatchSymbol(string WatchSymbol)
-    {
-        if(!mRunning)return mCmdId;
-        if(WatchSymbol in mDisplayExpressions) return 0;
-        mDisplayExpressions[WatchSymbol] = mDisplayExpressions.length+1;
-        size_t BytesWritten;
-        mCmdId++;
-        string Id = to!string(mCmdId);
-        mWriteToGdb.writeChars("display "~ WatchSymbol ~"\n", -1, BytesWritten);
-        mWriteToGdb.flush();
-        return mCmdId;
-    }
-
-    ulong RemoveWatchSymbol(string WatchSymbol)
-    {
-        if(!mRunning)return mCmdId;
-        if(WatchSymbol in mDisplayExpressions)
-        {
-            size_t BytesWritten;
-            mCmdId++;
-            string Id = to!string(mCmdId);
-            mWriteToGdb.writeChars(Id ~ "-display-delete " ~ to!string(WatchSymbol) ~ "\n", -1, BytesWritten);
-            mWriteToGdb.flush();
-            return mCmdId;
-        }
-        return 0;
-    }
-
+    mixin Signal!(string) Output;
 }
 
-static extern (C) int C_WatchKidOutput(GIOChannel* channel, GIOCondition Condition, void* Data)
+
+extern (C) int GdbOutputWatcher (GIOChannel* Channel, GIOCondition Condition, void* nothing)
 {
-    return Debugger.WatchKidOutput(Condition);    
+
+    string readbuffer;
+    ulong TermPos;
+    IOStatus iostatus;
+ 
+    iostatus = Debugger.mGdbOutput.readLine(readbuffer, TermPos);
+    if(iostatus != IOStatus.NORMAL) return 1;
+
+    if(iostatus == IOStatus.NORMAL)
+    {
+        Debugger.Output.emit(readbuffer);
+        writeln("*>",readbuffer);
+    }
+
+    if(readbuffer.startsWith("*stopped"))
+    {
+        Source.remove(Debugger.mSourceId);
+        //Debugger.ReadGdbToPrompt();
+        return 0;
+        
+    }
+    return 1;
 }
+    

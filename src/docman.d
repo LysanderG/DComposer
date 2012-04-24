@@ -768,8 +768,6 @@ class DOC_PAGE : PREFERENCE_PAGE
         mStyleChoices.clear();
         foreach( xmlfile; StyleFiles)
         {
-            writeln(xmlfile.name, "--",currentStyle);
-            mStyleChoices.append(ti);
             mStyleChoices.setValue(ti, 0, baseName(xmlfile.name,".xml"));
             if(currentStyle == mStyleChoices.getValueString(ti, 0)) ActiveChoice = indx;
             

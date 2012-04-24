@@ -185,8 +185,11 @@ class DIR_VIEW : ELEMENT
 
         if(type == " ") Folder = buildPath(mFolder , mStore.getValueString(ti,1));
         if(type == " ") dui.GetDocMan.OpenDoc(buildPath(mFolder, mStore.getValueString(ti,1)));
+<<<<<<< HEAD
 
         //dui.Status.push(0, type ~ " : " ~ mStore.getValueString(ti,1) ~ to!string(mStore.getValueString(ti,2)) ~ ": size");
+=======
+>>>>>>> Frustrated with gdb mi interface
     }
 
     void FileSelected(TreeView tv)
