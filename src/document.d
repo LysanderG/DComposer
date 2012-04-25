@@ -52,6 +52,8 @@ import gtk.Clipboard;
 import gtk.TextIter;
 import gtkc.gtk;
 
+import gdk.Event;
+
 import gobject.ObjectG;
 import gobject.ParamSpec;
 
@@ -172,11 +174,12 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         //clipboard edit enable disable stuff
         auto TheClipBoard = Clipboard.get(cast(GdkAtom)69);
 
-        addOnNotify(&SetUpEditSensitivity);
+        //addOnNotify(&SetUpEditSensitivity, cast(ConnectFlags)1);
+        addOnEventAfter(delegate void (Event x, Widget w) {SetUpEditSensitivity();});
         
     }
 
-    void SetUpEditSensitivity(ParamSpec ps, ObjectG og)
+    void SetUpEditSensitivity(ParamSpec ps = null, ObjectG og = null)
     {
         auto Clpbd = Clipboard.get(cast(GdkAtom)69);
 
