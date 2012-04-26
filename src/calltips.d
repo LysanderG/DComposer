@@ -164,7 +164,7 @@ class CALL_TIPS : ELEMENT
                 string Candidate = TStart.getText(ti);
 
                 
-                if(Candidate.length < 1) return;
+                //if(Candidate.length < 1) return;
                 auto Possibles = Symbols.MatchCallTips(Candidate);
 
                 DSYMBOL[] FuncPossibles;
@@ -176,7 +176,7 @@ class CALL_TIPS : ELEMENT
                     FuncPossibles ~= dsym;
                 }
                 
-                if(FuncPossibles.length < 1) break;
+                //if(FuncPossibles.length < 1) break;
 
 
                 int xpos, ypos;
