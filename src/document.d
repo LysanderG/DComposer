@@ -175,8 +175,9 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         auto TheClipBoard = Clipboard.get(cast(GdkAtom)69);
 
         //addOnNotify(&SetUpEditSensitivity, cast(ConnectFlags)1);
-        addOnEventAfter(delegate void (Event x, Widget w) {SetUpEditSensitivity();});
-        
+        //addOn(delegate bool (Event x, Widget w) {SetUpEditSensitivity();return false;}, cast(ConnectFlags)1);
+        addOnKeyRelease(delegate bool(GdkEventKey* k, Widget w){SetUpEditSensitivity();return false;});
+        addOnButtonRelease( delegate bool(GdkEventButton* b, Widget w){SetUpEditSensitivity();return false;}); 
     }
 
     void SetUpEditSensitivity(ParamSpec ps = null, ObjectG og = null)
