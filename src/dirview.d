@@ -94,7 +94,6 @@ class DIR_VIEW : ELEMENT
 
     void Refresh()
     {
-        writeln("refresh");
         scope(failure)
         {
             mComboFilter.setActiveText("");
@@ -152,10 +151,8 @@ class DIR_VIEW : ELEMENT
             }
         }
 
-        writeln(mStore);
         mStore = xStore;
         mFolderView.setModel(xStore);
-        writeln("outfresh");
     }
                
 
@@ -180,7 +177,6 @@ class DIR_VIEW : ELEMENT
 
     void FileClicked( TreePath tp, TreeViewColumn tvc, TreeView tv)
     {
-        writeln("FileClicked");
         TreeIter ti = new TreeIter;
 
         if(!mStore.getIter(ti, tp)) return;
@@ -191,12 +187,10 @@ class DIR_VIEW : ELEMENT
         if(type == " ") dui.GetDocMan.OpenDoc(buildPath(mFolder, mStore.getValueString(ti,1)));
 
         //dui.Status.push(0, type ~ " : " ~ mStore.getValueString(ti,1) ~ to!string(mStore.getValueString(ti,2)) ~ ": size");
-         writeln("outFileClicked");
     }
 
     void FileSelected(TreeView tv)
     {
-        writeln("FileSelected");
         TreeIter ti = new TreeIter;
 
         ti = tv.getSelectedIter();
@@ -204,7 +198,6 @@ class DIR_VIEW : ELEMENT
 
         //dui.Status.push(0, mStore.getValueString(ti,0) ~ ": " ~ mStore.getValueString(ti, 1) ~ "\t:\t\tsize " ~ mStore.getValueString(ti,2));
 
-        writeln("outFileSelected");
     }
         
 
@@ -247,10 +240,8 @@ class DIR_VIEW : ELEMENT
     }
     @property void Folder(string nuFolder)
     {
-        writeln("folder");
         mFolder = nuFolder;
         Refresh();
-        writeln("outfolder");
     }
     
     void Engage()

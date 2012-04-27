@@ -172,6 +172,7 @@ class SYMBOLS
                 }
                 if(sym.Kind == "function")
                 {
+                    //DONT FORGET stuff like immutable (ident)[] (int paramone, ...) Seriously todo
                     auto indx = std.string.indexOf(sym.Type, "(");
                     if (indx > 0)sym.ReturnType = sym.Type[0..indx];
                     else sym.ReturnType.length = 0;
@@ -233,34 +234,32 @@ class SYMBOLS
         {
 
             foreach(kid; Sym.Children) _Process(kid);
-            
+
             if(endsWith(Sym.Scope[0..$-1]   , Scope))
             {
-                ReturnSyms ~= Sym;
-
+            
                 
+                ReturnSyms ~= Sym;                
             }
-
             
-            
-            if(endsWith(Sym.Scope, Scope))
+            if(endsWith(Sym.Scope, Scope[$-1]))
             {
 
                 if(Sym.Base.length > 0) ReturnSyms ~= GetInScopeSymbols([Sym.Base]);
 
                 if(Sym.Kind == "variable") ReturnSyms ~= GetInScopeSymbols(split(Sym.Type, "."));
+
                 if(Sym.Kind == "function") ReturnSyms ~= GetInScopeSymbols(split(Sym.ReturnType,"."));
 
-            }                      
-            
+            }
         }
-        foreach(sym; mSymbols) _Process(sym);
-
-
-        
+        foreach(sym; mSymbols) _Process(sym);        
         
         return ReturnSyms;
     }
+
+
+    
 
     DSYMBOL[] GetCompletionSymbols(string Candidate,  DSYMBOL[] Symbols, bool ParseKids = false)
     {
@@ -460,14 +459,17 @@ class SYMBOLS
         if(CandiPath.length > 0)
         {
             InScopeSyms = GetInScopeSymbols(CandiPath);
+            
             NoScopeResults = (InScopeSyms.length < 1);           
-            if(NoScopeResults) InScopeSyms = mSymbols.values;
+            if(NoScopeResults) InScopeSyms = mSymbols.values;           
+            
         }
         else
         {
             InScopeSyms = mSymbols.values;
             NoScopeResults = true;
         }
+
 
         if(CandiName.length > 0) ReturnSyms = GetCompletionSymbols(CandiName, InScopeSyms, NoScopeResults);
         else if(!NoScopeResults) ReturnSyms = InScopeSyms;
