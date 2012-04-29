@@ -380,12 +380,13 @@ class PROJECT_UI : ELEMENT
         mLibList.SetItems(Project[LIBFILES]);
         mLLPList.SetItems(Project[LIBPATHS]);
 
-        //sundry - extra command line args 
+        //sundry - extra command line args
         mMiscList.SetItems(Project[MISC]);
 
         //sundry -- custom build
         mUseCustomBuild.setActive(Project.UseCustomBuild);
 		mCustomBuild.setText(Project.CustomBuildCommand);
+        if(Project.CustomBuildCommand is null) mCustomBuild.setText("");
 		mAutoCmdLine.setText(Project.BuildCommand);
 
         //sundry -- scripts

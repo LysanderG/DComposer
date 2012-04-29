@@ -577,6 +577,7 @@ class PROJECT
     {
         string rv;
         foreach(s; mList.GetData(Key)) rv ~= s;
+        if (rv is null) rv = "";
         return rv;
     }
         

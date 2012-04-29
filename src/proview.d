@@ -184,6 +184,16 @@ class PROJECT_VIEW : ELEMENT
         {
             UpdateList(mKeyBox);
             mLabel.setText(Project.Name);
+            dui.GetSidePane.setCurrentPage(mRoot);
+        }
+        if(EventType == "Close")
+        {
+            UpdateList(mKeyBox);
+            mLabel.setText("No Project Loaded");
+        }
+        if(EventType == "New")
+        {
+            dui.GetSidePane.setCurrentPage(mRoot);
         }
         
     }
