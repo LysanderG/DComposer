@@ -341,7 +341,9 @@ class PROJECT_UI : ELEMENT
         //do I need to set mFullPath or will that handle it self??
         mTargetBox.setActive(Project.Target());
 
-        mInformation.getBuffer.setText(Project.GetCatList("DESCRIPTION"));
+        writeln("project description = ", Project.GetCatList("DESCRIPTION"));
+        string newText = (Project.GetCatList("DESCRIPTION") is null) ? "" : Project.GetCatList("DESCRIPTION");
+        mInformation.getBuffer.setText(newText);
         
 
         //files

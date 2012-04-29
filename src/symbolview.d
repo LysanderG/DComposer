@@ -113,12 +113,12 @@ class SYMBOL_VIEW : ELEMENT
     }
 
 
-    void UpdateProjectTags(string EventName)
-    {
-        if(EventName != "TagsCreated") return;
-        Symbols.Load(Project.Name, Project.Name ~ ".tags");
-        Refresh();
-    }
+    //void UpdateProjectTags(string EventName)
+    //{
+    //    if(EventName != "TagsCreated") return;
+    //    Symbols.Load(Project.Name, Project.Name ~ ".tags");
+    //    Refresh();
+    //}
 
     void ForwardSymbol(TreeView tv)
     {
@@ -161,7 +161,7 @@ class SYMBOL_VIEW : ELEMENT
 
         mSymbolTree.addOnCursorChanged(&ForwardSymbol);
 
-        Project.Event.connect(&UpdateProjectTags);
+        //Project.Event.connect(&UpdateProjectTags);
 
         mRoot.showAll();
         dui.GetSidePane.appendPage(mRoot, "SYMBOLS");
@@ -174,7 +174,7 @@ class SYMBOL_VIEW : ELEMENT
     {
         mState = false;
         mRoot.hide();
-         Project.Event.disconnect(&UpdateProjectTags);
+         //Project.Event.disconnect(&UpdateProjectTags);
         Log.Entry("Disengaged SYMBOL_VIEW element");
     }
 

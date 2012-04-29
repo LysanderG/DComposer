@@ -272,6 +272,7 @@ class PROJECT_VIEW : ELEMENT
 		{
             afile = toImpl!(string, char *)(cast(char *)SelFiles.data()); 
             Project.AddItem(CurrentKey, afile);
+            //Project[CurrentKey] ~= afile;
             SelFiles = SelFiles.next();
 		}
 

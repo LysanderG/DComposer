@@ -6,4 +6,5 @@ dcomposerA
 *.tags
 *.tag
 dcomposer.tags
+*.lst
 

@@ -110,7 +110,7 @@ class SYMBOLS
     //ok symbols will be like mSymbols["std"] or mSymbols["gtk"] mSymbols[Project().Name]
     //or if project type is null foreach opendoc mSymbol["docname"].load ...
     DSYMBOL[string] mSymbols;
-    
+    string           mProjectKey; //actually project name, used to remove project tags since Project.Name is cleared before Project.Event.emit("close");
 
     string LastComment; //holds last comment before dittos
 
@@ -212,7 +212,7 @@ class SYMBOLS
 
         if(EventType == "Close")
         {
-            mSymbols.remove(Project.Name());
+            mSymbols.remove(mProjectKey);
             emit();
             return;
         }
@@ -222,6 +222,11 @@ class SYMBOLS
             scope(failure){Log.Entry("Failed to load project symbols","Error");return;}
             Load(Project.Name(), Project.Name() ~ ".tags");
             return;
+        }
+
+        if(EventType == "Name")
+        {
+            mProjectKey = Project.Name;
         }
     }
     DSYMBOL[] GetInScopeSymbols(string[] Scope)

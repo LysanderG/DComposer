@@ -114,9 +114,12 @@ struct LISTS
         mLists.remove(Key);
     }
 
-    LIST GetData(string Key)
+    ref LIST GetData(string Key)
     {
-        if(Key !in mLists) return null;
+        //static string[] almostnull = [""];
+        //if(Key !in mLists) return  almostnull; //used to return null but gui widget complained invalid text
+        static LIST nothing = null;
+        if(Key !in mLists) return  nothing;
         return mLists[Key];
     }
 
@@ -552,12 +555,18 @@ class PROJECT
 
     //if target is null should return null!
 
+    //later note... I think i need to do ref string[] opIndex(string Key){return  mList.GetData(Key);} 
+
     void opOpAssign(string s = "+=")(string Key)                    {   mList.AddKey(Key);          Event.emit("ListChange");}
     void opOpAssign(string s = "-=")(string Key)                    {   mList.RemoveKey(Key);       Event.emit("ListChange");} 
     void opIndexAssign(LIST Data, string Key)                       {   mList.SetKey(Key, Data);    Event.emit("ListChange");}
     void opOpIndexAssign(string s = "~=")(LIST Data, string Key)    {   mList.ConcatData(Key, Data);Event.emit("ListChange");}
-    void opOpIndexAssign(string s = "~=")(string Data, string Key)  {   mList.ConcatData(Key, Data);Event.emit("ListChange");}
-    string[] opIndex(string Key)                                    {   return mList.GetData(Key);  }//Event.emit("ListChange");}
+    ref string opOpIndexAssign(string s = "~=")(string Data, string Key)
+    {
+        AddItem(Key, Data);
+        return mList.GetData(Key);
+    }
+    ref string[] opIndex(string Key)                                    {   return mList.GetData(Key);  }//Event.emit("ListChange");}
 
     void SetList(string Key, LIST Data)                             {   mList.SetKey(Key, Data);Event.emit("ListChange");}
     void SetList(string Key, string Data)                           {   mList.SetKey(Key, [Data]);Event.emit("ListChange");}

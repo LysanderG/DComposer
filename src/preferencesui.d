@@ -139,7 +139,15 @@ class PREFERENCES_UI : ELEMENT
     }
     void ApplyChanges()
     {
-        foreach(obj; mObjects) obj.Apply;
+
+
+
+        foreach(obj; mObjects)
+        {
+            writeln(obj.PageName);
+            obj.Apply;
+        }
+
         Config.Reconfigure();
     }
     
