@@ -112,14 +112,23 @@ class SEARCH_UI : ELEMENT
 
     void EditedFind(CellEditableIF ci)
     {
-        TI = new TreeIter;
-        mFindList.append(TI);
-        mFindList.setValue(TI,0, mFind.getText());
+        //TI = new TreeIter;
+        //mFindList.append(TI);
+        //mFindList.setValue(TI,0, mFind.getText());
 
-        mFindComboBox.setModel(mFindList);
-        //FillResultsList();
-        GetResults();
+        //mFindComboBox.setModel(mFindList);
+        ////FillResultsList();
+        //GetResults();
+
+        CHECK SendData;
+        SendData.Text = mFind.getText();
+        SendData.Bool = true;        
         
+        mFindList.foreac(&Check2, &SendData);            
+        
+        if(SendData.Bool) mFindComboBox.appendText(mFind.getText());
+        GetResults();
+    
     }
 
     void FindNextBtnClicked(Button X)
@@ -385,8 +394,12 @@ class SEARCH_UI : ELEMENT
         if(!dui.GetExtraPane.getVisible()) dui.PerformAction("ViewExtraPaneAct");
         mPage.showAll();
         dui.GetExtraPane.setCurrentPage(mPage.getParent.getParent);
+
+        auto tmpdoc = cast(DOCUMENT) dui.GetDocMan().GetDocX();
         
+        mFindComboBox.setActiveText(tmpdoc.GetCurrentWord(),true);
         mFindComboBox.grabFocus();
+        
     }
 
 
@@ -572,6 +585,35 @@ class SEARCH_UI : ELEMENT
        
 }
 
+
+
+//BREAKING THE DRY RULE RIGHT HERE!!
+/++
+ + Checks a possible new entry in combobox to see if it already exists.
+ + If it does then sets CHECK.Bool to false and returns true stopping the treemodel.foreac() loop.
+ + Otherwise returns false indicating possible candidate can be added.
+ +/
+extern (C) int Check2 (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter,  void * data)
+{
+    
+    CHECK * retData = cast(CHECK *) data;
+
+    ListStore ls = new ListStore(cast(GtkListStore*)model);
+    
+    TreeIter ti = new TreeIter(iter);
+    if( retData.Text == ls.getValueString(ti,0))
+    {
+        retData.Bool = false;
+        return true;
+    }
+    return false;
+}
+
+struct CHECK
+{
+    string Text;
+    bool    Bool;
+}
 
 /*
  * some notes

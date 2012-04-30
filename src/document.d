@@ -474,7 +474,27 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
         //getBuffer.getIterAtMark(ti, mark);       
         
-    }    
+    }
+
+    string GetCurrentWord()
+    {
+        TextIter ti = new TextIter;
+        
+        
+        getBuffer.getIterAtMark(ti, getBuffer.getInsert());
+
+        if(!ti.insideWord)return "";
+
+        TextIter tiend  = ti.copy();
+        tiend.forwardWordEnd();
+        ti.backwardWordStart();
+
+        return ti.getSlice(tiend);
+        
+        
+    }
+
+    
     mixin Signal!(TextIter, string, TextBuffer) NewLine;
     mixin Signal!(TextIter, string, TextBuffer) CloseBrace;
     mixin Signal!(DOCUMENT, TextIter, string, SourceBuffer) TextInserted;
