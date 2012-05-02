@@ -29,6 +29,7 @@ import std.conv;
 import std.path;
 import std.stdio;
 import std.parallelism;
+import std.concurrency;
 import std.string;
 
 import gtk.AccelGroup;
@@ -58,6 +59,10 @@ import gtk.TreeView;
 import gtk.VBox;
 import gtk.Widget;
 import gtk.ScrolledWindow;
+import gtk.Main;
+
+import gdk.Cursor;
+import gdk.Display;
 
 import gobject.Value;
 
@@ -502,19 +507,31 @@ class PROJECT_UI : ELEMENT
 
     void Build(Action x)
     {
+        //set cursor to a busy cursor --- since I totally failed to build in parallel!
+        int xx, yy;
+        auto watch = new Cursor(GdkCursorType.WATCH);
+        auto tmpwindow = Display.getDefault.getWindowAtPointer(xx,yy);
+        tmpwindow.setCursor(watch);
+        Display.getDefault.sync();
+        watch.unref();
 
+        //save all and build
         dui.GetDocMan.SaveAllDocs();
-        Project.BuildMsg.emit(`BEGIN`);        
-        Project.Build();
+        Project.BuildMsg.emit(`BEGIN`);
+        Project.Build();        
         Project.BuildMsg.emit(`END`);
+
+        //restore default cursor
+        tmpwindow.setCursor(null);
     }
+
     
 
 
     void Run(Action x)
     {
         dui.GetDocMan.SaveAllDocs();
-        Project.Run();
+        Project.RunConcurrent();
     }
 
     void RunWithArgs(Action x)

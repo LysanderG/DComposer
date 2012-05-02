@@ -28,6 +28,8 @@ import std.process;
 import std.string;
 import std.conv;
 import std.xml;
+import std.parallelism;
+import std.concurrency;
 
 import dcore;
 
@@ -176,6 +178,7 @@ class PROJECT
 
     bool            mUseCustomBuild;                        //if build command should use custom  or bultin command
     string          mCustomBuildCommand;                    //users command to build project -- make  or scons or cmake or gdc x.d -r -L-liofjkjf whatever
+
 
 
     void ReadFlags(string FlagFile)
@@ -545,6 +548,21 @@ class PROJECT
         return true;
     }
 
+    bool RunConcurrent(string args = null)
+    {
+        if(mTarget != TARGET.APP) return false;
+        string ProcessCommand = "xterm -e ./"~Project.Name;
+        if(args !is null) ProcessCommand ~= " " ~ args;
+
+        //mIdle = new Idle(&WatchThreads);
+        auto BuildTask = task!funRun(ProcessCommand, thisTid);
+
+        
+        BuildTask.executeInNewThread();
+        return true;
+        
+    }
+
     mixin Signal!(string) Event;                                  //any change to object emits this event string may tell what event is
     mixin Signal!(string) RunMsg;                                 //stdout from running project
     mixin Signal!(string) BuildMsg;                               //stdout from building with compiler
@@ -642,6 +660,23 @@ string LibName(string Lib)
     retstr = retstr[0..pos];
     return retstr;
 }
+
+string[] funRun(string command, Tid bossID)
+{
+    string[] rv;
+    std.stdio.File Process;
+    Process.popen(command, "r");
+    Process.close();
+    foreach(string L; lines(Process) )
+    {
+        rv ~= L;
+    }
+
+    
+
+    return rv;
+}
+ 
 
 
 //need an exec name which will return -of flag name
