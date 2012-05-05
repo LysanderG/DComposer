@@ -438,14 +438,14 @@ class SYMBOLS
 
         ReturnSyms = Match(Candidate);
 
-        foreach(i, retsym; ReturnSyms)std.stdio.write(i,". ",retsym.Name,"/",retsym.Kind, " --" );
+        //foreach(i, retsym; ReturnSyms)std.stdio.write(i,". ",retsym.Name,"/",retsym.Kind, " --" );
 
         if(ReturnSyms.length > 1) return ReturnSyms;
 
         auto CandiName = GetCandidateName(Candidate);
         if(CandiName.length > 0) ReturnSyms = Match("."~CandiName );
 
-        foreach(i, retsym; ReturnSyms)std.stdio.write(i,". ",retsym.Name,"/",retsym.Kind, " --" );
+        //foreach(i, retsym; ReturnSyms)std.stdio.write(i,". ",retsym.Name,"/",retsym.Kind, " --" );
 
         return ReturnSyms;
     }

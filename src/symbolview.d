@@ -54,7 +54,7 @@ class SYMBOL_VIEW : ELEMENT
         TreeIter tiRoots = new TreeIter;
         TreeIter ti;
         
-        if(ts is null) ts = new TreeStore([GType.STRING, GType.STRING, GType.STRING, GType.STRING]);
+        //if(ts is null) ts = new TreeStore([GType.STRING, GType.STRING, GType.STRING, GType.STRING]);
 
         void FillSym(DSYMBOL symx, TreeIter tiParent)
         {
@@ -84,11 +84,11 @@ class SYMBOL_VIEW : ELEMENT
 
     void Refresh()
     {
-        GC.disable();
+        //GC.disable();
         mSymbolStore.clear();
         FillTreeStore(mSymbolStore);
         mSymbolTree.setModel(mSymbolStore);
-        GC.enable();
+        //GC.enable();
     }
 
 

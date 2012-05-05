@@ -33,6 +33,8 @@ import document;
 import std.stdio;
 import std.ascii;
 import std.string;
+import std.conv;
+
 
 
 
@@ -71,8 +73,12 @@ class SCOPE_LIST : ELEMENT
         //pull out candidate
         TextIter WordStart = new TextIter;
         WordStart = GetCandidate(ti);
-        string Candidate = WordStart.getText(ti);
-        //Candidate = Candidate.chomp(".");
+        string Candidate2 = WordStart.getText(ti);
+        writeln(Candidate2);
+
+
+        string Candidate = to!(string)(GetLongCandidate(ti));
+        writeln(Candidate.length, Candidate);
 
         if(Candidate.length < 1) return;
         DSYMBOL[] possibles = Symbols.Match(Candidate);
@@ -124,6 +130,68 @@ class SCOPE_LIST : ELEMENT
         return tstart;
         
     }
+
+    dstring GetLongCandidate(TextIter ti)
+    {
+
+            
+        dchar[127] Buffer;
+        int index = 126;
+        //auto CurChar = ti.getChar();
+        auto frontTI = ti.copy();
+        frontTI.backwardChar(); //ti is already advanced past the '.'
+        dchar CurChar = frontTI.getChar();
+        //while pos is a idchar pos--
+        //if pos == ) skip to matching (
+        //if pos == whitespace skip to nextchar if nextchar != ) or . done
+        //if pos == nonid done
+
+
+            void SkipParens()
+            {
+                int Pdepth = 1;
+                frontTI.backwardChar();//skip the first ).
+                while( Pdepth > 0)
+                {
+                    
+                    dchar tchar = frontTI.getChar();
+                    if (tchar == ')') Pdepth ++;
+                    if (tchar == '(') Pdepth --;
+                    if (!frontTI.backwardChar()) break;
+                }
+                CurChar = frontTI.getChar();                
+            }
+            void SkipSpaces()
+            {
+            }
+
+        while(isLegalIdChar(CurChar))
+        {
+            index--;
+            if(CurChar == ')') SkipParens();
+            if( (CurChar == ' ') || (CurChar == '\t')) SkipSpaces();
+            
+            Buffer[index] = CurChar;
+            if(!frontTI.backwardChar()) break;
+
+            if(index < 1) break;
+            CurChar = frontTI.getChar();
+        }
+        return Buffer[index .. $-1].idup;
+    }
+
+    bool isLegalIdChar(dchar character)
+    {
+        if (isAlphaNum(character)) return true;
+        if (character == ')') return true;
+        if (character == '.') return true;
+
+        return false;
+    }    
+
+            
+            
+        
 
     public:
     
