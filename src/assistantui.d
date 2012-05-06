@@ -135,6 +135,7 @@ class ASSISTANT_UI : ELEMENT
         
     void CatchSymbols(DSYMBOL[] Symbols)
     {
+        if (Symbols.length < 1) return;
         TreeIter ti = new TreeIter;
 
         mList = Symbols;
@@ -231,11 +232,14 @@ class ASSISTANT_UI : ELEMENT
     {
         auto indx = mPossibles.getActive();
 
+        if(indx < 0)return;
+
         auto LastDot = lastIndexOf(mList[indx].Path, ".");
         if(LastDot < 1) return;
         auto Lookup = mList[indx].Path[0..LastDot];
         auto PossibleParentSyms = Symbols.ExactMatches(Lookup);
         CatchSymbols(PossibleParentSyms);
+
     }
         
     void Reconfigure()
