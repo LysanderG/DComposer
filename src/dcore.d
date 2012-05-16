@@ -28,6 +28,7 @@ import log;
 import project;
 import symbols;
 import debugger;
+import debugger2;
 
 public import search;
 
@@ -40,7 +41,8 @@ CONFIG		mConfig;
 LOG 		mLog;
 PROJECT 	mProject;
 SYMBOLS	    mSymbols;
-DEBUGGER    mDebugger;
+DEBUGGER	mDebugger;
+DEBUGGER2   mDebugger2;
 
 
 static this()
@@ -49,7 +51,8 @@ static this()
 	mLog	    = new LOG;
 	mProject    = new PROJECT;
 	mSymbols    = new SYMBOLS;
-    mDebugger   = new DEBUGGER;
+	mDebugger	= new DEBUGGER;
+    mDebugger2  = new DEBUGGER2;
 }
 
 static ~this()
@@ -66,12 +69,14 @@ void Engage(string[] CmdArgs)
 	mProject    .Engage();
 	mSymbols    .Engage();
     mDebugger   .Engage();
+    mDebugger2  .Engage();
 
     Log().Entry("Engaged dcore");
 }
 
 void Disengage()
 {
+	mDebugger2.Disengage();
     mDebugger.Disengage();
 	mSymbols .Disengage();
 	mProject .Disengage();
@@ -85,4 +90,5 @@ CONFIG		Config() {return mConfig;}
 LOG 		Log()    {return mLog;}
 PROJECT 	Project(){return mProject;}
 SYMBOLS		Symbols(){return mSymbols;}
-DEBUGGER    Debugger(){return mDebugger;}
+DEBUGGER2   Debugger2(){return mDebugger2;}
+DEBUGGER	Debugger(){return mDebugger;}

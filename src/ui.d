@@ -385,6 +385,8 @@ class MAIN_UI
         mHPaned.setPosition(hpanePos); 
         mVPaned.setPosition(vpanePos);
 
+        Log.Entry("GUI State restored");
+
     }
 
 

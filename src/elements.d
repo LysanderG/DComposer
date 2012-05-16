@@ -52,6 +52,7 @@ void Engage()
 
     Log.Entry("Engaging Elements ...");
     foreach(E; mElements) E.Engage();
+    Log.Entry("Elements Engaged !!!");
 }
 
 void Disengage()
