@@ -44,6 +44,9 @@ import gtk.Button;
 import gtk.TextView;
 import gtk.ToggleButton;
 
+import gdk.Display;
+import gdk.Cursor;
+
 
 
 class PREFERENCES_UI : ELEMENT
@@ -139,16 +142,25 @@ class PREFERENCES_UI : ELEMENT
     }
     void ApplyChanges()
     {
-
+		//set cursor to a busy cursor 
+        int xx, yy;
+        auto watch = new Cursor(GdkCursorType.WATCH);
+        auto tmpwindow = Display.getDefault.getWindowAtPointer(xx,yy);
+        tmpwindow.setCursor(watch);
+        Display.getDefault.sync();
+        watch.unref();
 
 
         foreach(obj; mObjects)
         {
-            writeln(obj.PageName);
+            writeln( "prefs >>",obj.PageName);
             obj.Apply;
         }
 
         Config.Reconfigure();
+
+        //restore default cursor
+        tmpwindow.setCursor(null);
     }
     
     public :
@@ -329,7 +341,7 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
         string[] Names = mTagFiles.GetShortItems();
         string[] Files = mTagFiles.GetFullItems();
 
-        Config.removeGroup("SYMBOL_LIBS");
+        if(Config.hasGroup("SYMBOL_LIBS"))Config.removeGroup("SYMBOL_LIBS");
         foreach(int i, name; Names)
         {
             name = name.chomp("lib.json");

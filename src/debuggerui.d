@@ -55,13 +55,14 @@ class DEBUGGER_UI : ELEMENT
 	Entry			mCmdEntry;
 	
 	ToolButton		mLoad;
+	ToolButton		mRun;
 
 
 	void GrabGdbOutput(string Text)
 	{
 		if(Text.length < 1)
 		{
-			mGdbView.appendText("OMG null text!!!");
+			mGdbView.appendText("OMG null text!!!\n");
 			return;
 		}
 		if(Text.startsWith("(gdb)"))
@@ -79,6 +80,7 @@ class DEBUGGER_UI : ELEMENT
 		{
 			case '~' :
 			{
+				scope(failure) {mGdbView.appendText(line);break;}
 				line = line[2..$-2];
 				mGdbView.appendText(line ~ '\n');
 				break;
@@ -86,8 +88,11 @@ class DEBUGGER_UI : ELEMENT
 
 			case '=' :
 			{
+				
+				scope(failure) {mGdbView.appendText(line);break;}
 				line = line[1..$];
 				mGdbView.appendText('\t' ~ line ~ '\n');
+				
 				break;
 			}
 
@@ -133,15 +138,17 @@ class DEBUGGER_UI : ELEMENT
 		mCmdEntry	= cast (Entry)		mBuilder.getObject("cmdentry");
 
 		mLoad		= cast (ToolButton) mBuilder.getObject("loadbtn");
+		mRun 		= cast (ToolButton) mBuilder.getObject("runbtn");
 		
 		dui.GetExtraPane.appendPage(mRoot, "Debugging2");
         dui.GetExtraPane.setTabReorderable ( mRoot, true);
 
         Debugger2.Output.connect(&GrabGdbOutput);
 
-        mCmdEntry.addOnActivate(delegate void(Entry x){Debugger2.AsyncCommand(mCmdEntry.getText());});
-        mLoad.addOnClicked(delegate void(ToolButton x)   { Debugger2.LoadProject([Project.Name, "-ctmpcfg", "-ltmplog.log"] );});
-
+        mCmdEntry	.addOnActivate(delegate void(Entry x){Debugger2.AsyncCommand(mCmdEntry.getText());});
+        mLoad		.addOnClicked(delegate void(ToolButton x) { Debugger2.LoadProject([Project.Name, "-ctmpcfg", "-ltmplog.log"] );});
+		mRun		.addOnClicked(delegate void(ToolButton x) { Debugger2.AsyncCommand("-exec-run");});
+			
         mGdbView.modifyText(StateType.NORMAL, new Color(200,200,0));
         mGdbView.modifyBase(StateType.NORMAL, new Color(5, 5, 5));
         
