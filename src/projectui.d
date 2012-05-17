@@ -349,7 +349,9 @@ class PROJECT_UI : ELEMENT
         writeln("project description = ", Project.GetCatList("DESCRIPTION"));
         string newText = (Project.GetCatList("DESCRIPTION") is null) ? "" : Project.GetCatList("DESCRIPTION");
         mInformation.getBuffer.setText(newText);
-        
+
+        writeln("what the heck !!!!");
+    
 
         //files
         mSrcList.SetItems(Project[SRCFILES]);
@@ -494,6 +496,7 @@ class PROJECT_UI : ELEMENT
         Project.Open(fcd.getFilename);
 
         Config.setString("DPROJECT", "last_open_dialog_folder", fcd.getCurrentFolder());
+        writeln("in projectui.d open");
     }
     
 

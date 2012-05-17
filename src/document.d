@@ -109,11 +109,11 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         if(x is null)
         {
             getBuffer.createSourceMark(null, "breakpoint", ti);
-            BreakPoint.emit("add", DisplayName, ti.getLine());
+            BreakPoint.emit("add", DisplayName, ti.getLine() + 1);
             return;
         }
         getBuffer.removeSourceMarks(ti, ti, "breakpoint");
-        BreakPoint.emit("remove", DisplayName, ti.getLine());
+        BreakPoint.emit("remove", DisplayName, ti.getLine()+1);
     }        
 
     void TabXButton(Button x)
@@ -162,7 +162,8 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         setMarkCategoryIconFromStock ("breakpoint", "gtk-yes");
         setMarkCategoryIconFromStock ("lineindicator", "gtk-go-forward");
         addOnLineMarkActivated(&SetBreakPoint);
-        BreakPoint.connect(&Debugger.CatchBreakPoint);
+        //BreakPoint.connect(&Debugger2.CatchBreakPoint);
+        BreakPoint.connect(&Debugger2.ToggleBreakPoint);
 
         getBuffer.createTag("hiliteback", "background", "green");
         getBuffer.createTag("hilitefore", "foreground", "yellow");
@@ -203,7 +204,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
     bool Finalize()
     {
-        BreakPoint.disconnect(&Debugger.CatchBreakPoint);
+        BreakPoint.disconnect(&Debugger2.ToggleBreakPoint);
         Config.Reconfig.disconnect(&SetupSourceView);
         return true;
     }

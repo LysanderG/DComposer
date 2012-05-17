@@ -150,8 +150,12 @@ class DEBUGGER
 
     void Cmd_StepOver()
     {
-        SendCommand("-exec-step");
+        SendCommand("-exec-next");
     }
+    void Cmd_StepIn()
+    {
+		SendCommand("-exec-step");
+	}
     void CatchBreakPoint(string Action, string SourceFile, int Line)
     {
         if ( mGdbProcess is null) return;

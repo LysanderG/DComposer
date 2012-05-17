@@ -109,9 +109,9 @@ class DEBUG_UI : ELEMENT
         mInfoConsole= cast(TextView)mBuilder.getObject("textview2");
 
         mRunBtn.addOnClicked(delegate void(ToolButton x)        {/*if(!mExecLoaded)return; */Debugger.Cmd_Run();});
-        mContinueBtn.addOnClicked(delegate void(ToolButton x)   { Debugger.Cmd_Continue();});
+		mContinueBtn.addOnClicked(delegate void(ToolButton x)   { Debugger.Cmd_Continue();});
         mStepOverBtn.addOnClicked(delegate void(ToolButton x)   { Debugger.Cmd_StepOver();});
-        //mStepInBtn.addOnClicked(delegate void(ToolButton x)     { Debugger.Cmd_StepIn();});
+        mStepInBtn.addOnClicked(delegate void(ToolButton x)     { Debugger.Cmd_StepIn();});
         ////mAddWatch.addOnClicked(delegate void(ToolButton x)    { Debugger.AddWatchSymbol(mWatchExpression.getText);});
         //mQuitBtn.addOnClicked(delegate void(ToolButton x )      { Debugger.Cmd_Abort();});
         
