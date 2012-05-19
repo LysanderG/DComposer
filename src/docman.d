@@ -634,6 +634,12 @@ class DOCMAN
         return rVal;
     }
 
+    string GetCurrentLocation()
+    {
+		auto tmp = cast(DOCUMENT)GetDocX();
+		return tmp.GetCurrentLocation();
+	}
+
 
     void AppendDocument(DOCUMENT_IF Doc, uint LineNo = 0)
     {

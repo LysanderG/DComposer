@@ -191,11 +191,11 @@ class DEBUGGER2
         mGdbOut = IOChannel.unixNew(mGdbProcess.stdOut);        
         mGdbIn  = IOChannel.unixNew(mGdbProcess.stdIn);
 
-		AsyncCommand("-gdb-set target-async 0");
+		AsyncCommand("-gdb-set target-async 1");
 
 		mSourceEventID = mGdbOut.gIoAddWatch(IOCondition.IN, &GdbOutWatcher, null);
 		
-		mGdbOut.gIoAddWatch(IOCondition.ERR , &GdbOutWatcher2, null);
+		//mGdbOut.gIoAddWatch(IOCondition.ERR , &GdbOutWatcher2, null);
 		
 		
 	}
@@ -239,21 +239,19 @@ extern (C) int GdbOutWatcher (GIOChannel* Channel, GIOCondition Condition, void*
     ulong TermPos;
     IOStatus iostatus;
 
-	if ((Condition & GIOCondition.HUP))
-	{
-		writeln(Condition);
-		Log.Entry("see i told you so!!");
-		//return 0;
-	}
+	//if ((Condition & GIOCondition.HUP))
+	//{
+	//	writeln(Condition);
+	//	Log.Entry("see i told you so!!");
+	//	//return 0;
+	//}
 		
     iostatus = Debugger2.mGdbOut.readLine(readbuffer, TermPos);
-    //iostatus = Debugger2.mGdbOut.readToEnd(readbuffer);
     if(iostatus != IOStatus.NORMAL) return 1;
 
     if(iostatus == IOStatus.NORMAL)
     {
         Debugger2.Output.emit(readbuffer);
-        //writeln("*>",readbuffer);
     }
     return 1;
 }
