@@ -490,10 +490,28 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         tiend.forwardWordEnd();
         ti.backwardWordStart();
 
-        return ti.getSlice(tiend);
-        
-        
+        return ti.getSlice(tiend);        
     }
+    /**
+     * Returns the file name and and current line number of the
+     * current document.
+     * Implemented to get around the fact that gdb uses mangled
+     * symbol names (and I can't mangle the names)
+     * */
+     string GetCurrentLocation()
+     {
+		 string rv = mFullName.baseName() ~ ":";
+		 auto ti = new TextIter;
+		 
+		 getBuffer.getIterAtMark(ti, getBuffer.getInsert());
+
+		 auto xline = ti.getLine;
+
+		 rv ~= to!string(xline);
+		 return rv;
+	 }
+
+		 
 
     
     mixin Signal!(TextIter, string, TextBuffer) NewLine;
