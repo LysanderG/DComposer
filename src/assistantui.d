@@ -30,9 +30,6 @@ import document;
 import docman;
 import elements;
 
-
-
-
 import gtk.Builder;
 import gtk.VBox;
 import gtk.ComboBox;
@@ -51,6 +48,7 @@ import gtk.CheckButton;
 import gtk.TreePath;
 import gtk.TreeViewColumn;
 
+import glib.SimpleXML;
 
 class ASSISTANT_UI : ELEMENT
 {
@@ -161,7 +159,7 @@ class ASSISTANT_UI : ELEMENT
 
         //fill combobox
         mPossibleStore.append(ti);
-        mPossibleStore.setValue(ti,0, Symbol.Path);
+        mPossibleStore.setValue(ti,0, SimpleXML.escapeText(Symbol.Path,-1));
 
         mSignature.setText(Symbol.Type);
         if(Symbol.Comment.length >0)mComments.getBuffer().setText(Symbol.Comment);
@@ -174,7 +172,7 @@ class ASSISTANT_UI : ELEMENT
         {
             ti = new TreeIter;
             mChildrenStore.append(ti);
-            mChildrenStore.setValue(ti, 0, sym.Name);
+            mChildrenStore.setValue(ti, 0, SimpleXML.escapeText(sym.Name,-1));
         }
 
         mPossibles.setActive(0);
@@ -192,7 +190,7 @@ class ASSISTANT_UI : ELEMENT
         {
             ti = new TreeIter;
             mChildrenStore.append(ti);
-            mChildrenStore.setValue(ti, 0, sym.Name);
+            mChildrenStore.setValue(ti, 0, SimpleXML.escapeText(sym.Name,-1));
         }
 
         if(mList[indx].Comment.length >0)mComments.getBuffer().setText(mList[indx].Comment);

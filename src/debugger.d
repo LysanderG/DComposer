@@ -64,7 +64,6 @@ class DEBUGGER
             if(RetStatus == IOStatus.NORMAL)
             {
                 Output.emit(readbuffer);
-                writeln(">",readbuffer);
             }
         }
     }
@@ -204,7 +203,6 @@ extern (C) int GdbOutputWatcher (GIOChannel* Channel, GIOCondition Condition, vo
     if(iostatus == IOStatus.NORMAL)
     {
         Debugger.Output.emit(readbuffer);
-        writeln("*>",readbuffer);
     }
 
     if(readbuffer.startsWith("*stopped"))

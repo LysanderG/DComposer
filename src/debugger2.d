@@ -23,8 +23,10 @@ module debugger2;
 import dcore;
 
 import std.algorithm;
+import std.array;
 import std.signals;
 import std.stdio;
+import std.conv;
 
 import glib.Spawn;
 import glib.Source;
@@ -65,6 +67,25 @@ struct WATCH_POINT
 	string					mEnabled;
 }
 
+/*
+ * Hate working in the dark
+ * Can't find accurate information
+ * about gdb actual frame record fields
+ * different gdb commands will return different things
+ * and many are undocumented.
+ * Probably should work with assoc arrays or tuples
+ * */
+struct FRAMEINFO
+{
+	string Level;
+	string Function;
+	string Address;
+	string SourceFile;
+	string Line;
+	string From;
+}
+	
+	
 
 
 class DEBUGGER2
@@ -109,37 +130,30 @@ class DEBUGGER2
 
 
 	//		BREAK POINTS ////////////////////////////////////////////
-	void SetBreakPoint( string BreakID, BREAK_POINT bp = null)
+	void  HandleDocBreak(string GiveOrTake, string file, int lineno)
 	{
-	}
-	void ClearBreakPoints()
-	{
-		//foreach(bkpt; mBreaks) 
-		mBreaks = null;
-	}
-	void ActivateBreakPoints()
-	{
-	}
-
-	void EnableBreakPoint( string BreakID)
-	{
-		if (BreakID in mBreaks)
+		if (mGdbProcess is null)
 		{
-			mBreaks[BreakID].Enable();
+			Output.emit("~\"^error Gdb process has not been started.\nPlease 'Load' project to begin debug session\n\"");
+			return;
 		}
+		if (GiveOrTake == "add") AddBreak( file ~ ":" ~ to!string(lineno));
+		if (GiveOrTake == "remove") RemoveBreak(file ~ ":" ~ to!string(lineno));
+
+		
 	}
 
-	void DisableBreakPoint( string BreakID)
+	void AddBreak(string BreakID)
 	{
+		//keep track of breaks later -> dis/enabled, conditions, lots of flash!
+		AsyncCommand("-break-insert " ~ BreakID);
 	}
 
-	void ToggleBreakPoint( string BreakID, string humm, int hoo)
+	void RemoveBreak(string BreakID)
 	{
+		AsyncCommand("-break-delete " ~ BreakID);
 	}
-
-	void ChangeBreakPoint( string BreakID, BREAK_POINT bp)
-	{
-	}
+		
 
 	// 		WATCHES //////////////////////////////////////////////
 
@@ -192,6 +206,7 @@ class DEBUGGER2
         mGdbIn  = IOChannel.unixNew(mGdbProcess.stdIn);
 
 		AsyncCommand("-gdb-set target-async 1");
+		AsyncCommand("break _Dmain");
 
 		mSourceEventID = mGdbOut.gIoAddWatch(IOCondition.IN, &GdbOutWatcher, null);
 		
@@ -211,22 +226,6 @@ class DEBUGGER2
 	{
 	}
 
-	//void ReadGdbToPrompt()
-    //{
-    //    //Source.remove(mSourceEventID);
-    //    string readbuffer;
-    //    ulong TermPos;
-    //    IOStatus RetStatus;
-    //    while(!readbuffer.startsWith(GDB_PROMPT))
-    //    {
-    //        RetStatus = mGdbOut.readLine(readbuffer, TermPos);
-//
-    //        if(RetStatus == IOStatus.NORMAL)
-    //        {
-    //            Output.emit(readbuffer);
-    //        }
-    //    }
-    //}
 
 
     mixin Signal!(string) Output;
@@ -241,7 +240,6 @@ extern (C) int GdbOutWatcher (GIOChannel* Channel, GIOCondition Condition, void*
 
 	//if ((Condition & GIOCondition.HUP))
 	//{
-	//	writeln(Condition);
 	//	Log.Entry("see i told you so!!");
 	//	//return 0;
 	//}
@@ -251,14 +249,55 @@ extern (C) int GdbOutWatcher (GIOChannel* Channel, GIOCondition Condition, void*
 
     if(iostatus == IOStatus.NORMAL)
     {
+		
         Debugger2.Output.emit(readbuffer);
     }
     return 1;
 }
 
-extern (C) int GdbOutWatcher2 (GIOChannel* Channel, GIOCondition Condition, void* nothing)
-{
 
-    Log.Entry("hup!!");
-    return 0;
+
+FRAMEINFO GetGdbFrameInfo( string SomeGdbString)
+{
+	FRAMEINFO Frame;
+
+	auto SplitStr = findSplit(SomeGdbString, "frame={");
+
+	if(SplitStr[2].empty) return Frame;
+
+	int openbraces = 1;
+
+	ulong ctr = 0;
+	while (openbraces)
+	{
+		if(SplitStr[2][ctr] == '{') openbraces++;
+		if(SplitStr[2][ctr] == '}') openbraces--;
+		ctr++;
+		scope(failure)return Frame;
+	}
+
+	auto framestring = SplitStr[2][0..ctr];
+
+	//address
+	auto tmpstr = findSplitAfter(framestring, `addr="`);
+	if(!tmpstr[1].empty)
+	{
+		foreach (chr; tmpstr[1].until(`"`)) Frame.Address ~= chr;
+	}
+	//sourcefile
+	tmpstr = findSplitAfter(framestring, `fullname="`);
+	if(!tmpstr[1].empty)
+	{
+		foreach (chr; tmpstr[1].until(`"`)) Frame.SourceFile ~= chr;
+	}
+	//lineno
+	tmpstr = findSplitAfter(framestring, `line="`);
+	if(!tmpstr[1].empty)
+	{
+		foreach (chr; tmpstr[1].until(`"`)) Frame.Line ~= chr;
+	}
+		
+		
+
+	return Frame;
 }

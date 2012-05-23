@@ -25,8 +25,6 @@ import std.json;
 import core.memory;
 import std.stdio;
 
-
-
 import dcore;
 import ui;
 import elements;

@@ -27,23 +27,25 @@ import std.string;
 import std.path;
 import std.file;
 
+import core.stdc.stdlib;
+
 
 import glib.KeyFile;
 
-
+string DCOMPOSER_VERSION = "0.01a";
+string DCOMPOSER_COPYRIGHT = "Copyright 2011 Anthony Goins";
 
 
 class CONFIG
 {
-	string mCfgFile;                //name of the CONFIG file
+	string 	mCfgFile;               //name of the CONFIG file
 	KeyFile	mKeyFile;               //CONFIG file object... didn't want dcore to depend on gtk+ libs, must fix
-
-    alias mKeyFile this;            
+	bool	mShowHelp;				//show help and then exit		
+    alias 	mKeyFile this;            
 
     this()
     {
         mCfgFile = expandTilde("~/.neontotem/dcomposer/dcomposer.cfg");
-        
         mKeyFile = new KeyFile;
     }
 
@@ -55,9 +57,10 @@ class CONFIG
                                                 //read when Docman is Engaged
                                                 
         
-        getopt(CmdArgs, config.passThrough, "c|config", &mCfgFile, "l|log", &TmpForLog);
+        getopt(CmdArgs, config.passThrough, "c|config", &mCfgFile, "l|log", &TmpForLog, "help", &mShowHelp);
 
-
+		if(mShowHelp){ShowHelp();}
+		
         if(!mCfgFile.exists)
         {
             {
@@ -112,7 +115,7 @@ class CONFIG
         {
             Default = Default.expandTilde();
             mKeyFile.setString(GroupName, Key, Default);
-            //Save();
+
             return Default;
         }
         string rVal  = mKeyFile.getString(GroupName, Key);
@@ -132,7 +135,6 @@ class CONFIG
         bool rVal = cast(bool)mKeyFile.getBoolean(GroupName, Key);
 
         return rVal;
-
     }
 
     int getInteger(string GroupName, string Key, int Default = 0)
@@ -140,7 +142,6 @@ class CONFIG
        scope(failure)
        {
            mKeyFile.setInteger(GroupName, Key , Default);
-           //Save();
            return Default;
        }
        int rVal = mKeyFile.getInteger(GroupName,  Key);
@@ -153,11 +154,9 @@ class CONFIG
         scope(failure)
         {
             mKeyFile.setUint64(GroupName, Key, Default);
-            Save();
             return Default;
         }
         ulong rVal = mKeyFile.getUint64(GroupName, Key);
-
         return rVal;
     }
 
@@ -182,7 +181,27 @@ class CONFIG
         //preps a gui dialog to set all elements to keyfile values
         ShowConfig.emit();
     }
-        
+
+    void ShowHelp()
+    {
+		writeln("DComposer a Naive IDE for the D programming Language");
+		writeln("Version :",DCOMPOSER_VERSION);
+		writeln(DCOMPOSER_COPYRIGHT);
+		writeln();
+		writeln("Usage:");
+		writeln("  dcomposer [OPTION...] [FILES...]");
+		writeln();
+		writeln("OPTIONS");
+		writeln("  -c,  --config=CFG_FILE    specify session configuration file");
+		writeln("                            (~/.neontotem/dcomposer/dcomposer.cfg is default)");
+		writeln("  -l,  --log=LOG_FILE       specify session log file");
+		writeln("                            (~/.neontotem/dcomposer/dcomposer.log is default)");
+		writeln("  -h, --help                show this help message");
+		writeln("\nFILES");
+		writeln("Any text files to open for editing.  Must be valid utf8 encoded files for this version");
+		writeln("Also at this time project files are only opened as text files");
+		exit(0);
+	}        
     mixin Signal!()ShowConfig;  //will be emitted before showing a gui pref dialog ... to set gui elements from keyfile
     mixin Signal!()Reconfig;    //emitted when keyfile changes warrent all modules to reconfigure them selves
     mixin Signal!()Saved;     

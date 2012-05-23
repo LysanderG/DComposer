@@ -69,7 +69,7 @@ void AcquireElements()
         
     foreach (line; elementlist.splitLines())
     {
-        line = removechars!(string)(line, whitespace);
+        line = removechars!(string)(line, std.ascii.whitespace);
         if (line.startsWith('#')) continue;
         if (line.length < 1) continue;
 
@@ -79,6 +79,7 @@ void AcquireElements()
         {
             Log.Entry("Acquired " ~ line ~ " element.");
             mElements[tmp.Name] = tmp;
+            Log.Entry("\t:>" ~ tmp.Information);
         }
     }
 }

@@ -50,6 +50,8 @@ import gtk.Menu;
 import gtk.MessageDialog;
 import gtk.Clipboard;
 import gtk.TextIter;
+import gtk.Container;
+
 import gtkc.gtk;
 
 import gdk.Event;
@@ -63,6 +65,11 @@ import pango.PgFontDescription;
 class DOCUMENT : SourceView, DOCUMENT_IF
 {
     private:
+
+    //initial opening of documents do not scroll to the cursor properly
+    //assuming scroll must be done after showing (because sourceview dimensions havent been set yet)
+    //so only on first showing scroll here (mInitialLine) 0-max goto ... < 0 ignore already shown
+    long		mInitialLine;
 
     Label       mTabLabel;
     string      mFullName;
@@ -89,15 +96,21 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         if(mTimeStamp < timeLastModified(FullPathName))
         {
             auto msg = new MessageDialog(dui.GetWindow, DialogFlags.MODAL, MessageType.QUESTION, ButtonsType.NONE, true,null);
-            msg.setMarkup(FullPathName ~ " has been modified externally.\nWould you like to reload it with any changes\nor ignore changes?");
+            msg.setMarkup(FullPathName ~ " has been modified externally.\nWould you like to reload it with any changes\nor ignore changes?\n(" ~ mTimeStamp.toISOExtString() ~ ")");
             msg.addButton("Reload", 1000);
             msg.addButton("Ignore", 2000);
 
             auto rv = msg.run();
-            msg.destroy();
+            msg.hide();
+            
+            
             if(rv == 1000)Open(FullPathName);
+            //if(rv == 1000)getBuffer.setText(readText(FullPathName));
             else mTimeStamp = timeLastModified(FullPathName);
-        }
+            //mTimeStamp = timeLastModified(FullPathName);
+			return true;
+        }       
+        
         return false;
     }
 
@@ -150,20 +163,16 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         setIndentWidth(Config.getInteger("DOCMAN", "indention_width", 8));
         setTabWidth(Config.getInteger("DOCMAN", "tab_width", 4));
 
-        //modifyFont(Config.getString("DOCMAN", "font", "mono 18"), "");
-        modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.getString("DOCMAN", "font", "mono 18")));
 
-        //string fontname = Config.getString("DOCMAN", "font_name", "Anonymous Pro");
-        //int fontsize = Config.getInteger("DOCMAN", "font_size", 12);
-        //modifyFont(fontname,fontsize);
+        modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.getString("DOCMAN", "font", "mono 18")));
 
         
         setShowLineMarks(true);
         setMarkCategoryIconFromStock ("breakpoint", "gtk-yes");
         setMarkCategoryIconFromStock ("lineindicator", "gtk-go-forward");
         addOnLineMarkActivated(&SetBreakPoint);
-        //BreakPoint.connect(&Debugger2.CatchBreakPoint);
-        BreakPoint.connect(&Debugger2.ToggleBreakPoint);
+
+        BreakPoint.connect(&Debugger2.HandleDocBreak);
 
         getBuffer.createTag("hiliteback", "background", "green");
         getBuffer.createTag("hilitefore", "foreground", "yellow");
@@ -175,8 +184,6 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         //clipboard edit enable disable stuff
         auto TheClipBoard = Clipboard.get(cast(GdkAtom)69);
 
-        //addOnNotify(&SetUpEditSensitivity, cast(ConnectFlags)1);
-        //addOn(delegate bool (Event x, Widget w) {SetUpEditSensitivity();return false;}, cast(ConnectFlags)1);
         addOnKeyRelease(delegate bool(GdkEventKey* k, Widget w){SetUpEditSensitivity();return false;});
         addOnButtonRelease( delegate bool(GdkEventButton* b, Widget w){SetUpEditSensitivity();return false;}); 
     }
@@ -191,7 +198,6 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         return ;
     }
 
-
     void PopulateContextMenu(GtkMenu* gtkBigMenu, TextView ThisOne)
     {
         
@@ -204,7 +210,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
     bool Finalize()
     {
-        BreakPoint.disconnect(&Debugger2.ToggleBreakPoint);
+        BreakPoint.disconnect(&Debugger2.HandleDocBreak);
         Config.Reconfig.disconnect(&SetupSourceView);
         return true;
     }
@@ -238,7 +244,6 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         setIndentWidth(Config.getInteger("DOCMAN", "indention_width", 8));
         setTabWidth(Config.getInteger("DOCMAN", "tab_width", 4));
 
-        //modifyFont(Config.getString("DOCMAN", "font", "mono 18"), "");
         modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.getString("DOCMAN", "font", "mono 18")));
     }
 
@@ -258,18 +263,23 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
 
 
+
     this()
     {
         mTabLabel = new Label("untitled");
         
         getBuffer().addOnModifiedChanged(&ModifyTabLabel);
         getBuffer.addOnPasteDone (delegate void (Clipboard cb, TextBuffer tb) {mPasting = false;});
+        addOnDragEnd(delegate void (GdkDragContext* Context, Widget W){mPasting = false;});
+        addOnDragBegin(delegate void (GdkDragContext* Context, Widget W){mPasting = true;});
 
         
         addOnPopulatePopup (&PopulateContextMenu); 
         addOnFocusIn(&CheckForExternalChanges);
 
         Config.Reconfig.connect(&Reconfigure);
+
+        addOnExpose(delegate bool (GdkEventExpose* ev, Widget w){if(mInitialLine> -1){GotoLine(mInitialLine);mInitialLine = -1;}return false;});
         
     }
     
@@ -287,8 +297,9 @@ class DOCUMENT : SourceView, DOCUMENT_IF
     //calling functions are now using doc.open(filename); doc.GotoLine(x);
     //if I recall scroll to mark (and similiar functions) were a real headache
     //not working as I anticipated.
-    bool Open(string FileName, ulong LineNo = 0)
+    bool Open(string FileName, long LineNo = 0)
     {
+		mInitialLine = LineNo;
         string DocText;
         try
         {
@@ -302,8 +313,6 @@ class DOCUMENT : SourceView, DOCUMENT_IF
             msg.setTitle("Invalid UTF File");
             msg.run();
             msg.destroy();
-            
-            //DocText = MultiRead(FileName);
             DocText = null;
             return false;
         }        
@@ -424,25 +433,31 @@ class DOCUMENT : SourceView, DOCUMENT_IF
             default : Log.Entry("Currently unavailable function :"~Verb,"Debug");
         }            
     }
-    void GotoLine(uint Line)
+    void GotoLine(long Line)
     {
-        TextIter ti = new TextIter;
-
-        getBuffer.getIterAtLine(ti, Line);
-
-        getBuffer.placeCursor(ti);
-
-        auto mark = getBuffer.createMark("scroller", ti, 1);
-        //scrollToIter(ti , 0.25, true, 0.0, 0.0);
-        //scrollMarkOnscreen(mark);
-        scrollToMark (mark, 0.1, true , 0.000, 0.2500);
-        TextIter tistart, tiend;
-        tistart = new TextIter;
+		
+		TextIter tistart, tiend;
+		tistart = new TextIter;
         tiend = new TextIter;
         getBuffer.getStartIter(tistart);
         getBuffer.getEndIter(tiend);
         getBuffer.removeSourceMarks(tistart, tiend, "lineindicator");
-        getBuffer.createSourceMark(null, "lineindicator", ti);
+
+        TextIter ti = new TextIter;
+        getBuffer.getIterAtLine(ti, cast(int)Line);
+		auto mark = getBuffer.createSourceMark(null, "lineindicator", ti);
+		
+
+        getBuffer.placeCursor(ti);
+
+        //auto mark = getBuffer.createMark("scroller", ti, 1);
+        //scrollToIter(ti , 0.25, true, 0.0, 0.0);
+        //scrollMarkOnscreen(mark);
+        
+        scrollToMark (mark, 0.01, true , 0.000, 0.500);
+        
+        
+        //scrollToMark (mark, 0.1, true , 0.000, 0.2500);
         
     }
 
@@ -561,3 +576,4 @@ string MultiRead(string FileName)
 }
 */    
  //notice how I have no idea what I am doing with text encoding?       
+

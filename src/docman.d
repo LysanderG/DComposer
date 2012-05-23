@@ -61,7 +61,7 @@ enum DOC_TYPE : long    {D_SOURCE, TEXT};
 interface DOCUMENT_IF
 {
     bool        Create(string Identifier);                          //create a new document DComposerxxxx.d
-    bool        Open(string FileName, ulong LineNo = 1);            //load a file and show line LineNo
+    bool        Open(string FileName, long LineNo = 1);            //load a file and show line LineNo
     bool        Save();                                             //put the words on disk
     bool        SaveAs(string NewName);                             //put the words on disk with a new file name
     bool        Close(bool Quitting = false);                       //close (get rid of) document (if quitting then needs a diff confirm dialog)
@@ -84,9 +84,8 @@ interface DOCUMENT_IF
     void        Edit(string Verb);                                  //do a copy cut paste delete action
     ubyte[]     RawData();                                          //return whachagot
 
-    void        GotoLine(uint LineNumber);                         //put cursor on linenumber and show it
+    void        GotoLine(long LineNumber);                         //put cursor on linenumber and show it
 
-    
 }
 
 
@@ -200,8 +199,6 @@ class DOCMAN
         dui.AddToolBarItem(CloseAllAct.createToolItem());
         dui.AddToolBarItem(new SeparatorToolItem);
         
-        
-
 
         auto mi = new MenuItem("New _Type");
         auto m = new Menu;
@@ -358,8 +355,6 @@ class DOCMAN
         NuDoc.Create(TitleString);
 
         AppendDocument(NuDoc);
-
-        
         
         return NuDoc;
     }
@@ -377,13 +372,10 @@ class DOCMAN
             scope(failure){Log.Entry("Document: "~FullFileName~" failed to open.", "Error"); return;}
             scope(success)Log.Entry("Document: "~FullFileName~" opened.");
             auto DocX = new DOCUMENT;
-            if(DocX.Open(FullFileName))
+            if(DocX.Open(FullFileName, LineNo))
             {
-                AppendDocument(DocX, LineNo);
-                
+                AppendDocument(DocX, LineNo);   
             }
-            DocX.GotoLine(LineNo); //this is not good but didn't have time to figure out why appenddocument(doc, line) didn't position on cursor
-                                   //stupid scroll to mark has wierd behavior can't figure it out.
             
             return;
         }        
@@ -648,18 +640,17 @@ class DOCMAN
 		ScrollWin.setPolicy(GtkPolicyType.AUTOMATIC, GtkPolicyType.AUTOMATIC);
 
 
-        ScrollWin.showAll();
-
         dui.GetCenterPane().appendPage(ScrollWin, Doc.TabWidget());
         dui.GetCenterPane().setTabReorderable(ScrollWin, 1);
+        ScrollWin.showAll();
         dui.GetCenterPane().setCurrentPage(ScrollWin);
         Doc.GetWidget().grabFocus();
-        Doc.GotoLine(LineNo);
+        
         //this signal has become the signal to allow other modules/elements to connect to all docs, so
         //it is now important to call AppendDocument exactly one time for each new document.
         Event.emit("AppendDocument", Doc);
 
-        
+        Doc.GotoLine(LineNo);
     }
 
 
@@ -753,7 +744,7 @@ class DOC_PAGE : PREFERENCE_PAGE
         mTabWidth.setIncrements(1, -1);
 
         //test fontbutton return stuff
-        mFontStuff.addOnFontSet(delegate void (FontButton Fb){writeln(Fb.getFontName());});
+        //mFontStuff.addOnFontSet(delegate void (FontButton Fb){writeln(Fb.getFontName());});
 
         mStyleChoices = new ListStore([GType.STRING]);
 

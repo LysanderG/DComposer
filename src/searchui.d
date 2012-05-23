@@ -392,7 +392,7 @@ class SEARCH_UI : ELEMENT
     void BeginSearch(Action X)
     {
         if(!dui.GetExtraPane.getVisible()) dui.PerformAction("ViewExtraPaneAct");
-        mPage.showAll();
+        mPage.getParent.getParent.showAll();
         dui.GetExtraPane.setCurrentPage(mPage.getParent.getParent);
 
         auto tmpdoc = cast(DOCUMENT) dui.GetDocMan().GetDocX();
@@ -518,7 +518,7 @@ class SEARCH_UI : ELEMENT
 
         
         mHideOptionsBtn.addOnClicked(delegate void (Button X){mOptions.setVisible(!mOptions.getVisible());});
-        mHideAllBtn.addOnClicked(delegate void (Button X){mPage.hide();});
+        mHideAllBtn.addOnClicked(delegate void (Button X){mPage.getParent.getParent.hide();});
 
         mFindNextBtn.addOnClicked(&FindNextBtnClicked);
         mFindPrevBtn.addOnClicked(&FindPrevBtnClicked);

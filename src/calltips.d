@@ -72,9 +72,7 @@ class CALL_TIPS : ELEMENT
         if((ypos + dui.GetAutoPopUps.Height) > (OrigY + OrigYlen))
         {
             ypos = ypos - gdkRect.height - dui.GetAutoPopUps.Height;
-        }
-
-        
+        }        
         return;        
     }
 
@@ -97,8 +95,7 @@ class CALL_TIPS : ELEMENT
         while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_') || (growingtext[0] == '.'));
         if(GoForward)tstart.forwardChar();
         
-        return tstart;
-        
+        return tstart;        
     }
 
     public:
@@ -123,10 +120,7 @@ class CALL_TIPS : ELEMENT
     void Engage()
     {
         mState = true;
-
         dui.GetDocMan.Event.connect(&WatchForNewDocument);
-
-
         Log.Entry("Engaged CALL_TIPS element");
     }
 
@@ -153,6 +147,7 @@ class CALL_TIPS : ELEMENT
     void WatchDoc(DOCUMENT sv , TextIter ti, string Text, SourceBuffer Buffer)
     {
         if(sv.IsPasting) return;
+
         switch(Text)
         {
             case "(" :
@@ -175,9 +170,6 @@ class CALL_TIPS : ELEMENT
                     if( !endsWith(Candidate, dsym.Scope[$-1])) continue;
                     FuncPossibles ~= dsym;
                 }
-                
-                //if(FuncPossibles.length < 1) break;
-
 
                 int xpos, ypos;
                 IterGetPostion(sv, TStart, xpos, ypos);
@@ -192,7 +184,6 @@ class CALL_TIPS : ELEMENT
             }
             default : break;
         }
-
     }
 
     PREFERENCE_PAGE GetPreferenceObject()
@@ -215,7 +206,4 @@ class CALL_TIPS : ELEMENT
 * well like everything in this project I'm learning ... really it doesn't work half bad for what I'm
 * doing. I've actually surprised myself.
 * just need to see if I can make it useful for someone else.
-
-
-
 */
