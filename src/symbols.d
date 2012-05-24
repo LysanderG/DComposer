@@ -221,6 +221,15 @@ class SYMBOLS
         {
             scope(failure){Log.Entry("Failed to load project symbols","Error");return;}
             Load(Project.Name(), Project.Name() ~ ".tags");
+            //emit();
+            return;
+        }
+        if(EventType == "FailedCreateTags")
+        {
+			scope(failure){Log.Entry("Failed to load project symbols","Error");return;}
+			if(Project.Name() in mSymbols) return; //keep the symbols we have if none try to load old symbols
+            Load(Project.Name(), Project.Name() ~ ".tags");
+			//emit();
             return;
         }
 

@@ -393,4 +393,13 @@ simple stuff
 A. Open projects from command line
 B. --help option
 C. Drag and Drop file opening
-D. 
+
+Learning plenty here.  Every little change causes a stupid headache! 
+added a scrollbar parent to a notebook page in glade
+now everything that referred to that page actually wants the parent.
+
+Couldn't figure out why dirview would not sort or even call my sortfunction.
+At some point I had added a refresh function that completely replaced the liststore
+nullifing the sortfunction.  Feels so wrong to add the code that fixed it.
+
+On new projects I will take more time working out kinks at the beginning.

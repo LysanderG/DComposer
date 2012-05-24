@@ -20,10 +20,6 @@
 
 module search;
 
-//import dcore;
-//import ui;
-//import project;
-
 import std.algorithm;
 import std.range;
 import std.string;
@@ -39,7 +35,6 @@ struct SEARCH_OPTIONS
     bool    WordStart;
     bool    RecurseFolder;
 }
-
 
 
 struct SEARCH_RESULT
@@ -62,7 +57,6 @@ struct SEARCH_RESULT
 }
 
 
-
 SEARCH_RESULT[] FindInString(string HayStack, string Needle, string DocTitle, SEARCH_OPTIONS opts)
 {
     SEARCH_RESULT[] Results;
@@ -70,8 +64,6 @@ SEARCH_RESULT[] FindInString(string HayStack, string Needle, string DocTitle, SE
 
     auto StackLines = HayStack.splitLines();
     
-
-
     void SearchLine(string lineText, int lineNo)
     {
         ulong MultiMatchAddToOffset = 0;
@@ -118,30 +110,6 @@ SEARCH_RESULT[] FindInString(string HayStack, string Needle, string DocTitle, SE
 }
 
 
-//SEARCH_RESULT[] FindInProject(string Needle, SEARCH_OPTIONS Opts)
-//{
-//    SEARCH_RESULT[] Results;
-//
-//    if(Project.Target == TARGET.NULL) return null;
-//    
-//    foreach(string filename; Project[SRCFILES])
-//    {
-//        if(dui.GetDocMan.IsOpenDoc(filename))
-//        {
-//            string Text = cast(string)dui.GetDocMan.GetDocX(filename).RawData();
-//
-//            Results ~= FindInString(Text, Needle, filename, Opts);
-//
-//        }
-//        else
-//        {
-//            string Text = readText(filename);
-//            Results ~= FindInString(Text, Needle, filename, Opts);
-//        }
-//    }
-//
-//    return Results;
-//}
 
 SEARCH_RESULT[] FindInFile(string FileName, string Needle, SEARCH_OPTIONS Opts)
 {

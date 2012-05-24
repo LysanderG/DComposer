@@ -450,6 +450,7 @@ class PROJECT
         foreach(src; this[SRCFILES]) CreateTagsCommand ~= " " ~ src;
         
         auto result = system(CreateTagsCommand);
+        writeln(result);
         
         if(result == 0)
         {
@@ -458,8 +459,9 @@ class PROJECT
             Log.Entry("Project tags Created");
             return true;
         }
-
+		
         Log.Entry("Failed to create project tags");
+        Event.emit("FailedCreateTags");
         return false;        
     }
     bool Build()                                            //build the project

@@ -60,7 +60,6 @@ class PROJECT_VIEW : ELEMENT
     bool            mState;
 
     Builder         mBuilding;
-    //Viewport            mRoot;
     VBox            mRoot;
 
     Label           mLabel;
@@ -355,10 +354,7 @@ class PROJECT_VIEW : ELEMENT
     void Engage()
     {
         mBuilding = new Builder;
-
         mBuilding.addFromFile(Config.getString("PROJECT_VIEW", "glade_file", "/home/anthony/.neontotem/dcomposer/proview.glade"));
-        
-        //mRoot       = cast(Viewport)    mBuilding.getObject("viewport1");
         mRoot       = cast(VBox)        mBuilding.getObject("vbox1");
         mLabel      = cast(Label)       mBuilding.getObject("label2");
         mToolBar    = cast(Toolbar)     mBuilding.getObject("toolbar1");
