@@ -172,7 +172,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         setMarkCategoryIconFromStock ("lineindicator", "gtk-go-forward");
         addOnLineMarkActivated(&SetBreakPoint);
 
-        BreakPoint.connect(&Debugger2.HandleDocBreak);
+        //BreakPoint.connect(&Debugger2.HandleDocBreak);
 
         getBuffer.createTag("hiliteback", "background", "green");
         getBuffer.createTag("hilitefore", "foreground", "yellow");
@@ -210,7 +210,7 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 
     bool Finalize()
     {
-        BreakPoint.disconnect(&Debugger2.HandleDocBreak);
+		//BreakPoint.disconnect(&Debugger2.HandleDocBreak);
         Config.Reconfig.disconnect(&SetupSourceView);
         return true;
     }
@@ -368,11 +368,13 @@ class DOCUMENT : SourceView, DOCUMENT_IF
     {
         if(!Modified())return Finalize();
 
-        auto ToSaveDiscardOrKeepOpen = new MessageDialog(dui.GetWindow(), DialogFlags.DESTROY_WITH_PARENT, GtkMessageType.INFO, ButtonsType.NONE, true, null); 
-        ToSaveDiscardOrKeepOpen.setMarkup("Closing a modified file :" ~ DisplayName ~ "\nWhat do you wish to do?");
+        auto ToSaveDiscardOrKeepOpen = new MessageDialog(dui.GetWindow(), DialogFlags.DESTROY_WITH_PARENT, GtkMessageType.QUESTION, ButtonsType.NONE, true, null); 
+        ToSaveDiscardOrKeepOpen.setMarkup(DisplayName ~ "\nHas unsaved changes.\nWhat do you wish to do?");
         ToSaveDiscardOrKeepOpen.addButton("Save Changes", cast(GtkResponseType) 1);
         ToSaveDiscardOrKeepOpen.addButton("Discard Changes", cast(GtkResponseType) 2);
         if(!Quitting)ToSaveDiscardOrKeepOpen.addButton("Do not Close", cast(GtkResponseType) 3);
+
+        ToSaveDiscardOrKeepOpen.setTitle("Closing DComposer Document");
 
         int rVal = cast(int) ToSaveDiscardOrKeepOpen.run();
         ToSaveDiscardOrKeepOpen.destroy();

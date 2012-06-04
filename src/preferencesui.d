@@ -84,17 +84,19 @@ class PREFERENCES_UI : ELEMENT
         AddCorePrefs();
         AddUIPrefs();
         AddElementPrefs();
+
+        mGuiBuilt = true;
     }
 
     void AddCorePrefs()
     {
-        auto ConfPrefs = new CONFIG_PAGE("Core", "Configuration File :");
-        mObjects ~= ConfPrefs;
-        AddPrefPart(ConfPrefs);
-
-        auto LogPrefs  = new LOG_PAGE("Core", "Logging :");
-        mObjects ~= LogPrefs;
-        AddPrefPart(LogPrefs);
+		auto ConfPrefs = new CONFIG_PAGE("Core", "Configuration File :");
+		mObjects ~= ConfPrefs;
+		AddPrefPart(ConfPrefs);
+	
+		auto LogPrefs  = new LOG_PAGE("Core", "Logging :");
+		mObjects ~= LogPrefs;
+		AddPrefPart(LogPrefs);
 
         auto SymbolPrefs = new SYMBOL_PAGE("Core", "Symbols :");
         mObjects ~= SymbolPrefs;
@@ -126,6 +128,7 @@ class PREFERENCES_UI : ELEMENT
         if(X.PageName in mPage)
         {
             mPage[X.PageName].add(X.GetPrefWidget());
+            mPage[X.PageName].setChildPacking (X.GetPrefWidget(), X.Expand(), 1, 0, GtkPackType.START); 
         }
         else
         {
@@ -134,7 +137,11 @@ class PREFERENCES_UI : ELEMENT
             sw.setPolicy(PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
             mPage[X.PageName] = new VBox(1,1);
             mPage[X.PageName].add(X.GetPrefWidget());
+            mPage[X.PageName].setHomogeneous(0);
             sw.addWithViewport(mPage[X.PageName]);
+			mPage[X.PageName].setChildPacking (X.GetPrefWidget, X.Expand(),1, 0, GtkPackType.START); 
+            
+            
             
             mBook.appendPage(sw, X.PageName);
         }
@@ -214,7 +221,6 @@ class PREFERENCES_UI : ELEMENT
     {
 	    Log.Entry("Disengaged PREFERENCES_UI");
     }
-
 
     PREFERENCE_PAGE GetPreferenceObject()
     {
@@ -297,7 +303,7 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
 {
     CheckButton mCheckBtn;
     LISTUI      mTagFiles;
-    VBox        mVBox;
+    //VBox        mVBox;
     
 
     this(string PageName, string SectionName)
@@ -330,6 +336,7 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
                 
         
         Add(mTagFiles.GetWidget());
+        //mVBox.setChildPacking (mTagFiles.GetWidget(), 1,1, 0, GtkPackType.START); 
         
         mFrame.showAll();
     }
@@ -348,5 +355,5 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
             Config.setString("SYMBOL_LIBS", name, Files[i]);
         }
     }
-    
+    override bool Expand(){return true;}
 }

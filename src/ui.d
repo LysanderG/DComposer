@@ -254,16 +254,19 @@ class MAIN_UI
     
     bool ConfirmQuit(Event e, Widget w)
     {
+		if(mDocMan.HasModifiedDocs)
+		{
+			
         ////this(Window parent, GtkDialogFlags flags, GtkMessageType type, GtkButtonsType buttons, bool markup, string messageFormat, string message = null);
-        //auto ConDi = new MessageDialog(mWindow, GtkDialogFlags.DESTROY_WITH_PARENT, GtkMessageType.INFO, GtkButtonsType.NONE, false, null);
-        //ConDi.addButtons(["Stay","Leave"],[cast(GtkResponseType)1,cast(GtkResponseType)0]);
-        //ConDi.setMarkup("Are we really going to part ways for the time being??");
-        //ConDi.setTitle("GoodBye??");
-        //bool rv = cast(bool)ConDi.run();
-        //ConDi.destroy();
-//
-        //if(!rv)Main.quit();
-        //return rv;
+			auto ConDi = new MessageDialog(mWindow, GtkDialogFlags.DESTROY_WITH_PARENT, GtkMessageType.INFO, GtkButtonsType.NONE, false, null);
+			ConDi.addButtons(["Stay","Leave"],[cast(GtkResponseType)0,cast(GtkResponseType)1]);
+			ConDi.setMarkup("There are unsaved changes to open documents... Do you wish to exit?");
+			ConDi.setTitle("GoodBye??");
+			bool rvQuit = cast(bool)ConDi.run();
+			ConDi.destroy();
+
+			if(!rvQuit) return false;
+		}
 
         //mDocMan.CloseAllDocs(true); if close all docs here nothing will be saved to config (ie "files_last_session" will be null)
         Main.quit();
@@ -445,6 +448,7 @@ class PREFERENCE_PAGE
         mVBox.add(Addition);
     }
 
+	bool Expand() {return false;}
     abstract void Apply();
 }
 

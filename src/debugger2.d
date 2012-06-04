@@ -27,6 +27,8 @@ import std.array;
 import std.signals;
 import std.stdio;
 import std.conv;
+import std.demangle;
+import std.string;
 
 import glib.Spawn;
 import glib.Source;
@@ -108,9 +110,24 @@ class DEBUGGER2
 	Spawn					mGdbProcess;
 	IOChannel				mGdbOut;
 	IOChannel				mGdbIn;
+
+	enum DIRECTGDB {TO_SIGNAL, TO_LOAD_MANGLED_SYMBOLS}
+	DIRECTGDB 				mDirectOutPut;
+
+	void LoadMangledSymbols()
+	{
+		
+		writeln("LoadMangledSymbols()");
+		mDirectOutPut = DIRECTGDB.TO_LOAD_MANGLED_SYMBOLS;
+		AsyncCommand("info variables ^_D");		
+	}
+
 	
 	
 	public :
+
+	
+	
 	this()
 	{
 		mStatus = STATUS.Null;
@@ -211,6 +228,9 @@ class DEBUGGER2
 		mSourceEventID = mGdbOut.gIoAddWatch(IOCondition.IN, &GdbOutWatcher, null);
 		
 		//mGdbOut.gIoAddWatch(IOCondition.ERR , &GdbOutWatcher2, null);
+
+		//grab all d symbols and demangle them into a symbolname[demagled] = mangled
+		LoadMangledSymbols();
 		
 		
 	}
@@ -226,7 +246,29 @@ class DEBUGGER2
 	{
 	}
 
-
+	@property DIRECTGDB gdbDirection(){return mDirectOutPut;}
+	
+	void AddMangledSymbol(string gdbVariableInfo)
+	{
+		static DoneCtr = 3;
+		if(gdbVariableInfo.canFind("^done"))
+		{
+			DoneCtr--;
+			if(DoneCtr < 1)
+			{
+				DoneCtr = 2;
+				mDirectOutPut = DIRECTGDB.TO_SIGNAL;
+				return;
+			}
+		}
+		auto Split = gdbVariableInfo.findSplitBefore("_D");
+		string key = demangle(Split[1].chomp(`;\n"`));
+		mMangledSymbols[key] = Split[1].chomp(`;\n"`);
+		writeln(key, " = ", Split[1]);
+		
+	}
+	
+		
 
     mixin Signal!(string) Output;
 }
@@ -238,19 +280,20 @@ extern (C) int GdbOutWatcher (GIOChannel* Channel, GIOCondition Condition, void*
     ulong TermPos;
     IOStatus iostatus;
 
-	//if ((Condition & GIOCondition.HUP))
-	//{
-	//	Log.Entry("see i told you so!!");
-	//	//return 0;
-	//}
+
 		
     iostatus = Debugger2.mGdbOut.readLine(readbuffer, TermPos);
     if(iostatus != IOStatus.NORMAL) return 1;
 
     if(iostatus == IOStatus.NORMAL)
     {
-		
-        Debugger2.Output.emit(readbuffer);
+		writeln(Debugger2.gdbDirection, " --> ", readbuffer);
+		switch(Debugger2.gdbDirection)
+		{
+			case DEBUGGER2.DIRECTGDB.TO_LOAD_MANGLED_SYMBOLS : Debugger2.AddMangledSymbol(readbuffer);break;
+			case DEBUGGER2.DIRECTGDB.TO_SIGNAL: Debugger2.Output.emit(readbuffer);break;
+			default : Debugger2.Output.emit(readbuffer);break;
+		}
     }
     return 1;
 }

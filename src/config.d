@@ -209,48 +209,6 @@ class CONFIG
 }
 
 import dcore :Log;
-/*
- * list of all the configuration stuff i can think of (as i think of it)
- *
- * config "CONFIG"
- * 		configuration file <- the one that really counts
- * 		verbose?
- * 		quiet?
- *		version?
- * 
- * log  "LOG"
- * 		logfile
- * 		logfile size before overwriting it
- * 		logbuffer size / or how often to flush the buffer
- *
- * 
- * project "DPROJECT"
- * 		default file project
- *      project version
- *      flagfile ,, the json file`
- *
- * symbols "SYMBOLS"
- * 		sure there will be plenty here
- *      key=file
- *      std=~/.neontotem/dcomposer/phobos.tags
- *      gtk=~/.neontotem/dcomposer/gtk.tags
- *
- * ----------------------------
- * ui   "UI"
- * 		mainbuilder file
- * 		lotsa gui stuff --- sizes of all the components and splitter windows ....
- * 		which actions to add to toolbar
- * 
- * docman "DOCMAN"
- * 		files_to_open  list of commnand line files to open
- *      files_left_open list of fiies from last session
- *
- *
- *
- * ok nevermind this ... see ~/.neontotem/dcomposer/domposer.log
- */
-	
 
-	
 
 	

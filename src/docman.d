@@ -339,8 +339,12 @@ class DOCMAN
 
      DOCUMENT_IF CreateDoc(string DocType = ".d")
     {
-        string TitleString = std.string.format("DComposer%.3s", mUnTitledCount++);
-        TitleString ~= DocType;
+		string TitleString;
+		do
+		{
+			TitleString = std.string.format("DComposer%.3s", mUnTitledCount++);
+			TitleString ~= DocType;
+		}while (IsOpenDoc(buildPath(getcwd(), TitleString)));
 
         DOCUMENT_IF NuDoc;
 
@@ -686,6 +690,24 @@ class DOCMAN
         mContextActions ~=  Item;
     }
 
+    bool HasModifiedDocs()
+    {
+		DOCUMENT_IF docX = null;
+        int count;
+
+        count = dui.GetCenterPane().getNPages();
+        while(count > 0)
+        {
+            count--;
+            docX = GetDocX(count);
+            if (docX is null) continue;
+            if (docX.Modified) return true;
+
+        }            
+        return false;
+	}
+		
+
     
     mixin Signal!(string, DOCUMENT_IF) Event;
 }
@@ -765,6 +787,7 @@ class DOC_PAGE : PREFERENCE_PAGE
         mStyleChoices.clear();
         foreach( xmlfile; StyleFiles)
         {
+	        mStyleChoices.append(ti);
             mStyleChoices.setValue(ti, 0, baseName(xmlfile.name,".xml"));
             if(currentStyle == mStyleChoices.getValueString(ti, 0)) ActiveChoice = indx;
             

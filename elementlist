@@ -18,8 +18,8 @@ proview.PROJECT_VIEW
 dirview.DIR_VIEW
 historyview.HISTORY_VIEW
 messageui.MESSAGE_UI
-debugui.DEBUG_UI
+#debugui.DEBUG_UI
 #symassistui.SYMBOL_ASSIST
 assistantui.ASSISTANT_UI
 preferencesui.PREFERENCES_UI
-debuggerui.DEBUGGER_UI
+#debuggerui.DEBUGGER_UI
