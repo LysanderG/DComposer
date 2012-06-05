@@ -27,6 +27,7 @@ import autopopups;
 import  std.stdio;
 import  std.path;
 import  std.conv;
+import 	std.algorithm;
 
 import  gtk.Main;
 import  gtk.Builder;
@@ -412,9 +413,19 @@ enum :int { TYPE_NONE, TYPE_CALLTIP, TYPE_SCOPELIST, TYPE_SYMCOM}
 //must connect to Config.ShowConfig to reset values to keyfile values
 //must connect to Config.ReConfig to apply changes to keyfile
 //then modules/elements will reconfigure themselves from the keyfile.
-class PREFERENCE_PAGE
+
+/**
+ * Any element or other object which needs a GUI preference page must create a subclass of PREFERENCE_PAGE.
+ * For elements the mFrame will automatically be added to the Elements preference page.  NonElements must add mFrame manually
+ * as a new page or a frame in another page.
+ * The Config.ShowConfig signal will be sent when the 'keyfile' has changed and the gui must be updated.
+ * The Config.ReConfig signal will issue when changes to the GUI need to be 'Applied'.
+ * (after some testing I've decided I don't like the 'APPLY' button,
+ * at some point I'll do away with it and make changes to the gui take place immediately.)
+ * */
+abstract class PREFERENCE_PAGE
 {
-    string      mPageName;
+    string      mPageName;		///
     
     Builder     mBuilder;
     Frame       mFrame;
@@ -423,7 +434,7 @@ class PREFERENCE_PAGE
 
     this(string PageName, string gladefile)
     {
-        mPageName = PageName;
+        mPageName = PageName;  											///Page to add mVbox to (actually PREFERENCE_PAGE should be PREFERENCE_FRAME or SECTION
         
         mBuilder = new Builder;
         mBuilder.addFromFile(gladefile);
@@ -434,31 +445,66 @@ class PREFERENCE_PAGE
         mVBox = cast(VBox)mBuilder.getObject("vbox1");
     }
 
+	/**
+	 * The root widget of the class.  Used to add to the preference dialog.
+	 * Subclasses are completely resposonsible for items in this widget.
+	 *
+	 * Returns:
+	 * A Frame containing all preference items.
+	 * */
     Frame GetPrefWidget()
     {
         return mFrame;
     }
+
+    /**
+     * The name of the page (from PREFERENCES_UI.mBook) where mFrame is located.
+     * */
     string PageName()
     {
         return mPageName;
     }
 
+	/**
+	 * Add a widget item to this 'PAGE'
+	 * Kind of superfluous if mVBox is not going to be private.
+	 * */
     void Add(Widget Addition)
     {
         mVBox.add(Addition);
     }
 
+	/**
+	 * If 'PAGE' should expand to fill extra space.
+	 * Usually should not. But if more space is needed to display 'PAGE'
+	 * then this function can be overriden to return true;
+	 * */
 	bool Expand() {return false;}
-    abstract void Apply();
+	/**
+	 * Applies changes made to the GUI.  Actually saves changes to the Config.keyfile. And then Config applies changes.
+	 * This strategy needs to be disgarded.  It is very unresponsive, annoying having to press apply instead of seeing instant changes.
+	 * */
+    void Apply();
 }
 
 
 enum ListType {FILES, PATHS, IDENTIFIERS};
 
+/**
+ *	Basically a simple "widget" to present a list (files, paths, or simple strings).
+ * 
+ *  It provides methods for adding new items (through apropriate dialogs), deleting individual items,
+ *  and clearing all items.
+ *  Simple reusable utility.  Nothing special.
+ *	A note... this class attempts to display the basename of any added item (non path strings basename should be the string itself)
+ * 	the actual item originally given will be displayed as a tooltip
+ * 
+ *
+ * */
 class LISTUI
 {
     
-	Builder		mBuilder;
+	Builder		mBuilder;           
 
 	VBox		mVBox;
 	Label		mFrameLabel;
@@ -470,6 +516,14 @@ class LISTUI
 	Dialog 		mAddItemDialog;
 	Entry		mAddItemEntry;
 
+    /**
+    Creates a new LISTUI
+    
+    Params:
+    ListTitle = Frame Label, identifies list for user.
+    Type = list can be  a file (filechooser) path(filechooser flagged for folder selection) or string(text entry)
+    GladeFile = The glade file that defines this "widget"
+    */
 	this(string ListTitle, ListType Type, string GladeFile )
 	{
         scope(failure) Log.Entry("Failed to instantiate LISTUI!!", "Debug");
@@ -504,6 +558,12 @@ class LISTUI
 		mVBox.showAll();
 	}
 
+	/**
+	 *Clears all items in the list and sets a new list of items
+	 * Params:
+	 * Items = Sets list items to this array of strings.  If strings are file paths the base names will be displayed and
+	 * the full string will show as a tooltip.
+	 * */
 	void SetItems(string[] Items)
 	{
 		TreeIter ti = new TreeIter;		
@@ -518,8 +578,19 @@ class LISTUI
 		mListView.setModel(mListStore);
 	}
 
+	/**
+	 * Retrieves the array of items.
+	 *
+	 * Params:
+	 * col = if 0 (the default) the returned array will be the basename/displayed items.  If 1 the originals/fullnames will be returned. At this time other values will cause DComposer to explode ... hmmm that's not good.
+	 *
+	 * Returns:
+	 * Either an array of basename/display items. Or an array of the original/fullname items.
+	 * 
+	 * */
 	string[] GetShortItems(int col = 0)
 	{
+		if((col < 0) || (col > 1)) col = 0;
 		string[] rval;
 		TreeIter ti = new TreeIter;
 		
@@ -530,12 +601,25 @@ class LISTUI
 
 		return rval;
 	}
-		
+	/**
+	 * Actully calls GetShortItems with the col parameter of 1.
+	 *
+	 * This is actually a silly kind of trick to reuse a very simple function.  Probably would be better, clearer to avoid calling another function (or fix the name.)
+	 *
+	 * Returns:
+	 * An array of the items fullname
+	 * */
 	string[] GetFullItems()
 	{
 		return GetShortItems(1);
 	}
 
+	/**
+	 * Initiates a dialog to add file(s) to items.
+	 *
+	 * This method is called from mAddButton signal when list type is FILES.
+	 * Note... Type is not stored in this class, it is discard after ctor
+	 * */
 	void AddFiles(Button btn)
 	{
 		string afile;
@@ -552,7 +636,13 @@ class LISTUI
 		auto SelFiles = FileDialog.getFilenames();
 		while(SelFiles !is null)
 		{
-			afile = toImpl!(string, char *)(cast(char *)SelFiles.data()); 
+			afile = toImpl!(string, char *)(cast(char *)SelFiles.data());
+			//disallow duplicates
+			if (GetFullItems.canFind(afile))
+			{
+				SelFiles = SelFiles.next();
+				continue;
+			}
 			mListStore.append(ti);
 			mListStore.setValue(ti, 0, baseName(afile));
 			mListStore.setValue(ti, 1, afile);
@@ -560,7 +650,12 @@ class LISTUI
 		}
 		mListView.setModel(mListStore);
 	}
-
+	/**
+	 * Initiates a dialog to add path(s) to items.
+	 *
+	 * This method is called from mAddButton signal when list type is PATHS.
+	 * Note... Type is not stored in this class, it is discard after ctor
+	 * */
 	void AddPaths(Button btn)
 	{
 		string afile;
@@ -577,7 +672,13 @@ class LISTUI
 		auto SelFiles = FileDialog.getFilenames();
 		while(SelFiles !is null)
 		{
-			afile = toImpl!(string, char *)(cast(char *)SelFiles.data()); 
+			afile = toImpl!(string, char *)(cast(char *)SelFiles.data());
+			//disallow duplicates
+			if (GetFullItems.canFind(afile))
+			{
+				SelFiles = SelFiles.next();
+				continue;
+			}
 			mListStore.append(ti);
 			mListStore.setValue(ti, 0, baseName(afile));
 			mListStore.setValue(ti, 1, afile);
@@ -585,7 +686,12 @@ class LISTUI
 		}
 		mListView.setModel(mListStore);
 	}
-
+	/**
+	 * Initiates a dialog to add string(s) to items.
+	 *
+	 * This method is called from mAddButton signal when list type is IDENTIFIERS.
+	 * Note... Type is not stored in this class, it is discard after ctor
+	 * */
 	void AddItem(Button btn)
 	{
 		TreeIter ti = new TreeIter;
@@ -602,6 +708,9 @@ class LISTUI
 		mListView.setModel(mListStore);
 	}
 
+	/**
+	 *Removes the currently selected item(s) from the list, if any.
+	 * */
 	void RemoveItems(Button btn)
 	{
 		TreeIter[] xs = mListView.getSelectedIters();
@@ -612,13 +721,20 @@ class LISTUI
 		}
 		mListView.setModel(mListStore);
 	}
-
+	/**
+	 *Removes all items from the list, obviously, leaving an empty list.
+	 * */
 	void ClearItems(Button btn)
 	{
 		mListStore.clear();
 		mListView.setModel(mListStore);
 	}
 
+	/**
+	 * Returns the root widget of the LISTUI a VBox.
+	 *
+	 * Good candidate for an alias this.
+	 * */
 	Widget GetWidget() { return mVBox;}
 		
 }
