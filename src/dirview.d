@@ -99,7 +99,6 @@ class DIR_VIEW : ELEMENT
             mComboFilter.setActiveText("");
             mStore.clear();
             return;
-            //Refresh(); //hey stupid you can't do this
         }
         TreeIter ti = new TreeIter;
         mDirLabel.setText(mFolder);        
@@ -111,24 +110,16 @@ class DIR_VIEW : ELEMENT
 
         theFileFilter = mComboFilter.getActiveText();
         if(theFileFilter.length < 1) theFileFilter = "*";
-
-        version(DMD)
-        {
-            //auto Contents = dirEntries(mFolder, mFilter.getText(), SpanMode.shallow);
-            scope(failure)
-            {
-                xStore.append(ti);
-                xStore.setValue(ti, 1, "Check Folder/File permissions");
-                return;
-            }
-            //auto Contents = dirEntries(mFolder, theFileFilter, SpanMode.shallow);
-            auto Contents = dirEntries(mFolder, SpanMode.shallow);
+        
+		scope(failure)
+		{
+			xStore.append(ti);
+			xStore.setValue(ti, 1, "Check Folder/File permissions");
+			return;
+		}
             
-        }
-        version(GDMD)
-        {
-            auto Contents = dirEntries(mFolder, SpanMode.shallow);
-        }
+        auto Contents = dirEntries(mFolder, SpanMode.shallow);
+            
 
         foreach(DirEntry item; Contents)
         {
@@ -153,6 +144,9 @@ class DIR_VIEW : ELEMENT
 
         mStore = xStore;
         mFolderView.setModel(xStore);
+        mStore.setSortColumnId(1,SortType.ASCENDING);
+        mStore.setSortFunc(0, &SortFunciton, null, null); //ha darn paste and copy funciton ... and it all works
+        mStore.setSortFunc(1, &SortFunciton, null, null);
     }
                
 
@@ -262,7 +256,8 @@ class DIR_VIEW : ELEMENT
         
         mStore2         = cast(ListStore)   mBuilder.getObject("liststore2");
 
-        mStore.setSortFunc(0, &SortFunciton, null, null);
+		mStore.setSortColumnId(1,SortType.ASCENDING);
+        mStore.setSortFunc(0, &SortFunciton, null, null); //ha darn paste and copy funciton ... and it all works
         mStore.setSortFunc(1, &SortFunciton, null, null);
 
         mUpBtn.addOnClicked(&UpClicked);

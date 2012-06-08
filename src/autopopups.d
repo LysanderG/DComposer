@@ -99,6 +99,7 @@ private struct DATA_STORE
         
         foreach(match; mMatches)
         {
+			match.Name = encode(match.Name);
             mStore.append(mIter);
             mStore.setValue(mIter, 0, std.xml.decode(match.GetIcon() ~ match.Name));
             mStore.setValue(mIter, 1, std.xml.decode(match.Path));

@@ -450,6 +450,7 @@ class PROJECT
         foreach(src; this[SRCFILES]) CreateTagsCommand ~= " " ~ src;
         
         auto result = system(CreateTagsCommand);
+        writeln(result);
         
         if(result == 0)
         {
@@ -458,8 +459,9 @@ class PROJECT
             Log.Entry("Project tags Created");
             return true;
         }
-
+		
         Log.Entry("Failed to create project tags");
+        Event.emit("FailedCreateTags");
         return false;        
     }
     bool Build()                                            //build the project
@@ -493,21 +495,14 @@ class PROJECT
         
         string cmdline = mCompiler;        
         
-		foreach(src; this[SRCFILES])
-		{
-			auto srcopt = relativePath(src, mWorkingPath);
-			srcopt = buildNormalizedPath(srcopt);
-			cmdline ~= " " ~ srcopt ~ " ";
-		}
-        
-		foreach(lib; this[LIBFILES])    cmdline ~= "-L-l" ~ LibName(lib) ~ " ";
+		foreach(lib; this[LIBFILES])    cmdline ~= " -L-l" ~ LibName(lib) ~ " ";
 		
-		foreach (i; this[IMPPATHS])     cmdline ~= "-I" ~ i ~ " ";
-		foreach (l; this[LIBPATHS])     cmdline ~= "-L-L" ~ l ~ " ";
+		foreach (i; this[IMPPATHS])     cmdline ~= " -I" ~ i ~ " ";
+		foreach (l; this[LIBPATHS])     cmdline ~= " -L-L" ~ l ~ " ";
 		
-		foreach (v; this[VERSIONS])     cmdline ~= "-version=" ~ v ~ " ";
-		foreach (d; this[DEBUGS])       cmdline ~= "-debug=" ~ d ~ " ";
-		foreach (j; this[JPATHS])       cmdline ~= "-J" ~ j ~ " ";
+		foreach (v; this[VERSIONS])     cmdline ~= " -version=" ~ v ~ " ";
+		foreach (d; this[DEBUGS])       cmdline ~= " -debug=" ~ d ~ " ";
+		foreach (j; this[JPATHS])       cmdline ~= " -J" ~ j ~ " ";
         foreach (m; this[MISC])         cmdline ~= m ~ " ";
 		
 		foreach (f; mFlags)
@@ -521,6 +516,13 @@ class PROJECT
 		}
 		
 		if (mFlags["-of"].State == false) cmdline ~= "-of" ~ mName ~ " ";
+        
+		foreach(src; this[SRCFILES])
+		{
+			auto srcopt = relativePath(src, mWorkingPath);
+			srcopt = buildNormalizedPath(srcopt);
+			cmdline ~= " " ~ srcopt ~ " ";
+		}
 		
 		return cmdline;
     }

@@ -403,11 +403,3 @@ At some point I had added a refresh function that completely replaced the listst
 nullifing the sortfunction.  Feels so wrong to add the code that fixed it.
 
 On new projects I will take more time working out kinks at the beginning.
-
-
-========================================================================================================================
-Thursday, 24 May 2012
-
-Fixed a few obscure errors due to faulty settings in glade files.
-Very proud of myself ... had to dig into the gtk source code to figure them out.
-Ok not errors, warnings, but they annoyed me.

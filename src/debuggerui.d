@@ -20,6 +20,7 @@
 
 module debuggerui;
 
+import std.algorithm;
 import std.string;
 import std.stdio;
 import std.array;
@@ -113,42 +114,17 @@ class DEBUGGER_UI : ELEMENT
 			mGdbView.appendText("OMG null text!!!\n");
 			return;
 		}
-		if(Text.startsWith("(gdb)"))
-		{
-			mGdbView.appendText(Text ~ '\n');
-			return;
-		}
-		
-		string line;
-		line = Text.replace(`\"`, `"`);
-		line = Text.replace(`\n`, "\n");
-		
-		
-		switch (Text[0])
-		{
-			case '~' :
-			{
-				scope(failure) {mGdbView.appendText(line);break;}
-				line = line[2..$-2];
-				mGdbView.appendText(line ~ '\n');
-				break;
-			}
 
-			case '=' :
-			{
-				
-				scope(failure) {mGdbView.appendText(line);break;}
-				line = line[1..$];
-				mGdbView.appendText('\t' ~ line ~ '\n');
-				
-				break;
-			}
+		mGdbView.appendText(Text ~ '\n');
 
-			default :
-			{
-				mGdbView.appendText(line ~ '\n');
-			}
+		if(Text.startsWith("*stopped"))
+		{
+				scope(failure){mGdbView.appendText("exited"); return;}
+				auto tmp = debugger2.GetGdbFrameInfo(Text);
+				dui.GetDocMan.OpenDoc(tmp.SourceFile, to!int(tmp.Line) -1);		
+			
 		}		
+
 	}
 
 	void AddWatch(Action x = null)
@@ -159,7 +135,7 @@ class DEBUGGER_UI : ELEMENT
 		//for now just put up the basic struct
 		//later will match the current word to the mangled symbol that gdb sees
 		//gdb sucks with d symbols (or I am stupidier than I thought)
-		Debugger2.AsyncCommand("watch " ~ CurrentWord);
+		Debugger2.AsyncCommand("display " ~ CurrentWord);
 	}
 	
     
@@ -209,7 +185,6 @@ class DEBUGGER_UI : ELEMENT
         Debugger2.Output.connect(&GrabGdbOutput);
 
         cProgramVte = vte_terminal_new();
-        writeln("cprogram vte ",cProgramVte);
         Widget mProgramVte = new Widget(cast (GtkWidget*)cProgramVte);
 
 		openpty(&pty_master, &pty_slave, pty_name, null, null);
@@ -223,11 +198,11 @@ class DEBUGGER_UI : ELEMENT
         mCmdEntry	.addOnActivate(delegate void(Entry x){Debugger2.AsyncCommand(mCmdEntry.getText());});
         mLoad		.addOnClicked(delegate void(ToolButton x) { Load();});
 		mRun		.addOnClicked(delegate void(ToolButton x) { Debugger2.AsyncCommand("-exec-run &" );});
-		mContinue	.addOnClicked(delegate void(ToolButton x) { Debugger2.AsyncCommand("-exec-continue&" );});
-		mFinish		.addOnClicked(delegate void(ToolButton x) { Debugger2.AsyncCommand("-exec-finish &" );});
-		mRunToCursor.addOnClicked(delegate void(ToolButton x) { Debugger2.AsyncCommand("advance & " ~ dui.GetDocMan.GetCurrentLocation()) ;writeln(dui.GetDocMan.GetCurrentLocation());});
-		mStepIn		.addOnClicked(delegate void(ToolButton x) { Debugger2.AsyncCommand("-exec-step&" );});
-		mStepOver  	.addOnClicked(delegate void(ToolButton x) { Debugger2.AsyncCommand("-exec-next&" );});
+		mContinue	.addOnClicked(delegate void(ToolButton x) { Debugger2.AsyncCommand("-exec-continue" );});
+		mFinish		.addOnClicked(delegate void(ToolButton x) { Debugger2.AsyncCommand("-exec-finish" );});
+		mRunToCursor.addOnClicked(delegate void(ToolButton x) { Debugger2.AsyncCommand("advance " ~ dui.GetDocMan.GetCurrentLocation());});
+		mStepIn		.addOnClicked(delegate void(ToolButton x) { Debugger2.AsyncCommand("-exec-step" );});
+		mStepOver  	.addOnClicked(delegate void(ToolButton x) { Debugger2.AsyncCommand("-exec-next" );});
 		mAbort		.addOnClicked(delegate void(ToolButton x) { Debugger2.AsyncCommand("kill" );});
 			
         mGdbView.modifyText(StateType.NORMAL, new Color(200,200,0));
@@ -244,10 +219,6 @@ class DEBUGGER_UI : ELEMENT
         //auto NoteBook2 = cast(Notebook)mBuilder.getObject("rightnotebook");
         //NoteBook2.appendPage(mProgramVte, new Label("Program"));
 		mProgScroll.add(mProgramVte);
-        
-        
-        
-        
 
         Log.Entry("Engaged DEBUGGERUI element");                
     }

@@ -74,15 +74,11 @@ class SCOPE_LIST : ELEMENT
         TextIter WordStart = new TextIter;
         WordStart = GetCandidate(ti);
         string Candidate2 = WordStart.getText(ti);
-        writeln(Candidate2);
-
 
         string Candidate = to!(string)(GetLongCandidate(ti));
-        writeln(Candidate.length, Candidate);
 
         if(Candidate.length < 1) return;
         DSYMBOL[] possibles = Symbols.Match(Candidate);
-
 
         IterGetPostion(sv, ti, xpos, ypos);
         dui.GetAutoPopUps.CompletionPush(possibles, xpos, ypos, STATUS_SCOPE);
@@ -137,7 +133,6 @@ class SCOPE_LIST : ELEMENT
             
         dchar[127] Buffer;
         int index = 126;
-        //auto CurChar = ti.getChar();
         auto frontTI = ti.copy();
         frontTI.backwardChar(); //ti is already advanced past the '.'
         dchar CurChar = frontTI.getChar();
@@ -147,23 +142,23 @@ class SCOPE_LIST : ELEMENT
         //if pos == nonid done
 
 
-            void SkipParens()
-            {
-                int Pdepth = 1;
-                frontTI.backwardChar();//skip the first ).
-                while( Pdepth > 0)
-                {
-                    
-                    dchar tchar = frontTI.getChar();
-                    if (tchar == ')') Pdepth ++;
-                    if (tchar == '(') Pdepth --;
-                    if (!frontTI.backwardChar()) break;
-                }
-                CurChar = frontTI.getChar();                
-            }
-            void SkipSpaces()
-            {
-            }
+		void SkipParens()
+		{
+			int Pdepth = 1;
+			frontTI.backwardChar();//skip the first ).
+			while( Pdepth > 0)
+			{
+				
+				dchar tchar = frontTI.getChar();
+				if (tchar == ')') Pdepth ++;
+				if (tchar == '(') Pdepth --;
+				if (!frontTI.backwardChar()) break;
+			}
+			CurChar = frontTI.getChar();                
+		}
+		void SkipSpaces()
+		{
+		}
 
         while(isLegalIdChar(CurChar))
         {
@@ -187,15 +182,10 @@ class SCOPE_LIST : ELEMENT
         if (character == '.') return true;
 
         return false;
-    }    
-
-            
-            
-        
+    }         
 
     public:
     
-
     this()
     {
         mName = "SCOPE_LIST";
@@ -227,6 +217,7 @@ class SCOPE_LIST : ELEMENT
 
     void Disengage()
     {
+		dui.GetDocMan.Event.disconnect(&WatchForNewDocument);
         Log.Entry("Disengaging SCOPE_LIST element");
     }
 

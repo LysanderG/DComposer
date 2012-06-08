@@ -87,8 +87,6 @@ class MESSAGE_UI :ELEMENT
         string lno = m2[1..$-1];
        
         int number = to!int(lno);
-     
-        
 
         mStore.append(ti);
         mStore.setValue(ti, 0, m1);

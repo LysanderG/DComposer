@@ -70,15 +70,18 @@ class LOG_UI : ELEMENT
         NuState ? Engage() : Disengage();
     }
 
-
-
-	void Engage()
+	this()
 	{
 		mName = "LOG_UI";
         mInformation = "Element to capture log output and redirect to a pretty window";
 
         mState = true;
-    
+    		
+	}
+
+
+	void Engage()
+	{
         
 		mScroller = new ScrolledWindow;
 		mTreeView = new TreeView;

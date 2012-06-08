@@ -73,6 +73,7 @@ class PREFERENCES_UI : ELEMENT
     {
         
         if(!mGuiBuilt) BuildGui();
+        Config.PrepPreferences();
         mRoot.show();
         dui.GetExtraPane().setCurrentPage(mRoot);
 
@@ -84,17 +85,19 @@ class PREFERENCES_UI : ELEMENT
         AddCorePrefs();
         AddUIPrefs();
         AddElementPrefs();
+
+        mGuiBuilt = true;
     }
 
     void AddCorePrefs()
     {
-        auto ConfPrefs = new CONFIG_PAGE("Core", "Configuration File :");
-        mObjects ~= ConfPrefs;
-        AddPrefPart(ConfPrefs);
-
-        auto LogPrefs  = new LOG_PAGE("Core", "Logging :");
-        mObjects ~= LogPrefs;
-        AddPrefPart(LogPrefs);
+		auto ConfPrefs = new CONFIG_PAGE("Core", "Configuration File :");
+		mObjects ~= ConfPrefs;
+		AddPrefPart(ConfPrefs);
+	
+		auto LogPrefs  = new LOG_PAGE("Core", "Logging :");
+		mObjects ~= LogPrefs;
+		AddPrefPart(LogPrefs);
 
         auto SymbolPrefs = new SYMBOL_PAGE("Core", "Symbols :");
         mObjects ~= SymbolPrefs;
@@ -126,6 +129,7 @@ class PREFERENCES_UI : ELEMENT
         if(X.PageName in mPage)
         {
             mPage[X.PageName].add(X.GetPrefWidget());
+            mPage[X.PageName].setChildPacking (X.GetPrefWidget(), X.Expand(), 1, 0, GtkPackType.START); 
         }
         else
         {
@@ -134,7 +138,11 @@ class PREFERENCES_UI : ELEMENT
             sw.setPolicy(PolicyType.AUTOMATIC, PolicyType.AUTOMATIC);
             mPage[X.PageName] = new VBox(1,1);
             mPage[X.PageName].add(X.GetPrefWidget());
+            mPage[X.PageName].setHomogeneous(0);
             sw.addWithViewport(mPage[X.PageName]);
+			mPage[X.PageName].setChildPacking (X.GetPrefWidget, X.Expand(),1, 0, GtkPackType.START); 
+            
+            
             
             mBook.appendPage(sw, X.PageName);
         }
@@ -215,7 +223,6 @@ class PREFERENCES_UI : ELEMENT
 	    Log.Entry("Disengaged PREFERENCES_UI");
     }
 
-
     PREFERENCE_PAGE GetPreferenceObject()
     {
         //of course preferences has no preferences page
@@ -241,15 +248,23 @@ class CONFIG_PAGE :PREFERENCE_PAGE
         super(PageName, Config.getString("PREFERENCES", "glade_file_config", "~/.neontotem/dcomposer/configpref.glade"));
         mFrame.setLabel(SectionName);
         mEntry = cast(Entry) mBuilder.getObject("entry1");
+        
         mEntry.setText(Config.getString("CONFIG", "this_file", ""));
         
-        //mFrameKid.add(mEntry);
 
         mEntry.addOnEditingDone(delegate void(CellEditableIF EditCell){Log.Entry("Preferences Test " ~ mEntry.getText());});
         mEntry.addOnActivate(delegate void(Entry x){Log.Entry("Preferences Test " ~ mEntry.getText());});
 
+		//Config.ShowConfig.connect(&PrepGui);
+		
         mFrame.showAll();
     }
+
+    override void PrepGui()
+    {
+		mEntry.setText(Config.getString("CONFIG", "this_file", ""));
+	}
+		
 
     override void Apply()
     {
@@ -269,10 +284,15 @@ class LOG_PAGE : PREFERENCE_PAGE
         mEntry      = cast(Entry) mBuilder.getObject("entry1");
         mMaxSize    = cast(SpinButton) mBuilder.getObject("spinbutton1");
         mMaxLines   = cast(SpinButton) mBuilder.getObject("spinbutton2");
-        
 
-        
-        mEntry.setText(Config.getString("LOG", "default_log_file", "~/.neontotem/dcomposer/dcomposer.log"));
+		//Config.ShowConfig.connect(&PrepGui);
+		
+        mFrame.showAll();
+    }
+
+    override void PrepGui()
+    {
+		mEntry.setText(Config.getString("LOG", "default_log_file", "~/.neontotem/dcomposer/dcomposer.log"));
         
         mMaxSize.setRange(ulong.min, ulong.max);
         mMaxSize.setIncrements(1024, 102400);
@@ -280,9 +300,8 @@ class LOG_PAGE : PREFERENCE_PAGE
 
         mMaxLines.setRange(ulong.min, ulong.max);
         mMaxLines.setIncrements(1, 10);
-        mMaxLines.setValue(cast(double) Config.getInteger("LOG", "max_lines_buffer", 234));        
-        mFrame.showAll();
-    }
+        mMaxLines.setValue(cast(double) Config.getInteger("LOG", "max_lines_buffer", 234));
+	}
 
     override void Apply()
     {
@@ -297,7 +316,7 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
 {
     CheckButton mCheckBtn;
     LISTUI      mTagFiles;
-    VBox        mVBox;
+    //VBox        mVBox;
     
 
     this(string PageName, string SectionName)
@@ -312,7 +331,21 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
 
         mCheckBtn   = cast(CheckButton) mBuilder.getObject("checkbutton1");
 
-        mTagFiles.ClearItems(null);
+        
+
+        mCheckBtn.addOnToggled(delegate void(ToggleButton x){mTagFiles.GetWidget.setSensitive(mCheckBtn.getActive());});
+                
+        
+        Add(mTagFiles.GetWidget());
+
+        //Config.ShowConfig.connect(&PrepGui);
+        
+        mFrame.showAll();
+    }
+
+    override void PrepGui()
+    {
+		mTagFiles.ClearItems(null);
         string[] ItemstoSet;
         foreach(key; Config.getKeys("SYMBOL_LIBS"))
         {
@@ -325,14 +358,8 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
         mCheckBtn.setActive(Config.getBoolean("SYMBOLS", "auto_load_project_symbols", 1));
 
         mTagFiles.GetWidget.setSensitive(mCheckBtn.getActive());
-
-        mCheckBtn.addOnToggled(delegate void(ToggleButton x){mTagFiles.GetWidget.setSensitive(mCheckBtn.getActive());});
-                
-        
-        Add(mTagFiles.GetWidget());
-        
-        mFrame.showAll();
-    }
+		
+	}
 
     override void Apply()
     {
@@ -348,5 +375,5 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
             Config.setString("SYMBOL_LIBS", name, Files[i]);
         }
     }
-    
+    override bool Expand(){return true;}
 }

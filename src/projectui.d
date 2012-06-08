@@ -346,11 +346,9 @@ class PROJECT_UI : ELEMENT
         //do I need to set mFullPath or will that handle it self??
         mTargetBox.setActive(Project.Target());
 
-        writeln("project description = ", Project.GetCatList("DESCRIPTION"));
         string newText = (Project.GetCatList("DESCRIPTION") is null) ? "" : Project.GetCatList("DESCRIPTION");
         mInformation.getBuffer.setText(newText);
 
-        writeln("what the heck !!!!");
     
 
         //files
@@ -496,7 +494,6 @@ class PROJECT_UI : ELEMENT
         Project.Open(fcd.getFilename);
 
         Config.setString("DPROJECT", "last_open_dialog_folder", fcd.getCurrentFolder());
-        writeln("in projectui.d open");
     }
     
 

@@ -20,12 +20,10 @@
 
 
 module dcomposer;
+
 import std.json;
-
-import core.memory;
 import std.stdio;
-
-
+import core.stdc.stdlib;
 
 import dcore;
 import ui;
@@ -38,7 +36,7 @@ int main(string[] args)
 	dcore.Engage(args);
 	dui.Engage(args);
 	elements.Engage();
-
+	
 	dui.Run();
         
 	elements.Disengage();

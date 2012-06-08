@@ -392,7 +392,7 @@ class SEARCH_UI : ELEMENT
     void BeginSearch(Action X)
     {
         if(!dui.GetExtraPane.getVisible()) dui.PerformAction("ViewExtraPaneAct");
-        mPage.showAll();
+        mPage.getParent.getParent.showAll();
         dui.GetExtraPane.setCurrentPage(mPage.getParent.getParent);
 
         auto tmpdoc = cast(DOCUMENT) dui.GetDocMan().GetDocX();
@@ -450,11 +450,9 @@ class SEARCH_UI : ELEMENT
         mName = "SEARCH_UI";
         mInfo = "Look for stuff and fix it mabybe";
 
-        
-        
         mBuilder            = new Builder;
         mBuilder.addFromFile(Config.getString("SEARCH", "glade_file", "/home/anthony/.neontotem/dcomposer/findui.glade"));
-        
+
         mPage               = cast (VBox)           mBuilder.getObject("vbox5");
         mOptions            = cast (Viewport)       mBuilder.getObject("viewport2");        
         mHideOptionsBtn     = cast (Button)         mBuilder.getObject("button6");
@@ -504,7 +502,7 @@ class SEARCH_UI : ELEMENT
         mFindComboBox.addOnEditingDone (&EditedFind);
 
         
-        
+       
 
         mResultsView.getSelection.setMode(GtkSelectionMode.BROWSE);
         //mResultsView.addOnCursorChanged (delegate void(TreeView tv){GotoResult();});
@@ -518,13 +516,14 @@ class SEARCH_UI : ELEMENT
 
         
         mHideOptionsBtn.addOnClicked(delegate void (Button X){mOptions.setVisible(!mOptions.getVisible());});
-        mHideAllBtn.addOnClicked(delegate void (Button X){mPage.hide();});
+        mHideAllBtn.addOnClicked(delegate void (Button X){mPage.getParent.getParent.hide();});
 
         mFindNextBtn.addOnClicked(&FindNextBtnClicked);
         mFindPrevBtn.addOnClicked(&FindPrevBtnClicked);
 
         mReplaceBtn.addOnClicked(delegate void(Button X){ReplaceOne();});
         mReplaceAllBtn.addOnClicked(delegate void(Button X) {ReplaceAll();});
+
     
     }
     
@@ -552,13 +551,15 @@ class SEARCH_UI : ELEMENT
         dui.Actions().addActionWithAccel(SearchAct, null);
         dui.AddMenuItem("_System", SearchAct.createMenuItem(), 0);
 		dui.AddToolBarItem(SearchAct.createToolItem());
-
+		
+	
         Action SearchNextAct = new Action("SearchNextAct", "ne_xt", "Step into the light", null);
         SearchNextAct.addOnActivate(delegate void(Action X){FindNextBtnClicked(null);});
         //SearchNextAct.setAccelPath("F3");        
         SearchNextAct.setAccelGroup(dui.GetAccel());        
         dui.Actions().addActionWithAccel(SearchNextAct, "F3");
         SearchNextAct.connectAccelerator();
+
         Action SearchPrevAct = new Action("SearchPrevAct", "ne_xt", "Step into the light", null);
         SearchPrevAct.addOnActivate(delegate void(Action X){FindPrevBtnClicked(null);});
         //SearchPrevAct.setAccelPath("<Shift>F3");        
