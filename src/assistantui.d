@@ -345,6 +345,12 @@ class ASSISTANT_PAGE : PREFERENCE_PAGE
     CheckButton    mEnabled;
     CheckButton    mPseudoToolTipEnabled;
 
+    override void PrepGui()
+    {
+		mEnabled.setActive(Config.getBoolean("ASSISTANT_UI","enabled", true));
+        mPseudoToolTipEnabled.setActive(Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", true));
+	}
+
     this(string PageName, string SectionName)
     {
         super(PageName, Config.getString("PREFERENCES", "glade_file_assistant", "~/.neontotem/dcomposer/assistpref.glade"));
@@ -354,6 +360,8 @@ class ASSISTANT_PAGE : PREFERENCE_PAGE
 
         mEnabled.setActive(Config.getBoolean("ASSISTANT_UI","enabled", true));
         mPseudoToolTipEnabled.setActive(Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", true));
+
+        //Config.ShowConfig.connect(&PrepGui);
         mFrame.showAll();
     }
 

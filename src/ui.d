@@ -443,6 +443,9 @@ abstract class PREFERENCE_PAGE
 
         mFrameKid = cast(Alignment)mBuilder.getObject("alignment1");
         mVBox = cast(VBox)mBuilder.getObject("vbox1");
+
+        Config.ShowConfig.connect(&PrepGui);
+        
     }
 
 	/**
@@ -484,7 +487,8 @@ abstract class PREFERENCE_PAGE
 	 * Applies changes made to the GUI.  Actually saves changes to the Config.keyfile. And then Config applies changes.
 	 * This strategy needs to be disgarded.  It is very unresponsive, annoying having to press apply instead of seeing instant changes.
 	 * */
-    void Apply();
+    abstract void Apply();
+    abstract void PrepGui();
 }
 
 

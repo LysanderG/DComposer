@@ -770,12 +770,13 @@ class DOC_PAGE : PREFERENCE_PAGE
 
         mStyleChoices = new ListStore([GType.STRING]);
 
-        ReadSettings();
+		//Config.ShowConfig.connect(&ReadSettings);
+        //ReadSettings();
         
     }
 
 
-    void ReadSettings()
+    override void PrepGui()
     {
         //load choices
         auto currentStyle = Config.getString("DOCMAN", "style_scheme", "cobalt");
