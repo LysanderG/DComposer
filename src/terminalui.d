@@ -203,7 +203,6 @@ class TERMINAL_PAGE : PREFERENCE_PAGE
 		mForeColor  = cast(ColorButton) mBuilder.getObject("colorbutton1");
 		mBackColor  = cast(ColorButton) mBuilder.getObject("colorbutton2");
 
-		//Config.ShowConfig.connect(&PrepGui);
 		mFrame.showAll();
 	}
 
