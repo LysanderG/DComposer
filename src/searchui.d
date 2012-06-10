@@ -133,6 +133,7 @@ class SEARCH_UI : ELEMENT
 
     void FindNextBtnClicked(Button X)
     {
+		if(mPage.getParent.getParent.getVisible() != true) return;
         TreeIter tiFirst = new TreeIter;
         if(!mResultsList.getIterFirst(tiFirst))GetResults();
         
@@ -146,12 +147,17 @@ class SEARCH_UI : ELEMENT
         tp.next();
         mResultsView.setCursor(tp, null, false);
         mResultsView.getCursor(tp, tvc);
-        if (tp is null) mResultsView.setCursor(errortp, null, false);
+        if (tp is null)
+        {
+			tp = new TreePath(true);
+			mResultsView.setCursor(tp, null, false);
+		}
 
     }
 
     void FindPrevBtnClicked(Button X)
     {
+		if(mPage.getParent.getParent.getVisible() != true) return;
         TreeIter tiFirst = new TreeIter;
         if(!mResultsList.getIterFirst(tiFirst))GetResults();
         
@@ -371,8 +377,7 @@ class SEARCH_UI : ELEMENT
     {
         GC.disable();
         TreeModelIF tmper;
-        foreach (tp; ts.getSelectedRows(tmper))Log.Entry(tp.toString(),"Debug"
-        );
+        //foreach (tp; ts.getSelectedRows(tmper))Log.Entry(tp.toString(),"Debug");
         
         TI = ts.getSelected();
 
@@ -428,9 +433,15 @@ class SEARCH_UI : ELEMENT
         //tmp.getBuffer.getIterAtLineOffset(txti1,line-1,offstart);
         tmp.getBuffer.insert(txti1, mReplace.getText(), -1);
         
-        auto DeletedPath = TI.getTreePath(); //after removing the row there will be nothing selected so must reselect the "deleted path"
-        mResultsList.remove(TI);
-        mResultsView.getSelection.selectPath(DeletedPath);
+        //auto DeletedPath = TI.getTreePath(); //after removing the row there will be nothing selected so must reselect the "deleted path"
+        //mResultsList.remove(TI);
+        //mResultsView.getSelection.selectPath(DeletedPath);
+
+        //instead of deleting row just re-search because all the positions are out of whack after the replace
+        auto LastPositionPath = TI.getTreePath();
+        GetResults();
+        mResultsView.getSelection.selectPath(LastPositionPath);
+        
     }
 
     void ReplaceAll()
@@ -442,6 +453,19 @@ class SEARCH_UI : ELEMENT
             ReplaceOne();
         }while(mResultsList.iterIsValid(TI));
     }
+
+    bool ReplaceKey(GdkEventKey* keyinfo, Widget wedjet)
+    {
+		if((keyinfo.keyval == 0x052) || (keyinfo.keyval == 0x072))//GDK_R)
+		{
+			ReplaceOne();
+		}
+		if((keyinfo.keyval == 0x041) || (keyinfo.keyval == 0x061))//GDK_A
+		{
+			ReplaceAll();
+		}
+		return false;
+	}
     
     public:
 
@@ -509,6 +533,7 @@ class SEARCH_UI : ELEMENT
         //mResultsView.addOnRowActivated (delegate void(TreePath tp, TreeViewColumn tvc, TreeView tv){GotoResult();});
         mResultsView.getSelection.addOnChanged(&GotoResult2);
         mResultsView.addOnMoveCursor(delegate bool(GtkMovementStep step, int huh, TreeView tv){return true;}, cast(GConnectFlags)0);
+        mResultsView.addOnKeyRelease(&ReplaceKey);
         
         auto tmpTable       = cast (Table)          mBuilder.getObject("table1");
         tmpTable.attachDefaults (mFindComboBox, 1, 2, 0, 1);
@@ -558,13 +583,14 @@ class SEARCH_UI : ELEMENT
         //SearchNextAct.setAccelPath("F3");        
         SearchNextAct.setAccelGroup(dui.GetAccel());        
         dui.Actions().addActionWithAccel(SearchNextAct, "F3");
+        
         SearchNextAct.connectAccelerator();
 
-        Action SearchPrevAct = new Action("SearchPrevAct", "ne_xt", "Step into the light", null);
+        Action SearchPrevAct = new Action("SearchPrevAct", "_prev", "Step into the light", null);
         SearchPrevAct.addOnActivate(delegate void(Action X){FindPrevBtnClicked(null);});
         //SearchPrevAct.setAccelPath("<Shift>F3");        
         SearchPrevAct.setAccelGroup(dui.GetAccel());        
-        dui.Actions().addActionWithAccel(SearchPrevAct, "<Shift>F3");
+        dui.Actions().addActionWithAccel(SearchPrevAct, "F4");
         SearchPrevAct.connectAccelerator();
         
         dui.GetDocMan.AddContextAction(SearchAct);

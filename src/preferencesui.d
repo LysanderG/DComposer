@@ -161,7 +161,6 @@ class PREFERENCES_UI : ELEMENT
 
         foreach(obj; mObjects)
         {
-            writeln( "prefs >>",obj.PageName);
             obj.Apply;
         }
 

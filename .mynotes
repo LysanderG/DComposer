@@ -411,3 +411,32 @@ Thursday, 24 May 2012
 Fixed a few obscure errors due to faulty settings in glade files.
 Very proud of myself ... had to dig into the gtk source code to figure them out.
 Ok not errors, warnings, but they annoyed me.
+
+========================================================================================================================
+
+Fri Jun  8 23:45:43 EDT 2012
+About preferences
+	* Each object (dcore, ui, element) should create a preference page inherited from PREFERENCE_PAGE
+
+	* The object (not it's preference page) should connect to Config.Reconfig signal.
+	  At the signal the object should reload all its configuration data from Config.
+
+	* The object's preference page 'automatically' be added to the Preference dialog (well elements anyway).
+
+	* Each preference page should override Apply to store its gui data into the config keyfile. (Then Config will emit
+	  the Reconfig signal.)
+
+	* Also each preference page should override the prepgui function to load its gui from the Config keyfile.
+	  (Each time the Preference page is created or changes are disgarded all pages prepgui functions will be called.)
+
+	* PreferenceUi keeps an array of all object's preferences pages and calls apply and prepgui when necessary.
+
+	* all elements should have a enable/disable feature.
+
+Documented ui.d, need to do it for all modules.  So much work though.  Next project I do will be documented as I go!
+
+Other thoughts.  Really need to refactor DOC_MANAGER AND DOCUMENT.  They were the first modules with any significant code.
+I thought I had some idea what they needed to do but I was WRONG about most of it.  Now they're a mess.
+
+Also looking at some of the signals.  They are far too chaotic.  Signals must be well thought out and very simple or I can see
+a quagmire of confusion.  Oh well, just thinking out loud (well not that loud).

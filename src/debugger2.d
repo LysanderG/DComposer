@@ -117,7 +117,6 @@ class DEBUGGER2
 	void LoadMangledSymbols()
 	{
 		
-		writeln("LoadMangledSymbols()");
 		mDirectOutPut = DIRECTGDB.TO_LOAD_MANGLED_SYMBOLS;
 		AsyncCommand("info variables ^_D");		
 	}
@@ -264,7 +263,6 @@ class DEBUGGER2
 		auto Split = gdbVariableInfo.findSplitBefore("_D");
 		string key = demangle(Split[1].chomp(`;\n"`));
 		mMangledSymbols[key] = Split[1].chomp(`;\n"`);
-		writeln(key, " = ", Split[1]);
 		
 	}
 	
@@ -287,7 +285,6 @@ extern (C) int GdbOutWatcher (GIOChannel* Channel, GIOCondition Condition, void*
 
     if(iostatus == IOStatus.NORMAL)
     {
-		writeln(Debugger2.gdbDirection, " --> ", readbuffer);
 		switch(Debugger2.gdbDirection)
 		{
 			case DEBUGGER2.DIRECTGDB.TO_LOAD_MANGLED_SYMBOLS : Debugger2.AddMangledSymbol(readbuffer);break;

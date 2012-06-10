@@ -765,13 +765,7 @@ class DOC_PAGE : PREFERENCE_PAGE
         mTabWidth.setRange(ulong.min, ulong.max);
         mTabWidth.setIncrements(1, -1);
 
-        //test fontbutton return stuff
-        //mFontStuff.addOnFontSet(delegate void (FontButton Fb){writeln(Fb.getFontName());});
-
         mStyleChoices = new ListStore([GType.STRING]);
-
-		//Config.ShowConfig.connect(&ReadSettings);
-        //ReadSettings();
         
     }
 

@@ -35,6 +35,9 @@ import std.ascii;
 
 
 import gtk.TextIter;
+import gtk.CheckButton;
+import gtk.SpinButton;
+
 import gdk.Rectangle;
 import gsv.SourceBuffer;
 
@@ -46,7 +49,10 @@ class SYMBOL_COMPLETION : ELEMENT
     string      mInfo;
     bool        mState;
 
+    SYMBOL_COMPLETION_PAGE mPrefPage;
+
     int         mMinCompletionLength;
+    bool		mEnabled;
 
     DOCUMENT[]  mConnections;
 
@@ -61,6 +67,7 @@ class SYMBOL_COMPLETION : ELEMENT
 
     void WatchDoc(DOCUMENT doc, TextIter ti, string text, SourceBuffer buffer)
     {
+		if(mEnabled == false) return;
         if(doc.IsPasting) return;
         if (text == ".") return;
 		
@@ -142,7 +149,11 @@ class SYMBOL_COMPLETION : ELEMENT
     }
         
             
-    
+    void Configure()
+    {
+		mMinCompletionLength = Config.getInteger("SYMBOLS", "minimum_completion_length", 4);
+		mEnabled = Config.getBoolean("SYMBOLS", "completion_enabled", true);
+	}
     
     public:
 
@@ -151,8 +162,8 @@ class SYMBOL_COMPLETION : ELEMENT
         mName = "SYMBOL_COMPLETION";
         mInfo = "Retrieve any symbol for auto/code/symbol/tag completion (except for pesky local stuff)";
         mState = false;
-
-        mMinCompletionLength =  Config.getInteger("SYMBOLS", "minimum_completion_length", 4);
+        
+        mPrefPage = new SYMBOL_COMPLETION_PAGE;
     }
     
     @property string Name() {return mName;}
@@ -171,6 +182,7 @@ class SYMBOL_COMPLETION : ELEMENT
         mState = true;
 
         dui.GetDocMan.Event.connect(&WatchForNewDocument);
+        Config.Reconfig.connect(&Configure);
 
         Log.Entry("Engaged SYMBOL_COMPLETION element");
     }
@@ -185,7 +197,41 @@ class SYMBOL_COMPLETION : ELEMENT
 
     PREFERENCE_PAGE GetPreferenceObject()
     {
-        return null;
+        return mPrefPage;
     } 
    
-}  
+}
+
+class SYMBOL_COMPLETION_PAGE : PREFERENCE_PAGE
+{
+	CheckButton		mEnable;
+	SpinButton		mMinLength;
+
+	this()
+	{
+		super("Elements", Config.getString("PREFERENCES", "glade_file_symbol_completion", "~/.neontotem/dcomposer/symcompref.glade"));
+
+		mEnable = cast (CheckButton)mBuilder.getObject("checkbutton1");
+		mMinLength = cast (SpinButton)mBuilder.getObject("spinbutton1");
+
+		mMinLength.setRange(1, 1024);
+		mMinLength.setIncrements(1, -1);
+		mMinLength.setValue(Config.getInteger("SYMBOLS", "minimum_completion_length", 4));
+		
+		mFrame.showAll();
+	}
+
+	override void Apply()
+	{
+		Config.setBoolean("SYMBOLS", "completion_enabled", mEnable.getActive());
+		Config.setInteger("SYMBOLS", "minimum_completion_length", mMinLength.getValueAsInt());
+	}
+
+	override void PrepGui()
+	{
+		mEnable.setActive(Config.getBoolean("SYMBOLS", "completion_enabled", true));
+		mMinLength.setValue(Config.getInteger("SYMBOLS", "minimum_completion_length", 4));
+	}
+	
+	
+}
