@@ -89,15 +89,13 @@ class TERMINAL_UI : ELEMENT
 		//************** colors
 		auto foreColor = Config.getString("TERMINAL", "forecolor", "#000000000000");
 		ForeColor = new GdkColor;		
-		writeln(gdk_color_parse(toStringz(foreColor), ForeColor));
-		writeln(ForeColor.red, "-", ForeColor.blue,"-", ForeColor.green);
-		writeln( to!(char[]) ( gdk_color_to_string(ForeColor) ));
+		gdk_color_parse(toStringz(foreColor), ForeColor);
+		gdk_color_to_string(ForeColor);
 		
 		auto backColor = Config.getString("TERMINAL", "backcolor", "#0000ffff0000");
 		BackColor = new GdkColor;
 		gdk_color_parse(toStringz(backColor), BackColor);
-		writeln(BackColor.red, "-", BackColor.blue,"-", BackColor.green);
-		writeln( to!(char[]) ( gdk_color_to_string(BackColor) ));
+		gdk_color_to_string(BackColor);
 		
 		vte_terminal_set_colors(cvte, ForeColor, BackColor, null, 0);
 		

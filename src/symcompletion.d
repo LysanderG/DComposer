@@ -52,6 +52,7 @@ class SYMBOL_COMPLETION : ELEMENT
     SYMBOL_COMPLETION_PAGE mPrefPage;
 
     int         mMinCompletionLength;
+    bool		mEnabled;
 
     DOCUMENT[]  mConnections;
 
@@ -66,6 +67,7 @@ class SYMBOL_COMPLETION : ELEMENT
 
     void WatchDoc(DOCUMENT doc, TextIter ti, string text, SourceBuffer buffer)
     {
+		if(mEnabled == false) return;
         if(doc.IsPasting) return;
         if (text == ".") return;
 		
@@ -150,6 +152,7 @@ class SYMBOL_COMPLETION : ELEMENT
     void Configure()
     {
 		mMinCompletionLength = Config.getInteger("SYMBOLS", "minimum_completion_length", 4);
+		mEnabled = Config.getBoolean("SYMBOLS", "completion_enabled", true);
 	}
     
     public:
@@ -220,12 +223,13 @@ class SYMBOL_COMPLETION_PAGE : PREFERENCE_PAGE
 
 	override void Apply()
 	{
+		Config.setBoolean("SYMBOLS", "completion_enabled", mEnable.getActive());
 		Config.setInteger("SYMBOLS", "minimum_completion_length", mMinLength.getValueAsInt());
 	}
 
 	override void PrepGui()
 	{
-		mEnable.setActive(true);
+		mEnable.setActive(Config.getBoolean("SYMBOLS", "completion_enabled", true));
 		mMinLength.setValue(Config.getInteger("SYMBOLS", "minimum_completion_length", 4));
 	}
 	

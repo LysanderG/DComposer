@@ -85,16 +85,11 @@ class SYMBOL_VIEW : ELEMENT
 
     void Refresh()
     {
-		writeln("Current buffer = ", mBufferStore);
 		
         mSymbolStore[mBufferStore] = new TreeStore([GType.STRING, GType.STRING, GType.STRING, GType.STRING]);
-        writeln(mSymbolStore[mBufferStore]);
         FillTreeStore();
-        writeln(mSymbolStore[mBufferStore]);
         mSymbolTree.setModel(mSymbolStore[mBufferStore]);
-        writeln(mSymbolStore[mBufferStore]);
-        writeln("---");
-        
+
         mBufferStore = (mBufferStore == 0) ? 1 : 0;
 
     }

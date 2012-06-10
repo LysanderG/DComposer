@@ -450,7 +450,6 @@ class PROJECT
         foreach(src; this[SRCFILES]) CreateTagsCommand ~= " " ~ src;
         
         auto result = system(CreateTagsCommand);
-        writeln(result);
         
         if(result == 0)
         {
