@@ -37,6 +37,7 @@ import std.algorithm;
 import std.path;
 import std.conv;
 import std.datetime;
+import std.file;
 
 
 import gtk.Builder;
@@ -94,6 +95,7 @@ class SEARCH_UI : ELEMENT
     Button          mHideAllBtn;
     CheckButton     mCaseSensitive;
     CheckButton     mRegex;
+    CheckButton		mWholeWords;
 
     RadioButton     mScopeSelection;
     RadioButton     mScopeFile;
@@ -179,7 +181,7 @@ class SEARCH_UI : ELEMENT
         
         Options.UseRegex = cast(bool)mRegex.getActive();
         Options.CaseInSensitive = !mCaseSensitive.getActive();
-        Options.WholeWordOnly = false;
+        Options.WholeWordOnly = cast(bool)mWholeWords.getActive;
         Options.WordStart = false;
         Options.RecurseFolder = false;
 
@@ -237,6 +239,23 @@ class SEARCH_UI : ELEMENT
             }
             Results = FindInStrings(HayStacks, Needle , Options);
         }
+
+        if(mScopeFolder.getActive())
+        {
+			foreach (string Fname; dirEntries(getcwd(), SpanMode.shallow))
+			{
+				if(dui.GetDocMan.IsOpenDoc(Fname))
+                {
+                    auto tmpDocument = cast (DOCUMENT)dui.GetDocMan.GetDocX(Fname);
+                    string HayStack = tmpDocument.getBuffer.getText();
+                    Results ~= FindInString(HayStack, Needle, Fname, Options);
+                }
+                else
+                {
+                    Results ~= FindInFile(Fname, Needle, Options);
+                }
+			}
+		}
 
         string tagstart = `<span background="black" foreground="green" >`;
         string tagend   = "</span>";
@@ -401,8 +420,8 @@ class SEARCH_UI : ELEMENT
         dui.GetExtraPane.setCurrentPage(mPage.getParent.getParent);
 
         auto tmpdoc = cast(DOCUMENT) dui.GetDocMan().GetDocX();
-        
-        mFindComboBox.setActiveText(tmpdoc.GetCurrentWord(),true);
+
+        if(tmpdoc !is null) mFindComboBox.setActiveText(tmpdoc.GetCurrentWord(),true);
         mFindComboBox.grabFocus();
         
     }
@@ -489,11 +508,13 @@ class SEARCH_UI : ELEMENT
         mResultsList        = cast (ListStore)      mBuilder.getObject("liststore1");
         mCaseSensitive      = cast (CheckButton)    mBuilder.getObject("checkbutton5");
         mRegex              = cast (CheckButton)    mBuilder.getObject("checkbutton8");
+        mWholeWords			= cast (CheckButton)	mBuilder.getObject("checkbutton6");
 
         mScopeSelection     = cast (RadioButton)    mBuilder.getObject("radiobutton6");
         mScopeFile          = cast (RadioButton)    mBuilder.getObject("radiobutton1");
         mScopeSession       = cast (RadioButton)    mBuilder.getObject("radiobutton8");
         mScopeProject       = cast (RadioButton)    mBuilder.getObject("radiobutton10");
+        mScopeFolder		= cast (RadioButton)	mBuilder.getObject("radiobutton9");
         mFindComboBox       = new  ComboBoxEntry(true);
         mReplaceComboBox    = new  ComboBoxEntry(true);
 

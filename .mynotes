@@ -131,7 +131,7 @@ next steps in my head
 - best for last ... the super duper, end all, be all, ignorance ending, king of all documentation systems!
     just a matter of implementation, time, know how, resources, determination ... oh crap.
 
-^^ new section "what I learned today"
+^^ new section "what I learned today"   {edit 6/10/12: oh my the text is rife with ignorance}
     if you use dirEntries return value it vaporizes 
     so don't do this...
     ---    
@@ -140,6 +140,7 @@ next steps in my head
     foreach (y; x) ... no y's;
     ---
     I need to take a gander at std.file code.
+    
     
 ========================================================================================================================
 Thu, 10 Nov 2011 22:19:52 -0500 

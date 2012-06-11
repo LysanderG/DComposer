@@ -27,6 +27,8 @@ import std.file;
 import std.regex;
 import std.stdio;
 
+import dcore;
+
 struct SEARCH_OPTIONS
 {
     bool    UseRegex;
@@ -101,8 +103,22 @@ SEARCH_RESULT[] FindInString(string HayStack, string Needle, string DocTitle, SE
 
 	void delegate (string, int) Search;
 	
-	if(opts.UseRegex) Search = &SearchLineRegex;
-	else Search = &SearchLine;	
+	if(opts.UseRegex)
+	{
+		Search = &SearchLineRegex;
+		if(opts.WholeWordOnly) Needle = `\b` ~ Needle ~ `\b`;
+	}
+		
+	else
+	{
+		Search = &SearchLine;
+		if(opts.WholeWordOnly)
+		{
+			Search = &SearchLineRegex;
+			Needle = `\b` ~ Needle ~ `\b`;
+		}
+	}
+
 
     foreach(int lineNumber, lineText; StackLines)Search(lineText, lineNumber);
 
@@ -113,7 +129,14 @@ SEARCH_RESULT[] FindInString(string HayStack, string Needle, string DocTitle, SE
 
 SEARCH_RESULT[] FindInFile(string FileName, string Needle, SEARCH_OPTIONS Opts)
 {
+    scope(failure)
+    {
+		Log.Entry("Failed to search in file " ~ FileName);
+		return null;
+	}
     string HayStack = readText(FileName);
+
+
     return FindInString(HayStack, Needle, FileName, Opts);
 }
 
@@ -136,6 +159,7 @@ SEARCH_RESULT[] FindInFiles(string[] Filenames, string Needle, SEARCH_OPTIONS Op
     
     foreach(file; Filenames)
     {
+		writeln("searching ", file);
         HayStacks[file] = readText(file);
     }
     return FindInStrings(HayStacks, Needle, Opts);
