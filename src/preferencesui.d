@@ -118,6 +118,8 @@ class PREFERENCES_UI : ELEMENT
         {
             auto tmpobj = element.GetPreferenceObject();
             if(tmpobj is null) continue;
+            tmpobj.mFrame.setHasTooltip(true);
+            tmpobj.mFrame.setTooltipText(element.Information);
             mObjects ~= tmpobj;
             AddPrefPart(tmpobj);
         }
@@ -129,7 +131,7 @@ class PREFERENCES_UI : ELEMENT
         if(X.PageName in mPage)
         {
             mPage[X.PageName].add(X.GetPrefWidget());
-            mPage[X.PageName].setChildPacking (X.GetPrefWidget(), X.Expand(), 1, 0, GtkPackType.START); 
+            mPage[X.PageName].setChildPacking (X.GetPrefWidget(), X.Expand(), 1, 8, GtkPackType.START); 
         }
         else
         {
@@ -139,6 +141,7 @@ class PREFERENCES_UI : ELEMENT
             mPage[X.PageName] = new VBox(1,1);
             mPage[X.PageName].add(X.GetPrefWidget());
             mPage[X.PageName].setHomogeneous(0);
+            mPage[X.PageName].setBorderWidth(5);
             sw.addWithViewport(mPage[X.PageName]);
 			mPage[X.PageName].setChildPacking (X.GetPrefWidget, X.Expand(),1, 0, GtkPackType.START); 
             
@@ -245,7 +248,7 @@ class CONFIG_PAGE :PREFERENCE_PAGE
     this(string PageName, string SectionName)
     {
         super(PageName, Config.getString("PREFERENCES", "glade_file_config", "~/.neontotem/dcomposer/configpref.glade"));
-        mFrame.setLabel(SectionName);
+        //mFrame.setLabelWidget(new Label"<b>"~SectionName~"</b>");
         mEntry = cast(Entry) mBuilder.getObject("entry1");
         
         mEntry.setText(Config.getString("CONFIG", "this_file", ""));

@@ -164,6 +164,8 @@ class MESSAGE_UI :ELEMENT
 
     PREFERENCE_PAGE GetPreferenceObject()
     {
+
+		//do not want to hide messages so ... no preferences I can think of
         return null;
     }
 

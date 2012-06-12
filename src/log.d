@@ -63,7 +63,7 @@ class LOG
 
     void Engage()
     {
-        mSystemDefaultLogName = expandTilde(Config.getString("LOG", "default_log_file", "~/.neontotem/dcomposer/dcomposer.log"));
+        mSystemDefaultLogName = Config.getString("LOG", "default_log_file", "~/.neontotem/dcomposer/dcomposer.log");
         if(Config.hasKey("LOG", "interim_log_file"))
         {
             mLogFile = Config.getString("LOG", "interim_log_file","error.log");

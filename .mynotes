@@ -441,3 +441,14 @@ I thought I had some idea what they needed to do but I was WRONG about most of i
 
 Also looking at some of the signals.  They are far too chaotic.  Signals must be well thought out and very simple or I can see
 a quagmire of confusion.  Oh well, just thinking out loud (well not that loud).
+
+========================================================================================================================
+Mon Jun 11 23:23:26 EDT 2012
+
+Adding simple preference pages to elements.  Came across a new terrible error.  Whenever I drag an item from the GtkRecentChooserWidget I get a core dump.
+Googled and found nothing.  Guess this is going to force me to learn about gtk drag and drop.
+
+Very boring stuff.  Can't decide what I want to do next and I'm not really into doing these repetitive preference pages.
+ 
+OMG... I've been dealing with that drag and crash issue all day. Didn't get anywhere.  So now I just ran DComposer to check something unrelated and the bug
+will not reproduce.  It is gone.  Drag Icon just goes back to widget like it's supposed to.  Sure it'll bite me in the butt later.

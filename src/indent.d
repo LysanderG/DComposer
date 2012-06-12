@@ -32,6 +32,8 @@ import std.string;
 
 import gtk.TextBuffer;
 import gtk.TextIter;
+import gtk.CheckButton;
+import gtk.Label;
 
 import gsv.SourceView;
 import gsv.SourceBuffer;
@@ -41,6 +43,14 @@ class BRACE_INDENT : ELEMENT
     private:
 
     bool mState;
+
+    BRACE_INDENT_PREF mPrefPage;
+    bool mEnabled;
+
+    void Configure()
+    {
+		mEnabled = Config.getBoolean("BRACE_INDENT", "enabled", true);
+	}
 
     void CatchNewDocs(string EventId, DOCUMENT_IF nu_doc)
     {
@@ -53,10 +63,11 @@ class BRACE_INDENT : ELEMENT
     void CatchNewLine(TextIter ti, string text, TextBuffer Buffer)
     {
         //this function indexes strings. (is "indexes" a word??)
-        //I'm no unicode guru (obviously) but I don't think indexing strings does what us simpled minded people might assume
+        //I'm no unicode guru (obviously) but I don't think indexing strings does what us simple minded people might assume
         //so be on the look out for strange behavior
-        //emiter takes care of revalidating ti
+        //emitter takes care of revalidating ti
 
+		if(!mEnabled) return;
         auto tstart =  ti.copy;
         
         tstart.backwardLine;
@@ -74,23 +85,39 @@ class BRACE_INDENT : ELEMENT
 
     void CatchCloseBrace(TextIter ti, string text, TextBuffer Buffer)
     {
+		//omg could I understand this less??
+
+		//ok make a textiter tstart that sets at beginning of line --> ti == where } was inserted 
         auto tstart = ti.copy;
         tstart.setLineOffset(0);
-        
+
+        //line = linetext[0..}] get it?
         auto line = tstart.getText(ti);
+
+        //hmm remove leading and trailing whitespace (result is tossed)
+        //simply -> if there is a non whitespace between 0 and } bail.  We wont unindent the line
         if(strip(line).length > 1)return;
 
+		//if line[0] is a tab remove it ... unindenting (word?) done good bye
         if(line[0] == '\t')
         {
             ti.setLineOffset(1);
             Buffer.delet(tstart, ti);
             return;
         }
+        
         auto twidth = Config.getInteger("DOCMAN", "tab_width");
+
+        //ok if not enough space to unindent don't ... bail
         if(line.length < twidth) return;
+
+        //?? so much work to get notabs to equal number of spaces in a tab
         char[] notabs;
         notabs.length = twidth;
         foreach (ref c; notabs) c = ' ';
+
+        //removes spaces equivalent to tab
+        //but ... what if line[0..}] == "__t__" (_ = space t = tab)
         if(line[0..twidth] == notabs)
         {
             ti.setLineOffset(twidth);
@@ -102,7 +129,7 @@ class BRACE_INDENT : ELEMENT
     public:
     
     @property string Name() {return "BRACE_INDENT";}
-    @property string Information(){return "automatically indents new lines follow an open '{' and unindents prior to '}\n'";}
+    @property string Information(){return "automatically indents new lines following an open '{'.\nAnd unindents prior to '}\\n'.\nIs not related to Auto Indentation.";}
     @property bool   State() {return mState;}
     @property void   State(bool nuState){mState = nuState;}
     
@@ -110,6 +137,10 @@ class BRACE_INDENT : ELEMENT
     void Engage()
     {
         mState = true;
+        mPrefPage = new BRACE_INDENT_PREF;
+        Configure();
+
+        Config.Reconfig.connect(&Configure);
         dui.GetDocMan.Event.connect(&CatchNewDocs);
         Log.Entry("Engaged BRACE_INDENT element");
     }
@@ -124,6 +155,33 @@ class BRACE_INDENT : ELEMENT
 
     PREFERENCE_PAGE GetPreferenceObject()
     {
-        return null;
+        return mPrefPage;
     }
 }    
+
+
+class BRACE_INDENT_PREF : PREFERENCE_PAGE
+{
+	CheckButton		mEnabled;
+	
+	this()
+	{
+		//using same simple glade file for proview  -- maybe change name to generice simple glade ??
+		super("Elements", Config.getString("PREFERENCES", "glade_file_brace_indent", "~/.neontotem/dcomposer/proviewpref.glade"));
+		mEnabled = cast (CheckButton)mBuilder.getObject("checkbutton1");
+		Label  x = cast (Label)      mBuilder.getObject("label1");
+		x.setMarkup("<b>Brace Indentation :</b>");
+
+		mFrame.showAll();
+	}
+
+	override void Apply()
+	{
+		Config.setBoolean("BRACE_INDENT", "enabled", mEnabled.getActive());
+	}
+
+	override void PrepGui()
+	{
+		mEnabled.setActive(Config.getBoolean("BRACE_INDENT", "enabled", true));
+	}
+}

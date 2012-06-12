@@ -45,6 +45,7 @@ import gtk.TextIter;
 import gtk.Widget;
 
 import gdk.Rectangle;
+import gtk.CheckButton;
 
 
 
@@ -56,6 +57,15 @@ class SCOPE_LIST : ELEMENT
     string      mInfo;
     bool        mState;
 
+    SCOPE_LIST_PAGE mPrefPage;
+    bool		mEnabled;   //This is what mState should be for but mState (d)evolved  into an Engage/Disengage (read permanent) solution.
+							//A superfluous solution at that.
+
+
+	void Configure()
+	{
+		mEnabled = Config.getBoolean("SCOPE_LIST", "enabled", true);
+	}
 
     void WatchForNewDocument(string EventId, DOCUMENT_IF DocIF)
     {
@@ -67,8 +77,11 @@ class SCOPE_LIST : ELEMENT
     void WatchDoc(DOCUMENT sv, TextIter ti, string text, SourceBuffer buffer)
     {
         int xpos, ypos;
-        if (sv.IsPasting) return;
+        
         if (text != ".") return;
+        if (!mEnabled) return;
+        if (sv.IsPasting) return;
+
         
         //pull out candidate
         TextIter WordStart = new TextIter;
@@ -191,6 +204,8 @@ class SCOPE_LIST : ELEMENT
         mName = "SCOPE_LIST";
         mInfo = "present all members of a scope for easy pickins";
         mState = false;
+
+        mPrefPage = new SCOPE_LIST_PAGE;
     }
 
         
@@ -211,6 +226,7 @@ class SCOPE_LIST : ELEMENT
     {
         
         dui.GetDocMan.Event.connect(&WatchForNewDocument);
+        Config.Reconfig.connect(&Configure);
 
         Log.Entry("Engaged SCOPE_LIST element");
     }
@@ -218,12 +234,36 @@ class SCOPE_LIST : ELEMENT
     void Disengage()
     {
 		dui.GetDocMan.Event.disconnect(&WatchForNewDocument);
+		Config.Reconfig.disconnect(&Configure);
         Log.Entry("Disengaging SCOPE_LIST element");
     }
 
 
     PREFERENCE_PAGE GetPreferenceObject()
     {
-        return null;
+        return mPrefPage;
     }
+}
+
+class SCOPE_LIST_PAGE : PREFERENCE_PAGE
+{
+	CheckButton 	mEnabled;
+
+
+	this()
+	{
+		super("Elements", Config.getString("PREFERENCES", "glade_file_scope_list", "~/.neontotem/dcomposer/scopelistpref.glade"));
+		mEnabled = cast(CheckButton)mBuilder.getObject("checkbutton1");
+		mFrame.showAll();
+	}
+
+	override void Apply()
+	{
+		Config.setBoolean("SCOPE_LIST", "enabled", mEnabled.getActive());
+	}
+
+	override void PrepGui()
+	{
+		mEnabled.setActive(Config.getBoolean("SCOPE_LIST","enabled"));
+	}
 }

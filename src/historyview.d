@@ -33,6 +33,9 @@ import gtk.RecentChooserWidget;
 import gtk.RecentFilter;
 import gtk.RecentChooserIF;
 import gtk.ScrolledWindow;
+import gtk.VBox;
+import gtk.CheckButton;
+import gtk.Label;
 
 
 class HISTORY_VIEW : ELEMENT
@@ -44,7 +47,7 @@ class HISTORY_VIEW : ELEMENT
     bool                mState;
 
     Builder             mBuilder;
-    ScrolledWindow      mRoot;
+    VBox			    mRoot;
     RecentChooserWidget mRecentProjects;
     RecentChooserWidget mRecentFiles;
 
@@ -52,6 +55,15 @@ class HISTORY_VIEW : ELEMENT
     RecentFilter        mFilterFiles;
 
     Action              mHistoryAct;
+
+    HISTORY_VIEW_PREF	mPrefPage;
+    bool				mEnabled;
+
+    void Configure()
+    {
+		mEnabled = Config.getBoolean("HISTORY_VIEW", "enabled", true);
+		mRoot.setVisible(mEnabled);
+	}
 
 
     public:
@@ -71,6 +83,8 @@ class HISTORY_VIEW : ELEMENT
     {
         mName = "HISTORY_VIEW";
         mInfo = "List of recent projects and files";
+
+        mPrefPage = new HISTORY_VIEW_PREF;
     }
     
 
@@ -78,9 +92,9 @@ class HISTORY_VIEW : ELEMENT
     void Engage()
     {
         mBuilder = new Builder;
-        mBuilder.addFromFile(Config.getString("RECENT_VIEW", "glade_file", "/home/anthony/.neontotem/dcomposer/historyview.glade"));
+        mBuilder.addFromFile(Config.getString("RECENT_VIEW", "glade_file", "/home/anthony/.neontotem/dcomposer/historyview2.glade"));
 
-        mRoot               =   cast(ScrolledWindow)              mBuilder.getObject("scrolledwindow1");
+        mRoot               =   cast(VBox)        mBuilder.getObject("vbox1");
         mRecentProjects     =   cast(RecentChooserWidget)   mBuilder.getObject("recentchooser1");
         mRecentFiles        =   cast(RecentChooserWidget)   mBuilder.getObject("recentchooser2");
 
@@ -112,13 +126,15 @@ class HISTORY_VIEW : ELEMENT
         mHistoryAct.setAccelGroup(dui.GetAccel());
         dui.Actions().addActionWithAccel(mHistoryAct, "<Ctrl>h");
         
-        dui.AddMenuItem("_View", mHistoryAct.createMenuItem());
+        //dui.AddMenuItem("_View", mHistoryAct.createMenuItem());
 		//dui.AddToolBarItem(SearchAct.createToolItem());
 
         dui.GetSidePane.appendPage(mRoot, "History");
         dui.GetSidePane.setTabReorderable (mRoot, true); 
         mRoot.showAll();
 
+		Config.Reconfig.connect(&Configure);
+		
         Log.Entry("Engaged HISTORY_VIEW element");
         
     }
@@ -132,15 +148,41 @@ class HISTORY_VIEW : ELEMENT
     
     void ShowHistory(Action X)
     {
+		if(!mEnabled) return;
         mRoot.showAll();
         dui.GetSidePane.setCurrentPage(mRoot);
     }
 
     PREFERENCE_PAGE GetPreferenceObject()
     {
-        return null;
+        return mPrefPage;
     }
 }
 
-    
+
+class HISTORY_VIEW_PREF : PREFERENCE_PAGE
+{
+	CheckButton 	mEnabled;
+
+	this()
+	{
+		//using same simple glade file for proview  -- maybe change name to generice simple glade ??
+		super("Elements", Config.getString("PREFERENCES", "glade_file_history_view", "~/.neontotem/dcomposer/proviewpref.glade"));
+		mEnabled = cast (CheckButton)mBuilder.getObject("checkbutton1");
+		Label  x = cast (Label)      mBuilder.getObject("label1");
+		x.setMarkup("<b>Recent History :</b>");
+
+		mFrame.showAll();
+	}
+
+	override void Apply()
+	{
+		Config.setBoolean("HISTORY_VIEW", "enabled", mEnabled.getActive());
+	}
+
+	override void PrepGui()
+	{
+		mEnabled.setActive(Config.getBoolean("HISTORY_VIEW", "enabled", true));
+	}
+} 
 

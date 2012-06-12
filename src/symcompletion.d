@@ -193,6 +193,7 @@ class SYMBOL_COMPLETION : ELEMENT
         mState = false;
         foreach (cnx; mConnections) cnx.TextInserted.disconnect(&WatchDoc);
         dui.GetDocMan.Event.disconnect(&WatchForNewDocument);
+        Config.Reconfig.disconnect(&Configure);
     }
 
     PREFERENCE_PAGE GetPreferenceObject()

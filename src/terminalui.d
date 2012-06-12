@@ -160,6 +160,7 @@ class TERMINAL_UI : ELEMENT
         mState = false;
         mScrWin.hide();
         Project.Event.disconnect(&NewDirectory);
+        Config.Reconfig.disconnect(&Configure);
         Log.Entry("Disengaged TERMINAL_UI element");
         
     }

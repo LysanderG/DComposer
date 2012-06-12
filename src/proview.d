@@ -48,6 +48,7 @@ import gtk.FileChooserDialog;
 import gtk.CellRendererText;
 import gtk.Viewport;
 import gtk.Frame;
+import gtk.CheckButton;
 
 import gobject.Value;
 
@@ -73,6 +74,9 @@ class PROJECT_VIEW : ELEMENT
 
     ToolButton      mAdd;
     ToolButton      mRemove;
+
+    PROJECT_VIEW_PREF mPrefPage;
+    bool			mEnabled;
 
     
     void UpdateList(ComboBox X)
@@ -329,6 +333,14 @@ class PROJECT_VIEW : ELEMENT
             if(mKeyBox.getActive > 5) Project.AddItem(CurrentKey, text);
         }
     }
+
+    void Configure()
+    {
+		mEnabled = Config.getBoolean("PROJECT_VIEW", "enabled", true);
+		writeln(mEnabled);
+		mRoot.setVisible(mEnabled);
+		writeln(mRoot.getVisible());
+	}
         
         
 
@@ -338,7 +350,9 @@ class PROJECT_VIEW : ELEMENT
     this()
     {
         mName = "PROJECT_VIEW";
-        mInfo = "A convienant view of the current project for the side panel";
+        mInfo = "A convenient view of the current project for the side panel";
+
+        mPrefPage = new PROJECT_VIEW_PREF;
     }
     
     @property string Name(){return mName;}
@@ -387,20 +401,43 @@ class PROJECT_VIEW : ELEMENT
         mRoot.showAll();
         mToolBar.setFocusChild(mRemove);
 
+        Config.Reconfig.connect(&Configure);
+        Configure();
+
         Log.Entry("Engaged PROJECT_VIEW element");
     }
 
     void Disengage()
     {
         Project.Event.disconnect(&UpdateProject);
+        Config.Reconfig.disconnect(&Configure);
         Log.Entry("Disengaged PROJECT_VIEW element");
     }
 
     PREFERENCE_PAGE GetPreferenceObject()
     {
-        return null;
+        return mPrefPage;
     }
 }
     
+class PROJECT_VIEW_PREF : PREFERENCE_PAGE
+{
+	CheckButton		mEnabled;
+	
+	this()
+	{
+		super("Elements", Config.getString("PREFERENCES", "glade_file_project_view", "~/.neontotem/dcomposer/proviewpref.glade"));
+		mEnabled = cast (CheckButton)mBuilder.getObject("checkbutton1");
+		mFrame.showAll();
+	}
 
+	override void Apply()
+	{
+		Config.setBoolean("PROJECT_VIEW", "enabled", mEnabled.getActive());
+	}
 
+	override void PrepGui()
+	{
+		mEnabled.setActive(Config.getBoolean("PROJECT_VIEW", "enabled", true));
+	}
+}
