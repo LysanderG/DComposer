@@ -52,6 +52,8 @@ import gtk.ComboBoxEntry;
 import gtk.CellEditableIF;
 import gtk.HBox;
 import gtk.VBox;
+import gtk.CheckButton;
+
 
 import gtkc.gtk;
 
@@ -91,6 +93,10 @@ class DIR_VIEW : ELEMENT
     ListStore           mStore;
     ListStore           mStore2;
 
+
+    DIR_VIEW_PREF		mPrefPage;
+    bool				mEnabled;
+    
 
     void Refresh()
     {
@@ -205,6 +211,24 @@ class DIR_VIEW : ELEMENT
         
        if(SendData.Bool) mComboFilter.appendText(mEntryFilter.getText());
     }
+
+    void Configure()
+    {
+		mEnabled = Config.getBoolean("DIRVIEW","enabled", true);
+		mStore2.clear();
+		TreeIter ti = new TreeIter;
+		string x = Config.getString("DIRVIEW", "file_filter", "*.d:*.di:*.dpro");
+
+		auto xarray = x.split(":");
+
+		foreach(filter; xarray)
+		{
+			mStore2.append(ti);
+			mStore2.setValue(ti, 0, filter);
+		}
+		
+		mRoot.setVisible(mEnabled);
+	}
     
     
 
@@ -215,9 +239,9 @@ class DIR_VIEW : ELEMENT
         mName = "DIR_VIEW";
         mInfo = "Simple File Browser";
         mFolder = getcwd();
-    }
 
-    
+        mPrefPage = new DIR_VIEW_PREF;
+    }
 
     @property string Name() {return mName;}
     @property string Information(){return mInfo;}
@@ -287,29 +311,33 @@ class DIR_VIEW : ELEMENT
 
         mhbox.add(mComboFilter);
 
-            //ok now load the liststore filter data
-            mStore2.clear();
-            TreeIter ti = new TreeIter;
-            string x = Config.getString("DIRVIEW", "file_filter", "*.d:*.di:*.dpro");
-
-            auto xarray = x.split(":");
-
-            foreach(filter; xarray)
-            {
-                mStore2.append(ti);
-                mStore2.setValue(ti, 0, filter);
-            }
-            //ok                
-
-        //end of comboentrycrap           
+       //    //ok now load the liststore filter data
+       //    mStore2.clear();
+       //    TreeIter ti = new TreeIter;
+       //    string x = Config.getString("DIRVIEW", "file_filter", "*.d:*.di:*.dpro");
+//
+       //    auto xarray = x.split(":");
+//
+       //    foreach(filter; xarray)
+       //    {
+       //        mStore2.append(ti);
+       //        mStore2.setValue(ti, 0, filter);
+       //    }
+       //    //ok                
+//
+       ////end of comboentrycrap           
 
         mFolderView.addOnCursorChanged(&FileSelected);
         mFolderView.addOnRowActivated(&FileClicked);
 
         Refresh();
         mRoot.showAll();
+        
         dui.GetSidePane.appendPage(mRoot, "Files");
-        dui.GetSidePane.setTabReorderable (mRoot, true); 
+        dui.GetSidePane.setTabReorderable (mRoot, true);
+        Config.Reconfig.connect(&Configure);
+
+        Configure();
         Log.Entry("Engaged DIRECTORY_VIEW element");
     }
         
@@ -334,10 +362,56 @@ class DIR_VIEW : ELEMENT
 
     PREFERENCE_PAGE GetPreferenceObject()
     {
-        return null;
+        return mPrefPage;
     }
     
 }
+
+
+
+class DIR_VIEW_PREF :PREFERENCE_PAGE
+{
+	LISTUI 			mFilterList;
+	CheckButton 	mEnabled;
+	
+	this()
+	{
+		super("Elements", Config.getString("PREFERENCES", "glade_file_dir_view", "~/.neontotem/dcomposer/dirviewpref.glade"));
+
+		mEnabled = cast (CheckButton) mBuilder.getObject("checkbutton1");
+
+		string listgladefile = Config.getString("PROJECT", "list_glad_file", "~/.neontotem/dcomposer/multilist.glade");
+		mFilterList = new LISTUI("Filter Glob", ListType.IDENTIFIERS, listgladefile);
+
+		//mVBox.add(mFilterList.GetWidget());
+		mVBox.packEnd(mFilterList.GetWidget(), 1, 1, 0);
+		
+		mFrame.showAll();
+	}
+
+	override void Apply()
+	{
+		Config.setBoolean("DIRVIEW", "enabled", mEnabled.getActive());
+
+		string tmpfilters = "*";
+		foreach (string f; mFilterList.GetFullItems()) tmpfilters ~= ':' ~ f;
+		Config.setString("DIRVIEW", "file_filter", tmpfilters);
+	}
+
+	override void PrepGui()
+	{
+		mEnabled.setActive(Config.getBoolean("DIRVIEW", "enabled", true));
+
+		string tmpstring = Config.getString("DIRVIEW", "file_filter", "*");
+		auto tmpstrings = tmpstring.split(":");
+		mFilterList.SetItems(tmpstrings);
+	}
+
+	override bool Expand() {return true;}
+}
+		
+
+		
 
 
 /++

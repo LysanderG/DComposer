@@ -131,7 +131,8 @@ class PREFERENCES_UI : ELEMENT
         if(X.PageName in mPage)
         {
             mPage[X.PageName].add(X.GetPrefWidget());
-            mPage[X.PageName].setChildPacking (X.GetPrefWidget(), X.Expand(), 1, 8, GtkPackType.START); 
+            mPage[X.PageName].setChildPacking (X.GetPrefWidget(), X.Expand(), 1, 8, GtkPackType.START);
+            
         }
         else
         {
@@ -143,7 +144,7 @@ class PREFERENCES_UI : ELEMENT
             mPage[X.PageName].setHomogeneous(0);
             mPage[X.PageName].setBorderWidth(5);
             sw.addWithViewport(mPage[X.PageName]);
-			mPage[X.PageName].setChildPacking (X.GetPrefWidget, X.Expand(),1, 0, GtkPackType.START); 
+			mPage[X.PageName].setChildPacking (X.GetPrefWidget, X.Expand(),1, 8, GtkPackType.START); 
             
             
             

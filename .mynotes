@@ -452,3 +452,17 @@ Very boring stuff.  Can't decide what I want to do next and I'm not really into 
  
 OMG... I've been dealing with that drag and crash issue all day. Didn't get anywhere.  So now I just ran DComposer to check something unrelated and the bug
 will not reproduce.  It is gone.  Drag Icon just goes back to widget like it's supposed to.  Sure it'll bite me in the butt later.
+
+More to-dos:
+	* ui.d -> fix menus (or break em to match standard crap)
+	* terminalui.d -> context menu -- set environment variables and a way to send stdout to current editor.
+	* documents.d and docman.d -> refactor get rid of functions I never needed to write, rename and clarify others... Lots of room for improvements. 
+	* Document every function and create an API for new elements
+
+	** create scripting
+	** plugins
+	** snippets
+	** build system for dcomposer and for projects (export a make file)
+	** element to allow vim commands or some of them ... a two mode editor
+
+Well enough, I'm going to boot up my freshly installed freebsd (32 bit) that I finally got around to installing.  See if I can't make DComposer work on there before bed.
