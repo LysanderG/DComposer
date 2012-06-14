@@ -38,10 +38,14 @@ import gsv.SourceBuffer;
 
 import gtk.TextIter;
 import gtk.Widget;
+import gtk.CheckButton;
+import gtk.Label;
 
 import gdk.Rectangle;
 
 import glib.SimpleXML;
+
+
 
 
 class CALL_TIPS : ELEMENT
@@ -55,6 +59,16 @@ class CALL_TIPS : ELEMENT
     string[]    mStack; //y is this still here?
 
     DOCUMENT[] ConnectedDocs;
+
+    CALL_TIPS_PREF	mPrefPage;
+    bool 			mEnabled;
+
+    void Configure()
+    {
+		mEnabled = Config.getBoolean("CALL_TIPS", "enabled", true);
+	}
+		
+    
 
     void IterGetPostion(DOCUMENT Doc, TextIter ti, out int xpos, out int ypos)
     {
@@ -104,6 +118,8 @@ class CALL_TIPS : ELEMENT
     {
         mName = "CALL_TIPS";
         mInfo = "Displays function signatures, assisting user in choosing and applying the proper function";
+
+        mPrefPage = new CALL_TIPS_PREF;
     }
     
     @property string Name(){ return mName;}
@@ -121,6 +137,8 @@ class CALL_TIPS : ELEMENT
     {
         mState = true;
         dui.GetDocMan.Event.connect(&WatchForNewDocument);
+
+        Config.Reconfig.connect(&Configure);
         Log.Entry("Engaged CALL_TIPS element");
     }
 
@@ -147,6 +165,7 @@ class CALL_TIPS : ELEMENT
     void WatchDoc(DOCUMENT sv , TextIter ti, string Text, SourceBuffer Buffer)
     {
         if(sv.IsPasting) return;
+        if(!mEnabled) return;
 
         switch(Text)
         {
@@ -188,7 +207,7 @@ class CALL_TIPS : ELEMENT
 
     PREFERENCE_PAGE GetPreferenceObject()
     {
-        return null;
+        return mPrefPage;
     }
     
 }  
@@ -207,3 +226,29 @@ class CALL_TIPS : ELEMENT
 * doing. I've actually surprised myself.
 * just need to see if I can make it useful for someone else.
 */
+
+
+class CALL_TIPS_PREF :PREFERENCE_PAGE
+{
+	CheckButton mEnabled;
+
+	this()
+	{
+		super("Elements", Config.getString("PREFERENCES", "glade_file_call_tip", "~/.neontotem/dcomposer/proviewpref.glade")); //yes proviewpref.glade is a generic ui
+		mEnabled = cast (CheckButton)mBuilder.getObject("checkbutton1");
+		Label  x = cast (Label)      mBuilder.getObject("label1");
+		x.setMarkup("<b>Function Call Tips :</b>");
+
+		mFrame.showAll();
+	}
+
+	override void Apply()
+	{
+		Config.setBoolean("CALL_TIPS", "enabled", mEnabled.getActive());
+	}
+
+	override void PrepGui()
+	{
+		mEnabled.setActive(Config.getBoolean("CALL_TIPS", "enabled", true));
+	}
+}
