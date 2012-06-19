@@ -466,3 +466,14 @@ More to-dos:
 	** element to allow vim commands or some of them ... a two mode editor
 
 Well enough, I'm going to boot up my freshly installed freebsd (32 bit) that I finally got around to installing.  See if I can't make DComposer work on there before bed.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Thu Jun 14 01:01:23 EDT 2012
+
+Ok what next 
+	1. refactor docman and document  -- remove document_if
+	2. get some darn icons!
+	3. split windows
+	4. autobackup/save
+	5. VCS /git/ support
+	6. 

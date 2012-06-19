@@ -118,7 +118,7 @@ class HISTORY_VIEW : ELEMENT
 
         mRecentProjects.addOnItemActivated ( delegate void(RecentChooserIF x) {string str = x.getCurrentUri(); Project.Open(str[7..$]);}); 
 
-        mRecentFiles.addOnItemActivated(delegate void (RecentChooserIF x) {string str = x.getCurrentUri(); dui.GetDocMan.OpenDoc(str[7..$]);});
+        mRecentFiles.addOnItemActivated(delegate void (RecentChooserIF x) {string str = x.getCurrentUri(); dui.GetDocMan.Open(str[7..$]);});
 
 
         mHistoryAct = new Action("HistoryAct", "_History", "Bring the past only if you are going to build from it.  ~Doménico Cieri Estrada", null);

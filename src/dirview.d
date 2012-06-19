@@ -169,10 +169,8 @@ class DIR_VIEW : ELEMENT
 
     void GoToCurrentDocFolder(ToolButton x)
     {
-        auto docX = dui.GetDocMan.GetDocX();
-        if(docX is null) return;
-
-        Folder = dirName(docX.FullPathName);
+        scope (failure) return;
+        Folder = dirName(dui.GetDocMan.Current.Name);
     }
 
     void FileClicked( TreePath tp, TreeViewColumn tvc, TreeView tv)
@@ -184,7 +182,7 @@ class DIR_VIEW : ELEMENT
         string type = mStore.getValueString(ti, 0);
 
         if(type == " ") Folder = buildPath(mFolder , mStore.getValueString(ti,1));
-        if(type == " ") dui.GetDocMan.OpenDoc(buildPath(mFolder, mStore.getValueString(ti,1)));
+        if(type == " ") dui.GetDocMan.Open(buildPath(mFolder, mStore.getValueString(ti,1)));
 
     }
 

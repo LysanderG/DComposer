@@ -103,7 +103,7 @@ class MESSAGE_UI :ELEMENT
         int line = mStore.getValueInt(ti, 1) -1;
 
         if(line < 0) return; //if this is not an error line (ie an info line) then do not try to open
-        dui.GetDocMan.OpenDoc(file, line);
+        dui.GetDocMan.Open(file, line);
     }
         
     

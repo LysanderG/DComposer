@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.24"/>
+  <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkListStore" id="liststore1">
     <columns>
       <!-- column-name File -->
@@ -50,6 +51,8 @@
   <object class="GtkScrolledWindow" id="scrolledwindow1">
     <property name="visible">True</property>
     <property name="can_focus">True</property>
+    <property name="hscrollbar_policy">never</property>
+    <property name="vscrollbar_policy">never</property>
     <property name="shadow_type">in</property>
     <child>
       <object class="GtkViewport" id="viewport1">
@@ -171,13 +174,13 @@
                         <child>
                           <object class="GtkHButtonBox" id="hbuttonbox1">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can_focus">True</property>
                             <property name="layout_style">spread</property>
                             <child>
                               <object class="GtkButton" id="findprev">
-                                <property name="label" translatable="yes">&lt;&lt; Find</property>
+                                <property name="label" translatable="yes">&lt;&lt; Find (F3)</property>
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="use_action_appearance">False</property>
                               </object>
@@ -189,9 +192,9 @@
                             </child>
                             <child>
                               <object class="GtkButton" id="findnext">
-                                <property name="label" translatable="yes">Find &gt;&gt;</property>
+                                <property name="label" translatable="yes">(F4)Find &gt;&gt;</property>
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="use_action_appearance">False</property>
                                 <property name="use_underline">True</property>
@@ -204,12 +207,12 @@
                             </child>
                             <child>
                               <object class="GtkButton" id="replacebtn">
-                                <property name="label" translatable="yes">Replace</property>
+                                <property name="label" translatable="yes">(R) Replace</property>
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="use_action_appearance">False</property>
-                                <accelerator key="r" signal="activate" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
+                                <property name="use_underline">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -219,9 +222,9 @@
                             </child>
                             <child>
                               <object class="GtkButton" id="button9">
-                                <property name="label" translatable="yes">Replace All</property>
+                                <property name="label" translatable="yes">(A) Replace All</property>
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
+                                <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
                                 <property name="use_action_appearance">False</property>
                               </object>
@@ -278,9 +281,8 @@
                                     </child>
                                     <child>
                                       <object class="GtkCheckButton" id="checkbutton6">
-                                        <property name="label" translatable="yes">_Whole words</property>
+                                        <property name="label" translatable="yes">Whole word</property>
                                         <property name="visible">True</property>
-                                        <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
                                         <property name="use_action_appearance">False</property>
@@ -299,13 +301,15 @@
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
+                                        <property name="has_tooltip">True</property>
+                                        <property name="tooltip_text" translatable="yes">Not implemented.</property>
                                         <property name="use_action_appearance">False</property>
                                         <property name="use_underline">True</property>
                                         <property name="draw_indicator">True</property>
                                       </object>
                                       <packing>
-                                        <property name="left_attach">1</property>
-                                        <property name="right_attach">2</property>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -319,8 +323,8 @@
                                         <property name="draw_indicator">True</property>
                                       </object>
                                       <packing>
-                                        <property name="left_attach">2</property>
-                                        <property name="right_attach">3</property>
+                                        <property name="left_attach">1</property>
+                                        <property name="right_attach">2</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -330,6 +334,8 @@
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">False</property>
                                         <property name="receives_default">False</property>
+                                        <property name="has_tooltip">True</property>
+                                        <property name="tooltip_text" translatable="yes">Not implemented.</property>
                                         <property name="use_action_appearance">False</property>
                                         <property name="use_underline">True</property>
                                         <property name="draw_indicator">True</property>
@@ -348,6 +354,8 @@
                                         <property name="sensitive">False</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
+                                        <property name="has_tooltip">True</property>
+                                        <property name="tooltip_text" translatable="yes">Not implemented.</property>
                                         <property name="use_action_appearance">False</property>
                                         <property name="use_underline">True</property>
                                         <property name="draw_indicator">True</property>
@@ -406,6 +414,10 @@
                                         <property name="draw_indicator">True</property>
                                         <property name="group">radiobutton1</property>
                                       </object>
+                                      <packing>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
+                                      </packing>
                                     </child>
                                     <child>
                                       <object class="GtkRadioButton" id="radiobutton1">
@@ -419,10 +431,6 @@
                                         <property name="active">True</property>
                                         <property name="draw_indicator">True</property>
                                       </object>
-                                      <packing>
-                                        <property name="top_attach">1</property>
-                                        <property name="bottom_attach">2</property>
-                                      </packing>
                                     </child>
                                     <child>
                                       <object class="GtkRadioButton" id="radiobutton8">
@@ -444,7 +452,6 @@
                                       <object class="GtkRadioButton" id="radiobutton9">
                                         <property name="label" translatable="yes">Fo_lder</property>
                                         <property name="visible">True</property>
-                                        <property name="sensitive">False</property>
                                         <property name="can_focus">False</property>
                                         <property name="receives_default">False</property>
                                         <property name="use_action_appearance">False</property>
@@ -471,8 +478,8 @@
                                         <property name="group">radiobutton1</property>
                                       </object>
                                       <packing>
-                                        <property name="left_attach">2</property>
-                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">1</property>
+                                        <property name="bottom_attach">2</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -517,6 +524,8 @@
               <object class="GtkScrolledWindow" id="scrolledwindow2">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="hscrollbar_policy">automatic</property>
+                <property name="vscrollbar_policy">automatic</property>
                 <property name="shadow_type">etched-out</property>
                 <child>
                   <object class="GtkTreeView" id="treeview2">
@@ -524,6 +533,7 @@
                     <property name="can_focus">True</property>
                     <property name="model">liststore1</property>
                     <property name="rules_hint">True</property>
+                    <property name="enable_search">False</property>
                     <property name="search_column">0</property>
                     <property name="tooltip_column">3</property>
                     <child>

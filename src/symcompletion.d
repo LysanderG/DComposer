@@ -31,6 +31,7 @@ import symbols;
 import std.stdio;
 import std.algorithm;
 import std.ascii;
+import std.path;
 
 
 
@@ -57,18 +58,20 @@ class SYMBOL_COMPLETION : ELEMENT
     DOCUMENT[]  mConnections;
 
 
-    void WatchForNewDocument(string EventId, DOCUMENT_IF NuDoc)
+    void WatchForNewDocument(string EventId, DOCUMENT Doc)
     {
-        DOCUMENT Doc = cast(DOCUMENT) NuDoc;
-        if (Doc.GetType != DOC_TYPE.D_SOURCE) return;
-        mConnections ~= Doc;
-        Doc.TextInserted.connect(&WatchDoc);
+        if (Doc is null ) return;
+        if ((extension(Doc.Name) == ".d") || (extension(Doc.Name) == ".di"))
+        {   
+			Doc.TextInserted.connect(&WatchDoc);
+			mConnections ~= Doc;
+		}
     }
 
     void WatchDoc(DOCUMENT doc, TextIter ti, string text, SourceBuffer buffer)
     {
 		if(mEnabled == false) return;
-        if(doc.IsPasting) return;
+        if(doc.Pasting) return;
         if (text == ".") return;
 		
 		if((text == "(") || (text == ")"))

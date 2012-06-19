@@ -1,22 +1,21 @@
-//      document.d
-//      
-//      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
-//      This program is free software; you can redistribute it and/or modify
-//      it under the terms of the GNU General Public License as published by
-//      the Free Software Foundation; either version 2 of the License, or
-//      (at your option) any later version.
-//      
-//      This program is distributed in the hope that it will be useful,
-//      but WITHOUT ANY WARRANTY; without even the implied warranty of
-//      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//      GNU General Public License for more details.
-//      
-//      You should have received a copy of the GNU General Public License
-//      along with this program; if not, write to the Free Software
-//      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//      MA 02110-1301, USA.
-
+// untitled.d
+// 
+// Copyright 2012 Anthony Goins <anthony@LinuxGen11>
+// 
+// This program is free software; you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation; either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+// MA 02110-1301, USA.
 
 module document;
 
@@ -62,99 +61,76 @@ import gobject.ParamSpec;
 import pango.PgFontDescription;
 
 
-class DOCUMENT : SourceView, DOCUMENT_IF
+
+class DOCUMENT : SourceView
 {
-    private:
+	private:
+	
+	string 			mName;
+	bool			mVirgin;
 
-    //initial opening of documents do not scroll to the cursor properly
-    //assuming scroll must be done after showing (because sourceview dimensions havent been set yet)
-    //so only on first showing scroll here (mInitialLine) 0-max goto ... < 0 ignore already shown
-    long		mInitialLine;
+	ulong 			mInitialLine;
+	
+	SysTime			mFileTimeStamp;
 
-    Label       mTabLabel;
-    string      mFullName;
+	bool			mInPastingProcess;
 
-    SysTime     mTimeStamp;
-    bool        mVirgin;
+	HBox			mTabWidget;
+	Label			mTabLabel;
+	Button 			mTabXBtn;
 
-    bool        mPasting; //completion/calltips/scopelist screw up pasting operations that include a ".", "(" so if pasting dont do those ops
+//**********************************************************************************************************************
 
-    DOC_TYPE    mType;
+	bool CheckForExternalChanges(GdkEventFocus* Event, Widget widget)
+	{
+		if(Virgin)return false;
+		auto timeStamp = timeLastModified(Name);
 
-    void ModifyTabLabel(TextBuffer tb)
-    {
-        if(Modified()) mTabLabel.setMarkup(`<span foreground="black" > [* </span> <b>` ~ DisplayName ~ `</b><span foreground="black"  > *]</span>`);
-        else mTabLabel.setMarkup(DisplayName);
-        mTabLabel.setTooltipText(FullPathName);
-        
-    }
-
-    bool CheckForExternalChanges(GdkEventFocus* Event, Widget widget)
-    {
-        if(Virgin) return false;
-
-        if(mTimeStamp < timeLastModified(FullPathName))
-        {
+		if(mFileTimeStamp <  timeStamp)
+		{
             auto msg = new MessageDialog(dui.GetWindow, DialogFlags.MODAL, MessageType.QUESTION, ButtonsType.NONE, true,null);
-            msg.setMarkup(FullPathName ~ " has been modified externally.\nWould you like to reload it with any changes\nor ignore changes?\n(" ~ mTimeStamp.toISOExtString() ~ ")");
+            msg.setMarkup(Name ~ " has been modified externally.\nWould you like to reload it with any changes\nor ignore changes?\n(" ~ mFileTimeStamp.toISOString() ~ " / " ~ timeStamp.toISOExtString() ~ ")");
             msg.addButton("Reload", 1000);
             msg.addButton("Ignore", 2000);
 
             auto rv = msg.run();
-            msg.hide();
+            msg.hide();           
             
-            
-            if(rv == 1000)Open(FullPathName);
-            //if(rv == 1000)getBuffer.setText(readText(FullPathName));
-            else mTimeStamp = timeLastModified(FullPathName);
-            //mTimeStamp = timeLastModified(FullPathName);
+            if(rv == 1000)Open(Name);
+            else mFileTimeStamp = timeLastModified(Name);
 			return true;
         }       
         
         return false;
     }
+			
+		
 
-    void SetBreakPoint(TextIter ti, GdkEvent * event, SourceView sv)
-    {
-        scope(failure){Log.Entry("Error setting/removing breakpoint.","Error");return;}
-        
-        auto x = getBuffer.getSourceMarksAtIter(ti,"breakpoint");
-        if(x is null)
-        {
-            getBuffer.createSourceMark(null, "breakpoint", ti);
-            BreakPoint.emit("add", DisplayName, ti.getLine() + 1);
-            return;
-        }
-        getBuffer.removeSourceMarks(ti, ti, "breakpoint");
-        BreakPoint.emit("remove", DisplayName, ti.getLine()+1);
-    }        
+	void UpdatePageTab()
+	{
+		if(Modified) mTabLabel.setText ("[* " ~ ShortName ~ " *]");
+		else mTabLabel.setText(ShortName);
+		mTabLabel.setTooltipText(Name);
+		mTabWidget.showAll();
+		
+	}
 
-    void TabXButton(Button x)
-    {
-        dui.GetDocMan().CloseDoc(mFullName);
-    }
+	void Configure()
+	{
+		auto Language = SourceLanguageManager.getDefault().guessLanguage(Name,null);
+        getBuffer.setLanguage(Language);
 
-    void SetupSourceView()
-    {
-        auto Language = SourceLanguageManager.getDefault().guessLanguage(FullPathName,null);
-        mType = DOC_TYPE.TEXT;
-        if(Language!is null)
-        {
-            getBuffer.setLanguage(Language);
-            if(Language.gtkSourceLanguageGetName() == "D") mType = DOC_TYPE.D_SOURCE;
-        }
-
-        string StyleId = Config.getString("DOCMAN","style_scheme", "cobalt");
+		string StyleId = Config.getString("DOCMAN","style_scheme", "cobalt");
         getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleId));
 
-        setAutoIndent(Config.getBoolean("DOCMAN", "auto_indent", true));
+		setAutoIndent(Config.getBoolean("DOCMAN", "auto_indent", true));
         setIndentOnTab(Config.getBoolean("DOCMAN", "indent_on_tab", true));
         setInsertSpacesInsteadOfTabs(Config.getBoolean("DOCMAN","spaces_for_tabs", true));
 
-        if(Config.getBoolean("DOCMAN", "smart_home_end", true))setSmartHomeEnd(SourceSmartHomeEndType.AFTER);
+		if(Config.getBoolean("DOCMAN", "smart_home_end", true))setSmartHomeEnd(SourceSmartHomeEndType.AFTER);
         else setSmartHomeEnd(SourceSmartHomeEndType.DISABLED);
 
-        setHighlightCurrentLine(Config.getBoolean("DOCMAN", "hilite_current_line", false));
+		setHighlightCurrentLine(Config.getBoolean("DOCMAN", "hilite_current_line", false));
         setShowLineNumbers(Config.getBoolean("DOCMAN", "show_line_numbers",true));
         setShowRightMargin(Config.getBoolean("DOCMAN", "show_right_margin", true));
         getBuffer.setHighlightSyntax(Config.getBoolean("DOCMAN", "hilite_syntax", true));
@@ -163,33 +139,45 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         setIndentWidth(Config.getInteger("DOCMAN", "indention_width", 8));
         setTabWidth(Config.getInteger("DOCMAN", "tab_width", 4));
 
-
         modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.getString("DOCMAN", "font", "mono 18")));
 
-        
-        setShowLineMarks(true);
-        setMarkCategoryIconFromStock ("breakpoint", "gtk-yes");
-        setMarkCategoryIconFromStock ("lineindicator", "gtk-go-forward");
-        addOnLineMarkActivated(&SetBreakPoint);
+	}
 
-        //BreakPoint.connect(&Debugger2.HandleDocBreak);
+	void OnTabXButton(Button X)
+	{
+		dui.GetDocMan.Close(this);
+	}
 
-        getBuffer.createTag("hiliteback", "background", "green");
-        getBuffer.createTag("hilitefore", "foreground", "yellow");
+	void PopulateContextMenu(GtkMenu* gtkBigMenu, TextView ThisOne)
+	{
+		Menu X = new Menu(gtkBigMenu);
 
-        setHasTooltip(true);
+		foreach(action; dui.GetDocMan.GetContextMenuActions())
+		{
+			X.prepend(action.createMenuItem());
+		}
+	}
+		
+	void SetBreakPoint(TextIter ti, GdkEvent * event, SourceView sv)
+	{
+		scope (failure) {Log.Entry("Error toggling breakpoint.","Error");return;}
 
-        getBuffer.addOnInsertText(&OnInsertText, cast(GConnectFlags)1);
+		auto x = getBuffer.getSourceMarksAtIter(ti,"breakpoint");
 
-        //clipboard edit enable disable stuff
-        auto TheClipBoard = Clipboard.get(cast(GdkAtom)69);
+        if(x is null)
+        {
+            getBuffer.createSourceMark(null, "breakpoint", ti);
+            BreakPoint.emit("add", Name, ti.getLine() + 1);
+            return;
+        }
+        getBuffer.removeSourceMarks(ti, ti, "breakpoint");
+        BreakPoint.emit("remove", Name, ti.getLine()+1);
+	}
 
-        addOnKeyRelease(delegate bool(GdkEventKey* k, Widget w){SetUpEditSensitivity();return false;});
-        addOnButtonRelease( delegate bool(GdkEventButton* b, Widget w){SetUpEditSensitivity();return false;}); 
-    }
-
-    void SetUpEditSensitivity(ParamSpec ps = null, ObjectG og = null)
+	void SetUpEditSensitivity()
     {
+		//from what I gather 69 is the system clipboard
+		//not very good programming here but I'm at a loss at how else to procedd
         auto Clpbd = Clipboard.get(cast(GdkAtom)69);
 
         dui.Actions.getAction("PasteAct").setSensitive(Clpbd.waitIsTextAvailable());
@@ -198,246 +186,253 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         return ;
     }
 
-    void PopulateContextMenu(GtkMenu* gtkBigMenu, TextView ThisOne)
+    void OnInsertText(TextIter ti, string text, int len, TextBuffer Buffer)
     {
-        
-        Menu X = new Menu(gtkBigMenu);
+       
+        if(text == "\n") NewLine.emit(ti, text, getBuffer);
+        if(text == "}" ) CloseBrace.emit(ti, text, getBuffer);
 
-        Action[] ActionItems = dui.GetDocMan.ContextActions();
-
-        foreach(action; ActionItems)X.prepend(action.createMenuItem());
+        TextInserted.emit(this, ti, text, getBuffer);
     }
+		
+//**********************************************************************************************************************
 
-    bool Finalize()
-    {
-		//BreakPoint.disconnect(&Debugger2.HandleDocBreak);
-        Config.Reconfig.disconnect(&SetupSourceView);
-        return true;
+
+
+	public :
+	///Has buffer been modified since last save. (or instantiation)
+	@property bool Modified() {return cast(bool)getBuffer().getModified();}
+	///Fully qualified path name of this objects file
+	@property string Name() {return mName;}
+	///ditto
+	@property void Name(string NewName){ mName = NewName; UpdatePageTab();}
+	///Basically a name to put in the page tab
+	@property string ShortName(){return baseName(mName);}
+	///Indicates if this object has an actual file associated with it
+	@property bool Virgin(){return mVirgin;}
+	@property bool Pasting(){return mInPastingProcess;}
+	///Returns current line number
+	@property ulong LineNumber()
+	{
+		auto ti = new TextIter;
+		getBuffer.getIterAtMark(ti, getBuffer.getInsert());
+		auto xline = ti.getLine();
+		return cast(ulong)xline;
+	}
+	@property string LineText()
+	{
+		auto tistart = new TextIter;
+		auto tiend = new TextIter;
+
+		getBuffer.getIterAtMark(tistart, getBuffer.getInsert());
+		tiend = tistart.copy();
+		tistart.setLineOffset(0);
+		tiend.forwardToLineEnd();
+		return tistart.getText(tiend);
+	}
+
+	///returns the word currently at the insert mark (cursor)
+	///May have to spice this up a little to reflect a programming environment
+	@property string Word()
+	{
+        TextIter ti = new TextIter; 
+        getBuffer.getIterAtMark(ti, getBuffer.getInsert());
+        if(!ti.insideWord)return "";
+        TextIter tiend  = ti.copy();
+        tiend.forwardWordEnd();
+        ti.backwardWordStart();
+        return ti.getSlice(tiend);        
     }
+		
+		
+	
 
-    void Reconfigure()
-    {
-        auto Language = SourceLanguageManager.getDefault().guessLanguage(FullPathName,null);
-        mType = DOC_TYPE.TEXT;
-        if(Language!is null)
-        {
-            getBuffer.setLanguage(Language);
-            if(Language.gtkSourceLanguageGetName() == "D") mType = DOC_TYPE.D_SOURCE;
-        }
+	this()
+	{
+		mTabWidget = new HBox(0,1);
 
-        string StyleId = Config.getString("DOCMAN","style_scheme", "cobalt");
-        getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleId));
+		mTabXBtn  = new Button(StockID.CLOSE, &OnTabXButton, true);
+		mTabXBtn.setBorderWidth(2);
+		mTabXBtn.setRelief(ReliefStyle.NONE);
+		mTabXBtn.setSizeRequest(20, 20);
 
-        setAutoIndent(Config.getBoolean("DOCMAN", "auto_indent", true));
-        setIndentOnTab(Config.getBoolean("DOCMAN", "indent_on_tab", true));
-        setInsertSpacesInsteadOfTabs(Config.getBoolean("DOCMAN","spaces_for_tabs", true));
+		mTabLabel = new Label("constructing");
 
-        if(Config.getBoolean("DOCMAN", "smart_home_end", true))setSmartHomeEnd(SourceSmartHomeEndType.AFTER);
-        else setSmartHomeEnd(SourceSmartHomeEndType.DISABLED);
+		mTabWidget.add(mTabLabel);
+		mTabWidget.add(mTabXBtn);
 
-        setHighlightCurrentLine(Config.getBoolean("DOCMAN", "hilite_current_line", false));
-        setShowLineNumbers(Config.getBoolean("DOCMAN", "show_line_numbers",true));
-        setShowRightMargin(Config.getBoolean("DOCMAN", "show_right_margin", true));
-        getBuffer.setHighlightSyntax(Config.getBoolean("DOCMAN", "hilite_syntax", true));
-        getBuffer.setHighlightMatchingBrackets(Config.getBoolean("DOCMAN", "match_brackets", true));
-        setRightMarginPosition(Config.getInteger("DOCMAN", "right_margin", 120));
-        setIndentWidth(Config.getInteger("DOCMAN", "indention_width", 8));
-        setTabWidth(Config.getInteger("DOCMAN", "tab_width", 4));
+		
+		
+	}
 
-        modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.getString("DOCMAN", "font", "mono 18")));
-    }
+	/**Basically connects signals.  Not done in constructor to ensure all objects (meaning Config for now)
+	 * have actually been created and exist.
+	 * */	
+	void Engage()
+	{
+		//what to do when Config keyfile changes
+		Config.Reconfig.connect(&Configure);
 
-    public:
+		//see if another program has altered text whenever we focus on document
+		addOnFocusIn(&CheckForExternalChanges);
 
-    @property string    DisplayName(){return baseName(mFullName);}
-    @property void      DisplayName(string DisplayName){}
-    @property string    FullPathName(){return mFullName;}
-    @property void      FullPathName(string NuName){mFullName = NuName; mTabLabel.setMarkup(DisplayName);}
-    @property bool      Virgin(){return mVirgin;}
-    @property void      Virgin(bool still){if (still == false)mVirgin = false;}
-    @property bool      Modified() {return cast(bool)getBuffer.getModified();}
-    @property void      Modified(bool modded){getBuffer.setModified(modded);}
-    @property DOC_TYPE  GetType(){return mType;}
+		//build a popup menu on right clicks (items for menu from docman)
+		addOnPopulatePopup(&PopulateContextMenu);
 
-    ubyte[] RawData(){ return cast(ubyte[]) getBuffer.getText();}
+		//this allows certain elements to see paste as a single insert vs an insert for each char
+		getBuffer.addOnPasteDone (delegate void (Clipboard cb, TextBuffer tb) {mInPastingProcess = false;});
+		addOnDragEnd(delegate void (GdkDragContext* Context, Widget W){mInPastingProcess = false;});
+        addOnDragBegin(delegate void (GdkDragContext* Context, Widget W){mInPastingProcess = true;});
 
+		//this is to combat the open file on line (tryting to scroll on a window that isnt 'done'
+		addOnExpose(delegate bool (GdkEventExpose* ev, Widget w){if(mInitialLine != ulong.max){GotoLine(mInitialLine);mInitialLine = ulong.max;}return false;});
 
+		//send a signal to any debugger that user wants a breakpoint (oh and marks line)
+		addOnLineMarkActivated(&SetBreakPoint);
 
+		//this controls editing menu (cut/copy/paste) sensitivity (ie grayed out)
+		addOnKeyRelease(delegate bool(GdkEventKey* k, Widget w){SetUpEditSensitivity();return false;});
+        addOnButtonRelease( delegate bool(GdkEventButton* b, Widget w){SetUpEditSensitivity();return false;});
 
-    this()
-    {
-        mTabLabel = new Label("untitled");
-        
-        getBuffer().addOnModifiedChanged(&ModifyTabLabel);
-        getBuffer.addOnPasteDone (delegate void (Clipboard cb, TextBuffer tb) {mPasting = false;});
-        addOnDragEnd(delegate void (GdkDragContext* Context, Widget W){mPasting = false;});
-        addOnDragBegin(delegate void (GdkDragContext* Context, Widget W){mPasting = true;});
+        //Change the TAB look to let user know the text has been changed and should be saved
+        getBuffer().addOnModifiedChanged(delegate void (TextBuffer Buf){UpdatePageTab();});
 
-        
-        addOnPopulatePopup (&PopulateContextMenu); 
-        addOnFocusIn(&CheckForExternalChanges);
-
-        Config.Reconfig.connect(&Reconfigure);
-
-        addOnExpose(delegate bool (GdkEventExpose* ev, Widget w){if(mInitialLine> -1){GotoLine(mInitialLine);mInitialLine = -1;}return false;});
-        
-    }
-    
-    bool Create(string identifier)
-    {
-        FullPathName = identifier;
-        mVirgin = true;
-        SetupSourceView();
-        return true;
-    }
+		//mostly to let elements know text is being inserted
+		getBuffer.addOnInsertText(&OnInsertText, cast(GConnectFlags)1);
 
 
-    //LineNo parameter is completely unused
-    //must either remove it or implement it
-    //calling functions are now using doc.open(filename); doc.GotoLine(x);
-    //if I recall scroll to mark (and similiar functions) were a real headache
-    //not working as I anticipated.
-    bool Open(string FileName, long LineNo = 0)
-    {
-		mInitialLine = LineNo;
-        string DocText;
-        try
-        {
-            DocText = readText(FileName);
-        }
-        catch (UtfException e)
-        {
-            auto msg = new MessageDialog(dui.GetWindow(), GtkDialogFlags.MODAL, GtkMessageType.ERROR, ButtonsType.OK,
+		//stuff that I dont want to repeat every configure ( and some that should be configured)
+        setShowLineMarks(true);
+        setMarkCategoryIconFromStock ("breakpoint", "gtk-yes");
+        setMarkCategoryIconFromStock ("lineindicator", "gtk-go-forward");
+        getBuffer.createTag("hiliteback", "background", "green");
+        getBuffer.createTag("hilitefore", "foreground", "yellow");
+
+		UpdatePageTab();
+		
+		Configure();
+
+	}
+
+	/// Not sure if I actually need this.  Intended to reverse anything done in Engage.
+	void Disengage()
+	{
+		//what to do here??
+	}
+	
+	/**
+	 * Returns a new virgin DOCUMENT
+	 * Empty of text and ready to go.
+	 * Title will determine file type.
+	 * */
+	static DOCUMENT Create(string title)
+	{
+		DOCUMENT Rval = new DOCUMENT;
+
+		Rval.mName = absolutePath(title);
+		Rval.mVirgin = true;
+		Rval.Engage();
+		return Rval;
+	}
+
+	/**
+	 * Returns a new DOCUMENT associated with FileName.
+	 * Definitely not a virgin.  Even if FileName is empty.
+	 * */
+	static DOCUMENT Open(string FileName, ulong LineNo = 1)
+	{
+		scope(failure)
+		{
+			auto msg = new MessageDialog(dui.GetWindow(), GtkDialogFlags.MODAL, GtkMessageType.ERROR, ButtonsType.OK,
             false, "DComposer offers its most sincere apologies.\nThis development version is currently limited\n to opening valid UTF files.");
 
-            msg.setTitle("Invalid UTF File");
+            msg.setTitle("Unable to open " ~ FileName);
             msg.run();
             msg.destroy();
-            DocText = null;
-            return false;
-        }        
-        
-        getBuffer.beginNotUndoableAction();
-        getBuffer.setText(DocText);
-        getBuffer.endNotUndoableAction();
-        FullPathName = FileName;
-        mTimeStamp = timeLastModified(FullPathName);
-        mVirgin = false;
-        getBuffer.setModified(false);
+            return null;
+		}
+		
+		string Text = ReadUTF8(FileName);
 
-        SetupSourceView();
-        
-        return true;
-    }
-    
-    bool    Save()
-    {
-        dui.Status.push(8690, "Saving ...");
-        scope (exit)dui.Status.pop(8690);
-                
-        if(Virgin) return false;
+		
+		DOCUMENT Rval = new DOCUMENT;
+		Rval.mFileTimeStamp = timeLastModified(FileName);
+		Rval.mName = FileName;
+		Rval.mVirgin = false;
+		Rval.getBuffer().beginNotUndoableAction();
+		Rval.getBuffer().setText(Text);
+		Rval.getBuffer().endNotUndoableAction();
+		Rval.getBuffer().setModified(false);
+		Rval.mInitialLine = LineNo;
+		Rval.Engage();
 
-        if(!Modified) return false; //no need to save
+		return Rval;
+	}
 
-        string saveText = getBuffer.getText();
+	/**
+	 *  Confirms closing a modified file.
+	 *  Possibly saves before returning the result.
+	 *  Caller is responsible for anything else.
+	 *  Such as freeing resources.
+	 * */
+	bool Close(bool Quitting = false)
+	{
+		if(!Modified) return true;
 
-        std.file.write(FullPathName, saveText);
-
-        getBuffer.setModified(0);
-        mTimeStamp = timeLastModified(FullPathName);
-        mVirgin = false;
-
-        
-        return true;
-    }
-    bool    SaveAs(string NewName)
-    {
-        FullPathName = NewName;
-        string saveText = getBuffer.getText();
-
-        std.file.write(FullPathName, saveText);
-
-        getBuffer.setModified(0);
-        mTimeStamp = timeLastModified(FullPathName);
-        mVirgin = false;
-        ModifyTabLabel(getBuffer);
-                
-        return true;
-    }
-    bool    Close(bool Quitting = false)
-    {
-        if(!Modified())return Finalize();
-
-        auto ToSaveDiscardOrKeepOpen = new MessageDialog(dui.GetWindow(), DialogFlags.DESTROY_WITH_PARENT, GtkMessageType.QUESTION, ButtonsType.NONE, true, null); 
-        ToSaveDiscardOrKeepOpen.setMarkup(DisplayName ~ "\nHas unsaved changes.\nWhat do you wish to do?");
+		auto ToSaveDiscardOrKeepOpen = new MessageDialog(dui.GetWindow(), DialogFlags.DESTROY_WITH_PARENT, GtkMessageType.QUESTION, ButtonsType.NONE, true, null); 
+        ToSaveDiscardOrKeepOpen.setMarkup(Name ~ "\nHas unsaved changes.\nWhat do you wish to do?");
         ToSaveDiscardOrKeepOpen.addButton("Save Changes", cast(GtkResponseType) 1);
         ToSaveDiscardOrKeepOpen.addButton("Discard Changes", cast(GtkResponseType) 2);
         if(!Quitting)ToSaveDiscardOrKeepOpen.addButton("Do not Close", cast(GtkResponseType) 3);
 
         ToSaveDiscardOrKeepOpen.setTitle("Closing DComposer Document");
 
-        int rVal = cast(int) ToSaveDiscardOrKeepOpen.run();
+        auto rVal = cast(int) ToSaveDiscardOrKeepOpen.run();
         ToSaveDiscardOrKeepOpen.destroy();
 
         switch(rVal)
         {
-            case 1: if(mVirgin)SaveAs(DisplayName); else Save();return Finalize();
-            case 2: return Finalize();
+            case 1: Save();return true;
+            case 2: return true;
             case 3: return false;
-            case GtkResponseType.GTK_RESPONSE_DELETE_EVENT : return Finalize();
-            default : Log().Entry("Bad ResponseType from Confirm CloseFileDialog", "Error");
+            case GtkResponseType.GTK_RESPONSE_DELETE_EVENT : return true;
+            default : Log().Entry("Bad (unexpected) ResponseType from Confirm CloseFileDialog", "Error");
         }
 
-        return Finalize();
-    }    
+        return true;
+	}
 
-    Widget TabWidget()
-    {
-        HBox Tab = new HBox(0,1);
-        Button xbtn = new Button(StockID.CLOSE, &TabXButton, true);
-        xbtn.setBorderWidth(2);
-        xbtn.setRelief(ReliefStyle.NONE);
-        xbtn.setSizeRequest(20,20);
-    
-        mTabLabel.setText(DisplayName);
-        Tab.add(mTabLabel);
-        Tab.add(xbtn);
-        Tab.setChildPacking (mTabLabel, 1, 1,0, GtkPackType.START);
-        Tab.setChildPacking (xbtn, 1, 1,0, GtkPackType.END);
-        
-        mTabLabel.setTooltipText(FullPathName);
-        Tab.showAll();
-        
-        return Tab;
-    }
-    Widget  GetWidget(){return this;}
-    Widget  GetPage(){return getParent();}
-    bool IsPasting(){return mPasting;}
+	/**
+	 * Writes buffer to mName.
+	 * Throws an exception if it fails.
+	 * */
+	void Save()
+	{
+		string saveText = getBuffer.getText();
 
-    void Focus()
-    {
-        grabFocus();
-    }
+		std.file.write(mName, saveText);
 
-    void Edit(string Verb)
-    {
-        //Log.Entry("Edit action received --- "~ Verb,"Debug");
+		getBuffer.setModified(false);
+		mFileTimeStamp = timeLastModified(mName);
+		mVirgin = false;
+	}
 
-        switch (Verb)
-        {
-            case "UNDO"  :   getBuffer.undo();   break;
-            case "REDO"  :   getBuffer.redo();   break;
-            case "CUT"   :   getBuffer.cutClipboard(Clipboard.get(cast(GdkAtom)69),1); break;
-            case "COPY"  :   getBuffer.copyClipboard(Clipboard.get(cast(GdkAtom)69)); break;
-            case "PASTE" :   mPasting = true; getBuffer.pasteClipboard(Clipboard.get(cast(GdkAtom)69),null, 1); break;
-            case "DELETE":   getBuffer.deleteSelection(1,1);break;
+	/**
+	 * Changes mName and calls Save()
+	 * */
+	void SaveAs(string NewName)
+	{
+		Name = NewName;
+		Save();
+	}
 
-            default : Log.Entry("Currently unavailable function :"~Verb,"Debug");
-        }            
-    }
-    void GotoLine(long Line)
-    {
-		
+	/**
+	 * Moves cursor (insert mark) to Line.
+	 * Watch out for off by one errors. At least 'til I check it out.
+	 * */
+	void GotoLine(ulong Line)
+	{
+		Line = Line;
 		TextIter tistart, tiend;
 		tistart = new TextIter;
         tiend = new TextIter;
@@ -451,19 +446,40 @@ class DOCUMENT : SourceView, DOCUMENT_IF
 		
 
         getBuffer.placeCursor(ti);
-
-        //auto mark = getBuffer.createMark("scroller", ti, 1);
-        //scrollToIter(ti , 0.25, true, 0.0, 0.0);
-        //scrollMarkOnscreen(mark);
         
         scrollToMark (mark, 0.01, true , 0.000, 0.500);
-        
-        
-        //scrollToMark (mark, 0.1, true , 0.000, 0.2500);
-        
     }
 
-    void HiliteFindMatch(int Line, int start, int len)
+	/**
+	 * Performs the usual edit actions on the DOCUMENT.
+	 * Verb can be "UNDO", "REDO", "CUT", "COPY", "PASTE", or "DELETE"
+	 * */
+    void Edit(string Verb)
+    {
+
+        switch (Verb)
+        {
+            case "UNDO"  :   getBuffer.undo();   break;
+            case "REDO"  :   getBuffer.redo();   break;
+            case "CUT"   :   getBuffer.cutClipboard(Clipboard.get(cast(GdkAtom)69),1); break;
+            case "COPY"  :   getBuffer.copyClipboard(Clipboard.get(cast(GdkAtom)69)); break;
+            case "PASTE" :   mInPastingProcess = true; getBuffer.pasteClipboard(Clipboard.get(cast(GdkAtom)69),null, 1); break;
+            case "DELETE":   getBuffer.deleteSelection(1,1);break;
+
+            default : Log.Entry("Currently unavailable function :"~Verb,"Debug");
+        }            
+    }
+
+    Widget PageWidget()
+    {
+		return getParent();
+	}
+	Widget TabWidget()
+	{
+		return mTabWidget;
+	}
+
+	void HiliteFoundMatch(int Line, int start, int len)
     {
         TextIter tstart = new TextIter;
         TextIter tend = new TextIter;
@@ -481,101 +497,49 @@ class DOCUMENT : SourceView, DOCUMENT_IF
         getBuffer.applyTagByName("hilitefore", tstart, tend);
     }
 
-    void OnInsertText(TextIter ti, string text, int len, TextBuffer huh)
-    {
-        auto mark = huh.createMark("huhx", ti, 0);
 
-        if(text == "\n") NewLine.emit(ti, text, getBuffer);
-        if(text == "}" ) CloseBrace.emit(ti, text, getBuffer);
-
-        TextInserted.emit(this, ti, text, getBuffer);
-
-        //getBuffer.getIterAtMark(ti, mark);       
-        
-    }
-
-    string GetCurrentWord()
-    {
-        TextIter ti = new TextIter;
-        
-        
-        getBuffer.getIterAtMark(ti, getBuffer.getInsert());
-
-        if(!ti.insideWord)return "";
-
-        TextIter tiend  = ti.copy();
-        tiend.forwardWordEnd();
-        ti.backwardWordStart();
-
-        return ti.getSlice(tiend);        
-    }
-    /**
-     * Returns the file name and and current line number of the
-     * current document.
-     * Implemented to get around the fact that gdb uses mangled
-     * symbol names (and I can't mangle the names)
-     * */
-     string GetCurrentLocation()
-     {
-		 string rv = mFullName.baseName() ~ ":";
-		 auto ti = new TextIter;
-		 
-		 getBuffer.getIterAtMark(ti, getBuffer.getInsert());
-
-		 auto xline = ti.getLine;
-
-		 rv ~= to!string(xline);
-		 return rv;
-	 }
-
-		 
-
-    
-    mixin Signal!(TextIter, string, TextBuffer) NewLine;
+	
+		
+	mixin Signal!(TextIter, string, TextBuffer) NewLine;
     mixin Signal!(TextIter, string, TextBuffer) CloseBrace;
     mixin Signal!(DOCUMENT, TextIter, string, SourceBuffer) TextInserted;
     mixin Signal!(string, string, int) BreakPoint;
 }
+	
 
-//multiread as in multiple encoding schemes
-string MultiRead(string FileName)
+
+
+string ReadUTF8(string FileName)
 {
-    //return null;
-    void[] data = read(FileName);
+	bool Succeeded;
+
+	ubyte[] data = cast(ubyte[])read(FileName);
     
-    string rv = cast(string)(data);
-    
-    rv = rv.toUTF8;
-    
-    return (rv.isValid) ? rv : null;
+    if(try8(data))  return toUTF8(cast( char[])data);   
+    if(try32(data)) return toUTF8(cast(dchar[])data);
+    throw new Exception("Error reading " ~ FileName);    
 }
 
-/*
-string MultiRead(string FileName)
+bool try8(const ubyte[] data)
 {
-    string myUtfString;
-    ubyte[] data = cast(ubyte[])read(FileName);
-
-    AsciiString TryAsc = cast(AsciiString) data;
-
-    if(TryAsc.isValid())
-    {
-        TryAsc = sanitize(TryAsc);
-        transcode(TryAsc, myUtfString);
-        
-        return myUtfString;
-    }    
-
-    Latin1String TryLatin = cast(Latin1String)data;
-    if(TryLatin.isValid())
-    {
-        
-        TryLatin = sanitize(TryLatin);
-        transcode(TryLatin, myUtfString);
-        return myUtfString;
-    }
-    return null;
+	scope(failure) return false;
+	validate!(char[])(cast(char[])data);
+	return true;
 }
-*/    
- //notice how I have no idea what I am doing with text encoding?       
+
+bool try16(const ubyte[] data)
+{
+	scope(failure) return false;
+	validate!(wchar[])(cast(wchar[])data);
+	return true;
+}
+bool try32(const ubyte[] data)
+{
+	scope(failure) return false;
+	validate!(dchar[])(cast(dchar[])data);
+	return true;
+}
+
+	
+
 

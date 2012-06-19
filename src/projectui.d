@@ -516,7 +516,7 @@ class PROJECT_UI : ELEMENT
         watch.unref();
 
         //save all and build
-        dui.GetDocMan.SaveAllDocs();
+        dui.GetDocMan.SaveAll();
         Project.BuildMsg.emit(`BEGIN`);
         Project.Build();        
         Project.BuildMsg.emit(`END`);
@@ -530,13 +530,13 @@ class PROJECT_UI : ELEMENT
 
     void Run(Action x)
     {
-        dui.GetDocMan.SaveAllDocs();
+        dui.GetDocMan.SaveAll();
         Project.RunConcurrent();
     }
 
     void RunWithArgs(Action x)
     {
-        dui.GetDocMan.SaveAllDocs();
+        dui.GetDocMan.SaveAll();
         Project.Run(mRunArguments.getText);
     }        
 

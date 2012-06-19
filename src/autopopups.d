@@ -138,7 +138,7 @@ class AUTO_POP_UPS
 
 
     
-    void WatchForNewDocuments(string EventType, DOCUMENT_IF DocXIf)
+    void WatchForNewDocuments(string EventType, DOCUMENT DocXIf)
     {
         auto DocX = cast(DOCUMENT)DocXIf;
         if(EventType != "AppendDocument") return;

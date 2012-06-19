@@ -316,12 +316,15 @@ class SYMBOLS
                     
         string[] keys = Config().getKeys("SYMBOL_LIBS");
 
-        foreach(key; keys)
-        {
-            auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");
-            
-            Load(key, tmp);
-        }
+		if(Config.getBoolean("SYMBOLS", "auto_load_symbols", true))
+		{
+			foreach(key; (keys))
+			{
+				auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");
+				
+				Load(key, tmp);
+			}
+		}
 
         if(Config.getBoolean("SYMBOLS", "auto_load_project_symbols", true))
         {

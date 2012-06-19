@@ -1,35 +1,103 @@
 <<++	LOG BEGINS ++>>
-2012-04-03T00:01:24.4537759
+2012-06-18T23:55:09.506947
 Info: Engaged LOG
 Info: Engaged PROJECT
-Info: Engaged SYMBOLS ["std","gtk","gio","glib","gdk"]
-Info: Engaged DEBUGGER
+Info: Engaged SYMBOLS ["gdk","gio","glib","gsv","gtk","std"]
 Info: Engaged dcore
-Debug: Start Up Files = /home/anthony/projects/dcomposer2/src/document.d:4:/home/anthony/projects/dcomposer2/src/dirview.d:0:
+Error: DocManager detected malformed file filter
+Debug: Start Up Files = 
 Info: Engaged DOCMAN
 Info: Engaged AUTO_POP_UPS
 Info: Engaged UI
 Info: Acquired logui.LOG_UI element.
+Info: 	:>Element to capture log output and redirect to a pretty window
 Info: Acquired searchui.SEARCH_UI element.
+Info: 	:>Look for stuff and fix it mabybe
 Info: Acquired projectui.PROJECT_UI element.
+Info: 	:>User interface to creating/maintain a D project
 Info: Acquired symbolview.SYMBOL_VIEW element.
+Info: 	:>List of D programming symbols
 Info: Acquired indent.BRACE_INDENT element.
+Info: 	:>automatically indents new lines following an open '{'.
+And unindents prior to '}\n'.
+Is not related to Auto Indentation.
 Info: Acquired symcompletion.SYMBOL_COMPLETION element.
+Info: 	:>Retrieve any symbol for auto/code/symbol/tag completion (except for pesky local stuff)
 Info: Acquired scopelist.SCOPE_LIST element.
+Info: 	:>present all members of a scope for easy pickins
 Info: Acquired calltips.CALL_TIPS element.
+Info: 	:>Displays function signatures, assisting user in choosing and applying the proper function
 Info: Acquired terminalui.TERMINAL_UI element.
+Info: 	:>A terminal
 Info: Acquired proview.PROJECT_VIEW element.
+Info: 	:>A convenient view of the current project for the side panel
 Info: Acquired dirview.DIR_VIEW element.
+Info: 	:>Simple File Browser
 Info: Acquired historyview.HISTORY_VIEW element.
+Info: 	:>List of recent projects and files
 Info: Acquired messageui.MESSAGE_UI element.
-Info: Acquired debugui.DEBUG_UI element.
+Info: 	:>Display compiler output (and allow navigating to error lines)
 Info: Acquired assistantui.ASSISTANT_UI element.
+Info: 	:>Show Symbol information
+Info: Acquired preferencesui.PREFERENCES_UI element.
+Info: 	:>Dialog to set program preferences.
 Info: Engaging Elements ...
 Info: Engaged SYMBOL_VIEW element
 Info: Engaged BRACE_INDENT element
 Info: Engaged HISTORY_VIEW element
 Info: Engaged MESSAGE_UI element
-Info: Engaged DEBUG_UI element
+Info: Engaged SCOPE_LIST element
+Info: Engaged CALL_TIPS element
+Info: Engaged ASSISTANT_UI element
+Info: Engaged PROJECT_UI element
+<<++	LOG BEGINS ++>>
+2012-06-18T23:55:22.1785356
+Info: Engaged LOG
+Info: Engaged PROJECT
+Info: Engaged SYMBOLS ["gdk","gio","glib","gsv","gtk","std"]
+Info: Engaged dcore
+Error: DocManager detected malformed file filter
+Debug: Start Up Files = 
+Info: Engaged DOCMAN
+Info: Engaged AUTO_POP_UPS
+Info: Engaged UI
+Info: Acquired logui.LOG_UI element.
+Info: 	:>Element to capture log output and redirect to a pretty window
+Info: Acquired searchui.SEARCH_UI element.
+Info: 	:>Look for stuff and fix it mabybe
+Info: Acquired projectui.PROJECT_UI element.
+Info: 	:>User interface to creating/maintain a D project
+Info: Acquired symbolview.SYMBOL_VIEW element.
+Info: 	:>List of D programming symbols
+Info: Acquired indent.BRACE_INDENT element.
+Info: 	:>automatically indents new lines following an open '{'.
+And unindents prior to '}\n'.
+Is not related to Auto Indentation.
+Info: Acquired symcompletion.SYMBOL_COMPLETION element.
+Info: 	:>Retrieve any symbol for auto/code/symbol/tag completion (except for pesky local stuff)
+Info: Acquired scopelist.SCOPE_LIST element.
+Info: 	:>present all members of a scope for easy pickins
+Info: Acquired calltips.CALL_TIPS element.
+Info: 	:>Displays function signatures, assisting user in choosing and applying the proper function
+Info: Acquired terminalui.TERMINAL_UI element.
+Info: 	:>A terminal
+Info: Acquired proview.PROJECT_VIEW element.
+Info: 	:>A convenient view of the current project for the side panel
+Info: Acquired dirview.DIR_VIEW element.
+Info: 	:>Simple File Browser
+Info: Acquired historyview.HISTORY_VIEW element.
+Info: 	:>List of recent projects and files
+Info: Acquired messageui.MESSAGE_UI element.
+Info: 	:>Display compiler output (and allow navigating to error lines)
+Info: Acquired assistantui.ASSISTANT_UI element.
+Info: 	:>Show Symbol information
+Info: Acquired preferencesui.PREFERENCES_UI element.
+Info: 	:>Dialog to set program preferences.
+Info: Engaging Elements ...
+Info: Engaged SYMBOL_VIEW element
+Info: Engaged BRACE_INDENT element
+Info: Engaged HISTORY_VIEW element
+Info: Engaged MESSAGE_UI element
 Info: Engaged SCOPE_LIST element
 Info: Engaged CALL_TIPS element
 Info: Engaged ASSISTANT_UI element
@@ -40,9 +108,11 @@ Info: Engaged SYMBOL_COMPLETION element
 Info: Engaged TERMINAL_UI element
 Info: Engaged PROJECT_VIEW element
 Info: Engaged DIRECTORY_VIEW element
-Info: Opening Initial Document(s)...
-Info: Document: /home/anthony/projects/dcomposer2/src/document.d opened.
-Info: Document: /home/anthony/projects/dcomposer2/src/dirview.d opened.
+Info: Engaged PREFERENCES_UI element
+Info: Elements Engaged !!!
+Info: Project tags Created
+Info: Project opened: dcomposer
+Info: GUI State restored
 Info: Entering GTK Main Loop
 
 Info: Exiting GTK Main Loop
@@ -51,7 +121,6 @@ Info: Disengaged SYMBOL_VIEW element
 Info: Disengaged BRACE_INDENT element
 Info: Disengaged HISTORY_VIEW element
 Info: Disengaged MESSAGE_UI element
-Info: Disengaged DEBUG_UI element
 Info: Disengaging SCOPE_LIST element
 Info: Disengaged CALL_TIPS element
 Info: Disengaged ASSISTANT_UI element
@@ -61,17 +130,53 @@ Info: Disengaged SearchUI element.
 Info: Disengaged TERMINAL_UI element
 Info: Disengaged PROJECT_VIEW element
 Info: Disengaged DIRECTORY_VIEW element
+Info: Disengaged PREFERENCES_UI
 Info: Disengaged AUTO_POP_UPS
-Info: Documents, Closing All...
-Info:     Document /home/anthony/projects/dcomposer2/src/dirview.d closed.
-Info:     Document /home/anthony/projects/dcomposer2/src/document.d closed.
-Info: Disengaged DOCMAN
 Info: Disengaged UI
-Info: Disengaged DEBUGGER
 Info: Disengaged SYMBOLS
+Info: Project saved: dcomposer
 Info: Disengaged PROJECT
 Info: Disengaged dcore
 Info: Disengaged LOG
-2012-04-03T00:01:32.3363396
+2012-06-19T00:12:30.4228679
+<<-- LOG ENDS -->>
+
+Info: Engaged LogUI element.
+Info: Engaged SearchUI element.
+Info: Engaged SYMBOL_COMPLETION element
+Info: Engaged TERMINAL_UI element
+Info: Engaged PROJECT_VIEW element
+Info: Engaged DIRECTORY_VIEW element
+Info: Engaged PREFERENCES_UI element
+Info: Elements Engaged !!!
+Info: Project tags Created
+Info: Project opened: dcomposer
+Info: GUI State restored
+Info: Entering GTK Main Loop
+
+Info: Exiting GTK Main Loop
+Info: Disengaging Elements ...
+Info: Disengaged SYMBOL_VIEW element
+Info: Disengaged BRACE_INDENT element
+Info: Disengaged HISTORY_VIEW element
+Info: Disengaged MESSAGE_UI element
+Info: Disengaging SCOPE_LIST element
+Info: Disengaged CALL_TIPS element
+Info: Disengaged ASSISTANT_UI element
+Info: Disengaged PROJECT_UI element
+Info: Disengaged LogUI element
+Info: Disengaged SearchUI element.
+Info: Disengaged TERMINAL_UI element
+Info: Disengaged PROJECT_VIEW element
+Info: Disengaged DIRECTORY_VIEW element
+Info: Disengaged PREFERENCES_UI
+Info: Disengaged AUTO_POP_UPS
+Info: Disengaged UI
+Info: Disengaged SYMBOLS
+Info: Project saved: dcomposer
+Info: Disengaged PROJECT
+Info: Disengaged dcore
+Info: Disengaged LOG
+2012-06-19T00:12:43.4112894
 <<-- LOG ENDS -->>
 

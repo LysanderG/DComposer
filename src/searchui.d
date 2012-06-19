@@ -190,18 +190,18 @@ class SEARCH_UI : ELEMENT
 
         if (mScopeFile.getActive())
         {
-            auto tmpDocument = cast (DOCUMENT)dui.GetDocMan.GetDocX();
-            string HayStack = tmpDocument.getBuffer.getText();
-            string DocTitle = dui.GetDocMan.GetDocX.FullPathName();
+            auto tmpDocument = dui.GetDocMan.GetDocument();
+            string HayStack  = tmpDocument.getBuffer.getText();
+            string DocTitle  = tmpDocument.Name;
             Results = FindInString(HayStack, Needle, DocTitle, Options);
         }
         if(mScopeProject.getActive())
         {
             foreach (srcFile; Project[SRCFILES])
             {
-                if(dui.GetDocMan.IsOpenDoc(srcFile))
+                if(dui.GetDocMan.IsOpen(srcFile))
                 {
-                    auto tmpDocument = cast (DOCUMENT)dui.GetDocMan.GetDocX(srcFile);
+                    auto tmpDocument = dui.GetDocMan.GetDocument(srcFile);
                     string HayStack = tmpDocument.getBuffer.getText();
                     Results ~= FindInString(HayStack, Needle, srcFile, Options);
                 }
@@ -212,9 +212,9 @@ class SEARCH_UI : ELEMENT
             }
             foreach (relFile; Project[RELFILES])
             {
-                if(dui.GetDocMan.IsOpenDoc(relFile))
+                if(dui.GetDocMan.IsOpen(relFile))
                 {
-                    auto tmpDocument = cast (DOCUMENT)dui.GetDocMan.GetDocX(relFile);
+                    auto tmpDocument = dui.GetDocMan.GetDocument(relFile);
                     string HayStack = tmpDocument.getBuffer.getText();
                     Results ~= FindInString(HayStack, Needle, relFile, Options);
                 }
@@ -226,17 +226,11 @@ class SEARCH_UI : ELEMENT
         }
         if(mScopeSession.getActive())
         {
-            int ctr = 1;
+            //why is this an associative array ???
             string[string] HayStacks;
 
-            auto xDoc = dui.GetDocMan.GetDocX(ctr);
-            while(xDoc !is null)
-            {
-                auto xDocument = cast(DOCUMENT) xDoc;
-                HayStacks[xDoc.FullPathName] = xDocument.getBuffer.getText();
-                ctr++;
-                xDoc = dui.GetDocMan.GetDocX(ctr);
-            }
+            foreach (doc; dui.GetDocMan.Documents) HayStacks[doc.Name] = doc.getBuffer.getText();
+
             Results = FindInStrings(HayStacks, Needle , Options);
         }
 
@@ -244,9 +238,9 @@ class SEARCH_UI : ELEMENT
         {
 			foreach (string Fname; dirEntries(getcwd(), SpanMode.shallow))
 			{
-				if(dui.GetDocMan.IsOpenDoc(Fname))
+				if(dui.GetDocMan.IsOpen(Fname))
                 {
-                    auto tmpDocument = cast (DOCUMENT)dui.GetDocMan.GetDocX(Fname);
+                    auto tmpDocument = dui.GetDocMan.Documents[Fname];
                     string HayStack = tmpDocument.getBuffer.getText();
                     Results ~= FindInString(HayStack, Needle, Fname, Options);
                 }
@@ -284,17 +278,14 @@ class SEARCH_UI : ELEMENT
         mResultsView.setCursor(new TreePath(true), null, false);
         mResultsView.grabFocus();
     }
-
     
-
-
     void FillResultsListFromFile()
     {
         int matches;
         int offset;
         
         string needle = mFind.getText();
-        DOCUMENT tmpdoc = cast (DOCUMENT) dui.GetDocMan.GetDocX;
+        DOCUMENT tmpdoc = dui.GetDocMan.Current;
         if (tmpdoc is null ) return;
         auto Text = tmpdoc.getBuffer.getText;
 
@@ -326,10 +317,10 @@ class SEARCH_UI : ELEMENT
             
             TI = new TreeIter;
             mResultsList.append(TI);
-            mResultsList.setValue(TI, 0, tmpdoc.DisplayName);
+            mResultsList.setValue(TI, 0, tmpdoc.ShortName);
             mResultsList.setValue(TI, 1, cast(int)LineNo+1);
             mResultsList.setValue(TI, 2, markup[0] ~ tagstart ~ markup[1] ~ tagend ~ markup[2]);//MarkupLine);
-            mResultsList.setValue(TI, 3, tmpdoc.FullPathName);
+            mResultsList.setValue(TI, 3, tmpdoc.Name);
             mResultsList.setValue(TI, 4, cast(int)offset);
             mResultsList.setValue(TI, 5, cast(int)needle.length);
             offset += needle.length; //wow this was a tricky one... sure missed it
@@ -385,10 +376,10 @@ class SEARCH_UI : ELEMENT
 
         string FileName = mResultsList.getValueString(TI, 3);
         int LineNo = mResultsList.getValueInt(TI, 1);
-        dui.GetDocMan.OpenDoc(FileName, LineNo-1);
-        DOCUMENT tmp = cast (DOCUMENT) dui.GetDocMan.GetDocX();
+        dui.GetDocMan.Open(FileName, LineNo-1);
+        DOCUMENT tmp = dui.GetDocMan.Current;
         if (tmp is null) return;
-        tmp.HiliteFindMatch(LineNo -1 , mResultsList.getValueInt(TI, 4), mResultsList.getValueInt(TI, 5)); //pray hard
+        tmp.HiliteFoundMatch(LineNo -1 , mResultsList.getValueInt(TI, 4), mResultsList.getValueInt(TI, 5)); //pray hard
         mResultsView.grabFocus();
     }
 
@@ -403,10 +394,10 @@ class SEARCH_UI : ELEMENT
         if(TI is null) return;
         string FileName = mResultsList.getValueString(TI, 3);
         int LineNo = mResultsList.getValueInt(TI, 1);
-        dui.GetDocMan.OpenDoc(FileName, LineNo-1);
-        DOCUMENT tmp = cast (DOCUMENT) dui.GetDocMan.GetDocX();
+        dui.GetDocMan.Open(FileName, LineNo-1);
+        DOCUMENT tmp = dui.GetDocMan.Current;
         if (tmp is null) return;
-        tmp.HiliteFindMatch(LineNo -1 , mResultsList.getValueInt(TI, 4), mResultsList.getValueInt(TI, 5) -mResultsList.getValueInt(TI, 4)); //pray hard
+        tmp.HiliteFoundMatch(LineNo -1 , mResultsList.getValueInt(TI, 4), mResultsList.getValueInt(TI, 5) -mResultsList.getValueInt(TI, 4)); //pray hard
         mResultsView.grabFocus();
         GC.enable();
     }
@@ -415,13 +406,12 @@ class SEARCH_UI : ELEMENT
     //Simply switches focus to the find comboentry prepared to accept text for searching.
     void BeginSearch(Action X)
     {
+		//what's that smell
         if(!dui.GetExtraPane.getVisible()) dui.PerformAction("ViewExtraPaneAct");
         mPage.getParent.getParent.showAll();
         dui.GetExtraPane.setCurrentPage(mPage.getParent.getParent);
 
-        auto tmpdoc = cast(DOCUMENT) dui.GetDocMan().GetDocX();
-
-        if(tmpdoc !is null) mFindComboBox.setActiveText(tmpdoc.GetCurrentWord(),true);
+        mFindComboBox.setActiveText(dui.GetDocMan.GetWord(),true);
         mFindComboBox.grabFocus();
         
     }
@@ -440,7 +430,7 @@ class SEARCH_UI : ELEMENT
         int line        = mResultsList.getValueInt(TI,1);
         int offstart    = mResultsList.getValueInt(TI, 4);
         int offend      = mResultsList.getValueInt(TI, 5);
-        DOCUMENT tmp = cast (DOCUMENT) dui.GetDocMan.GetDocX();
+        DOCUMENT tmp 	= dui.GetDocMan.Current;
         if (tmp is null) return;
 
         TextIter txti1 = new TextIter;
@@ -614,7 +604,7 @@ class SEARCH_UI : ELEMENT
         dui.Actions().addActionWithAccel(SearchPrevAct, "F4");
         SearchPrevAct.connectAccelerator();
         
-        dui.GetDocMan.AddContextAction(SearchAct);
+        dui.GetDocMan.AddContextMenuAction(SearchAct);
     	
         Log.Entry("Engaged SearchUI element.");
     }

@@ -85,7 +85,7 @@ class ASSISTANT_UI : ELEMENT
                            //... look into this
 
     
-    void WatchForNewDoc(string EventType, DOCUMENT_IF NuDoc)
+    void WatchForNewDoc(string EventType, DOCUMENT NuDoc)
     {
         if(EventType != "AppendDocument")return;
         auto doc = cast(DOCUMENT)NuDoc;
@@ -223,7 +223,8 @@ class ASSISTANT_UI : ELEMENT
         auto indx = mPossibles.getActive();
         if(indx < 0) return;
 
-        dui.GetDocMan.OpenDoc(mList[indx].InFile, mList[indx].OnLine);
+        //dui.GetDocMan.OpenDoc(mList[indx].InFile, mList[indx].OnLine);
+        dui.GetDocMan.Open(mList[indx].InFile, mList[indx].OnLine);
     }
     
     void Parent()

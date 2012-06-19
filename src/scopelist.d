@@ -34,6 +34,7 @@ import std.stdio;
 import std.ascii;
 import std.string;
 import std.conv;
+import std.path;
 
 
 
@@ -67,11 +68,13 @@ class SCOPE_LIST : ELEMENT
 		mEnabled = Config.getBoolean("SCOPE_LIST", "enabled", true);
 	}
 
-    void WatchForNewDocument(string EventId, DOCUMENT_IF DocIF)
+    void WatchForNewDocument(string EventId, DOCUMENT Doc)
     {
-        DOCUMENT DocX = cast (DOCUMENT) DocIF;
-        if (DocX.GetType != DOC_TYPE.D_SOURCE) return;
-        DocX.TextInserted.connect(&WatchDoc);
+        if (Doc is null ) return;
+        if ((extension(Doc.Name) == ".d") || (extension(Doc.Name) == ".di"))
+        {   
+			Doc.TextInserted.connect(&WatchDoc);
+		}
     }
 
     void WatchDoc(DOCUMENT sv, TextIter ti, string text, SourceBuffer buffer)
@@ -80,7 +83,7 @@ class SCOPE_LIST : ELEMENT
         
         if (text != ".") return;
         if (!mEnabled) return;
-        if (sv.IsPasting) return;
+        if (sv.Pasting) return;
 
         
         //pull out candidate

@@ -1,0 +1,3061 @@
+[
+{
+"name" : "gsv.SourceBuffer",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceBuffer.d",
+"members" : [
+{
+"name" : "SourceBuffer",
+"kind" : "class",
+"protection" : "public",
+"comment" : "\n Description\n The GtkSourceBuffer object is the model for GtkSourceView widgets.\n It extends the GtkTextBuffer object by adding features useful to display\n and edit source code as syntax highlighting and bracket matching. It\n also implements support for undo\/redo operations.\n To create a GtkSourceBuffer use gtk_source_buffer_new() or\n gtk_source_buffer_new_with_language(). The second form is just a convenience\n function which allows you to initially set a GtkSourceLanguage.\n By default highlighting is enabled, but you can disable it with\n gtk_source_buffer_set_highlight_syntax().\n \n",
+"line" : 99,
+"base" : "TextBuffer",
+"members" : [
+{
+"name" : "gtkSourceBuffer",
+"kind" : "variable",
+"protection" : "protected",
+"type" : "GtkSourceBuffer*",
+"comment" : " the main Gtk struct \n",
+"line" : 103}
+,
+{
+"name" : "getSourceBufferStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceBuffer*()",
+"line" : 106}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 113}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceBuffer(GtkSourceBuffer* gtkSourceBuffer)",
+"comment" : "\n Sets our main struct and passes it to the parent class\n\t \n",
+"line" : 121}
+,
+{
+"name" : "setStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void(GObject* obj)",
+"line" : 139}
+,
+{
+"name" : "connectedSignals",
+"kind" : "variable",
+"protection" : "public",
+"type" : "int[string]",
+"comment" : "\n\t \n",
+"line" : 147}
+,
+{
+"name" : "onHighlightUpdatedListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(TextIter, TextIter, SourceBuffer)[]",
+"line" : 149}
+,
+{
+"name" : "addOnHighlightUpdated",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(TextIter, TextIter, SourceBuffer) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n\t \n",
+"line" : 152}
+,
+{
+"name" : "callBackHighlightUpdated",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceBuffer* sourcebufferStruct, GtkTextIter* arg1, GtkTextIter* arg2, SourceBuffer sourceBuffer)",
+"line" : 167}
+,
+{
+"name" : "onRedoListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(SourceBuffer)[]",
+"line" : 175}
+,
+{
+"name" : "addOnRedo",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(SourceBuffer) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n\t \n",
+"line" : 178}
+,
+{
+"name" : "callBackRedo",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceBuffer* sourcebufferStruct, SourceBuffer sourceBuffer)",
+"line" : 193}
+,
+{
+"name" : "onSourceMarkUpdatedListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(GtkTextMark*, SourceBuffer)[]",
+"line" : 201}
+,
+{
+"name" : "addOnSourceMarkUpdated",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(GtkTextMark*, SourceBuffer) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n The ::source_mark_updated signal is emitted each time\n a mark is added to, moved or removed from the buffer.\n\t \n",
+"line" : 206}
+,
+{
+"name" : "callBackSourceMarkUpdated",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceBuffer* bufferStruct, GtkTextMark* arg1, SourceBuffer sourceBuffer)",
+"line" : 221}
+,
+{
+"name" : "onUndoListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(SourceBuffer)[]",
+"line" : 229}
+,
+{
+"name" : "addOnUndo",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(SourceBuffer) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n See Also\n GtkTextBuffer,GtkSourceView\n\t \n",
+"line" : 234}
+,
+{
+"name" : "callBackUndo",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceBuffer* sourcebufferStruct, SourceBuffer sourceBuffer)",
+"line" : 249}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceBuffer(TextTagTable table)",
+"comment" : "\n Creates a new source buffer.\n Params:\n table = a GtkTextTagTable, or NULL to create a new one.\n Throws: ConstructionException GTK+ fails to create the object.\n\t \n",
+"line" : 264}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceBuffer(SourceLanguage language)",
+"comment" : "\n Creates a new source buffer using the highlighting patterns in\n language. This is equivalent to creating a new source buffer with\n a new tag table and then calling gtk_source_buffer_set_language().\n Params:\n language = a GtkSourceLanguage.\n Throws: ConstructionException GTK+ fails to create the object.\n\t \n",
+"line" : 283}
+,
+{
+"name" : "setHighlightSyntax",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int highlight)",
+"comment" : "\n Controls whether syntax is highlighted in the buffer. If highlight\n is TRUE, the text will be highlighted according to the syntax\n patterns specified in the language set with\n gtk_source_buffer_set_language(). If highlight is FALSE, syntax highlighting\n is disabled and all the GtkTextTag objects that have been added by the\n syntax highlighting engine are removed from the buffer.\n Params:\n highlight = TRUE to enable syntax highlighting, FALSE to disable it.\n\t \n",
+"line" : 304}
+,
+{
+"name" : "getHighlightSyntax",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Determines whether syntax highlighting is activated in the source\n buffer.\n Returns: TRUE if syntax highlighting is enabled, FALSE otherwise.\n\t \n",
+"line" : 315}
+,
+{
+"name" : "setLanguage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(SourceLanguage language)",
+"comment" : "\n Associate a GtkSourceLanguage with the source buffer. If language is\n not-NULL and syntax highlighting is enabled (see gtk_source_buffer_set_highlight_syntax()),\n the syntax patterns defined in language will be used to highlight the text\n contained in the buffer. If language is NULL, the text contained in the\n buffer is not highlighted.\n The buffer holds a reference to language.\n Params:\n language = a GtkSourceLanguage to set, or NULL.\n\t \n",
+"line" : 331}
+,
+{
+"name" : "getLanguage",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceLanguage()",
+"comment" : "\n Returns the GtkSourceLanguage associated with the buffer,\n see gtk_source_buffer_set_language(). The returned object should not be\n unreferenced by the user.\n Returns: GtkSourceLanguage associated with the buffer, or NULL.\n\t \n",
+"line" : 343}
+,
+{
+"name" : "setHighlightMatchingBrackets",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int highlight)",
+"comment" : "\n Controls the bracket match highlighting function in the buffer. If\n activated, when you position your cursor over a bracket character\n (a parenthesis, a square bracket, etc.) the matching opening or\n closing bracket character will be highlighted. You can specify the\n style with the gtk_source_buffer_set_bracket_match_style()\n function.\n Params:\n highlight = TRUE if you want matching brackets highlighted.\n\t \n",
+"line" : 364}
+,
+{
+"name" : "getHighlightMatchingBrackets",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Determines whether bracket match highlighting is activated for the\n source buffer.\n Returns: TRUE if the source buffer will highlight matching brackets.\n\t \n",
+"line" : 375}
+,
+{
+"name" : "setStyleScheme",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(SourceStyleScheme scheme)",
+"comment" : "\n Sets style scheme used by the buffer. If scheme is NULL no\n style scheme is used.\n Params:\n scheme = style scheme.\n\t \n",
+"line" : 387}
+,
+{
+"name" : "getStyleScheme",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceStyleScheme()",
+"comment" : "\n Returns the GtkSourceStyleScheme currently used in buffer.\n Returns: the GtkSourceStyleScheme set by gtk_source_buffer_set_style_scheme(), or NULL.\n\t \n",
+"line" : 397}
+,
+{
+"name" : "getMaxUndoLevels",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Determines the number of undo levels the buffer will track for\n buffer edits.\n Returns: the maximum number of possible undo levels or -1 if no limit is set.\n\t \n",
+"line" : 413}
+,
+{
+"name" : "setMaxUndoLevels",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int maxUndoLevels)",
+"comment" : "\n Sets the number of undo levels for user actions the buffer will\n track. If the number of user actions exceeds the limit set by this\n function, older actions will be discarded.\n If max_undo_levels is -1, no limit is set.\n A new action is started whenever the function\n gtk_text_buffer_begin_user_action() is called. In general, this\n happens whenever the user presses any key which modifies the\n buffer, but the undo manager will try to merge similar consecutive\n actions, such as multiple character insertions into one action.\n But, inserting a newline does start a new action.\n Params:\n maxUndoLevels = the desired maximum number of undo levels.\n\t \n",
+"line" : 433}
+,
+{
+"name" : "redo",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"comment" : "\n Redoes the last undo operation. Use gtk_source_buffer_can_redo()\n to check whether a call to this function will have any effect.\n\t \n",
+"line" : 443}
+,
+{
+"name" : "undo",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"comment" : "\n Undoes the last user action which modified the buffer. Use\n gtk_source_buffer_can_undo() to check whether a call to this\n function will have any effect.\n Actions are defined as groups of operations between a call to\n gtk_text_buffer_begin_user_action() and\n gtk_text_buffer_end_user_action(), or sequences of similar edits\n (inserts or deletes) on the same line.\n\t \n",
+"line" : 458}
+,
+{
+"name" : "canRedo",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Determines whether a source buffer can redo the last action\n (i.e. if the last operation was an undo).\n Returns: TRUE if a redo is possible.\n\t \n",
+"line" : 469}
+,
+{
+"name" : "canUndo",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Determines whether a source buffer can undo the last action.\n Returns: TRUE if it's possible to undo the last action.\n\t \n",
+"line" : 479}
+,
+{
+"name" : "beginNotUndoableAction",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"comment" : "\n Marks the beginning of a not undoable action on the buffer,\n disabling the undo manager. Typically you would call this function\n before initially setting the contents of the buffer (e.g. when\n loading a file in a text editor).\n You may nest gtk_source_buffer_begin_not_undoable_action() \/\n gtk_source_buffer_end_not_undoable_action() blocks.\n\t \n",
+"line" : 493}
+,
+{
+"name" : "endNotUndoableAction",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"comment" : "\n Marks the end of a not undoable action on the buffer. When the\n last not undoable block is closed through the call to this\n function, the list of undo actions is cleared and the undo manager\n is re-enabled.\n\t \n",
+"line" : 505}
+,
+{
+"name" : "createSourceMark",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceMark(string name, string category, TextIter where)",
+"comment" : "\n Creates a source mark in the buffer of category category. A source mark is\n a GtkTextMark but organised into categories. Depending on the category\n a pixbuf can be specified that will be displayed along the line of the mark.\n Like a GtkTextMark, a GtkSourceMark can be anonymous if the\n passed name is NULL. Also, the buffer owns the marks so you\n shouldn't unreference it.\n Marks always have left gravity and are moved to the beginning of\n the line when the user deletes the line they were in.\n Typical uses for a source mark are bookmarks, breakpoints, current\n executing instruction indication in a source file, etc..\n Since 2.2\n Params:\n name = the name of the mark, or NULL.\n category = a string defining the mark category.\n where = location to place the mark.\n Returns: a new GtkSourceMark, owned by the buffer.\n\t \n",
+"line" : 529}
+,
+{
+"name" : "getSourceMarksAtLine",
+"kind" : "function",
+"protection" : "public",
+"type" : "ListSG(int line, string category)",
+"comment" : "\n Returns the list of marks of the given category at line.\n If category is NULL, all marks at line are returned.\n Since 2.2\n Params:\n line = a line number.\n category = category to search for or NULL\n Returns: a newly allocated GSList.\n\t \n",
+"line" : 549}
+,
+{
+"name" : "getSourceMarksAtIter",
+"kind" : "function",
+"protection" : "public",
+"type" : "ListSG(TextIter iter, string category)",
+"comment" : "\n Returns the list of marks of the given category at iter. If category\n is NULL it returns all marks at iter.\n Since 2.2\n Params:\n iter = an iterator.\n category = category to search for or NULL\n Returns: a newly allocated GSList.\n\t \n",
+"line" : 569}
+,
+{
+"name" : "removeSourceMarks",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(TextIter start, TextIter end, string category)",
+"comment" : "\n Remove all marks of category between start and end from the buffer.\n If category is NULL, all marks in the range will be removed.\n Since 2.2\n Params:\n start = a GtkTextIter\n end = a GtkTextIter\n category = category to search for or NULL\n\t \n",
+"line" : 589}
+,
+{
+"name" : "forwardIterToSourceMark",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(TextIter iter, string category)",
+"comment" : "\n Moves iter to the position of the next GtkSourceMark of the given\n category. Returns TRUE if iter was moved. If category is NULL, the\n next source mark can be of any category.\n Since 2.2\n Params:\n iter = an iterator.\n category = category to search for or NULL\n Returns: whether iter moved.\n\t \n",
+"line" : 605}
+,
+{
+"name" : "backwardIterToSourceMark",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(TextIter iter, string category)",
+"comment" : "\n Moves iter to the position of the previous GtkSourceMark of the given\n category. Returns TRUE if iter was moved. If category is NULL, the\n previous source mark can be of any category.\n Since 2.2\n Params:\n iter = an iterator.\n category = category to search for or NULL\n Returns: whether iter moved.\n\t \n",
+"line" : 621}
+,
+{
+"name" : "ensureHighlight",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(TextIter start, TextIter end)",
+"comment" : "\n Forces buffer to analyze and highlight the given area synchronously.\n Note\n  This is a potentially slow operation and should be used only\n  when you need to make sure that some text not currently\n  visible is highlighted, for instance before printing.\n Params:\n start = start of the area to highlight.\n end = end of the area to highlight.\n\t \n",
+"line" : 637}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceCompletionContext",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceCompletionContext.d",
+"members" : [
+{
+"name" : "SourceCompletionContext",
+"kind" : "class",
+"protection" : "public",
+"comment" : "\n Description\n \n",
+"line" : 82,
+"base" : "ObjectG",
+"members" : [
+{
+"name" : "gtkSourceCompletionContext",
+"kind" : "variable",
+"protection" : "protected",
+"type" : "GtkSourceCompletionContext*",
+"comment" : " the main Gtk struct \n",
+"line" : 86}
+,
+{
+"name" : "getSourceCompletionContextStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceCompletionContext*()",
+"line" : 89}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 96}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceCompletionContext(GtkSourceCompletionContext* gtkSourceCompletionContext)",
+"comment" : "\n Sets our main struct and passes it to the parent class\n\t \n",
+"line" : 104}
+,
+{
+"name" : "setStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void(GObject* obj)",
+"line" : 122}
+,
+{
+"name" : "addProposals",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(SourceCompletionProviderIF provider, ListG proposals, int finished)",
+"comment" : "\n Providers can use this function to add proposals to the completion. They\n can do so asynchronously by means of the finished argument. Providers must\n ensure that they always call this function with finished set to TRUE\n once each population (even if no proposals need to be added).\n Params:\n provider = A GtkSourceCompletionProvider\n proposals = The list of proposals to add\n finished = Whether the provider is finished adding proposals\n\t \n",
+"line" : 138}
+,
+{
+"name" : "connectedSignals",
+"kind" : "variable",
+"protection" : "public",
+"type" : "int[string]",
+"comment" : "\n\t \n",
+"line" : 146}
+,
+{
+"name" : "onCancelledListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(SourceCompletionContext)[]",
+"line" : 148}
+,
+{
+"name" : "addOnCancelled",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(SourceCompletionContext) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n Emitted when the current population of proposals has been cancelled.\n Providers adding proposals asynchronously should connect to this signal\n to know when to cancel running proposal queries.\n\t \n",
+"line" : 154}
+,
+{
+"name" : "callBackCancelled",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceCompletionContext* arg0Struct, SourceCompletionContext sourceCompletionContext)",
+"line" : 169}
+,
+{
+"name" : "getIter",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(TextIter iter)",
+"comment" : "\n Get the iter at which the completion was invoked. Providers can use this\n to determine how and if to match proposals.\n Params:\n iter = A GtkTextIter\n\t \n",
+"line" : 184}
+,
+{
+"name" : "getActivation",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceCompletionActivation()",
+"comment" : "\n\t \n",
+"line" : 192}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceCompletion",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceCompletion.d",
+"members" : [
+{
+"name" : "SourceCompletion",
+"kind" : "class",
+"protection" : "public",
+"comment" : "\n Description\n \n",
+"line" : 92,
+"base" : "ObjectGtk",
+"members" : [
+{
+"name" : "gtkSourceCompletion",
+"kind" : "variable",
+"protection" : "protected",
+"type" : "GtkSourceCompletion*",
+"comment" : " the main Gtk struct \n",
+"line" : 96}
+,
+{
+"name" : "getSourceCompletionStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceCompletion*()",
+"line" : 99}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 106}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceCompletion(GtkSourceCompletion* gtkSourceCompletion)",
+"comment" : "\n Sets our main struct and passes it to the parent class\n\t \n",
+"line" : 114}
+,
+{
+"name" : "setStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void(GObject* obj)",
+"line" : 132}
+,
+{
+"name" : "connectedSignals",
+"kind" : "variable",
+"protection" : "public",
+"type" : "int[string]",
+"comment" : "\n\t \n",
+"line" : 140}
+,
+{
+"name" : "onActivateProposalListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(SourceCompletion)[]",
+"line" : 142}
+,
+{
+"name" : "addOnActivateProposal",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(SourceCompletion) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n The ::activate-proposal signal is a keybinding signal which gets\n emitted when the user initiates a proposal activation.\n Applications should not connect to it, but may emit it with\n g_signal_emit_by_name if they need to control the proposal activation\n programmatically.\n\t \n",
+"line" : 150}
+,
+{
+"name" : "callBackActivateProposal",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceCompletion* completionStruct, SourceCompletion sourceCompletion)",
+"line" : 165}
+,
+{
+"name" : "onHideListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(SourceCompletion)[]",
+"line" : 173}
+,
+{
+"name" : "addOnHide",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(SourceCompletion) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n Emitted when the completion window is hidden. The default handler\n will actually hide the window.\n\t \n",
+"line" : 178}
+,
+{
+"name" : "callBackHide",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceCompletion* completionStruct, SourceCompletion sourceCompletion)",
+"line" : 193}
+,
+{
+"name" : "onMoveCursorListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(GtkScrollStep, int, SourceCompletion)[]",
+"line" : 201}
+,
+{
+"name" : "addOnMoveCursor",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(GtkScrollStep, int, SourceCompletion) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n The ::move-cursor signal is a keybinding signal which gets emitted when\n the user initiates a cursor movement.\n Applications should not connect to it, but may emit it with\n g_signal_emit_by_name if they need to control the cursor\n programmatically.\n\t \n",
+"line" : 209}
+,
+{
+"name" : "callBackMoveCursor",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceCompletion* completionStruct, GtkScrollStep step, int num, SourceCompletion sourceCompletion)",
+"line" : 224}
+,
+{
+"name" : "onMovePageListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(GtkScrollStep, int, SourceCompletion)[]",
+"line" : 232}
+,
+{
+"name" : "addOnMovePage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(GtkScrollStep, int, SourceCompletion) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n The ::move-page signal is a keybinding signal which gets emitted when\n the user initiates a page movement (i.e. switches between provider\n pages).\n Applications should not connect to it, but may emit it with\n g_signal_emit_by_name if they need to control the page selection\n programmatically.\n\t \n",
+"line" : 241}
+,
+{
+"name" : "callBackMovePage",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceCompletion* completionStruct, GtkScrollStep step, int num, SourceCompletion sourceCompletion)",
+"line" : 256}
+,
+{
+"name" : "onPopulateContextListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(SourceCompletionContext, SourceCompletion)[]",
+"line" : 264}
+,
+{
+"name" : "addOnPopulateContext",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(SourceCompletionContext, SourceCompletion) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n Emitted just before starting to populate the completion with providers.\n You can use this signal to add additional attributes in the context.\n\t \n",
+"line" : 269}
+,
+{
+"name" : "callBackPopulateContext",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceCompletion* completionStruct, GtkSourceCompletionContext* context, SourceCompletion sourceCompletion)",
+"line" : 284}
+,
+{
+"name" : "onShowListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(SourceCompletion)[]",
+"line" : 292}
+,
+{
+"name" : "addOnShow",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(SourceCompletion) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n Emitted when the completion window is shown. The default handler\n will actually show the window.\n\t \n",
+"line" : 297}
+,
+{
+"name" : "callBackShow",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceCompletion* completionStruct, SourceCompletion sourceCompletion)",
+"line" : 312}
+,
+{
+"name" : "addProvider",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(SourceCompletionProviderIF provider)",
+"comment" : "\n Add a new GtkSourceCompletionProvider to the completion object. This will\n add a reference provider, so make sure to unref your own copy when you\n no longer need it.\n Params:\n provider = A GtkSourceCompletionProvider\n Returns: TRUE if provider was successfully added, otherwise if error is provided, it will be set with the error and FALSE is returned.\n Throws: GException on failure.\n\t \n",
+"line" : 330}
+,
+{
+"name" : "removeProvider",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(SourceCompletionProviderIF provider)",
+"comment" : "\n Remove provider from the completion.\n Params:\n provider = A GtkSourceCompletionProvider\n Returns: TRUE if provider was successfully removed, otherwise if error is provided, it will be set with the error and FALSE is returned.\n Throws: GException on failure.\n\t \n",
+"line" : 352}
+,
+{
+"name" : "getProviders",
+"kind" : "function",
+"protection" : "public",
+"type" : "ListG()",
+"comment" : "\n Get list of providers registered on completion. The returned list is owned\n by the completion and should not be freed.\n Returns: list of GtkSourceCompletionProvider\n\t \n",
+"line" : 372}
+,
+{
+"name" : "show",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(ListG providers, SourceCompletionContext context)",
+"comment" : "\n Starts a new completion with the specified GtkSourceCompletionContext and\n a list of potential candidate providers for completion.\n Params:\n providers = A list of GtkSourceCompletionProvider or NULL\n context = The GtkSourceCompletionContext with which to start the completion\n Returns: TRUE if it was possible to the show completion window.\n\t \n",
+"line" : 391}
+,
+{
+"name" : "hide",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"comment" : "\n Hides the completion if it is active (visible).\n\t \n",
+"line" : 400}
+,
+{
+"name" : "getInfoWindow",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceCompletionInfo()",
+"comment" : "\n The info widget is the window where the completion displays optional extra\n information of the proposal.\n Returns: The GtkSourceCompletionInfo window.\n\t \n",
+"line" : 411}
+,
+{
+"name" : "getView",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceView()",
+"comment" : "\n The GtkSourceView associated with completion.\n Returns: The GtkSourceView associated with completion.\n\t \n",
+"line" : 426}
+,
+{
+"name" : "createContext",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceCompletionContext(TextIter position)",
+"comment" : "\n Create a new GtkSourceCompletionContext for completion. The position at\n which the completion using the new context will consider completion can\n be provider by position. If position is NULL, the current cursor\n position will be used.\n Params:\n position = A GtkTextIter\n Returns: a new GtkSourceCompletionContext. The reference being returned is a 'floating' reference, so if you invoke gtk_source_completion_show with this context you don't need to unref it.\n\t \n",
+"line" : 446}
+,
+{
+"name" : "moveWindow",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(TextIter iter)",
+"comment" : "\n Move the completion window to a specific iter.\n Params:\n iter = A GtkTextIter\n\t \n",
+"line" : 462}
+,
+{
+"name" : "blockInteractive",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"comment" : "\n\t \n",
+"line" : 470}
+,
+{
+"name" : "unblockInteractive",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"comment" : "\n\t \n",
+"line" : 478}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceCompletionInfo",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceCompletionInfo.d",
+"members" : [
+{
+"name" : "SourceCompletionInfo",
+"kind" : "class",
+"protection" : "public",
+"comment" : "\n Description\n This object can be used to show a calltip or help for the\n .* current completion proposal.\n \n",
+"line" : 81,
+"base" : "Window",
+"members" : [
+{
+"name" : "gtkSourceCompletionInfo",
+"kind" : "variable",
+"protection" : "protected",
+"type" : "GtkSourceCompletionInfo*",
+"comment" : " the main Gtk struct \n",
+"line" : 85}
+,
+{
+"name" : "getSourceCompletionInfoStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceCompletionInfo*()",
+"line" : 88}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 95}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceCompletionInfo(GtkSourceCompletionInfo* gtkSourceCompletionInfo)",
+"comment" : "\n Sets our main struct and passes it to the parent class\n\t \n",
+"line" : 103}
+,
+{
+"name" : "setStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void(GObject* obj)",
+"line" : 121}
+,
+{
+"name" : "connectedSignals",
+"kind" : "variable",
+"protection" : "public",
+"type" : "int[string]",
+"comment" : "\n\t \n",
+"line" : 129}
+,
+{
+"name" : "onBeforeShowListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(SourceCompletionInfo)[]",
+"line" : 131}
+,
+{
+"name" : "addOnBeforeShow",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(SourceCompletionInfo) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n\t \n",
+"line" : 134}
+,
+{
+"name" : "callBackBeforeShow",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceCompletionInfo* sourcecompletioninfoStruct, SourceCompletionInfo sourceCompletionInfo)",
+"line" : 149}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceCompletionInfo()",
+"comment" : "\n Throws: ConstructionException GTK+ fails to create the object.\n\t \n",
+"line" : 161}
+,
+{
+"name" : "moveToIter",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(TextView view, TextIter iter)",
+"comment" : "\n Moves the GtkSourceCompletionInfo to iter. If iter is NULL info is\n moved to the cursor position. Moving will respect the GdkGravity setting\n of the info window and will ensure the line at iter is not occluded by\n the window.\n Params:\n view = A GtkTextView on which the info window should be positioned\n iter = A GtkTextIter\n\t \n",
+"line" : 181}
+,
+{
+"name" : "setSizing",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int width, int height, int shrinkWidth, int shrinkHeight)",
+"comment" : "\n Set sizing information for the info window. If shrink_width or\n shrink_height is TRUE, the info window will try to resize to fit the\n window contents, with a maximum size given by width and height. Setting\n width or height to -1 removes the maximum size of respectively the width\n and height of the window.\n Params:\n width = The maximum\/requested width of the window (-1 to default)\n height = The maximum\/requested height of the window (-1 to default)\n shrinkWidth = Whether to shrink the width of the window to fit its contents\n shrinkHeight = Whether to shrink the height of the window to fit its\n  contents\n\t \n",
+"line" : 200}
+,
+{
+"name" : "setWidget",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(Widget widget)",
+"comment" : "\n Sets the content widget of the info window. If widget does not fit within\n the size requirements of the window, a GtkScrolledWindow will automatically\n be created and added to the window.\n Params:\n widget = A GtkWidget\n\t \n",
+"line" : 213}
+,
+{
+"name" : "getWidget",
+"kind" : "function",
+"protection" : "public",
+"type" : "Widget()",
+"comment" : "\n Get the current content widget.\n Returns: The current content widget.\n\t \n",
+"line" : 223}
+,
+{
+"name" : "processResize",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"comment" : "\n\t \n",
+"line" : 236}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceCompletionItem",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceCompletionItem.d",
+"members" : [
+{
+"name" : "SourceCompletionItem",
+"kind" : "class",
+"protection" : "public",
+"comment" : "\n Description\n \n",
+"line" : 78,
+"base" : "ObjectG",
+"interfaces" : [
+"SourceCompletionProposalIF"],
+"members" : [
+{
+"name" : "gtkSourceCompletionItem",
+"kind" : "variable",
+"protection" : "protected",
+"type" : "GtkSourceCompletionItem*",
+"comment" : " the main Gtk struct \n",
+"line" : 82}
+,
+{
+"name" : "getSourceCompletionItemStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceCompletionItem*()",
+"line" : 85}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 92}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceCompletionItem(GtkSourceCompletionItem* gtkSourceCompletionItem)",
+"comment" : "\n Sets our main struct and passes it to the parent class\n\t \n",
+"line" : 100}
+,
+{
+"name" : "setStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void(GObject* obj)",
+"line" : 118}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceCompletionItem(string label, string text, Pixbuf icon, string info)",
+"comment" : "\n\t \n\n Create a new GtkSourceCompletionItem with label label, icon icon and\n extra information info. Both icon and info can be NULL in which case\n there will be no icon shown and no extra information available.\n Params:\n label = The item label\n text = The item text\n icon = The item icon\n info = The item extra information\n Throws: ConstructionException GTK+ fails to create the object.\n\t \n",
+"line" : 141}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceCompletionItem(string label, string text, string stock, string info)",
+"comment" : "\n Creates a new GtkSourceCompletionItem from a stock item. If label is NULL,\n the stock label will be used.\n Params:\n label = The item label\n text = The item text\n stock = The stock icon\n info = The item extra information\n Throws: ConstructionException GTK+ fails to create the object.\n\t \n",
+"line" : 162}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceCompletionProposalIF",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceCompletionProposalIF.d",
+"members" : [
+{
+"name" : "SourceCompletionProposalIF",
+"kind" : "interface",
+"protection" : "public",
+"comment" : "\n Description\n The proposal interface represents a completion item in the completion window.\n It provides information on how to display the completion item and what action\n should be taken when the completion item is activated.\n \n",
+"line" : 79,
+"members" : [
+{
+"name" : "getSourceCompletionProposalTStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceCompletionProposal*()",
+"line" : 82}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 85}
+,
+{
+"name" : "onChangedListeners",
+"kind" : "function",
+"protection" : "public",
+"type" : "void delegate(SourceCompletionProposalIF)[]()",
+"comment" : "\n\t \n",
+"line" : 91}
+,
+{
+"name" : "addOnChanged",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(SourceCompletionProposalIF) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n Emitted when the proposal has changed. The completion popup\n will react to this by updating the shown information.\n\t \n",
+"line" : 96}
+,
+{
+"name" : "getLabel",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n Gets the label of proposal. The label is shown in the list of proposals as\n plain text. If you need any markup (such as bold or italic text), you have\n to implement gtk_source_completion_proposal_get_markup. The returned string\n must be freed with g_free().\n Returns: A new string containing the label of proposal.\n\t \n",
+"line" : 105}
+,
+{
+"name" : "getMarkup",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n Gets the label of proposal with markup. The label is shown in the list of\n proposals and may contain markup. This will be used instead of\n gtk_source_completion_proposal_get_label if implemented. The returned string\n must be freed with g_free().\n Returns: A new string containing the label of proposal with markup.\n\t \n",
+"line" : 114}
+,
+{
+"name" : "getText",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n Gets the text of proposal. The text that is inserted into\n the text buffer when the proposal is activated by the default activation.\n You are free to implement a custom activation handler in the provider and\n not implement this function. The returned string must be freed with g_free().\n Returns: A new string containing the text of proposal.\n\t \n",
+"line" : 123}
+,
+{
+"name" : "getIcon",
+"kind" : "function",
+"protection" : "public",
+"type" : "Pixbuf()",
+"comment" : "\n Gets the icon of proposal.\n Returns: The icon of proposal.\n\t \n",
+"line" : 129}
+,
+{
+"name" : "getInfo",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n Gets extra information associated to the proposal. This information will be\n used to present the user with extra, detailed information about the\n selected proposal. The returned string must be freed with g_free().\n Returns: A new string containing extra information of proposal or NULL if no extra information is associated to proposal.\n\t \n",
+"line" : 137}
+,
+{
+"name" : "changed",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"comment" : "\n Emits the \"changed\" signal on proposal. This should be called by\n implementations whenever the name, icon or info of the proposal has\n changed.\n\t \n",
+"line" : 144}
+,
+{
+"name" : "hash",
+"kind" : "function",
+"protection" : "public",
+"type" : "uint()",
+"comment" : "\n Get the hash value of proposal. This is used to (together with\n gtk_source_completion_proposal_equal) to match proposals in the completion\n model. By default, it uses a direct hash (g_direct_hash).\n Returns: The hash value of proposal\n\t \n",
+"line" : 152}
+,
+{
+"name" : "equal",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(SourceCompletionProposalIF other)",
+"comment" : "\n Get whether two proposal objects are the same. This is used to (together\n with gtk_source_completion_proposal_hash) to match proposals in the\n completion model. By default, it uses direct equality (g_direct_equal).\n Params:\n other = A GtkSourceCompletionProposal\n Returns: TRUE if proposal and object are the same proposal Signal Details The \"changed\" signal void user_function (GtkSourceCompletionProposal *proposal, gpointer user_data) : Run Last \/ Action Emitted when the proposal has changed. The completion popup will react to this by updating the shown information.\n\t \n",
+"line" : 162}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceCompletionProposalT",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceCompletionProposalT.d",
+"members" : [
+{
+"name" : "SourceCompletionProposalT(TStruct)",
+"kind" : "template",
+"protection" : "public",
+"comment" : "\n Description\n The proposal interface represents a completion item in the completion window.\n It provides information on how to display the completion item and what action\n should be taken when the completion item is activated.\n \n",
+"line" : 79,
+"members" : [
+{
+"name" : "gtkSourceCompletionProposal",
+"kind" : "variable",
+"type" : "GtkSourceCompletionProposal*",
+"comment" : " the main Gtk struct \n",
+"line" : 83}
+,
+{
+"name" : "getSourceCompletionProposalTStruct",
+"kind" : "function",
+"type" : "GtkSourceCompletionProposal*()",
+"line" : 86}
+,
+{
+"name" : "connectedSignals",
+"kind" : "variable",
+"type" : "int[string]",
+"comment" : "\n\t \n",
+"line" : 94}
+,
+{
+"name" : "_onChangedListeners",
+"kind" : "variable",
+"type" : "void delegate(SourceCompletionProposalIF)[]",
+"line" : 96}
+,
+{
+"name" : "onChangedListeners",
+"kind" : "function",
+"type" : "void delegate(SourceCompletionProposalIF)[]()",
+"line" : 97}
+,
+{
+"name" : "addOnChanged",
+"kind" : "function",
+"type" : "void(void delegate(SourceCompletionProposalIF) dlg, ConnectFlags connectFlags = cast(ConnectFlags)0)",
+"comment" : "\n Emitted when the proposal has changed. The completion popup\n will react to this by updating the shown information.\n\t \n",
+"line" : 105}
+,
+{
+"name" : "callBackChanged",
+"kind" : "function",
+"type" : "extern (C) void(GtkSourceCompletionProposal* proposalStruct, SourceCompletionProposalIF sourceCompletionProposalIF)",
+"line" : 120}
+,
+{
+"name" : "getLabel",
+"kind" : "function",
+"type" : "string()",
+"comment" : "\n Gets the label of proposal. The label is shown in the list of proposals as\n plain text. If you need any markup (such as bold or italic text), you have\n to implement gtk_source_completion_proposal_get_markup. The returned string\n must be freed with g_free().\n Returns: A new string containing the label of proposal.\n\t \n",
+"line" : 136}
+,
+{
+"name" : "getMarkup",
+"kind" : "function",
+"type" : "string()",
+"comment" : "\n Gets the label of proposal with markup. The label is shown in the list of\n proposals and may contain markup. This will be used instead of\n gtk_source_completion_proposal_get_label if implemented. The returned string\n must be freed with g_free().\n Returns: A new string containing the label of proposal with markup.\n\t \n",
+"line" : 149}
+,
+{
+"name" : "getText",
+"kind" : "function",
+"type" : "string()",
+"comment" : "\n Gets the text of proposal. The text that is inserted into\n the text buffer when the proposal is activated by the default activation.\n You are free to implement a custom activation handler in the provider and\n not implement this function. The returned string must be freed with g_free().\n Returns: A new string containing the text of proposal.\n\t \n",
+"line" : 162}
+,
+{
+"name" : "getIcon",
+"kind" : "function",
+"type" : "Pixbuf()",
+"comment" : "\n Gets the icon of proposal.\n Returns: The icon of proposal.\n\t \n",
+"line" : 172}
+,
+{
+"name" : "getInfo",
+"kind" : "function",
+"type" : "string()",
+"comment" : "\n Gets extra information associated to the proposal. This information will be\n used to present the user with extra, detailed information about the\n selected proposal. The returned string must be freed with g_free().\n Returns: A new string containing extra information of proposal or NULL if no extra information is associated to proposal.\n\t \n",
+"line" : 189}
+,
+{
+"name" : "changed",
+"kind" : "function",
+"type" : "void()",
+"comment" : "\n Emits the \"changed\" signal on proposal. This should be called by\n implementations whenever the name, icon or info of the proposal has\n changed.\n\t \n",
+"line" : 200}
+,
+{
+"name" : "hash",
+"kind" : "function",
+"type" : "uint()",
+"comment" : "\n Get the hash value of proposal. This is used to (together with\n gtk_source_completion_proposal_equal) to match proposals in the completion\n model. By default, it uses a direct hash (g_direct_hash).\n Returns: The hash value of proposal\n\t \n",
+"line" : 212}
+,
+{
+"name" : "equal",
+"kind" : "function",
+"type" : "int(SourceCompletionProposalIF other)",
+"comment" : "\n Get whether two proposal objects are the same. This is used to (together\n with gtk_source_completion_proposal_hash) to match proposals in the\n completion model. By default, it uses direct equality (g_direct_equal).\n Params:\n other = A GtkSourceCompletionProposal\n Returns: TRUE if proposal and object are the same proposal Signal Details The \"changed\" signal void user_function (GtkSourceCompletionProposal *proposal, gpointer user_data) : Run Last \/ Action Emitted when the proposal has changed. The completion popup will react to this by updating the shown information.\n\t \n",
+"line" : 226}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceCompletionProviderIF",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceCompletionProviderIF.d",
+"members" : [
+{
+"name" : "SourceCompletionProviderIF",
+"kind" : "interface",
+"protection" : "public",
+"comment" : "\n Description\n You must implement this interface to provide proposals to GtkSourceCompletion\n \n",
+"line" : 89,
+"members" : [
+{
+"name" : "getSourceCompletionProviderTStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceCompletionProvider*()",
+"line" : 92}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 95}
+,
+{
+"name" : "gtkSourceCompletionProviderGetName",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n\t \n\n Get the name of the provider. This should be a translatable name for\n display to the user. For example: _(\"Document word completion provider\"). The\n returned string must be freed with g_free().\n Returns: A new string containing the name of the provider.\n\t \n",
+"line" : 107}
+,
+{
+"name" : "gtkSourceCompletionProviderGetIcon",
+"kind" : "function",
+"protection" : "public",
+"type" : "Pixbuf()",
+"comment" : "\n Get the icon of the provider.\n Returns: The icon to be used for the provider, or NULL if the provider does not have a special icon.\n\t \n",
+"line" : 113}
+,
+{
+"name" : "gtkSourceCompletionProviderPopulate",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(SourceCompletionContext context)",
+"comment" : "\n Populate context with proposals from provider\n Params:\n context = The GtkSourceCompletionContext\n\t \n",
+"line" : 120}
+,
+{
+"name" : "gtkSourceCompletionProviderGetActivation",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceCompletionActivation()",
+"comment" : "\n\t \n",
+"line" : 124}
+,
+{
+"name" : "gtkSourceCompletionProviderMatch",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(SourceCompletionContext context)",
+"comment" : "\n Get whether the provider match the context of completion detailed in\n context.\n Params:\n context = The GtkSourceCompletionContext\n Returns: TRUE if provider matches the completion context, FALSE otherwise\n\t \n",
+"line" : 133}
+,
+{
+"name" : "gtkSourceCompletionProviderGetInfoWidget",
+"kind" : "function",
+"protection" : "public",
+"type" : "Widget(SourceCompletionProposalIF proposal)",
+"comment" : "\n Get a customized info widget to show extra information of a proposal.\n This allows for customized widgets on a proposal basis, although in general\n providers will have the same custom widget for all their proposals and\n proposal can be ignored. The implementation of this function is optional.\n If implemented, gtk_source_completion_provider_update_info MUST also be\n implemented. If not implemented, the default\n gtk_source_completion_proposal_get_info will be used to display extra\n information about a GtkSourceCompletionProposal.\n Params:\n proposal = The currently selected GtkSourceCompletionProposal\n Returns: a custom GtkWidget to show extra information about proposal.\n\t \n",
+"line" : 148}
+,
+{
+"name" : "gtkSourceCompletionProviderUpdateInfo",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(SourceCompletionProposalIF proposal, SourceCompletionInfo info)",
+"comment" : "\n Update extra information shown in info for proposal. This should be\n implemented if your provider sets a custom info widget for proposal.\n This function MUST be implemented when\n gtk_source_completion_provider_get_info_widget is implemented.\n Params:\n proposal = A GtkSourceCompletionProposal\n info = A GtkSourceCompletionInfo\n\t \n",
+"line" : 159}
+,
+{
+"name" : "gtkSourceCompletionProviderGetStartIter",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(SourceCompletionContext context, SourceCompletionProposalIF proposal, TextIter iter)",
+"comment" : "\n Get the GtkTextIter at which the completion for proposal starts. When\n implemented, the completion can use this information to position the\n completion window accordingly when a proposal is selected in the completion\n window.\n Params:\n context = A GtkSourceCompletionContext\n proposal = A GtkSourceCompletionProposal\n iter = A GtkTextIter\n Returns: TRUE if iter was set for proposal, FALSE otherwise\n\t \n",
+"line" : 172}
+,
+{
+"name" : "gtkSourceCompletionProviderActivateProposal",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(SourceCompletionProposalIF proposal, TextIter iter)",
+"comment" : "\n Activate proposal at iter. When this functions returns FALSE, the default\n activation of proposal will take place which replaces the word at iter\n with the label of proposal.\n Params:\n proposal = A GtkSourceCompletionProposal\n iter = A GtkTextIter\n Returns: TRUE to indicate that the proposal activation has been handled, FALSE otherwise.\n\t \n",
+"line" : 183}
+,
+{
+"name" : "gtkSourceCompletionProviderGetInteractiveDelay",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n\t \n",
+"line" : 187}
+,
+{
+"name" : "gtkSourceCompletionProviderGetPriority",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n\t \n",
+"line" : 191}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceCompletionProviderT",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceCompletionProviderT.d",
+"members" : [
+{
+"name" : "SourceCompletionProviderT(TStruct)",
+"kind" : "template",
+"protection" : "public",
+"comment" : "\n Description\n You must implement this interface to provide proposals to GtkSourceCompletion\n \n",
+"line" : 89,
+"members" : [
+{
+"name" : "gtkSourceCompletionProvider",
+"kind" : "variable",
+"type" : "GtkSourceCompletionProvider*",
+"comment" : " the main Gtk struct \n",
+"line" : 93}
+,
+{
+"name" : "getSourceCompletionProviderTStruct",
+"kind" : "function",
+"type" : "GtkSourceCompletionProvider*()",
+"line" : 96}
+,
+{
+"name" : "gtkSourceCompletionProviderGetName",
+"kind" : "function",
+"type" : "string()",
+"comment" : "\n\t \n\n Get the name of the provider. This should be a translatable name for\n display to the user. For example: _(\"Document word completion provider\"). The\n returned string must be freed with g_free().\n Returns: A new string containing the name of the provider.\n\t \n",
+"line" : 111}
+,
+{
+"name" : "gtkSourceCompletionProviderGetIcon",
+"kind" : "function",
+"type" : "Pixbuf()",
+"comment" : "\n Get the icon of the provider.\n Returns: The icon to be used for the provider, or NULL if the provider does not have a special icon.\n\t \n",
+"line" : 121}
+,
+{
+"name" : "gtkSourceCompletionProviderPopulate",
+"kind" : "function",
+"type" : "void(SourceCompletionContext context)",
+"comment" : "\n Populate context with proposals from provider\n Params:\n context = The GtkSourceCompletionContext\n\t \n",
+"line" : 137}
+,
+{
+"name" : "gtkSourceCompletionProviderGetActivation",
+"kind" : "function",
+"type" : "GtkSourceCompletionActivation()",
+"comment" : "\n\t \n",
+"line" : 145}
+,
+{
+"name" : "gtkSourceCompletionProviderMatch",
+"kind" : "function",
+"type" : "int(SourceCompletionContext context)",
+"comment" : "\n Get whether the provider match the context of completion detailed in\n context.\n Params:\n context = The GtkSourceCompletionContext\n Returns: TRUE if provider matches the completion context, FALSE otherwise\n\t \n",
+"line" : 158}
+,
+{
+"name" : "gtkSourceCompletionProviderGetInfoWidget",
+"kind" : "function",
+"type" : "Widget(SourceCompletionProposalIF proposal)",
+"comment" : "\n Get a customized info widget to show extra information of a proposal.\n This allows for customized widgets on a proposal basis, although in general\n providers will have the same custom widget for all their proposals and\n proposal can be ignored. The implementation of this function is optional.\n If implemented, gtk_source_completion_provider_update_info MUST also be\n implemented. If not implemented, the default\n gtk_source_completion_proposal_get_info will be used to display extra\n information about a GtkSourceCompletionProposal.\n Params:\n proposal = The currently selected GtkSourceCompletionProposal\n Returns: a custom GtkWidget to show extra information about proposal.\n\t \n",
+"line" : 177}
+,
+{
+"name" : "gtkSourceCompletionProviderUpdateInfo",
+"kind" : "function",
+"type" : "void(SourceCompletionProposalIF proposal, SourceCompletionInfo info)",
+"comment" : "\n Update extra information shown in info for proposal. This should be\n implemented if your provider sets a custom info widget for proposal.\n This function MUST be implemented when\n gtk_source_completion_provider_get_info_widget is implemented.\n Params:\n proposal = A GtkSourceCompletionProposal\n info = A GtkSourceCompletionInfo\n\t \n",
+"line" : 197}
+,
+{
+"name" : "gtkSourceCompletionProviderGetStartIter",
+"kind" : "function",
+"type" : "int(SourceCompletionContext context, SourceCompletionProposalIF proposal, TextIter iter)",
+"comment" : "\n Get the GtkTextIter at which the completion for proposal starts. When\n implemented, the completion can use this information to position the\n completion window accordingly when a proposal is selected in the completion\n window.\n Params:\n context = A GtkSourceCompletionContext\n proposal = A GtkSourceCompletionProposal\n iter = A GtkTextIter\n Returns: TRUE if iter was set for proposal, FALSE otherwise\n\t \n",
+"line" : 214}
+,
+{
+"name" : "gtkSourceCompletionProviderActivateProposal",
+"kind" : "function",
+"type" : "int(SourceCompletionProposalIF proposal, TextIter iter)",
+"comment" : "\n Activate proposal at iter. When this functions returns FALSE, the default\n activation of proposal will take place which replaces the word at iter\n with the label of proposal.\n Params:\n proposal = A GtkSourceCompletionProposal\n iter = A GtkTextIter\n Returns: TRUE to indicate that the proposal activation has been handled, FALSE otherwise.\n\t \n",
+"line" : 229}
+,
+{
+"name" : "gtkSourceCompletionProviderGetInteractiveDelay",
+"kind" : "function",
+"type" : "int()",
+"comment" : "\n\t \n",
+"line" : 237}
+,
+{
+"name" : "gtkSourceCompletionProviderGetPriority",
+"kind" : "function",
+"type" : "int()",
+"comment" : "\n\t \n",
+"line" : 245}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceGutter",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceGutter.d",
+"members" : [
+{
+"name" : "SourceGutter",
+"kind" : "class",
+"protection" : "public",
+"comment" : "\n Description\n The GtkSourceGutter object represents the left and right gutters of the text\n view. It is used by GtkSourceView to draw the line numbers and category\n marks that might be present on a line. By packing additional GtkCellRenderer\n objects in the gutter, you can extend the gutter with your own custom\n drawings.\n The gutter works very much the same way as cells rendered in a GtkTreeView.\n The concept is similar, with the exception that the gutter does not have an\n underlying GtkTreeModel. Instead, you should use\n gtk_source_gutter_set_cell_data_func to set a callback to fill in any of the\n cell renderers properties, given the line for which the cell is to be\n rendered. Renderers are inserted into the gutter at a certain position. The\n builtin line number renderer is at position\n GTK_SOURCE_VIEW_GUTTER_POSITION_LINES (-30) and the marks renderer is at\n GTK_SOURCE_VIEW_GUTTER_POSITION_MARKS (-20). You can use these values to\n position custom renderers accordingly. The width of a cell renderer can be\n specified as either fixed (using\n gtk_cell_renderer_set_fixed_size) or dynamic, in which case you\n must set gtk_source_gutter_set_cell_size_func. This\n callback is used to set the properties of the renderer such that\n gtk_cell_renderer_get_size yields the maximum width of the cell.\n \n",
+"line" : 96,
+"base" : "ObjectG",
+"members" : [
+{
+"name" : "gtkSourceGutter",
+"kind" : "variable",
+"protection" : "protected",
+"type" : "GtkSourceGutter*",
+"comment" : " the main Gtk struct \n",
+"line" : 100}
+,
+{
+"name" : "getSourceGutterStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceGutter*()",
+"line" : 103}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 110}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceGutter(GtkSourceGutter* gtkSourceGutter)",
+"comment" : "\n Sets our main struct and passes it to the parent class\n\t \n",
+"line" : 118}
+,
+{
+"name" : "setStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void(GObject* obj)",
+"line" : 136}
+,
+{
+"name" : "connectedSignals",
+"kind" : "variable",
+"protection" : "public",
+"type" : "int[string]",
+"comment" : "\n\t \n",
+"line" : 144}
+,
+{
+"name" : "onCellActivatedListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(CellRenderer, GtkTextIter*, GdkEvent*, SourceGutter)[]",
+"line" : 146}
+,
+{
+"name" : "addOnCellActivated",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(CellRenderer, GtkTextIter*, GdkEvent*, SourceGutter) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n Emitted when a cell has been activated (for instance when there was\n a button press on the cell). The signal is only emitted for cells\n that have the activatable property set to TRUE.\n\t \n",
+"line" : 152}
+,
+{
+"name" : "callBackCellActivated",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceGutter* gutterStruct, GtkCellRenderer* renderer, GtkTextIter* iter, GdkEvent* event, SourceGutter sourceGutter)",
+"line" : 167}
+,
+{
+"name" : "onQueryTooltipListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "bool delegate(CellRenderer, GtkTextIter*, GtkTooltip*, SourceGutter)[]",
+"line" : 175}
+,
+{
+"name" : "addOnQueryTooltip",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(bool delegate(CellRenderer, GtkTextIter*, GtkTooltip*, SourceGutter) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n Emitted when a tooltip is requested for a specific cell. Signal\n handlers can return TRUE to notify the tooltip has been handled.\n See Also\n GtkSourceView\n\t \n",
+"line" : 182}
+,
+{
+"name" : "callBackQueryTooltip",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) int(GtkSourceGutter* gutterStruct, GtkCellRenderer* renderer, GtkTextIter* iter, GtkTooltip* tooltip, SourceGutter sourceGutter)",
+"line" : 197}
+,
+{
+"name" : "getWindow",
+"kind" : "function",
+"protection" : "public",
+"type" : "Window()",
+"comment" : "\n Get the GdkWindow of the gutter. The window will only be available when the\n gutter has at least one, non-zero width, cell renderer packed.\n Since 2.8\n Returns: the GdkWindow of the gutter, or NULL if the gutter has no window.\n\t \n",
+"line" : 217}
+,
+{
+"name" : "insert",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(CellRenderer renderer, int position)",
+"comment" : "\n Inserts renderer into gutter at position.\n Since 2.8\n Params:\n renderer = a GtkCellRenderer\n position = the renderers position\n\t \n",
+"line" : 235}
+,
+{
+"name" : "reorder",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(CellRenderer renderer, int position)",
+"comment" : "\n Reorders renderer in gutter to new position.\n Since 2.8\n Params:\n renderer = a GtkCellRenderer\n position = the new renderer position\n\t \n",
+"line" : 248}
+,
+{
+"name" : "remove",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(CellRenderer renderer)",
+"comment" : "\n Removes renderer from gutter.\n Since 2.8\n Params:\n renderer = a GtkCellRenderer\n\t \n",
+"line" : 260}
+,
+{
+"name" : "setCellDataFunc",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(CellRenderer renderer, extern (C) void function(GtkSourceGutter*, GtkCellRenderer*, int, int, void*) func, void* funcData, extern (C) void function(void* cbData) destroy)",
+"comment" : "\n Sets the GtkSourceGutterDataFunc to use for renderer. This function is\n used to setup the cell renderer properties for rendering the current cell.\n Since 2.8\n Params:\n renderer = a GtkCellRenderer\n func = the GtkSourceGutterDataFunc to use\n funcData = the user data for func\n destroy = the destroy notification for func_data\n\t \n",
+"line" : 276}
+,
+{
+"name" : "setCellSizeFunc",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(CellRenderer renderer, extern (C) void function(GtkSourceGutter*, GtkCellRenderer*, void*) func, void* funcData, extern (C) void function(void* cbData) destroy)",
+"comment" : "\n Sets the GtkSourceGutterSizeFunc to use for renderer. This function is\n used to setup the cell renderer properties for measuring the maximum size\n of the cell.\n Since 2.8\n Params:\n renderer = a GtkCellRenderer\n func = the GtkSourceGutterSizeFunc to use\n funcData = the user data for func\n destroy = the destroy notification for func_data\n\t \n",
+"line" : 293}
+,
+{
+"name" : "queueDraw",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"comment" : "\n Invalidates the drawable area of the gutter. You can use this to force a\n redraw of the gutter if something has changed and needs to be redrawn.\n Since 2.8\n\t \n",
+"line" : 304}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceLanguage",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceLanguage.d",
+"members" : [
+{
+"name" : "SourceLanguage",
+"kind" : "class",
+"protection" : "public",
+"comment" : "\n Description\n GtkSourceLanguage encapsulates syntax and highlighting styles for a\n particular language. Use GtkSourceLanguageManager to obtain a\n GtkSourceLanguage instance, and gtk_source_buffer_set_language() to apply it\n to a GtkSourceBuffer.\n \n",
+"line" : 74,
+"base" : "ObjectG",
+"members" : [
+{
+"name" : "gtkSourceLanguage",
+"kind" : "variable",
+"protection" : "protected",
+"type" : "GtkSourceLanguage*",
+"comment" : " the main Gtk struct \n",
+"line" : 78}
+,
+{
+"name" : "getSourceLanguageStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceLanguage*()",
+"line" : 81}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 88}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceLanguage(GtkSourceLanguage* gtkSourceLanguage)",
+"comment" : "\n Sets our main struct and passes it to the parent class\n\t \n",
+"line" : 96}
+,
+{
+"name" : "setStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void(GObject* obj)",
+"line" : 114}
+,
+{
+"name" : "gtkSourceLanguageGetId",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n\t \n\n Returns the ID of the language. The ID is not locale-dependent.\n Returns: the ID of language. The returned string is owned by language and should not be freed or modified.\n\t \n",
+"line" : 127}
+,
+{
+"name" : "gtkSourceLanguageGetName",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n Returns the localized name of the language.\n Returns: the name of language. The returned string is owned by language and should not be freed or modified.\n\t \n",
+"line" : 137}
+,
+{
+"name" : "gtkSourceLanguageGetSection",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n Returns the localized section of the language.\n Each language belong to a section (ex. HTML belogs to the\n Markup section).\n Returns: the section of language. The returned string is owned by language and should not be freed or modified.\n\t \n",
+"line" : 149}
+,
+{
+"name" : "gtkSourceLanguageGetHidden",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Returns whether the language should be hidden from the user.\n Returns: TRUE if the language should be hidden, FALSE otherwise.\n\t \n",
+"line" : 159}
+,
+{
+"name" : "gtkSourceLanguageGetMetadata",
+"kind" : "function",
+"protection" : "public",
+"type" : "string(string name)",
+"comment" : "\n Params:\n name = metadata property name.\n Returns: value of property name stored in the metadata of language or NULL if language doesn't contain that metadata property. The returned string is owned by language and should not be freed or modified.\n\t \n",
+"line" : 170}
+,
+{
+"name" : "gtkSourceLanguageGetMimeTypes",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[]()",
+"comment" : "\n Returns the mime types associated to this language. This is just\n an utility wrapper around gtk_source_language_get_metadata() to\n retrieve the \"mimetypes\" metadata property and split it into an\n array.\n Returns: a newly-allocated NULL terminated array containing the mime types or NULL if no mime types are found. The returned array must be freed with g_strfreev().\n\t \n",
+"line" : 183}
+,
+{
+"name" : "gtkSourceLanguageGetGlobs",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[]()",
+"comment" : "\n Returns the globs associated to this language. This is just\n an utility wrapper around gtk_source_language_get_metadata() to\n retrieve the \"globs\" metadata property and split it into an array.\n Returns: a newly-allocated NULL terminated array containing the globs or NULL if no globs are found. The returned array must be freed with g_strfreev().\n\t \n",
+"line" : 195}
+,
+{
+"name" : "gtkSourceLanguageGetStyleName",
+"kind" : "function",
+"protection" : "public",
+"type" : "string(string styleId)",
+"comment" : "\n Returns the name of the style with ID style_id defined by this language.\n Params:\n styleId = a style ID\n Returns: the name of the style with ID style_id defined by this language or NULL if the style has no name or there is no style with ID style_id defined by this language. The returned string is owned by the language and must not be modified.\n\t \n",
+"line" : 207}
+,
+{
+"name" : "gtkSourceLanguageGetStyleIds",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[]()",
+"comment" : "\n Returns the ids of the styles defined by this language.\n Returns: a NULL terminated array containing ids of the styles defined by this language or NULL if no style is defined. The returned array must be freed with g_strfreev().\n\t \n",
+"line" : 217}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceLanguageManager",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceLanguageManager.d",
+"members" : [
+{
+"name" : "SourceLanguageManager",
+"kind" : "class",
+"protection" : "public",
+"comment" : "\n Description\n GtkSourceLanguageManager is an object which processes language description\n files and creates and stores GtkSourceLanguage objects, and provides API to\n access them.\n Use gtk_source_language_manager_get_default() to retrieve the default\n instance of GtkSourceLanguageManager, and\n gtk_source_language_manager_guess_language() to get a GtkSourceLanguage for\n given file name and content type.\n \n",
+"line" : 83,
+"base" : "ObjectG",
+"members" : [
+{
+"name" : "gtkSourceLanguageManager",
+"kind" : "variable",
+"protection" : "protected",
+"type" : "GtkSourceLanguageManager*",
+"comment" : " the main Gtk struct \n",
+"line" : 87}
+,
+{
+"name" : "getSourceLanguageManagerStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceLanguageManager*()",
+"line" : 90}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 97}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceLanguageManager(GtkSourceLanguageManager* gtkSourceLanguageManager)",
+"comment" : "\n Sets our main struct and passes it to the parent class\n\t \n",
+"line" : 105}
+,
+{
+"name" : "setStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void(GObject* obj)",
+"line" : 123}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceLanguageManager()",
+"comment" : "\n\t \n\n Creates a new language manager. If you do not need more than one language\n manager or a private language manager instance then use\n gtk_source_language_manager_get_default() instead.\n Throws: ConstructionException GTK+ fails to create the object.\n\t \n",
+"line" : 138}
+,
+{
+"name" : "getDefault",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceLanguageManager()",
+"comment" : "\n Returns the default GtkSourceLanguageManager instance.\n Returns: a GtkSourceLanguageManager. Return value is owned by GtkSourceView library and must not be unref'ed.\n\t \n",
+"line" : 153}
+,
+{
+"name" : "setSearchPath",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string[] dirs)",
+"comment" : "\n Sets the list of directories where the lm looks for\n language files.\n If dirs is NULL, the search path is reset to default.\n Note\n  At the moment this function can be called only before the\n  language files are loaded for the first time. In practice\n  to set a custom search path for a GtkSourceLanguageManager,\n  you have to call this function right after creating it.\n Params:\n dirs = a NULL-terminated array of strings or NULL.\n\t \n",
+"line" : 176}
+,
+{
+"name" : "getSearchPath",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[]()",
+"comment" : "\n Gets the list directories where lm looks for language files.\n Returns: NULL-terminated array containg a list of language files directories. The array is owned by lm and must not be modified.\n\t \n",
+"line" : 186}
+,
+{
+"name" : "getLanguageIds",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[]()",
+"comment" : "\n Returns the ids of the available languages.\n Returns: a NULL-terminated array of string containing the ids of the available languages or NULL if no language is available. The array is owned by lm and must not be modified.\n\t \n",
+"line" : 196}
+,
+{
+"name" : "getLanguage",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceLanguage(string id)",
+"comment" : "\n Gets the GtkSourceLanguage identified by the given id in the language\n manager.\n Params:\n id = a language id.\n Returns: a GtkSourceLanguage, or NULL if there is no language identified by the given id. Return value is owned by lm and should not be freed.\n\t \n",
+"line" : 209}
+,
+{
+"name" : "guessLanguage",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceLanguage(string filename, string contentType)",
+"comment" : "\n Picks a GtkSourceLanguage for given file name and content type,\n according to the information in lang files. Either filename or\n Since 2.4\n Params:\n filename = a filename in Glib filename encoding, or NULL.\n contentType = a content type (as in GIO API), or NULL.\n Returns: a GtkSourceLanguage, or NULL if there is no suitable language for given filename and\/or content_type. Return value is owned by lm and should not be freed.\n\t \n",
+"line" : 229}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceMark",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceMark.d",
+"members" : [
+{
+"name" : "SourceMark",
+"kind" : "class",
+"protection" : "public",
+"comment" : "\n Description\n A GtkSourceMark marks a position in the text where you want to display\n additional info. It is based on GtkTextMark and thus is still valid after\n the text has changed though its position may change.\n GtkSourceMarks are organised in categories which you have to set\n when you create the mark. Each category can have a pixbuf and a priority\n associated using gtk_source_view_set_mark_category_pixbuf and\n gtk_source_view_set_mark_category_priority. The pixbuf will be displayed in\n the margin at the line where the mark residents if the\n \"show-line-marks\" property is set to TRUE. If there are\n multiple marks in the same line, the pixbufs will be drawn on top of each\n other. The mark with the highest priority will be drawn on top.\n \n",
+"line" : 82,
+"base" : "TextMark",
+"members" : [
+{
+"name" : "gtkSourceMark",
+"kind" : "variable",
+"protection" : "protected",
+"type" : "GtkSourceMark*",
+"comment" : " the main Gtk struct \n",
+"line" : 86}
+,
+{
+"name" : "getSourceMarkStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceMark*()",
+"line" : 89}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 96}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceMark(GtkSourceMark* gtkSourceMark)",
+"comment" : "\n Sets our main struct and passes it to the parent class\n\t \n",
+"line" : 104}
+,
+{
+"name" : "setStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void(GObject* obj)",
+"line" : 122}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceMark(string name, string category)",
+"comment" : "\n\t \n\n Creates a text mark. Add it to a buffer using gtk_text_buffer_add_mark().\n If name is NULL, the mark is anonymous; otherwise, the mark can be retrieved\n by name using gtk_text_buffer_get_mark().\n Normally marks are created using the utility function\n gtk_source_buffer_create_mark().\n Since 2.2\n Params:\n name = Name of the GtkSourceMark, can be NULL when not using a name\n category = is used to classify marks according to common characteristics\n (e.g. all the marks representing a bookmark could belong to the \"bookmark\"\n category, or all the marks representing a compilation error could belong to\n \"error\" category).\n Throws: ConstructionException GTK+ fails to create the object.\n\t \n",
+"line" : 146}
+,
+{
+"name" : "getCategory",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n Returns the mark category\n Since 2.2\n Returns: the category of the GtkSourceMark\n\t \n",
+"line" : 162}
+,
+{
+"name" : "next",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceMark(string category)",
+"comment" : "\n Returns the next GtkSourceMark in the buffer or NULL if the mark\n was not added to a buffer. If there is no next mark, NULL will be returned.\n If category is NULL, looks for marks of any category\n Since 2.2\n Params:\n category = a string specifying the mark category or NULL\n Returns: the next GtkSourceMark or NULL\n\t \n",
+"line" : 177}
+,
+{
+"name" : "prev",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceMark(string category)",
+"comment" : "\n Returns the previous GtkSourceMark in the buffer or NULL if the mark\n was not added to a buffer. If there is no previous mark, NULL is returned.\n If category is NULL, looks for marks of any category\n Since 2.2\n Params:\n category = a string specifying the mark category or NULL\n Returns: the previous GtkSourceMark or NULL\n\t \n",
+"line" : 197}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourcePrintCompositor",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourcePrintCompositor.d",
+"members" : [
+{
+"name" : "SourcePrintCompositor",
+"kind" : "class",
+"protection" : "public",
+"comment" : "\n Description\n The GtkSourcePrintCompositor object is used to compose a GtkSourceBuffer\n for printing. You can set various configuration options to customize the\n printed output. GtkSourcePrintCompositor is designed to be used with the\n high-level printing API of gtk+, i.e. GtkPrintOperation.\n The margins specified in this object are the layout margins: they define the\n blank space bordering the printed area of the pages. They must not be\n confused with the \"print margins\", i.e. the parts of the page that the\n printer cannot print on, defined in the GtkPageSetup objects. If the\n specified layout margins are smaller than the \"print margins\", the latter\n ones are used as a fallback by the GtkSourcePrintCompositor object, so that\n the printed area is not clipped.\n \n",
+"line" : 90,
+"base" : "ObjectG",
+"members" : [
+{
+"name" : "gtkSourcePrintCompositor",
+"kind" : "variable",
+"protection" : "protected",
+"type" : "GtkSourcePrintCompositor*",
+"comment" : " the main Gtk struct \n",
+"line" : 94}
+,
+{
+"name" : "getSourcePrintCompositorStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourcePrintCompositor*()",
+"line" : 97}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 104}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourcePrintCompositor(GtkSourcePrintCompositor* gtkSourcePrintCompositor)",
+"comment" : "\n Sets our main struct and passes it to the parent class\n\t \n",
+"line" : 112}
+,
+{
+"name" : "setStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void(GObject* obj)",
+"line" : 130}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourcePrintCompositor(SourceBuffer buffer)",
+"comment" : "\n\t \n\n Creates a new print compositor that can be used to print buffer.\n Since 2.2\n Params:\n buffer = the GtkSourceBuffer to print\n Throws: ConstructionException GTK+ fails to create the object.\n\t \n",
+"line" : 146}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourcePrintCompositor(SourceView view)",
+"comment" : "\n Creates a new print compositor that can be used to print the buffer\n associated with view.\n This constructor sets some configuration properties to make the\n printed output match view as much as possible. The properties set are\n \"tab-width\", \"highlight-syntax\",\n \"wrap-mode\", \"body-font-name\" and\n \"print-line-numbers\".\n Since 2.2\n Params:\n view = a GtkSourceView to get configuration from.\n Throws: ConstructionException GTK+ fails to create the object.\n\t \n",
+"line" : 170}
+,
+{
+"name" : "getBuffer",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceBuffer()",
+"comment" : "\n Gets the GtkSourceBuffer associated with the compositor. The returned\n object reference is owned by the compositor object and\n should not be unreferenced.\n Since 2.2\n Returns: the GtkSourceBuffer associated with the compositor.\n\t \n",
+"line" : 188}
+,
+{
+"name" : "setTabWidth",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(uint width)",
+"comment" : "\n Sets the width of tabulation in characters for printed text.\n This function cannot be called anymore after the first call to the\n gtk_source_print_compositor_paginate() function.\n Since 2.2\n Params:\n width = width of tab in characters.\n\t \n",
+"line" : 207}
+,
+{
+"name" : "getTabWidth",
+"kind" : "function",
+"protection" : "public",
+"type" : "uint()",
+"comment" : "\n Returns the width of tabulation in characters for printed text.\n Since 2.2\n Returns: width of tab.\n\t \n",
+"line" : 218}
+,
+{
+"name" : "setWrapMode",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(GtkWrapMode wrapMode)",
+"comment" : "\n Sets the line wrapping mode for the printed text.\n This function cannot be called anymore after the first call to the\n gtk_source_print_compositor_paginate() function.\n Since 2.2\n Params:\n wrapMode = a GtkWrapMode.\n\t \n",
+"line" : 232}
+,
+{
+"name" : "getWrapMode",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkWrapMode()",
+"comment" : "\n Gets the line wrapping mode for the printed text.\n Since 2.2\n Returns: the line wrap mode.\n\t \n",
+"line" : 243}
+,
+{
+"name" : "setHighlightSyntax",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int highlight)",
+"comment" : "\n Sets whether the printed text will be highlighted according to the\n buffer rules. Both color and font style are applied.\n This function cannot be called anymore after the first call to the\n gtk_source_print_compositor_paginate() function.\n Since 2.2\n Params:\n highlight = whether syntax should be highlighted.\n\t \n",
+"line" : 258}
+,
+{
+"name" : "getHighlightSyntax",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Determines whether the printed text will be highlighted according to the\n buffer rules. Note that highlighting will happen\n only if the buffer to print has highlighting activated.\n Since 2.2\n Returns: TRUE if the printed output will be highlighted.\n\t \n",
+"line" : 271}
+,
+{
+"name" : "setPrintLineNumbers",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(uint interval)",
+"comment" : "\n Sets the interval for printed line numbers. If interval is 0 no\n numbers will be printed. If greater than 0, a number will be\n printed every interval lines (i.e. 1 will print all line numbers).\n Maximum accepted value for interval is 100.\n This function cannot be called anymore after the first call to the\n gtk_source_print_compositor_paginate() function.\n Since 2.2\n Params:\n interval = interval for printed line numbers.\n\t \n",
+"line" : 288}
+,
+{
+"name" : "getPrintLineNumbers",
+"kind" : "function",
+"protection" : "public",
+"type" : "uint()",
+"comment" : "\n Returns the interval used for line number printing. If the\n value is 0, no line numbers will be printed. The default value is\n 1 (i.e. numbers printed in all lines).\n Since 2.2\n Returns: the interval of printed line numbers.\n\t \n",
+"line" : 301}
+,
+{
+"name" : "setBodyFontName",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string fontName)",
+"comment" : "\n Sets the default font for the printed text.\n font_name should be a\n string representation of a font description Pango can understand.\n (e.g. \"Monospace 10\"). See pango_font_description_from_string()\n for a description of the format of the string representation.\n This function cannot be called anymore after the first call to the\n gtk_source_print_compositor_paginate() function.\n Since 2.2\n Params:\n fontName = the name of the default font for the body text.\n\t \n",
+"line" : 319}
+,
+{
+"name" : "getBodyFontName",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n Returns the name of the font used to print the text body. The returned string\n must be freed with g_free().\n Since 2.2\n Returns: a new string containing the name of the font used to print the text body.\n\t \n",
+"line" : 331}
+,
+{
+"name" : "setLineNumbersFontName",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string fontName)",
+"comment" : "\n Sets the font for printing line numbers on the left margin. If\n NULL is supplied, the default font (i.e. the one being used for the\n text) will be used instead.\n font_name should be a\n string representation of a font description Pango can understand.\n (e.g. \"Monospace 10\"). See pango_font_description_from_string()\n for a description of the format of the string representation.\n This function cannot be called anymore after the first call to the\n gtk_source_print_compositor_paginate() function.\n Since 2.2\n Params:\n fontName = the name of the font for line numbers, or NULL.\n\t \n",
+"line" : 351}
+,
+{
+"name" : "getLineNumbersFontName",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n Returns the name of the font used to print line numbers on the left margin.\n The returned string must be freed with g_free())\n Since 2.2\n Returns: a new string containing the name of the font used to print line numbers on the left margin.\n\t \n",
+"line" : 363}
+,
+{
+"name" : "setHeaderFontName",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string fontName)",
+"comment" : "\n Sets the font for printing the page header. If\n NULL is supplied, the default font (i.e. the one being used for the\n text) will be used instead.\n font_name should be a\n string representation of a font description Pango can understand.\n (e.g. \"Monospace 10\"). See pango_font_description_from_string()\n for a description of the format of the string representation.\n This function cannot be called anymore after the first call to the\n gtk_source_print_compositor_paginate() function.\n Since 2.2\n Params:\n fontName = the name of the font for header text, or NULL.\n\t \n",
+"line" : 383}
+,
+{
+"name" : "getHeaderFontName",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n Returns the name of the font used to print the page header.\n The returned string must be freed with g_free())\n Since 2.2\n Returns: a new string containing the name of the font used to print the page header.\n\t \n",
+"line" : 395}
+,
+{
+"name" : "setFooterFontName",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string fontName)",
+"comment" : "\n Sets the font for printing the page footer. If\n NULL is supplied, the default font (i.e. the one being used for the\n text) will be used instead.\n font_name should be a\n string representation of a font description Pango can understand.\n (e.g. \"Monospace 10\"). See pango_font_description_from_string()\n for a description of the format of the string representation.\n This function cannot be called anymore after the first call to the\n gtk_source_print_compositor_paginate() function.\n Since 2.2\n Params:\n fontName = the name of the font for the footer text, or NULL.\n\t \n",
+"line" : 415}
+,
+{
+"name" : "getFooterFontName",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n Returns the name of the font used to print the page footer.\n The returned string must be freed with g_free())\n Since 2.2\n Returns: a new string containing the name of the font used to print the page footer.\n\t \n",
+"line" : 427}
+,
+{
+"name" : "getTopMargin",
+"kind" : "function",
+"protection" : "public",
+"type" : "double(GtkUnit unit)",
+"comment" : "\n Gets the top margin in units of unit.\n Since 2.2\n Params:\n unit = the unit for the return value.\n Returns: the top margin.\n\t \n",
+"line" : 440}
+,
+{
+"name" : "setTopMargin",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(double margin, GtkUnit unit)",
+"comment" : "\n Sets the top margin used by compositor.\n Since 2.2\n Params:\n margin = the new top margin in units of unit\n unit = the units for margin\n\t \n",
+"line" : 453}
+,
+{
+"name" : "getBottomMargin",
+"kind" : "function",
+"protection" : "public",
+"type" : "double(GtkUnit unit)",
+"comment" : "\n Gets the bottom margin in units of unit.\n Since 2.2\n Params:\n unit = the unit for the return value.\n Returns: the bottom margin.\n\t \n",
+"line" : 466}
+,
+{
+"name" : "setBottomMargin",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(double margin, GtkUnit unit)",
+"comment" : "\n Sets the bottom margin used by compositor.\n Since 2.2\n Params:\n margin = the new bottom margin in units of unit\n unit = the units for margin\n\t \n",
+"line" : 479}
+,
+{
+"name" : "getLeftMargin",
+"kind" : "function",
+"protection" : "public",
+"type" : "double(GtkUnit unit)",
+"comment" : "\n Gets the left margin in units of unit.\n Since 2.2\n Params:\n unit = the unit for the return value.\n Returns: the left margin\n\t \n",
+"line" : 492}
+,
+{
+"name" : "setLeftMargin",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(double margin, GtkUnit unit)",
+"comment" : "\n Sets the left margin used by compositor.\n Since 2.2\n Params:\n margin = the new left margin in units of unit\n unit = the units for margin\n\t \n",
+"line" : 505}
+,
+{
+"name" : "getRightMargin",
+"kind" : "function",
+"protection" : "public",
+"type" : "double(GtkUnit unit)",
+"comment" : "\n Gets the right margin in units of unit.\n Since 2.2\n Params:\n unit = the unit for the return value.\n Returns: the right margin\n\t \n",
+"line" : 518}
+,
+{
+"name" : "setRightMargin",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(double margin, GtkUnit unit)",
+"comment" : "\n Sets the right margin used by compositor.\n Since 2.2\n Params:\n margin = the new right margin in units of unit\n unit = the units for margin\n\t \n",
+"line" : 531}
+,
+{
+"name" : "setPrintHeader",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int print)",
+"comment" : "\n Sets whether you want to print a header in each page. The\n header consists of three pieces of text and an optional line\n separator, configurable with\n gtk_source_print_compositor_set_header_format().\n Note that by default the header format is unspecified, and if it's\n empty it will not be printed, regardless of this setting.\n This function cannot be called anymore after the first call to the\n gtk_source_print_compositor_paginate() function.\n Since 2.2\n Params:\n print = TRUE if you want the header to be printed.\n\t \n",
+"line" : 550}
+,
+{
+"name" : "getPrintHeader",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Determines if a header is set to be printed for each page. A\n header will be printed if this function returns TRUE\n and some format strings have been specified\n with gtk_source_print_compositor_set_header_format().\n Since 2.2\n Returns: TRUE if the header is set to be printed.\n\t \n",
+"line" : 564}
+,
+{
+"name" : "setPrintFooter",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int print)",
+"comment" : "\n Sets whether you want to print a footer in each page. The\n footer consists of three pieces of text and an optional line\n separator, configurable with\n gtk_source_print_compositor_set_footer_format().\n Note that by default the footer format is unspecified, and if it's\n empty it will not be printed, regardless of this setting.\n This function cannot be called anymore after the first call to the\n gtk_source_print_compositor_paginate() function.\n Since 2.2\n Params:\n print = TRUE if you want the footer to be printed.\n\t \n",
+"line" : 583}
+,
+{
+"name" : "getPrintFooter",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Determines if a footer is set to be printed for each page. A\n footer will be printed if this function returns TRUE\n and some format strings have been specified\n with gtk_source_print_compositor_set_footer_format().\n Since 2.2\n Returns: TRUE if the footer is set to be printed.\n\t \n",
+"line" : 597}
+,
+{
+"name" : "setHeaderFormat",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int separator, string left, string center, string right)",
+"comment" : "\n Sets strftime like header format strings, to be printed on the\n left, center and right of the top of each page. The strings may\n include strftime(3) codes which will be expanded at print time.\n All strftime() codes are accepted, with the addition of N for the\n page number and Q for the page count.\n separator specifies if a solid line should be drawn to separate\n the header from the document text.\n If NULL is given for any of the three arguments, that particular\n string will not be printed.\n For the header to be printed, in\n addition to specifying format strings, you need to enable header\n printing with gtk_source_print_compositor_set_print_header().\n This function cannot be called anymore after the first call to the\n gtk_source_print_compositor_paginate() function.\n Since 2.2\n Params:\n separator = TRUE if you want a separator line to be printed.\n left = a format string to print on the left of the header.\n center = a format string to print on the center of the header.\n right = a format string to print on the right of the header.\n\t \n",
+"line" : 625}
+,
+{
+"name" : "setFooterFormat",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int separator, string left, string center, string right)",
+"comment" : "\n Sets strftime like header format strings, to be printed on the\n left, center and right of the bottom of each page. The strings may\n include strftime(3) codes which will be expanded at print time.\n All strftime() codes are accepted, with the addition of N for the\n page number and Q for the page count.\n separator specifies if a solid line should be drawn to separate\n the footer from the document text.\n If NULL is given for any of the three arguments, that particular\n string will not be printed.\n For the footer to be printed, in\n addition to specifying format strings, you need to enable footer\n printing with gtk_source_print_compositor_set_print_footer().\n This function cannot be called anymore after the first call to the\n gtk_source_print_compositor_paginate() function.\n Since 2.2\n Params:\n separator = TRUE if you want a separator line to be printed.\n left = a format string to print on the left of the footer.\n center = a format string to print on the center of the footer.\n right = a format string to print on the right of the footer.\n\t \n",
+"line" : 653}
+,
+{
+"name" : "getNPages",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Returns the number of pages in the document or -1 if the\n document has not been completely paginated.\n Since 2.2\n Returns: the number of pages in the document or -1 if the document has not been completely paginated.\n\t \n",
+"line" : 665}
+,
+{
+"name" : "paginate",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(PrintContext context)",
+"comment" : "\n Paginate the document associated with the compositor.\n In order to support non-blocking pagination, document is paginated in small chunks.\n Each time gtk_source_print_compositor_paginate() is invoked, a chunk of the document\n is paginated. To paginate the entire document, gtk_source_print_compositor_paginate()\n must be invoked multiple times.\n It returns TRUE if the document has been completely paginated, otherwise it returns FALSE.\n This method has been designed to be invoked in the handler of the \"paginate\" signal,\n Since 2.2\n Params:\n context = the GtkPrintContext whose parameters (e.g. paper size, print margins, etc.)\n are used by the the compositor to paginate the document.\n Returns: TRUE if the document has been completely paginated, FALSE otherwise.\n\t \n",
+"line" : 685}
+,
+{
+"name" : "getPaginationProgress",
+"kind" : "function",
+"protection" : "public",
+"type" : "double()",
+"comment" : "\n Returns the current fraction of the document pagination that has been completed.\n Since 2.2\n Returns: a fraction from 0.0 to 1.0 inclusive\n\t \n",
+"line" : 696}
+,
+{
+"name" : "drawPage",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(PrintContext context, int pageNr)",
+"comment" : "\n Draw page page_nr for printing on the the Cairo context encapsuled in context.\n This method has been designed to be called in the handler of the \"draw_page\" signal\n Params:\n context = the GtkPrintContext encapsulating the context information that is required when\n  drawing the page for printing.\n pageNr = the number of the page to print.\n\t \n",
+"line" : 710}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceSearch",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceSearch.d",
+"members" : [
+{
+"name" : "SourceSearch",
+"kind" : "class",
+"protection" : "public",
+"comment" : "\n Description\n \n",
+"line" : 73,
+"base" : "Object",
+"members" : [
+{
+"name" : "backwardSearch",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(TextIter iter, string str, GtkSourceSearchFlags flags, TextIter matchStart, TextIter matchEnd, TextIter limit)",
+"comment" : "\n\t \n\n Same as gtk_text_iter_backward_search(), but supports case insensitive\n searching.\n Params:\n iter = a GtkTextIter where the search begins.\n str = search string.\n flags = bitmask of flags affecting the search.\n matchStart = return location for start of match, or NULL.\n matchEnd = return location for end of match, or NULL.\n limit = location of last possible match_start, or NULL for start of buffer.\n Returns: whether a match was found.\n\t \n",
+"line" : 90}
+,
+{
+"name" : "forwardSearch",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(TextIter iter, string str, GtkSourceSearchFlags flags, TextIter matchStart, TextIter matchEnd, TextIter limit)",
+"comment" : "\n Searches forward for str. Any match is returned by setting\n match_start to the first character of the match and match_end to the\n first character after the match. The search will not continue past\n limit. Note that a search is a linear or O(n) operation, so you\n may wish to use limit to avoid locking up your UI on large\n buffers.\n If the GTK_SOURCE_SEARCH_VISIBLE_ONLY flag is present, the match may\n have invisible text interspersed in str. i.e. str will be a\n possibly-noncontiguous subsequence of the matched range. similarly,\n if you specify GTK_SOURCE_SEARCH_TEXT_ONLY, the match may have\n pixbufs or child widgets mixed inside the matched range. If these\n flags are not given, the match must be exact; the special 0xFFFC\n character in str will match embedded pixbufs or child widgets.\n If you specify the GTK_SOURCE_SEARCH_CASE_INSENSITIVE flag, the text will\n be matched regardless of what case it is in.\n Same as gtk_text_iter_forward_search(), but supports case insensitive\n searching.\n Params:\n iter = start of search.\n str = a search string.\n flags = flags affecting how the search is done.\n matchStart = return location for start of match, or NULL.\n matchEnd = return location for end of match, or NULL.\n limit = bound for the search, or NULL for the end of the buffer.\n Returns: whether a match was found.\n\t \n",
+"line" : 123}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceStyle",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceStyle.d",
+"members" : [
+{
+"name" : "SourceStyle",
+"kind" : "class",
+"protection" : "public",
+"comment" : "\n Description\n The GtkSourceStyle structure is used to describe text attributes\n which are set when given style is used.\n \n",
+"line" : 71,
+"base" : "ObjectG",
+"members" : [
+{
+"name" : "gtkSourceStyle",
+"kind" : "variable",
+"protection" : "protected",
+"type" : "GtkSourceStyle*",
+"comment" : " the main Gtk struct \n",
+"line" : 75}
+,
+{
+"name" : "getSourceStyleStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceStyle*()",
+"line" : 78}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 85}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceStyle(GtkSourceStyle* gtkSourceStyle)",
+"comment" : "\n Sets our main struct and passes it to the parent class\n\t \n",
+"line" : 93}
+,
+{
+"name" : "setStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void(GObject* obj)",
+"line" : 111}
+,
+{
+"name" : "copy",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceStyle()",
+"comment" : "\n\t \n\n Creates a copy of style, that is a new GtkSourceStyle instance which\n has the same attributes set.\n Since 2.0\n Returns: copy of style, call g_object_unref() when you are done with it.\n\t \n",
+"line" : 126}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceStyleScheme",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceStyleScheme.d",
+"members" : [
+{
+"name" : "SourceStyleScheme",
+"kind" : "class",
+"protection" : "public",
+"comment" : "\n Description\n GtkSourceStyleScheme contains all the text styles to be used in\n GtkSourceView and GtkSourceBuffer. For instance, it contains text styles\n for syntax highlighting, it may contain foreground and background color for\n non-highlighted text, color for the line numbers, etc.\n Style schemes are stored in XML files. The format of a scheme file is\n the documented in the\n style scheme reference.\n \n",
+"line" : 80,
+"base" : "ObjectG",
+"members" : [
+{
+"name" : "gtkSourceStyleScheme",
+"kind" : "variable",
+"protection" : "protected",
+"type" : "GtkSourceStyleScheme*",
+"comment" : " the main Gtk struct \n",
+"line" : 84}
+,
+{
+"name" : "getSourceStyleSchemeStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceStyleScheme*()",
+"line" : 87}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 94}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceStyleScheme(GtkSourceStyleScheme* gtkSourceStyleScheme)",
+"comment" : "\n Sets our main struct and passes it to the parent class\n\t \n",
+"line" : 102}
+,
+{
+"name" : "setStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void(GObject* obj)",
+"line" : 120}
+,
+{
+"name" : "getId",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n\t \n\n Since 2.0\n Returns: scheme id.\n\t \n",
+"line" : 133}
+,
+{
+"name" : "getName",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n Since 2.0\n Returns: scheme name.\n\t \n",
+"line" : 143}
+,
+{
+"name" : "getDescription",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n Since 2.0\n Returns: scheme description (if defined) or NULL.\n\t \n",
+"line" : 153}
+,
+{
+"name" : "getAuthors",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[]()",
+"comment" : "\n Since 2.0\n Returns: a NULL-terminated array containing the scheme authors or NULL if no author is specified by the style scheme.\n\t \n",
+"line" : 163}
+,
+{
+"name" : "getFilename",
+"kind" : "function",
+"protection" : "public",
+"type" : "string()",
+"comment" : "\n Since 2.0\n Returns: scheme file name if the scheme was created parsing a style scheme file or NULL in the other cases.\n\t \n",
+"line" : 173}
+,
+{
+"name" : "getStyle",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceStyle(string styleId)",
+"comment" : "\n Since 2.0\n Params:\n styleId = id of the style to retrieve.\n Returns: style which corresponds to style_id in the scheme, or NULL when no style with this name found. It is owned by scheme and may not be unref'ed.\n\t \n",
+"line" : 185}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceStyleSchemeManager",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceStyleSchemeManager.d",
+"members" : [
+{
+"name" : "SourceStyleSchemeManager",
+"kind" : "class",
+"protection" : "public",
+"comment" : "\n Description\n \n",
+"line" : 76,
+"base" : "ObjectG",
+"members" : [
+{
+"name" : "gtkSourceStyleSchemeManager",
+"kind" : "variable",
+"protection" : "protected",
+"type" : "GtkSourceStyleSchemeManager*",
+"comment" : " the main Gtk struct \n",
+"line" : 80}
+,
+{
+"name" : "getSourceStyleSchemeManagerStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceStyleSchemeManager*()",
+"line" : 83}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 90}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceStyleSchemeManager(GtkSourceStyleSchemeManager* gtkSourceStyleSchemeManager)",
+"comment" : "\n Sets our main struct and passes it to the parent class\n\t \n",
+"line" : 98}
+,
+{
+"name" : "setStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void(GObject* obj)",
+"line" : 116}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceStyleSchemeManager()",
+"comment" : "\n\t \n\n Creates a new style manager. If you do not need more than one style\n manager then use gtk_source_style_scheme_manager_get_default() instead.\n Throws: ConstructionException GTK+ fails to create the object.\n\t \n",
+"line" : 130}
+,
+{
+"name" : "getDefault",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceStyleSchemeManager()",
+"comment" : "\n Returns the default GtkSourceStyleSchemeManager instance.\n Returns: a GtkSourceStyleSchemeManager. Return value is owned by GtkSourceView library and must not be unref'ed.\n\t \n",
+"line" : 145}
+,
+{
+"name" : "setSearchPath",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string[] path)",
+"comment" : "\n Sets the list of directories where the manager looks for\n style scheme files.\n If dirs is NULL, the search path is reset to default.\n Params:\n path = a NULL-terminated array of strings or NULL.\n\t \n",
+"line" : 163}
+,
+{
+"name" : "appendSearchPath",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string path)",
+"comment" : "\n Appends path to the list of directories where the manager looks for\n style scheme files.\n See gtk_source_style_scheme_manager_set_search_path() for details.\n Params:\n path = a directory or a filename.\n\t \n",
+"line" : 176}
+,
+{
+"name" : "prependSearchPath",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string path)",
+"comment" : "\n Prepends path to the list of directories where the manager looks\n for style scheme files.\n See gtk_source_style_scheme_manager_set_search_path() for details.\n Params:\n path = a directory or a filename.\n\t \n",
+"line" : 189}
+,
+{
+"name" : "getSearchPath",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[]()",
+"comment" : "\n Returns the current search path for the manager.\n See gtk_source_style_scheme_manager_set_search_path() for details.\n Returns: a NULL-terminated array of string containing the search path. The array is owned by the manager and must not be modified.\n\t \n",
+"line" : 200}
+,
+{
+"name" : "getSchemeIds",
+"kind" : "function",
+"protection" : "public",
+"type" : "string[]()",
+"comment" : "\n Returns the ids of the available style schemes.\n Returns: a NULL-terminated array of string containing the ids of the available style schemes or NULL if no style scheme is available. The array is owned by the manager and must not be modified.\n\t \n",
+"line" : 210}
+,
+{
+"name" : "getScheme",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceStyleScheme(string schemeId)",
+"comment" : "\n Looks up style scheme by id.\n Params:\n schemeId = style scheme id to find\n Returns: a GtkSourceStyleScheme object. Returned value is owned by manager and must not be unref'ed.\n\t \n",
+"line" : 222}
+,
+{
+"name" : "forceRescan",
+"kind" : "function",
+"protection" : "public",
+"type" : "void()",
+"comment" : "\n Mark any currently cached information about the available style scehems\n as invalid. All the available style schemes will be reloaded next time\n the manager is accessed.\n\t \n",
+"line" : 238}
+]
+}
+]
+}
+,
+{
+"name" : "gsv.SourceView",
+"kind" : "module",
+"file" : "\/usr\/include\/d\/gsv\/SourceView.d",
+"members" : [
+{
+"name" : "SourceView",
+"kind" : "class",
+"protection" : "public",
+"comment" : "\n Description\n GtkSourceView is the main object of the gtksourceview library. It provides\n a text view which syntax highlighting, undo\/redo and text marks. Use a\n GtkSourceBuffer to display text with a GtkSourceView.\n \n",
+"line" : 92,
+"base" : "TextView",
+"members" : [
+{
+"name" : "gtkSourceView",
+"kind" : "variable",
+"protection" : "protected",
+"type" : "GtkSourceView*",
+"comment" : " the main Gtk struct \n",
+"line" : 96}
+,
+{
+"name" : "getSourceViewStruct",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceView*()",
+"line" : 99}
+,
+{
+"name" : "getStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void*()",
+"comment" : " the main Gtk struct as a void* \n",
+"line" : 106}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceView(GtkSourceView* gtkSourceView)",
+"comment" : "\n Sets our main struct and passes it to the parent class\n\t \n",
+"line" : 114}
+,
+{
+"name" : "setStruct",
+"kind" : "function",
+"protection" : "protected",
+"type" : "void(GObject* obj)",
+"line" : 132}
+,
+{
+"name" : "getBuffer",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceBuffer()",
+"comment" : "\n Returns the GtkSourceBuffer being displayed by this source view.\n The reference count on the buffer is not incremented; the caller\n of this function won't own a new reference.\n Returns:\n  a GtkSourceBuffer\n\t \n",
+"line" : 145}
+,
+{
+"name" : "connectedSignals",
+"kind" : "variable",
+"protection" : "public",
+"type" : "int[string]",
+"comment" : "\n\t \n",
+"line" : 155}
+,
+{
+"name" : "onLineMarkActivatedListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(TextIter, GdkEvent*, SourceView)[]",
+"line" : 157}
+,
+{
+"name" : "addOnLineMarkActivated",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(TextIter, GdkEvent*, SourceView) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n Emitted when a line mark has been activated (for instance when there\n was a button press in the line marks gutter). You can use iter to\n determine on which line the activation took place.\n\t \n",
+"line" : 163}
+,
+{
+"name" : "callBackLineMarkActivated",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceView* viewStruct, GtkTextIter* iter, GdkEvent* event, SourceView sourceView)",
+"line" : 178}
+,
+{
+"name" : "onMoveLinesListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(int, int, SourceView)[]",
+"line" : 186}
+,
+{
+"name" : "addOnMoveLines",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(int, int, SourceView) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n\t \n",
+"line" : 189}
+,
+{
+"name" : "callBackMoveLines",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceView* sourceviewStruct, int arg1, int arg2, SourceView sourceView)",
+"line" : 204}
+,
+{
+"name" : "onRedoListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(SourceView)[]",
+"line" : 212}
+,
+{
+"name" : "addOnRedo",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(SourceView) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n\t \n",
+"line" : 215}
+,
+{
+"name" : "callBackRedo",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceView* sourceviewStruct, SourceView sourceView)",
+"line" : 230}
+,
+{
+"name" : "onShowCompletionListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(SourceView)[]",
+"line" : 238}
+,
+{
+"name" : "addOnShowCompletion",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(SourceView) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n The ::show-completion signal is a keybinding signal which gets\n emitted when the user initiates a completion in default mode.\n Applications should not connect to it, but may emit it with\n g_signal_emit_by_name if they need to control the default mode\n completion activation.\n\t \n",
+"line" : 246}
+,
+{
+"name" : "callBackShowCompletion",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceView* viewStruct, SourceView sourceView)",
+"line" : 261}
+,
+{
+"name" : "onUndoListeners",
+"kind" : "variable",
+"protection" : "public",
+"type" : "void delegate(SourceView)[]",
+"line" : 269}
+,
+{
+"name" : "addOnUndo",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(void delegate(SourceView) dlg, GConnectFlags connectFlags = cast(GConnectFlags)0)",
+"comment" : "\n See Also\n GtkTextView,GtkSourceBuffer\n\t \n",
+"line" : 274}
+,
+{
+"name" : "callBackUndo",
+"kind" : "function",
+"protection" : "public",
+"type" : "extern (C) void(GtkSourceView* sourceviewStruct, SourceView sourceView)",
+"line" : 289}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceView()",
+"comment" : "\n Creates a new GtkSourceView. An empty default buffer will be\n created for you. If you want to specify your own buffer, consider\n gtk_source_view_new_with_buffer().\n Throws: ConstructionException GTK+ fails to create the object.\n\t \n",
+"line" : 304}
+,
+{
+"name" : "this",
+"kind" : "constructor",
+"protection" : "public",
+"type" : "SourceView(SourceBuffer buffer)",
+"comment" : "\n Creates a new GtkSourceView widget displaying the buffer\n buffer. One buffer can be shared among many widgets.\n Params:\n buffer = a GtkSourceBuffer.\n Throws: ConstructionException GTK+ fails to create the object.\n\t \n",
+"line" : 322}
+,
+{
+"name" : "setAutoIndent",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int enable)",
+"comment" : "\n If TRUE auto indentation of text is enabled.\n Params:\n enable = whether to enable auto indentation.\n\t \n",
+"line" : 338}
+,
+{
+"name" : "getAutoIndent",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Returns whether auto indentation of text is enabled.\n Returns: TRUE if auto indentation is enabled.\n\t \n",
+"line" : 348}
+,
+{
+"name" : "setIndentOnTab",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int enable)",
+"comment" : "\n If TRUE, when the tab key is pressed and there is a selection, the\n selected text is indented of one level instead of being replaced with\n the \\t characters. Shift+Tab unindents the selection.\n Since 1.8\n Params:\n enable = whether to indent a block when tab is pressed.\n\t \n",
+"line" : 362}
+,
+{
+"name" : "getIndentOnTab",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Returns whether when the tab key is pressed the current selection\n should get indented instead of replaced with the \\t character.\n Since 1.8\n Returns: TRUE if the selection is indented when tab is pressed.\n\t \n",
+"line" : 374}
+,
+{
+"name" : "setIndentWidth",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int width)",
+"comment" : "\n Sets the number of spaces to use for each step of indent.\n If width is -1, the value of the GtkSourceView::tab-width property\n will be used.\n Params:\n width = indent width in characters.\n\t \n",
+"line" : 387}
+,
+{
+"name" : "getIndentWidth",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Returns the number of spaces to use for each step of indent.\n See gtk_source_view_set_indent_width() for details.\n Returns: indent width.\n\t \n",
+"line" : 398}
+,
+{
+"name" : "setInsertSpacesInsteadOfTabs",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int enable)",
+"comment" : "\n If TRUE any tabulator character inserted is replaced by a group\n of space characters.\n Params:\n enable = whether to insert spaces instead of tabs.\n\t \n",
+"line" : 410}
+,
+{
+"name" : "getInsertSpacesInsteadOfTabs",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Returns whether when inserting a tabulator character it should\n be replaced by a group of space characters.\n Returns: TRUE if spaces are inserted instead of tabs.\n\t \n",
+"line" : 421}
+,
+{
+"name" : "setSmartHomeEnd",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(GtkSourceSmartHomeEndType smartHe)",
+"comment" : "\n Set the desired movement of the cursor when HOME and END keys\n are pressed.\n Params:\n smartHe = the desired behavior among GtkSourceSmartHomeEndType.\n\t \n",
+"line" : 433}
+,
+{
+"name" : "getSmartHomeEnd",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceSmartHomeEndType()",
+"comment" : "\n Returns a GtkSourceSmartHomeEndType end value specifying\n how the cursor will move when HOME and END keys are pressed.\n Returns: a GtkSourceSmartHomeEndTypeend value.\n\t \n",
+"line" : 444}
+,
+{
+"name" : "setMarkCategoryPriority",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string category, int priority)",
+"comment" : "\n Set the priority for the given mark category. When there are\n multiple marks on the same line, marks of categories with\n higher priorities will be drawn on top.\n Since 2.2\n Params:\n category = a mark category.\n priority = the priority for the category\n\t \n",
+"line" : 459}
+,
+{
+"name" : "getMarkCategoryPriority",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(string category)",
+"comment" : "\n Gets the priority which is associated with the given category.\n Since 2.2\n Params:\n category = a mark category.\n Returns: the priority or if category exists but no priority was set, it defaults to 0.\n\t \n",
+"line" : 472}
+,
+{
+"name" : "setMarkCategoryPixbuf",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string category, Pixbuf pixbuf)",
+"comment" : "\n Warning\n gtk_source_view_set_mark_category_pixbuf is deprecated and should not be used in newly-written code. Use gtk_source_view_set_mark_category_icon_from_pixbuf instead\n Associates a given pixbuf with a given mark category.\n If pixbuf is NULL, the pixbuf is unset.\n Since 2.2\n Params:\n category = a mark category.\n pixbuf = a GdkPixbuf or NULL.\n\t \n",
+"line" : 488}
+,
+{
+"name" : "getMarkCategoryPixbuf",
+"kind" : "function",
+"protection" : "public",
+"type" : "Pixbuf(string category)",
+"comment" : "\n Warning\n gtk_source_view_get_mark_category_pixbuf is deprecated and should not be used in newly-written code.\n Gets the pixbuf which is associated with the given mark category.\n Since 2.2\n Params:\n category = a mark category.\n Returns: the associated GdkPixbuf, or NULL if not found.\n\t \n",
+"line" : 503}
+,
+{
+"name" : "setMarkCategoryIconFromPixbuf",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string category, Pixbuf pixbuf)",
+"comment" : "\n Sets the icon to be used for category to pixbuf.\n If pixbuf is NULL, the icon is unset.\n Since 2.8\n Params:\n category = a mark category.\n pixbuf = a GdkPixbuf or NULL.\n\t \n",
+"line" : 522}
+,
+{
+"name" : "setMarkCategoryIconFromStock",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string category, string stockId)",
+"comment" : "\n Sets the icon to be used for category to the stock item stock_id.\n If stock_id is NULL, the icon is unset.\n Since 2.8\n Params:\n category = a mark category.\n stockId = the stock id or NULL.\n\t \n",
+"line" : 536}
+,
+{
+"name" : "setMarkCategoryIconFromIconName",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string category, string name)",
+"comment" : "\n Sets the icon to be used for category to the named theme item name.\n If name is NULL, the icon is unset.\n Since 2.8\n Params:\n category = a mark category.\n name = the themed icon name or NULL.\n\t \n",
+"line" : 550}
+,
+{
+"name" : "getMarkCategoryBackground",
+"kind" : "function",
+"protection" : "public",
+"type" : "int(string category, Color dest)",
+"comment" : "\n Gets the background color associated with given category.\n Since 2.4\n Params:\n category = a mark category.\n dest = destination GdkColor structure to fill in.\n Returns: TRUE if background color for category was set and dest is set to a valid color, or FALSE otherwise.\n\t \n",
+"line" : 564}
+,
+{
+"name" : "setMarkCategoryBackground",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string category, Color color)",
+"comment" : "\n Sets given background color for mark category.\n If color is NULL, the background color is unset.\n Since 2.4\n Params:\n category = a mark category.\n color = background color or NULL to unset it.\n\t \n",
+"line" : 578}
+,
+{
+"name" : "setMarkCategoryTooltipFunc",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string category, extern (C) char* function(GtkSourceMark*, void*) func, void* userData, extern (C) void function(void* cbData) userDataNotify)",
+"comment" : "\n Set a GtkSourceViewMarkTooltipFunc used to set tooltip on marks from the\n given mark category.\n If you also specified a function with\n gtk_source_view_set_mark_category_tooltip_markup_func() the markup\n variant takes precedence.\n $(DDOC_COMMENT example)\n Since 2.8\n Params:\n category = a mark category.\n func = a GtkSourceViewMarkTooltipFunc or NULL.\n userData = user data which will be passed to func.\n userDataNotify = a function to free the memory allocated for user_data\n or NULL if you do not want to supply such a function.\n\t \n",
+"line" : 599}
+,
+{
+"name" : "setMarkCategoryTooltipMarkupFunc",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(string category, extern (C) char* function(GtkSourceMark*, void*) markupFunc, void* userData, extern (C) void function(void* cbData) userDataNotify)",
+"comment" : "\n See gtk_source_view_set_mark_category_tooltip_func() for more information.\n Since 2.8\n Params:\n category = a mark category.\n markupFunc = a GtkSourceViewMarkTooltipFunc or NULL.\n userData = user data which will be passed to func.\n userDataNotify = a function to free the memory allocated for user_data\n or NULL if you do not want to supply such a function.\n\t \n",
+"line" : 615}
+,
+{
+"name" : "setHighlightCurrentLine",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int show)",
+"comment" : "\n If show is TRUE the current line is highlighted.\n Params:\n show = whether to highlight the current line\n\t \n",
+"line" : 626}
+,
+{
+"name" : "getHighlightCurrentLine",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Returns whether the current line is highlighted\n Returns: TRUE if the current line is highlighted.\n\t \n",
+"line" : 636}
+,
+{
+"name" : "setShowLineMarks",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int show)",
+"comment" : "\n If TRUE line marks will be displayed beside the text.\n Since 2.2\n Params:\n show = whether line marks should be displayed.\n\t \n",
+"line" : 648}
+,
+{
+"name" : "getShowLineMarks",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Returns whether line marks are displayed beside the text.\n Since 2.2\n Returns: TRUE if the line marks are displayed.\n\t \n",
+"line" : 659}
+,
+{
+"name" : "setShowLineNumbers",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int show)",
+"comment" : "\n If TRUE line numbers will be displayed beside the text.\n Params:\n show = whether line numbers should be displayed.\n\t \n",
+"line" : 670}
+,
+{
+"name" : "getShowLineNumbers",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Returns whether line numbers are displayed beside the text.\n Returns: TRUE if the line numbers are displayed.\n\t \n",
+"line" : 680}
+,
+{
+"name" : "setShowRightMargin",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(int show)",
+"comment" : "\n If TRUE a right margin is displayed\n Params:\n show = whether to show a right margin.\n\t \n",
+"line" : 691}
+,
+{
+"name" : "getShowRightMargin",
+"kind" : "function",
+"protection" : "public",
+"type" : "int()",
+"comment" : "\n Returns whether a right margin is displayed.\n Returns: TRUE if the right margin is shown.\n\t \n",
+"line" : 701}
+,
+{
+"name" : "setRightMarginPosition",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(uint pos)",
+"comment" : "\n Sets the position of the right margin in the given view.\n Params:\n pos = the width in characters where to position the right margin.\n\t \n",
+"line" : 712}
+,
+{
+"name" : "getRightMarginPosition",
+"kind" : "function",
+"protection" : "public",
+"type" : "uint()",
+"comment" : "\n Gets the position of the right margin in the given view.\n Returns: the position of the right margin.\n\t \n",
+"line" : 722}
+,
+{
+"name" : "setTabWidth",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(uint width)",
+"comment" : "\n Sets the width of tabulation in characters.\n Params:\n width = width of tab in characters.\n\t \n",
+"line" : 733}
+,
+{
+"name" : "getTabWidth",
+"kind" : "function",
+"protection" : "public",
+"type" : "uint()",
+"comment" : "\n Returns the width of tabulation in characters.\n Returns: width of tab.\n\t \n",
+"line" : 743}
+,
+{
+"name" : "setDrawSpaces",
+"kind" : "function",
+"protection" : "public",
+"type" : "void(GtkSourceDrawSpacesFlags flags)",
+"comment" : "\n Set if and how the spaces should be visualized. Specifying flags as 0 will\n disable display of spaces.\n Params:\n flags = GtkSourceDrawSpacesFlags specifing how white spaces should\n be displayed\n\t \n",
+"line" : 756}
+,
+{
+"name" : "getDrawSpaces",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceDrawSpacesFlags()",
+"comment" : "\n Returns the GtkSourceDrawSpacesFlags specifying if and how spaces\n should be displayed for this view.\n Returns: the GtkSourceDrawSpacesFlags, 0 if no spaces should be drawn.\n\t \n",
+"line" : 767}
+,
+{
+"name" : "getCompletion",
+"kind" : "function",
+"protection" : "public",
+"type" : "GtkSourceCompletion*()",
+"comment" : "\n Gets the GtkSourceCompletion associated with view.\n Returns: the GtkSourceCompletion associated with view.\n\t \n",
+"line" : 777}
+,
+{
+"name" : "getGutter",
+"kind" : "function",
+"protection" : "public",
+"type" : "SourceGutter(GtkTextWindowType windowType)",
+"comment" : "\n Returns the GtkSourceGutter object associated with window_type for view.\n Only GTK_TEXT_WINDOW_LEFT and GTK_TEXT_WINDOW_RIGHT are supported,\n respectively corresponding to the left and right gutter. The line numbers\n and mark category icons are rendered in the gutter corresponding to\n GTK_TEXT_WINDOW_LEFT.\n Since 2.8\n Params:\n windowType = the gutter window type\n Returns: the GtkSourceGutter.\n\t \n",
+"line" : 794}
+]
+}
+]
+}
+]

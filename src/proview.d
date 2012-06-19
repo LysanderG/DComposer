@@ -174,7 +174,7 @@ class PROJECT_VIEW : ELEMENT
             
             auto ti = tv.getSelectedIter();
             string Filename = ti.getValueString(1);
-            dui.GetDocMan.OpenDoc(Filename);
+            dui.GetDocMan.Open(Filename);
         }
     }
 

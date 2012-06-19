@@ -32,6 +32,7 @@ import document;
 import std.stdio;
 import std.algorithm;
 import std.ascii;
+import std.path;
 
 import gsv.SourceView;
 import gsv.SourceBuffer;
@@ -153,18 +154,19 @@ class CALL_TIPS : ELEMENT
                 
     }
 
-    void WatchForNewDocument(string EventId, DOCUMENT_IF docIF)
+    void WatchForNewDocument(string EventId, DOCUMENT Doc)
     {
-        DOCUMENT DocX = cast(DOCUMENT) docIF;
-        if (DocX.GetType != DOC_TYPE.D_SOURCE) return;        
-        DocX.TextInserted.connect(&WatchDoc);
-
-        ConnectedDocs ~= DocX;
+        if (Doc is null ) return;
+        if ((extension(Doc.Name) == ".d") || (extension(Doc.Name) == ".di"))
+        {   
+			Doc.TextInserted.connect(&WatchDoc);
+			ConnectedDocs ~= Doc;
+		}
     }
 
     void WatchDoc(DOCUMENT sv , TextIter ti, string Text, SourceBuffer Buffer)
     {
-        if(sv.IsPasting) return;
+        if(sv.Pasting) return;
         if(!mEnabled) return;
 
         switch(Text)

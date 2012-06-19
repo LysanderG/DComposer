@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.24"/>
+  <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkListStore" id="liststore1">
     <columns>
       <!-- column-name key -->
@@ -131,9 +132,6 @@
       <object class="GtkComboBox" id="combobox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="can_default">True</property>
-        <property name="has_default">True</property>
-        <property name="receives_default">True</property>
         <property name="model">liststore1</property>
         <property name="active">0</property>
         <child>

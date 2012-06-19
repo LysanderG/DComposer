@@ -129,7 +129,7 @@ class SYMBOL_ASSIST : ELEMENT
     }
 
 
-    void WatchForNewDoc(string EventType, DOCUMENT_IF NuDoc)
+    void WatchForNewDoc(string EventType, DOCUMENT NuDoc)
     {
         if(EventType != "AppendDocument")return;
         auto doc = cast(DOCUMENT)NuDoc;

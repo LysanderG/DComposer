@@ -52,7 +52,7 @@ class BRACE_INDENT : ELEMENT
 		mEnabled = Config.getBoolean("BRACE_INDENT", "enabled", true);
 	}
 
-    void CatchNewDocs(string EventId, DOCUMENT_IF nu_doc)
+    void CatchNewDocs(string EventId, DOCUMENT nu_doc)
     {
         auto docX = cast (DOCUMENT) nu_doc;
 

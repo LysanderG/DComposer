@@ -1,4 +1,4 @@
-// untitled.d
+// docman2.d
 // 
 // Copyright 2012 Anthony Goins <anthony@LinuxGen11>
 // 
@@ -16,6 +16,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 // MA 02110-1301, USA.
+
 
 module docman;
 
@@ -51,97 +52,27 @@ import  gtk.FontButton;
 import  gtk.ComboBox;
 import  gtk.ListStore;
 import  gtk.TreeIter;
+import  gtk.Label;
 
 import  glib.ListSG;
 
 
 
-enum DOC_TYPE : long    {D_SOURCE, TEXT};
-
-interface DOCUMENT_IF
-{
-    bool        Create(string Identifier);                          //create a new document DComposerxxxx.d
-    bool        Open(string FileName, long LineNo = 1);            //load a file and show line LineNo
-    bool        Save();                                             //put the words on disk
-    bool        SaveAs(string NewName);                             //put the words on disk with a new file name
-    bool        Close(bool Quitting = false);                       //close (get rid of) document (if quitting then needs a diff confirm dialog)
-
-    @property string      DisplayName();                                      //basename of the document (no path but still an ext) or maybe relative path
-    @property void        DisplayName(string NuName);                         //sets it
-    @property string      FullPathName();                                     //absolute name of the documents file
-    @property void        FullPathName(string NuPath);                        //setter
-    @property bool        Modified();                                         //does it need to be saved?
-    @property void        Modified(bool Modded);                              //setter
-    @property bool        Virgin();                                           //ever been on disk??
-    @property void        Virgin(bool Still);                                 //obviously can't be returned to true
-    @property DOC_TYPE    GetType();                                          //for now either d source or other text
-
-    Widget      TabWidget();                                        //the tab that shows up on the centerpane notebook
-    Widget      GetPage();                                          //actually the parent of this page? (ie scrollwindow
-    Widget      GetWidget();                                        //cast(widget) this basically
-    void        Focus();                                            //look at me!
-       
-    void        Edit(string Verb);                                  //do a copy cut paste delete action
-    ubyte[]     RawData();                                          //return whachagot
-
-    void        GotoLine(long LineNumber);                         //put cursor on linenumber and show it
-
-}
-
-
-
 class DOCMAN
 {
-    private:
+	private:
+	
+	uint				mUntitledCount;		///number to add to filenames of as yet unnamed files
 
-    uint                mUnTitledCount;                             //used to append xxx to DComposerxxx.d virgin files
+	string[]			mStartUpFiles;		///need to store startup files until everything is engaged then open them
 
-    string              mFileDialogFolder;                          //where next file open dialog starts (unless ... a project protests)
+	Action[]			mContextMenuActs;	///Actions which will be added to context menu
 
-    FileFilter[string]  mFileFilters;                               //text dsrc dpro and maybe somemore
-
-    string[]            mStartUpFiles;                              //files left open last session and/or on the command line to be opened
-
-    Action[]            mContextActions;                              //this menu prepends to text documents context popup menu
-
-    string[]            mNewDocTypes;
-  
-
-
-    void LoadFileFilters()
-    {
-
-        Config.setString("DOC_FILTERS", "dsrc", "D source file;mime;text/x-dsrc");
-        Config.setString("DOC_FILTERS", "text", "Text files;mime;text/plain");
-        Config.setString("DOC_FILTERS", "dpro", "DComposer project files;pattern;*.dpro");
-
-        
-        string[] FilterKeys = Config.getKeys("DOC_FILTERS");
-
-        foreach(i, key; FilterKeys)
-        {
-            string[] data = Config.getString("DOC_FILTERS", key).split(";");
-            mFileFilters[key] = new FileFilter;
-            mFileFilters[key].setName(data[0]);
-            
-
-            if(data[1] == "mime")mFileFilters[key].addMimeType(data[2]);
-            if(data[1] == "pattern")mFileFilters[key].addPattern(data[2]);
-        }
-    }
-
-    //only loads the names of files during engage
-    //actually opening the files will wait until after all elements have been engaged
-    void LoadStartUpFileNames()
-    {
-        mStartUpFiles = Config().getString("DOCMAN", "files_last_session").split(";");   //files open last session
-        mStartUpFiles.reverse();
-        mStartUpFiles ~=  Config().getString("DOCMAN", "files_to_open").split(";");      //files from command line
-
-        string report;
-        foreach(f; mStartUpFiles) if(f.length > 0)report ~= f ~":";
-        Log.Entry("Start Up Files = " ~ report, "Debug");
-    }
+	DOCUMENT[string]	mDocs;				///all open docs indexed by their file name
+	
+	FileFilter[string]	mFileFilters;		///holds the filters for open file dialog
+	FileChooserDialog	mOpenFileDialog;	///Dialog to open files
+	FileChooserDialog	mSaveFileDialog;	///Dialog to save (as) file
 
     //a little long but straight forward (create actions add em to menubar and toolbar)
     void CreateActions()
@@ -156,13 +87,13 @@ class DOCMAN
         Action  CloseAllAct = new Action("CloseAllAct", "Clos_e All", "Close all documents", null);
 
 
-        CreateAct.addOnActivate     (delegate void(Action X){CreateDoc();});
-        OpenAct.addOnActivate       (delegate void(Action X){OpenDoc();});
-        SaveAct.addOnActivate       (delegate void(Action X){SaveDoc();});
-        SaveAsAct.addOnActivate     (delegate void(Action X){SaveAsDoc();});
-        SaveAllAct.addOnActivate    (delegate void(Action X){SaveAllDocs();});
-        CloseAct.addOnActivate      (delegate void(Action X){CloseDoc();});
-        CloseAllAct.addOnActivate   (delegate void(Action X){CloseAllDocs();});
+        CreateAct.addOnActivate     (delegate void(Action X){Create();});
+        OpenAct.addOnActivate       (delegate void(Action X){Open();});
+        SaveAct.addOnActivate       (delegate void(Action X){Save();});
+        SaveAsAct.addOnActivate     (delegate void(Action X){SaveAs();});
+        SaveAllAct.addOnActivate    (delegate void(Action X){SaveAll();});
+        CloseAct.addOnActivate      (delegate void(Action X){Close();});
+        CloseAllAct.addOnActivate   (delegate void(Action X){CloseAll();});
 
         CreateAct.setAccelGroup (dui.GetAccel());  
         OpenAct.setAccelGroup   (dui.GetAccel());
@@ -198,32 +129,6 @@ class DOCMAN
         dui.AddToolBarItem(CloseAct   .createToolItem());
         dui.AddToolBarItem(CloseAllAct.createToolItem());
         dui.AddToolBarItem(new SeparatorToolItem);
-        
-
-        auto mi = new MenuItem("New _Type");
-        auto m = new Menu;
-
-        Config.setString("DOC_NEW_TYPES", ".d", "D source file");
-        Config.setString("DOC_NEW_TYPES", ".di", "D interface file (header)");
-        Config.setString("DOC_NEW_TYPES", ".lua", "Lua source file");
-        Config.setString("DOC_NEW_TYPES", ".tcl", "Tcl source file");
-        Config.setString("DOC_NEW_TYPES", ".html", "HTML source file");
-
-        mNewDocTypes = Config.getKeys("DOC_NEW_TYPES");
-        foreach(indx, Type; mNewDocTypes)
-        {
-            m.insert(new MenuItem(delegate void(MenuItem mi){CreateDoc(mi.getLabel());}, Type), cast(int)indx);//   Config.getString("DOC_NEW_TYPES", Type)), cast(int)indx);
-        }        
-        
-        mi.setSubmenu(m);        
-        dui.AddMenuItem("_Documents", mi,1);
-
-        //auto mt = new Menu;
-        //mt.insert(new MenuItem(delegate void(MenuItem mi){Log().Entry("menuitem alpha");}, "D source file"), 0);
-        //mt.insert(new MenuItem(delegate void(MenuItem mi){Log().Entry("menuitem beta");}, "Empty text file"), 1);
-        //MenuToolButton mtb = new MenuToolButton(StockID.NEW);
-        //mtb.setMenu(mt);
-        //dui.AddToolBarItem(mtb,2);
 
 
         //ok now the edit actions
@@ -285,434 +190,366 @@ class DOCMAN
         dui.AddToolBarItem(DeleteAct   .createToolItem());
         dui.AddToolBarItem(new SeparatorToolItem);
     }
-    
-    public:
-    
 
-    void Engage()
+
+    void LoadStartUpFiles()
     {
-        mFileDialogFolder = Config.getString("DOCMAN", "last_folder", "./");
+		mStartUpFiles = Config().getString("DOCMAN", "files_last_session").split(";");   //files open last session
+        mStartUpFiles.reverse();
+        mStartUpFiles ~=  Config().getString("DOCMAN", "files_to_open").split(";");      //files from command line
 
-        LoadFileFilters();
-        LoadStartUpFileNames();
+        string startupfiles;
+        foreach (suf; mStartUpFiles) startupfiles ~= suf;
+        Log.Entry("Start Up Files = " ~ startupfiles, "Debug");
+	}
 
-        CreateActions();
-
-        Log.Entry("Engaged DOCMAN");
-    }
-
-    void Disengage()
-    {
-        //save all docs open in session to config file
-        string DocsToOpenNextSession;
-
-        DOCUMENT docX;
-
-        auto openCount = dui.GetCenterPane().getNPages();
-        while(openCount > 0)
-        {
-            openCount--;
-            docX = cast(DOCUMENT)GetDocX(openCount);
-            if(docX is null) continue;
-            if(docX.Virgin())continue;
-
-            //line number stuff
-            TextIter ti = new TextIter;
-            auto InsertMark = docX.getBuffer.getInsert();
-            
-            docX.getBuffer.getIterAtMark(ti, InsertMark); 
-
-            auto LineNumber = ti.getLine();
-
-
-            DocsToOpenNextSession~= docX.FullPathName() ~ ":" ~ to!string(LineNumber) ~ ";";
-        }
-        //DocsToOpenNextSession = DocsToOpenNextSession.chomp(";");
-        if(DocsToOpenNextSession.empty)DocsToOpenNextSession =  "";
-        Config().setString("DOCMAN", "files_last_session", DocsToOpenNextSession);
+	void StoreOpenSessionFiles()
+	{
+		string StorageData;
+		foreach(Doc; mDocs)StorageData ~= Doc.Name ~ ":" ~ to!string(Doc.LineNumber) ~ ";";
+		if(StorageData.empty) StorageData = "";
+		Config().setString("DOCMAN", "files_last_session", StorageData);
         Config().setString("DOCMAN", "files_to_open",""); //get rid of command line files
+	}
 
-        //verify saving or discarding any modified docs
-        CloseAllDocs(true);
-        Log().Entry("Disengaged DOCMAN");
-    }
-
-     DOCUMENT_IF CreateDoc(string DocType = ".d")
+	void LoadFileFilters()
     {
+		//make sure these are always available
+        Config.setString("DOC_FILTERS", "dsrc", "D source file;mime;text/x-dsrc");
+        Config.setString("DOC_FILTERS", "text", "Text files;mime;text/plain");
+        Config.setString("DOC_FILTERS", "dpro", "DComposer project files;pattern;*.dpro");
+        Config.setString("DOC_FILTERS", "*"	  , "All Files;pattern;*");
+        Config.setString("DOC_FILTERS", "TEST", "THIS; is a test of the docman file filter system!");
+
+        
+        string[] FilterKeys = Config.getKeys("DOC_FILTERS");
+
+        foreach(i, key; FilterKeys)
+        {
+            string[] data = Config.getString("DOC_FILTERS", key).split(";");
+            if(data.length  != 3 )
+            {
+				Log.Entry("DocManager detected malformed file filter", "Error");
+				continue;
+			}
+            mFileFilters[key] = new FileFilter;
+            mFileFilters[key].setName(data[0]);
+            
+
+            if(data[1] == "mime")mFileFilters[key].addMimeType(data[2]);
+            if(data[1] == "pattern")mFileFilters[key].addPattern(data[2]);
+        }
+    }		
+		
+	public :
+
+	@property DOCUMENT Current()
+	{
+		auto index = dui.GetCenterPane().getCurrentPage();
+		if (index < 0) return null;
+		auto tmpvarScrWin = cast(ScrolledWindow) dui.GetCenterPane().getNthPage(index);
+		return cast(DOCUMENT)tmpvarScrWin.getChild();
+	}
+
+	@property DOCUMENT[string] Documents(){return mDocs;}
+	 
+
+	///Create a New DocMan (Document Manager)
+	this()
+	{
+		mOpenFileDialog = new FileChooserDialog
+								(
+									"What files do you wish to DCompose?",
+									dui.GetWindow(),
+									FileChooserAction.OPEN
+								);
+
+		mOpenFileDialog.setSelectMultiple(true);
+
+		LoadFileFilters();
+		foreach(filter; mFileFilters)mOpenFileDialog.addFilter(filter);
+        mOpenFileDialog.setFilter(mFileFilters["dsrc"]);
+
+		mSaveFileDialog = new FileChooserDialog
+								(
+									"Bury DComposed File ... ",
+									dui.GetWindow(),
+									FileChooserAction.SAVE
+								);
+	}
+
+	void Engage()
+	{
+		///get last session files and cmdline files to open later (after everything is engaged)
+		LoadStartUpFiles();
+
+		///Creates all document related actions (adds menu and toolbar stuff too)	
+		CreateActions();
+
+		Log.Entry("Engaged DOCMAN");
+	}
+
+	void Disengage()
+	{
+		StoreOpenSessionFiles();
+		CloseAll(true);
+	}
+
+
+	void AddContextMenuAction(Action NewAction)
+	{
+		mContextMenuActs ~= NewAction;
+	}	
+	Action[] GetContextMenuActions(){return mContextMenuActs;}
+
+	void Edit(string EditAction)
+	{
+		if (Current is null) return;
+		Current.Edit(EditAction);
+	}
+
+
+	bool IsOpen(string Name, bool  SetFocus = false)
+	{
+		if(Name !in mDocs) return false;
+
+		if (SetFocus)mDocs[Name].grabFocus();
+		return true;
+	}
+
+	void GotoLine(ulong LineNumber)
+	{
+		if(Current !is null)Current.GotoLine(LineNumber);
+	}
+
+	string GetWord()
+	{
+		if(Current !is null)return Current.Word;
+		return null;
+	}
+	ulong GetLine()
+	{
+		if(Current !is null)return Current.LineNumber;
+		return -1;
+	}
+	string GetLine()
+	{
+		if(Current !is null)return Current.LineText;
+		return null;
+	}
+
+	bool HasModifiedDocs()
+	{
+		foreach(doc; mDocs) if (doc.Modified) return true;
+		return false;
+	}
+
+	string GetText()
+	{
+		if(Current !is null)return Current.getBuffer().getText();
+		return null;
+	}
+
+	DOCUMENT GetDocument(string Name = null)
+	{
+		if(Name is null) return Current;
+		if(Name !in mDocs) return null;
+		return mDocs[Name];
+	}
+
+	void Create(string extension = ".d")
+	{
+
+		if(extension.length > 0)
+		{
+			if(extension[0] != '.') extension = '.' ~ extension;
+		}
+		static UnTitledCount = 0;
 		string TitleString;
 		do
 		{
-			TitleString = std.string.format("DComposer%.3s", mUnTitledCount++);
-			TitleString ~= DocType;
-		}while (IsOpenDoc(buildPath(getcwd(), TitleString)));
+			TitleString = std.string.format("DComposer%.3s%s", UnTitledCount++, extension);
+			TitleString = buildPath(getcwd(), TitleString);
+		}while (exists(TitleString));
 
-        DOCUMENT_IF NuDoc;
-
-        scope(failure) {Log().Entry("Document " ~ TitleString ~ " failed creation" , "Error"); return null;}
+        scope(failure) {Log().Entry("Document " ~ TitleString ~ " failed creation" , "Error"); return;}
         scope(success) Log().Entry("Document " ~ TitleString ~ " created.");
 
-        //now this assumes we're creating a DOCUMENT ... how to improve this for different file types ???
-        //if (DocType == ".glade"){ NuDoc = new GladeDoc; NuDoc.Create(TitleString); AppendDocument(NuDoc); return NuDoc;}  <--like that?  
-        
-        NuDoc = new DOCUMENT;
-        
-        NuDoc.Create(TitleString);
+        auto NuDoc = DOCUMENT.Create(TitleString);
 
-        AppendDocument(NuDoc);
-        
-        return NuDoc;
+        Append(NuDoc);
     }
 
-    //OpenDoc with a file name and maybe a line number opens the FullFileName parameter
-    //not going to add open project functionality here ... shouldn't need it
-    void OpenDoc(string FullFileName, int LineNo = 0)
-    {
-        FullFileName = FullFileName.absolutePath;
+	void Open()
+	{
+		auto response = mOpenFileDialog.run();
+		mOpenFileDialog.hide();
+
+		if (response != ResponseType.GTK_RESPONSE_OK) return;
         
-        //ok this is wierd syntax here .. if not open(and focus if it is) do this(open) now do this(goto)
-        //must have had a reason..?
-        if(!IsOpenDoc(FullFileName, true))
-        {
-            scope(failure){Log.Entry("Document: "~FullFileName~" failed to open.", "Error"); return;}
-            scope(success)Log.Entry("Document: "~FullFileName~" opened.");
-            auto DocX = new DOCUMENT;
-            if(DocX.Open(FullFileName, LineNo))
-            {
-                AppendDocument(DocX, LineNo);   
-            }
-            
-            return;
-        }        
-        auto DocX = GetDocX(FullFileName);
-        if (DocX is null) return;
-        
-        DocX.GotoLine(LineNo);               
-        return ;
-    }
-    
-    //open doc with no parameters presents a filechooser dialog then calls OpenDocs(string[])
-    //if a project file is chosen will call Project.Open(chosenfile)
-    void OpenDoc()
-    {
-        auto DocFiler = new FileChooserDialog
-                            (
-                                "Which files to DCompose?",
-                                dui.GetWindow(),
-                                FileChooserAction.OPEN
-                            );
-        //DocFiler.addShortcutFolder(".");
-        DocFiler.addShortcutFolder("/usr/include/d/dmd/phobos/std/");
-        DocFiler.setSelectMultiple(1);
-        
-        DocFiler.setCurrentFolder(mFileDialogFolder);
-        foreach(filter; mFileFilters)DocFiler.addFilter(filter);
-        DocFiler.setFilter(mFileFilters["dsrc"]);
-        auto DialogReturned = DocFiler.run();
-        DocFiler.hide();
-       
-        
-        if (DialogReturned != ResponseType.GTK_RESPONSE_OK) return;
-        
-        mFileDialogFolder = DocFiler.getCurrentFolder();
-        Config.setString("DOCMAN", "last_folder", mFileDialogFolder);
-
-        string[] ArrayOfFiles;
-        ListSG   ListOfFiles = DocFiler.getFilenames();
-        ArrayOfFiles.length = ListOfFiles.length();
-
-        foreach(ref f; ArrayOfFiles)
-        {
-            f = toImpl!(string, char *)(cast(char *)ListOfFiles.data());
-            ListOfFiles = ListOfFiles.next();
-        }
-
-        OpenDocs(ArrayOfFiles);
-    }
-    void OpenDocs(string[] FullFileNames)
-    {
-
-        foreach(f;FullFileNames)
-        {
-            if(f.length < 1) continue;
-
-            scope(failure){Log.Entry("Document: "~f~" failed to open.", "Error"); continue;}
-            scope(success)Log.Entry("Document: "~f~" opened.");
-            if(IsOpenDoc(f, true))continue;
-            
-            //stuck again ... for now just able to open DOCUMENTs
-            //gotta change this ... (maybe later dcomposer will open rad gui form builders or images or anything)
-            //switch (extension) docx = new extensiontype, docx.open append and return;  ...hey how come open returns void and create returns doc_if
-
-            if(f.extension == ".dpro")
-            {
-                Project.Open(f);
-                return;
-            }
-            auto DocX = new DOCUMENT;
-            if(DocX.Open(f))AppendDocument(DocX);
-            else throw new Exception("bad file?");
-        }
-    }
-
-    void OpenInitialDocs()
-    {
-        int LineInFile;
-        
-        if (mStartUpFiles.length > 1)Log.Entry("Opening Initial Document(s)...");
-        foreach(startup; mStartUpFiles)
-        {
-            
-            auto colon = std.string.indexOf(startup,":");
-            if (colon < 1)
-            {
-                LineInFile = 0;
-                colon = startup.length;
-            }
-            else
-            {
-                LineInFile = to!int(startup[colon+1..$]);
-            }
-
-            auto NameOfFile = startup[0..colon];
-            if(NameOfFile.length < 1) continue;
-
-            OpenDoc(NameOfFile, LineInFile);
-        }
-
-        //OpenDocs(mStartUpFiles);
-    }
-
-    void SaveDoc()
-    {
-        auto docX = GetDocX();
-        if(docX is null) return;
-
-        scope(success)Log.Entry("Document :"~docX.FullPathName ~ " saved.");
-        scope(failure){Log.Entry("Document :"~docX.FullPathName ~ " failed to save.", "Error"); return;}
-                
+        ListSG   ListOfFiles = mOpenFileDialog.getFilenames();
+        //ArrayOfFiles.length = ListOfFiles.length();
 
 
-        if(docX.Virgin())return SaveAsDoc(docX);
-        docX.Save();
+		while(ListOfFiles !is null)
+		{
+			auto f = toImpl!(string, char *)(cast(char*)ListOfFiles.data());
+			Open(f);
+			ListOfFiles = ListOfFiles.next();
+		}
 
-
-    }
-    void SaveAsDoc(DOCUMENT_IF docX = null)
-    {
-        string presaveas;
-        
-        auto DocFiler = new FileChooserDialog
-                            (
-                                "Bury DComposed Files ...",
-                                dui.GetWindow(),
-                                FileChooserAction.SAVE
-                            );        
-        
-        scope(failure){Log.Entry("Document :"~ presaveas ~ " failed to save as "~ DocFiler.getFilename ~ ".", "Error"); return; }
-        
-        if(docX is null) docX = GetDocX();
-        if(docX is null) return;
-        presaveas = docX.FullPathName;
-
-        DocFiler.setCurrentFolder(mFileDialogFolder);
-        DocFiler.setCurrentName(presaveas);
-        foreach(filter; mFileFilters)DocFiler.addFilter(filter);
-        auto DialogResponse = DocFiler.run();
-        DocFiler.hide();
-        if(DialogResponse !=  ResponseType.GTK_RESPONSE_OK) return;
-        mFileDialogFolder = DocFiler.getCurrentFolder();
-        Config.setString("DOCMAN", "last_folder", mFileDialogFolder);
-
-        docX.SaveAs(DocFiler.getFilename);
-        scope(success)Log.Entry("Document :"~ presaveas ~ " saved as " ~ docX.FullPathName ~ ".");
-
-             
-    }
-
-        void SaveAllDocs()
-    {
-        DOCUMENT_IF docX;
-        int count = dui.GetCenterPane.getNPages();
-
-        while(count > 0)
-        {
-            count--;
-            docX = GetDocX(count);
-            if(docX is null) continue;
-            docX.Save();
-        }
-        
-    }
-    void CloseDoc(string FullFileName = null)
-    {
-        DOCUMENT_IF docX;
-        scope(success)Log().Entry("Document " ~ docX.FullPathName() ~ " closed.");        
- 
-        if(FullFileName is null)
-        {
-            scope(failure) return;
-            int pagenumber = dui.GetCenterPane().getCurrentPage();
-            docX = GetDocX(pagenumber);
-
-            if (docX is null) throw new Exception("Nothing to Close");
-
-            if(docX.Close())dui.GetCenterPane().removePage(pagenumber);
-            return;
-        }
-
-        auto counter = dui.GetCenterPane().getNPages();
-        while(counter > 0)
-        {
-            counter--;
-            docX = GetDocX(counter);
-            
-            if (FullFileName == docX.FullPathName())
-            {
-                if(docX.Close())dui.GetCenterPane().removePage(counter);
-                return;
-            }
-        }
-    }
-    void CloseAllDocs(bool Quitting = false)
-    {
-        DOCUMENT_IF docX;
-        int pagecount;
-
-        pagecount = dui.GetCenterPane().getNPages();
-        if(pagecount > 0) Log().Entry("Documents, Closing All...");
-        while(pagecount > 0)
-        {
-            pagecount--;
-            
-            docX = GetDocX(pagecount);
-            if(docX is null) continue;
-            if(docX.Close(Quitting))
-            {
-                dui.GetCenterPane().removePage(pagecount);
-                Log().Entry("    Document " ~ docX.FullPathName() ~ " closed.");
-            }
-        }                    
-    }
-
-    void Edit(string WhichEdit)
-    {
-
-        auto docX = GetDocX();
-        if(docX is null)return;        
-        docX.Edit(WhichEdit);
-    }
-
-    DOCUMENT_IF GetDocX(string FullFileName)
-    {
-        DOCUMENT_IF docX = null;
-        int count;
-
-        count = dui.GetCenterPane().getNPages();
-        while(count > 0)
-        {
-            count--;
-            auto ScrWin = cast(ScrolledWindow) dui.GetCenterPane().getNthPage(count);
-            docX = cast(DOCUMENT_IF)ScrWin.getChild();
-            if (docX.FullPathName == FullFileName) return docX;
-        }            
-        return null;
-    }
-    DOCUMENT_IF GetDocX(int index = -1)
-    {
-        scope(failure)return null;
-        if(index == -1) index = dui.GetCenterPane().getCurrentPage();
-        if(index == -1) return null;
-        
-        auto ScrWin = cast(ScrolledWindow) dui.GetCenterPane().getNthPage(index);
-        if(ScrWin is null) return null;
-
-        DOCUMENT_IF rVal = cast (DOCUMENT_IF) ScrWin.getChild();
-        return rVal;
-    }
-
-    string GetCurrentLocation()
-    {
-		auto tmp = cast(DOCUMENT)GetDocX();
-		return tmp.GetCurrentLocation();
 	}
 
+	void Open(string DocPath, ulong LineNo = 0)
+	{
+        DocPath = DocPath.absolutePath;
 
-    void AppendDocument(DOCUMENT_IF Doc, uint LineNo = 0)
+        if(!IsOpen(DocPath, true))
+        {
+            scope(failure){Log.Entry("Document: "~DocPath~" failed to open.", "Error"); return;}
+            scope(success)Log.Entry("Document: "~DocPath~" opened.");
+
+            auto Doc = DOCUMENT.Open(DocPath, LineNo);
+            if(Doc !is null)
+            {
+                Append(Doc, LineNo);   
+            }            
+            return;
+        }        
+        mDocs[DocPath].GotoLine(LineNo);             
+        return ;
+    }
+
+    void Save()
     {
-        ScrolledWindow ScrollWin = new ScrolledWindow(null, null);
-		ScrollWin.add(Doc.GetWidget());
+		if (Current is null) return;
+        scope(success)Log.Entry("Document :"~Current.Name ~ " saved.");
+        scope(failure){Log.Entry("Document :"~Current.Name ~ " failed to save.", "Error"); return;}
+		if (Current.Virgin) return SaveAs();
+		Current.Save();		
+	}
+
+	void SaveAs()
+	{
+		if(Current is null) return;
+		string OriginalName = Current.Name;
+		
+		mSaveFileDialog.setCurrentName(OriginalName);
+		auto response = mSaveFileDialog.run();
+		mSaveFileDialog.hide();
+
+		if (response != ResponseType.GTK_RESPONSE_OK) return;
+
+		scope(failure)
+		{
+			Log.Entry("Document Failed to save "~OriginalName~" as "~mSaveFileDialog.getFilename, "Error");
+			return;
+		}
+		scope (success) Log.Entry("Document saved "~OriginalName~" as "~mSaveFileDialog.getFilename);
+		
+		
+		Current.SaveAs(mSaveFileDialog.getFilename);
+	}
+
+	void SaveAll()
+	{
+		foreach(Doc; mDocs) Doc.Save();
+	}
+		
+	void CloseAll(bool Quitting = false)
+	{
+		string[] KeysToClose;
+		foreach (key, Doc; mDocs)
+		{
+			if(Doc.Close(Quitting))
+			{
+				KeysToClose ~= key;
+				auto PageNumber = dui.GetCenterPane().pageNum(Doc.PageWidget());
+				dui.GetCenterPane().removePage(PageNumber);
+			}
+		}
+		foreach(key; KeysToClose)
+		{
+			Log.Entry("Document: "~key~" closed.");
+
+			mDocs[key].Disengage();
+			Event.emit("CloseDocument", mDocs[key]);
+			mDocs.remove(key);
+		}			
+		
+	}
+
+	void Close(DOCUMENT XDoc = null, bool Quitting = false)
+	{
+		
+		if(XDoc is null)
+		{
+			XDoc = Current;
+			if(XDoc is null)return;
+		}
+		if(!XDoc.Close(Quitting)) return;
+
+		mDocs.remove(XDoc.Name);
+		auto PageNumber = dui.GetCenterPane().pageNum(XDoc.PageWidget());
+		dui.GetCenterPane().removePage(PageNumber);
+
+		XDoc.Disengage();
+
+		Log.Entry("Document: "~XDoc.Name~" closed.");
+
+		Event.emit("CloseDocument", XDoc);
+
+	}
+
+	void Append(DOCUMENT ADoc, ulong LineNo = 0)
+	{
+
+		mDocs[ADoc.Name] = ADoc;
+		ScrolledWindow ScrollWin = new ScrolledWindow(null, null);
+		ScrollWin.add(ADoc);
 		ScrollWin.setPolicy(GtkPolicyType.AUTOMATIC, GtkPolicyType.AUTOMATIC);
 
+		
+		dui.GetCenterPane().appendPageMenu(ADoc.PageWidget(), ADoc.TabWidget(), new Label(ADoc.ShortName));
 
-        dui.GetCenterPane().appendPage(ScrollWin, Doc.TabWidget());
-        dui.GetCenterPane().setTabReorderable(ScrollWin, 1);
+		dui.GetCenterPane().setTabReorderable(ADoc.PageWidget, 1);
         ScrollWin.showAll();
-        dui.GetCenterPane().setCurrentPage(ScrollWin);
-        Doc.GetWidget().grabFocus();
+        dui.GetCenterPane().setCurrentPage(ADoc.PageWidget);
+        ADoc.grabFocus();
         
         //this signal has become the signal to allow other modules/elements to connect to all docs, so
         //it is now important to call AppendDocument exactly one time for each new document.
-        Event.emit("AppendDocument", Doc);
+        Event.emit("AppendDocument", ADoc);
 
-        Doc.GotoLine(LineNo);
-    }
+        ADoc.GotoLine(LineNo);
 
-
-    bool IsOpenDoc(string FullFileName, bool SetFocus = false)
-    {
-        DOCUMENT_IF docX = null;
-        int count;
-
-        count = dui.GetCenterPane().getNPages();
-        while(count > 0)
-        {
-            count--;
-            docX = GetDocX(count);
-            if (docX is null) continue;
-            if (docX.FullPathName == FullFileName)
-            {
-                dui.GetCenterPane.setCurrentPage(docX.GetPage());
-                docX.Focus();
-                return true;
-            }
-        }            
-        return false;
-    }
-
-    Action[] ContextActions()
-    {
-        return mContextActions;
-    }
-
-    void AddContextAction(Action Item)
-    {
-
-        mContextActions ~=  Item;
-    }
-
-    bool HasModifiedDocs()
-    {
-		DOCUMENT_IF docX = null;
-        int count;
-
-        count = dui.GetCenterPane().getNPages();
-        while(count > 0)
-        {
-            count--;
-            docX = GetDocX(count);
-            if (docX is null) continue;
-            if (docX.Modified) return true;
-
-        }            
-        return false;
 	}
-		
 
-    
-    mixin Signal!(string, DOCUMENT_IF) Event;
+	void OpenInitialDocs()
+	{
+		ulong LineInFile;
+		foreach(initfile; mStartUpFiles) 
+		{
+			auto colon = std.string.indexOf(initfile, ":");
+			if(colon < 1)
+			{
+				LineInFile = 0;
+				colon = initfile.length;
+			}
+			else
+			{
+				LineInFile = to!ulong(initfile[colon+1..$]);
+			}
+
+			auto NameOfFile = initfile[0..colon];
+			if(NameOfFile.length < 1) continue;
+			Open(NameOfFile, LineInFile);
+		}
+	}
+	
+	mixin Signal!(string, DOCUMENT) Event;
 }
-
-
+	
 class DOC_PAGE : PREFERENCE_PAGE
 {
     //indention??? I think I meant indentation.
@@ -837,3 +674,6 @@ class DOC_PAGE : PREFERENCE_PAGE
 
 }                                         
 
+	
+		
+		
