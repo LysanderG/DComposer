@@ -255,7 +255,7 @@ class SCOPE_LIST_PAGE : PREFERENCE_PAGE
 
 	this()
 	{
-		super("Elements", Config.getString("PREFERENCES", "glade_file_scope_list", "~/.neontotem/dcomposer/scopelistpref.glade"));
+		super("Elements", Config.getString("PREFERENCES", "glade_file_scope_list", "$(HOME_DIR)/scopelistpref.glade"));
 		mEnabled = cast(CheckButton)mBuilder.getObject("checkbutton1");
 		mFrame.showAll();
 	}

@@ -26,6 +26,7 @@ import std.getopt;
 import std.string;
 import std.path;
 import std.file;
+import std.algorithm;
 
 import core.stdc.stdlib;
 
@@ -35,17 +36,26 @@ import glib.KeyFile;
 string DCOMPOSER_VERSION = "0.01a";
 string DCOMPOSER_COPYRIGHT = "Copyright 2011 Anthony Goins";
 
+string HOME_DIR    = "$(HOME_DIR)/";
+string SYSTEM_DIR  = "$(SYSTEM_DIR)/";
+
 
 class CONFIG
 {
 	string 	mCfgFile;               //name of the CONFIG file
 	KeyFile	mKeyFile;               //CONFIG file object... didn't want dcore to depend on gtk+ libs, must fix
 	bool	mShowHelp;				//show help and then exit		
-    alias 	mKeyFile this;            
+    alias 	mKeyFile this;
+
+    string	mHomeDir;				//this should be where user settings will be saved -->default ~/.config/dcomposer/
+    string 	mSysDir;     			//this is where stuff the user shouldn't change will reside -->default /usr/local/
 
     this()
     {
-        mCfgFile = expandTilde("~/.neontotem/dcomposer/dcomposer.cfg");
+		mHomeDir = import("homedir");
+		mSysDir  = import("sysdir");
+		
+        mCfgFile = ExpandPath("$(HOME_DIR)/dcomposer.cfg");
         mKeyFile = new KeyFile;
     }
 
@@ -85,6 +95,8 @@ class CONFIG
 
         foreach(filetoopen; CmdArgs[1..$])
         {
+			//guess I'm assuming here if it starts with '-' its a flag otherwise its a file to open
+			//but... what about -c 
             if(filetoopen[0] != '-') openers ~= buildNormalizedPath((absolutePath(filetoopen))) ~ ";";
         }
         openers = openers.chomp(";");
@@ -94,7 +106,12 @@ class CONFIG
 
     void Disengage()
     {
-        ulong len;
+		scope (failure)
+		{
+			Log.Entry("Unable to save configuration file "~mCfgFile, "Error");
+			return;
+		}
+        gsize len;
         
         string data = mKeyFile.toData(len);
         std.file.write(mCfgFile, data);
@@ -103,7 +120,7 @@ class CONFIG
 
     void Save()
     {
-        ulong len;
+        gsize len;
         string data = mKeyFile.toData(len);
         std.file.write(mCfgFile, data);
         Saved.emit();
@@ -113,7 +130,7 @@ class CONFIG
     {
         scope (failure)
         {
-            Default = Default.expandTilde();
+            Default = ExpandPath(Default);
             mKeyFile.setString(GroupName, Key, Default);
 
             return Default;
@@ -122,6 +139,11 @@ class CONFIG
 
         return rVal; 
     }
+
+    void setString(string GroupName, string Key, string Value)
+    {
+		mKeyFile.setString(GroupName, Key,ExpandPath( Value));
+	}
 
     bool getBoolean(string GroupName, string Key, bool Default = false)
     {
@@ -164,7 +186,7 @@ class CONFIG
     {
         scope (failure) return null;
 
-        ulong waste;
+        gsize waste;
         string[] rVal =  mKeyFile.getKeys(groupName, waste);
         return rVal;
     }
@@ -201,7 +223,28 @@ class CONFIG
 		writeln("Any text files to open for editing.  Must be valid utf8 encoded files for this version");
 		writeln("Also at this time project files are only opened as text files");
 		exit(0);
-	}        
+	}
+
+
+	string ExpandHomeDir(string Input) {return buildNormalizedPath(mHomeDir, Input);}
+	string ExpandSysDir(string Input) { return buildNormalizedPath(mSysDir, Input);}
+
+	string ExpandPath(string Input)
+	{
+		if (Input.skipOver(HOME_DIR))
+		{
+			return ExpandHomeDir(Input);
+		}
+		if (Input.skipOver(SYSTEM_DIR))
+		{
+			return ExpandSysDir(Input);
+		}
+		Input = expandTilde(Input);
+
+		return Input;
+	}
+
+		
     mixin Signal!()ShowConfig;  //will be emitted before showing a gui pref dialog ... to set gui elements from keyfile
     mixin Signal!()Reconfig;    //emitted when keyfile changes warrent all modules to reconfigure them selves
     mixin Signal!()Saved;     

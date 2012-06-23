@@ -218,7 +218,7 @@ class PROJECT
     {
         mCompiler = Config.getString("PROJECT", "default_compiler", "dmd");
         
-        string FlagsFile = expandTilde(Config.getString("PROJECT","flags_file", "~/.neontotem/dcomposer/flagsfile.json" ));
+        string FlagsFile = Config.getString("PROJECT","flags_file", "$(HOME_DIR)/flagsfile.json" );
 		ReadFlags(FlagsFile);
         Log.Entry("Engaged PROJECT");
     }
@@ -323,7 +323,7 @@ class PROJECT
         mWorkingPath.length = 0;
 
         scope(failure)Log.Entry("Unable to open Flags File", "Error");
-        string FlagsFile = expandTilde(Config.getString("PROJECT","flags_file", "~/neontotem/dcomposer/flagsfile.json" ));
+        string FlagsFile = expandTilde(Config.getString("PROJECT","flags_file", "$(HOME_DIR)/flagsfile.json" ));
 		ReadFlags(FlagsFile);
         mList.Zero();
         mUseCustomBuild = false;
@@ -514,7 +514,7 @@ class PROJECT
 			}
 		}
 		
-		if (mFlags["-of"].State == false) cmdline ~= "-of" ~ mName ~ " ";
+		if (mFlags["-of"].State == false) cmdline ~= " -of" ~ mName ~ " ";
         
 		foreach(src; this[SRCFILES])
 		{
@@ -535,7 +535,7 @@ class PROJECT
             return false;
         }
 
-        string ProcessCommand =  "xterm -e ./" ~ Project.Name;
+        string ProcessCommand =  "xterm -hold -e ./" ~ Project.Name;
         if(args !is null) ProcessCommand ~= " " ~ args;
         
         std.stdio.File Process;
@@ -552,7 +552,7 @@ class PROJECT
     bool RunConcurrent(string args = null)
     {
         if(mTarget != TARGET.APP) return false;
-        string ProcessCommand = "xterm -e ./"~Project.Name;
+        string ProcessCommand = "xterm -hold -e ./"~Project.Name;
         if(args !is null) ProcessCommand ~= " " ~ args;
 
         //mIdle = new Idle(&WatchThreads);

@@ -477,3 +477,23 @@ Ok what next
 	4. autobackup/save
 	5. VCS /git/ support
 	6. 
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Wed Jun 20 22:46:18 EDT 2012
+
+Just looked at the document files made from the doc comments I wrote.
+Man they really suck!
+
+Next on the to do list.
+Put everything (resources, glade files, log, cfg, styles)in the correct folder.
+Get prepared to actually have an build and install thingy.
+The build system thing has really been bothering me.  The more I read about it the more confusing it gets.
+
+	autotools -- omg so many files and programs running in dependant circles. Can someone just maybe briefly mention what the developer needs to input into the system and where/when.  Ok I get that this program needs that file and gives these files which feed the next program which also needs those files.  OK OK but where do I fit in?
+
+ 	Cmake...
+	Dmake...
+	Waf...
+	make...
+	dsss...
+	

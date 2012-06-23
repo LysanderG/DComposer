@@ -48,7 +48,7 @@ class LOG
     this()
     {
         //mSystemDefaultLogName = expandTilde(Config.getString("LOG", "default_log_file", "~/.neontotem/dcomposer/dcomposer.log"));
-        mSystemDefaultLogName =  "~/.neontotem/dcomposer/dcomposer.log";
+        mSystemDefaultLogName =  "$(HOME_DIR)/dcomposer.log";
         mInterimFileName = "unspecifiedlogfile.cfg";
         mLogFile = mSystemDefaultLogName;
         
@@ -63,10 +63,10 @@ class LOG
 
     void Engage()
     {
-        mSystemDefaultLogName = Config.getString("LOG", "default_log_file", "~/.neontotem/dcomposer/dcomposer.log");
+        mSystemDefaultLogName = Config.getString("LOG", "default_log_file", mSystemDefaultLogName);
         if(Config.hasKey("LOG", "interim_log_file"))
         {
-            mLogFile = Config.getString("LOG", "interim_log_file","error.log");
+            mLogFile = Config.getString("LOG", "interim_log_file","$(HOME_DIR)/error.log");
             Config.removeKey("LOG", "interim_log_file");
         }
         else mLogFile = mSystemDefaultLogName;

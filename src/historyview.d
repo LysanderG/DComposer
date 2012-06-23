@@ -92,7 +92,7 @@ class HISTORY_VIEW : ELEMENT
     void Engage()
     {
         mBuilder = new Builder;
-        mBuilder.addFromFile(Config.getString("RECENT_VIEW", "glade_file", "/home/anthony/.neontotem/dcomposer/historyview2.glade"));
+        mBuilder.addFromFile(Config.getString("RECENT_VIEW", "glade_file", "$(HOME_DIR)/historyview2.glade"));
 
         mRoot               =   cast(VBox)        mBuilder.getObject("vbox1");
         mRecentProjects     =   cast(RecentChooserWidget)   mBuilder.getObject("recentchooser1");
@@ -167,7 +167,7 @@ class HISTORY_VIEW_PREF : PREFERENCE_PAGE
 	this()
 	{
 		//using same simple glade file for proview  -- maybe change name to generice simple glade ??
-		super("Elements", Config.getString("PREFERENCES", "glade_file_history_view", "~/.neontotem/dcomposer/proviewpref.glade"));
+		super("Elements", Config.getString("PREFERENCES", "glade_file_history_view", "$(HOME_DIR)/proviewpref.glade"));
 		mEnabled = cast (CheckButton)mBuilder.getObject("checkbutton1");
 		Label  x = cast (Label)      mBuilder.getObject("label1");
 		x.setMarkup("<b>Recent History :</b>");

@@ -196,7 +196,7 @@ class TERMINAL_PAGE : PREFERENCE_PAGE
 
 	this()
 	{
-		super("Elements", Config.getString("PREFERENCES", "glade_file_terminal", "~/.neontotem/dcomposer/terminalpref.glade"));
+		super("Elements", Config.getString("PREFERENCES", "glade_file_terminal", "$(HOME_DIR)/terminalpref.glade"));
 
 		mFontButton = cast(FontButton)  mBuilder.getObject("fontbutton1");
 		mForeColor  = cast(ColorButton) mBuilder.getObject("colorbutton1");

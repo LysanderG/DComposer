@@ -89,14 +89,24 @@ class DOCUMENT : SourceView
 		if(mFileTimeStamp <  timeStamp)
 		{
             auto msg = new MessageDialog(dui.GetWindow, DialogFlags.MODAL, MessageType.QUESTION, ButtonsType.NONE, true,null);
-            msg.setMarkup(Name ~ " has been modified externally.\nWould you like to reload it with any changes\nor ignore changes?\n(" ~ mFileTimeStamp.toISOString() ~ " / " ~ timeStamp.toISOExtString() ~ ")");
+            msg.setMarkup(Name ~ " has been modified externally.\nWould you like to reload it with any changes\nor ignore changes?\n(" ~ mFileTimeStamp.toISOExtString() ~ " / " ~ timeStamp.toISOExtString() ~ ")");
             msg.addButton("Reload", 1000);
             msg.addButton("Ignore", 2000);
 
             auto rv = msg.run();
             msg.hide();           
             
-            if(rv == 1000)Open(Name);
+
+            if(rv == 1000)
+            {
+				mFileTimeStamp = timeLastModified(Name);
+				string Text = ReadUTF8(Name);
+				mVirgin = false;
+                getBuffer().beginNotUndoableAction();
+                getBuffer().setText(Text);
+                getBuffer().endNotUndoableAction();
+				getBuffer().setModified(false);      
+			}
             else mFileTimeStamp = timeLastModified(Name);
 			return true;
         }       
@@ -121,6 +131,8 @@ class DOCUMENT : SourceView
         getBuffer.setLanguage(Language);
 
 		string StyleId = Config.getString("DOCMAN","style_scheme", "cobalt");
+
+		SourceStyleSchemeManager.getDefault().appendSearchPath("$(HOME_DIR)/styles/");
         getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleId));
 
 		setAutoIndent(Config.getBoolean("DOCMAN", "auto_indent", true));
@@ -362,7 +374,7 @@ class DOCUMENT : SourceView
 		Rval.getBuffer().beginNotUndoableAction();
 		Rval.getBuffer().setText(Text);
 		Rval.getBuffer().endNotUndoableAction();
-		Rval.getBuffer().setModified(false);
+		Rval.getBuffer().setModified(false);      
 		Rval.mInitialLine = LineNo;
 		Rval.Engage();
 

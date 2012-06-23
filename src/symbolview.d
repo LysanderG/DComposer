@@ -146,7 +146,7 @@ class SYMBOL_VIEW : ELEMENT
 
         mSymBuilder =   new Builder ;
 
-        mSymBuilder.addFromFile(Config.getString("SYMBOL_VIEW", "glade_file", "/home/anthony/.neontotem/dcomposer/dsymview.glade"));
+        mSymBuilder.addFromFile(Config.getString("SYMBOL_VIEW", "glade_file", "$(HOME_DIR)/dsymview.glade"));
         mRoot           = cast (ScrolledWindow) mSymBuilder.getObject("scrolledwindow1");
         mSymbolTree     = cast (TreeView) mSymBuilder.getObject("treeview1");
         //mSymbolStore    = cast (TreeStore) mSymBuilder.getObject("treestore1");

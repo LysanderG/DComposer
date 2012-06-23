@@ -262,7 +262,7 @@ class DIR_VIEW : ELEMENT
     void Engage()
     {
         mBuilder = new Builder;
-        mBuilder.addFromFile(Config.getString("DIRVIEW","glade_file", "/home/anthony/.neontotem/dcomposer/dirview.glade"));
+        mBuilder.addFromFile(Config.getString("DIRVIEW","glade_file", "$(HOME_DIR)/dirview.glade"));
         
         //mRoot           = cast(Viewport)    mBuilder.getObject("viewport1");
         mRoot           = cast(VBox)    mBuilder.getObject("vbox1");
@@ -374,11 +374,11 @@ class DIR_VIEW_PREF :PREFERENCE_PAGE
 	
 	this()
 	{
-		super("Elements", Config.getString("PREFERENCES", "glade_file_dir_view", "~/.neontotem/dcomposer/dirviewpref.glade"));
+		super("Elements", Config.getString("PREFERENCES", "glade_file_dir_view", "$(HOME_DIR)/dirviewpref.glade"));
 
 		mEnabled = cast (CheckButton) mBuilder.getObject("checkbutton1");
 
-		string listgladefile = Config.getString("PROJECT", "list_glad_file", "~/.neontotem/dcomposer/multilist.glade");
+		string listgladefile = Config.getString("PROJECT", "list_glad_file", "$(HOME_DIR)/multilist.glade");
 		mFilterList = new LISTUI("Filter Glob", ListType.IDENTIFIERS, listgladefile);
 
 		//mVBox.add(mFilterList.GetWidget());

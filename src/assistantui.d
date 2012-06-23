@@ -276,7 +276,7 @@ class ASSISTANT_UI : ELEMENT
     void Engage()
     {
         mBuilder = new Builder;
-        mBuilder.addFromFile(Config.getString("ASSISTANT_UI", "glade_file", "~/.neontotem/dcomposer/assistantui.glade"));
+        mBuilder.addFromFile(Config.getString("ASSISTANT_UI", "glade_file", "$(HOME_DIR)/assistantui.glade"));
 
         mRoot           =   cast(VBox)      mBuilder.getObject("vbox1");
         mPossibles      =   cast(ComboBox)  mBuilder.getObject("combobox1");
@@ -354,7 +354,7 @@ class ASSISTANT_PAGE : PREFERENCE_PAGE
 
     this(string PageName, string SectionName)
     {
-        super(PageName, Config.getString("PREFERENCES", "glade_file_assistant", "~/.neontotem/dcomposer/assistpref.glade"));
+        super(PageName, Config.getString("PREFERENCES", "glade_file_assistant", "$(HOME_DIR)/assistpref.glade"));
 
         mEnabled = cast (CheckButton) mBuilder.getObject("checkbutton1");
         mPseudoToolTipEnabled = cast (CheckButton) mBuilder.getObject("checkbutton2");

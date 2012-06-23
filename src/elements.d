@@ -65,7 +65,7 @@ void AcquireElements()
 {
     ELEMENT tmp;
     
-    string elementlist = readText(Config.getString("ELEMENTS","element_list", "/home/anthony/projects/dcomposer2/elementlist"));
+    string elementlist = readText(Config.getString("ELEMENTS","element_list", "$(HOME_DIR)/elementlist"));
         
     foreach (line; elementlist.splitLines())
     {

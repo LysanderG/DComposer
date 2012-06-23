@@ -205,7 +205,7 @@ class PREFERENCES_UI : ELEMENT
     void Engage()
     {
         mBuilder = new Builder;
-        mBuilder.addFromFile(Config.getString("PREFERENCES", "glade_file", "~/.neontotem/dcomposer/preferences.glade"));
+        mBuilder.addFromFile(Config.getString("PREFERENCES", "glade_file", "$(HOME_DIR)/preferences.glade"));
 
         mRoot       =   cast(VBox)      mBuilder.getObject("root");
         mBook       =   cast(Notebook)  mBuilder.getObject("notebook");
@@ -248,7 +248,7 @@ class CONFIG_PAGE :PREFERENCE_PAGE
 
     this(string PageName, string SectionName)
     {
-        super(PageName, Config.getString("PREFERENCES", "glade_file_config", "~/.neontotem/dcomposer/configpref.glade"));
+        super(PageName, Config.getString("PREFERENCES", "glade_file_config", "$(HOME_DIR)/configpref.glade"));
         //mFrame.setLabelWidget(new Label"<b>"~SectionName~"</b>");
         mEntry = cast(Entry) mBuilder.getObject("entry1");
         
@@ -258,7 +258,7 @@ class CONFIG_PAGE :PREFERENCE_PAGE
         mEntry.addOnEditingDone(delegate void(CellEditableIF EditCell){Log.Entry("Preferences Test " ~ mEntry.getText());});
         mEntry.addOnActivate(delegate void(Entry x){Log.Entry("Preferences Test " ~ mEntry.getText());});
 
-		//Config.ShowConfig.connect(&PrepGui);
+		//Config.ShowConfig.connect(&PrepGui); //parent does this
 		
         mFrame.showAll();
     }
@@ -283,7 +283,7 @@ class LOG_PAGE : PREFERENCE_PAGE
     SpinButton  mMaxLines;
     this(string PageName, string SectionName)
     {
-        super(PageName, Config.getString("PREFERENCES", "glade_file_log", "~/.neontotem/dcomposer/logpref.glade"));
+        super(PageName, Config.getString("PREFERENCES", "glade_file_log", "$(HOME_DIR)/logpref.glade"));
         mEntry      = cast(Entry) mBuilder.getObject("entry1");
         mMaxSize    = cast(SpinButton) mBuilder.getObject("spinbutton1");
         mMaxLines   = cast(SpinButton) mBuilder.getObject("spinbutton2");
@@ -295,7 +295,7 @@ class LOG_PAGE : PREFERENCE_PAGE
 
     override void PrepGui()
     {
-		mEntry.setText(Config.getString("LOG", "default_log_file", "~/.neontotem/dcomposer/dcomposer.log"));
+		mEntry.setText(Config.getString("LOG", "default_log_file", "$(HOME_DIR)/dcomposer.log"));
         
         mMaxSize.setRange(ulong.min, ulong.max);
         mMaxSize.setIncrements(1024, 102400);
@@ -324,9 +324,9 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
 
     this(string PageName, string SectionName)
     {
-        string listgladefile = expandTilde(Config.getString("PROJECT", "list_glad_file", "~/.neontotem/dcomposer/multilist.glade"));
+        string listgladefile = expandTilde(Config.getString("PROJECT", "list_glad_file", "$(HOME_DIR)/multilist.glade"));
         
-        super(PageName, Config.getString("PREFERENCES", "glade_file_symbols", "~/.neontotem/dcomposer/symbolpref.glade"));
+        super(PageName, Config.getString("PREFERENCES", "glade_file_symbols", "$(HOME_DIR)/symbolpref.glade"));
 
         mTagFiles = new LISTUI("Symbol files to load at start up", ListType.FILES, listgladefile);
 

@@ -157,8 +157,8 @@ class PROJECT_UI : ELEMENT
     {
         mProBuilder = new Builder;
 
-        string gladefile = expandTilde(Config.getString("PROJECT","glade_file", "~/.neontotem/dcomposer/projopts.glade"));
-        string listgladefile = expandTilde(Config.getString("PROJECT", "list_glad_file", "~/.neontotem/dcomposer/multilist.glade"));
+        string gladefile = expandTilde(Config.getString("PROJECT","glade_file", "$(HOME_DIR)/projopts.glade"));
+        string listgladefile = expandTilde(Config.getString("PROJECT", "list_glad_file", "$(HOME_DIR)/multilist.glade"));
 
         mProBuilder.addFromFile(gladefile);
 
@@ -537,7 +537,7 @@ class PROJECT_UI : ELEMENT
     void RunWithArgs(Action x)
     {
         dui.GetDocMan.SaveAll();
-        Project.Run(mRunArguments.getText);
+        Project.RunConcurrent(mRunArguments.getText);
     }        
 
     void RefreshTags(Action x)

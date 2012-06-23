@@ -199,7 +199,7 @@ class DOCMAN
         mStartUpFiles ~=  Config().getString("DOCMAN", "files_to_open").split(";");      //files from command line
 
         string startupfiles;
-        foreach (suf; mStartUpFiles) startupfiles ~= suf;
+        foreach (suf; mStartUpFiles) startupfiles ~= baseName(suf) ~ " | ";
         Log.Entry("Start Up Files = " ~ startupfiles, "Debug");
 	}
 
@@ -574,7 +574,7 @@ class DOC_PAGE : PREFERENCE_PAGE
 
     this(string PageName, string FrameTitle)
     {
-        super(PageName, Config.getString("PREFERENCES", "glade_file_docman", "~/.neontotem/dcomposer/docprefs.glade"));
+        super(PageName, Config.getString("PREFERENCES", "glade_file_docman", "$(HOME_DIR)/docprefs.glade"));
         mFrame.showAll();
 
         mAutoIndent         = cast(CheckButton) mBuilder.getObject("autoindentchkbtn");
