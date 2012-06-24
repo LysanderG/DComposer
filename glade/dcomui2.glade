@@ -6,7 +6,7 @@
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">DComposer</property>
     <property name="role">DComposer2</property>
-    <property name="icon">resources/stolen2.png</property>
+    <property name="icon">stolen2.png</property>
     <property name="startup_id">ntdcomposer</property>
     <child>
       <object class="GtkVBox" id="vbox1">

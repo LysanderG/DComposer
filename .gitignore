@@ -7,4 +7,6 @@ dcomposerA
 *.tag
 dcomposer.tags
 *.lst
+*.cfg
+*.log
 
