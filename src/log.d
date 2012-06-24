@@ -47,18 +47,12 @@ class LOG
 
     this()
     {
-        //mSystemDefaultLogName = expandTilde(Config.getString("LOG", "default_log_file", "~/.neontotem/dcomposer/dcomposer.log"));
-        mSystemDefaultLogName =  "$(HOME_DIR)/dcomposer.log";
+
+        mSystemDefaultLogName =  Config.ExpandPath("$(HOME_DIR)/dcomposer.log");
         mInterimFileName = "unspecifiedlogfile.cfg";
-        mLogFile = mSystemDefaultLogName;
         
         mMaxFileSize = 18_105;
         mMaxLines = 24;
-    }
-
-    ~this()
-    {
-        Flush(); //silly flush allocates a file ... guess gc doen't like that in a dtor
     }
 
     void Engage()
@@ -97,7 +91,7 @@ class LOG
 		auto rightnow = Clock.currTime();
 		auto logtime = rightnow.toISOExtString();
 
-        Entry("Disengaged LOG");
+                Entry("Disengaged LOG");
 
 		mEntries.length += 2;
 		mEntries[$-2] = logtime;
@@ -122,7 +116,7 @@ class LOG
 	{
 		auto f = File(mLogFile, "a");
 		foreach (l; mEntries) f.writeln(l);
-        f.flush;
+                f.flush;
 		mEntries.length = 0;
 	}
     

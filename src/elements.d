@@ -22,6 +22,7 @@ module elements;
 import std.array;
 import std.file;
 import std.string;
+import std.parallelism;
 
 
 import dcore;
@@ -67,7 +68,7 @@ void AcquireElements()
     
     string elementlist = readText(Config.getString("ELEMENTS","element_list", "$(HOME_DIR)/elementlist"));
         
-    foreach (line; elementlist.splitLines())
+    foreach (line; (elementlist.splitLines()))
     {
         line = removechars!(string)(line, std.ascii.whitespace);
         if (line.startsWith('#')) continue;

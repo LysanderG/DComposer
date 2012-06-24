@@ -331,13 +331,13 @@ class AUTO_POP_UPS
     this()
     {
         mCompletionBuilder = new Builder;
-        mCompletionBuilder.addFromFile(Config.getString("DOC_POP", "glade_file","$(HOME_DIR)/docpop.glade"));
+        mCompletionBuilder.addFromFile(Config.getString("DOC_POP", "glade_file","$(HOME_DIR)/glade/docpop.glade"));
         mCompletionWin = cast (Window)mCompletionBuilder.getObject("window1");
         mCompletionView = cast(TreeView)mCompletionBuilder.getObject("treeview1");
         mCompletionStatus = STATUS_OFF;
 
         mTipsBuilder = new Builder;
-        mTipsBuilder.addFromFile(Config.getString("DOC_POP", "glade_file","$(HOME_DIR)/docpop.glade"));
+        mTipsBuilder.addFromFile(Config.getString("DOC_POP", "glade_file","$(HOME_DIR)/glade/docpop.glade"));
         mTipsWin = cast (Window)mTipsBuilder.getObject("window1");
         mTipsView = cast (TreeView)mTipsBuilder.getObject("treeview1");
         mTipsIndex = -1;

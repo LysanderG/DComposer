@@ -54,6 +54,7 @@ class FLAG
     string      m_String;                   //actual string to add to dmd
     string      m_Argument;                 //the ONE argument (if any) for the flag
     
+    
     public:
 
 	this()
@@ -179,6 +180,7 @@ class PROJECT
     bool            mUseCustomBuild;                        //if build command should use custom  or bultin command
     string          mCustomBuildCommand;                    //users command to build project -- make  or scons or cmake or gdc x.d -r -L-liofjkjf whatever
 
+	string 			mChildRunner;
 
 
     void ReadFlags(string FlagFile)
@@ -190,7 +192,7 @@ class PROJECT
 		//json file should be an array of obj -> each is {"brief":string, "cmdstring":string, "HasArg": true|false}
 
 		string indx;
-		foreach ( j; jval.array)
+		foreach ( j; (jval.array))
 		{
 			indx = j.object["cmdstring"].str;
 			mFlags[indx] = new FLAG;
@@ -218,8 +220,10 @@ class PROJECT
     {
         mCompiler = Config.getString("PROJECT", "default_compiler", "dmd");
         
-        string FlagsFile = Config.getString("PROJECT","flags_file", "$(HOME_DIR)/flagsfile.json" );
+        string FlagsFile = Config.getString("PROJECT","flags_file", "$(HOME_DIR)/flags/flagsfile.json" );
 		ReadFlags(FlagsFile);
+
+		mChildRunner = "sh " ~ Config.ExpandPath("$(HOME_DIR)/childrunner.sh") ~ " ";
         Log.Entry("Engaged PROJECT");
     }
     
@@ -257,7 +261,7 @@ class PROJECT
 		
 		auto jval = parseJSON(jstring);
 
-		foreach( key, j; jval.object)
+		foreach( key, j; (jval.object))
 		{
 			switch (j.type)
 			{
@@ -323,7 +327,7 @@ class PROJECT
         mWorkingPath.length = 0;
 
         scope(failure)Log.Entry("Unable to open Flags File", "Error");
-        string FlagsFile = expandTilde(Config.getString("PROJECT","flags_file", "$(HOME_DIR)/flagsfile.json" ));
+        string FlagsFile = Config.getString("PROJECT","flags_file", "$(HOME_DIR)/flags/flagsfile.json" );
 		ReadFlags(FlagsFile);
         mList.Zero();
         mUseCustomBuild = false;
@@ -447,7 +451,8 @@ class PROJECT
         string CreateTagsCommand = mCompiler ~ " -c -o- -X -Xf" ~ tagfilename ~ " -D -Df" ~ docfilename;
 
         foreach(pth; this[IMPPATHS]) CreateTagsCommand ~= " -I" ~ pth;
-        foreach(src; this[SRCFILES]) CreateTagsCommand ~= " " ~ src;
+        foreach(src; this[SRCFILES]) CreateTagsCommand ~= " "   ~ src;
+        foreach(exp; this[JPATHS])	 CreateTagsCommand ~= " -J" ~ exp;
         
         auto result = system(CreateTagsCommand);
         
@@ -474,7 +479,7 @@ class PROJECT
 
         foreach (prescript; Project["PRE_BUILD_SCRIPTS"])writeln(shell(prescript));
 
-        Process.popen("sh /home/anthony/.neontotem/dcomposer/childrunner.sh " ~ BuildCommand() ~ " 2>&1 ", "r");
+        Process.popen(mChildRunner ~ BuildCommand() ~ " 2>&1 ", "r");
 
         foreach (postscript; Project["POST_BUILD_SCRIPTS"]) writeln(shell(postscript));
 

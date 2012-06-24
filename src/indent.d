@@ -167,7 +167,7 @@ class BRACE_INDENT_PREF : PREFERENCE_PAGE
 	this()
 	{
 		//using same simple glade file for proview  -- maybe change name to generice simple glade ??
-		super("Elements", Config.getString("PREFERENCES", "glade_file_brace_indent", "$(HOME_DIR)/proviewpref.glade"));
+		super("Elements", Config.getString("PREFERENCES", "glade_file_brace_indent", "$(HOME_DIR)/glade/proviewpref.glade"));
 		mEnabled = cast (CheckButton)mBuilder.getObject("checkbutton1");
 		Label  x = cast (Label)      mBuilder.getObject("label1");
 		x.setMarkup("<b>Brace Indentation :</b>");

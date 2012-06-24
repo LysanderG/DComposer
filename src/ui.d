@@ -146,7 +146,7 @@ class MAIN_UI
     void EngageWidgets()
     {
         mBuilder = new Builder;
-        mBuilder.addFromFile(Config().getString("UI", "ui_glade_file", "$(HOME_DIR)/dcomui2.glade") );
+        mBuilder.addFromFile(Config().getString("UI", "ui_glade_file", "$(HOME_DIR)/glade/dcomui2.glade") );
 
         mWindow     = cast(Window)      mBuilder.getObject("window1");
         mMenuBar    = cast(MenuBar)     mBuilder.getObject("menubar");
@@ -332,7 +332,7 @@ class MAIN_UI
     void ShowAboutDialog()
     {
         Builder AboutBuilder = new Builder;
-        AboutBuilder.addFromFile(Config.getString("UI", "about_glade_file", "$(HOME_DIR)/about.glade"));
+        AboutBuilder.addFromFile(Config.getString("UI", "about_glade_file", "$(HOME_DIR)/glade/about.glade"));
 
         auto About = cast(AboutDialog) AboutBuilder.getObject("aboutdialog1");
 

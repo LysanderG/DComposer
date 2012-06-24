@@ -236,7 +236,7 @@ class CALL_TIPS_PREF :PREFERENCE_PAGE
 
 	this()
 	{
-		super("Elements", Config.getString("PREFERENCES", "glade_file_call_tip", "$(HOME_DIR)/proviewpref.glade")); //yes proviewpref.glade is a generic ui
+		super("Elements", Config.getString("PREFERENCES", "glade_file_call_tip", "$(HOME_DIR)/glade/proviewpref.glade")); //yes proviewpref.glade is a generic ui
 		mEnabled = cast (CheckButton)mBuilder.getObject("checkbutton1");
 		Label  x = cast (Label)      mBuilder.getObject("label1");
 		x.setMarkup("<b>Function Call Tips :</b>");

@@ -574,7 +574,7 @@ class DOC_PAGE : PREFERENCE_PAGE
 
     this(string PageName, string FrameTitle)
     {
-        super(PageName, Config.getString("PREFERENCES", "glade_file_docman", "$(HOME_DIR)/docprefs.glade"));
+        super(PageName, Config.getString("PREFERENCES", "glade_file_docman", "$(HOME_DIR)/glade/docprefs.glade"));
         mFrame.showAll();
 
         mAutoIndent         = cast(CheckButton) mBuilder.getObject("autoindentchkbtn");
@@ -614,7 +614,7 @@ class DOC_PAGE : PREFERENCE_PAGE
         int ActiveChoice;
         int indx;
         TreeIter ti = new TreeIter;
-        string stylefolder = expandTilde("~/.neontotem/dcomposer/styles/");
+        string stylefolder = Config.getString("DOCMAN", "style_folder", "$(HOME_DIR)/styles/");
         auto StyleFiles = filter!`endsWith(a.name, ".xml")`(dirEntries(stylefolder, SpanMode.shallow));
         mStyleChoices.clear();
         foreach( xmlfile; StyleFiles)

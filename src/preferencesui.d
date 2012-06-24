@@ -73,7 +73,9 @@ class PREFERENCES_UI : ELEMENT
     {
         
         if(!mGuiBuilt) BuildGui();
+        writeln("buildgui!!");
         Config.PrepPreferences();
+        writeln("buildgui!!");
         mRoot.show();
         dui.GetExtraPane().setCurrentPage(mRoot);
 
@@ -205,7 +207,7 @@ class PREFERENCES_UI : ELEMENT
     void Engage()
     {
         mBuilder = new Builder;
-        mBuilder.addFromFile(Config.getString("PREFERENCES", "glade_file", "$(HOME_DIR)/preferences.glade"));
+        mBuilder.addFromFile(Config.getString("PREFERENCES", "glade_file", "$(HOME_DIR)/glade/preferences.glade"));
 
         mRoot       =   cast(VBox)      mBuilder.getObject("root");
         mBook       =   cast(Notebook)  mBuilder.getObject("notebook");
@@ -248,7 +250,7 @@ class CONFIG_PAGE :PREFERENCE_PAGE
 
     this(string PageName, string SectionName)
     {
-        super(PageName, Config.getString("PREFERENCES", "glade_file_config", "$(HOME_DIR)/configpref.glade"));
+        super(PageName, Config.getString("PREFERENCES", "glade_file_config", "$(HOME_DIR)/glade/configpref.glade"));
         //mFrame.setLabelWidget(new Label"<b>"~SectionName~"</b>");
         mEntry = cast(Entry) mBuilder.getObject("entry1");
         
@@ -283,7 +285,7 @@ class LOG_PAGE : PREFERENCE_PAGE
     SpinButton  mMaxLines;
     this(string PageName, string SectionName)
     {
-        super(PageName, Config.getString("PREFERENCES", "glade_file_log", "$(HOME_DIR)/logpref.glade"));
+        super(PageName, Config.getString("PREFERENCES", "glade_file_log", "$(HOME_DIR)/glade/logpref.glade"));
         mEntry      = cast(Entry) mBuilder.getObject("entry1");
         mMaxSize    = cast(SpinButton) mBuilder.getObject("spinbutton1");
         mMaxLines   = cast(SpinButton) mBuilder.getObject("spinbutton2");
@@ -324,9 +326,9 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
 
     this(string PageName, string SectionName)
     {
-        string listgladefile = expandTilde(Config.getString("PROJECT", "list_glad_file", "$(HOME_DIR)/multilist.glade"));
+        string listgladefile = expandTilde(Config.getString("PROJECT", "list_glad_file", "$(HOME_DIR)/glade/multilist.glade"));
         
-        super(PageName, Config.getString("PREFERENCES", "glade_file_symbols", "$(HOME_DIR)/symbolpref.glade"));
+        super(PageName, Config.getString("PREFERENCES", "glade_file_symbols", "$(HOME_DIR)/glade/symbolpref.glade"));
 
         mTagFiles = new LISTUI("Symbol files to load at start up", ListType.FILES, listgladefile);
 

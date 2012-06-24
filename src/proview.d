@@ -368,7 +368,7 @@ class PROJECT_VIEW : ELEMENT
     void Engage()
     {
         mBuilding = new Builder;
-        mBuilding.addFromFile(Config.getString("PROJECT_VIEW", "glade_file", "$(HOME_DIR)/proview.glade"));
+        mBuilding.addFromFile(Config.getString("PROJECT_VIEW", "glade_file", "$(HOME_DIR)/glade/proview.glade"));
         mRoot       = cast(VBox)        mBuilding.getObject("vbox1");
         mLabel      = cast(Label)       mBuilding.getObject("label2");
         mToolBar    = cast(Toolbar)     mBuilding.getObject("toolbar1");
@@ -426,7 +426,7 @@ class PROJECT_VIEW_PREF : PREFERENCE_PAGE
 	
 	this()
 	{
-		super("Elements", Config.getString("PREFERENCES", "glade_file_project_view", "$(HOME_DIR)/proviewpref.glade"));
+		super("Elements", Config.getString("PREFERENCES", "glade_file_project_view", "$(HOME_DIR)/glade/proviewpref.glade"));
 		mEnabled = cast (CheckButton)mBuilder.getObject("checkbutton1");
 		mFrame.showAll();
 	}

@@ -36,7 +36,7 @@ int main(string[] args)
 	dcore.Engage(args);
 	dui.Engage(args);
 	elements.Engage();
-	
+
 	dui.Run();
         
 	elements.Disengage();

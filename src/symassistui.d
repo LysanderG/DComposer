@@ -161,7 +161,7 @@ class SYMBOL_ASSIST : ELEMENT
     {
         mBuilder = new Builder;
 
-        mBuilder.addFromFile(Config.getString("SYMBOL_ASSIST", "glade_file", "$(HOME_DIR)/assist.glade"));
+        mBuilder.addFromFile(Config.getString("SYMBOL_ASSIST", "glade_file", "$(HOME_DIR)/glade/assist.glade"));
         mRootWidget = cast(Viewport) mBuilder.getObject("viewport1");
         mLabel = cast (Label) mBuilder.getObject("label1");
         mText = cast(TextView) mBuilder.getObject("textview1");

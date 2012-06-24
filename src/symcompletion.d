@@ -213,7 +213,7 @@ class SYMBOL_COMPLETION_PAGE : PREFERENCE_PAGE
 
 	this()
 	{
-		super("Elements", Config.getString("PREFERENCES", "glade_file_symbol_completion", "$(HOME_DIR)/symcompref.glade"));
+		super("Elements", Config.getString("PREFERENCES", "glade_file_symbol_completion", "$(HOME_DIR)/glade/symcompref.glade"));
 
 		mEnable = cast (CheckButton)mBuilder.getObject("checkbutton1");
 		mMinLength = cast (SpinButton)mBuilder.getObject("spinbutton1");

@@ -302,8 +302,7 @@ class SYMBOLS
 
         foreach(key; keys)
         {
-            auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");
-            
+            auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");            
             Load(key, tmp);
         }        
     }
@@ -318,10 +317,10 @@ class SYMBOLS
 
 		if(Config.getBoolean("SYMBOLS", "auto_load_symbols", true))
 		{
-			foreach(key; (keys))
+			
+			foreach(key; keys)
 			{
-				auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");
-				
+				auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");			
 				Load(key, tmp);
 			}
 		}

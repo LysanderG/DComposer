@@ -484,7 +484,7 @@ class SEARCH_UI : ELEMENT
         mInfo = "Look for stuff and fix it mabybe";
 
         mBuilder            = new Builder;
-        mBuilder.addFromFile(Config.getString("SEARCH", "glade_file", "$(HOME_DIR)/findui.glade"));
+        mBuilder.addFromFile(Config.getString("SEARCH", "glade_file", "$(HOME_DIR)/glade/findui.glade"));
 
         mPage               = cast (VBox)           mBuilder.getObject("vbox5");
         mOptions            = cast (Viewport)       mBuilder.getObject("viewport2");        

@@ -146,7 +146,7 @@ class SYMBOL_VIEW : ELEMENT
 
         mSymBuilder =   new Builder ;
 
-        mSymBuilder.addFromFile(Config.getString("SYMBOL_VIEW", "glade_file", "$(HOME_DIR)/dsymview.glade"));
+        mSymBuilder.addFromFile(Config.getString("SYMBOL_VIEW", "glade_file", "$(HOME_DIR)/glade/dsymview.glade"));
         mRoot           = cast (ScrolledWindow) mSymBuilder.getObject("scrolledwindow1");
         mSymbolTree     = cast (TreeView) mSymBuilder.getObject("treeview1");
         //mSymbolStore    = cast (TreeStore) mSymBuilder.getObject("treestore1");
@@ -155,9 +155,9 @@ class SYMBOL_VIEW : ELEMENT
 		mSymbolStore[1] = new TreeStore([GType.STRING, GType.STRING, GType.STRING, GType.STRING]);
 
         Symbols.connect(&Refresh);
+        
         mSymbolTree.addOnRowActivated(delegate void (TreePath tp, TreeViewColumn tvc, TreeView tv){JumpTo();});
 
-        
     }
 
     void Engage()
@@ -172,6 +172,7 @@ class SYMBOL_VIEW : ELEMENT
         dui.GetSidePane.appendPage(mRoot, "SYMBOLS");
         dui.GetSidePane.setTabReorderable ( mRoot, true); 
         //Refresh();
+ 
         Log.Entry("Engaged SYMBOL_VIEW element");
     }
 

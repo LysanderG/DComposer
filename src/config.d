@@ -54,6 +54,9 @@ class CONFIG
     {
 		mHomeDir = import("homedir");
 		mSysDir  = import("sysdir");
+
+		if(!exists(mHomeDir)) mHomeDir = "./";
+		writeln(mHomeDir);
 		
         mCfgFile = ExpandPath("$(HOME_DIR)/dcomposer.cfg");
         mKeyFile = new KeyFile;
