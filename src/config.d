@@ -27,17 +27,31 @@ import std.string;
 import std.path;
 import std.file;
 import std.algorithm;
+import std.process;
 
 import core.stdc.stdlib;
+import core.runtime;
 
 
 import glib.KeyFile;
 
-string DCOMPOSER_VERSION = "0.01a";
-string DCOMPOSER_COPYRIGHT = "Copyright 2011 Anthony Goins";
+string DCOMPOSER_VERSION;
+string DCOMPOSER_COPYRIGHT;
 
-string HOME_DIR    = "$(HOME_DIR)/";
-string SYSTEM_DIR  = "$(SYSTEM_DIR)/";
+string HOME_DIR ;
+string SYSTEM_DIR;
+
+
+//creating an actual static this causes an error
+//"Cycle detected between modules with ctors/dtors:"
+//so I made this function and call it from dcore.this
+void PseudoStaticThis()
+{
+	DCOMPOSER_VERSION = "0.01a";
+	DCOMPOSER_COPYRIGHT = "Copyright 2011 Anthony Goins";
+	HOME_DIR = "$(HOME_DIR)/";
+	SYSTEM_DIR  = "$(SYSTEM_DIR)/";
+}
 
 
 class CONFIG
@@ -49,14 +63,30 @@ class CONFIG
 
     string	mHomeDir;				//this should be where user settings will be saved -->default ~/.config/dcomposer/
     string 	mSysDir;     			//this is where stuff the user shouldn't change will reside -->default /usr/local/
+    bool	mInstalled;
 
     this()
     {
-		mHomeDir = import("homedir");
-		mSysDir  = import("sysdir");
+		mInstalled = true;
+		mSysDir  = import("systemdir");  //prefix (id /usr /usr/local /opt or whatever
+		mSysDir = buildNormalizedPath(mSysDir, "share/dcomposer/"); //now its pointed at our root!
+		mHomeDir = std.path.expandTilde("~/.config/dcomposer");
+		
+		if(!exists(mSysDir))
+		{
+			mInstalled = false;
+			mSysDir = absolutePath(dirName(Runtime.args[0]));  //not installed so lets work in binary's folder
+		}
 
-		if(!exists(mHomeDir)) mHomeDir = "./";
-		writeln(mHomeDir);
+		if(!exists(mHomeDir))
+		{
+			if(mInstalled )
+			{
+				FirstUserRun();
+			}
+			else mHomeDir = absolutePath(dirName(Runtime.args[0]));
+		}
+		writeln("mHomeDir = ",mHomeDir);
 		
         mCfgFile = ExpandPath("$(HOME_DIR)/dcomposer.cfg");
         mKeyFile = new KeyFile;
@@ -229,9 +259,10 @@ class CONFIG
 	}
 
 
-	string ExpandHomeDir(string Input) {return buildNormalizedPath(mHomeDir, Input);}
+	
 	string ExpandSysDir(string Input) { return buildNormalizedPath(mSysDir, Input);}
 
+	string ExpandHomeDir(string Input) {return buildNormalizedPath(mHomeDir, Input);}
 	string ExpandPath(string Input)
 	{
 		if (Input.skipOver(HOME_DIR))
@@ -247,12 +278,28 @@ class CONFIG
 		return Input;
 	}
 
+
+	void FirstUserRun()
+	{
+		//copy system directory folders to local directory
+		string src = buildPath(mSysDir, "*");
+		string cpCommand = "cp -r " ~ src ~ " " ~ mHomeDir;
+		writeln("firstrun cp command ",cpCommand);
+		shell("mkdir " ~ mHomeDir);
+		writeln(shell(cpCommand));
+		FirstRun.emit();
+	}
+		
+
+
 		
     mixin Signal!()ShowConfig;  //will be emitted before showing a gui pref dialog ... to set gui elements from keyfile
     mixin Signal!()Reconfig;    //emitted when keyfile changes warrent all modules to reconfigure them selves
-    mixin Signal!()Saved;     
+    mixin Signal!()Saved;
+    mixin Signal!()FirstRun;	//maybe show a welcome screen or allow preconfiguration or whatever
 
 }
+
 
 import dcore :Log;
 

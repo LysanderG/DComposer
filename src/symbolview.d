@@ -171,7 +171,7 @@ class SYMBOL_VIEW : ELEMENT
         mRoot.showAll();
         dui.GetSidePane.appendPage(mRoot, "SYMBOLS");
         dui.GetSidePane.setTabReorderable ( mRoot, true); 
-        //Refresh();
+        // Refresh();
  
         Log.Entry("Engaged SYMBOL_VIEW element");
     }

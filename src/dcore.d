@@ -44,6 +44,7 @@ SYMBOLS	    mSymbols;
 
 static this()
 {
+	config.PseudoStaticThis();
     mConfig	    = new CONFIG;
 	mLog	    = new LOG;
 	mProject    = new PROJECT;
