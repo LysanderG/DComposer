@@ -45,16 +45,16 @@ struct SEARCH_RESULT
     int     LineNumber;
     string  LineText;
 
-    ulong     StartOffset;
-    ulong     EndOffset;
+    size_t    StartOffset;
+    size_t    EndOffset;
 
     this(string title, int line, string text, ulong start, ulong end)
     {
         DocName = title;
         LineNumber = line;
         LineText = text;
-        StartOffset = start;
-        EndOffset = end;
+        StartOffset = cast(size_t) start;
+        EndOffset = cast(size_t) end;
     }
 }
 
