@@ -9,4 +9,7 @@ dcomposer.tags
 *.lst
 *.cfg
 *.log
-
+bindir
+systemdir
+sysdir
+tmp
