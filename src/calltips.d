@@ -140,6 +140,7 @@ class CALL_TIPS : ELEMENT
         dui.GetDocMan.Event.connect(&WatchForNewDocument);
 
         Config.Reconfig.connect(&Configure);
+        Configure();
         Log.Entry("Engaged CALL_TIPS element");
     }
 

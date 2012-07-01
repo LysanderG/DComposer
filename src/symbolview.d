@@ -49,6 +49,9 @@ class SYMBOL_VIEW : ELEMENT
     TreeStore[2]        mSymbolStore;		//2 because whenever I update symbols the damn thing unrefs and is lost
     int					mBufferStore;
 
+    GtkTreeStore *		mTreeStoreCache;
+    GtkTreeStore * 		mTreeStoreCache2;
+
     
     void FillTreeStore()
     {
@@ -86,7 +89,7 @@ class SYMBOL_VIEW : ELEMENT
     void Refresh()
     {
 		
-        mSymbolStore[mBufferStore] = new TreeStore([GType.STRING, GType.STRING, GType.STRING, GType.STRING]);
+        mSymbolStore[mBufferStore].clear;
         FillTreeStore();
         mSymbolTree.setModel(mSymbolStore[mBufferStore]);
 
@@ -154,6 +157,9 @@ class SYMBOL_VIEW : ELEMENT
 		mSymbolStore[0] = new TreeStore([GType.STRING, GType.STRING, GType.STRING, GType.STRING]);
 		mSymbolStore[1] = new TreeStore([GType.STRING, GType.STRING, GType.STRING, GType.STRING]);
 
+		mTreeStoreCache = mSymbolStore[0].getTreeStoreStruct();
+		mTreeStoreCache2= mSymbolStore[1].getTreeStoreStruct();
+
         Symbols.connect(&Refresh);
         
         mSymbolTree.addOnRowActivated(delegate void (TreePath tp, TreeViewColumn tvc, TreeView tv){JumpTo();});
@@ -171,7 +177,7 @@ class SYMBOL_VIEW : ELEMENT
         mRoot.showAll();
         dui.GetSidePane.appendPage(mRoot, "SYMBOLS");
         dui.GetSidePane.setTabReorderable ( mRoot, true); 
-        // Refresh();
+        Refresh();
  
         Log.Entry("Engaged SYMBOL_VIEW element");
     }

@@ -134,6 +134,7 @@ class HISTORY_VIEW : ELEMENT
         mRoot.showAll();
 
 		Config.Reconfig.connect(&Configure);
+		Configure();
 		
         Log.Entry("Engaged HISTORY_VIEW element");
         

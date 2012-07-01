@@ -131,7 +131,7 @@ class AUTO_POP_UPS
 
     Window                      mTipsWin;
     DATA_STORE[MAX_TIP_DEPTH]   mTipsStore;
-    size_t                      mTipsIndex;
+    int 	                    mTipsIndex;
     TreeView                    mTipsView;
 
 

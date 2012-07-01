@@ -10,9 +10,9 @@ DSOURCES  = $(shell echo src/*.d)
 INC_PATHS = -I/usr/include/d
 LIBRARIES = -L-lgtkdsv -L-lgtkd -L-lvte -L-lutil
 
-DFLAGS = -of$(TARGET) -D -Dddocs -odobjdir -J.
+DFLAGS = -of$(TARGET) -D -Dddocs -odobjdir -J. 
 RELEASEFLAGS = -release
-DEBUGFLAGS = -debug -gc
+DEBUGFLAGS =  -debug  -gc
 
 ifeq ("Linux", uname)
 	LIBRARIES = $(LIBRARIES) -L-ldl
@@ -48,10 +48,19 @@ install: $(TARGET)
 	install -m644  tags/*    $(PREFIX)/share/dcomposer/tags/
 	install -m644  elementlist $(PREFIX)/share/dcomposer/
 	install -m755  childrunner.sh $(PREFIX)/share/dcomposer/
-
+    
+	xdg-icon-resource install --size 128 glade/stolen2.png dcomposer-Icon
+	xdg-desktop-menu install --novendor dcomposer.desktop 
+	su $(SUDO_USER) -p -c "xdg-desktop-icon install --novendor dcomposer.desktop"
+	
 uninstall:
 	rm  -f $(BINDIR)/$(TARGET)
-	rm -Rf $(PREFIX)/share/dcomposer/
+	rm -Rf $(PREFIX)/share/$(TARGET)/
+	rm -rf ~/.config/$(TARGET)/
+	
+	xdg-icon-resource uninstall --size 128 dcomposer-Icon
+	xdg-desktop-menu uninstall dcomposer.desktop
+	xdg-desktop-icon uninstall dcomposer.desktop
 
 clean:
 	rm -f objdir/*

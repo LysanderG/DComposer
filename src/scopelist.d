@@ -230,6 +230,7 @@ class SCOPE_LIST : ELEMENT
         
         dui.GetDocMan.Event.connect(&WatchForNewDocument);
         Config.Reconfig.connect(&Configure);
+        Configure();
 
         Log.Entry("Engaged SCOPE_LIST element");
     }

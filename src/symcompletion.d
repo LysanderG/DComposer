@@ -186,6 +186,7 @@ class SYMBOL_COMPLETION : ELEMENT
 
         dui.GetDocMan.Event.connect(&WatchForNewDocument);
         Config.Reconfig.connect(&Configure);
+        Configure();
 
         Log.Entry("Engaged SYMBOL_COMPLETION element");
     }

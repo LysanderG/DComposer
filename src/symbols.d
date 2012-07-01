@@ -331,6 +331,7 @@ class SYMBOLS
         }
 
         Config.Reconfig.connect(&Reconfigure);
+        Reconfigure();
             
         string x = "Engaged SYMBOLS [";
         foreach(ii, key; keys){if(ii != 0)x ~= `,`; x ~= `"` ~ key ~`"`;}

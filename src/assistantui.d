@@ -84,6 +84,9 @@ class ASSISTANT_UI : ELEMENT
     bool        mEnabled; //this should be State !! but not sure that will work as planned 6 months ago.
                            //... look into this
 
+    GtkListStore* 		mStoreStruct; //using this in another attempt to workaround GTK_IS_LIST_STORE(list_store) error
+    GtkListStore*		mStoreStruct2;//thinking the garbage collector is dumping this when I'm not looking. These are not to be used
+
     
     void WatchForNewDoc(string EventType, DOCUMENT NuDoc)
     {
@@ -290,6 +293,11 @@ class ASSISTANT_UI : ELEMENT
 
         mPossibleStore  =   new ListStore([GType.STRING]);
         mChildrenStore  =   new ListStore([GType.STRING]);
+
+        //caching the gtk struct see if it prevents thrashing of my liststores
+        mStoreStruct = mPossibleStore.getListStoreStruct();
+        mStoreStruct2 = mChildrenStore.getListStoreStruct();
+        
 
         mHPane.setPosition(Config.getInteger("ASSISTANT_UI", "store_gui_pane_position",10)); 
         
