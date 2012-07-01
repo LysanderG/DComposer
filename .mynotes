@@ -497,3 +497,17 @@ The build system thing has really been bothering me.  The more I read about it t
 	make...
 	dsss...
 	
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Sun Jul  1 00:41:33 EDT 2012
+
+Spent lots of time finding a silly bug.  Changed an index from long to size_t (for 64/32 bit compatiblilty).  The index was used
+to access an array.  I forgot I was using a value of -1 to indicate there was no valid item.  I had no idea where my error was or
+when it had been introduced.  Of course I eventually found the bug.  Produced a diff from several previous commits and went line by
+line.  But first I put in about 1000 writeln's spewing forth all kinds of worthless info.  So disheartening.  It will be a wonder if I
+ever get this thing to be both stable and functional.
+
+I know what I've done so far needs lots of work still but I can't decide where to go.  The TreeView (xStore is not an xStore) error is still 
+hounding me!  Found a non documented getListStoreStruct --- going to set a pointer at it and see if that discourages the gc from collecting it.
+Or most likely the problem is not related to the gc.
+
