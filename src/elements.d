@@ -19,6 +19,7 @@
 
 module elements;
 
+import std.stdio;
 import std.array;
 import std.file;
 import std.string;
@@ -50,7 +51,6 @@ ELEMENT[string] mElements;
 void Engage()
 {
     AcquireElements();
-
     Log.Entry("Engaging Elements ...");
     foreach(E; mElements) E.Engage();
     Log.Entry("Elements Engaged !!!");
@@ -64,17 +64,17 @@ void Disengage()
 
 void AcquireElements()
 {
-    ELEMENT tmp;
     
     string elementlist = readText(Config.getString("ELEMENTS","element_list", "$(HOME_DIR)/elementlist"));
-        
     foreach (line; (elementlist.splitLines()))
     {
+		ELEMENT tmp = null;
         line = removechars!(string)(line, std.ascii.whitespace);
         if (line.startsWith('#')) continue;
         if (line.length < 1) continue;
-
+		writeln(line);
         tmp = cast(ELEMENT)Object.factory(line);
+        
         if(tmp is null) Log.Entry("Failed to Acquire " ~ line ~ " element!", "Error");
         else
         {

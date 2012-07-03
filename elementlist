@@ -3,7 +3,7 @@
 #   all elements SHOULD be able to run independantly
 #   at the very least without crashing.
 
-#   ELEMENTS 
+#   ELEMENTS
 
 logui.LOG_UI
 searchui.SEARCH_UI
@@ -15,12 +15,9 @@ scopelist.SCOPE_LIST
 calltips.CALL_TIPS
 terminalui.TERMINAL_UI
 proview.PROJECT_VIEW
-dirview.DIR_VIEW
 historyview.HISTORY_VIEW
 messageui.MESSAGE_UI
-#debugui.DEBUG_UI
-#symassistui.SYMBOL_ASSIST
 assistantui.ASSISTANT_UI
 preferencesui.PREFERENCES_UI
-#debuggerui.DEBUGGER_UI
 splitdoc.SPLIT_DOCUMENT
+dirview.DIR_VIEW

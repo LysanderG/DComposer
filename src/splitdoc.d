@@ -156,8 +156,8 @@ class SPLIT_DOCUMENT : ELEMENT
 
     this()
     {
-        mName = "DIR_VIEW";
-        mInfo = "Simple File Browser";
+        mName = "SPLIT_DOCUMENT";
+        mInfo = "Split Documents into 2 views";
         mState = false;
 
         PREFERENCE_PAGE mPrefPage = null;
