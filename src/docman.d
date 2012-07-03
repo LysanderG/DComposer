@@ -1,4 +1,4 @@
-// docman2.d
+// docman.d
 // 
 // Copyright 2012 Anthony Goins <anthony@LinuxGen11>
 // 
@@ -150,23 +150,23 @@ class DOCMAN
         SelAllAct   .addOnActivate(delegate void(Action X){Edit("SELALL"); });
         SelNoneAct  .addOnActivate(delegate void(Action X){Edit("SELNONE"); });
 
-        UndoAct     .setAccelGroup(dui.GetAccel());  
-        RedoAct     .setAccelGroup(dui.GetAccel());  
-        CutAct      .setAccelGroup(dui.GetAccel());  
-        CopyAct     .setAccelGroup(dui.GetAccel());  
-        PasteAct    .setAccelGroup(dui.GetAccel());  
-        DeleteAct   .setAccelGroup(dui.GetAccel());  
-        SelAllAct   .setAccelGroup(dui.GetAccel());  
-        SelNoneAct  .setAccelGroup(dui.GetAccel());
+        //UndoAct     .setAccelGroup(dui.GetAccel());  
+        //RedoAct     .setAccelGroup(dui.GetAccel());  
+        //CutAct      .setAccelGroup(dui.GetAccel());  
+        //CopyAct     .setAccelGroup(dui.GetAccel());  
+        //PasteAct    .setAccelGroup(dui.GetAccel());  
+        //DeleteAct   .setAccelGroup(dui.GetAccel());  
+        //SelAllAct   .setAccelGroup(dui.GetAccel());  
+        //SelNoneAct  .setAccelGroup(dui.GetAccel());
 
-        dui.Actions().addActionWithAccel(UndoAct   , null);
-        dui.Actions().addActionWithAccel(RedoAct   , null);
-        dui.Actions().addActionWithAccel(CutAct    , null);
-        dui.Actions().addActionWithAccel(CopyAct   , null);
-        dui.Actions().addActionWithAccel(PasteAct  , null);
-        dui.Actions().addActionWithAccel(DeleteAct , null);
-        dui.Actions().addActionWithAccel(SelAllAct , null);
-        dui.Actions().addActionWithAccel(SelNoneAct , null);
+        dui.Actions().addAction(UndoAct   );
+        dui.Actions().addAction(RedoAct   );
+        dui.Actions().addAction(CutAct    );
+        dui.Actions().addAction(CopyAct   );
+        dui.Actions().addAction(PasteAct  );
+        dui.Actions().addAction(DeleteAct );
+        dui.Actions().addAction(SelAllAct );
+        dui.Actions().addAction(SelNoneAct);
 
         dui.AddMenuItem("_Edit",UndoAct.createMenuItem());
         dui.AddMenuItem("_Edit",RedoAct.createMenuItem());
@@ -208,6 +208,7 @@ class DOCMAN
 		string StorageData;
 		foreach(Doc; mDocs)StorageData ~= Doc.Name ~ ":" ~ to!string(Doc.LineNumber) ~ ";";
 		if(StorageData.empty) StorageData = "";
+		else  StorageData.chomp(";");
 		Config().setString("DOCMAN", "files_last_session", StorageData);
         Config().setString("DOCMAN", "files_to_open",""); //get rid of command line files
 	}
@@ -247,8 +248,10 @@ class DOCMAN
 	{
 		auto index = dui.GetCenterPane().getCurrentPage();
 		if (index < 0) return null;
-		auto tmpvarScrWin = cast(ScrolledWindow) dui.GetCenterPane().getNthPage(index);
-		return cast(DOCUMENT)tmpvarScrWin.getChild();
+		auto DocPageWidget =  dui.GetCenterPane().getNthPage(index);
+		string DocName = dui.GetCenterPane().getTabLabel(DocPageWidget).getTooltipText();
+		return mDocs[DocName];
+		//return cast(DOCUMENT)tmpvarScrWin.getChild();
 	}
 
 	@property DOCUMENT[string] Documents(){return mDocs;}
@@ -505,15 +508,11 @@ class DOCMAN
 	{
 
 		mDocs[ADoc.Name] = ADoc;
-		ScrolledWindow ScrollWin = new ScrolledWindow(null, null);
-		ScrollWin.add(ADoc);
-		ScrollWin.setPolicy(GtkPolicyType.AUTOMATIC, GtkPolicyType.AUTOMATIC);
-
-		
+				
 		dui.GetCenterPane().appendPageMenu(ADoc.PageWidget(), ADoc.TabWidget(), new Label(ADoc.ShortName));
 
 		dui.GetCenterPane().setTabReorderable(ADoc.PageWidget, 1);
-        ScrollWin.showAll();
+        
         dui.GetCenterPane().setCurrentPage(ADoc.PageWidget);
         ADoc.grabFocus();
         

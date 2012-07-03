@@ -337,9 +337,7 @@ class PROJECT_VIEW : ELEMENT
     void Configure()
     {
 		mEnabled = Config.getBoolean("PROJECT_VIEW", "enabled", true);
-		writeln(mEnabled);
 		mRoot.setVisible(mEnabled);
-		writeln(mRoot.getVisible());
 	}
         
         

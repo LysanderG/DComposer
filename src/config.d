@@ -86,7 +86,6 @@ class CONFIG
 			}
 			else mHomeDir = absolutePath(dirName(Runtime.args[0]));
 		}
-		writeln("mHomeDir = ",mHomeDir);
 		
         mCfgFile = ExpandPath("$(HOME_DIR)/dcomposer.cfg");
         mKeyFile = new KeyFile;
@@ -284,7 +283,6 @@ class CONFIG
 		//copy system directory folders to local directory
 		string src = buildPath(mSysDir, "*");
 		string cpCommand = "cp -r " ~ src ~ " " ~ mHomeDir;
-		writeln("firstrun cp command ",cpCommand);
 		shell("mkdir " ~ mHomeDir);
 		writeln(shell(cpCommand));
 		FirstRun.emit();

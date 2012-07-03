@@ -73,9 +73,7 @@ class PREFERENCES_UI : ELEMENT
     {
         
         if(!mGuiBuilt) BuildGui();
-        writeln("buildgui!!");
         Config.PrepPreferences();
-        writeln("buildgui!!");
         mRoot.show();
         dui.GetExtraPane().setCurrentPage(mRoot);
 

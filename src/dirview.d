@@ -224,7 +224,7 @@ class DIR_VIEW : ELEMENT
 			mStore2.append(ti);
 			mStore2.setValue(ti, 0, filter);
 		}
-		
+		mRoot.showAll();
 		mRoot.setVisible(mEnabled);
 	}
     
@@ -308,22 +308,7 @@ class DIR_VIEW : ELEMENT
         mhbox = cast(HBox)mBuilder.getObject("hbox1");
 
         mhbox.add(mComboFilter);
-
-       //    //ok now load the liststore filter data
-       //    mStore2.clear();
-       //    TreeIter ti = new TreeIter;
-       //    string x = Config.getString("DIRVIEW", "file_filter", "*.d:*.di:*.dpro");
-//
-       //    auto xarray = x.split(":");
-//
-       //    foreach(filter; xarray)
-       //    {
-       //        mStore2.append(ti);
-       //        mStore2.setValue(ti, 0, filter);
-       //    }
-       //    //ok                
-//
-       ////end of comboentrycrap           
+        
 
         mFolderView.addOnCursorChanged(&FileSelected);
         mFolderView.addOnRowActivated(&FileClicked);

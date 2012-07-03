@@ -23,3 +23,4 @@ messageui.MESSAGE_UI
 assistantui.ASSISTANT_UI
 preferencesui.PREFERENCES_UI
 #debuggerui.DEBUGGER_UI
+splitdoc.SPLIT_DOCUMENT

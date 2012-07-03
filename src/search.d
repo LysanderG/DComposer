@@ -159,7 +159,6 @@ SEARCH_RESULT[] FindInFiles(string[] Filenames, string Needle, SEARCH_OPTIONS Op
     
     foreach(file; Filenames)
     {
-		writeln("searching ", file);
         HayStacks[file] = readText(file);
     }
     return FindInStrings(HayStacks, Needle, Opts);

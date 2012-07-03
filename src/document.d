@@ -49,7 +49,8 @@ import gtk.Menu;
 import gtk.MessageDialog;
 import gtk.Clipboard;
 import gtk.TextIter;
-import gtk.Container;
+import gtk.Paned;
+import gtk.ScrolledWindow;
 
 import gtkc.gtk;
 
@@ -60,7 +61,7 @@ import gobject.ParamSpec;
 
 import pango.PgFontDescription;
 
-
+extern(C) GdkAtom gdk_atom_intern(const char *, bool);
 
 class DOCUMENT : SourceView
 {
@@ -78,6 +79,8 @@ class DOCUMENT : SourceView
 	HBox			mTabWidget;
 	Label			mTabLabel;
 	Button 			mTabXBtn;
+
+	Widget			mPageWidget;
 
 //**********************************************************************************************************************
 
@@ -120,7 +123,8 @@ class DOCUMENT : SourceView
 	{
 		if(Modified) mTabLabel.setText ("[* " ~ ShortName ~ " *]");
 		else mTabLabel.setText(ShortName);
-		mTabLabel.setTooltipText(Name);
+		//mTabLabel.setTooltipText(Name);
+		mTabWidget.setTooltipText(Name);
 		mTabWidget.showAll();
 		
 	}
@@ -188,6 +192,7 @@ class DOCUMENT : SourceView
 
 	void SetUpEditSensitivity()
     {
+
 		//from what I gather 69 is the system clipboard
 		//not very good programming here but I'm at a loss at how else to procedd
         auto Clpbd = Clipboard.get(cast(GdkAtom)69);
@@ -273,8 +278,12 @@ class DOCUMENT : SourceView
 		mTabWidget.add(mTabLabel);
 		mTabWidget.add(mTabXBtn);
 
+		ScrolledWindow ScrollWin = new ScrolledWindow(null, null);
+		ScrollWin.add(this);
+		ScrollWin.setPolicy(GtkPolicyType.AUTOMATIC, GtkPolicyType.AUTOMATIC);
+		ScrollWin.showAll();
 		
-		
+		mPageWidget = ScrollWin;	
 	}
 
 	/**Basically connects signals.  Not done in constructor to ensure all objects (meaning Config for now)
@@ -468,7 +477,6 @@ class DOCUMENT : SourceView
 	 * */
     void Edit(string Verb)
     {
-
         switch (Verb)
         {
             case "UNDO"  :   getBuffer.undo();   break;
@@ -479,12 +487,16 @@ class DOCUMENT : SourceView
             case "DELETE":   getBuffer.deleteSelection(1,1);break;
 
             default : Log.Entry("Currently unavailable function :"~Verb,"Debug");
-        }            
+        }
     }
 
     Widget PageWidget()
     {
-		return getParent();
+		return mPageWidget;
+	}
+	void SetPageWidget(Widget PageWidget)
+	{
+		mPageWidget = PageWidget;
 	}
 	Widget TabWidget()
 	{
