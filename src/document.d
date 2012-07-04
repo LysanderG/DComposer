@@ -82,6 +82,7 @@ class DOCUMENT : SourceView
 
 	Widget			mPageWidget;
 
+
 //**********************************************************************************************************************
 
 	bool CheckForExternalChanges(GdkEventFocus* Event, Widget widget)

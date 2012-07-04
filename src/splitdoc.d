@@ -44,6 +44,19 @@ class SPLIT_DOCUMENT : ELEMENT
 	string		mInfo;
 	bool		mState;
 
+	bool msetAutoIndent;
+	bool msetIndentOnTab;
+	bool msetInsertSpacesInsteadOfTabs;
+	bool msetHighlightCurrentLine;
+	bool msetShowLineNumbers;
+	bool msetShowRightMargin;
+	int  msetRightMarginPosition;
+	int  msetIndentWidth;
+	int  msetTabWidth;
+	string mmodifyFont;
+	SourceSmartHomeEndType msetSmartHomeEnd;
+	
+
 	void UnSplit(DOCUMENT SplitDoc)
 	{
 
@@ -84,23 +97,21 @@ class SPLIT_DOCUMENT : ELEMENT
 
 		auto extraDoc = new SourceView;		
 		extraDoc.setBuffer(dui.GetDocMan.Current.getBuffer());
-
-		//GtkRequisition HowBigYouAre;
-		//dui.GetSidePane.sizeRequest(HowBigYouAre);
+		ConfigExtraDoc(extraDoc);
 
 		GtkAllocation HowBigYouAre;
 		HowBigYouAre = dui.GetCenterPane.getAllocation();
 		
-		auto PageIndex = dui.GetCenterPane.pageNum(mainDoc.PageWidget());
-		mainDoc.unparent();				
-		dui.GetCenterPane.removePage(PageIndex);
-		
 		auto ScrollTop = new ScrolledWindow();
 		auto ScrollBottom = new ScrolledWindow();
 		ScrollBottom.add(extraDoc);
-		ScrollTop.add(mainDoc);
+		//ScrollTop.add(mainDoc);
 
 		auto VPane = new VPaned(ScrollTop, ScrollBottom);
+		
+		auto PageIndex = dui.GetCenterPane.pageNum(mainDoc.PageWidget());
+		mainDoc.reparent(ScrollTop);				
+		dui.GetCenterPane.removePage(PageIndex);
 		
 		mainDoc.SetPageWidget(VPane);
 		VPane.showAll();
@@ -122,24 +133,23 @@ class SPLIT_DOCUMENT : ELEMENT
 
 		auto extraDoc = new SourceView;		
 		extraDoc.setBuffer(dui.GetDocMan.Current.getBuffer());
-
-		//GtkRequisition HowBigYouAre;
-		//dui.GetSidePane.sizeRequest(HowBigYouAre);
+		ConfigExtraDoc(extraDoc);
 
 		GtkAllocation HowBigYouAre;
 		HowBigYouAre = dui.GetCenterPane.getAllocation();
-		
-		auto PageIndex = dui.GetCenterPane.pageNum(mainDoc.PageWidget());
-		mainDoc.unparent();				
-		dui.GetCenterPane.removePage(PageIndex);
-		
+				
 		auto ScrollTop = new ScrolledWindow();
 		auto ScrollBottom = new ScrolledWindow();
 		ScrollBottom.add(extraDoc);
 		ScrollTop.add(mainDoc);
 
 		auto HPane = new HPaned(ScrollTop, ScrollBottom);
-		
+
+		auto PageIndex = dui.GetCenterPane.pageNum(mainDoc.PageWidget());
+
+		mainDoc.reparent(ScrollTop);				
+
+		dui.GetCenterPane.removePage(PageIndex);
 		mainDoc.SetPageWidget(HPane);
 		HPane.showAll();
 				
@@ -149,6 +159,27 @@ class SPLIT_DOCUMENT : ELEMENT
 		HPane.setPosition(HowBigYouAre.width/2);		
 		
 		mainDoc.grabFocus();
+	}
+
+	void ConfigExtraDoc(SourceView ExtraDoc)
+	{
+
+		ExtraDoc.setAutoIndent(msetAutoIndent);
+        ExtraDoc.setIndentOnTab(msetIndentOnTab);
+        ExtraDoc.setInsertSpacesInsteadOfTabs(msetInsertSpacesInsteadOfTabs);
+
+		if(Config.getBoolean("DOCMAN", "smart_home_end", true))ExtraDoc.setSmartHomeEnd(msetSmartHomeEnd);
+        else ExtraDoc.setSmartHomeEnd(msetSmartHomeEnd);
+
+		ExtraDoc.setHighlightCurrentLine(msetHighlightCurrentLine);
+        ExtraDoc.setShowLineNumbers(msetShowLineNumbers);
+        ExtraDoc.setShowRightMargin(msetShowRightMargin);
+        ExtraDoc.setRightMarginPosition(msetRightMarginPosition);
+        ExtraDoc.setIndentWidth(msetIndentWidth);
+        ExtraDoc.setTabWidth(msetTabWidth);
+
+        ExtraDoc.modifyFont(pango.PgFontDescription.PgFontDescription.fromString(mmodifyFont));
+
 	}
 	
 		
@@ -198,6 +229,9 @@ class SPLIT_DOCUMENT : ELEMENT
         dui.AddMenuItem("_Documents", HSplitAction.createMenuItem(), 0);
 		dui.AddToolBarItem(HSplitAction.createToolItem());
 		dui.GetDocMan.AddContextMenuAction(HSplitAction);
+
+		Config.Reconfig.connect(&Configure);
+		Configure();
 		
 		Log.Entry("Engaged SPLIT_DOCUMENT element.");
 	}
@@ -212,6 +246,30 @@ class SPLIT_DOCUMENT : ELEMENT
 	{
 		return null;
 	}
+
+
+	void Configure()
+	{
+		
+		msetAutoIndent = Config.getBoolean("DOCMAN", "auto_indent", true);
+        msetIndentOnTab = Config.getBoolean("DOCMAN", "indent_on_tab", true);
+        msetInsertSpacesInsteadOfTabs = Config.getBoolean("DOCMAN","spaces_for_tabs", true);
+
+		if(Config.getBoolean("DOCMAN", "smart_home_end", true))  msetSmartHomeEnd = SourceSmartHomeEndType.AFTER;
+        else msetSmartHomeEnd = SourceSmartHomeEndType.DISABLED;
+
+		msetHighlightCurrentLine = Config.getBoolean("DOCMAN", "hilite_current_line", false);
+        msetShowLineNumbers = Config.getBoolean("DOCMAN", "show_line_numbers",true);
+        msetShowRightMargin = Config.getBoolean("DOCMAN", "show_right_margin", true);
+
+        msetRightMarginPosition = Config.getInteger("DOCMAN", "right_margin", 120);
+        msetIndentWidth = Config.getInteger("DOCMAN", "indention_width", 8);
+        msetTabWidth = Config.getInteger("DOCMAN", "tab_width", 4);
+
+        mmodifyFont = Config.getString("DOCMAN", "font", "mono 18");
+		
+	}
+		
 }
 		
 		

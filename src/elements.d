@@ -72,7 +72,6 @@ void AcquireElements()
         line = removechars!(string)(line, std.ascii.whitespace);
         if (line.startsWith('#')) continue;
         if (line.length < 1) continue;
-		writeln(line);
         tmp = cast(ELEMENT)Object.factory(line);
         
         if(tmp is null) Log.Entry("Failed to Acquire " ~ line ~ " element!", "Error");

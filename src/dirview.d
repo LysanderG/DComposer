@@ -262,7 +262,6 @@ class DIR_VIEW : ELEMENT
     
     void Engage()
     {
-		writeln("aaaarrrrggghhh");
 		scope(failure) Log.Entry("Failed to Engage DIR_VIEW element", "Error");
         mBuilder = new Builder;
         mBuilder.addFromFile(Config.getString("DIRVIEW","glade_file", "$(HOME_DIR)/glade/dirview.glade"));
