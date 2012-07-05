@@ -32,6 +32,7 @@ import gtk.ScrolledWindow;
 import gtk.Label;
 import gtk.Action;
 import gtk.Widget;
+import gtk.SeparatorMenuItem;
 
 import gsv.SourceView;
 
@@ -93,6 +94,7 @@ class SPLIT_DOCUMENT : ELEMENT
 	{
 		
 		auto mainDoc = dui.GetDocMan.Current;
+		if(mainDoc is null)return;
 		if(mainDoc.PageWidget.classinfo.name == "gtk.VPaned.VPaned") return UnSplit(mainDoc);
 
 		auto extraDoc = new SourceView;		
@@ -129,6 +131,7 @@ class SPLIT_DOCUMENT : ELEMENT
 	{
 		
 		auto mainDoc = dui.GetDocMan.Current;
+		if(mainDoc is null) return;
 		if(mainDoc.PageWidget.classinfo.name == "gtk.HPaned.HPaned") return UnSplit(mainDoc);
 
 		auto extraDoc = new SourceView;		
@@ -208,25 +211,27 @@ class SPLIT_DOCUMENT : ELEMENT
 
     void Engage()
     {
-		Action VSplitAction = new Action("VSplitAct", "_Vertical Split", "Create a second view", null);
-		VSplitAction.setIconName("widget-gtk-vpaned");
+		Action VSplitAction = new Action("VSplitAct", "_Vertical Split", "Create a second view", "gtk-goto-bottom");
+		
 		VSplitAction.addOnActivate( delegate void (Action x){VSplit();});
 		VSplitAction.setAccelGroup(dui.GetAccel());
 		dui.Actions().addActionWithAccel(VSplitAction, "<SHIFT><CONTROL>V");        
         VSplitAction.connectAccelerator();
 
-        dui.AddMenuItem("_Documents", VSplitAction.createMenuItem(), 0);
+		dui.AddMenuItem("_Documents",new SeparatorMenuItem()    );
+		
+        dui.AddMenuItem("_Documents", VSplitAction.createMenuItem());
 		dui.AddToolBarItem(VSplitAction.createToolItem());
 		dui.GetDocMan.AddContextMenuAction(VSplitAction);
 
-		Action HSplitAction = new Action("HSplitAct", "_Horizontal Split", "Create a second view", null);
-		HSplitAction.setIconName("widget-gtk-hpaned");
+		Action HSplitAction = new Action("HSplitAct", "_Horizontal Split", "Create a second view", "gtk-goto-last");
+		
 		HSplitAction.addOnActivate( delegate void (Action x){HSplit();});
 		HSplitAction.setAccelGroup(dui.GetAccel());
 		dui.Actions().addActionWithAccel(HSplitAction, "<SHIFT><CONTROL>H");        
         HSplitAction.connectAccelerator();
 
-        dui.AddMenuItem("_Documents", HSplitAction.createMenuItem(), 0);
+        dui.AddMenuItem("_Documents", HSplitAction.createMenuItem());
 		dui.AddToolBarItem(HSplitAction.createToolItem());
 		dui.GetDocMan.AddContextMenuAction(HSplitAction);
 
