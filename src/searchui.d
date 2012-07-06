@@ -411,7 +411,9 @@ class SEARCH_UI : ELEMENT
         mPage.getParent.getParent.showAll();
         dui.GetExtraPane.setCurrentPage(mPage.getParent.getParent);
 
-        mFindComboBox.setActiveText(dui.GetDocMan.GetWord(),true);
+		auto Selection = dui.GetDocMan.GetSelection();
+		if (Selection is null)mFindComboBox.setActiveText(dui.GetDocMan.GetWord(),true);
+		else mFindComboBox.setActiveText(Selection, true);
         mFindComboBox.grabFocus();
         
     }

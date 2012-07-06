@@ -250,6 +250,12 @@ class DOCMAN
 		if (index < 0) return null;
 		auto DocPageWidget =  dui.GetCenterPane().getNthPage(index);
 		string DocName = dui.GetCenterPane().getTabLabel(DocPageWidget).getTooltipText();
+
+		if (DocName !in mDocs)
+		{
+			writeln("no ", DocName);
+			return null;
+		}
 		return mDocs[DocName];
 		//return cast(DOCUMENT)tmpvarScrWin.getChild();
 	}
@@ -316,7 +322,7 @@ class DOCMAN
 	{
 		if(Name !in mDocs) return false;
 
-		if (SetFocus)mDocs[Name].grabFocus();
+		if (SetFocus)dui.GetCenterPane.setCurrentPage(mDocs[Name].PageWidget);//mDocs[Name].grabFocus();
 		return true;
 	}
 
@@ -350,6 +356,12 @@ class DOCMAN
 	string GetText()
 	{
 		if(Current !is null)return Current.getBuffer().getText();
+		return null;
+	}
+
+	string GetSelection()
+	{
+		if(Current !is null) return Current.Selection;
 		return null;
 	}
 
@@ -442,14 +454,20 @@ class DOCMAN
 		mSaveFileDialog.hide();
 
 		if (response != ResponseType.GTK_RESPONSE_OK) return;
-
+		
 		scope(failure)
 		{
 			Log.Entry("Document Failed to save "~OriginalName~" as "~mSaveFileDialog.getFilename, "Error");
 			return;
 		}
-		scope (success) Log.Entry("Document saved "~OriginalName~" as "~mSaveFileDialog.getFilename);
-		
+		scope (success)
+		{
+			mDocs[mSaveFileDialog.getFilename] = mDocs[OriginalName];
+			mDocs.remove(OriginalName);
+			Log.Entry("Document saved "~OriginalName~" as "~mSaveFileDialog.getFilename);
+			writeln(mDocs.keys);
+		}
+
 		
 		Current.SaveAs(mSaveFileDialog.getFilename);
 	}

@@ -258,9 +258,22 @@ class DOCUMENT : SourceView
         if(!ti.insideWord)return "";
         TextIter tiend  = ti.copy();
         tiend.forwardWordEnd();
-        ti.backwardWordStart();
+        if(!ti.startsWord())ti.backwardWordStart();
         return ti.getSlice(tiend);        
     }
+
+    ///Returns any selected text
+    @property string Selection()
+    {
+		TextIter tistart = new TextIter;
+		TextIter tiend = new TextIter;
+		
+		if(getBuffer.getSelectionBounds(tistart, tiend))
+		{
+			return getBuffer.getText(tistart, tiend, false);
+		}
+		return null;
+	}
 		
 		
 	
@@ -363,8 +376,28 @@ class DOCUMENT : SourceView
 	 * */
 	static DOCUMENT Open(string FileName, ulong LineNo = 1)
 	{
-		scope(failure)
+		string Text;
+		try
 		{
+			
+			Text = ReadUTF8(FileName);
+		}
+		catch(FileException FileX)
+		{
+			string reason = "File read error. (Check permissions)";
+			if(!exists(FileName))reason = "File does not exist";
+
+			
+			auto msg = new MessageDialog(dui.GetWindow(), GtkDialogFlags.MODAL, GtkMessageType.ERROR, ButtonsType.OK,
+            false, reason);
+
+            msg.setTitle("Unable to open " ~ FileName);
+            msg.run();
+            msg.destroy();
+            return null;
+		}
+		catch (UTFException UtfX)
+		{			
 			auto msg = new MessageDialog(dui.GetWindow(), GtkDialogFlags.MODAL, GtkMessageType.ERROR, ButtonsType.OK,
             false, "DComposer offers its most sincere apologies.\nThis development version is currently limited\n to opening valid UTF files.");
 
@@ -373,8 +406,6 @@ class DOCUMENT : SourceView
             msg.destroy();
             return null;
 		}
-		
-		string Text = ReadUTF8(FileName);
 
 		
 		DOCUMENT Rval = new DOCUMENT;
@@ -444,6 +475,8 @@ class DOCUMENT : SourceView
 	 * */
 	void SaveAs(string NewName)
 	{
+		string OriginalName = Name;
+		scope(failure) Name = OriginalName;
 		Name = NewName;
 		Save();
 	}

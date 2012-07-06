@@ -107,7 +107,7 @@ class SPLIT_DOCUMENT : ELEMENT
 		auto ScrollTop = new ScrolledWindow();
 		auto ScrollBottom = new ScrolledWindow();
 		ScrollBottom.add(extraDoc);
-		//ScrollTop.add(mainDoc);
+
 
 		auto VPane = new VPaned(ScrollTop, ScrollBottom);
 		
@@ -144,7 +144,7 @@ class SPLIT_DOCUMENT : ELEMENT
 		auto ScrollTop = new ScrolledWindow();
 		auto ScrollBottom = new ScrolledWindow();
 		ScrollBottom.add(extraDoc);
-		ScrollTop.add(mainDoc);
+
 
 		auto HPane = new HPaned(ScrollTop, ScrollBottom);
 

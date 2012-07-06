@@ -511,3 +511,31 @@ I know what I've done so far needs lots of work still but I can't decide where t
 hounding me!  Found a non documented getListStoreStruct --- going to set a pointer at it and see if that discourages the gc from collecting it.
 Or most likely the problem is not related to the gc.
 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Thursday July 5, 2012
+
+Testing notes
+	->make use of project type (app .so .a ...) Can't open if type is changed to null.
+	->better gui defaults at first run (centerpane is hidden, no toolbar, window too small, at least stdlib.json loaded)
+	->welcome screen at first run
+	->project add/new file so don't have to create save then add
+	->project wizard??
+	->open files and save files start in project root not recent
+	->sometimes saving file (or maybe just saveas) segfaults ... after the file is saved though ??
+	-->> omg of course!!! I'm so dumb gotta remove docman.docs[oldname] and add docman.docs[newname] how can I live and
+	-->> be so stupid
+	->switching current document and then doing next search result confuses search (just keeps stepping through current)
+
+ok started a new branch going to go file by file and squash as many BUGS as I can finding
+	-> Docman/Document
+		save as -- updates docman docs
+		save says success when it fails
+		warns can not open non utf text when file actually doesnt exist
+		Getword/Word if cursor is at start of word dont go backwardwordstart
+		
+	-> SplitDoc
+		horizontal and vertical are kindof ambiguous (is it the bar or the order of the windows?)
+		configure the "page" to be the same as in DocMan.append();
+	-> SearchUI
+		if there is selected text then that should be in textentry rathar than whatever word is at the cursor
+		keep up with page changes
