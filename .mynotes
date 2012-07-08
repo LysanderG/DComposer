@@ -528,14 +528,48 @@ Testing notes
 
 ok started a new branch going to go file by file and squash as many BUGS as I can finding
 	-> Docman/Document
-		save as -- updates docman docs
-		save says success when it fails
-		warns can not open non utf text when file actually doesnt exist
-		Getword/Word if cursor is at start of word dont go backwardwordstart
+		save as -- updates docman docs-
+		save says success when it fails-
+		warns can not open non utf text when file actually doesnt exist-
+		Getword/Word if cursor is at start of word dont go backwardwordstart-
 		
 	-> SplitDoc
 		horizontal and vertical are kindof ambiguous (is it the bar or the order of the windows?)
 		configure the "page" to be the same as in DocMan.append();
 	-> SearchUI
-		if there is selected text then that should be in textentry rathar than whatever word is at the cursor
-		keep up with page changes
+		if there is selected text then that should be in textentry rather than whatever word is at the cursor-
+		keep up with page changes-
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Friday July 6, 2012
+
+Fell asleep, now where was I...
+
+	-> SearchUI
+		segfaults on search file if no file opened-
+		search folder should search in directory of current document ? or terminal directory or project or what ?
+				lets go with folder current doc is in or cwd if none-
+		summary of what is found to statusbar (let the user know its working if no results are found)-
+		switch f3 and f4 hot keys-
+		oh my if text is null -- enters some kind of infinite loop-
+		aaarrgggh damn it got another treeview crap out!
+		
+
+	-> Search
+		warns Failed to search in file some/directory
+		should have an option to search sub folders -- with a depth variable??
+
+	-> DocMan/Document
+		undo/redo says fails assert action != null after using replace (from searchui)
+		
+	->project projectui projectview
+		space between dmd and options (swear I fixed this before!)-
+		projectview adding import paths fails-
+		add a close project option
+		allow a single d file to act as a project
+		do away with the apply button on projectui make it act like projectview
+		add project targets
+		fix (use) the type option... save a project with null type makes it uneditable (ie worthless)
+		export a simple make file (?) (ok leave room for codeblocks netbean eclipse exports autotools waf cmake blah blah blah)
+		proview add file starts in project folder-
+		clicking on an identifier creates a new one

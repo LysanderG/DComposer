@@ -23,7 +23,7 @@
         <col id="1" translatable="yes">Libraries</col>
       </row>
       <row>
-        <col id="0" translatable="yes">incpaths</col>
+        <col id="0" translatable="yes">imppaths</col>
         <col id="1" translatable="yes">Import Paths</col>
       </row>
       <row>
@@ -175,6 +175,7 @@
                 <property name="headers_visible">False</property>
                 <property name="headers_clickable">False</property>
                 <property name="rules_hint">True</property>
+                <property name="enable_search">False</property>
                 <property name="search_column">0</property>
                 <property name="tooltip_column">1</property>
                 <child>

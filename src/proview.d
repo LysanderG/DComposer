@@ -49,6 +49,7 @@ import gtk.CellRendererText;
 import gtk.Viewport;
 import gtk.Frame;
 import gtk.CheckButton;
+import gtk.Widget;
 
 import gobject.Value;
 
@@ -69,6 +70,8 @@ class PROJECT_VIEW : ELEMENT
 
     TreeView        mListView;
     CellRendererText mCellText;
+    TreeViewColumn 	mTVC;
+    CellRendererText mCRT;
     ListStore       mViewStore;
     ListStore       mComboStore;
 
@@ -77,6 +80,8 @@ class PROJECT_VIEW : ELEMENT
 
     PROJECT_VIEW_PREF mPrefPage;
     bool			mEnabled;
+
+    TreeIter		mAddedIdentifierTI;
 
     
     void UpdateList(ComboBox X)
@@ -270,6 +275,7 @@ class PROJECT_VIEW : ELEMENT
     {
 		auto FileDialog = new FileChooserDialog("Select Files", dui.GetWindow(), FileChooserAction.OPEN);
 		FileDialog.setSelectMultiple(true);
+		FileDialog.setCurrentFolder(Project.WorkingPath);
 
 		auto DialogResponse = FileDialog.run();
 		FileDialog.hide();
@@ -316,11 +322,15 @@ class PROJECT_VIEW : ELEMENT
     void AddAIdentifier(string CurrentKey)
     {
         
-        TreeIter ti = new TreeIter;
-        mViewStore.append(ti);
-        mViewStore.setValue(ti, 0, "NewValue");
-        mViewStore.setValue(ti, 1, "NewValue");
-           
+        mAddedIdentifierTI = new TreeIter;
+        mViewStore.append(mAddedIdentifierTI);
+        writeln(mAddedIdentifierTI);
+        mViewStore.setValue(mAddedIdentifierTI, 0, "NewValue");
+        mViewStore.setValue(mAddedIdentifierTI, 1, "NewValue");
+        mListView.realize();
+        mListView.setCursorOnCell(mViewStore.getPath(mAddedIdentifierTI), mTVC, mCRT,  true);
+
+        mListView.grabFocus();
     }
 
     void EditIdentifier(string Path, string text, CellRendererText crt)
@@ -330,7 +340,7 @@ class PROJECT_VIEW : ELEMENT
         if(mKeyBox.getActiveIter(ti))
         {
             string CurrentKey = mComboStore.getValueString(ti,0);
-            if(mKeyBox.getActive > 5) Project.AddItem(CurrentKey, text);
+            if(mKeyBox.getActive > 5) Project.AddUniqueItem(CurrentKey, text);
         }
     }
 
@@ -367,16 +377,18 @@ class PROJECT_VIEW : ELEMENT
     {
         mBuilding = new Builder;
         mBuilding.addFromFile(Config.getString("PROJECT_VIEW", "glade_file", "$(HOME_DIR)/glade/proview.glade"));
-        mRoot       = cast(VBox)        mBuilding.getObject("vbox1");
-        mLabel      = cast(Label)       mBuilding.getObject("label2");
-        mToolBar    = cast(Toolbar)     mBuilding.getObject("toolbar1");
-        mListView   = cast(TreeView)    mBuilding.getObject("treeview1");
-        mKeyBox     = cast(ComboBox)    mBuilding.getObject("combobox1");
-        mViewStore  = cast(ListStore)   mBuilding.getObject("liststore2");
-        mComboStore = cast(ListStore)   mBuilding.getObject("liststore1");
-        mAdd        = cast(ToolButton)  mBuilding.getObject("toolbutton1");
-        mRemove     = cast(ToolButton)  mBuilding.getObject("toolbutton2");
-        mCellText   = cast(CellRendererText) mBuilding.getObject("cellrenderertext2");
+        mRoot       = cast(VBox)        		mBuilding.getObject("vbox1");
+        mLabel      = cast(Label)       		mBuilding.getObject("label2");
+        mToolBar    = cast(Toolbar)     		mBuilding.getObject("toolbar1");
+        mListView   = cast(TreeView)    		mBuilding.getObject("treeview1");
+        mTVC		= cast(TreeViewColumn)		mBuilding.getObject("treeviewcolumn1");
+        mCRT		= cast(CellRendererText)	mBuilding.getObject("cellrenderetext2");
+        mKeyBox     = cast(ComboBox)    		mBuilding.getObject("combobox1");
+        mViewStore  = cast(ListStore)   		mBuilding.getObject("liststore2");
+        mComboStore = cast(ListStore)   		mBuilding.getObject("liststore1");
+        mAdd        = cast(ToolButton)  		mBuilding.getObject("toolbutton1");
+        mRemove     = cast(ToolButton)  		mBuilding.getObject("toolbutton2");
+        mCellText   = cast(CellRendererText) 	mBuilding.getObject("cellrenderertext2");
 
         dui.GetSidePane.appendPage(mRoot, "Project");
         dui.GetSidePane.setTabReorderable ( mRoot, true); 

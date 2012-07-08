@@ -185,14 +185,24 @@ class SEARCH_UI : ELEMENT
         Options.WordStart = false;
         Options.RecurseFolder = false;
 
+		
         string Needle = mFind.getText();
-        
+        if (Needle.length < 1) return;
+
+        scope(exit)
+		{
+			string msg;
+			msg = format("Searched for %s, found %s results", Needle, Results.length); 
+			dui.Status.push(0, msg);
+		}
 
         if (mScopeFile.getActive())
         {
             auto tmpDocument = dui.GetDocMan.GetDocument();
+			if(tmpDocument is null)  return;
             string HayStack  = tmpDocument.getBuffer.getText();
             string DocTitle  = tmpDocument.Name;
+            
             Results = FindInString(HayStack, Needle, DocTitle, Options);
         }
         if(mScopeProject.getActive())
@@ -236,7 +246,12 @@ class SEARCH_UI : ELEMENT
 
         if(mScopeFolder.getActive())
         {
-			foreach (string Fname; dirEntries(getcwd(), SpanMode.shallow))
+			//which folder? lets go ... current doc directory, no -> project directory, no -> getcwd (project should == cwd)
+			string WhatFolderToSearch;
+			if(dui.GetDocMan.Current is null) WhatFolderToSearch = getcwd();
+			else WhatFolderToSearch = dirName(dui.GetDocMan.Current.Name);
+			
+			foreach (string Fname; dirEntries(WhatFolderToSearch, SpanMode.shallow))
 			{
 				if(dui.GetDocMan.IsOpen(Fname))
                 {
@@ -595,7 +610,7 @@ class SEARCH_UI : ELEMENT
         SearchNextAct.addOnActivate(delegate void(Action X){FindNextBtnClicked(null);});
         //SearchNextAct.setAccelPath("F3");        
         SearchNextAct.setAccelGroup(dui.GetAccel());        
-        dui.Actions().addActionWithAccel(SearchNextAct, "F3");
+        dui.Actions().addActionWithAccel(SearchNextAct, "F4");
         
         SearchNextAct.connectAccelerator();
 
@@ -603,7 +618,7 @@ class SEARCH_UI : ELEMENT
         SearchPrevAct.addOnActivate(delegate void(Action X){FindPrevBtnClicked(null);});
         //SearchPrevAct.setAccelPath("<Shift>F3");        
         SearchPrevAct.setAccelGroup(dui.GetAccel());        
-        dui.Actions().addActionWithAccel(SearchPrevAct, "F4");
+        dui.Actions().addActionWithAccel(SearchPrevAct, "F3");
         SearchPrevAct.connectAccelerator();
         
         dui.GetDocMan.AddContextMenuAction(SearchAct);

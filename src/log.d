@@ -51,8 +51,8 @@ class LOG
         mSystemDefaultLogName =  Config.ExpandPath("$(HOME_DIR)/dcomposer.log");
         mInterimFileName = "unspecifiedlogfile.cfg";
         
-        mMaxFileSize = 18_105;
-        mMaxLines = 24;
+        mMaxFileSize = 65_535;
+        mMaxLines = 124;
     }
 
     void Engage()

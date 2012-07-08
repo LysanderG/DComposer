@@ -44,6 +44,8 @@ class FLAG
         they may be simple on off switches (-O or -g or -gc ... -fPIC -map etc)
         or switches with single arguments (-Offilename -Dddocdir -Xffilename -debuglib=name)
         flags with multiple arguments will be defined elsewhere keep this simple for now (-Ipath -version=ident -debug=ident)
+        *
+        * notice phobos has a utility for flags
     */
 
     private:
@@ -121,7 +123,7 @@ struct LISTS
     {
         //static string[] almostnull = [""];
         //if(Key !in mLists) return  almostnull; //used to return null but gui widget complained invalid text
-        static LIST nothing = null;
+        static LIST nothing = null; //what the hell is this?? why a reference return?
         if(Key !in mLists) return  nothing;
         return mLists[Key];
     }
@@ -497,7 +499,7 @@ class PROJECT
         
         if(mUseCustomBuild) return mCustomBuildCommand;
         
-        string cmdline = mCompiler;        
+        string cmdline = mCompiler ~ " ";        
         
 		foreach(lib; this[LIBFILES])    cmdline ~= " -L-l" ~ LibName(lib) ~ " ";
 		
@@ -596,6 +598,15 @@ class PROJECT
     void SetList(string Key, string Data)                           {   mList.SetKey(Key, [Data]);Event.emit("ListChange");}
     void RemoveItem(string Key, string Item)                        {   mList.RemoveData(Key, Item);Event.emit("ListChange");}
     void AddItem(string Key, string Item)                           {   mList.ConcatData(Key, Item);Event.emit("ListChange");}
+    void AddUniqueItem(string Key, string Item)
+    {
+		foreach(KeyItem; mList.GetData(Key))
+		{
+			if (KeyItem == Item) return;
+		}
+		mList.ConcatData(Key, Item);
+		Event.emit("ListChange");
+	}
     string[] GetList(string Key)                                    {   return mList.GetData(Key);}
     string GetCatList(string Key)
     {
