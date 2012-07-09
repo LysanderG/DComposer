@@ -248,13 +248,13 @@ class PROJECT
     void Open(string pfile)                                             //open a .dpro file and we're off
     {
         Event.emit("StartOpen");
-        New();
+        Close();
+        
 
         scope(failure)
         {
+            Close();			
             Log.Entry("Failed to OPEN Project : " ~ pfile, "Error");
-            mTarget = TARGET.NULL;
-            Close();
             return;
         }
         scope(success)Log.Entry("Project opened: " ~ mName);
@@ -314,7 +314,8 @@ class PROJECT
 		}
 
         if(mVersion > PROJECT_VERSION)throw new Exception("bad version");
-
+		if(mTarget == TARGET.NULL) throw new Exception("Invalid Target Type");
+		
         Event.emit("Opened");
 
         CreateTags();
@@ -322,10 +323,10 @@ class PROJECT
 	}    
     void Close()                                            //return target type to null , and nothing doing
     {
-        if(mTarget != TARGET.NULL)   Save();
+        Save();
         mTarget = TARGET.NULL;
         
-        mName.length = 0;
+        Name = null;
         mWorkingPath.length = 0;
 
         scope(failure)Log.Entry("Unable to open Flags File", "Error");
@@ -339,6 +340,7 @@ class PROJECT
 
     void Save()
 	{
+		if (mTarget == TARGET.NULL) return;
         scope(failure)
         {
             Log.Entry("Failed to save project: " ~ mName, "Error");
@@ -472,8 +474,8 @@ class PROJECT
     }
     bool Build()                                            //build the project
     {
-        if( (mTarget == TARGET.NULL) || (mTarget == TARGET.UNDEFINED) ) return false;
 
+        if( (mTarget == TARGET.NULL) || (mTarget == TARGET.UNDEFINED) ) return false;
 
         BuildMsg.emit(BuildCommand());   
 

@@ -565,11 +565,12 @@ Fell asleep, now where was I...
 	->project projectui projectview
 		space between dmd and options (swear I fixed this before!)-
 		projectview adding import paths fails-
-		add a close project option
-		allow a single d file to act as a project
+		add a close project option-
+		allow a single d file to act as a project-
 		do away with the apply button on projectui make it act like projectview
 		add project targets
-		fix (use) the type option... save a project with null type makes it uneditable (ie worthless)
-		export a simple make file (?) (ok leave room for codeblocks netbean eclipse exports autotools waf cmake blah blah blah)
+		fix (use) the type option... save a project with null type makes it uneditable (ie worthless)-
+		export a simple make file (?) (ok leave room for codeblocks netbean eclipse exports autotools waf cmake blah blah blah) xx plugin for this
 		proview add file starts in project folder-
-		clicking on an identifier creates a new one
+		clicking on an identifier creates a new one-
+		build with no project has gives user no response

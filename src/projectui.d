@@ -269,6 +269,7 @@ class PROJECT_UI : ELEMENT
 
         Action ProNewAct    = new Action("ProNewAct"    , "_New"            , "Create a new Project"                , StockID.NEW);
         Action ProOpenAct   = new Action("ProOpenAct"   , "_Open"           , "Replace current project"             , StockID.OPEN);
+        Action ProCloseAct	= new Action("ProCloseAct"	, "_Close"			, "Close current project"				, StockID.CLOSE);
         Action ProOptsAct   = new Action("ProOptsAct"   , "O_ptions"        , "Edit Project options"                , StockID.EDIT);
         Action ProRefAct    = new Action("ProRefAct"    , "_Refresh Tags"   , "Update project symbol information"   , StockID.REFRESH);
         Action ProBuildAct  = new Action("ProBuildAct"  , "_Build"          , "Run Build command"                   , StockID.EXECUTE);
@@ -277,6 +278,7 @@ class PROJECT_UI : ELEMENT
 
         ProNewAct           .addOnActivate(&New);
         ProOpenAct          .addOnActivate(&Open);
+        ProCloseAct			.addOnActivate(&Close);
         ProOptsAct          .addOnActivate(&ShowOptions);
         ProRefAct           .addOnActivate(&RefreshTags);
         ProBuildAct         .addOnActivate(&Build);
@@ -286,6 +288,7 @@ class PROJECT_UI : ELEMENT
 
         ProNewAct           .setAccelGroup(dui.GetAccel());
         ProOpenAct          .setAccelGroup(dui.GetAccel());
+        ProCloseAct			.setAccelGroup(dui.GetAccel());
         ProOptsAct          .setAccelGroup(dui.GetAccel());
         ProRefAct           .setAccelGroup(dui.GetAccel());
         ProBuildAct         .setAccelGroup(dui.GetAccel());
@@ -294,6 +297,7 @@ class PROJECT_UI : ELEMENT
 
         dui.Actions().addActionWithAccel(ProNewAct    , "F5");
         dui.Actions().addActionWithAccel(ProOpenAct   , "F6");
+        dui.Actions().addActionWithAccel(ProCloseAct  , "<SHIFT>F5");
         dui.Actions().addActionWithAccel(ProOptsAct   , "F7");
         dui.Actions().addActionWithAccel(ProRefAct    , "F8");
         dui.Actions().addActionWithAccel(ProBuildAct  , "F9");
@@ -303,6 +307,7 @@ class PROJECT_UI : ELEMENT
 
         dui.AddMenuItem("_Project", ProNewAct    .createMenuItem());
         dui.AddMenuItem("_Project", ProOpenAct   .createMenuItem());
+        dui.AddMenuItem("_Project", ProCloseAct  .createMenuItem());
         dui.AddMenuItem("_Project", new SeparatorMenuItem()       );
 
         dui.AddMenuItem("_Project", ProOptsAct   .createMenuItem());
@@ -317,7 +322,8 @@ class PROJECT_UI : ELEMENT
 
 
         dui.AddToolBarItem(ProNewAct    .createToolItem());
-        dui.AddToolBarItem(ProOpenAct    .createToolItem());
+        dui.AddToolBarItem(ProOpenAct   .createToolItem());
+        dui.AddToolBarItem(ProCloseAct  .createToolItem());
         dui.AddToolBarItem(ProOptsAct   .createToolItem());
         dui.AddToolBarItem(ProBuildAct  .createToolItem());
         dui.AddToolBarItem(ProRunAct    .createToolItem());
@@ -485,7 +491,7 @@ class PROJECT_UI : ELEMENT
         ff.setName("DComposer Project");
         ff.addPattern("*.dpro");
         fcd.setFilter(ff);
-        fcd.setCurrentFolder(Config.getString("DPROJECT","last_open_dialog_folder", "./"));
+        fcd.setCurrentFolder(Config.getString("PROJECT","last_open_dialog_folder", "./"));
         
         int rt = fcd.run();
 		fcd.hide();
@@ -493,14 +499,19 @@ class PROJECT_UI : ELEMENT
         
         Project.Open(fcd.getFilename);
 
-        Config.setString("DPROJECT", "last_open_dialog_folder", fcd.getCurrentFolder());
+        Config.setString("PROJECT", "last_open_dialog_folder", fcd.getCurrentFolder());
     }
-    
+
+    void Close(Action x)
+    {
+		Project.Close();
+	}
 
     void ShowOptions(Action x)
     {
         if(Project.Target == TARGET.NULL) return;
         mRootVBox.showAll();
+        SyncGuiToProject();
         dui.GetCenterPane.setCurrentPage(mRootVBox);
         mRootVBox.grabFocus();        
     }
@@ -514,16 +525,46 @@ class PROJECT_UI : ELEMENT
         tmpwindow.setCursor(watch);
         Display.getDefault.sync();
         watch.unref();
+        
+        //restore default cursor
+        scope(exit)tmpwindow.setCursor(null);
+
+        if(Project.Target == TARGET.NULL) return BuildFile();
 
         //save all and build
         dui.GetDocMan.SaveAll();
         Project.BuildMsg.emit(`BEGIN`);
         Project.Build();        
         Project.BuildMsg.emit(`END`);
-
-        //restore default cursor
-        tmpwindow.setCursor(null);
+        
     }
+
+    void BuildFile()
+    {
+		auto Doc = dui.GetDocMan.Current;
+		if (Doc is null) return;
+
+		Doc.Save();
+		string Command = Project.Compiler ~ " ";
+		Command ~= Config.getString("PROJECT", "build_single_file_options", " ");
+
+		Command ~= "-of"~Doc.ShortName.stripExtension ~ " " ~ Doc.Name;
+
+		Project.BuildMsg.emit(`BEGIN`);
+		Project.BuildMsg.emit(Command);   
+
+        std.stdio.File Process = File("tmp","w");
+
+        Process.popen("sh " ~ Config.ExpandPath("$(HOME_DIR)/childrunner.sh") ~ " " ~ Command ~ " 2>&1 ", "r");
+
+
+        foreach(string L; lines(Process) ) Project.BuildMsg.emit(chomp(L));
+        Project.BuildMsg.emit(`END`);
+
+        scope(exit) Process.close();
+    }
+		
+		
 
     
 
