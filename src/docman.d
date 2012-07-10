@@ -77,14 +77,21 @@ class DOCMAN
     //a little long but straight forward (create actions add em to menubar and toolbar)
     void CreateActions()
     {
+		dui.AddIcon("gtk-new"		, Config.getString("ICONS", "document_new", "$(HOME_DIR)/glade/document-new.png"));
+		dui.AddIcon("gtk-open"		, Config.getString("ICONS", "document_open", "$(HOME_DIR)/glade/folder-open-document-text.png"));
+		dui.AddIcon("gtk-save"		, Config.getString("ICONS", "document_save", "$(HOME_DIR)/glade/document-save.png"));
+		dui.AddIcon("gtk-save-as"	, Config.getString("ICONS", "document_save_as", "$(HOME_DIR)/glade/document-save-as.png"));
+		dui.AddIcon("gtk-save-all"	, Config.getString("ICONS", "document_save_all", "$(HOME_DIR)/glade/document-save-all.png"));
+		dui.AddIcon("gtk-close"   	, Config.getString("ICONS", "document_close", "$(HOME_DIR)/glade/document--minus.png"));
+		dui.AddIcon("gtk-close-all"	, Config.getString("ICONS", "document_close_all", "$(HOME_DIR)/glade/document-close-all.png"));
 
         Action  CreateAct   = new Action("CreateAct","_New ", "Create a new text document", StockID.NEW);
         Action  OpenAct     = new Action("OpenAct","_Open", "Open a file", StockID.OPEN);
         Action  SaveAct     = new Action("SaveAct", "_Save", "Save current document", StockID.SAVE);
         Action  SaveAsAct   = new Action("SaveAsAct", "Save _As..","Save current document to different file", StockID.SAVE_AS);
-        Action  SaveAllAct  = new Action("SaveAllAct", "Save A_ll", "Save all documents", null);
+        Action  SaveAllAct  = new Action("SaveAllAct", "Save A_ll", "Save all documents", "gtk-save-all");
         Action  CloseAct    = new Action("CloseAct", "_Close", "Close current document", StockID.CLOSE);
-        Action  CloseAllAct = new Action("CloseAllAct", "Clos_e All", "Close all documents", null);
+        Action  CloseAllAct = new Action("CloseAllAct", "Clos_e All", "Close all documents", "gtk-close-all");
 
 
         CreateAct.addOnActivate     (delegate void(Action X){Create();});
@@ -131,7 +138,14 @@ class DOCMAN
         dui.AddToolBarItem(new SeparatorToolItem);
 
 
-        //ok now the edit actions
+		//ok now the edit actions
+		dui.AddIcon("gtk-undo"		, Config.getString("ICONS", "undo", "$(HOME_DIR)/glade/arrow-return-180-left.png"));
+		dui.AddIcon("gtk-redo"		, Config.getString("ICONS", "redo", "$(HOME_DIR)/glade/arrow-return.png"));
+		dui.AddIcon("gtk-cut"		, Config.getString("ICONS", "cut", "$(HOME_DIR)/glade/scissors.png"));
+		dui.AddIcon("gtk-copy"		, Config.getString("ICONS", "copy", "$(HOME_DIR)/glade/document-copy.png"));
+		dui.AddIcon("gtk-paste"		, Config.getString("ICONS", "paste", "$(HOME_DIR)/glade/clipboard-paste-document-text.png"));
+		dui.AddIcon("gtk-delete"	, Config.getString("ICONS", "delete", "$(HOME_DIR)/glade/cross-circle-frame.png"));
+        
         Action      UndoAct     = new Action("UndoAct","_Undo", "Undo last action", StockID.UNDO);
         Action      RedoAct     = new Action("RedoAct","_Redo", "Undo the last undo(ie redo)", StockID.REDO);
         Action      CutAct      = new Action("CutAct", "_Cut", "Remove selected text to clipboard", StockID.CUT);
@@ -184,6 +198,7 @@ class DOCMAN
 
         dui.AddToolBarItem(UndoAct  .createToolItem());
         dui.AddToolBarItem(RedoAct    .createToolItem());
+        dui.AddToolBarItem(new SeparatorToolItem);
         dui.AddToolBarItem(CutAct    .createToolItem());
         dui.AddToolBarItem(CopyAct  .createToolItem());
         dui.AddToolBarItem(PasteAct .createToolItem());

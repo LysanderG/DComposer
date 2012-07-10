@@ -33,6 +33,7 @@ import gtk.Label;
 import gtk.Action;
 import gtk.Widget;
 import gtk.SeparatorMenuItem;
+import gtk.SeparatorToolItem;
 
 import gsv.SourceView;
 
@@ -211,7 +212,11 @@ class SPLIT_DOCUMENT : ELEMENT
 
     void Engage()
     {
-		Action VSplitAction = new Action("VSplitAct", "_Vertical Split", "Create a second view", "gtk-goto-bottom");
+
+		dui.AddIcon("split-horizontal", Config.getString("ICONS", "split_horizontal", "$(HOME_DIR)/glade/layout-split.png"));
+		dui.AddIcon("split-vertical", Config.getString("ICONS", "split_vertical", "$(HOME_DIR)/glade/layout-split-vertical.png"));
+		
+		Action VSplitAction = new Action("VSplitAct", "_Vertical Split", "Create a second view", "split-vertical");
 		
 		VSplitAction.addOnActivate( delegate void (Action x){VSplit();});
 		VSplitAction.setAccelGroup(dui.GetAccel());
@@ -224,7 +229,7 @@ class SPLIT_DOCUMENT : ELEMENT
 		dui.AddToolBarItem(VSplitAction.createToolItem());
 		dui.GetDocMan.AddContextMenuAction(VSplitAction);
 
-		Action HSplitAction = new Action("HSplitAct", "_Horizontal Split", "Create a second view", "gtk-goto-last");
+		Action HSplitAction = new Action("HSplitAct", "_Horizontal Split", "Create a second view", "split-horizontal");
 		
 		HSplitAction.addOnActivate( delegate void (Action x){HSplit();});
 		HSplitAction.setAccelGroup(dui.GetAccel());
@@ -234,6 +239,7 @@ class SPLIT_DOCUMENT : ELEMENT
         dui.AddMenuItem("_Documents", HSplitAction.createMenuItem());
 		dui.AddToolBarItem(HSplitAction.createToolItem());
 		dui.GetDocMan.AddContextMenuAction(HSplitAction);
+		dui.AddToolBarItem(new SeparatorToolItem);
 
 		Config.Reconfig.connect(&Configure);
 		Configure();

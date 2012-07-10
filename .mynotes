@@ -574,3 +574,27 @@ Fell asleep, now where was I...
 		proview add file starts in project folder-
 		clicking on an identifier creates a new one-
 		build with no project has gives user no response
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Monday July 9, 2012
+
+Continuing...
+	
+	->dirview
+		segfault on set current folder to doc when no doc
+
+	->symbolview
+		P instead of X for package "icon"
+
+
+Stop continuing and start making icons.  Using
+Fugue Icons
+
+(C) 2012 Yusuke Kamiyamane. All rights reserved.
+These icons are licensed under a Creative Commons
+Attribution 3.0 License.
+<http://creativecommons.org/licenses/by/3.0/>
+
+Ok, icons are finally done. (Well maybe not finally but originally)
+Need to put attribution in the gui.
+	

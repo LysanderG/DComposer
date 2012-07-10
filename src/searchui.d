@@ -596,7 +596,8 @@ class SEARCH_UI : ELEMENT
         mPage.showAll();
         dui.GetExtraPane().appendPage(mPage.getParent.getParent, "Search");
         dui.GetExtraPane.setTabReorderable ( mPage, true); 
-        
+
+        dui.AddIcon("gtk-find", Config.getString("ICONS", "search", "$(HOME_DIR)/glade/binocular.png"));
 
         Action  SearchAct = new Action("SearchAct", "_Search", "Seek out that which is hidden", StockID.FIND);
         SearchAct.addOnActivate(&BeginSearch);

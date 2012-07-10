@@ -60,9 +60,15 @@ import gtk.VBox;
 import gtk.Widget;
 import gtk.ScrolledWindow;
 import gtk.Main;
+import gtk.IconSet;
+
+
+import gio.IconIF;
+import gio.Icon;
 
 import gdk.Cursor;
 import gdk.Display;
+import gdk.Pixbuf;
 
 import gobject.Value;
 
@@ -266,15 +272,27 @@ class PROJECT_UI : ELEMENT
     void EngageActions()
     {
         //new | open | save? | refresh symbols | build | run | run w/args | whoops forgot options
+		
+		dui.AddIcon("PROJECT_NEW",		Config.getString("ICONS", "project_new", "$(HOME_DIR)/glade/wooden-box-new.png")); 
+		dui.AddIcon("PROJECT_OPEN",		Config.getString("ICONS", "project_open", "$(HOME_DIR)/glade/wooden-box-open.png"));
+		dui.AddIcon("PROJECT_CLOSE",	Config.getString("ICONS", "project_close", "$(HOME_DIR)/glade/wooden-box-close.png")); 
+		dui.AddIcon("PROJECT_OPTIONS",	Config.getString("ICONS", "project_options", "$(HOME_DIR)/glade/wooden-box-pencil.png")); 
+		dui.AddIcon("PROJECT_BUILD",	Config.getString("ICONS", "project_build", "$(HOME_DIR)/glade/wooden-box-gear.png")); 
+		dui.AddIcon("PROJECT_RUN",		Config.getString("ICONS", "project_run", "$(HOME_DIR)/glade/wooden-box-arrow.png")); 
+		dui.AddIcon("PROJECT_RUN_ARGS",	Config.getString("ICONS", "project_run_args", "$(HOME_DIR)/glade/wooden-box-label.png")); 
+		dui.AddIcon("PROJECT_REFRESH",	Config.getString("ICONS", "project_refresh", "$(HOME_DIR)/glade/wooden-box-refresh.png")); 
+		
 
-        Action ProNewAct    = new Action("ProNewAct"    , "_New"            , "Create a new Project"                , StockID.NEW);
-        Action ProOpenAct   = new Action("ProOpenAct"   , "_Open"           , "Replace current project"             , StockID.OPEN);
-        Action ProCloseAct	= new Action("ProCloseAct"	, "_Close"			, "Close current project"				, StockID.CLOSE);
-        Action ProOptsAct   = new Action("ProOptsAct"   , "O_ptions"        , "Edit Project options"                , StockID.EDIT);
-        Action ProRefAct    = new Action("ProRefAct"    , "_Refresh Tags"   , "Update project symbol information"   , StockID.REFRESH);
-        Action ProBuildAct  = new Action("ProBuildAct"  , "_Build"          , "Run Build command"                   , StockID.EXECUTE);
-        Action ProRunAct    = new Action("ProRunAct"    , "_Run"            , "Launch project application"          , StockID.EXECUTE);
-        Action ProRunArgsAct= new Action("ProRunArgsAcg", "Run _with Args"  , "Launch project application with arguments", StockID.EXECUTE);
+        Action ProNewAct    = new Action("ProNewAct"    , "_New"            , "Create a new Project"                , "PROJECT_NEW");
+        Action ProOpenAct   = new Action("ProOpenAct"   , "_Open"           , "Replace current project"             , "PROJECT_OPEN");
+        Action ProCloseAct	= new Action("ProCloseAct"	, "_Close"			, "Close current project"				, "PROJECT_CLOSE");
+        Action ProOptsAct   = new Action("ProOptsAct"   , "O_ptions"        , "Edit Project options"                , "PROJECT_OPTIONS");
+        Action ProRefAct    = new Action("ProRefAct"    , "_Refresh Tags"   , "Update project symbol information"   , "PROJECT_REFRESH");
+        Action ProBuildAct  = new Action("ProBuildAct"  , "_Build"          , "Run Build command"                   , "PROJECT_BUILD");
+        Action ProRunAct    = new Action("ProRunAct"    , "_Run"            , "Launch project application"          , "PROJECT_RUN");
+        Action ProRunArgsAct= new Action("ProRunArgsAcg", "Run _with Args"  , "Launch project application with arguments", "PROJECT_RUN_ARGS");
+
+		
 
         ProNewAct           .addOnActivate(&New);
         ProOpenAct          .addOnActivate(&Open);

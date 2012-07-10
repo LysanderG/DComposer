@@ -62,6 +62,9 @@ import  gtk.Entry;
 import  gtk.Dialog;
 import  gtk.TreeIter;
 import  gtk.FileChooserDialog;
+import  gtk.IconFactory;
+import  gtk.IconSet;
+import	gdk.Pixbuf;
 
 
 
@@ -92,6 +95,8 @@ class MAIN_UI
     HPaned      mHPaned;
     VPaned      mVPaned;
     
+    IconFactory AllMyIcons;
+    
 
     Menu[string] mSubMenus;
     DOCMAN      mDocMan;
@@ -108,6 +113,9 @@ class MAIN_UI
         //Main.init(CmdArgs);
 
         EngageWidgets();
+
+        AllMyIcons = new IconFactory;
+		AllMyIcons.addDefault();
 
         
         mDocMan     = new DOCMAN; 
@@ -250,7 +258,12 @@ class MAIN_UI
         
         Project.Event.connect(&WatchProjectName);
     }
-    
+
+    void AddIcon(string IconID, string IconFile)
+    {
+		IconSet tmpIconSet = new IconSet(new Pixbuf(IconFile));		
+		AllMyIcons.add(IconID, tmpIconSet);
+	}
 
     
     bool ConfirmQuit(Event e, Widget w)

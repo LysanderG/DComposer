@@ -36,6 +36,7 @@ import gtk.ScrolledWindow;
 import gtk.VBox;
 import gtk.CheckButton;
 import gtk.Label;
+import gtk.SeparatorToolItem;
 
 
 class HISTORY_VIEW : ELEMENT
@@ -120,14 +121,15 @@ class HISTORY_VIEW : ELEMENT
 
         mRecentFiles.addOnItemActivated(delegate void (RecentChooserIF x) {string str = x.getCurrentUri(); dui.GetDocMan.Open(str[7..$]);});
 
-
-        mHistoryAct = new Action("HistoryAct", "_History", "Bring the past only if you are going to build from it.  ~Doménico Cieri Estrada", null);
+		dui.AddIcon("dcomposer-history", Config.getString("ICONS", "history", "$(HOME_DIR)/glade/folder-history.png"));
+        mHistoryAct = new Action("HistoryAct", "_History", "Bring the past only if you are going to build from it.  ~Doménico Cieri Estrada", "dcomposer-history");
         mHistoryAct.addOnActivate(&ShowHistory);
         mHistoryAct.setAccelGroup(dui.GetAccel());
         dui.Actions().addActionWithAccel(mHistoryAct, "<Ctrl>h");
         
-        //dui.AddMenuItem("_View", mHistoryAct.createMenuItem());
-		//dui.AddToolBarItem(SearchAct.createToolItem());
+        dui.AddMenuItem("_View", mHistoryAct.createMenuItem());
+		dui.AddToolBarItem(mHistoryAct.createToolItem());
+		dui.AddToolBarItem(new SeparatorToolItem);
 
         dui.GetSidePane.appendPage(mRoot, "History");
         dui.GetSidePane.setTabReorderable (mRoot, true); 
