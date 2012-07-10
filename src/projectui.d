@@ -276,7 +276,7 @@ class PROJECT_UI : ELEMENT
 		dui.AddIcon("PROJECT_NEW",		Config.getString("ICONS", "project_new", "$(HOME_DIR)/glade/wooden-box-new.png")); 
 		dui.AddIcon("PROJECT_OPEN",		Config.getString("ICONS", "project_open", "$(HOME_DIR)/glade/wooden-box-open.png"));
 		dui.AddIcon("PROJECT_CLOSE",	Config.getString("ICONS", "project_close", "$(HOME_DIR)/glade/wooden-box-close.png")); 
-		dui.AddIcon("PROJECT_OPTIONS",	Config.getString("ICONS", "project_options", "$(HOME_DIR)/glade/wooden-box-pencil.png")); 
+		dui.AddIcon("PROJECT_OPTIONS",	Config.getString("ICONS", "project_options", "$(HOME_DIR)/glade/wooden-box--pencil.png")); 
 		dui.AddIcon("PROJECT_BUILD",	Config.getString("ICONS", "project_build", "$(HOME_DIR)/glade/wooden-box-gear.png")); 
 		dui.AddIcon("PROJECT_RUN",		Config.getString("ICONS", "project_run", "$(HOME_DIR)/glade/wooden-box-arrow.png")); 
 		dui.AddIcon("PROJECT_RUN_ARGS",	Config.getString("ICONS", "project_run_args", "$(HOME_DIR)/glade/wooden-box-label.png")); 

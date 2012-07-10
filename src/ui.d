@@ -234,7 +234,7 @@ class MAIN_UI
         mActions.addAction(ViewExtraPaneAct);
         mActions.addAction(ViewStatusBarAct);
 
-        ViewToolBarAct.setActive(Config.getBoolean("UI","view_toolbar", false));
+        ViewToolBarAct.setActive(Config.getBoolean("UI","view_toolbar", true));
         ViewSidePaneAct.setActive(Config.getBoolean("UI", "view_sidepane", true));
         ViewExtraPaneAct.setActive(Config.getBoolean("UI", "view_extrapane", true));
         ViewStatusBarAct.setActive(Config.getBoolean("UI", "view_statusbar", false));
@@ -395,8 +395,8 @@ class MAIN_UI
 
         mWindow.show();
         
-        int vpanePos = Config.getInteger("UI", "store_gui_vpaned_pos", 0);
-        int hpanePos = Config.getInteger("UI", "store_gui_hpaned_pos", 0);
+        int vpanePos = Config.getInteger("UI", "store_gui_vpaned_pos", 100);
+        int hpanePos = Config.getInteger("UI", "store_gui_hpaned_pos", 100);
 
        
         mHPaned.setPosition(hpanePos); 

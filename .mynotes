@@ -597,4 +597,15 @@ Attribution 3.0 License.
 
 Ok, icons are finally done. (Well maybe not finally but originally)
 Need to put attribution in the gui.
-	
+
+One last thing, readme has who, what, where, when, and how.  Obviously missing the why.
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+tuesday July 10, 2012
+
+ok back to bug squashing
+	-> document/docman
+		after messing with stock icons no close icon on tab labels
+    -> dirview
+        crap I totally forgot about the toolbar in dirview need more damn icons!

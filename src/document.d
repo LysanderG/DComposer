@@ -282,10 +282,15 @@ class DOCUMENT : SourceView
 	{
 		mTabWidget = new HBox(0,1);
 
-		mTabXBtn  = new Button(StockID.CLOSE, &OnTabXButton, true);
-		mTabXBtn.setBorderWidth(2);
+		dui.AddIcon("gtk-no", Config.getString("ICONS", "tab_close", "$(HOME_DIR)/glade/cross-button.png"));
+
+		mTabXBtn  = new Button(StockID.NO, true);
+		
+		mTabXBtn.setBorderWidth(1);
 		mTabXBtn.setRelief(ReliefStyle.NONE);
-		mTabXBtn.setSizeRequest(20, 20);
+		mTabXBtn.setSizeRequest(24, 24);
+		
+		mTabXBtn.addOnClicked(&OnTabXButton);
 
 		mTabLabel = new Label("constructing");
 
@@ -305,6 +310,8 @@ class DOCUMENT : SourceView
 	 * */	
 	void Engage()
 	{
+		
+		
 		//what to do when Config keyfile changes
 		Config.Reconfig.connect(&Configure);
 
@@ -343,6 +350,8 @@ class DOCUMENT : SourceView
         getBuffer.createTag("hiliteback", "background", "green");
         getBuffer.createTag("hilitefore", "foreground", "yellow");
 
+		
+		
 		UpdatePageTab();
 		
 		Configure();
