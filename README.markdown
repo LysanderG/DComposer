@@ -60,7 +60,7 @@ In other words you are on your own for now.
 
 
 #WHY
-DComposer is a fun challenge.  Originally I had no intention of creating an IDE.  I tried several IDE/editors in the beginning.  None of them were truely satisfying.  Many did not fully support D, others were far too complicated to set up and use (never sure if I installed one of them correctly).  Emacs and Vim just had horrifing learning curves.  Geany was the IDE I settled for.  I contemplated making a D plug-in for Geany.  Realizing I would have to actually learn C, I gave up the plug-in idea.
+DComposer is a fun challenge.  Originally I had no intention of creating an IDE.  I tried several IDE/editors in the beginning.  None of them were truly satisfying.  Many did not fully support D, others were far too complicated to set up and use (never sure if I installed one of them correctly).  Emacs and Vim just had horrific learning curves.  Geany was the IDE I settled for.  I contemplated making a D plug-in for Geany.  Realizing I would have to actually learn C, I gave up the plug-in idea.
 
 So I went on a tangent and started DComposer.  It was never my intention to reinvent the low level components of an IDE (parsing, editing, compiling, debugging ...) but simply to pull existing tools into one application.  How hard could that be?
 
