@@ -169,6 +169,7 @@ class DIR_VIEW : ELEMENT
 
     void GoToCurrentDocFolder(ToolButton x)
     {
+		if(dui.GetDocMan.Current is null)return;
         scope (failure) return;
         Folder = dirName(dui.GetDocMan.Current.Name);
     }

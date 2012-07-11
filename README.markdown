@@ -5,12 +5,12 @@ A naive IDE for the D programming language.
 #WHO
 dcomposer copyright 2011-2012 Anthony Goins.
 neontotem@gmail.com
-That's me, a hobby programmer.  In fact this is not just my first D project but the first serious programming I've done since learning pascal on a RadioShack TRS-80.  Wow, times have changed.  So looking for a fresh start I found D and decided to not only learn it but in the process contribute a, hopefully, functional tool.
+That's me, a hobby programmer.  In fact this is not just my first D project but the first serious programming I' have done since learning pascal on a Radio Shack TRS-80.  Wow, times have changed.  So looking for a fresh start I found D and decided to not only learn it but in the process contribute a, hopefully, functional tool.
 
 #WHAT
 Originally I thought to create a D plug-in for Geany.  Then I realized that I'd have to actually learn C.  So I decided to let Geany be my model and code dcomposer completely in D.
 So the stuff that is in dcomposer...
-* gtk 2.0 gui. Through GtkD.
+* gtk 2.0 GUI. Through GtkD.
 * gtkSourceView for the editor. GtkD again.
 * uses DMD -X option to get symbols
 
@@ -18,7 +18,7 @@ So the stuff that is in dcomposer...
     * call tips.
     * scope list.
     * symbol assist.  Shows ddoc comments for symbols.
-* Project Managment 
+* Project Management 
 * Embedded terminal.
 * Extensible.
 * Built under Linux and FreeBSD.
@@ -33,10 +33,10 @@ The dcomposer repository is hosted on Github. (If you're reading this you probab
 #HOW
 
 ###Requirements
-* dmd (2.059) or gdc's gdmd (any d compilier should build dcomposer.  But dcomposer only works with the dmd interface (for now).)
+* dmd (2.059) or gdc's gdmd (any d compiler should build dcomposer.  But dcomposer only works with the dmd interface (for now).)
 * gtkd, gtkdsv from GtkD
 * libvte
-* libutil, libdl(linux only).  These should be present already.
+* libutil, libdl(Linux only).  These should be present already.
 * gnu make (only one tested, only one I'm slightly familiar with)
 
 ###Building/Installing
@@ -55,9 +55,19 @@ make uninstall
 ```
 
 ###Running/Using dcomposer
-Dcomposer is very much in its infancy.  The user interface is in many instances extremely unintuitive.  In some cases it is just dead wrong.  I am actively working on fixing the problems of which I am aware and discovering those that still ellude me.
+Dcomposer is very much in its infancy.  The user interface is in many instances extremely unintuitive.  In some cases it is just dead wrong.  I am actively working on fixing the problems of which I am aware and discovering those that still elude me.
 In other words you are on your own for now.
 
+
+#WHY
+DComposer is a fun challenge.  Originally I had no intention of creating an IDE.  I tried several IDE/editors in the beginning.  None of them were truely satisfying.  Many did not fully support D, others were far too complicated to set up and use (never sure if I installed one of them correctly).  Emacs and Vim just had horrifing learning curves.  Geany was the IDE I settled for.  I contemplated making a D plug-in for Geany.  Realizing I would have to actually learn C, I gave up the plug-in idea.
+
+So I went on a tangent and started DComposer.  It was never my intention to reinvent the low level components of an IDE (parsing, editing, compiling, debugging ...) but simply to pull existing tools into one application.  How hard could that be?
+
+While working on DComposer I have learned that much of my problems with other programming tools (Geany and Vim mostly) have been the result of my own ignorance.  I have grown very comfortable with Geany (still need a cheat sheet for Vim).  Never the less I hope DComposer may evolve into a useful tool one day.
+
+No one can say the world is crowded with Linux IDE's for the D programming language (not yet any way).
+ 
 
 #WHO REALLY
 DMD Compiler and Phobos standard library
@@ -67,7 +77,7 @@ DMD Compiler and Phobos standard library
 "The D Programming Language" (The book)
 * Andrei Alexandrescu
 
-GtkD[GtkD](www.dsource.org/projects/gtkd)
+[GtkD](www.dsource.org/projects/gtkd)
 * Frank Benoit
 * Jake Day
 * Jonas Kivi
@@ -94,10 +104,10 @@ GtkSourceView
 #WHEN
 At some time I'll fix (among many others) the following...
 * Non standard menubar
-* Consistant use of notebook tabs (dragging rearranging etc)
+* Consistent use of notebook tabs (dragging rearranging etc)
 * Icons!! need icons!
 * custom key bindings
-* better project managment 
+* better project management 
 * export project to makefile
 * allow building source files with out creating a projects.
 * ask to save modified files before closing main window
@@ -117,14 +127,14 @@ And I will add ...
 * export to different build systems
 * file templates
 * env variables for embedded terminal, easier to work with command line tools
-* code "prettifier"
+* code "prettify"
 * vcs support
-* autosave/backup
+* auto-save/backup
 * helper for building tags for libraries/packages
 * a vim mode.  hot key turns to vim beep mode (must add lots of beeps for beginners and hide the way out!)
 * way to put embedded terminal output into document editor
 * scripting (lua, python, angel, squirrel, tcl, guile)
-* convert hexidecimal, decimal, octal, binary
+* convert hexadecimal, decimal, octal, binary
 * okay enough plenty more left though.
 
 

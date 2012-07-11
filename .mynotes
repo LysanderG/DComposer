@@ -534,8 +534,8 @@ ok started a new branch going to go file by file and squash as many BUGS as I ca
 		Getword/Word if cursor is at start of word dont go backwardwordstart-
 		
 	-> SplitDoc
-		horizontal and vertical are kindof ambiguous (is it the bar or the order of the windows?)
-		configure the "page" to be the same as in DocMan.append();
+		horizontal and vertical are kindof ambiguous (is it the bar or the order of the windows?)-
+		configure the "page" to be the same as in DocMan.append();-
 	-> SearchUI
 		if there is selected text then that should be in textentry rather than whatever word is at the cursor-
 		keep up with page changes-
@@ -573,7 +573,7 @@ Fell asleep, now where was I...
 		export a simple make file (?) (ok leave room for codeblocks netbean eclipse exports autotools waf cmake blah blah blah) xx plugin for this
 		proview add file starts in project folder-
 		clicking on an identifier creates a new one-
-		build with no project has gives user no response
+		build with no project has gives user no response-
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Monday July 9, 2012
@@ -581,7 +581,7 @@ Monday July 9, 2012
 Continuing...
 	
 	->dirview
-		segfault on set current folder to doc when no doc
+		segfault on set current folder to doc when no doc-
 
 	->symbolview
 		P instead of X for package "icon"
@@ -609,3 +609,12 @@ ok back to bug squashing
 		after messing with stock icons no close icon on tab labels
     -> dirview
         crap I totally forgot about the toolbar in dirview need more damn icons!
+    -> docman/documents
+        overriding stockid.close changes icons in dialogs.
+
+    -> search/searchui
+		if replace contains  substring of search then infinite loop!
+		(ie search = "eject" replace = "reject" will give you "rrrrrrrrrreject"
+
+	-> ui
+		omg now there are icons in the menu AND THEY DON'T MATCH THE TOOLBAR!!!

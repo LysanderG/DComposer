@@ -96,7 +96,7 @@ class DSYMBOL
             case "enum member"  :rv = color ~ `⒠</span>`;break;
             case "union"        :rv = color ~ `Ⓤ</span>`;break;
 
-            default : rv = color ~ `X</span>`;
+            default : rv = color ~ `P</span>`;
         }
         return rv;
     }
