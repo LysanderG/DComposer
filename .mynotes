@@ -596,9 +596,9 @@ Attribution 3.0 License.
 <http://creativecommons.org/licenses/by/3.0/>
 
 Ok, icons are finally done. (Well maybe not finally but originally)
-Need to put attribution in the gui.
+Need to put attribution in the gui.-
 
-One last thing, readme has who, what, where, when, and how.  Obviously missing the why.
+One last thing, readme has who, what, where, when, and how.  Obviously missing the why.-
 
 
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -606,15 +606,16 @@ tuesday July 10, 2012
 
 ok back to bug squashing
 	-> document/docman
-		after messing with stock icons no close icon on tab labels
+		after messing with stock icons no close icon on tab labels-
     -> dirview
         crap I totally forgot about the toolbar in dirview need more damn icons!
     -> docman/documents
         overriding stockid.close changes icons in dialogs.
 
     -> search/searchui
-		if replace contains  substring of search then infinite loop!
-		(ie search = "eject" replace = "reject" will give you "rrrrrrrrrreject"
+		if replace contains  substring of search then infinite loop!--
+		(ie search = "eject" replace = "reject" will give you "rrrrrrrrrreject"--
 
 	-> ui
 		omg now there are icons in the menu AND THEY DON'T MATCH THE TOOLBAR!!!
+		(I don't think this is application dependant (showing menu icons) so hijack icons before menu creation)

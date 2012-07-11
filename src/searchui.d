@@ -473,11 +473,31 @@ class SEARCH_UI : ELEMENT
     void ReplaceAll()
     {
         mResultsView.getSelection.selectPath(new TreePath("0"));
-
+		TI = mResultsView.getSelection.getSelected();
+		
         do
-        {
-            ReplaceOne();
-        }while(mResultsList.iterIsValid(TI));
+        {                      
+	        if (TI is null) break;	        
+	        if(!mResultsList.iterIsValid(TI)) break;
+	
+	        string filename = mResultsList.getValueString(TI, 3);
+	        int line        = mResultsList.getValueInt(TI,1);
+	        int offstart    = mResultsList.getValueInt(TI, 4);
+	        int offend      = mResultsList.getValueInt(TI, 5);
+	        DOCUMENT tmp 	= dui.GetDocMan.Current;
+	        if (tmp is null) break;
+	
+	        TextIter txti1 = new TextIter;
+	        TextIter txti2 = new TextIter;
+	
+	        tmp.getBuffer.getIterAtLineOffset (txti1, line-1, offstart);
+	        tmp.getBuffer.getIterAtLineOffset (txti2, line-1, offend);
+	        tmp.getBuffer.delet(txti1, txti2);
+	        tmp.getBuffer.insert(txti1, mReplace.getText(), -1);
+        
+        }while(mResultsList.iterNext(TI));
+
+        mResultsList.clear();
     }
 
     bool ReplaceKey(GdkEventKey* keyinfo, Widget wedjet)
