@@ -28,6 +28,7 @@ import std.conv;
 import std.string;
 
 import core.thread;
+import core.memory;
 
 import ui;
 import dcore;
@@ -98,16 +99,18 @@ class DIR_VIEW : ELEMENT
     bool				mEnabled;
     
 
-    void Refresh()
+    void RefreshOLD()
     {
+		scope(exit) GC.enable();
         scope(failure)
         {
             mComboFilter.setActiveText("");
             mStore.clear();
             return;
         }
+        
         TreeIter ti = new TreeIter;
-        mDirLabel.setText(mFolder);        
+        mDirLabel.setText(mFolder);
         mStore.clear();
 
         ListStore xStore = new ListStore([GType.STRING, GType.STRING, GType.STRING]);
@@ -154,7 +157,60 @@ class DIR_VIEW : ELEMENT
         mStore.setSortFunc(0, &SortFunciton, null, null); //ha darn paste and copy funciton ... and it all works
         mStore.setSortFunc(1, &SortFunciton, null, null);
     }
-               
+
+	void Refresh()
+	{
+		TreeIter ti;
+		scope(exit)
+		{
+			GC.enable();
+		}
+		scope(failure)
+		{
+			ti = new TreeIter;
+			mStore.clear();
+			mStore.append(ti);
+			mStore.setValue(ti, 1, "Check Folder/File permissions");
+			return;
+		}
+
+		mDirLabel.setText(mFolder);
+		
+        string theFileFilter = mComboFilter.getActiveText();
+        if(theFileFilter.length < 1) theFileFilter = "*";
+
+		auto Contents = dirEntries(mFolder, SpanMode.shallow);	
+		
+		ti = new TreeIter;
+
+		GC.disable();
+		mStore.clear();
+		foreach(DirEntry item; Contents)
+        {
+            if((!mHiddenBtn.getActive) && (baseName(item.name)[0] == '.')) continue;
+            
+            if(item.isDir)
+            {
+                mStore.append(ti);
+                mStore.setValue(ti, 0, " " );
+                mStore.setValue(ti, 1, baseName(item.name));
+                mStore.setValue(ti, 2, to!string(item.size));
+            }
+                 
+            else if (globMatch(baseName(item.name), theFileFilter))
+            {
+                mStore.append(ti);
+                mStore.setValue(ti, 0, " ");
+                mStore.setValue(ti, 1, baseName(item.name));
+                mStore.setValue(ti, 2, to!string(item.size));
+            }
+        }
+        GC.enable();
+		mStore.setSortColumnId(1,SortType.ASCENDING);
+        mStore.setSortFunc(0, &SortFunciton, null, null); //ha darn paste and copy funciton ... and it all works
+        mStore.setSortFunc(1, &SortFunciton, null, null);
+		
+	}
 
     void UpClicked(ToolButton x)
     {
@@ -194,7 +250,7 @@ class DIR_VIEW : ELEMENT
         ti = tv.getSelectedIter();
         if(ti is null) return;
 
-        //dui.Status.push(0, mStore.getValueString(ti,0) ~ ": " ~ mStore.getValueString(ti, 1) ~ "\t:\t\tsize " ~ mStore.getValueString(ti,2));
+        dui.Status.push(0, mStore.getValueString(ti,0) ~ ": " ~ mStore.getValueString(ti, 1) ~ "\t:\t\tsize " ~ mStore.getValueString(ti,2));
 
     }
         

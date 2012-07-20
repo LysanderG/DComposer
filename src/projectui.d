@@ -485,6 +485,7 @@ class PROJECT_UI : ELEMENT
     {
         if(EventType == "StartOpen") mSkipWatchingProject = true;
         if(EventType == "Opened") mSkipWatchingProject = false;
+        if((EventType == "Build") || (EventType == "CreateTags") || (EventType == "FailedCreateTags"))   return;
         
         if(mSkipWatchingProject == true) return;
         SyncGuiToProject();

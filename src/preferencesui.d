@@ -217,6 +217,7 @@ class PREFERENCES_UI : ELEMENT
 
         //dui.GetCenterPane.prependPage(mRoot, new Label("Preferences"));
         dui.GetExtraPane.prependPage(mRoot, new Label("Preferences"));
+        dui.GetExtraPane.setTabReorderable ( mRoot, true); 
         
 	    Log.Entry("Engaged PREFERENCES_UI element");
     }

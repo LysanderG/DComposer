@@ -619,3 +619,69 @@ ok back to bug squashing
 	-> ui
 		omg now there are icons in the menu AND THEY DON'T MATCH THE TOOLBAR!!!
 		(I don't think this is application dependant (showing menu icons) so hijack icons before menu creation)
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+wednesday July 11, 2012
+
+	->calltips
+		copy that ends in '(' gets screwed up
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+07.12.2012
+	->calltips
+		actualy pasting `xxx("`  will result in `xxx"(` everything else seems to work fine... curious.
+		--seem to have fixed it yet again (if (insert text.len > 1) we're pasting; keep pasting til onpastedone
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+07.13.2012
+
+So depressing, segfault after segfault.
+Nothing is working right anymore.
+Must be strong!
+Almost every problem is related to treeviews and their models going out of sync.
+
+->searchui/search
+	searched for something deleted it (in the editor) hit search next and segfault (only 1 result)
+	so must ensure the search location is valid before jumping to it
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+07.18.2012
+
+ok I'm going to go through and disable gc around any major treemodel changes.
+Think I've fixed the problem with pasting and '(' -- we'll see, stupidly convoluted
+Sure I fixed the last search problem listed above.
+
+Wasted so much time this weekend (my weekends are monday tuesday).  Not feeling well sat around watching movies.
+Death Proof		-- Toooo much damn dialog! (What happened to the machine gun leg I saw in the previews??)
+13 Assassins	-- Silly! Had good ratings.  Lost interest when each "assassin" jumped into combat 1 vs 100+ instead of fighting as a unit
+Drive			-- Really good... a little slow (moody mood building) reminded me of Taxi Driver (a little)
+Valhalla Rising -- hmmm if you can stay awake watching men sit on a boat for like an hour you get to see a wierd drug scene, then it gets boring.
+
+
+Couldn't get motivated to write code.
+I did manage to start a small test project using dcomposer.
+It syncs a folder with a M3U playlist.  Something I could find useful.
+Found lots of bugs.  I think all of several segfaults are caused when I change the treemodels. If I can get around that
+the rest seem ... understandable.
+
+So I don't forget... new crap I've noticed
+	. strange window resizing. Sometimes size jumps to fill all my Workspaces.  And the max/unmax deco button disappears
+	. completion popup window is ugly and in the way with too many duplicate choices
+	. preferences should be always visible (and remove the apply button!)
+	. move the project label off the toolbar and use the title bar like a normal person!
+	. make use of the status bar (how much is that worth does anyone even look at statusbars?)
+	. asssistant -> variables should show the types children / and maybe functions should show return types children
+	. run w/args should have an arguments dialog if no args in project (which doesn't save the arguments)
+	. search/searchui --> hotkey for replace should = shift + nexthotkey  (whole search/replace ui needs help)
+	. after -replace- shouldn't jump to next result, need to see if the replacment is right otherwise lots of undos
+	. searchui -> need to make all operations possible without seeing them (when the top of the page is hidden)
+	. assistant is the most unique thingy spend more time making it work (correctly).
+	. assistant make it follow the cursor not the mouse pointer (actually do it now)
+	. Messages -> get rid of the stupid -1-2-3 thing put in a progress bar and move on.
+	. notebooks ... make all pagetabs reorderable or none!
+	. save more stuff in config like pane positions, current tabs, page order, etc
+	
+	

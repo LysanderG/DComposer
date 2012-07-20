@@ -87,6 +87,7 @@ class PROJECT_VIEW : ELEMENT
     void UpdateList(ComboBox X)
     {
         GC.disable;
+        scope(exit)GC.enable;
         
         TreeIter ti = new TreeIter;
         if (!X.getActiveIter(ti)) return;
@@ -121,7 +122,7 @@ class PROJECT_VIEW : ELEMENT
             mViewStore.setValue(ti, 1, val);
             
         }
-        GC.enable;
+
     }
 
     void UpdateList(string key, string[] Values)
@@ -324,7 +325,6 @@ class PROJECT_VIEW : ELEMENT
         
         mAddedIdentifierTI = new TreeIter;
         mViewStore.append(mAddedIdentifierTI);
-        writeln(mAddedIdentifierTI);
         mViewStore.setValue(mAddedIdentifierTI, 0, "NewValue");
         mViewStore.setValue(mAddedIdentifierTI, 1, "NewValue");
         mListView.realize();

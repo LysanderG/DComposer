@@ -50,6 +50,8 @@ import gtk.TreeModelIF;
 import gdk.Rectangle;
 import gdk.Keysyms;
 
+import glib.SimpleXML;
+
 
 enum :int {POP_TYPE_TIP, POP_TYPE_SCOPE, POP_TYPE_COMPLETION}
 enum :int {STATUS_OFF, STATUS_COMPLETION, STATUS_SCOPE}
@@ -61,6 +63,8 @@ private struct DATA_STORE
 {
     private     ListStore   mStore;
     private     TreeIter    mIter;
+
+    private 	GtkListStore * GtkStore;
 
     DSYMBOL[]   mMatches;
 
@@ -76,6 +80,7 @@ private struct DATA_STORE
         mYPos = Ypos;
 
         mStore = new ListStore([GType.STRING, GType.STRING, GType.STRING]);
+        GtkStore = mStore.getListStoreStruct();
         mIter = new TreeIter;
 
 
@@ -91,7 +96,8 @@ private struct DATA_STORE
                 string signature = match.Type[0..x] ~" "~ match.Name ~" "~ match.Type[x..$];
                 mStore.setValue(mIter, 0, std.xml.decode(signature));
                 mStore.setValue(mIter, 1, std.xml.decode(match.Path));
-                mStore.setValue(mIter, 2, std.xml.decode(match.Comment));
+                //mStore.setValue(mIter, 2, std.xml.decode(match.Comment));
+                
             }
             return;
         }
@@ -103,7 +109,8 @@ private struct DATA_STORE
             mStore.append(mIter);
             mStore.setValue(mIter, 0, std.xml.decode(match.GetIcon() ~ match.Name));
             mStore.setValue(mIter, 1, std.xml.decode(match.Path));
-            mStore.setValue(mIter, 2, std.xml.decode(match.Comment));
+            //mStore.setValue(mIter, 2, std.xml.decode(match.Comment));
+
         }
     }
 
@@ -262,6 +269,7 @@ class AUTO_POP_UPS
         if(mCompletionStatus == STATUS_COMPLETION) DocX.getBuffer.delet(tiStart, ti);                
         
         DocX.getBuffer().insert(ti, tple[1]);
+        DocX.Pasting = false;
         CompletionPop();        
     }
 
@@ -349,9 +357,9 @@ class AUTO_POP_UPS
     void Engage()
     {
 
-        mWinXlen = Config.getInteger("DOC_POP", "window_width", 600);
-        mWinYlen = Config.getInteger("DOC_POP", "window_heigth", 160);
-        auto x   = Config.getInteger("DOC_POP", "window_opacity", 75);
+        mWinXlen = Config.getInteger("DOC_POP", "window_width", 400);
+        mWinYlen = Config.getInteger("DOC_POP", "window_heigth", 120);
+        auto x   = Config.getInteger("DOC_POP", "window_opacity", 50);
 
         mWinOpacity = (cast(double)x)/100;
         

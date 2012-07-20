@@ -114,13 +114,6 @@ class SEARCH_UI : ELEMENT
 
     void EditedFind(CellEditableIF ci)
     {
-        //TI = new TreeIter;
-        //mFindList.append(TI);
-        //mFindList.setValue(TI,0, mFind.getText());
-
-        //mFindComboBox.setModel(mFindList);
-        ////FillResultsList();
-        //GetResults();
 
         CHECK SendData;
         SendData.Text = mFind.getText();
@@ -464,9 +457,12 @@ class SEARCH_UI : ELEMENT
         //mResultsView.getSelection.selectPath(DeletedPath);
 
         //instead of deleting row just re-search because all the positions are out of whack after the replace
-        auto LastPositionPath = TI.getTreePath();
+        auto LastPositionPath = mResultsList.getPath(TI);
+        ulong tmpline =  dui.GetDocMan.GetLineNo();
         GetResults();
         mResultsView.getSelection.selectPath(LastPositionPath);
+        mResultsView.setCursor(LastPositionPath, null, false);
+        dui.GetDocMan.GotoLine(tmpline);
         
     }
 
@@ -502,7 +498,8 @@ class SEARCH_UI : ELEMENT
 
     bool ReplaceKey(GdkEventKey* keyinfo, Widget wedjet)
     {
-		if((keyinfo.keyval == 0x052) || (keyinfo.keyval == 0x072))//GDK_R)
+
+		if((keyinfo.keyval == 0xffc1) && (keyinfo.state & 4))//GDK_F4 and control)
 		{
 			ReplaceOne();
 		}
@@ -615,7 +612,7 @@ class SEARCH_UI : ELEMENT
         mState = true;
         mPage.showAll();
         dui.GetExtraPane().appendPage(mPage.getParent.getParent, "Search");
-        dui.GetExtraPane.setTabReorderable ( mPage, true); 
+        dui.GetExtraPane.setTabReorderable ( mPage.getParent.getParent, true); 
 
         dui.AddIcon("gtk-find", Config.getString("ICONS", "search", "$(HOME_DIR)/glade/binocular.png"));
 

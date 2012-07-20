@@ -22,6 +22,7 @@ module assistantui;
 import std.stdio;
 import std.string;
 import std.datetime;
+import core.memory;
 
 import dcore;
 import symbols;
@@ -141,6 +142,7 @@ class ASSISTANT_UI : ELEMENT
 
         mList = Symbols;
         
+		GC.disable();
         mPossibleStore.clear();
 
         foreach(sym; mList)
@@ -148,6 +150,7 @@ class ASSISTANT_UI : ELEMENT
             mPossibleStore.append(ti);
             mPossibleStore.setValue(ti, 0, sym.Path);
         }
+        GC.enable();
         mPossibles.setActive(0);
 
         UpdateAssistant();
@@ -169,7 +172,7 @@ class ASSISTANT_UI : ELEMENT
         else mComments.getBuffer().setText("No documentation available");
 
 
-
+		GC.disable();
         mChildrenStore.clear();
         foreach (sym; Symbol.Children)
         {
@@ -177,6 +180,7 @@ class ASSISTANT_UI : ELEMENT
             mChildrenStore.append(ti);
             mChildrenStore.setValue(ti, 0, SimpleXML.escapeText(sym.Name,-1));
         }
+        GC.enable();
 
         mPossibles.setActive(0);
     }
@@ -188,6 +192,7 @@ class ASSISTANT_UI : ELEMENT
         if(( indx < 0) || (indx >= mList.length)) return;
         TreeIter ti = new TreeIter;
 
+		GC.disable();
         mChildrenStore.clear();
         foreach (sym; mList[indx].Children)
         {
@@ -195,6 +200,7 @@ class ASSISTANT_UI : ELEMENT
             mChildrenStore.append(ti);
             mChildrenStore.setValue(ti, 0, SimpleXML.escapeText(sym.Name,-1));
         }
+        GC.enable();
 
         if(mList[indx].Comment.length >0)mComments.getBuffer().setText(mList[indx].Comment);
         else mComments.getBuffer().setText("No documentation available");
@@ -309,7 +315,7 @@ class ASSISTANT_UI : ELEMENT
         
         mRoot.setVisible(mEnabled);
         dui.GetExtraPane.appendPage(mRoot, "Assistant");
-
+		dui.GetExtraPane.setTabReorderable ( mRoot, true); 
         mPossibles.addOnChanged(delegate void(ComboBox cbx){UpdateAssistant();});
 
         dui.GetAutoPopUps.connect(&CatchSymbol);

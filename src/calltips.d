@@ -44,7 +44,7 @@ import gtk.Label;
 
 import gdk.Rectangle;
 
-import glib.SimpleXML;
+
 
 
 
@@ -168,18 +168,16 @@ class CALL_TIPS : ELEMENT
     void WatchDoc(DOCUMENT sv , TextIter ti, string Text, SourceBuffer Buffer)
     {
         if(sv.Pasting) return;
-        if(!mEnabled) return;
-
+        if(!mEnabled) return;	
+		
         switch(Text)
         {
             case "(" :
             {
                 ti.backwardChar();
-                auto TStart = GetCandidate(ti);
-                
+                auto TStart = GetCandidate(ti);                
 
                 string Candidate = TStart.getText(ti);
-
                 
                 //if(Candidate.length < 1) return;
                 auto Possibles = Symbols.MatchCallTips(Candidate);

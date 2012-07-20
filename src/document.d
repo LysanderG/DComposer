@@ -206,7 +206,8 @@ class DOCUMENT : SourceView
 
     void OnInsertText(TextIter ti, string text, int len, TextBuffer Buffer)
     {
-       
+		if(text.length > 1) mInPastingProcess = true;
+		//else mInPastingProcess = false;
         if(text == "\n") NewLine.emit(ti, text, getBuffer);
         if(text == "}" ) CloseBrace.emit(ti, text, getBuffer);
 
@@ -229,6 +230,7 @@ class DOCUMENT : SourceView
 	///Indicates if this object has an actual file associated with it
 	@property bool Virgin(){return mVirgin;}
 	@property bool Pasting(){return mInPastingProcess;}
+	@property void Pasting(bool P){mInPastingProcess = P;}
 	///Returns current line number
 	@property ulong LineNumber()
 	{
@@ -389,33 +391,21 @@ class DOCUMENT : SourceView
 		try
 		{
 			
-			Text = ReadUTF8(FileName);
+			Text = ReadUTF8(FileName);  //remember this is not std.file.readText (because I can be dumb)
 		}
-		catch(FileException FileX)
+		catch(Exception ex)
 		{
-			string reason = "File read error. (Check permissions)";
-			if(!exists(FileName))reason = "File does not exist";
-
 			
 			auto msg = new MessageDialog(dui.GetWindow(), GtkDialogFlags.MODAL, GtkMessageType.ERROR, ButtonsType.OK,
-            false, reason);
+            false, ex.msg);
 
             msg.setTitle("Unable to open " ~ FileName);
             msg.run();
             msg.destroy();
-            return null;
-		}
-		catch (UTFException UtfX)
-		{			
-			auto msg = new MessageDialog(dui.GetWindow(), GtkDialogFlags.MODAL, GtkMessageType.ERROR, ButtonsType.OK,
-            false, "DComposer offers its most sincere apologies.\nThis development version is currently limited\n to opening valid UTF files.");
-
-            msg.setTitle("Unable to open " ~ FileName);
-            msg.run();
-            msg.destroy();
-            return null;
+            throw ex; //lets rest of dcomposer know there was an error
 		}
 
+		
 		
 		DOCUMENT Rval = new DOCUMENT;
 		Rval.mFileTimeStamp = timeLastModified(FileName);
@@ -470,6 +460,11 @@ class DOCUMENT : SourceView
 	 * */
 	void Save()
 	{
+		scope(failure)
+		{
+			Log.Entry("Failed to save " ~ mName, "Error");
+			return;
+		}
 		string saveText = getBuffer.getText();
 
 		std.file.write(mName, saveText);
@@ -496,7 +491,7 @@ class DOCUMENT : SourceView
 	 * */
 	void GotoLine(ulong Line)
 	{
-		Line = Line;
+		Line = Line; //huh??
 		TextIter tistart, tiend;
 		tistart = new TextIter;
         tiend = new TextIter;
@@ -548,16 +543,28 @@ class DOCUMENT : SourceView
 
 	void HiliteFoundMatch(int Line, int start, int len)
     {
+		
         TextIter tstart = new TextIter;
         TextIter tend = new TextIter;
+        TextIter lineiter = new TextIter;
 
+		
         getBuffer.getStartIter(tstart);
         getBuffer.getEndIter(tend);
+        
         getBuffer.removeTagByName("hiliteback", tstart, tend);
         getBuffer.removeTagByName("hilitefore", tstart, tend);
 
+		if(getBuffer.getLineCount < Line) return;
+		getBuffer.getIterAtLine(lineiter,Line);
+		if(lineiter.getCharsInLine() < start+len) return;
+
         getBuffer.getIterAtLineOffset(tstart, Line, start);
         getBuffer.getIterAtLineOffset(tend, Line, start+len);
+
+        int characters = tstart.getCharsInLine();
+
+		if( (characters <  start) || (characters < start + len) ) return;
 
          
         getBuffer.applyTagByName("hiliteback", tstart, tend);
@@ -584,7 +591,7 @@ string ReadUTF8(string FileName)
     
     if(try8(data))  return toUTF8(cast( char[])data);   
     if(try32(data)) return toUTF8(cast(dchar[])data);
-    throw new Exception("Error reading " ~ FileName);    
+    throw new Exception("DComposer is limited opening to valid utf files only.\nEnsure " ~ baseName(FileName) ~ " is properly encoded.\nSorry for any inconvenience.");    
 }
 
 bool try8(const ubyte[] data)

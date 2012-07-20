@@ -211,7 +211,7 @@ class MAIN_UI
 
 
         mWindow.addAccelGroup(mAccelerators);
-        mWindow.addOnDelete(&ConfirmQuit);
+        mWindow.addOnDelete(&ConfirmQuit);        
         mWindow.addOnDestroy(&ConfirmQuit);
         auto QuitAction = new Action("UI_QUIT", "_Quit", "Exit DComposer", StockID.QUIT);
         QuitAction.addOnActivate(delegate void(Action x){ConfirmQuit(null,null);});
@@ -279,7 +279,7 @@ class MAIN_UI
 			bool rvQuit = cast(bool)ConDi.run();
 			ConDi.destroy();
 
-			if(!rvQuit) return false;
+			if(!rvQuit) return true;
 		}
 
         //mDocMan.CloseAllDocs(true); if close all docs here nothing will be saved to config (ie "files_last_session" will be null)

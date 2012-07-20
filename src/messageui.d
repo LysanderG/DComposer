@@ -49,26 +49,23 @@ class MESSAGE_UI :ELEMENT
     ScrolledWindow  mScrWin;
     TreeView        mErrorView;
     ListStore       mStore;
+    GtkListStore *  mGtkStore;
 
     void WatchDMD(string line)
     {       
     	static int ActivityIndicator = 0;
     	
-        scope(exit)mErrorView.setModel(mStore);
+        //scope(exit)mErrorView.setModel(mStore);
         if(line == `BEGIN`)
         {
-            
-            dui.Status.push (0, "Building  " ~ Project.Name ~ " ...");
             if(ActivityIndicator-- < -2) ActivityIndicator = -1;
-            //Log.Entry("messageui.WatchDMD line = 'BEGIN'");
-            
+           
             mStore.clear();
             dui.GetExtraPane.setCurrentPage(mRoot);
             return;
         }
         if(line == `END`)
         {
-           dui.Status.push (0, "Building  " ~ Project.Name ~ " ...  Done");
             return;
         }
         auto m = line.match(regex(`\(\d+\)`));
@@ -129,6 +126,7 @@ class MESSAGE_UI :ELEMENT
     void Engage()
     {
         mStore = new ListStore([GType.STRING, GType.INT, GType.STRING]);
+        mGtkStore = mStore.getListStoreStruct();
 
         mErrorView = new TreeView;
         mErrorView.insertColumn(new TreeViewColumn("File", new CellRendererText, "text", 0), -1);

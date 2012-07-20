@@ -46,41 +46,37 @@ class SYMBOL_VIEW : ELEMENT
     Builder             mSymBuilder;
     ScrolledWindow      mRoot;
     TreeView            mSymbolTree;
-    TreeStore[2]        mSymbolStore;		//2 because whenever I update symbols the damn thing unrefs and is lost
+    TreeStore        	mSymbolStore;
     int					mBufferStore;
 
     GtkTreeStore *		mTreeStoreCache;
-    GtkTreeStore * 		mTreeStoreCache2;
+
 
     
     void FillTreeStore()
     {
         TreeIter tiRoots = new TreeIter;
-        TreeIter ti;        
+        TreeIter ti; 
 
         void FillSym(DSYMBOL symx, TreeIter tiParent)
         {
 			
-            auto tix = mSymbolStore[mBufferStore].append(tiParent);
-            //ts.setValue(tix, 0, Symbols.GetValueFromType(symx.Kind));
-            mSymbolStore[mBufferStore].setValue(tix, 0, symx.GetIcon());
-            mSymbolStore[mBufferStore].setValue(tix, 1, symx.Name);
-            mSymbolStore[mBufferStore].setValue(tix, 2, SimpleXML.escapeText(symx.Path, -1));
-            mSymbolStore[mBufferStore].setValue(tix, 3, symx.Path);
+            auto tix = mSymbolStore.append(tiParent);
+            mSymbolStore.setValue(tix, 0, symx.GetIcon());
+            mSymbolStore.setValue(tix, 1, symx.Name);
+            mSymbolStore.setValue(tix, 2, SimpleXML.escapeText(symx.Path, -1));
+            mSymbolStore.setValue(tix, 3, symx.Path);
             foreach (kidx; symx.Children) FillSym(kidx, tix);
-
         }
 
         foreach(sym; Symbols.Symbols())
         {
-			
-            ti = mSymbolStore[mBufferStore].append(null);
-            //ts.setValue(ti, 0, Symbols.GetValueFromType(sym.Kind));
-            mSymbolStore[mBufferStore].setValue(ti, 0, sym.GetIcon());
-            mSymbolStore[mBufferStore].setValue(ti, 1, sym.Name);
+            ti = mSymbolStore.append(null);
+            mSymbolStore.setValue(ti, 0, sym.GetIcon());
+            mSymbolStore.setValue(ti, 1, sym.Name);
             if(sym.Path.length == 0) sym.Path = sym.Name;
-            mSymbolStore[mBufferStore].setValue(ti, 2, SimpleXML.escapeText(sym.Path,-1));
-            mSymbolStore[mBufferStore].setValue(ti, 3, sym.Path);
+            mSymbolStore.setValue(ti, 2, SimpleXML.escapeText(sym.Path,-1));
+            mSymbolStore.setValue(ti, 3, sym.Path);
             foreach (kid; sym.Children) FillSym(kid, ti);
         }
     }
@@ -88,13 +84,12 @@ class SYMBOL_VIEW : ELEMENT
 
     void Refresh()
     {
-		
-        mSymbolStore[mBufferStore].clear;
+		GC.disable();
+		mSymbolTree.getSelection().unselectAll();
+		mSymbolTree.collapseAll();
+        mSymbolStore.clear;
         FillTreeStore();
-        mSymbolTree.setModel(mSymbolStore[mBufferStore]);
-
-        mBufferStore = (mBufferStore == 0) ? 1 : 0;
-
+        GC.enable();
     }
 
 
@@ -105,7 +100,6 @@ class SYMBOL_VIEW : ELEMENT
         string FileToOPen;
         int AtLineNo;
 
-        //Symbols.GetLocation(ti.getValueString(3), FileToOPen, AtLineNo);
         auto sym = Symbols.ExactMatches(ti.getValueString(3));
 
         FileToOPen = sym[0].InFile;
@@ -117,13 +111,6 @@ class SYMBOL_VIEW : ELEMENT
         dui.GetDocMan.Open(FileToOPen, AtLineNo-1);
     }
 
-
-    //void UpdateProjectTags(string EventName)
-    //{
-    //    if(EventName != "TagsCreated") return;
-    //    Symbols.Load(Project.Name, Project.Name ~ ".tags");
-    //    Refresh();
-    //}
 
     void ForwardSymbol(TreeView tv)
     {
@@ -154,11 +141,13 @@ class SYMBOL_VIEW : ELEMENT
         mSymbolTree     = cast (TreeView) mSymBuilder.getObject("treeview1");
         //mSymbolStore    = cast (TreeStore) mSymBuilder.getObject("treestore1");
 
-		mSymbolStore[0] = new TreeStore([GType.STRING, GType.STRING, GType.STRING, GType.STRING]);
-		mSymbolStore[1] = new TreeStore([GType.STRING, GType.STRING, GType.STRING, GType.STRING]);
+		mSymbolStore = new TreeStore([GType.STRING, GType.STRING, GType.STRING, GType.STRING]);
+		
 
-		mTreeStoreCache = mSymbolStore[0].getTreeStoreStruct();
-		mTreeStoreCache2= mSymbolStore[1].getTreeStoreStruct();
+		mTreeStoreCache = mSymbolStore.getTreeStoreStruct();
+
+		mSymbolTree.setModel(mSymbolStore);
+		
 
         Symbols.connect(&Refresh);
         
@@ -172,8 +161,6 @@ class SYMBOL_VIEW : ELEMENT
 
         mSymbolTree.addOnCursorChanged(&ForwardSymbol);
 
-        //Project.Event.connect(&UpdateProjectTags);
-
         mRoot.showAll();
         dui.GetSidePane.appendPage(mRoot, "SYMBOLS");
         dui.GetSidePane.setTabReorderable ( mRoot, true); 
@@ -186,7 +173,6 @@ class SYMBOL_VIEW : ELEMENT
     {
         mState = false;
         mRoot.hide();
-         //Project.Event.disconnect(&UpdateProjectTags);
         Log.Entry("Disengaged SYMBOL_VIEW element");
     }
 

@@ -221,7 +221,7 @@ class DOCMAN
 	void StoreOpenSessionFiles()
 	{
 		string StorageData;
-		foreach(Doc; mDocs)StorageData ~= Doc.Name ~ ":" ~ to!string(Doc.LineNumber) ~ ";";
+		foreach(Doc; mDocs)if(!Doc.Virgin)StorageData ~= Doc.Name ~ ":" ~ to!string(Doc.LineNumber) ~ ";";
 		if(StorageData.empty) StorageData = "";
 		else  StorageData.chomp(";");
 		Config().setString("DOCMAN", "files_last_session", StorageData);
@@ -268,7 +268,6 @@ class DOCMAN
 
 		if (DocName !in mDocs)
 		{
-			writeln("no ", DocName);
 			return null;
 		}
 		return mDocs[DocName];
@@ -351,12 +350,12 @@ class DOCMAN
 		if(Current !is null)return Current.Word;
 		return null;
 	}
-	ulong GetLine()
+	ulong GetLineNo()
 	{
 		if(Current !is null)return Current.LineNumber;
 		return -1;
 	}
-	string GetLine()
+	string GetLineText()
 	{
 		if(Current !is null)return Current.LineText;
 		return null;
@@ -480,7 +479,6 @@ class DOCMAN
 			mDocs[mSaveFileDialog.getFilename] = mDocs[OriginalName];
 			mDocs.remove(OriginalName);
 			Log.Entry("Document saved "~OriginalName~" as "~mSaveFileDialog.getFilename);
-			writeln(mDocs.keys);
 		}
 
 		
@@ -489,7 +487,10 @@ class DOCMAN
 
 	void SaveAll()
 	{
-		foreach(Doc; mDocs) Doc.Save();
+		foreach(Doc; mDocs)
+		{
+			Doc.Save();
+		}
 	}
 		
 	void CloseAll(bool Quitting = false)

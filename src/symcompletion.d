@@ -95,7 +95,12 @@ class SYMBOL_COMPLETION : ELEMENT
         }
         else
         {
-            Possibles = Symbols.Match(Candidate);
+            //Possibles = Symbols.Match(Candidate);
+            foreach(index, sym; Symbols.Match(Candidate))
+            {
+				if(index == 0) {Possibles ~= sym; continue;}
+				if(!Possibles.canFind!"a.Name == b.Name"(sym)) Possibles ~= sym;
+			}
         }
         
         int xpos, ypos;
