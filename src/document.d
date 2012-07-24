@@ -55,6 +55,7 @@ import gtk.ScrolledWindow;
 import gtkc.gtk;
 
 import gdk.Event;
+import gdk.DragContext;
 
 import gobject.ObjectG;
 import gobject.ParamSpec;
@@ -213,6 +214,19 @@ class DOCUMENT : SourceView
 
         TextInserted.emit(this, ti, text, getBuffer);
     }
+
+
+    void DragCatcher(GdkDragContext* Cntxt, int x, int y, GtkSelectionData* SelData, uint info, uint time, Widget user_data)
+    {
+		writeln("hello ", SelData);
+		auto dragctx = new DragContext(Cntxt);
+		auto xx = dragctx.listTargets();
+		while ( xx !is null)
+		{
+			writeln(text(xx.data()));
+			xx = xx.next();
+		}
+	}
 		
 //**********************************************************************************************************************
 
@@ -352,6 +366,9 @@ class DOCUMENT : SourceView
         getBuffer.createTag("hiliteback", "background", "green");
         getBuffer.createTag("hilitefore", "foreground", "yellow");
 
+
+		//trying drag and drop
+		addOnDragDataReceived (&DragCatcher); 
 		
 		
 		UpdatePageTab();

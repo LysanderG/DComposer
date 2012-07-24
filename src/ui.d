@@ -26,8 +26,10 @@ import autopopups;
 
 import  std.stdio;
 import  std.path;
+import  std.uri;
 import  std.conv;
 import 	std.algorithm;
+import  std.string;
 
 import  gtk.Main;
 import  gtk.Builder;
@@ -64,6 +66,8 @@ import  gtk.TreeIter;
 import  gtk.FileChooserDialog;
 import  gtk.IconFactory;
 import  gtk.IconSet;
+
+import  gtk.DragAndDrop;
 import	gdk.Pixbuf;
 
 
@@ -95,14 +99,39 @@ class MAIN_UI
     HPaned      mHPaned;
     VPaned      mVPaned;
     
-    IconFactory AllMyIcons;
-    
+    IconFactory AllMyIcons;    
 
     Menu[string] mSubMenus;
     DOCMAN      mDocMan;
     AUTO_POP_UPS mAutoPopUps;
 
     bool        mIsWindowMaximized;
+
+    GtkTargetEntry FileDropTargets[];
+
+
+	void DragCatcher(GdkDragContext* Cntxt, int x, int y, GtkSelectionData* SelData, uint info, uint time, Widget user_data)
+    {
+		//string[] SelectedFiles = splitLines(text(SelData.data));
+		//writeln("hello ", SelectedFiles);
+
+		//foreach(ref file; SelectedFiles) if(file.startsWith("file://")) file = std.uri.decode(file[7..$]); else
+
+		string[] SelectedFiles;
+
+		foreach(line; splitLines(text(SelData.data)))
+		{
+			if(line.startsWith("file://"))
+			{
+				SelectedFiles ~= std.uri.decode(line[7..$]);
+			}
+		}
+		mDocMan.Open(SelectedFiles);
+
+		DragAndDrop huh = new DragAndDrop(Cntxt);
+		
+		huh.finish(true, false, time);
+	}
 
     public :
 
@@ -174,7 +203,11 @@ class MAIN_UI
         {
             mIsWindowMaximized = (WS.newWindowState == WindowState.MAXIMIZED);
             return false;
-        }); 
+        });
+
+		DragAndDrop.destSet (mWindow, GtkDestDefaults.ALL  , &FileDropTargets[0], 4,  GdkDragAction.ACTION_COPY | GdkDragAction.ACTION_MOVE | GdkDragAction.ACTION_LINK | GdkDragAction.ACTION_ASK); 
+
+		mWindow.addOnDragDataReceived (&DragCatcher); 
 
         //setup menubar
         mSubMenus["_System"] = new Menu;
@@ -282,7 +315,8 @@ class MAIN_UI
 			if(!rvQuit) return true;
 		}
 
-        //mDocMan.CloseAllDocs(true); if close all docs here nothing will be saved to config (ie "files_last_session" will be null)
+        mDocMan.StoreOpenSessionFiles();
+        mDocMan.CloseAll(true);
         Main.quit();
         return true;
     }
@@ -405,6 +439,28 @@ class MAIN_UI
         Log.Entry("GUI State restored");
 
     }
+
+    this()
+    {
+		FileDropTargets.length = 4;
+
+		FileDropTargets[0].target = "STRING".dup.ptr;
+		FileDropTargets[0].flags  = 0;
+		FileDropTargets[0].info   = 0;
+
+		FileDropTargets[1].target = "UTF8_STRING".dup.ptr;
+		FileDropTargets[1].flags  = 0;
+		FileDropTargets[1].info   = 0;
+
+		FileDropTargets[2].target = "text/plain".dup.ptr;
+		FileDropTargets[2].flags  = 0;
+		FileDropTargets[2].info   = 0;
+
+		FileDropTargets[3].target = "text/uri-list".dup.ptr;
+		FileDropTargets[3].flags  = 0;
+		FileDropTargets[3].info   = 0;
+		
+	}
 
 
 }
@@ -755,3 +811,7 @@ class LISTUI
 	Widget GetWidget() { return mVBox;}
 		
 }
+
+
+
+//;

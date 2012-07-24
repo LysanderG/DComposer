@@ -684,4 +684,40 @@ So I don't forget... new crap I've noticed
 	. notebooks ... make all pagetabs reorderable or none!
 	. save more stuff in config like pane positions, current tabs, page order, etc
 	
-	
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+07.20.2012
+	todays changes
+		.	at exit asks to save modified text before closing main window (no functional differences, can't cancel but
+			at least you know what application the dialog box belongs to).
+		.	if you try to create more than 1000 "untitled" documents you get a nogo message and no new document.
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+07.23.2012
+	woke up today and decided to allow files to be dropped into dcomposer.  What a headache! It is actually pretty simple
+	but Oh my god!  The GTK documentation was completely worthless to me.  Drag and Drop is in widgets, GtkDragAndDrop,
+	GdkDragContext, there are G??TargetLists, destFlags, actionflags, Atoms, targetentries all spinning around in chaos.
+
+	I still really have no clue if I did it correctly but it seems to work.  Are those Target "forms" supposed to be guessed
+	at?  Finally I looked at geany's code.  I was like "wow, thats it?"  So I deleted all the stupid functions, writelns,
+	comments and other detritus of my fumblings.  It works... needs cosmetic surgery (drag a file to a doc and pastes file name,
+	probably silly that the whole window accepts files)
+
+	Oh and if you drag text to the window it tries to open a file named whatever the text is. (about to fix that now)
+
+	I've been doing some reading lately...
+		1. I would really like to create a powerful text editor (most important)
+			a.  key bindings -- configurable and as mouseless as emacs/vim
+			b.  extensible... should be able to perform any text manipulation one can imagine
+			c.  Shell ... better interaction at very least define environment variables to use  stuff in dcomposer
+			d.  finger tip version control (hehehe I like that 'finger tip control')simple/functional interface
+		
+		2. Assistant (or whatever)
+			I think this is a good feature of dcomposer, I need to put more effort into making it look good and run smooth.
+			If D is still a new langauge by the time I let anybody see dcomposer, then it should be very helpful.
+
+		3. A manual
+			Not just to show how things work but to put some more thought into how things ought to work.
+
+		4. Have fun
+			I like when stuff works.  It amazes me.

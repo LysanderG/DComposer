@@ -76,6 +76,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="scrollable">True</property>
+                    <property name="group_id">2</property>
                   </object>
                   <packing>
                     <property name="resize">True</property>
@@ -105,6 +106,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="scrollable">True</property>
+                <property name="group_id">2</property>
               </object>
               <packing>
                 <property name="resize">True</property>

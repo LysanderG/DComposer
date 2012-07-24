@@ -218,15 +218,6 @@ class DOCMAN
         Log.Entry("Start Up Files = " ~ startupfiles, "Debug");
 	}
 
-	void StoreOpenSessionFiles()
-	{
-		string StorageData;
-		foreach(Doc; mDocs)if(!Doc.Virgin)StorageData ~= Doc.Name ~ ":" ~ to!string(Doc.LineNumber) ~ ";";
-		if(StorageData.empty) StorageData = "";
-		else  StorageData.chomp(";");
-		Config().setString("DOCMAN", "files_last_session", StorageData);
-        Config().setString("DOCMAN", "files_to_open",""); //get rid of command line files
-	}
 
 	void LoadFileFilters()
     {
@@ -309,13 +300,14 @@ class DOCMAN
 		///Creates all document related actions (adds menu and toolbar stuff too)	
 		CreateActions();
 
-		Log.Entry("Engaged DOCMAN");
+		Log.Entry("Engaged Document Manager");
 	}
 
 	void Disengage()
 	{
-		StoreOpenSessionFiles();
-		CloseAll(true);
+		//StoreOpenSessionFiles();
+		//CloseAll(true);
+		Log.Entry("Disengaged Document Manager");
 	}
 
 
@@ -399,6 +391,11 @@ class DOCMAN
 		{
 			TitleString = std.string.format("DComposer%.3s%s", UnTitledCount++, extension);
 			TitleString = buildPath(getcwd(), TitleString);
+			if(UnTitledCount > 1000)
+			{
+				Log.Entry(`Too many "untitled" documents in this location`, "Error");
+				return ;
+			}
 		}while (exists(TitleString));
 
         scope(failure) {Log().Entry("Document " ~ TitleString ~ " failed creation" , "Error"); return;}
@@ -448,6 +445,11 @@ class DOCMAN
         mDocs[DocPath].GotoLine(LineNo);             
         return ;
     }
+
+    void Open(string[] DocPaths)
+    {
+		foreach (docpath; DocPaths) Open(docpath);
+	}
 
     void Save()
     {
@@ -579,6 +581,17 @@ class DOCMAN
 			Open(NameOfFile, LineInFile);
 		}
 	}
+
+	void StoreOpenSessionFiles()
+	{
+		string StorageData;
+		foreach(Doc; mDocs)if(!Doc.Virgin)StorageData ~= Doc.Name ~ ":" ~ to!string(Doc.LineNumber) ~ ";";
+		if(StorageData.empty) StorageData = "";
+		else  StorageData.chomp(";");
+		Config().setString("DOCMAN", "files_last_session", StorageData);
+        Config().setString("DOCMAN", "files_to_open",""); //get rid of command line files
+	}
+	
 	
 	mixin Signal!(string, DOCUMENT) Event;
 }
