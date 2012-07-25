@@ -22,6 +22,7 @@ module symbols;
 
 import dcore;
 
+
 import std.conv;
 import std.array;
 import std.json;
@@ -207,36 +208,66 @@ class SYMBOLS
         
     }
 
-    void ProjectWatch(string EventType)
+    void ProjectWatch(ProEvent EventType)
     {
+		switch (EventType)
+		{
+			case ProEvent.Closed  				:
+												{
+													mSymbols.remove(mProjectKey);
+													emit();
+													return;
+												}
+			case ProEvent.CreatedTags			:
+												{
+													scope(failure){Log.Entry("Failed to load project symbols", "Error");return;}
+													Load(Project.Name(), Project.Name() ~ ".tags");
+													return;
+												}
+			case ProEvent.FailedTags			:
+												{
+													scope(failure){Log.Entry("Failed to load project symbols","Error");return;}
+													if(Project.Name() in mSymbols) return; //keep the symbols we have if none try to load old symbols
+													Load(Project.Name(), Project.Name() ~ ".tags");
+													return;
+												}
+			case ProEvent.NameChanged			:
+												{
+													mProjectKey = Project.Name;
+													return;
+												}
+		    default :break;
+		}
 
-        if(EventType == "Close")
-        {
-            mSymbols.remove(mProjectKey);
-            emit();
-            return;
-        }
-
-        if(EventType == "CreateTags")
-        {
-            scope(failure){Log.Entry("Failed to load project symbols","Error");return;}
-            Load(Project.Name(), Project.Name() ~ ".tags");
-            //emit();
-            return;
-        }
-        if(EventType == "FailedCreateTags")
-        {
-			scope(failure){Log.Entry("Failed to load project symbols","Error");return;}
-			if(Project.Name() in mSymbols) return; //keep the symbols we have if none try to load old symbols
-            Load(Project.Name(), Project.Name() ~ ".tags");
-			//emit();
-            return;
-        }
-
-        if(EventType == "Name")
-        {
-            mProjectKey = Project.Name;
-        }
+        //if(EventType == "Close")
+        //{
+		//	writeln("closing ", mProjectKey);
+        //    mSymbols.remove(mProjectKey);
+        //    emit();
+        //    return;
+        //}
+//
+        //if(EventType == "CreateTags")
+        //{
+        //    scope(failure){Log.Entry("Failed to load project symbols","Error");return;}
+        //    Load(Project.Name(), Project.Name() ~ ".tags");
+        //    //emit();
+        //    return;
+        //}
+        //if(EventType == "FailedCreateTags")
+        //{
+		//	scope(failure){Log.Entry("Failed to load project symbols","Error");return;}
+		//	if(Project.Name() in mSymbols) return; //keep the symbols we have if none try to load old symbols
+        //    Load(Project.Name(), Project.Name() ~ ".tags");
+		//	//emit();
+        //    return;
+        //}
+//
+        //if(EventType == "Name" || EventType == "New" || EventType == "Opened")
+        //{
+        //    mProjectKey = Project.Name;
+        //}
+        
     }
     DSYMBOL[] GetInScopeSymbols(string[] Scope)
     {

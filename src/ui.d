@@ -172,9 +172,9 @@ class MAIN_UI
         ReStoreGuiState();
         mWindow.show();
         
-        Log().Entry("Entering GTK Main Loop\n");
+        Log().Entry("Entering GTK Main Loop\n++++++++++");
         Main.run();
-        Log().Entry("Exiting GTK Main Loop");
+        Log().Entry("----------\nExiting GTK Main Loop");
 
         StoreGuiState();
         mWindow.hide();
@@ -370,9 +370,10 @@ class MAIN_UI
     AUTO_POP_UPS    GetAutoPopUps(){return mAutoPopUps;}
 
         
-    void WatchProjectName(string EventType)
+    void WatchProjectName(ProEvent EventType)
     {
-        if((EventType == "Name") || (EventType == "New")) mIndicator.setText("Project: " ~ Project.Name);
+        //if((EventType == "Name") || (EventType == "New")) mIndicator.setText("Project: " ~ Project.Name);
+        if(EventType == ProEvent.NameChanged) mIndicator.setText("Project: " ~ Project.Name);
     }
 
 

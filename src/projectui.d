@@ -23,7 +23,6 @@ module projectui;
 import dcore;
 import ui;
 import elements;
-import project;
 
 import std.conv;
 import std.path;
@@ -481,15 +480,35 @@ class PROJECT_UI : ELEMENT
         mSkipWatchingProject = false;
     }
 
-    void ProjEventWatcher(string EventType)
+    void ProjEventWatcher(ProEvent EventType)
     {
-        if(EventType == "StartOpen") mSkipWatchingProject = true;
-        if(EventType == "Opened") mSkipWatchingProject = false;
-        if((EventType == "Build") || (EventType == "CreateTags") || (EventType == "FailedCreateTags"))   return;
-        
-        if(mSkipWatchingProject == true) return;
-        SyncGuiToProject();
-        
+        //if(EventType == ProEvent.Opening) mSkipWatchingProject = true;
+        //if(EventType == ProEvent.Opened) mSkipWatchingProject = false;
+        //if((EventType == "Build") || (EventType == "CreateTags") || (EventType == "FailedCreateTags"))   return;
+        //
+        //if(mSkipWatchingProject == true) return;
+        if(EventType == ProEvent.Opened) SyncGuiToProject();
+
+        switch (EventType)
+        {
+			case ProEvent.Opening				:mSkipWatchingProject = true;break;
+			case ProEvent.Opened				:mSkipWatchingProject = false; break;
+			case ProEvent.Created 				:break;
+			case ProEvent.Closed  				:break;
+			case ProEvent.Saved	 				:break;
+			case ProEvent.ListChanged			:break;
+			case ProEvent.NameChanged			:break;
+			case ProEvent.FlagChanged			:break;
+			case ProEvent.PathChanged			:break;
+			case ProEvent.CompilerChanged		:break;
+			case ProEvent.UseCustomBuildChanged	:break;
+			case ProEvent.CustomBuildChanged	:break;
+			case ProEvent.TargetChanged			:break;
+			default :return;
+		}
+
+		if(mSkipWatchingProject == false) SyncGuiToProject();
+		        
     }
     
 

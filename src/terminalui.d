@@ -74,9 +74,9 @@ class TERMINAL_UI : ELEMENT
 
 	TERMINAL_PAGE		PrefPage;
 
-    void NewDirectory(string EventType)
+    void NewDirectory(ProEvent EventType)
     {
-        if(EventType == "WorkingPath")
+        if(EventType == ProEvent.PathChanged)
         {
             
             immutable(char) * cdcmd = toStringz("cd " ~ getcwd() ~ "\n");

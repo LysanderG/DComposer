@@ -30,8 +30,6 @@ import elements;
 import ui;
 import dcore;
 
-import project;
-
 
 import gtk.Builder;
 import gtk.VBox;
@@ -184,26 +182,61 @@ class PROJECT_VIEW : ELEMENT
         }
     }
 
-    void UpdateProject(string EventType)
+    void UpdateProject(ProEvent EventType)
     {
+		switch (EventType)
+		{
+			
+			case ProEvent.Opened				:
+												{
+													UpdateList(mKeyBox);
+													mLabel.setText(Project.Name);
+													dui.GetSidePane.setCurrentPage(mRoot);
+													break;
+												}
+			case ProEvent.Created 				:
+												{
+													dui.GetSidePane.setCurrentPage(mRoot);
+													break;
+												}
+			case ProEvent.Closed  				:
+												{
+													UpdateList(mKeyBox);
+													mLabel.setText("No Project Loaded");
+													break;
+												}
+			case ProEvent.ListChanged			:
+												{
+													UpdateList(mKeyBox);
+													break;
+												}
+			case ProEvent.NameChanged			:
+												{
+													mLabel.setText(Project.Name);
+													break;
+												}
+			default : break;
 
-        if(EventType == "ListChange")UpdateList(mKeyBox);
-        if(EventType == "Name")mLabel.setText(Project.Name);
-        if(EventType == "Opened")
-        {
-            UpdateList(mKeyBox);
-            mLabel.setText(Project.Name);
-            dui.GetSidePane.setCurrentPage(mRoot);
-        }
-        if(EventType == "Close")
-        {
-            UpdateList(mKeyBox);
-            mLabel.setText("No Project Loaded");
-        }
-        if(EventType == "New")
-        {
-            dui.GetSidePane.setCurrentPage(mRoot);
-        }
+		}
+		return;
+
+        //if(EventType == "ListChange")UpdateList(mKeyBox);
+        //if(EventType == "Name")mLabel.setText(Project.Name);
+        //if(EventType == "Opened")
+        //{
+        //    UpdateList(mKeyBox);
+        //    mLabel.setText(Project.Name);
+        //    dui.GetSidePane.setCurrentPage(mRoot);
+        //}
+        //if(EventType == "Close")
+        //{
+        //    UpdateList(mKeyBox);
+        //    mLabel.setText("No Project Loaded");
+        //}
+        //if(EventType == "New")
+        //{
+        //    dui.GetSidePane.setCurrentPage(mRoot);
+        //}
         
     }
     void AppendToolItems()

@@ -25,7 +25,7 @@ module dcore;
 
 import config;
 import log;
-import project;
+public import project;
 import symbols;
 
 

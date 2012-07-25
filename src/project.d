@@ -240,14 +240,15 @@ class PROJECT
 
     void New()                                              //start a new project with default settings (or just open a default file?)
     {
+		Event.emit(ProEvent.Creating);
         Close();       
         mTarget = TARGET.UNDEFINED;
-        Event.emit("New");        
+        Event.emit(ProEvent.Created);        
     }        
         
     void Open(string pfile)                                             //open a .dpro file and we're off
     {
-        Event.emit("StartOpen");
+        Event.emit(ProEvent.Opening);
         Close();
         
 
@@ -316,31 +317,34 @@ class PROJECT
         if(mVersion > PROJECT_VERSION)throw new Exception("bad version");
 		if(mTarget == TARGET.NULL) throw new Exception("Invalid Target Type");
 		
-        Event.emit("Opened");
+        Event.emit(ProEvent.Opened);
 
         CreateTags();
 
 	}    
     void Close()                                            //return target type to null , and nothing doing
     {
+		Event.emit(ProEvent.Closing);
         Save();
         mTarget = TARGET.NULL;
         
         Name = null;
         mWorkingPath.length = 0;
 
-        scope(failure)Log.Entry("Unable to open Flags File", "Error");
+        scope(failure)Log.Entry("Unable to reset Flags File", "Error");
         string FlagsFile = Config.getString("PROJECT","flags_file", "$(HOME_DIR)/flags/flagsfile.json" );
 		ReadFlags(FlagsFile);
         mList.Zero();
         mUseCustomBuild = false;
         mCustomBuildCommand.length = 0;
-        Event.emit("Close");  
+        Event.emit(ProEvent.Closed);  
     }
 
     void Save()
 	{
 		if (mTarget == TARGET.NULL) return;
+		Event.emit(ProEvent.Saving);
+		
         scope(failure)
         {
             Log.Entry("Failed to save project: " ~ mName, "Error");
@@ -421,7 +425,7 @@ class PROJECT
 		
 		std.file.write(Pfile, jstring);
 
-		Event.emit("Save");
+		Event.emit(ProEvent.Saved);
 		
 	}
 	
@@ -442,12 +446,14 @@ class PROJECT
 		
 		mFlags[key].State = NuState;
 		mFlags[key].Argument = NuArgument;
-        Event.emit("SetFlag");
+        Event.emit(ProEvent.FlagChanged);
         return true;
     }
     bool CreateTags()                                       //command to build tags (ie dmd -X) json file
     {
         if((mTarget == TARGET.NULL) || mTarget == (TARGET.UNDEFINED)) return false;
+
+        Event.emit(ProEvent.CreatingTags);
 
         string tagfilename = mName ~ ".tags";
         string docfilename = buildPath(mWorkingPath, "tmptags.doc");
@@ -463,19 +469,21 @@ class PROJECT
         if(result == 0)
         {
             system("rm " ~ docfilename);
-            Event.emit("CreateTags");
+            Event.emit(ProEvent.CreatedTags);
             Log.Entry("Project tags Created");
             return true;
         }
 		
         Log.Entry("Failed to create project tags");
-        Event.emit("FailedCreateTags");
+        Event.emit(ProEvent.FailedTags);
         return false;        
     }
     bool Build()                                            //build the project
     {
 
         if( (mTarget == TARGET.NULL) || (mTarget == TARGET.UNDEFINED) ) return false;
+
+        Event.emit(ProEvent.Building);
 
         BuildMsg.emit(BuildCommand());   
 
@@ -491,7 +499,7 @@ class PROJECT
 
 
         scope(exit) Process.close();
-        Event.emit("Build");
+        Event.emit(ProEvent.Built);
         CreateTags();
         
         return true;
@@ -537,6 +545,8 @@ class PROJECT
     bool Run(string args = null )                                              //if app then run the thing
     {
         if(mTarget != TARGET.APP) return false;
+
+        Event.emit(ProEvent.Running);
         
         scope(failure)
         {
@@ -554,7 +564,7 @@ class PROJECT
         foreach(string L; lines(Process) ) Log.Entry(chomp(L));//RunMsg.emit(chomp(L));
     
         Process.close();
-        Event.emit("Run");            
+        Event.emit(ProEvent.Ran);            
         return true;
     }
 
@@ -573,9 +583,9 @@ class PROJECT
         
     }
 
-    mixin Signal!(string) Event;                                  //any change to object emits this event string may tell what event is
-    mixin Signal!(string) RunMsg;                                 //stdout from running project
-    mixin Signal!(string) BuildMsg;                               //stdout from building with compiler
+    mixin Signal!(ProEvent) Event;                                  //any change to object emits this event string may tell what event is
+    mixin Signal!(string) 	RunMsg;                                 //stdout from running project
+    mixin Signal!(string)	BuildMsg;                               //stdout from building with compiler
 
     //====================
     //====================
@@ -585,10 +595,10 @@ class PROJECT
 
     //later note... I think i need to do ref string[] opIndex(string Key){return  mList.GetData(Key);} 
 
-    void opOpAssign(string s = "+=")(string Key)                    {   mList.AddKey(Key);          Event.emit("ListChange");}
-    void opOpAssign(string s = "-=")(string Key)                    {   mList.RemoveKey(Key);       Event.emit("ListChange");} 
-    void opIndexAssign(LIST Data, string Key)                       {   mList.SetKey(Key, Data);    Event.emit("ListChange");}
-    void opOpIndexAssign(string s = "~=")(LIST Data, string Key)    {   mList.ConcatData(Key, Data);Event.emit("ListChange");}
+    void opOpAssign(string s = "+=")(string Key)                    {   mList.AddKey(Key);          Event.emit(ProEvent.ListChanged);}
+    void opOpAssign(string s = "-=")(string Key)                    {   mList.RemoveKey(Key);       Event.emit(ProEvent.ListChanged);} 
+    void opIndexAssign(LIST Data, string Key)                       {   mList.SetKey(Key, Data);    Event.emit(ProEvent.ListChanged);}
+    void opOpIndexAssign(string s = "~=")(LIST Data, string Key)    {   mList.ConcatData(Key, Data);Event.emit(ProEvent.ListChanged);}
     ref string opOpIndexAssign(string s = "~=")(string Data, string Key)
     {
         AddItem(Key, Data);
@@ -596,10 +606,10 @@ class PROJECT
     }
     ref string[] opIndex(string Key)                                    {   return mList.GetData(Key);  }//Event.emit("ListChange");}
 
-    void SetList(string Key, LIST Data)                             {   mList.SetKey(Key, Data);Event.emit("ListChange");}
-    void SetList(string Key, string Data)                           {   mList.SetKey(Key, [Data]);Event.emit("ListChange");}
-    void RemoveItem(string Key, string Item)                        {   mList.RemoveData(Key, Item);Event.emit("ListChange");}
-    void AddItem(string Key, string Item)                           {   mList.ConcatData(Key, Item);Event.emit("ListChange");}
+    void SetList(string Key, LIST Data)                             {   mList.SetKey(Key, Data);Event.emit(ProEvent.ListChanged);}
+    void SetList(string Key, string Data)                           {   mList.SetKey(Key, [Data]);Event.emit(ProEvent.ListChanged);}
+    void RemoveItem(string Key, string Item)                        {   mList.RemoveData(Key, Item);Event.emit(ProEvent.ListChanged);}
+    void AddItem(string Key, string Item)                           {   mList.ConcatData(Key, Item);Event.emit(ProEvent.ListChanged);}
     void AddUniqueItem(string Key, string Item)
     {
 		foreach(KeyItem; mList.GetData(Key))
@@ -607,7 +617,7 @@ class PROJECT
 			if (KeyItem == Item) return;
 		}
 		mList.ConcatData(Key, Item);
-		Event.emit("ListChange");
+		Event.emit(ProEvent.ListChanged);
 	}
     string[] GetList(string Key)                                    {   return mList.GetData(Key);}
     string GetCatList(string Key)
@@ -629,7 +639,7 @@ class PROJECT
         void Name(string nuName)
         {
             mName = nuName;
-            Event.emit("Name");
+            Event.emit(ProEvent.NameChanged);
         }
 
         string WorkingPath() {return mWorkingPath;}
@@ -639,26 +649,26 @@ class PROJECT
             scope(failure)
             {
                 mWorkingPath = "";
-                Event.emit("WorkingPath");
+                Event.emit(ProEvent.PathChanged);
                 return;
             }
             if(!nuPath.exists) mkdir(nuPath);
             chdir(nuPath);
             mWorkingPath = nuPath;
-            Event.emit("WorkingPath");
+            Event.emit(ProEvent.PathChanged);
         }
 
         string Compiler(){return mCompiler;}
-        void Compiler(string nuCompiler){mCompiler = nuCompiler;Event.emit("Compiler");}
+        void Compiler(string nuCompiler){mCompiler = nuCompiler;Event.emit(ProEvent.CompilerChanged);}
 
         bool UseCustomBuild(){return mUseCustomBuild;}
-        void UseCustomBuild(bool UseIt){mUseCustomBuild = UseIt;Event.emit("UseCustomBuild");}
+        void UseCustomBuild(bool UseIt){mUseCustomBuild = UseIt;Event.emit(ProEvent.UseCustomBuildChanged);}
 
         string CustomBuildCommand(){return mCustomBuildCommand;}
-        void CustomBuildCommand(string nuCommand){mCustomBuildCommand = nuCommand;Event.emit("CustomBuildCommand");}
+        void CustomBuildCommand(string nuCommand){mCustomBuildCommand = nuCommand;Event.emit(ProEvent.CustomBuildChanged);}
 
         int Target(){return cast(int)mTarget;}
-        void Target(int nuTarget){mTarget = cast(TARGET)nuTarget;Event.emit("Target");}
+        void Target(int nuTarget){mTarget = cast(TARGET)nuTarget;Event.emit(ProEvent.TargetChanged);}
     }
 
         
@@ -697,5 +707,28 @@ string[] funRun(string command, Tid bossID)
 }
  
 
-
-//need an exec name which will return -of flag name
+enum ProEvent {
+	Creating,
+	Created,
+	Closing,
+	Closed,
+	Saving,
+	Saved,
+	Opening,
+	Opened,
+	CreatingTags,
+	CreatedTags,
+	FailedTags,
+	Building,
+	Built,
+	Running,
+	Ran,
+	ListChanged,
+	NameChanged,
+	FlagChanged,
+	PathChanged,
+	CompilerChanged,
+	UseCustomBuildChanged,
+	CustomBuildChanged,
+	TargetChanged
+}
