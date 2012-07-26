@@ -35,6 +35,7 @@ import gtk.ScrolledWindow;
 import gtk.Widget;
 import gtk.FontButton;
 import gtk.ColorButton;
+import gtk.Notebook;
 
 import pango.PgFontDescription;
 
@@ -49,6 +50,7 @@ extern(C) void  vte_terminal_reset(GtkWidget *terminal, gboolean clear_tabstops,
 extern(C) int 	vte_terminal_match_add(GtkWidget *terminal, const char *match); //underlines word under mouse if it matches match
 extern(C) void  vte_terminal_set_font (GtkWidget *terminal, const PangoFontDescription *font_desc);
 extern(C) void  vte_terminal_set_font_from_string(GtkWidget *terminal,  const char *name);
+extern(C) void  vte_terminal_set_scrollback_lines(GtkWidget *terminal, glong lines);
 
 extern(C) gboolean 	gdk_color_parse(const gchar *spec, GdkColor *color);
 extern(C) gchar   	*gdk_color_to_string(const GdkColor *color);
@@ -74,15 +76,58 @@ class TERMINAL_UI : ELEMENT
 
 	TERMINAL_PAGE		PrefPage;
 
-    void NewDirectory(ProEvent EventType)
+    void WatchProject(ProEvent EventType)
     {
+		static SkipWhileOpening = false;
+		if(EventType == ProEvent.Opening) SkipWhileOpening = true;
+		if(EventType == ProEvent.Opened)  SkipWhileOpening = false;
+
+		if(SkipWhileOpening) return;
+
+		
         if(EventType == ProEvent.PathChanged)
         {
             
             immutable(char) * cdcmd = toStringz("cd " ~ getcwd() ~ "\n");
             vte_terminal_feed_child(cvte, cdcmd, getcwd().length +4);
         }
+        if((EventType == ProEvent.ListChanged) || (EventType == ProEvent.Opened))
+        {
+			string SrcFiles = "export SRC_FILES='";
+			foreach(src; Project[SRCFILES]) SrcFiles ~= src ~ " ";
+			SrcFiles ~= "'\n";
+
+			string RelFiles = "export REL_FILES='";
+			foreach(rel; Project[RELFILES]) RelFiles ~= rel ~ " ";
+			RelFiles ~= "'\n";
+
+			string LibFiles = "export LIB_FILES='";
+			foreach(lib; Project[LIBFILES])LibFiles ~= lib ~ " ";
+			LibFiles ~= "'\n";
+			
+			
+			vte_terminal_feed_child(cvte, toStringz(SrcFiles), SrcFiles.length);
+			vte_terminal_feed_child(cvte, toStringz(RelFiles), RelFiles.length);
+			vte_terminal_feed_child(cvte, toStringz(LibFiles), LibFiles.length);
+			
+		}			
     }
+
+    void WatchDocuments()
+    {
+		auto tmp = dui.GetDocMan.Current;
+		string CurrentDoc;
+		
+		if(tmp !is null) CurrentDoc = "export CURRENT_DOC='" ~ dui.GetDocMan.Current.Name ~ "'\n";
+			
+
+		string OpenDocs = "export OPEN_DOCS='";
+		foreach(doc; dui.GetDocMan.Documents)OpenDocs ~= doc.Name ~ " ";
+		OpenDocs ~= "'\n";
+		vte_terminal_feed_child(cvte, toStringz(CurrentDoc), CurrentDoc.length);
+		vte_terminal_feed_child(cvte, toStringz(OpenDocs), OpenDocs.length);
+	}
+		
 
     void Configure()
     {
@@ -103,6 +148,9 @@ class TERMINAL_UI : ELEMENT
 
 		string FullFontName = Config.getString("TERMINAL", "font", "DejaVu Sans Mono 8");
 		vte_terminal_set_font_from_string(cvte, toStringz(FullFontName));
+
+		//*******************infinite scrolling
+		vte_terminal_set_scrollback_lines(cvte, -1);
 		
 	}
 		
@@ -146,7 +194,8 @@ class TERMINAL_UI : ELEMENT
         dui.GetExtraPane.setTabReorderable ( mScrWin, true); 
         mTerminal.modifyBg(StateType.NORMAL, new Color(BackColor));
 
-        Project.Event.connect(&NewDirectory);
+        Project.Event.connect(&WatchProject);
+        dui.GetCenterPane.addOnSwitchPage (delegate void (void* Void, uint Uint, Notebook notebook){WatchDocuments();}); 
         Config.Reconfig.connect(&Configure);
         
         Log.Entry("Engaged TERMINAL_UI element");
@@ -159,7 +208,7 @@ class TERMINAL_UI : ELEMENT
     {
         mState = false;
         mScrWin.hide();
-        Project.Event.disconnect(&NewDirectory);
+        Project.Event.disconnect(&WatchProject);
         Config.Reconfig.disconnect(&Configure);
         Log.Entry("Disengaged TERMINAL_UI element");
         
