@@ -45,6 +45,7 @@ import gtkc.gobject;
 extern(C) GtkWidget * vte_terminal_new();
 extern(C) int   vte_terminal_fork_command_full(GtkWidget *terminal, int pty_flags, const char * working_directory, const char **argv, char **envv, int spawn_flags,void * child_setup, void * child_setup_data,void *child_pid, void *error);
 extern(C) void  vte_terminal_feed_child(GtkWidget *terminal, const char *data, long length);
+extern(C) void  vte_terminal_feed(GtkWidget *terminal, const char *data, long length);
 extern(C) int   vte_terminal_fork_command (GtkWidget *terminal, const char *command, char **argv, char **envv, const char *working_directory, gboolean lastlog, gboolean utmp, gboolean wtmp);
 extern(C) void  vte_terminal_reset(GtkWidget *terminal, gboolean clear_tabstops, gboolean clear_history);
 extern(C) int 	vte_terminal_match_add(GtkWidget *terminal, const char *match); //underlines word under mouse if it matches match

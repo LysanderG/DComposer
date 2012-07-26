@@ -212,7 +212,7 @@ class SYMBOLS
     {
 		switch (EventType)
 		{
-			case ProEvent.Closed  				:
+			case ProEvent.Closing  				:
 												{
 													mSymbols.remove(mProjectKey);
 													emit();
