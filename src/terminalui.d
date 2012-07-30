@@ -20,14 +20,19 @@
 
 module terminalui;
 
+import std.algorithm;
 import std.string;
 import std.stdio;
 import std.file;
 import std.conv;
+import std.uni;
+
+import core.sys.posix.unistd;
 
 import dcore;
 import ui;
 import elements;
+import document;
 
 import gdk.Color;
 
@@ -46,12 +51,17 @@ extern(C) GtkWidget * vte_terminal_new();
 extern(C) int   vte_terminal_fork_command_full(GtkWidget *terminal, int pty_flags, const char * working_directory, const char **argv, char **envv, int spawn_flags,void * child_setup, void * child_setup_data,void *child_pid, void *error);
 extern(C) void  vte_terminal_feed_child(GtkWidget *terminal, const char *data, long length);
 extern(C) void  vte_terminal_feed(GtkWidget *terminal, const char *data, long length);
+extern(C) void  vte_terminal_feed_child_binary(GtkWidget *terminal, const char *data, long length);
 extern(C) int   vte_terminal_fork_command (GtkWidget *terminal, const char *command, char **argv, char **envv, const char *working_directory, gboolean lastlog, gboolean utmp, gboolean wtmp);
 extern(C) void  vte_terminal_reset(GtkWidget *terminal, gboolean clear_tabstops, gboolean clear_history);
 extern(C) int 	vte_terminal_match_add(GtkWidget *terminal, const char *match); //underlines word under mouse if it matches match
 extern(C) void  vte_terminal_set_font (GtkWidget *terminal, const PangoFontDescription *font_desc);
 extern(C) void  vte_terminal_set_font_from_string(GtkWidget *terminal,  const char *name);
 extern(C) void  vte_terminal_set_scrollback_lines(GtkWidget *terminal, glong lines);
+extern(C) VtePty * vte_terminal_get_pty_object         (GtkWidget *terminal);
+
+struct VtePty;
+extern(C) int   vte_pty_get_fd(VtePty *pty);
 
 extern(C) gboolean 	gdk_color_parse(const gchar *spec, GdkColor *color);
 extern(C) gchar   	*gdk_color_to_string(const GdkColor *color);
@@ -79,56 +89,15 @@ class TERMINAL_UI : ELEMENT
 
     void WatchProject(ProEvent EventType)
     {
-		static SkipWhileOpening = false;
-		if(EventType == ProEvent.Opening) SkipWhileOpening = true;
-		if(EventType == ProEvent.Opened)  SkipWhileOpening = false;
 
-		if(SkipWhileOpening) return;
-
-		
         if(EventType == ProEvent.PathChanged)
         {
             
             immutable(char) * cdcmd = toStringz("cd " ~ getcwd() ~ "\n");
             vte_terminal_feed_child(cvte, cdcmd, getcwd().length +4);
         }
-        if((EventType == ProEvent.ListChanged) || (EventType == ProEvent.Opened))
-        {
-			string SrcFiles = "export SRC_FILES='";
-			foreach(src; Project[SRCFILES]) SrcFiles ~= src ~ " ";
-			SrcFiles ~= "'\n";
-
-			string RelFiles = "export REL_FILES='";
-			foreach(rel; Project[RELFILES]) RelFiles ~= rel ~ " ";
-			RelFiles ~= "'\n";
-
-			string LibFiles = "export LIB_FILES='";
-			foreach(lib; Project[LIBFILES])LibFiles ~= lib ~ " ";
-			LibFiles ~= "'\n";
-			
-			
-			vte_terminal_feed_child(cvte, toStringz(SrcFiles), SrcFiles.length);
-			vte_terminal_feed_child(cvte, toStringz(RelFiles), RelFiles.length);
-			vte_terminal_feed_child(cvte, toStringz(LibFiles), LibFiles.length);
-			
-		}			
-    }
-
-    void WatchDocuments()
-    {
-		auto tmp = dui.GetDocMan.Current;
-		string CurrentDoc;
 		
-		if(tmp !is null) CurrentDoc = "export CURRENT_DOC='" ~ dui.GetDocMan.Current.Name ~ "'\n";
-			
-
-		string OpenDocs = "export OPEN_DOCS='";
-		foreach(doc; dui.GetDocMan.Documents)OpenDocs ~= doc.Name ~ " ";
-		OpenDocs ~= "'\n";
-		vte_terminal_feed_child(cvte, toStringz(CurrentDoc), CurrentDoc.length);
-		vte_terminal_feed_child(cvte, toStringz(OpenDocs), OpenDocs.length);
-	}
-		
+    }		
 
     void Configure()
     {
@@ -184,19 +153,20 @@ class TERMINAL_UI : ELEMENT
         Configure();
         vte_terminal_fork_command (cvte, null, null, null, null,true, true, true);
 
+		
+        g_signal_connect_object(cvte, cast(char*)toStringz("child-exited"),&Reset  , null, cast(GConnectFlags)0);
+        g_signal_connect_object(cvte, cast(char*)toStringz("commit")      ,cast(GCallback)&ProcessInput     , null, cast(GConnectFlags)0);
 
-        g_signal_connect_object(cvte, cast(char*)toStringz("child-exited"),&Reset,null, cast(GConnectFlags)0);
-
+		
+		
         mTerminal = new Widget(cvte);
         
         mScrWin.add(mTerminal);
         mScrWin.showAll();
         dui.GetExtraPane.appendPage(mScrWin, "Terminal");
         dui.GetExtraPane.setTabReorderable ( mScrWin, true); 
-        mTerminal.modifyBg(StateType.NORMAL, new Color(BackColor));
 
         Project.Event.connect(&WatchProject);
-        dui.GetCenterPane.addOnSwitchPage (delegate void (void* Void, uint Uint, Notebook notebook){WatchDocuments();}); 
         Config.Reconfig.connect(&Configure);
         
         Log.Entry("Engaged TERMINAL_UI element");
@@ -227,6 +197,39 @@ extern (C) void Reset()
 {
     vte_terminal_fork_command (g_cvte, null, null, null, null,true, true, true);    
 }
+
+string vtetext;
+
+extern (C) void ProcessInput(GtkWidget *vteterminal, gchar* text, guint size, gpointer user_data)
+{
+	vtetext = vtetext ~ to!string(text);
+	writeln(vtetext, " ", size);
+
+	if (!vtetext.endsWith('\n'))return;
+	
+
+	auto Results = vtetext.findSplit("$srcfiles");
+
+	writeln (Results);
+	if(Results[1].length == 0)
+	{
+		writeln("hay");
+		vtetext.length = 0;
+		return;
+	}
+
+	string srcfiles;
+
+	foreach(src; Project[SRCFILES]) srcfiles = srcfiles ~ " " ~ src ~ " ";
+
+	char[] rvalue = (Results[0] ~ srcfiles ~ Results[2]).dup;
+
+	writeln(" --  ",rvalue);
+	text = rvalue.ptr;
+	vtetext.length = 0;
+}
+
+	
 
 
 class TERMINAL_PAGE : PREFERENCE_PAGE
