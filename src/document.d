@@ -1,4 +1,4 @@
-// untitled.d
+// document.d
 // 
 // Copyright 2012 Anthony Goins <anthony@LinuxGen11>
 // 
@@ -82,6 +82,10 @@ class DOCUMENT : SourceView
 	Button 			mTabXBtn;
 
 	Widget			mPageWidget;
+
+	int				mPopUpX;
+	int				mPopUpY;
+	bool			mPopUpByKeyBoard;
 
 
 //**********************************************************************************************************************
@@ -167,15 +171,30 @@ class DOCUMENT : SourceView
 	}
 
 	void PopulateContextMenu(GtkMenu* gtkBigMenu, TextView ThisOne)
-	{
+	{		
 		Menu X = new Menu(gtkBigMenu);
 
 		foreach(action; dui.GetDocMan.GetContextMenuActions())
 		{
 			X.prepend(action.createMenuItem());
 		}
-	}
 		
+	}
+
+	bool CatchPopUpMenuLocation(GdkEventButton * eb,Widget W) 
+	{
+		writeln("here");
+		getPointer(mPopUpX, mPopUpY);
+		mPopUpByKeyBoard = false;
+		return false;
+		
+	}
+
+	bool KeyPopUpMenu(Widget w)
+	{
+		mPopUpByKeyBoard = true;
+		return false;
+	}
 	void SetBreakPoint(TextIter ti, GdkEvent * event, SourceView sv)
 	{
 		scope (failure) {Log.Entry("Error toggling breakpoint.","Error");return;}
@@ -267,6 +286,7 @@ class DOCUMENT : SourceView
 
 	///returns the word currently at the insert mark (cursor)
 	///May have to spice this up a little to reflect a programming environment
+	
 	@property string Word()
 	{
         TextIter ti = new TextIter; 
@@ -277,6 +297,24 @@ class DOCUMENT : SourceView
         if(!ti.startsWord())ti.backwardWordStart();
         return ti.getSlice(tiend);        
     }
+    @property string WordAtPopUpMenu()
+    {
+		if(mPopUpByKeyBoard) return Word;
+		int trailing, xx, yy;
+
+		 windowToBufferCoords (GtkTextWindowType.WIDGET, mPopUpX, mPopUpY, xx, yy); 
+		
+		TextIter ti = new TextIter;
+		
+		getIterAtPosition (ti, trailing, xx, yy);
+
+		if(!ti.insideWord)return "";
+		TextIter tiend = ti.copy();
+		tiend.forwardWordEnd();
+		if(!ti.startsWord())ti.backwardWordStart();
+		return ti.getSlice(tiend);
+	}
+		
 
     ///Returns any selected text
     @property string Selection()
@@ -336,6 +374,10 @@ class DOCUMENT : SourceView
 
 		//build a popup menu on right clicks (items for menu from docman)
 		addOnPopulatePopup(&PopulateContextMenu);
+
+		//to catch to location of where the popup menu starts
+		addOnPopupMenu(&KeyPopUpMenu);
+		addOnButtonPress (&CatchPopUpMenuLocation); 
 
 		//this allows certain elements to see paste as a single insert vs an insert for each char
 		getBuffer.addOnPasteDone (delegate void (Clipboard cb, TextBuffer tb) {mInPastingProcess = false;});

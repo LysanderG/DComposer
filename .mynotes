@@ -721,3 +721,25 @@ So I don't forget... new crap I've noticed
 
 		4. Have fun
 			I like when stuff works.  It amazes me.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+07.29.2012
+
+	Well trying to change the environment variables in the terminal sure didn't work!
+	To ... much crap written through the command line.  Couldn't make it 'invisible'
+	If a program was running in the shell it stole the command to export a variable.
+
+	Has to be a way I'll look into it.
+
+	Where to go now...
+
+	Debugger 	: scared to start this again.
+	Bookmarks	: how important is this?
+	Keybindings : Really want to do this but I'm lazy
+	              Ok not lazy just know I want it to  be good.
+	Assistant	: Make it look good! (better) and not crash ever.
+	VCS			: I use git in the terminal
+	Snippets    : Don't like these really
+	Goto Def	: Like this
+	
+			

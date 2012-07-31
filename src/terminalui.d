@@ -155,7 +155,7 @@ class TERMINAL_UI : ELEMENT
 
 		
         g_signal_connect_object(cvte, cast(char*)toStringz("child-exited"),&Reset  , null, cast(GConnectFlags)0);
-        g_signal_connect_object(cvte, cast(char*)toStringz("commit")      ,cast(GCallback)&ProcessInput     , null, cast(GConnectFlags)0);
+        //g_signal_connect_object(cvte, cast(char*)toStringz("commit")      ,cast(GCallback)&ProcessInput     , null, cast(GConnectFlags)0);
 
 		
 		
@@ -199,37 +199,6 @@ extern (C) void Reset()
 }
 
 string vtetext;
-
-extern (C) void ProcessInput(GtkWidget *vteterminal, gchar* text, guint size, gpointer user_data)
-{
-	vtetext = vtetext ~ to!string(text);
-	writeln(vtetext, " ", size);
-
-	if (!vtetext.endsWith('\n'))return;
-	
-
-	auto Results = vtetext.findSplit("$srcfiles");
-
-	writeln (Results);
-	if(Results[1].length == 0)
-	{
-		writeln("hay");
-		vtetext.length = 0;
-		return;
-	}
-
-	string srcfiles;
-
-	foreach(src; Project[SRCFILES]) srcfiles = srcfiles ~ " " ~ src ~ " ";
-
-	char[] rvalue = (Results[0] ~ srcfiles ~ Results[2]).dup;
-
-	writeln(" --  ",rvalue);
-	text = rvalue.ptr;
-	vtetext.length = 0;
-}
-
-	
 
 
 class TERMINAL_PAGE : PREFERENCE_PAGE

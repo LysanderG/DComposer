@@ -21,3 +21,5 @@ assistantui.ASSISTANT_UI
 preferencesui.PREFERENCES_UI
 splitdoc.SPLIT_DOCUMENT
 dirview.DIR_VIEW
+gotodef.GOTODEF
+
