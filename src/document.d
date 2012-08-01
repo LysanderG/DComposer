@@ -181,15 +181,26 @@ class DOCUMENT : SourceView
 		
 	}
 
+	/**
+	 * acutally this catches any button press and saves pointer position
+	 * to use for popup location
+	 * better name might be last button press
+	 * */
+	
 	bool CatchPopUpMenuLocation(GdkEventButton * eb,Widget W) 
 	{
-		writeln("here");
+		
 		getPointer(mPopUpX, mPopUpY);
 		mPopUpByKeyBoard = false;
 		return false;
 		
 	}
 
+	/**
+	 * stores when the popupmenu aka context menu
+	 * is brought up by the keyboard -- as opposed to right mouse button
+	 * this info will be used to determine how to use WordAtPopUpMenu
+	 * */
 	bool KeyPopUpMenu(Widget w)
 	{
 		mPopUpByKeyBoard = true;
@@ -297,6 +308,16 @@ class DOCUMENT : SourceView
         if(!ti.startsWord())ti.backwardWordStart();
         return ti.getSlice(tiend);        
     }
+
+    /**
+     * Word property wasn't up for this
+     * So here is WordAtPopUpMenu
+     * easy to implement for when mouse popups  the window
+     * easy for when keyboard popups the window
+     * problem to do it for both
+     * hopefully It works the way I think it does.
+     * Any errors look here.
+     * */
     @property string WordAtPopUpMenu()
     {
 		if(mPopUpByKeyBoard) return Word;
@@ -356,7 +377,8 @@ class DOCUMENT : SourceView
 		ScrollWin.setPolicy(GtkPolicyType.AUTOMATIC, GtkPolicyType.AUTOMATIC);
 		ScrollWin.showAll();
 		
-		mPageWidget = ScrollWin;	
+		mPageWidget = ScrollWin;
+		setName("dcomposerdoc");
 	}
 
 	/**Basically connects signals.  Not done in constructor to ensure all objects (meaning Config for now)

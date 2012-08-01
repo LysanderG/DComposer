@@ -408,8 +408,20 @@ class DOCMAN
 
 	void Open()
 	{
+		{
+			try
+			{
+				mOpenFileDialog.addShortcutFolder(Project.WorkingPath);
+			}
+			catch(Exception y)
+			{
+				Log.Entry(y.msg,"Error");
+			}
+		}
+		
 		auto response = mOpenFileDialog.run();
 		mOpenFileDialog.hide();
+		
 
 		if (response != ResponseType.GTK_RESPONSE_OK) return;
         

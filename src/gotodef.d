@@ -49,6 +49,8 @@ class GOTODEF : ELEMENT
 		if(Results.length != 1) Log.Entry("Multiple definitions possible for " ~ CurrentWord);
 
 		dui.GetDocMan.Open(Results[0].InFile, Results[0].OnLine-1);
+
+
 		
 	}
 		
@@ -84,8 +86,7 @@ class GOTODEF : ELEMENT
 
 		dui.GetDocMan.AddContextMenuAction(GotoDefAction);
 		Log.Entry("Engaged GOTO_DEF");
-		
-		
+
 	}
 
     void Disengage()
@@ -98,4 +99,3 @@ class GOTODEF : ELEMENT
 		return null;
 	}
 }
-
