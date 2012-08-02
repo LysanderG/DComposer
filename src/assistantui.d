@@ -21,7 +21,7 @@ module assistantui;
 
 import std.stdio;
 import std.string;
-import std.datetime;
+
 import core.memory;
 
 import dcore;
@@ -61,10 +61,6 @@ class ASSISTANT_UI : ELEMENT
     bool        mState;
 
     ASSISTANT_PAGE mPreferenceObject;
-
-    StopWatch   mTTipTimer;
-    TickDuration mMinTime;
-
     
     Builder     mBuilder;
     VBox        mRoot;
@@ -81,58 +77,33 @@ class ASSISTANT_UI : ELEMENT
 
     DSYMBOL[]   mList;
 
-    bool        mMouseHover;
     bool        mEnabled; //this should be State !! but not sure that will work as planned 6 months ago.
                            //... look into this
 
-    GtkListStore* 		mStoreStruct; //using this in another attempt to workaround GTK_IS_LIST_STORE(list_store) error
-    GtkListStore*		mStoreStruct2;//thinking the garbage collector is dumping this when I'm not looking. These are not to be used
+    GtkListStore* 		mStoreStruct;
+
+    string		mLastDocWord;
 
     
     void WatchForNewDoc(string EventType, DOCUMENT NuDoc)
     {
+		
         if(EventType != "AppendDocument")return;
-        auto doc = cast(DOCUMENT)NuDoc;
-        doc.addOnQueryTooltip (&CatchDocToolTip); 
+        NuDoc.addOnKeyRelease (delegate bool (GdkEventKey* ev, Widget huh){AssistWord();return false;});
+        NuDoc.addOnButtonRelease (delegate bool (GdkEventButton* ev, Widget huh){AssistWord();return false;}); 
         
-    }
+   }
 
-    bool CatchDocToolTip(int x , int y, int key_mode, GtkTooltip* TTipPtr, Widget WidDoc)
-    {
-        if(!mMouseHover) return false;
-        mTTipTimer.stop();
-        if(mTTipTimer.peek.seconds <  2)
-        {
-            mTTipTimer.start();
-            return false;
-        }
-        mTTipTimer.reset();
-        mTTipTimer.start();
-        
-        //if (key_mode)return false;
-        //get symbol at x, y
-        int bufx, bufy, trailing;
-        TextIter ti = new TextIter;
-        DOCUMENT DocX = cast (DOCUMENT) WidDoc;
-
-        DocX.windowToBufferCoords(TextWindowType.WIDGET, x, y, bufx, bufy);
-        DocX.getIterAtPosition(ti, trailing, bufx, bufy);
-        //for now just go the easy way out
-
-        if(!ti.insideWord())return false;
-        auto start = ti.copy();
-        auto end = ti.copy();
-        start.backwardWordStart();
-        end.forwardWordEnd();
-
-        string Candidate = start.getText(end);
-
-        auto Possibles = Symbols.ExactMatches(Candidate);
-        if (Possibles.length < 1)return false;
-
-        CatchSymbols(Possibles);
-        return false;
-    }
+	void AssistWord()
+	{
+		string CurrentWord = dui.GetDocMan.GetWord();
+		if(CurrentWord == mLastDocWord) return;
+		mLastDocWord = CurrentWord;
+		
+		auto Possibles = Symbols.ExactMatches(CurrentWord);
+		if(Possibles.length < 1) return;
+		CatchSymbols(Possibles);
+	}   
         
         
     void CatchSymbols(DSYMBOL[] Symbols)
@@ -161,6 +132,8 @@ class ASSISTANT_UI : ELEMENT
     {
         TreeIter ti = new TreeIter;
         
+        GC.disable();
+
         mPossibleStore.clear();
 
         //fill combobox
@@ -172,7 +145,7 @@ class ASSISTANT_UI : ELEMENT
         else mComments.getBuffer().setText("No documentation available");
 
 
-		GC.disable();
+		
         mChildrenStore.clear();
         foreach (sym; Symbol.Children)
         {
@@ -252,7 +225,7 @@ class ASSISTANT_UI : ELEMENT
         
     void Reconfigure()
     {
-        mMouseHover = Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", false);
+        //mMouseHover = Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", false);
         mEnabled    = Config.getBoolean("ASSISTANT_UI", "enabled", true);
         
         mRoot.setVisible(mEnabled);
@@ -299,10 +272,6 @@ class ASSISTANT_UI : ELEMENT
 
         mPossibleStore  =   new ListStore([GType.STRING]);
         mChildrenStore  =   new ListStore([GType.STRING]);
-
-        //caching the gtk struct see if it prevents thrashing of my liststores
-        mStoreStruct = mPossibleStore.getListStoreStruct();
-        mStoreStruct2 = mChildrenStore.getListStoreStruct();
         
 
         mHPane.setPosition(Config.getInteger("ASSISTANT_UI", "store_gui_pane_position",10)); 
@@ -310,7 +279,7 @@ class ASSISTANT_UI : ELEMENT
         mPossibles.setModel(mPossibleStore);        
         mChildren.setModel(mChildrenStore);
 
-        mMouseHover = Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", false);
+        //mMouseHover = Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", false);
         mEnabled    = Config.getBoolean("ASSISTANT_UI", "enabled", true);
         
         mRoot.setVisible(mEnabled);
@@ -321,8 +290,6 @@ class ASSISTANT_UI : ELEMENT
         dui.GetAutoPopUps.connect(&CatchSymbol);
         dui.GetDocMan.Event.connect(&WatchForNewDoc);
 
-        mTTipTimer.start();
-        mMinTime.from!"msecs"(5000);
 
         
 
