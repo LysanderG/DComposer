@@ -342,7 +342,7 @@ class DOCMAN
 		if(Current !is null)return Current.Word;
 		return null;
 	}
-	ulong GetLineNo()
+	int GetLineNo()
 	{
 		if(Current !is null)return Current.LineNumber;
 		return -1;

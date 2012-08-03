@@ -22,4 +22,5 @@ preferencesui.PREFERENCES_UI
 splitdoc.SPLIT_DOCUMENT
 dirview.DIR_VIEW
 gotodef.GOTODEF
+bookmarks.BOOKMARKS
 

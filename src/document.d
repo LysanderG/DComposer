@@ -276,12 +276,11 @@ class DOCUMENT : SourceView
 	@property bool Pasting(){return mInPastingProcess;}
 	@property void Pasting(bool P){mInPastingProcess = P;}
 	///Returns current line number
-	@property ulong LineNumber()
+	@property int LineNumber()
 	{
 		auto ti = new TextIter;
 		getBuffer.getIterAtMark(ti, getBuffer.getInsert());
-		auto xline = ti.getLine();
-		return cast(ulong)xline;
+		return ti.getLine();
 	}
 	@property string LineText()
 	{
