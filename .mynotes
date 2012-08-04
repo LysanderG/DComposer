@@ -741,5 +741,31 @@ So I don't forget... new crap I've noticed
 	VCS			: I use git in the terminal
 	Snippets    : Don't like these really
 	Goto Def	: Like this
-	
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+08.04.2012
+
+	Ok what have I done since the last entry
+		-GotoDef context menu - done (hopefully)
+		-Bookmarks - exists after closing files.  Happy with it ... only thing to do is save to project files
+		-added the project working directory as a shortcut in openfiledialog
+		-assistantui got rid of crappy tooltip code now assistant follows whatever is under the cursor.
+
+	I've been avoiding customizable key bindings because
+		-(this isn't a reason but have you noticed I like lists?)
+		-looking at BindingSet screwed up my mind
+		-so many bindings to present to user (hate typing)
+		-I really want to create a simple vim emulation mode (soo much work)
+		-Sadly I don't even know all the bindings that come as defaults
+
+	other thoughts
+		-a central signal/event dispatching module. forwards events for plugins to communicate without core/ui having to
+		 know anything about it.
+		-build counting/tracking
+		-a tag tool.  A utility to create a tag file for any package.  should be very simple.
+		-now 2.060 is out looking at a flagsfile utility to keep projects up to date. (Don't think any changes to dmd
+		 command line were made this go 'round)
+		 
+	Do I really feel like upgrading to 2.060.  The whole change log seemed like a bunch of deprecations.  Who wants to
+	put themselves through that headache.  Oops, did not mean to sound like an ingrate.  Very excited that dmd is continuing on.
 			

@@ -31,129 +31,235 @@ import gtk.Action;
 import gtk.TextIter;
 
 import gsv.SourceMark;
+import glib.ListSG;
 
 
 immutable int BOOKMARK_CATEGORY_PRIORITY = 5;
+immutable (char[]) BOOKMARK_CATEGORY_NAME = "bookmark";
 
 
-struct MARK
+class MARK
 {
-	string 		mFile;
-	string  	mMarkName;
+
+	private:
+	
+	string 		mFileName;
 	SourceMark 	mSrcMark;
 
-	static string mName = "BookMark_aaaa";
+	MARK		mPrev;
+	MARK		mNext;
 
-	this(DOCUMENT Doc, string MarkName)
+	public:
+	this(string MarkId, string filename = null)
 	{
-		mFile = Doc.Name;
-		mMarkName = MarkName;
+		mSrcMark = new SourceMark(MarkId, BOOKMARK_CATEGORY_NAME);
+		if(filename is null) filename = dui.GetDocMan.GetDocument.Name;
+		mFileName = filename;
+
+		mPrev = null;
+		mNext = null;
+	}
+
+	void Add(MARK mark)
+	{
+		mark.mNext = mNext;
+		mark.mPrev = this;
+		
+		mNext.mPrev = mark;
+		mNext = mark;
 
 		TextIter ti = new TextIter;
 
-		Doc.getBuffer.getIterAtMark(ti, Doc.getBuffer.getInsert());
+		dui.GetDocMan.GetDocument.getBuffer.getIterAtMark(ti, dui.GetDocMan.GetDocument.getBuffer.getInsert());
 		
-		mSrcMark = Doc.getBuffer. createSourceMark (mMarkName,"bookmark", ti);
+		dui.GetDocMan.GetDocument.getBuffer.addMark (mark.Mark, ti);
+		
 	}
+
+	void Remove()
+	{
+		mNext.Prev = mPrev;
+		mPrev.Next = mNext;
+
+		writeln(mNext.Prev.Name, " ------ ", mPrev.Next.Name);
+	}
+
+	@property SourceMark Mark(){return mSrcMark;}
+	@property MARK Next(){ return mNext;}
+	@property MARK Prev(){ return mPrev;}
+
+	@property void Next(MARK X){mNext = X;}
+	@property void Prev(MARK X){mPrev = X;}
+	
+	@property string Name()
+	{
+		return mSrcMark.getName();
+	}
+
+	@property string FileName(){return mFileName;}
+
+	@property int LineNumber()
+	{
+		TextIter ti = new TextIter;		
+		mSrcMark.getBuffer.getIterAtMark(ti, mSrcMark);
+		return ti.getLine();
+	}		
+
+
 }
 
 
 class BOOKMARKS : ELEMENT
 {
-
 	private:
-	
+
 	string 			mName;
 	string			mInfo;
 	bool			mState;
-
-	MARK[string]	mMarks;
+	
+	MARK 			mMarkRoot;
+	MARK			mMarkLast;
+	MARK			mMarkCurrent;
 
 	Action			mCreateMarkAct;
 	Action			mGotoPrevMarkAct;
 	Action			mGotoNextMarkAct;
 
-	string			mMarkNames;
-	string[]		mMarkNamesInOrder;
-	int				mOrderIndex;
-
+	string			mNameTracker;
 	
+
 	void WatchDocMan(string Event, DOCUMENT doc)
 	{
-		doc.setMarkCategoryIconFromStock ("bookmark", "MARK_ICON");
-		doc.setMarkCategoryPriority("bookmark", BOOKMARK_CATEGORY_PRIORITY);		
+		doc.setMarkCategoryIconFromStock (BOOKMARK_CATEGORY_NAME, "MARK_ICON");
+		doc.setMarkCategoryPriority(BOOKMARK_CATEGORY_NAME, BOOKMARK_CATEGORY_PRIORITY);		
 	}
 
-	void Toggle(Action x)
+
+	void Toggle(Action X)
+	{
+		//is there a book mark present
+		//if yes goto remove
+		//otherwise goto add
+		//thats it
+		int Iline = dui.GetDocMan.GetLineNo();
+		ListSG ExistingMarksList = dui.GetDocMan.GetDocument.getBuffer. getSourceMarksAtLine (Iline, BOOKMARK_CATEGORY_NAME); 
+		if(ExistingMarksList) Remove(ExistingMarksList);
+		else Add();
+
+		return;	
+	}
+
+	void Add()
+	{
+		MARK nuMark = new MARK(mNameTracker);		
+		mNameTracker = mNameTracker.succ();
+		if(mMarkCurrent is mMarkLast) mMarkRoot.Add(nuMark);
+		else mMarkCurrent.Add(nuMark);
+		mMarkCurrent = nuMark;
+	}
+
+	void Remove(ListSG OldMarks)
 	{
 		SourceMark tmpMark;
-		auto line = dui.GetDocMan.GetLineNo;
-		if(line < 1)return;
-
-		auto MarksAtLine = dui.GetDocMan.GetDocument.getBuffer.getSourceMarksAtLine(dui.GetDocMan.GetLineNo(), "bookmark");
-		if(MarksAtLine !is null)
+		while(OldMarks !is null)
 		{
-			while(MarksAtLine !is null)
+			
+			auto structptr = cast(GtkSourceMark*)OldMarks.data();
+			tmpMark = new SourceMark(structptr);				
+			dui.GetDocMan.GetDocument.getBuffer.deleteMarkByName(tmpMark.getName());
+
+			mMarkCurrent = mMarkRoot.Next;
+
+			while(mMarkCurrent !is mMarkLast)
 			{
-				
-				auto structptr = cast(GtkSourceMark*)MarksAtLine.data();
-				tmpMark = new SourceMark(structptr);
-				writeln(tmpMark);
-				//mMarks.remove(tmpMark.getName());
-				writeln(tmpMark);
-				dui.GetDocMan.GetDocument.getBuffer.deleteMarkByName(tmpMark.getName());
-				writeln(tmpMark);
-				MarksAtLine = MarksAtLine.next();
-				writeln(tmpMark);
+				if( mMarkCurrent.Name == tmpMark.getName())
+				{
+					writeln( mMarkCurrent.Name, " " , tmpMark.getName());
+					mMarkCurrent.Remove(); //still alive and prev and next valid
+					mMarkCurrent = mMarkCurrent.Next();
+					if(mMarkCurrent is mMarkLast) mMarkCurrent = mMarkLast.Prev;
+					break;
+				}
+				mMarkCurrent = mMarkCurrent.Next();
 			}
-			writeln(mMarks);
-			return;	
+			OldMarks = OldMarks.next();
 		}
-		else
-		{
-			MARK nuMark = MARK(dui.GetDocMan.GetDocument(), mMarkNames);
-			mMarks[mMarkNames] = nuMark;
-			mMarkNamesInOrder ~= mMarkNames;
-			mOrderIndex++;
-			mMarkNames = mMarkNames.succ();
-		}
+		return;			
 	}
 
-	void Next(Action x)
+	void Next(Action X)
 	{
-		if(mMarks.length < 1) return;
-		auto startingIndex = mOrderIndex;
-		mOrderIndex++;
-		if(mOrderIndex >= mMarkNamesInOrder.length) mOrderIndex = 0;
-
-		writeln(mMarks, mOrderIndex, mMarkNamesInOrder[mOrderIndex]);
-		while(mMarks[mMarkNamesInOrder[mOrderIndex]].mSrcMark.getDeleted is true)
+		bool FixForClosedFiles = false;
+		assert (mMarkCurrent !is null);
+		if(mMarkCurrent is mMarkLast) return; //no bookmarks
+		if(mMarkCurrent is mMarkRoot) return; //no bookmarks
+		mMarkCurrent = mMarkCurrent.Next();
+		if(mMarkCurrent is mMarkLast) mMarkCurrent = mMarkRoot.Next;
+		if(!dui.GetDocMan.IsOpen(mMarkCurrent.FileName)) FixForClosedFiles = true;
+		dui.GetDocMan.Open(mMarkCurrent.FileName, mMarkCurrent.LineNumber);
+		if(FixForClosedFiles)
 		{
-			mOrderIndex++;
-			if(mOrderIndex > mMarkNamesInOrder.length) mOrderIndex = 0;
-			if(mOrderIndex == startingIndex) return;
+			writeln( "--",mMarkCurrent.Mark.getCategory);
+			writeln(mMarkCurrent.Mark.getBuffer());
+			mMarkCurrent.Mark.getBuffer.deleteMark(mMarkCurrent.Mark);
+			TextIter ti = new TextIter;
+			dui.GetDocMan.GetDocument.getBuffer.getIterAtMark(ti, dui.GetDocMan.GetDocument.getBuffer.getInsert());		
+			dui.GetDocMan.GetDocument.getBuffer.addMark (mMarkCurrent.Mark, ti);
 		}
-
-		TextIter ti = new TextIter;
-		string file = mMarks[mMarkNamesInOrder[mOrderIndex]].mFile;
-		mMarks[mMarkNamesInOrder[mOrderIndex]].mSrcMark.getBuffer.getIterAtMark(ti, mMarks[mMarkNamesInOrder[mOrderIndex]].mSrcMark);
-		int	line = ti.getLine();
-
-		dui.GetDocMan.Open(file, line);	
-		
 	}
-		
-		
 
-	
+	void Prev(Action X)
+	{
+		bool FixForClosedFiles;
+		assert (mMarkCurrent !is null);
+		if(mMarkCurrent is mMarkLast) return; //no bookmarks
+		if(mMarkCurrent is mMarkRoot) return; //no bookmarks
+		mMarkCurrent = mMarkCurrent.Prev();
+		if(mMarkCurrent is mMarkRoot) mMarkCurrent = mMarkLast.Prev;
+		if(!dui.GetDocMan.IsOpen(mMarkCurrent.FileName))FixForClosedFiles = true;
+		dui.GetDocMan.Open(mMarkCurrent.FileName, mMarkCurrent.LineNumber);
+		if(FixForClosedFiles)
+		{
+			writeln( "--",mMarkCurrent.Mark.getCategory);
+			writeln(mMarkCurrent.Mark.getBuffer());
+			mMarkCurrent.Mark.getBuffer.deleteMark(mMarkCurrent.Mark);
+			TextIter ti = new TextIter;
+			dui.GetDocMan.GetDocument.getBuffer.getIterAtMark(ti, dui.GetDocMan.GetDocument.getBuffer.getInsert());		
+			dui.GetDocMan.GetDocument.getBuffer.addMark (mMarkCurrent.Mark, ti);
+		}
+	}
+
+	void Save()
+	{
+	}
+
+	void Load()
+	{
+	}
+
+	void Clear()
+	{
+		mMarkRoot = null;
+		mMarkCurrent = mMarkRoot;
+		//could do gc collection here... ??
+	}
+
+
 	public:
 	this()
     {
         mName = "BOOKMARKS";
-        mInfo = "Set and jump to the important parts of a document.";
+        mInfo = "Manage and navigate bookmarks.";
 
-        mMarkNames = "dogear_aaaa";
-        mOrderIndex = -1;
+        mMarkRoot = new MARK("root_anchor", "anchor");
+        mMarkLast = new MARK("tail_anchor", "anchor");
+
+        mMarkRoot.Prev = mMarkLast;
+        mMarkRoot.Next = mMarkLast;
+        mMarkLast.Next = mMarkRoot;
+        mMarkLast.Prev = mMarkRoot;
+
+        mMarkCurrent = mMarkLast;
     }
     
     @property string Name(){ return mName;}
@@ -166,9 +272,12 @@ class BOOKMARKS : ELEMENT
         if(mState)  Engage();
         else        Disengage();
     }
+	
+
 
     void Engage()
     {
+		mNameTracker = "bookmark_aaaa";
 		dui.GetDocMan.Event.connect(&WatchDocMan);
 
 		dui.AddIcon("MARK_CREATE",		Config.getString("ICONS", "mark_create", "$(HOME_DIR)/glade/book-open-bookmark.png"));
@@ -182,7 +291,7 @@ class BOOKMARKS : ELEMENT
 
 		mCreateMarkAct	.addOnActivate(&Toggle);
 		mGotoNextMarkAct.addOnActivate(&Next);
-		//mGotoPrevMarkAct.addOnActivate(&Prev);
+		mGotoPrevMarkAct.addOnActivate(&Prev);
 
 		mCreateMarkAct	.setAccelGroup(dui.GetAccel());
 		mGotoNextMarkAct.setAccelGroup(dui.GetAccel());
@@ -206,13 +315,13 @@ class BOOKMARKS : ELEMENT
 	}
 
     void Disengage()
-    {
-		dui.GetDocMan.Event.disconnect(&WatchDocMan);
-	}
+    {}
 
     PREFERENCE_PAGE GetPreferenceObject()
     {
 		return null;
 	}
 
+
 }
+	
