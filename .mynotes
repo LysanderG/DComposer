@@ -769,3 +769,12 @@ So I don't forget... new crap I've noticed
 	Do I really feel like upgrading to 2.060.  The whole change log seemed like a bunch of deprecations.  Who wants to
 	put themselves through that headache.  Oops, did not mean to sound like an ingrate.  Very excited that dmd is continuing on.
 			
+
+	Much later that day ...
+
+	ok working on saving bookmarks to project file.  So trying to make MARK a range by adding empty popFront and front.
+	Realized I had no real idea how the range system works.  After lots of trial and error I have something that seems
+	to work (more than once).  Kind of surprised that a range destroys it self as it walks.  I'm thinking there needs to
+	be some kind of initiating function for starting a range.  I added another MARK (ptr?) called mFront to each MARK
+	(in addition to prev and next) when empty returns true mFront = this on popfront mFront = mFront.next.  Will see how
+	it holds up under use.

@@ -26,6 +26,8 @@ import document;
 
 import std.stdio;
 import std.string;
+import std.conv;
+import std.algorithm;
 
 import gtk.Action;
 import gtk.TextIter;
@@ -49,6 +51,8 @@ class MARK
 	MARK		mPrev;
 	MARK		mNext;
 
+	MARK		mFront;
+
 	public:
 	this(string MarkId, string filename = null)
 	{
@@ -58,6 +62,7 @@ class MARK
 
 		mPrev = null;
 		mNext = null;
+		mFront = this;
 	}
 
 	void Add(MARK mark)
@@ -72,8 +77,7 @@ class MARK
 
 		dui.GetDocMan.GetDocument.getBuffer.getIterAtMark(ti, dui.GetDocMan.GetDocument.getBuffer.getInsert());
 		
-		dui.GetDocMan.GetDocument.getBuffer.addMark (mark.Mark, ti);
-		
+		dui.GetDocMan.GetDocument.getBuffer.addMark (mark.Mark, ti);		
 	}
 
 	void Remove()
@@ -100,10 +104,38 @@ class MARK
 
 	@property int LineNumber()
 	{
-		TextIter ti = new TextIter;		
+
+		TextIter ti = new TextIter;
+		if(mSrcMark.getBuffer is null) return 0;
 		mSrcMark.getBuffer.getIterAtMark(ti, mSrcMark);
-		return ti.getLine();
-	}		
+		auto rv = ti.getLine();
+
+		
+		return rv;
+	}
+
+	@property bool empty()
+	{
+		if(mFront.Name == "tail_anchor")
+		{
+			mFront = mFront.Next; //should be root_anchor
+			mFront = this;
+			return true;
+		}
+		return false;
+
+	}
+
+	@property ref MARK front()
+	{
+		//if(Name == "root_anchor")mFront = mNext;
+		return  mFront;
+	}
+
+	void popFront()
+	{
+		mFront = mFront.mNext;
+	}
 
 
 }
@@ -130,8 +162,11 @@ class BOOKMARKS : ELEMENT
 
 	void WatchDocMan(string Event, DOCUMENT doc)
 	{
-		doc.setMarkCategoryIconFromStock (BOOKMARK_CATEGORY_NAME, "MARK_ICON");
-		doc.setMarkCategoryPriority(BOOKMARK_CATEGORY_NAME, BOOKMARK_CATEGORY_PRIORITY);		
+		if(Event == "AppendDocument")
+		{
+			doc.setMarkCategoryIconFromStock (BOOKMARK_CATEGORY_NAME, "MARK_ICON");
+			doc.setMarkCategoryPriority(BOOKMARK_CATEGORY_NAME, BOOKMARK_CATEGORY_PRIORITY);
+		}		
 	}
 
 
@@ -231,10 +266,24 @@ class BOOKMARKS : ELEMENT
 
 	void Save()
 	{
+		string[] results;
+
+		foreach(x; mMarkRoot)
+		{
+			if(canFind(Project[SRCFILES], x.FileName) || canFind(Project[RELFILES], x.FileName))results ~= format("%s:%s",x.FileName, x.LineNumber);
+		}
+		if(results.length < 1) return;
+
+		if(Project.Target == TARGET.NULL) return;
+		Project[BOOKMARK_CATEGORY_NAME] = results;	
 	}
 
 	void Load()
 	{
+		string[] results = Project[BOOKMARK_CATEGORY_NAME];
+
+		foreach(r; results)writeln(r);
+			
 	}
 
 	void Clear()
@@ -242,6 +291,13 @@ class BOOKMARKS : ELEMENT
 		mMarkRoot = null;
 		mMarkCurrent = mMarkRoot;
 		//could do gc collection here... ??
+	}
+
+	void WatchProject(ProEvent event)
+	{
+		if(event == ProEvent.Saving)Save();
+		if(event == ProEvent.Opened)Load();
+		//hmm... what to do with all the extra bookmarks ater opening multiple projects?
 	}
 
 
@@ -279,6 +335,7 @@ class BOOKMARKS : ELEMENT
     {
 		mNameTracker = "bookmark_aaaa";
 		dui.GetDocMan.Event.connect(&WatchDocMan);
+		Project.Event.connect(&WatchProject);
 
 		dui.AddIcon("MARK_CREATE",		Config.getString("ICONS", "mark_create", "$(HOME_DIR)/glade/book-open-bookmark.png"));
 		dui.AddIcon("MARK_NEXT",		Config.getString("ICONS", "mark_next"  , "$(HOME_DIR)/glade/book-open-next.png"));
@@ -315,7 +372,12 @@ class BOOKMARKS : ELEMENT
 	}
 
     void Disengage()
-    {}
+    {
+		Save();
+		Clear();
+		dui.GetDocMan.Event.disconnect(&WatchDocMan);
+		Project.Event.disconnect(&WatchProject);
+	}
 
     PREFERENCE_PAGE GetPreferenceObject()
     {
