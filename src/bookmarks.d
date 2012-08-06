@@ -40,106 +40,109 @@ immutable int BOOKMARK_CATEGORY_PRIORITY = 5;
 immutable (char[]) BOOKMARK_CATEGORY_NAME = "bookmark";
 
 
-class MARK
-{
-
-	private:
-	
-	string 		mFileName;
-	SourceMark 	mSrcMark;
-
-	MARK		mPrev;
-	MARK		mNext;
-
-	MARK		mFront;
-
-	public:
-	this(string MarkId, string filename = null)
-	{
-		mSrcMark = new SourceMark(MarkId, BOOKMARK_CATEGORY_NAME);
-		if(filename is null) filename = dui.GetDocMan.GetDocument.Name;
-		mFileName = filename;
-
-		mPrev = null;
-		mNext = null;
-		mFront = this;
-	}
-
-	void Add(MARK mark)
-	{
-		mark.mNext = mNext;
-		mark.mPrev = this;
-		
-		mNext.mPrev = mark;
-		mNext = mark;
-
-		TextIter ti = new TextIter;
-
-		dui.GetDocMan.GetDocument.getBuffer.getIterAtMark(ti, dui.GetDocMan.GetDocument.getBuffer.getInsert());
-		
-		dui.GetDocMan.GetDocument.getBuffer.addMark (mark.Mark, ti);		
-	}
-
-	void Remove()
-	{
-		mNext.Prev = mPrev;
-		mPrev.Next = mNext;
-
-		writeln(mNext.Prev.Name, " ------ ", mPrev.Next.Name);
-	}
-
-	@property SourceMark Mark(){return mSrcMark;}
-	@property MARK Next(){ return mNext;}
-	@property MARK Prev(){ return mPrev;}
-
-	@property void Next(MARK X){mNext = X;}
-	@property void Prev(MARK X){mPrev = X;}
-	
-	@property string Name()
-	{
-		return mSrcMark.getName();
-	}
-
-	@property string FileName(){return mFileName;}
-
-	@property int LineNumber()
-	{
-
-		TextIter ti = new TextIter;
-		if(mSrcMark.getBuffer is null) return 0;
-		mSrcMark.getBuffer.getIterAtMark(ti, mSrcMark);
-		auto rv = ti.getLine();
-
-		
-		return rv;
-	}
-
-	@property bool empty()
-	{
-		if(mFront.Name == "tail_anchor")
-		{
-			mFront = mFront.Next; //should be root_anchor
-			mFront = this;
-			return true;
-		}
-		return false;
-
-	}
-
-	@property ref MARK front()
-	{
-		//if(Name == "root_anchor")mFront = mNext;
-		return  mFront;
-	}
-
-	void popFront()
-	{
-		mFront = mFront.mNext;
-	}
-
-
-}
-
+//class MARK
+//{
+//
+//	private:
+//	
+//	string 		mFileName;
+//	SourceMark 	mSrcMark;
+//
+//	MARK		mPrev;
+//	MARK		mNext;
+//
+//	MARK		mFront;
+//
+//	bool		mAttachedToBuffer;
+//	int			mUnAttachedLineNumber;
+//
+//	public:
+//	this(string MarkId, string filename = null)
+//	{
+//		mSrcMark = new SourceMark(MarkId, BOOKMARK_CATEGORY_NAME);
+//		if(filename is null) filename = dui.GetDocMan.GetDocument.Name;
+//		mFileName = filename;
+//
+//		mPrev = null;
+//		mNext = null;
+//		mFront = this;
+//	}
+//
+//	void Add(MARK mark, int LineToAttachWhen = 0)
+//	{
+//		mark.mNext = mNext;
+//		mark.mPrev = this;
+//		
+//		mNext.mPrev = mark;
+//		mNext = mark;
+//
+//		TextIter ti = new TextIter;
+//
+//		dui.GetDocMan.GetDocument.getBuffer.getIterAtMark(ti, dui.GetDocMan.GetDocument.getBuffer.getInsert());
+//		
+//		dui.GetDocMan.GetDocument.getBuffer.addMark (mark.Mark, ti);		
+//	}
+//
+//	void Remove()
+//	{
+//		mNext.Prev = mPrev;
+//		mPrev.Next = mNext;
+//
+//		writeln(mNext.Prev.Name, " ------ ", mPrev.Next.Name);
+//	}
+//
+//	@property SourceMark Mark(){return mSrcMark;}
+//	@property MARK Next(){ return mNext;}
+//	@property MARK Prev(){ return mPrev;}
+//
+//	@property void Next(MARK X){mNext = X;}
+//	@property void Prev(MARK X){mPrev = X;}
+//	
+//	@property string Name()
+//	{
+//		return mSrcMark.getName();
+//	}
+//
+//	@property string FileName(){return mFileName;}
+//
+//	@property int LineNumber()
+//	{
+//
+//		TextIter ti = new TextIter;
+//		if(mSrcMark.getBuffer is null) return 0;
+//		mSrcMark.getBuffer.getIterAtMark(ti, mSrcMark);
+//		auto rv = ti.getLine();
+//
+//		
+//		return rv;
+//	}
+//
+//	@property bool empty()
+//	{
+//		if(mFront.Name == "tail_anchor")
+//		{
+//			mFront = mFront.Next; //should be root_anchor
+//			mFront = this;
+//			return true;
+//		}
+//		return false;
+//
+//	}
+//
+//	@property ref MARK front()
+//	{
+//		//if(Name == "root_anchor")mFront = mNext;
+//		return  mFront;
+//	}
+//
+//	void popFront()
+//	{
+//		mFront = mFront.mNext;
+//	}
+//
+//
+//}
+//
 
 class BOOKMARKS : ELEMENT
 {
@@ -149,9 +152,9 @@ class BOOKMARKS : ELEMENT
 	string			mInfo;
 	bool			mState;
 	
-	MARK 			mMarkRoot;
-	MARK			mMarkLast;
-	MARK			mMarkCurrent;
+	DOG_EAR			mMarkRoot;
+	DOG_EAR			mMarkLast;
+	DOG_EAR			mMarkCurrent;
 
 	Action			mCreateMarkAct;
 	Action			mGotoPrevMarkAct;
@@ -166,7 +169,16 @@ class BOOKMARKS : ELEMENT
 		{
 			doc.setMarkCategoryIconFromStock (BOOKMARK_CATEGORY_NAME, "MARK_ICON");
 			doc.setMarkCategoryPriority(BOOKMARK_CATEGORY_NAME, BOOKMARK_CATEGORY_PRIORITY);
-		}		
+		}
+		if(Event == "CloseDocument")
+		{
+			foreach(x;mMarkRoot)x.Update();
+			TextIter tistart = new TextIter;
+			TextIter tiend = new TextIter;
+			doc.getBuffer.getStartIter(tistart);
+			doc.getBuffer.getEndIter(tiend);
+			doc.getBuffer.removeSourceMarks(tistart, tiend, BOOKMARK_CATEGORY_NAME);			
+		}	
 	}
 
 
@@ -186,10 +198,11 @@ class BOOKMARKS : ELEMENT
 
 	void Add()
 	{
-		MARK nuMark = new MARK(mNameTracker);		
+		DOG_EAR nuMark = new DOG_EAR(mNameTracker, dui.GetDocMan.GetName(), dui.GetDocMan.GetLineNo());		
 		mNameTracker = mNameTracker.succ();
-		if(mMarkCurrent is mMarkLast) mMarkRoot.Add(nuMark);
-		else mMarkCurrent.Add(nuMark);
+		nuMark.Attach(dui.GetDocMan.GetDocument());
+		if(mMarkCurrent is mMarkLast) mMarkRoot.InsertAfter(nuMark);
+		else mMarkCurrent.InsertAfter(nuMark);
 		mMarkCurrent = nuMark;
 	}
 
@@ -207,9 +220,8 @@ class BOOKMARKS : ELEMENT
 
 			while(mMarkCurrent !is mMarkLast)
 			{
-				if( mMarkCurrent.Name == tmpMark.getName())
+				if( mMarkCurrent.mID == tmpMark.getName())
 				{
-					writeln( mMarkCurrent.Name, " " , tmpMark.getName());
 					mMarkCurrent.Remove(); //still alive and prev and next valid
 					mMarkCurrent = mMarkCurrent.Next();
 					if(mMarkCurrent is mMarkLast) mMarkCurrent = mMarkLast.Prev;
@@ -224,44 +236,19 @@ class BOOKMARKS : ELEMENT
 
 	void Next(Action X)
 	{
-		bool FixForClosedFiles = false;
-		assert (mMarkCurrent !is null);
-		if(mMarkCurrent is mMarkLast) return; //no bookmarks
-		if(mMarkCurrent is mMarkRoot) return; //no bookmarks
-		mMarkCurrent = mMarkCurrent.Next();
-		if(mMarkCurrent is mMarkLast) mMarkCurrent = mMarkRoot.Next;
-		if(!dui.GetDocMan.IsOpen(mMarkCurrent.FileName)) FixForClosedFiles = true;
-		dui.GetDocMan.Open(mMarkCurrent.FileName, mMarkCurrent.LineNumber);
-		if(FixForClosedFiles)
-		{
-			writeln( "--",mMarkCurrent.Mark.getCategory);
-			writeln(mMarkCurrent.Mark.getBuffer());
-			mMarkCurrent.Mark.getBuffer.deleteMark(mMarkCurrent.Mark);
-			TextIter ti = new TextIter;
-			dui.GetDocMan.GetDocument.getBuffer.getIterAtMark(ti, dui.GetDocMan.GetDocument.getBuffer.getInsert());		
-			dui.GetDocMan.GetDocument.getBuffer.addMark (mMarkCurrent.Mark, ti);
-		}
+		assert(mMarkCurrent !is null);
+		if(mMarkRoot.Next == mMarkLast)return;
+		mMarkCurrent = mMarkCurrent.Next();	
+		mMarkCurrent.Goto();
+		
 	}
 
 	void Prev(Action X)
 	{
-		bool FixForClosedFiles;
 		assert (mMarkCurrent !is null);
-		if(mMarkCurrent is mMarkLast) return; //no bookmarks
-		if(mMarkCurrent is mMarkRoot) return; //no bookmarks
+		if(mMarkRoot.Next == mMarkLast)return;
 		mMarkCurrent = mMarkCurrent.Prev();
-		if(mMarkCurrent is mMarkRoot) mMarkCurrent = mMarkLast.Prev;
-		if(!dui.GetDocMan.IsOpen(mMarkCurrent.FileName))FixForClosedFiles = true;
-		dui.GetDocMan.Open(mMarkCurrent.FileName, mMarkCurrent.LineNumber);
-		if(FixForClosedFiles)
-		{
-			writeln( "--",mMarkCurrent.Mark.getCategory);
-			writeln(mMarkCurrent.Mark.getBuffer());
-			mMarkCurrent.Mark.getBuffer.deleteMark(mMarkCurrent.Mark);
-			TextIter ti = new TextIter;
-			dui.GetDocMan.GetDocument.getBuffer.getIterAtMark(ti, dui.GetDocMan.GetDocument.getBuffer.getInsert());		
-			dui.GetDocMan.GetDocument.getBuffer.addMark (mMarkCurrent.Mark, ti);
-		}
+		mMarkCurrent.Goto();
 	}
 
 	void Save()
@@ -270,7 +257,7 @@ class BOOKMARKS : ELEMENT
 
 		foreach(x; mMarkRoot)
 		{
-			if(canFind(Project[SRCFILES], x.FileName) || canFind(Project[RELFILES], x.FileName))results ~= format("%s:%s",x.FileName, x.LineNumber);
+			if(canFind(Project[SRCFILES], x.GetFileName) || canFind(Project[RELFILES], x.GetFileName))results ~= format("%s:%s",x.GetFileName, x.GetLine);
 		}
 		if(results.length < 1) return;
 
@@ -282,7 +269,15 @@ class BOOKMARKS : ELEMENT
 	{
 		string[] results = Project[BOOKMARK_CATEGORY_NAME];
 
-		foreach(r; results)writeln(r);
+		DOG_EAR PlaceHolder;
+		
+		foreach(r; results)
+		{
+			auto  rsplit = r.findSplit(":");
+			PlaceHolder = new DOG_EAR(NameTracker, rsplit[0], to!int(rsplit[2]));
+			mMarkCurrent.InsertAfter(PlaceHolder);
+		}
+			
 			
 	}
 
@@ -307,8 +302,8 @@ class BOOKMARKS : ELEMENT
         mName = "BOOKMARKS";
         mInfo = "Manage and navigate bookmarks.";
 
-        mMarkRoot = new MARK("root_anchor", "anchor");
-        mMarkLast = new MARK("tail_anchor", "anchor");
+        mMarkRoot = new DOG_EAR("root_anchor", "anchor", 0);
+        mMarkLast = new DOG_EAR("tail_anchor", "anchor", 0);
 
         mMarkRoot.Prev = mMarkLast;
         mMarkRoot.Next = mMarkLast;
@@ -355,8 +350,8 @@ class BOOKMARKS : ELEMENT
 		mGotoPrevMarkAct.setAccelGroup(dui.GetAccel());
 
 		dui.Actions().addActionWithAccel(mCreateMarkAct	, "<Ctrl>M");
-        dui.Actions().addActionWithAccel(mGotoNextMarkAct, "<Ctrl>,");
-        dui.Actions().addActionWithAccel(mGotoPrevMarkAct, "<Ctrl>.");
+        dui.Actions().addActionWithAccel(mGotoNextMarkAct, "<Ctrl>comma");
+        dui.Actions().addActionWithAccel(mGotoPrevMarkAct, "<Ctrl>period");
 
         dui.AddMenuItem("_Navigate", mCreateMarkAct	.createMenuItem());
         dui.AddMenuItem("_Navigate", mGotoNextMarkAct.createMenuItem());
@@ -384,6 +379,161 @@ class BOOKMARKS : ELEMENT
 		return null;
 	}
 
+	string NameTracker()
+	{
+		string rv = mNameTracker;
+		mNameTracker = mNameTracker.succ();
+		return rv;
+	}
+
 
 }
+
+
+class DOG_EAR
+{
+	private:
+	
+	string 		mID;
+	string		mFileName;
+	int			mLine;
+	
+
+	SourceMark	mSrcMark;
+
+	DOG_EAR		mNext;
+	DOG_EAR		mPrev;
+	DOG_EAR		mFront;
+
+	public:
+
+	this(string MarkId, string FileName, int Line)
+	{
+		mID = MarkId;
+		mFileName = FileName;
+		mLine = Line;
+
+		mSrcMark = null;
+		mNext = null;
+		mPrev = null;
+		mFront = null;
+	}
+
+	void Attach(DOCUMENT Doc)
+	{
+		
+		TextIter ti = new TextIter;
+
+		Doc.getBuffer.getIterAtMark(ti, Doc.getBuffer.getInsert());
+		
+		if(mSrcMark is null)mSrcMark = Doc.getBuffer.createSourceMark(mID, BOOKMARK_CATEGORY_NAME, ti);
+		else
+		{
+			Doc.getBuffer.deleteMarkByName(mSrcMark.getName);
+			Doc.getBuffer.addMark(mSrcMark, ti);
+		}
+	}
+
+	void InsertAfter(DOG_EAR mark)
+	{
+
+		mark.mNext = mNext;
+		mark.mPrev = this;
+		
+		mNext.mPrev = mark;
+		mNext = mark;
+
+		mFront = this;
+	}
+
+	void Remove()
+	{
+		mNext.Prev = mPrev;
+		mPrev.Next = mNext;
+
+	}
+
+	void Goto()
+	{
+		if(mSrcMark is null)
+		{
+			dui.GetDocMan.Open(mFileName, mLine);
+			Attach(dui.GetDocMan.GetDocument);
+			return;
+		}
+		if(mSrcMark.getDeleted())
+		{
+			dui.GetDocMan.Open(mFileName, mLine);
+			Attach(dui.GetDocMan.GetDocument);
+			return;
+		}
+			
+		if(mID == "root_anchor") return;
+		if(mID == "tail_anchor") return;
+		TextIter ti = new TextIter;
+		mSrcMark.getBuffer.getIterAtMark(ti, mSrcMark);
+		dui.GetDocMan.Open(mFileName, ti.getLine());
+		Attach(dui.GetDocMan.GetDocument);
+	}
+
+	@property void 		Next(DOG_EAR nuNext){mNext = nuNext;}
+	@property DOG_EAR	Next()
+	{
+		if(mNext.mID == "tail_anchor") return mNext.mNext.mNext;
+		return mNext;
+	}
+
+	@property void 		Prev(DOG_EAR nuPrev){mPrev = nuPrev;}
+	@property DOG_EAR	Prev()
+	{
+		if(mPrev.mID == "root_anchor") return mPrev.mPrev.mPrev;
+		return mPrev;
+	}
+
+	@property 
+
+	int GetLine()
+	{
+		if(mSrcMark is null) return mLine;
+		if(mSrcMark.getBuffer is null) return mLine;
+		TextIter ti = new TextIter;
+		mSrcMark.getBuffer.getIterAtMark(ti, mSrcMark);
+		return ti.getLine();
+	}
+	void Update()
+	{
+		mLine = GetLine();
+	}
+
+	string GetFileName(){return mFileName;}
+
+	SourceMark GetMark(){return mSrcMark;}
+
+
+
+	@property bool empty()
+	{
+		if(mFront.mID == "tail_anchor")
+		{
+			mFront = mFront.Next; //should be root_anchor
+			return true;
+		}
+		return false;
+	}
+
+	@property ref DOG_EAR front()
+	{
+		if(mFront.mID == "root_anchor")mFront = mFront.mNext;
+		if(mFront.mID == "tail_anchor")mFront = mFront.mNext.mNext;
+		return  mFront;
+	}
+
+	void popFront()
+	{
+		mFront = mFront.mNext;
+	}
+}
+	
+		
+	
 	

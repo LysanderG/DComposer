@@ -371,6 +371,12 @@ class DOCMAN
 		return null;
 	}
 
+	string GetName()
+	{
+		if(Current !is null) return Current.Name;
+		return null;
+	}
+
 	DOCUMENT GetDocument(string Name = null)
 	{
 		if(Name is null) return Current;
