@@ -778,3 +778,19 @@ So I don't forget... new crap I've noticed
 	be some kind of initiating function for starting a range.  I added another MARK (ptr?) called mFront to each MARK
 	(in addition to prev and next) when empty returns true mFront = this on popfront mFront = mFront.next.  Will see how
 	it holds up under use.
+	(huh?)
+
+	++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	08.06.2012
+
+	Rewrote the whole bookmark module as it made about as much sense as the preceding paragraph. Now just have to get
+	Toggle/Add to work correctly.
+
+	Holy crap!  Another rewrite.  the whole double linked list with a current marker, all the range stuff, ablity
+	to walk bidirectional for non range stuff, persistant over closed files, persistant over closed projects, ...
+	Well just say I got very confused (this is like the 100th time I've said it but...) Finally it works!
+	What a day.
+
+	Sure there are easier ways to do this but hey, I'm stubborn.  I get ranges now so that's cool.
+
+	Going out of town tomorrow so I get a break from all this.  Time to think of what to do next.

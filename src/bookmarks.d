@@ -188,71 +188,64 @@ class BOOKMARKS : ELEMENT
 		//if yes goto remove
 		//otherwise goto add
 		//thats it
+		bool TogglingOff = false;
 		int Iline = dui.GetDocMan.GetLineNo();
-		ListSG ExistingMarksList = dui.GetDocMan.GetDocument.getBuffer. getSourceMarksAtLine (Iline, BOOKMARK_CATEGORY_NAME); 
-		if(ExistingMarksList) Remove(ExistingMarksList);
-		else Add();
-
-		return;	
+		foreach(x; mMarkRoot)
+		{
+			writeln("<prev> ", x.mPrev.mID, " <this> ", x.mID, " <next> ", x.mNext.mID);
+			if(x.GetLine == Iline)
+			{
+				writeln("TOGGLE OFF!!!");
+				TogglingOff = true;
+				x.Remove();
+			}
+		}
+		if(TogglingOff)
+		{
+			mMarkCurrent = mMarkRoot;
+			return;
+		}
+		
+		Add();
 	}
 
 	void Add()
 	{
-		DOG_EAR nuMark = new DOG_EAR(mNameTracker, dui.GetDocMan.GetName(), dui.GetDocMan.GetLineNo());		
-		mNameTracker = mNameTracker.succ();
+		DOG_EAR nuMark = new DOG_EAR(NameTracker, dui.GetDocMan.GetName(), dui.GetDocMan.GetLineNo());		
 		nuMark.Attach(dui.GetDocMan.GetDocument());
 		if(mMarkCurrent is mMarkLast) mMarkRoot.InsertAfter(nuMark);
 		else mMarkCurrent.InsertAfter(nuMark);
 		mMarkCurrent = nuMark;
 	}
 
-	void Remove(ListSG OldMarks)
-	{
-		SourceMark tmpMark;
-		while(OldMarks !is null)
-		{
-			
-			auto structptr = cast(GtkSourceMark*)OldMarks.data();
-			tmpMark = new SourceMark(structptr);				
-			dui.GetDocMan.GetDocument.getBuffer.deleteMarkByName(tmpMark.getName());
 
-			mMarkCurrent = mMarkRoot.Next;
-
-			while(mMarkCurrent !is mMarkLast)
-			{
-				if( mMarkCurrent.mID == tmpMark.getName())
-				{
-					mMarkCurrent.Remove(); //still alive and prev and next valid
-					mMarkCurrent = mMarkCurrent.Next();
-					if(mMarkCurrent is mMarkLast) mMarkCurrent = mMarkLast.Prev;
-					break;
-				}
-				mMarkCurrent = mMarkCurrent.Next();
-			}
-			OldMarks = OldMarks.next();
-		}
-		return;			
-	}
 
 	void Next(Action X)
 	{
+		write ("--------");
 		assert(mMarkCurrent !is null);
-		if(mMarkRoot.Next == mMarkLast)return;
-		mMarkCurrent = mMarkCurrent.Next();	
+		write ("11111111");
+		if(mMarkRoot.mNext == mMarkLast)return;
+		write ("22222222");
+		mMarkCurrent = mMarkCurrent.Increment();
+		write ("33333333");
 		mMarkCurrent.Goto();
+		write("444444444");
 		
 	}
 
 	void Prev(Action X)
 	{
 		assert (mMarkCurrent !is null);
-		if(mMarkRoot.Next == mMarkLast)return;
-		mMarkCurrent = mMarkCurrent.Prev();
+		if(mMarkRoot.mNext == mMarkLast)return;
+		mMarkCurrent = mMarkCurrent.Decrement();
 		mMarkCurrent.Goto();
 	}
 
 	void Save()
 	{
+		if(Project.Target == TARGET.NULL) return;
+
 		string[] results;
 
 		foreach(x; mMarkRoot)
@@ -260,8 +253,6 @@ class BOOKMARKS : ELEMENT
 			if(canFind(Project[SRCFILES], x.GetFileName) || canFind(Project[RELFILES], x.GetFileName))results ~= format("%s:%s",x.GetFileName, x.GetLine);
 		}
 		if(results.length < 1) return;
-
-		if(Project.Target == TARGET.NULL) return;
 		Project[BOOKMARK_CATEGORY_NAME] = results;	
 	}
 
@@ -270,15 +261,15 @@ class BOOKMARKS : ELEMENT
 		string[] results = Project[BOOKMARK_CATEGORY_NAME];
 
 		DOG_EAR PlaceHolder;
-		
+
+		mMarkCurrent = mMarkRoot;
 		foreach(r; results)
 		{
 			auto  rsplit = r.findSplit(":");
 			PlaceHolder = new DOG_EAR(NameTracker, rsplit[0], to!int(rsplit[2]));
 			mMarkCurrent.InsertAfter(PlaceHolder);
-		}
-			
-			
+			mMarkCurrent = PlaceHolder;			
+		}		
 	}
 
 	void Clear()
@@ -305,12 +296,13 @@ class BOOKMARKS : ELEMENT
         mMarkRoot = new DOG_EAR("root_anchor", "anchor", 0);
         mMarkLast = new DOG_EAR("tail_anchor", "anchor", 0);
 
-        mMarkRoot.Prev = mMarkLast;
-        mMarkRoot.Next = mMarkLast;
-        mMarkLast.Next = mMarkRoot;
-        mMarkLast.Prev = mMarkRoot;
+        mMarkRoot.mPrev = mMarkLast;
+        mMarkRoot.mNext = mMarkLast;
+        mMarkLast.mNext = mMarkRoot;
+        mMarkLast.mPrev = mMarkRoot;
 
-        mMarkCurrent = mMarkLast;
+        mMarkCurrent = mMarkRoot;
+       
     }
     
     @property string Name(){ return mName;}
@@ -416,7 +408,7 @@ class DOG_EAR
 		mSrcMark = null;
 		mNext = null;
 		mPrev = null;
-		mFront = null;
+		mFront = this;
 	}
 
 	void Attach(DOCUMENT Doc)
@@ -442,15 +434,13 @@ class DOG_EAR
 		
 		mNext.mPrev = mark;
 		mNext = mark;
-
-		mFront = this;
 	}
 
 	void Remove()
 	{
-		mNext.Prev = mPrev;
-		mPrev.Next = mNext;
-
+		mNext.mPrev = mPrev;
+		mPrev.mNext = mNext;
+		mSrcMark.getBuffer.deleteMarkByName(mSrcMark.getName());
 	}
 
 	void Goto()
@@ -475,22 +465,7 @@ class DOG_EAR
 		dui.GetDocMan.Open(mFileName, ti.getLine());
 		Attach(dui.GetDocMan.GetDocument);
 	}
-
-	@property void 		Next(DOG_EAR nuNext){mNext = nuNext;}
-	@property DOG_EAR	Next()
-	{
-		if(mNext.mID == "tail_anchor") return mNext.mNext.mNext;
-		return mNext;
-	}
-
-	@property void 		Prev(DOG_EAR nuPrev){mPrev = nuPrev;}
-	@property DOG_EAR	Prev()
-	{
-		if(mPrev.mID == "root_anchor") return mPrev.mPrev.mPrev;
-		return mPrev;
-	}
-
-	@property 
+	
 
 	int GetLine()
 	{
@@ -513,24 +488,53 @@ class DOG_EAR
 
 	@property bool empty()
 	{
+
+		if((mFront.mID == "root_anchor") && (mFront.mNext.mID == "tail_anchor")) return true;
 		if(mFront.mID == "tail_anchor")
 		{
-			mFront = mFront.Next; //should be root_anchor
+			mFront = this; //should be root_anchor
+			writeln("empty is true front == ",mFront.mID);
 			return true;
 		}
+		writeln("empty is false front == ",mFront.mID,);
 		return false;
 	}
 
 	@property ref DOG_EAR front()
 	{
+		write("     front is ", mFront.mID);
+		
 		if(mFront.mID == "root_anchor")mFront = mFront.mNext;
-		if(mFront.mID == "tail_anchor")mFront = mFront.mNext.mNext;
+		writeln(" but returning ",mFront.mID);
 		return  mFront;
 	}
 
 	void popFront()
 	{
+		write("   poping ", mFront.mID);
 		mFront = mFront.mNext;
+		writeln(" to ",mFront.mID);
+	}
+
+
+	DOG_EAR Increment()
+	{
+		auto rv = this.mNext;
+		writeln(rv.mPrev.mID, " " , rv.mID, " ", rv.mNext.mID, " ", rv.mNext.mNext.mID, " ", rv.mNext.mNext.mNext.mID);
+		
+		if(rv.mID == "tail_anchor") rv = rv.mNext;
+		if(rv.mID == "root_anchor") rv = rv.mNext;
+		writeln("increment returning ", rv.mID);
+		return rv;
+	}
+
+	DOG_EAR Decrement()
+	{
+		auto rv = this.mPrev;
+
+		if(rv.mID == "root_anchor") rv = rv.mPrev;
+		if(rv.mID == "tail_anchor") rv = rv.mPrev;
+		return rv;
 	}
 }
 	
