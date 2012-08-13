@@ -328,7 +328,7 @@ class PROJECT
         Save();
         mTarget = TARGET.NULL;
         
-        Name = null;
+        Name = "";
         mWorkingPath.length = 0;
 
         scope(failure)Log.Entry("Unable to reset Flags File", "Error");

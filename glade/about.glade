@@ -690,7 +690,6 @@ Public License instead of this License.  But first, please read
 &lt;http://www.gnu.org/philosophy/why-not-lgpl.html&gt;.
 </property>
     <property name="authors">Anthony Goins</property>
-    <property name="logo">/home/anthony/.neontotem/dcomposer/resources/stolen2.png</property>
     <property name="wrap_license">True</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">

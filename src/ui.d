@@ -384,6 +384,7 @@ class MAIN_UI
 
         auto About = cast(AboutDialog) AboutBuilder.getObject("aboutdialog1");
 
+		About.setLogo(new Pixbuf(Config.getString("UI", "about_logo", "$(HOME_DIR)/glade/stolen2.png")));
         About.run();
         About.hide();
     }

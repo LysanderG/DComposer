@@ -92,7 +92,7 @@ private struct DATA_STORE
             {
                 if(match.Kind != "function") continue;
                 mStore.append(mIter);
-                auto x = indexOf(match.Type, "(");
+                auto x = countUntil(match.Type, "(");
                 string signature = match.Type[0..x] ~" "~ match.Name ~" "~ match.Type[x..$];
                 mStore.setValue(mIter, 0, std.xml.decode(signature));
                 mStore.setValue(mIter, 1, std.xml.decode(match.Path));

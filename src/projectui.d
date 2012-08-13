@@ -601,17 +601,29 @@ class PROJECT_UI : ELEMENT
 
         scope(exit) Process.close();
     }
-		
-		
-
-    
 
 
     void Run(Action x)
     {
         dui.GetDocMan.SaveAll();
+		if(Project.Target == TARGET.NULL) return RunFile();
         Project.RunConcurrent();
     }
+	void RunFile()
+	{
+		if(dui.GetDocMan.Current is null) return;
+
+        string ProcessCommand =  "xterm -hold -e rdmd " ~ dui.GetDocMan.GetName();
+
+        std.stdio.File Process;
+        Process.popen(ProcessCommand, "r");
+
+        Log.Entry("Running ... " ~ ProcessCommand);
+        foreach(string L; lines(Process) ) Log.Entry(chomp(L));//RunMsg.emit(chomp(L));
+    
+        Process.close();
+    }
+		
 
     void RunWithArgs(Action x)
     {
