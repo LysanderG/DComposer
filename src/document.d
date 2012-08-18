@@ -56,6 +56,7 @@ import gtkc.gtk;
 
 import gdk.Event;
 import gdk.DragContext;
+import gdk.Color;
 
 import gobject.ObjectG;
 import gobject.ParamSpec;
@@ -127,9 +128,11 @@ class DOCUMENT : SourceView
 
 	void UpdatePageTab()
 	{
-		if(Modified) mTabLabel.setText ("[* " ~ ShortName ~ " *]");
+		if(Modified)
+		{
+			mTabLabel.setMarkup(`<span foreground="red" >[* `~ShortName~` *]</span>`);			
+		}
 		else mTabLabel.setText(ShortName);
-		//mTabLabel.setTooltipText(Name);
 		mTabWidget.setTooltipText(Name);
 		mTabWidget.showAll();
 		
