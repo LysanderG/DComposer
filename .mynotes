@@ -794,3 +794,31 @@ So I don't forget... new crap I've noticed
 	Sure there are easier ways to do this but hey, I'm stubborn.  I get ranges now so that's cool.
 
 	Going out of town tomorrow so I get a break from all this.  Time to think of what to do next.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+08.19.2012
+
+	Long time since last update. I have been kind of lost as what to do next.  Spent a lot of time watching the full
+season 2 of Game of Thrones.  Can not wait for season 3.  Wish there were more shows like this.
+
+	Anyway blew a lot of time watching movies and finding other ways to waste time.  Deciding which path to take next...
+		. Key bindings -- think I've figured out keybindingsets  the key is 'paths'... didn't know each widget had a path.
+		. more text commands (actions) up/down scope({}) start/end statements (;) etc
+		. code clean up /documentation.
+		. customizable toolbar.
+
+	I've finally decided to pretty up assistantui using webkit.  I'm figuring out how to use it now.  I plan on allowing
+users decide if they want to build with a webkit-1.0 dependancy.  WebKitGtk-3.0 didn't work (conflicts with gtk2 I recon),
+and I don't see a 2.0 in the ubuntu repos.  To work gonna have to create html files along with tag(json) files.
+
+	So basically two branches a textview comment viewer and an optional webkit viewer.
+
+	One day I'll tell someone this ide is here, gonna have to remove these stupid notes first though.  If I forget, just
+remember, I fall asleep for a few seconds after every sentence ... uh  where was I ...
+
+	Random stuff...
+
+dcomposer is like 13 megs (with all extra symbol info stuff).
+I really need to go back and put something out for a debugger even if it sucks.
+Vim mode.  (ctl)enter = vim command emulation mode.  enter exits
+Oh well good night.

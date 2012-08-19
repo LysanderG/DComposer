@@ -43,13 +43,19 @@ import gtk.TreeIter;
 import gtk.ListStore;
 import gtk.Widget;
 import gtk.HPaned;
-
+import gtk.ScrolledWindow;
 import gtk.CheckButton;
 
 import gtk.TreePath;
 import gtk.TreeViewColumn;
 
 import glib.SimpleXML;
+
+//extern (C) struct  WebKitWebView;
+extern (C) GtkWidget * webkit_web_view_new();
+extern (C) void webkit_web_view_load_uri  (GtkWidget *web_view, const gchar *uri);
+
+
 
 class ASSISTANT_UI : ELEMENT
 {
@@ -69,7 +75,10 @@ class ASSISTANT_UI : ELEMENT
     Button      mBtnJumpTo;
     Button      mBtnWebLink;
     Label       mSignature;
-    TextView    mComments;
+    //TextView    mComments;
+    GtkWidget * mWebView;
+    ScrolledWindow mScrollWin;
+    
     TreeView    mChildren;
     ListStore   mPossibleStore;
     ListStore   mChildrenStore;
@@ -141,9 +150,21 @@ class ASSISTANT_UI : ELEMENT
         mPossibleStore.setValue(ti,0, SimpleXML.escapeText(Symbol.Path,-1));
 
         mSignature.setText(Symbol.Type);
-        if(Symbol.Comment.length >0)mComments.getBuffer().setText(Symbol.Comment);
-        else mComments.getBuffer().setText("No documentation available");
 
+		//if no comment then load a no comment page
+		writeln("---",Symbol.Comment);
+        if(Symbol.Comment.length < 1)
+        {
+			string none = "file://" ~ config.HOME_DIR ~ "docs/undocumented.html";
+			writeln(none);
+			webkit_web_view_load_uri(mWebView, none.ptr);
+			return;
+		}
+			
+
+		//first look in our 'doc' folder for file.html #name
+	
+		//if not there then dlang.org/phobos/std_file#name
 
 		
         mChildrenStore.clear();
@@ -175,12 +196,26 @@ class ASSISTANT_UI : ELEMENT
         }
         GC.enable();
 
-        if(mList[indx].Comment.length >0)mComments.getBuffer().setText(mList[indx].Comment);
-        else mComments.getBuffer().setText("No documentation available");
+        //if(mList[indx].Comment.length >0)mComments.getBuffer().setText(mList[indx].Comment);
+        //else mComments.getBuffer().setText("No documentation available");
 
         //if(mList[indx].Type.length > 0) mSignature.setText(mList[indx].Type);
         //else mSignature.setText(" ");
+		//if no comment then load a no comment page
+		writeln("---",mList[indx].Comment);
+        if(mList[indx].Comment.length < 1)
+        {
+			string none = "file://" ~ config.HOME_DIR ~ "docs/undocumented.html";
+			writeln(none);
+			webkit_web_view_load_uri(mWebView, none.ptr);
+			return;
+		}
+			
 
+		//first look in our 'doc' folder for file.html #name
+	
+		//if not there then dlang.org/phobos/std_file#name
+		
         string LabelText = "("~mList[indx].Kind~") -- Signature : " ~ mList[indx].Type;
         mSignature.setText(LabelText);
     }
@@ -266,7 +301,14 @@ class ASSISTANT_UI : ELEMENT
         mBtnJumpTo      =   cast(Button)    mBuilder.getObject("button2");
         mBtnWebLink     =   cast(Button)    mBuilder.getObject("button3");
         mSignature      =   cast(Label)     mBuilder.getObject("label1");
-        mComments       =   cast(TextView)  mBuilder.getObject("textview1");
+        //mComments     =   cast(TextView)  mBuilder.getObject("textview1");
+        mScrollWin		= 	cast(ScrolledWindow)mBuilder.getObject("scrolledwindow1");
+        mWebView 		= 	webkit_web_view_new();
+		Widget tmp = new Widget(mWebView);
+        mScrollWin.add(tmp);
+        tmp.show();
+        webkit_web_view_load_uri  (mWebView, "http://dlang.org".ptr);
+        
         mChildren       =   cast(TreeView)  mBuilder.getObject("treeview2");
         mHPane          =   cast(HPaned)    mBuilder.getObject("hpaned1");
 

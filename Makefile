@@ -8,7 +8,7 @@ TARGET    = dcomposer
 DSOURCES  = $(shell echo src/*.d)
 
 INC_PATHS = -I/usr/include/d
-LIBRARIES = -L-lgtkdsv -L-lgtkd -L-lvte -L-lutil
+LIBRARIES = -L-lgtkdsv -L-lgtkd -L-lvte -L-lutil -L-lwebkitgtk-1.0
 
 DFLAGS = -of$(TARGET) -D -Dddocs -odobjdir -J. 
 RELEASEFLAGS = -release
