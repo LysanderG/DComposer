@@ -21,6 +21,9 @@ module assistantui;
 
 import std.stdio;
 import std.string;
+import std.path;
+import std.algorithm;
+import std.file;
 
 import core.memory;
 
@@ -51,10 +54,15 @@ import gtk.TreeViewColumn;
 
 import glib.SimpleXML;
 
-//extern (C) struct  WebKitWebView;
-extern (C) GtkWidget * webkit_web_view_new();
-extern (C) void webkit_web_view_load_uri  (GtkWidget *web_view, const gchar *uri);
+version(WEBKIT)
+{
+	import gtkc.gtk;
+	import gtkc.gobject;
 
+	//substituting GtkWebKitView * with GtkWidget * because it is easier than trying to define GtkWebKitView
+	extern (C) GtkWidget * webkit_web_view_new();
+	extern (C) void webkit_web_view_load_uri  (GtkWidget *web_view, const gchar *uri);
+}
 
 
 class ASSISTANT_UI : ELEMENT
@@ -75,7 +83,9 @@ class ASSISTANT_UI : ELEMENT
     Button      mBtnJumpTo;
     Button      mBtnWebLink;
     Label       mSignature;
-    //TextView    mComments;
+
+    
+    TextView    mComments;
     GtkWidget * mWebView;
     ScrolledWindow mScrollWin;
     
@@ -139,34 +149,13 @@ class ASSISTANT_UI : ELEMENT
     
     void CatchSymbol(DSYMBOL Symbol)
     {
-        TreeIter ti = new TreeIter;
-        
+        TreeIter ti = new TreeIter;        
         GC.disable();
-
         mPossibleStore.clear();
-
         //fill combobox
         mPossibleStore.append(ti);
         mPossibleStore.setValue(ti,0, SimpleXML.escapeText(Symbol.Path,-1));
-
         mSignature.setText(Symbol.Type);
-
-		//if no comment then load a no comment page
-		writeln("---",Symbol.Comment);
-        if(Symbol.Comment.length < 1)
-        {
-			string none = "file://" ~ config.HOME_DIR ~ "docs/undocumented.html";
-			writeln(none);
-			webkit_web_view_load_uri(mWebView, none.ptr);
-			return;
-		}
-			
-
-		//first look in our 'doc' folder for file.html #name
-	
-		//if not there then dlang.org/phobos/std_file#name
-
-		
         mChildrenStore.clear();
         foreach (sym; Symbol.Children)
         {
@@ -175,8 +164,8 @@ class ASSISTANT_UI : ELEMENT
             mChildrenStore.setValue(ti, 0, SimpleXML.escapeText(sym.Name,-1));
         }
         GC.enable();
-
         mPossibles.setActive(0);
+        UpdateAssistant();
     }
 
 
@@ -196,23 +185,71 @@ class ASSISTANT_UI : ELEMENT
         }
         GC.enable();
 
-        //if(mList[indx].Comment.length >0)mComments.getBuffer().setText(mList[indx].Comment);
-        //else mComments.getBuffer().setText("No documentation available");
-
-        //if(mList[indx].Type.length > 0) mSignature.setText(mList[indx].Type);
-        //else mSignature.setText(" ");
-		//if no comment then load a no comment page
-		writeln("---",mList[indx].Comment);
         if(mList[indx].Comment.length < 1)
         {
-			string none = "file://" ~ config.HOME_DIR ~ "docs/undocumented.html";
-			writeln(none);
-			webkit_web_view_load_uri(mWebView, none.ptr);
+	        version(WEBKIT)
+	        {
+				writeln(mList[indx].Comment);
+			    string none = "file://" ~ Config.getString("ASSISTANT_UI","doc_folder", "$(SYSTEM_DIR)/docs/");
+			    none ~= "undocumented.html";
+			    webkit_web_view_load_uri(mWebView, none.ptr);
+		    }
+		    else
+		    {
+				mComments.getBuffer.setText(mList[indx].Path ~ " has no documentation.");
+		    }
+		    
 			return;
 		}
-			
 
-		//first look in our 'doc' folder for file.html #name
+		//if symbol in file is a project file then check -Dd/-Df
+		//else check $(home_dir) for any user added tag/doc packages
+		//then check config doc directories?? 
+			
+		string DocDir, DocFile;
+		DocFile = mList[indx].InFile;
+
+		DocFile = stripExtension(baseName(DocFile));
+		DocFile = DocFile.setExtension("html");
+		
+		version(WEBKIT)
+		{
+			if(canFind(Project[SRCFILES],mList[indx].InFile)) //is this a project file -- then look in project docs
+			{
+				writeln("truely", mList[indx].InFile);
+				DocDir = buildPath(Project.WorkingPath, Project.GetFlags["-Dd"].Argument);
+				string url = buildPath(DocDir, DocFile);
+				if(exists(url))
+				{
+					url = "file://"~url~"#"~mList[indx].Name;
+					webkit_web_view_load_uri(mWebView, toStringz(url));
+				}
+			}
+			else //look in any folders set up as document folders?? whatever is in config file
+			{
+				if (Config.hasGroup("DOCUMENTATION_FOLDERS"))
+				{
+					auto docFolders = Config.getKeys("DOCUMENTATION_FOLDERS");
+					foreach (Folder; docFolders)
+					{
+						writeln(Folder);
+						string url = buildPath(Config.getString("DOCUMENTATION_FOLDERS",Folder), "std_"~DocFile);
+						writeln(url);
+						if(exists(url))
+						{
+							url = "file://"~url~"#"~mList[indx].Name;
+							webkit_web_view_load_uri(mWebView, toStringz(url));
+							break;
+						}
+					}
+				}
+			}				
+	    }
+	    else
+	    {
+			mComments.getBuffer.setText(mList[indx].Comment);
+	    }
+		
 	
 		//if not there then dlang.org/phobos/std_file#name
 		
@@ -301,13 +338,24 @@ class ASSISTANT_UI : ELEMENT
         mBtnJumpTo      =   cast(Button)    mBuilder.getObject("button2");
         mBtnWebLink     =   cast(Button)    mBuilder.getObject("button3");
         mSignature      =   cast(Label)     mBuilder.getObject("label1");
-        //mComments     =   cast(TextView)  mBuilder.getObject("textview1");
         mScrollWin		= 	cast(ScrolledWindow)mBuilder.getObject("scrolledwindow1");
-        mWebView 		= 	webkit_web_view_new();
-		Widget tmp = new Widget(mWebView);
-        mScrollWin.add(tmp);
-        tmp.show();
-        webkit_web_view_load_uri  (mWebView, "http://dlang.org".ptr);
+
+		version(WEBKIT)
+		{
+			mWebView 	= 	webkit_web_view_new();
+			Widget tmp 	= new Widget(mWebView);
+			mScrollWin.add(tmp);
+			tmp.show();
+		}
+		else
+		{
+			mComments	= new TextView;
+			mScrollWin.add(mComments);
+			mComments.show();
+		}
+        
+        
+        version(WEBKIT) webkit_web_view_load_uri  (mWebView, "http://dlang.org".ptr);
         
         mChildren       =   cast(TreeView)  mBuilder.getObject("treeview2");
         mHPane          =   cast(HPaned)    mBuilder.getObject("hpaned1");

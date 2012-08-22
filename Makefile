@@ -1,6 +1,9 @@
 #Hopefully this Makefile will build DComposer.
 #Wish me luck
 
+#comment out not to use libwebkitgtk-1.0   can not use 3.0 with gtk 2
+WEBKITGTK = true
+
 # ok whats th diff := and =?
 DC = dmd
 
@@ -8,7 +11,7 @@ TARGET    = dcomposer
 DSOURCES  = $(shell echo src/*.d)
 
 INC_PATHS = -I/usr/include/d
-LIBRARIES = -L-lgtkdsv -L-lgtkd -L-lvte -L-lutil -L-lwebkitgtk-1.0
+LIBRARIES = -L-lgtkdsv -L-lgtkd -L-lvte -L-lutil
 
 DFLAGS = -of$(TARGET) -D -Dddocs -odobjdir -J. 
 RELEASEFLAGS = -release
@@ -20,6 +23,11 @@ endif
 
 PREFIX = $(DESTDIR)/usr/local
 BINDIR = $(PREFIX)/bin
+
+ifdef WEBKITGTK
+LIBRARIES := $(LIBRARIES) -L-lwebkitgtk-1.0
+DFLAGS := $(DFLAGS) -version=WEBKIT
+endif
 
 
 all: $(TARGET)
