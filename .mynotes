@@ -822,3 +822,14 @@ dcomposer is like 13 megs (with all extra symbol info stuff).
 I really need to go back and put something out for a debugger even if it sucks.
 Vim mode.  (ctl)enter = vim command emulation mode.  enter exits
 Oh well good night.
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+08.25.2012
+
+Ok long time.  Got the beginnings of a doc viewer through webkit in assistantui.  Still lots to do...
+	. Make assistantui work if not compiled with webkit (currently only webkit 1 cuz I didn't see 2 in ubuntu repos)
+	. Make it work if user doesn't create html docs.
+	. Make it work if user changes html docs defaults.
+	. Make it look half way decent without html
+	

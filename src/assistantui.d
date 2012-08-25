@@ -54,6 +54,8 @@ import gtk.TreeViewColumn;
 
 import glib.SimpleXML;
 
+
+
 version(WEBKIT)
 {
 	import gtkc.gtk;
@@ -62,6 +64,7 @@ version(WEBKIT)
 	//substituting GtkWebKitView * with GtkWidget * because it is easier than trying to define GtkWebKitView
 	extern (C) GtkWidget * webkit_web_view_new();
 	extern (C) void webkit_web_view_load_uri  (GtkWidget *web_view, const gchar *uri);
+	extern (C) gboolean webkit_web_view_search_text (GtkWidget *web_view, const gchar *text,  gboolean case_sensitive, gboolean forward,  gboolean wrap);
 }
 
 
@@ -87,6 +90,7 @@ class ASSISTANT_UI : ELEMENT
     
     TextView    mComments;
     GtkWidget * mWebView;
+    Widget		dWebView;
     ScrolledWindow mScrollWin;
     
     TreeView    mChildren;
@@ -174,7 +178,7 @@ class ASSISTANT_UI : ELEMENT
         int indx = mPossibles.getActive();
         if(( indx < 0) || (indx >= mList.length)) return;
         TreeIter ti = new TreeIter;
-
+        
 		GC.disable();
         mChildrenStore.clear();
         foreach (sym; mList[indx].Children)
@@ -185,77 +189,81 @@ class ASSISTANT_UI : ELEMENT
         }
         GC.enable();
 
-        if(mList[indx].Comment.length < 1)
-        {
-	        version(WEBKIT)
-	        {
-				writeln(mList[indx].Comment);
-			    string none = "file://" ~ Config.getString("ASSISTANT_UI","doc_folder", "$(SYSTEM_DIR)/docs/");
-			    none ~= "undocumented.html";
-			    webkit_web_view_load_uri(mWebView, none.ptr);
-		    }
-		    else
-		    {
-				mComments.getBuffer.setText(mList[indx].Path ~ " has no documentation.");
-		    }
-		    
-			return;
-		}
-
-		//if symbol in file is a project file then check -Dd/-Df
-		//else check $(home_dir) for any user added tag/doc packages
-		//then check config doc directories?? 
-			
-		string DocDir, DocFile;
-		DocFile = mList[indx].InFile;
-
-		DocFile = stripExtension(baseName(DocFile));
-		DocFile = DocFile.setExtension("html");
-		
-		version(WEBKIT)
-		{
-			if(canFind(Project[SRCFILES],mList[indx].InFile)) //is this a project file -- then look in project docs
-			{
-				writeln("truely", mList[indx].InFile);
-				DocDir = buildPath(Project.WorkingPath, Project.GetFlags["-Dd"].Argument);
-				string url = buildPath(DocDir, DocFile);
-				if(exists(url))
-				{
-					url = "file://"~url~"#"~mList[indx].Name;
-					webkit_web_view_load_uri(mWebView, toStringz(url));
-				}
-			}
-			else //look in any folders set up as document folders?? whatever is in config file
-			{
-				if (Config.hasGroup("DOCUMENTATION_FOLDERS"))
-				{
-					auto docFolders = Config.getKeys("DOCUMENTATION_FOLDERS");
-					foreach (Folder; docFolders)
-					{
-						writeln(Folder);
-						string url = buildPath(Config.getString("DOCUMENTATION_FOLDERS",Folder), "std_"~DocFile);
-						writeln(url);
-						if(exists(url))
-						{
-							url = "file://"~url~"#"~mList[indx].Name;
-							webkit_web_view_load_uri(mWebView, toStringz(url));
-							break;
-						}
-					}
-				}
-			}				
-	    }
-	    else
-	    {
-			mComments.getBuffer.setText(mList[indx].Comment);
-	    }
-		
-	
-		//if not there then dlang.org/phobos/std_file#name
+ 
 		
         string LabelText = "("~mList[indx].Kind~") -- Signature : " ~ mList[indx].Type;
         mSignature.setText(LabelText);
+
+
+        version (WEBKIT)
+        {
+			UpdateHtmlDoc(mList[indx]);
+		}
+		else
+		{
+			UpdateHtmlText(mList[indx]);
+		}
     }
+
+    version (WEBKIT)
+    {
+		void UpdateHtmlDoc(DSYMBOL Sym)
+		{
+			string SrcHtmlFileName = Sym.InFile;
+			SrcHtmlFileName = stripExtension(baseName(SrcHtmlFileName));
+			SrcHtmlFileName = SrcHtmlFileName.setExtension("html");
+
+			void ShowUndocumentedPage()
+			{
+				string none = "file://" ~ Config.getString("ASSISTANT_UI","doc_folder", "$(SYSTEM_DIR)/docs/");
+			    none ~= "undocumented.html";
+			    webkit_web_view_load_uri(mWebView, toStringz(none));
+			}
+			
+			if(Sym.Comment.length < 1)
+			{
+				ShowUndocumentedPage();
+			    return;
+			}
+
+			if(canFind(Project[SRCFILES], Sym.InFile))
+			{
+				string DocPath = buildPath(Project.WorkingPath, Project.GetFlags["-Dd"].Argument);
+				string DocFile = buildPath(DocPath, SrcHtmlFileName);
+				if(!exists(DocFile)) return ShowUndocumentedPage();
+
+				string url = "file://"~DocFile~"#"~Sym.Name;
+				webkit_web_view_load_uri(mWebView, toStringz(url));
+
+				return;
+			}
+
+			if(Config.hasGroup("DOCUMENTATION_FOLDERS"))
+			{
+				string StdPrefix = "";
+				if(Sym.Scope[0] == "std") StdPrefix = "std_";
+				auto DocFolderKeys = Config.getKeys("DOCUMENTATION_FOLDERS");
+				foreach(key; DocFolderKeys)
+				{
+					string DocFile = buildPath(Config.getString("DOCUMENTATION_FOLDERS", key), StdPrefix ~ SrcHtmlFileName);
+					if(!exists(DocFile)) continue;
+
+					string url = "file://"~DocFile~"#"~Sym.Name;
+					webkit_web_view_load_uri(mWebView, toStringz(url));
+					return;
+				}
+			}
+
+			ShowUndocumentedPage();	
+				
+		}
+	}
+	else
+	{
+		void UpdateTextDoc(DSYMBOL Sym)
+		{
+		}
+	}
 
     void FollowChild()
     {
@@ -343,9 +351,10 @@ class ASSISTANT_UI : ELEMENT
 		version(WEBKIT)
 		{
 			mWebView 	= 	webkit_web_view_new();
-			Widget tmp 	= new Widget(mWebView);
-			mScrollWin.add(tmp);
-			tmp.show();
+			
+			dWebView 	= new Widget(mWebView);
+			mScrollWin.add(dWebView);
+			dWebView.show();
 		}
 		else
 		{
@@ -369,7 +378,6 @@ class ASSISTANT_UI : ELEMENT
         mPossibles.setModel(mPossibleStore);        
         mChildren.setModel(mChildrenStore);
 
-        //mMouseHover = Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", false);
         mEnabled    = Config.getBoolean("ASSISTANT_UI", "enabled", true);
         
         mRoot.setVisible(mEnabled);
