@@ -48,11 +48,12 @@ import gtk.Widget;
 import gtk.HPaned;
 import gtk.ScrolledWindow;
 import gtk.CheckButton;
-
 import gtk.TreePath;
 import gtk.TreeViewColumn;
 
 import glib.SimpleXML;
+
+import gobject.ObjectG;
 
 
 
@@ -63,8 +64,10 @@ version(WEBKIT)
 
 	//substituting GtkWebKitView * with GtkWidget * because it is easier than trying to define GtkWebKitView
 	extern (C) GtkWidget * webkit_web_view_new();
-	extern (C) void webkit_web_view_load_uri  (GtkWidget *web_view, const gchar *uri);
+	extern (C) void webkit_web_view_load_uri  		(GtkWidget *web_view, const gchar *uri);
 	extern (C) gboolean webkit_web_view_search_text (GtkWidget *web_view, const gchar *text,  gboolean case_sensitive, gboolean forward,  gboolean wrap);
+	extern (C) void webkit_web_view_load_string 	(GtkWidget *web_view, const gchar *content, const gchar *mime_type, const gchar *encoding,  const gchar *base_uri);
+	extern (C) GObject * webkit_web_view_get_window_features (GtkWidget *web_view);
 }
 
 
@@ -201,7 +204,7 @@ class ASSISTANT_UI : ELEMENT
 		}
 		else
 		{
-			UpdateHtmlText(mList[indx]);
+			UpdateTextDoc(mList[indx]);
 		}
     }
 
@@ -230,7 +233,11 @@ class ASSISTANT_UI : ELEMENT
 			{
 				string DocPath = buildPath(Project.WorkingPath, Project.GetFlags["-Dd"].Argument);
 				string DocFile = buildPath(DocPath, SrcHtmlFileName);
-				if(!exists(DocFile)) return ShowUndocumentedPage();
+				if(!exists(DocFile))
+				{
+					dui.Status.push(0, "Unable to find " ~ DocFile ~ " showing Documentation as plain text.");
+					return webkit_web_view_load_string(mWebView, toStringz(Sym.Comment), toStringz("text/plain"), null, "");
+				}
 
 				string url = "file://"~DocFile~"#"~Sym.Name;
 				webkit_web_view_load_uri(mWebView, toStringz(url));
@@ -252,6 +259,7 @@ class ASSISTANT_UI : ELEMENT
 					webkit_web_view_load_uri(mWebView, toStringz(url));
 					return;
 				}
+				
 			}
 
 			ShowUndocumentedPage();	
@@ -262,6 +270,12 @@ class ASSISTANT_UI : ELEMENT
 	{
 		void UpdateTextDoc(DSYMBOL Sym)
 		{
+			if(Sym.Comment is null)
+			{
+				mComments.getBuffer().setText("");
+				return;
+			}
+			mComments.getBuffer().setText(Sym.Comment);
 		}
 	}
 
@@ -355,6 +369,9 @@ class ASSISTANT_UI : ELEMENT
 			dWebView 	= new Widget(mWebView);
 			mScrollWin.add(dWebView);
 			dWebView.show();
+
+			auto tmpObj = new ObjectG(webkit_web_view_get_window_features (mWebView));
+			tmpObj.setProperty("statusbar-visible", 1);
 		}
 		else
 		{
