@@ -832,4 +832,15 @@ Ok long time.  Got the beginnings of a doc viewer through webkit in assistantui.
 	. Make it work if user doesn't create html docs.
 	. Make it work if user changes html docs defaults.
 	. Make it look half way decent without html
+
 	
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+08.25.2012
+
+Walgreen's had pistachios on sale ... hard to operate a keyboard while satisfying my new addiction.  Next time I'll get
+them already shelled.
+
+Anyhow, getting bored with assistantui.  Think I've decided to return to the debugger fiasco.  I'll make it very simple.
+
+Just found an error on bookmarks ... on project close same bookmarks are added to save file. So marks are duplicated
+several times overs.  Fix = simply clear the list before saving

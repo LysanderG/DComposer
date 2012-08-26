@@ -213,6 +213,8 @@ class PROJECT
 
     this()                                                  //ctor
     {
+		mName = "";
+		mCustomBuildCommand = "";
         mTarget = TARGET.NULL;
         mVersion = PROJECT_VERSION;
     }
