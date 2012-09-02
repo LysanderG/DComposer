@@ -23,4 +23,5 @@ splitdoc.SPLIT_DOCUMENT
 dirview.DIR_VIEW
 gotodef.GOTODEF
 bookmarks.BOOKMARKS
+printui.PRINTER
 
