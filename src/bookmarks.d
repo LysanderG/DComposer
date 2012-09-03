@@ -250,7 +250,7 @@ class BOOKMARKS : ELEMENT
 		{
 			if(canFind(Project[SRCFILES], x.GetFileName) || canFind(Project[RELFILES], x.GetFileName))results ~= format("%s:%s",x.GetFileName, x.GetLine);
 		}
-		if(results.length < 1) return;
+		//if(results.length < 1) return; //this was preventing erasing all bookmarks
 		Project[BOOKMARK_CATEGORY_NAME] = results;	
 	}
 
@@ -260,6 +260,7 @@ class BOOKMARKS : ELEMENT
 
 		DOG_EAR PlaceHolder;
 
+		Clear();
 		mMarkCurrent = mMarkRoot;
 		foreach(r; results)
 		{
@@ -272,9 +273,15 @@ class BOOKMARKS : ELEMENT
 
 	void Clear()
 	{
-		mMarkRoot = null;
-		mMarkCurrent = mMarkRoot;
-		//could do gc collection here... ??
+		mMarkRoot = new DOG_EAR("root_anchor", "anchor", 0);
+        mMarkLast = new DOG_EAR("tail_anchor", "anchor", 0);
+
+        mMarkRoot.mPrev = mMarkLast;
+        mMarkRoot.mNext = mMarkLast;
+        mMarkLast.mNext = mMarkRoot;
+        mMarkLast.mPrev = mMarkRoot;
+
+        mMarkCurrent = mMarkRoot;
 	}
 
 	void WatchProject(ProEvent event)
@@ -291,15 +298,7 @@ class BOOKMARKS : ELEMENT
         mName = "BOOKMARKS";
         mInfo = "Manage and navigate bookmarks.";
 
-        mMarkRoot = new DOG_EAR("root_anchor", "anchor", 0);
-        mMarkLast = new DOG_EAR("tail_anchor", "anchor", 0);
-
-        mMarkRoot.mPrev = mMarkLast;
-        mMarkRoot.mNext = mMarkLast;
-        mMarkLast.mNext = mMarkRoot;
-        mMarkLast.mPrev = mMarkRoot;
-
-        mMarkCurrent = mMarkRoot;
+        Clear();
        
     }
     
