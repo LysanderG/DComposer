@@ -22,11 +22,13 @@ module printui;
 
 import std.stdio;
 import std.algorithm;
+import std.traits;
 
 
 import dcore;
 import ui;
 import elements;
+import dcomposer;
 
 import gtk.Action;
 import gtk.SeparatorMenuItem;
@@ -97,7 +99,7 @@ class PRINTER : ELEMENT
 		GObject * AddCustomTab(PrintOperation po)
 		{
 			Builder xBuilder = new Builder;
-			xBuilder.addFromFile(Config.getString("PRINTING", "print_glade", "$(HOME_DIR)/glade/printdialogpage.glade"));
+			xBuilder.addFromFile(Config.getString("PRINTING", "glade_file", "$(HOME_DIR)/glade/printdialogpage.glade"));
 
 			CustomPage = cast(Box)				xBuilder.getObject("root");
 
@@ -120,15 +122,14 @@ class PRINTER : ELEMENT
 			LineNumber	.setActive(Config.getBoolean("PRINTING", "linenumbers", true));
 
 			ShowHeader	.setActive(Config.getBoolean("PRINTING", "showheader", true));
-			LHEntry		.setText(Config.getString("PRINTING", "lhtext", "%f"));
-			CHEntry		.setText(Config.getString("PRINTING", "chtext", ""));
-			RHEntry		.setText(Config.getString("PRINTING", "rhtext", "%N"));
+			LHEntry		.setText(Config.getString("PRINTING", "left_header_text", "%f"));
+			CHEntry		.setText(Config.getString("PRINTING", "center_header_text", ""));
+			RHEntry		.setText(Config.getString("PRINTING", "right_header_text", "%N"));
 			
 			ShowFooter	.setActive(Config.getBoolean("PRINTING", "showfooter", true));
-			LFEntry		.setText(Config.getString("PRINTING", "lftext", ""));
-			CFEntry		.setText(Config.getString("PRINTING", "cftext", ""));
-			RFEntry		.setText(Config.getString("PRINTING", "rftext", ""));			
-			
+			LFEntry		.setText(Config.getString("PRINTING", "left_footer_text", ""));
+			CFEntry		.setText(Config.getString("PRINTING", "center_footer_text", ""));
+			RFEntry		.setText(Config.getString("PRINTING", "right_footer_text", ""));			
 
 			return cast(GObject*)CustomPage.getBoxStruct();
 		}
@@ -156,12 +157,12 @@ class PRINTER : ELEMENT
 			Config.setBoolean("PRINTING", "showheader", PrintHeaders);
 			Config.setBoolean("PRINTING", "showfooter", PrintFooters);
 
-			Config.setString("PRINTING", "lhtext", formatstr[0]);
-			Config.setString("PRINTING", "chtext", formatstr[1]);
-			Config.setString("PRINTING", "rhtext", formatstr[2]);
-			Config.setString("PRINTING", "lftext", formatstr[3]);
-			Config.setString("PRINTING", "cftext", formatstr[4]);
-			Config.setString("PRINTING", "rftext", formatstr[5]);
+			Config.setString("PRINTING", "left_header_text", formatstr[0]);
+			Config.setString("PRINTING", "center_header_text", formatstr[1]);
+			Config.setString("PRINTING", "right_header_text", formatstr[2]);
+			Config.setString("PRINTING", "left_footer_text", formatstr[3]);
+			Config.setString("PRINTING", "center_footer_text", formatstr[4]);
+			Config.setString("PRINTING", "right_footer_text", formatstr[5]);
 
 			foreach (ref s; formatstr)
 			{
