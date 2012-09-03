@@ -844,3 +844,19 @@ Anyhow, getting bored with assistantui.  Think I've decided to return to the deb
 
 Just found an error on bookmarks ... on project close same bookmarks are added to save file. So marks are duplicated
 several times overs.  Fix = simply clear the list before saving
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+09.02.2012
+
+Omg September already??
+
+I've been busy, just not on DComposer,  watching movies and Dark Angel.  Seems like we're having lots of company lately.
+
+Any Way... Got printing to work.  Why are the Gtk documents so obtuse.  After spending so much time trying to decipher
+docs, found an example.  Can't believe how simple it is.  Never would have guessed from the documentation.
+
+Need to add a preference page for sourceview specific options.
+
+After this I'm going to put the debugger back in.  Even if it doesn't work for crap better than nothing.
+
+Goodnight!

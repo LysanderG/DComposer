@@ -192,10 +192,8 @@ class BOOKMARKS : ELEMENT
 		int Iline = dui.GetDocMan.GetLineNo();
 		foreach(x; mMarkRoot)
 		{
-			writeln("<prev> ", x.mPrev.mID, " <this> ", x.mID, " <next> ", x.mNext.mID);
 			if(x.GetLine == Iline)
 			{
-				writeln("TOGGLE OFF!!!");
 				TogglingOff = true;
 				x.Remove();
 			}
@@ -493,10 +491,8 @@ class DOG_EAR
 		if(mFront.mID == "tail_anchor")
 		{
 			mFront = this; //should be root_anchor
-			writeln("empty is true front == ",mFront.mID);
 			return true;
 		}
-		writeln("empty is false front == ",mFront.mID,);
 		return false;
 	}
 
@@ -505,7 +501,6 @@ class DOG_EAR
 		write("     front is ", mFront.mID);
 		
 		if(mFront.mID == "root_anchor")mFront = mFront.mNext;
-		writeln(" but returning ",mFront.mID);
 		return  mFront;
 	}
 
@@ -513,18 +508,14 @@ class DOG_EAR
 	{
 		write("   poping ", mFront.mID);
 		mFront = mFront.mNext;
-		writeln(" to ",mFront.mID);
 	}
 
 
 	DOG_EAR Increment()
 	{
-		auto rv = this.mNext;
-		writeln(rv.mPrev.mID, " " , rv.mID, " ", rv.mNext.mID, " ", rv.mNext.mNext.mID, " ", rv.mNext.mNext.mNext.mID);
-		
+		auto rv = this.mNext;		
 		if(rv.mID == "tail_anchor") rv = rv.mNext;
 		if(rv.mID == "root_anchor") rv = rv.mNext;
-		writeln("increment returning ", rv.mID);
 		return rv;
 	}
 

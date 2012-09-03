@@ -21,6 +21,7 @@
 module printui;
 
 import std.stdio;
+import std.algorithm;
 
 
 import dcore;
@@ -31,6 +32,11 @@ import gtk.Action;
 import gtk.SeparatorMenuItem;
 import gtk.PrintOperation;
 import gtk.PrintContext;
+import gtk.Builder;
+import gtk.Widget;
+import gtk.Box;
+import gtk.Entry;
+import gtk.CheckButton;
 
 import gsv.SourcePrintCompositor;
 
@@ -44,6 +50,26 @@ class PRINTER : ELEMENT
 	bool		mState;
 
 	Action		mPrintAction;
+
+	Box		CustomPage;
+
+	CheckButton HighLight;
+	CheckButton WrapText;	
+	CheckButton LineNumber; 
+	
+	CheckButton ShowHeader; 
+	Entry LHEntry;	
+	Entry CHEntry;	
+	Entry RHEntry;	
+	
+	CheckButton ShowFooter; 
+	Entry LFEntry;	
+	Entry CFEntry;	
+	Entry RFEntry;	
+
+
+
+	
 
 	void PrintDoc()
 	{
@@ -67,11 +93,104 @@ class PRINTER : ELEMENT
 			SvCompositor.drawPage(pc, page);
 			
 		}
+
+		GObject * AddCustomTab(PrintOperation po)
+		{
+			Builder xBuilder = new Builder;
+			xBuilder.addFromFile(Config.getString("PRINTING", "print_glade", "$(HOME_DIR)/glade/printdialogpage.glade"));
+
+			CustomPage = cast(Box)				xBuilder.getObject("root");
+
+			HighLight  = cast(CheckButton) 	xBuilder.getObject("checkbutton1");
+			WrapText	= cast(CheckButton)		xBuilder.getObject("checkbutton2");
+			LineNumber = cast(CheckButton)		xBuilder.getObject("checkbutton3");
+
+			ShowHeader = cast(CheckButton)		xBuilder.getObject("showheader");
+			LHEntry	= cast(Entry)			xBuilder.getObject("lhentry");
+			CHEntry	= cast(Entry)			xBuilder.getObject("chentry");
+			RHEntry	= cast(Entry)			xBuilder.getObject("rhentry");
+
+			ShowFooter = cast(CheckButton)		xBuilder.getObject("showfooter");
+			LFEntry	= cast(Entry)			xBuilder.getObject("lfentry");
+			CFEntry	= cast(Entry)			xBuilder.getObject("cfentry");
+			RFEntry	= cast(Entry)			xBuilder.getObject("rfentry");
+
+			HighLight	.setActive(Config.getBoolean("PRINTING", "highlight", false));
+			WrapText	.setActive(Config.getBoolean("PRINTING", "wraptext", true));
+			LineNumber	.setActive(Config.getBoolean("PRINTING", "linenumbers", true));
+
+			ShowHeader	.setActive(Config.getBoolean("PRINTING", "showheader", true));
+			LHEntry		.setText(Config.getString("PRINTING", "lhtext", "%f"));
+			CHEntry		.setText(Config.getString("PRINTING", "chtext", ""));
+			RHEntry		.setText(Config.getString("PRINTING", "rhtext", "%N"));
+			
+			ShowFooter	.setActive(Config.getBoolean("PRINTING", "showfooter", true));
+			LFEntry		.setText(Config.getString("PRINTING", "lftext", ""));
+			CFEntry		.setText(Config.getString("PRINTING", "cftext", ""));
+			RFEntry		.setText(Config.getString("PRINTING", "rftext", ""));			
+			
+
+			return cast(GObject*)CustomPage.getBoxStruct();
+		}
+
+		void ApplyCustomTab(Widget w, PrintOperation po)
+		{
+			int PrintHighlighting = HighLight.getActive();
+			int PrintWrapText = WrapText.getActive();
+			int PrintLineNumbers = LineNumber.getActive();
+
+			int PrintHeaders = ShowHeader.getActive();
+			int PrintFooters = ShowFooter.getActive();
+			string[6] formatstr;
+				
+			formatstr[0]= LHEntry.getText();
+			formatstr[1]= CHEntry.getText();
+			formatstr[2]= RHEntry.getText();
+			formatstr[3]= LFEntry.getText();
+			formatstr[4]= CFEntry.getText();
+			formatstr[5]= RFEntry.getText();
+
+			Config.setBoolean("PRINTING", "highlight", PrintHighlighting);
+			Config.setBoolean("PRINTING", "wraptext", PrintWrapText);
+			Config.setBoolean("PRINTING", "linenumbers", PrintLineNumbers);
+			Config.setBoolean("PRINTING", "showheader", PrintHeaders);
+			Config.setBoolean("PRINTING", "showfooter", PrintFooters);
+
+			Config.setString("PRINTING", "lhtext", formatstr[0]);
+			Config.setString("PRINTING", "chtext", formatstr[1]);
+			Config.setString("PRINTING", "rhtext", formatstr[2]);
+			Config.setString("PRINTING", "lftext", formatstr[3]);
+			Config.setString("PRINTING", "cftext", formatstr[4]);
+			Config.setString("PRINTING", "rftext", formatstr[5]);
+
+			foreach (ref s; formatstr)
+			{
+				auto r =s.findSplit("%f");
+				if(r[1].length > 0) s = r[0] ~ dui.GetDocMan.GetName() ~ r[2];
+			}
+
+			
+
+			SvCompositor.setHighlightSyntax(PrintHighlighting);
+			SvCompositor.setWrapMode( (PrintWrapText)?(GtkWrapMode.WORD):(GtkWrapMode.NONE));
+			SvCompositor.setPrintLineNumbers(PrintLineNumbers);
+
+			SvCompositor.setPrintHeader(PrintHeaders);
+			SvCompositor.setPrintFooter(PrintFooters);
+			SvCompositor.setHeaderFormat(1, formatstr[0], formatstr[1], formatstr[2]);
+			SvCompositor.setFooterFormat(1, formatstr[3], formatstr[4], formatstr[5]);
+
+		}
+			
 		
 		
 
+		PrintOp.addOnCreateCustomWidget (&AddCustomTab);
+		PrintOp.addOnCustomWidgetApply(&ApplyCustomTab);
 		PrintOp.addOnBeginPrint (&BeginPrint);
 		PrintOp.addOnDrawPage(&DrawPage);
+
+		PrintOp.setCustomTabLabel("Source Code");
 
 		auto PrintReturn = PrintOp.run( PrintOperationAction.PRINT_DIALOG, dui.GetWindow());
 		
