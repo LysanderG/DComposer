@@ -79,7 +79,7 @@ void AcquireElements()
         {
             Log.Entry("Acquired " ~ line ~ " element.");
             mElements[tmp.Name] = tmp;
-            Log.Entry("\t:>" ~ tmp.Information);
+            Log.Entry("  :>" ~ tmp.Information);
         }
     }
 }

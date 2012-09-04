@@ -138,7 +138,7 @@ class HISTORY_VIEW : ELEMENT
 		Config.Reconfig.connect(&Configure);
 		Configure();
 		
-        Log.Entry("Engaged HISTORY_VIEW element");
+        Log.Entry("Engaged "~Name()~"\t\telement.");
         
     }
         
@@ -146,7 +146,7 @@ class HISTORY_VIEW : ELEMENT
     void Disengage()
     {
         mRoot.hide();
-        Log.Entry("Disengaged HISTORY_VIEW element");
+        Log.Entry("Disengaged "~mName~"\t\telement.");
     } 
     
     void ShowHistory(Action X)

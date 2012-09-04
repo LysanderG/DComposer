@@ -129,7 +129,7 @@ class BRACE_INDENT : ELEMENT
     public:
     
     @property string Name() {return "BRACE_INDENT";}
-    @property string Information(){return "automatically indents new lines following an open '{'.\nAnd unindents prior to '}\\n'.\nIs not related to Auto Indentation.";}
+    @property string Information(){return `Adjusts indentation following braces "{}".  Not related to Auto Indentation.`;}
     @property bool   State() {return mState;}
     @property void   State(bool nuState){mState = nuState;}
     
@@ -142,7 +142,7 @@ class BRACE_INDENT : ELEMENT
 
         Config.Reconfig.connect(&Configure);
         dui.GetDocMan.Event.connect(&CatchNewDocs);
-        Log.Entry("Engaged BRACE_INDENT element");
+        Log.Entry("Engaged "~Name()~"\t\telement.");
     }
 
     
@@ -150,7 +150,7 @@ class BRACE_INDENT : ELEMENT
     void Disengage()
     {
         mState = false;
-        Log.Entry("Disengaged BRACE_INDENT element");
+        Log.Entry("Disengaged "~Name()~"\t\telement.");
     }
 
     PREFERENCE_PAGE GetPreferenceObject()

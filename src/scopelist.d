@@ -232,14 +232,14 @@ class SCOPE_LIST : ELEMENT
         Config.Reconfig.connect(&Configure);
         Configure();
 
-        Log.Entry("Engaged SCOPE_LIST element");
-    }
+        Log.Entry("Engaged "~Name()~"\t\telement.");
+	}
 
     void Disengage()
     {
 		dui.GetDocMan.Event.disconnect(&WatchForNewDocument);
 		Config.Reconfig.disconnect(&Configure);
-        Log.Entry("Disengaging SCOPE_LIST element");
+        Log.Entry("Disengaged "~mName~"\t\telement.");
     }
 
 

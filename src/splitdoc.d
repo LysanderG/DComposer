@@ -244,13 +244,13 @@ class SPLIT_DOCUMENT : ELEMENT
 		Config.Reconfig.connect(&Configure);
 		Configure();
 		
-		Log.Entry("Engaged SPLIT_DOCUMENT element.");
+		Log.Entry("Engaged "~Name()~"\t\telement.");
 	}
 
 	void Disengage()
 	{
 		mState = false;
-		Log.Entry("Disengaged SPLIT_DOCUMENT element.");
+		Log.Entry("Disengaged "~Name()~"\telement.");
 	}
 
 	PREFERENCE_PAGE GetPreferenceObject()

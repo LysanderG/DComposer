@@ -150,14 +150,14 @@ class MESSAGE_UI :ELEMENT
 
         Project.BuildMsg.connect(&WatchDMD);
 
-        Log.Entry("Engaged MESSAGE_UI element");
+        Log.Entry("Engaged "~Name()~"\t\telement.");
     }
         
 
     void Disengage()
     {
         Project.BuildMsg.disconnect(&WatchDMD);
-        Log.Entry("Disengaged MESSAGE_UI element");
+        Log.Entry("Disengaged "~mName~"\t\telement.");
     }
 
     PREFERENCE_PAGE GetPreferenceObject()

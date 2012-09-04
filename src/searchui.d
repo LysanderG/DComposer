@@ -515,7 +515,7 @@ class SEARCH_UI : ELEMENT
     this()
     {
         mName = "SEARCH_UI";
-        mInfo = "Look for stuff and fix it mabybe";
+        mInfo = "Look for stuff and fix it, maybe";
 
         mBuilder            = new Builder;
         mBuilder.addFromFile(Config.getString("SEARCH", "glade_file", "$(HOME_DIR)/glade/findui.glade"));
@@ -641,14 +641,14 @@ class SEARCH_UI : ELEMENT
         
         dui.GetDocMan.AddContextMenuAction(SearchAct);
     	
-        Log.Entry("Engaged SearchUI element.");
+        Log.Entry("Engaged "~Name()~"\t\telement.");
     }
 
     void Disengage()
     {
 
         mState = false;
-        Log.Entry("Disengaged SearchUI element.");
+        Log.Entry("Disengaged "~mName~"\t\telement.");
     }
 
     PREFERENCE_PAGE GetPreferenceObject()

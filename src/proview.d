@@ -447,14 +447,14 @@ class PROJECT_VIEW : ELEMENT
         Config.Reconfig.connect(&Configure);
         Configure();
 
-        Log.Entry("Engaged PROJECT_VIEW element");
+        Log.Entry("Engaged "~Name()~"\t\telement.");
     }
 
     void Disengage()
     {
         Project.Event.disconnect(&UpdateProject);
         Config.Reconfig.disconnect(&Configure);
-        Log.Entry("Disengaged PROJECT_VIEW element");
+        Log.Entry("Disengaged "~mName~"\t\telement.");
     }
 
     PREFERENCE_PAGE GetPreferenceObject()

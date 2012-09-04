@@ -352,7 +352,7 @@ class BOOKMARKS : ELEMENT
 
 		
 
-		Log.Entry("Engaged BOOKMARKS");		
+		Log.Entry("Engaged "~Name()~"\t\telement.");
 	}
 
     void Disengage()
@@ -361,6 +361,7 @@ class BOOKMARKS : ELEMENT
 		Clear();
 		dui.GetDocMan.Event.disconnect(&WatchDocMan);
 		Project.Event.disconnect(&WatchProject);
+		Log.Entry("Disengaged "~Name()~"\t\telement.");
 	}
 
     PREFERENCE_PAGE GetPreferenceObject()

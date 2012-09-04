@@ -89,8 +89,9 @@ class LOG_UI : ELEMENT
 		mLabel = new Label("Log Viewer");
 
 		TreeViewColumn tvc  = new TreeViewColumn("Message", new CellRendererText, "markup", 0);
-		mTreeView.appendColumn(tvc);
 
+		mTreeView.modifyFont("DroidSansMono",12);
+		mTreeView.appendColumn(tvc);
 		mTreeView.setRulesHint(1);
 		mTreeView.setModel(mList);
 
@@ -113,7 +114,7 @@ class LOG_UI : ELEMENT
 
 		mScroller.getVadjustment().addOnChanged(delegate void(Adjustment adj){adj.setValue(adj.getUpper());});
 
-        Log.Entry("Engaged LogUI element.");
+        Log.Entry("Engaged "~Name()~"\t\t\telement.");
 
         scope(failure)Log.Entry("Failed to Engage LogUI element","Error");
 		
@@ -123,7 +124,7 @@ class LOG_UI : ELEMENT
 	{
         mState = false;
 		mScroller.hide(); //??
-        Log.Entry("Disengaged LogUI element");
+        Log.Entry("Disengaged "~mName~"\t\telement.");
 		Log.disconnect(&CatchLog);
 	}
 		

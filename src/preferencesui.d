@@ -219,12 +219,12 @@ class PREFERENCES_UI : ELEMENT
         dui.GetExtraPane.prependPage(mRoot, new Label("Preferences"));
         dui.GetExtraPane.setTabReorderable ( mRoot, true); 
         
-	    Log.Entry("Engaged PREFERENCES_UI element");
+	    Log.Entry("Engaged "~Name()~"\t\telement.");
     }
 
     void Disengage()
     {
-	    Log.Entry("Disengaged PREFERENCES_UI");
+	    Log.Entry("Disengaged "~mName~"\telement.");
     }
 
     PREFERENCE_PAGE GetPreferenceObject()

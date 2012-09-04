@@ -204,8 +204,8 @@ class PRINTER : ELEMENT
 
     this()
     {
-        mName = "SPLIT_DOCUMENT";
-        mInfo = "Split Documents into 2 views";
+        mName = "PRINTER";
+        mInfo = "Sends current document to the printer.";
         mState = false;
 
         PREFERENCE_PAGE mPrefPage = null;
@@ -233,7 +233,7 @@ class PRINTER : ELEMENT
     void Engage()
     {
 		
-		mPrintAction = new Action("PrintAct", "_Print", "Print Current Document", "dcomposer-print");
+		mPrintAction = new Action("PrintAct", "_Print", "Summon from the Digital Plane", "dcomposer-print");
 
 		mPrintAction.addOnActivate( delegate void (Action x){PrintDoc();});
 		mPrintAction.setAccelGroup(dui.GetAccel());
@@ -246,13 +246,13 @@ class PRINTER : ELEMENT
 		dui.AddToolBarItem(mPrintAction.createToolItem());
 		dui.GetDocMan.AddContextMenuAction(mPrintAction);
 
-		Log.Entry("Engaged PRINT_UI element.");
+		Log.Entry("Engaged "~Name()~"\t\t\telement.");
 	}
 
 	void Disengage()
 	{
 		mState = false;
-		Log.Entry("Disengaged PRINT_UI element.");
+		Log.Entry("Disengaged "~mName~"\t\telement.");
 	}
 }
 	

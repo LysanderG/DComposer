@@ -141,7 +141,7 @@ class CALL_TIPS : ELEMENT
 
         Config.Reconfig.connect(&Configure);
         Configure();
-        Log.Entry("Engaged CALL_TIPS element");
+        Log.Entry("Engaged "~Name()~"\t\telement.");
     }
 
     void Disengage()
@@ -151,7 +151,7 @@ class CALL_TIPS : ELEMENT
         foreach(Doc; ConnectedDocs) Doc.TextInserted.disconnect(&WatchDoc);
         mStack.length = 0;
         ConnectedDocs.length = 0;
-        Log.Entry("Disengaged CALL_TIPS element");
+        Log.Entry("Disengaged "~mName~"\t\telement.");
                 
     }
 

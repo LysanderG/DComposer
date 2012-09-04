@@ -169,7 +169,7 @@ class TERMINAL_UI : ELEMENT
         Project.Event.connect(&WatchProject);
         Config.Reconfig.connect(&Configure);
         
-        Log.Entry("Engaged TERMINAL_UI element");
+        Log.Entry("Engaged "~mName~"\t\telement.");
 
     }
         
@@ -181,7 +181,7 @@ class TERMINAL_UI : ELEMENT
         mScrWin.hide();
         Project.Event.disconnect(&WatchProject);
         Config.Reconfig.disconnect(&Configure);
-        Log.Entry("Disengaged TERMINAL_UI element");
+        Log.Entry("Disengaged "~mName~"\t\telement.");
         
     }
 

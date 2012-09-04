@@ -258,14 +258,14 @@ class PROJECT_UI : ELEMENT
         dui.GetCenterPane.prependPage(mRootVBox, mTabLabel);
         EngageActions();
         Project.Event.connect(&ProjEventWatcher);
-        Log.Entry("Engaged PROJECT_UI element");
+        Log.Entry("Engaged "~Name()~"\t\telement.");
     }
     void Disengage()
     {
         Project.Event.disconnect(&ProjEventWatcher);
         mState = false;
         mRootVBox.hide();
-        Log.Entry("Disengaged PROJECT_UI element");
+        Log.Entry("Disengaged "~Name()~"\t\telement.");
     }
 
     void EngageActions()

@@ -193,7 +193,7 @@ class SYMBOL_COMPLETION : ELEMENT
         Config.Reconfig.connect(&Configure);
         Configure();
 
-        Log.Entry("Engaged SYMBOL_COMPLETION element");
+        Log.Entry("Engaged "~Name()~"\telement.");
     }
         
 
@@ -203,6 +203,7 @@ class SYMBOL_COMPLETION : ELEMENT
         foreach (cnx; mConnections) cnx.TextInserted.disconnect(&WatchDoc);
         dui.GetDocMan.Event.disconnect(&WatchForNewDocument);
         Config.Reconfig.disconnect(&Configure);
+        Log.Entry("Disengaged "~Name()~"\telement.");
     }
 
     PREFERENCE_PAGE GetPreferenceObject()

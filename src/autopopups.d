@@ -370,7 +370,7 @@ class AUTO_POP_UPS
     void Disengage()
     {
         dui.GetDocMan.Event.disconnect(&WatchForNewDocuments);
-        Log.Entry("Disengaged AUTO_POP_UPS");
+        Log.Entry("Disengaged "~this.classinfo.name);
     }
 
 

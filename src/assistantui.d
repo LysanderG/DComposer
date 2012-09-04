@@ -415,7 +415,7 @@ class ASSISTANT_UI : ELEMENT
 
         Config.Reconfig.connect(&Reconfigure);
 
-        Log.Entry("Engaged ASSISTANT_UI element");
+        Log.Entry("Engaged "~Name()~"\t\telement.");
     }
 
     void Disengage()
@@ -424,7 +424,7 @@ class ASSISTANT_UI : ELEMENT
         dui.GetAutoPopUps.disconnect(&CatchSymbol);
         dui.GetDocMan.Event.disconnect(&WatchForNewDoc);
         Config.setInteger("ASSISTANT_UI", "store_gui_pane_position", mHPane.getPosition()); 
-        Log.Entry("Disengaged ASSISTANT_UI element");
+        Log.Entry("Disengaged "~mName~"\t\telement.");
     }
 
     PREFERENCE_PAGE GetPreferenceObject()

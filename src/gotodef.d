@@ -85,13 +85,13 @@ class GOTODEF : ELEMENT
 		GotoDefAction.addOnActivate(&Go);
 
 		dui.GetDocMan.AddContextMenuAction(GotoDefAction);
-		Log.Entry("Engaged GOTO_DEF");
+		Log.Entry("Engaged "~Name()~"\t\telement.");
 
 	}
 
     void Disengage()
     {
-		Log.Entry("Disengaged GOTO_DEF");
+		Log.Entry("Disengaged "~Name()~"\t\telement.");
 	}
 
     PREFERENCE_PAGE GetPreferenceObject()

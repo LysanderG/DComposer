@@ -166,14 +166,14 @@ class SYMBOL_VIEW : ELEMENT
         dui.GetSidePane.setTabReorderable ( mRoot, true); 
         Refresh();
  
-        Log.Entry("Engaged SYMBOL_VIEW element");
+        Log.Entry("Engaged "~Name()~"\t\telement.");
     }
 
     void Disengage()
     {
         mState = false;
         mRoot.hide();
-        Log.Entry("Disengaged SYMBOL_VIEW element");
+        Log.Entry("Disengaged "~Name()~"\t\telement.");
     }
 
 

@@ -380,7 +380,7 @@ class DIR_VIEW : ELEMENT
         Config.Reconfig.connect(&Configure);
 
         Configure();
-        Log.Entry("Engaged DIRECTORY_VIEW element");
+        Log.Entry("Engaged "~Name()~"\t\telement.");
     }
         
 
@@ -399,7 +399,7 @@ class DIR_VIEW : ELEMENT
         if(FilterString.length < 1) FilterString = "*.d:*.di:*.dpro";
 
         Config.setString("DIRVIEW", "file_filter", FilterString);
-        Log.Entry("Disengaged DIRECTORY_VIEW element");
+        Log.Entry("Disengaged "~mName~"\t\telement.");
     }
 
     PREFERENCE_PAGE GetPreferenceObject()
