@@ -13,22 +13,24 @@ So the stuff that is in dcomposer...
 * gtk 2.0 GUI. Through GtkD.
 * gtkSourceView for the editor. GtkD again.
 * uses DMD -X option to get symbols
-
     * symbol completion.
     * call tips.
     * scope list.
     * symbol assist.  Shows ddoc comments for symbols.
-* Project Management 
+* Project Management.
 * Embedded terminal.
-* Extensible.
+* Shell Filter.  Process text through shell commands.
+* Split editor windows.
+* Bookmarks.
+* Extensible (kind of).
 * Built under Linux and FreeBSD.
+
+All the preceding features are still under development and can stand to be improved.
 
 I can't say there is anything particularly special about dcomposer, but I am very happy that it has made it this far.  My desire is to make it a valuable asset to the D community. 
 
 #WHERE
-The dcomposer repository is hosted on Github. (If you're reading this you probably already know this.)
-[dcomposer on github](https://github.com/LysanderG/DComposer)
-
+The [dcomposer repository](https://github.com/LysanderG/DComposer) is hosted on Github. (If you're reading this you probably already know this.)
 
 #HOW
 
@@ -38,6 +40,7 @@ The dcomposer repository is hosted on Github. (If you're reading this you probab
 * libvte
 * libutil, libdl(Linux only).  These should be present already.
 * gnu make (only one tested, only one I'm slightly familiar with)
+* (optional) webkit gtk 1.0.
 
 ###Building/Installing
 To clone and build dcomposer from your terminal ...
