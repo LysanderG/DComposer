@@ -76,10 +76,11 @@ class SHELLFILTER : ELEMENT
 		Input ~= " 2>"~ ErrorFile;
 		writeln(Input , "\n==========================");
 		Output = shell(Input);
-		if(ErrorFile.readText().length > 0)
+		auto errortext = ErrorFile.readText();
+		if(errortext.length > 0)
 		{
 			writeln("error");
-			mErrLabel.setText("Error processing "~E.getText());
+			mErrLabel.setText("Error processing "~errortext);
 			return;
 		}
 		else
