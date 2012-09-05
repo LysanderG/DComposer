@@ -240,9 +240,9 @@ class PRINTER : ELEMENT
 		dui.Actions().addActionWithAccel(mPrintAction, "<CONTROL>P");        
         mPrintAction.connectAccelerator();
 
-		dui.AddMenuItem("_Documents",new SeparatorMenuItem()    );
+		//dui.AddMenuItem("_System",new SeparatorMenuItem(),2  );
 		
-        dui.AddMenuItem("_Documents", mPrintAction.createMenuItem());
+        dui.AddMenuItem("_System", mPrintAction.createMenuItem(),2);
 		dui.AddToolBarItem(mPrintAction.createToolItem());
 		dui.GetDocMan.AddContextMenuAction(mPrintAction);
 
