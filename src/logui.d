@@ -26,6 +26,7 @@ import log;
 
 import std.stdio;
 import std.string;
+import std.conv;
 
 import gtk.ScrolledWindow;
 import gtk.TreeView;
@@ -37,6 +38,8 @@ import gtk.Label;
 import gtk.Widget;
 import gtk.Notebook;
 import gtk.Adjustment;
+
+import glib.MessageLog;
 
 
 
@@ -82,7 +85,10 @@ class LOG_UI : ELEMENT
 
 	void Engage()
 	{
-        
+		
+        MessageLog.logSetHandler ( null, LogLevelFlags.G_LOG_LEVEL_CRITICAL|LogLevelFlags.G_LOG_LEVEL_WARNING, &GtkMsgCatcher, null); 
+        MessageLog.logSetHandler ("Gtk", LogLevelFlags.G_LOG_LEVEL_CRITICAL|LogLevelFlags.G_LOG_LEVEL_WARNING, &GtkMsgCatcher, null); 
+
 		mScroller = new ScrolledWindow;
 		mTreeView = new TreeView;
 		mList = new ListStore([GType.STRING, GType.STRING, GType.STRING]);
@@ -153,3 +159,17 @@ class LOG_UI : ELEMENT
         return null;
     }
 }
+
+
+
+extern(C) void  GtkMsgCatcher (char* Domain, GLogLevelFlags Flags, char* Msg, void* waste)
+{
+	string Level;
+
+	if(Flags && LogLevelFlags.G_LOG_LEVEL_ERROR) Level = "Error";
+	if(Flags && LogLevelFlags.G_LOG_LEVEL_CRITICAL) Level = "Error";
+	if(Flags && LogLevelFlags.G_LOG_LEVEL_WARNING) Level = "Debug";
+	Log.Entry( to!string(Msg), "Debug");
+}
+
+
