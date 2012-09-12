@@ -17,7 +17,7 @@ DFLAGS = -of$(TARGET) -D -Dddocs -odobjdir -J.
 RELEASEFLAGS = -release
 DEBUGFLAGS = -gc
 
-ifeq ("Linux", uname)
+ifeq ("Linux", $(shell uname))
 	LIBRARIES = $(LIBRARIES) -L-ldl
 endif
 

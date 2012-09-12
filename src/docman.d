@@ -359,10 +359,22 @@ class DOCMAN
 		return false;
 	}
 
+	//string GetText()
+	//{
+	//	if(Current !is null)return Current.getBuffer().getText();
+	//	return null;
+	//}
+
 	string GetText()
 	{
-		if(Current !is null)return Current.getBuffer().getText();
-		return null;
+		if(Current is null) return null;
+
+		TextIter tistart = new TextIter;
+		TextIter tiend = new TextIter;
+
+		Current.getBuffer.getStartIter(tistart);
+		Current.getBuffer.getEndIter(tiend);
+		return Current.getBuffer.getText(tistart, tiend, false);
 	}
 
 	string GetSelection()

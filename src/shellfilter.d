@@ -53,7 +53,7 @@ class SHELLFILTER : ELEMENT
 
 	void RunCommand(Entry E)
 	{
-
+		
 		if (E.getText().length < 1) return;
 
 		string ErrorFile = tempDir()~"/dcomposer.temp";
@@ -61,21 +61,33 @@ class SHELLFILTER : ELEMENT
 		
 		string Input;
 		string Output;
-		string[] CmdText = split(E.getText(), "|");
+		string CmdText = E.getText();
+
+		string TextToProcess = tempDir()~"/dcompprocess.text";
+		File TextToProcessFile = File(TextToProcess, "w");
 
 		switch (mInBox.getActiveText())
 		{
 			case "None": 		Input = "";break;
-			case "Selection": 	Input = dui.GetDocMan.GetSelection(); break;
-			case "File": 		Input = dui.GetDocMan.GetText();break;
+			case "Selection": 	Input = dui.GetDocMan.GetSelection(); if(Input.length < 1) return; break;
+			case "File": 		Input = dui.GetDocMan.GetText(); if(Input.length < 1) return; break;
 			default : return;
 		}
 
-		Input = escapeShellCommand("echo", Input);
-		foreach (cmd; CmdText) Input ~= " | " ~ cmd;
-		Input ~= " 2>"~ ErrorFile;
-		writeln(Input , "\n==========================");
-		Output = shell(Input);
+		TextToProcessFile.write(Input);
+		TextToProcessFile.close();
+		
+		string xInput = "";
+
+		if(Input.length >0) xInput = `cat  ` ~ TextToProcess ~ ` | `;
+		xInput ~= CmdText ~ " 2> " ~ escapeShellFileName(ErrorFile);
+		writeln(xInput , "\n==========================");
+		Output = shell(xInput);
+		scope(failure)
+		{
+			mErrLabel.setText("Error");
+			return;
+		}
 		auto errortext = ErrorFile.readText();
 		if(errortext.length > 0)
 		{
@@ -88,6 +100,7 @@ class SHELLFILTER : ELEMENT
 			mErrLabel.setText("");
 		}
 		writeln("=========================\n",Output);
+		
 
 
 		//ok we got the results in output
