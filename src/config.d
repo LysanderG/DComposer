@@ -158,6 +158,18 @@ class CONFIG
         Saved.emit();
     }
 
+    string[] getStringList (string GroupName, string Key, string[] Default = [""])
+    {
+		gsize UnusedLength;
+		scope(failure)
+		{
+			mKeyFile.setStringList(GroupName, Key, Default);
+			return Default;
+		}
+		string[] rval = mKeyFile.getStringList(GroupName, Key, UnusedLength);
+		return rval;
+	}
+
     string getString(string GroupName, string Key, string Default = "")
     {
         scope (failure)
