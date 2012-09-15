@@ -27,6 +27,7 @@ import std.process;
 import std.array;
 import std.stdio;
 import std.file;
+import std.algorithm;
 
 import gtk.VBox;
 import gtk.ComboBox;
@@ -45,14 +46,18 @@ class SHELLFILTER : ELEMENT
 	VBox		mRoot;
 	ComboBox	mInBox;
 	ComboBox	mOutBox;
+	ComboBox	mCommandCombox;
 	Entry		mCommand;
 	Label		mErrLabel;
 	Action		mAction;		//not implementing this , yet
+
+	string[]	mCmdHistory;
 
 
 
 	void RunCommand(Entry E)
 	{
+		
 		
 		if (E.getText().length < 1) return;
 
@@ -63,14 +68,18 @@ class SHELLFILTER : ELEMENT
 		string Output;
 		string CmdText = E.getText();
 
+		
+
 		string TextToProcess = tempDir()~"/dcompprocess.text";
 		File TextToProcessFile = File(TextToProcess, "w");
 
 		switch (mInBox.getActiveText())
 		{
-			case "None": 		Input = "";break;
-			case "Selection": 	Input = dui.GetDocMan.GetSelection(); if(Input.length < 1) return; break;
-			case "File": 		Input = dui.GetDocMan.GetText(); if(Input.length < 1) return; break;
+			case "None": 		Input = " ";break;  //tried Input = "" but some commands wait for std input forever causing a freeze
+			case "Word":		Input = dui.GetDocMan.GetWord();		if(Input.length < 1) return; break;
+			case "Line":		Input = dui.GetDocMan.GetLineText();	if(Input.length < 1) return; break;
+			case "Selection": 	Input = dui.GetDocMan.GetSelection(); 	if(Input.length < 1) return; break;
+			case "Document":	Input = dui.GetDocMan.GetText(); 		if(Input.length < 1) return; break;
 			default : return;
 		}
 
@@ -108,7 +117,7 @@ class SHELLFILTER : ELEMENT
 		switch(mOutBox.getActiveText())
 		{
 			case "Insert at cursor" : doc.insertText(Output); break;
-			case "Replace selection or document" :
+			case "Replace input" :
 			{
 				if(doc.getBuffer.getHasSelection())
 				{
@@ -122,7 +131,7 @@ class SHELLFILTER : ELEMENT
 				break;
 			}
 					
-			case "New Document" :
+			case "New document" :
 			{
 				auto NewAct = dui.Actions.getAction("CreateAct");
 				NewAct.activate();
@@ -130,10 +139,23 @@ class SHELLFILTER : ELEMENT
 			}
 			break;
 			default : break;
-		}			
+		}
+
+		if(!mCmdHistory.canFind(CmdText))mCommandCombox.prependOrReplaceText(CmdText);
+		mCmdHistory ~= CmdText;
+		
 
 	}
-				
+
+	void Configure()
+	{
+		mCmdHistory = Config.getStringList("SHELLFILTER", "history", ["sort", "date"]);
+
+
+		foreach(cmd; mCmdHistory) mCommandCombox.appendText(cmd);
+		 
+	}
+		
 
 
 		
@@ -177,17 +199,21 @@ class SHELLFILTER : ELEMENT
 		mRoot 	= cast(VBox)mBuilder.getObject("root");
 		mInBox 	= cast(ComboBox)mBuilder.getObject("combobox1");
 		mOutBox = cast(ComboBox)mBuilder.getObject("combobox2");
-		mCommand= cast(Entry)mBuilder.getObject("entry1");
+		//mCommand= cast(Entry)mBuilder.getObject("entry1");
+		mCommandCombox = cast(ComboBox)mBuilder.getObject("commandbox");
 		mErrLabel=cast(Label)mBuilder.getObject("errorlabel");
-
+		
+		mCommandCombox.add(new Entry);
+		mCommand = cast(Entry)(mCommandCombox.getChild());
+		
 		mErrLabel.setText("");
 		mRoot.showAll();
 		dui.GetExtraPane.appendPage(mRoot, "Shell Filter");
 		dui.GetExtraPane.setTabReorderable ( mRoot, true);
 
-		//mAction = new Action("ShellFilterAct", "Shell Filter", "Shell text processing", "dcomposer-shellfilter");
-		mCommand.addOnActivate(&RunCommand);
-		
+		Configure();
+
+		mCommand.addOnActivate(&RunCommand);		
 		
 		Log.Entry("Engaged "~Name()~"\t\t\telement.");
 		
@@ -195,6 +221,9 @@ class SHELLFILTER : ELEMENT
 
 	void Disengage()
 	{
+		string[] saveHistory;
+		foreach(history; uniq(mCmdHistory)) saveHistory ~= history;
+		Config.setStringList("SHELLFILTER", "history", saveHistory);
 		mState = false;
 		Log.Entry("Disengaged "~Name()~"\t\telement.");
 	}

@@ -860,3 +860,38 @@ Need to add a preference page for sourceview specific options.
 After this I'm going to put the debugger back in.  Even if it doesn't work for crap better than nothing.
 
 Goodnight!
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Wed Sep 12 17:52:50 EDT 2012
+
+Has it really been 10 days since the last entry?  Well I think I've got ShellFilter working pretty well right night.
+At first tried to do something like
+    string command = `echo -e ` ~ TextFromDocument ~ ` | ` ~ UserCommand 2> ErrorFile';
+    Result = shell(command);
+    
+But guess what... no way to escape single quotes.  phobos std.process.escapeShellCommand() for some reason added what 
+gtk_text_buffer called invalid_utf8 to the end of command if any single quotes were in TextFromDocument.  I guess I should
+file a bug report.
+
+So instead 
+    tempfile.write(TextFromDocument);
+    
+    command = "cat " ~ tempfile.name ~ " | " ~ UserCommand 2> ErrorFile"
+    
+This seems to work reasonably well.  One thing though, security.  The 'internet' says using shell() is vulnerable to 
+malicious hackers and should never be used.  Well then doesn't that make xterm and its ilk dangerous?
+    
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Thu Sep 13 00:29:09 EDT 2012
+
+Cumberland County Fair.  Hot dogs, funnel cakes, and porta-potties.
+
+Bought a WalMart gas card put it in my wallet.
+Went straight to the gas station in WalMart parking lot.
+Card declined ... zero balance.
+Back in WalMart raised a fuss for about 45 minutes.
+Realized I had put the card in my wallet but had pulled out a forgotten old one from way back.
+Every time I think I've discovered the absolute depth of my intellectual prowess ... a new abyss reveals itself.
+
+
+Relevent point is ... little programming accomplished.
