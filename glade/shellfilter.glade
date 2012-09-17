@@ -48,6 +48,20 @@
       <column type="gchararray"/>
     </columns>
   </object>
+  <object class="GtkListStore" id="liststore4">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">testing</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">blah</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkVBox" id="root">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -123,7 +137,7 @@
               </object>
               <packing>
                 <property name="expand">True</property>
-                <property name="fill">True</property>
+                <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
             </child>
@@ -177,6 +191,28 @@
             <property name="position">2</property>
           </packing>
         </child>
+        <child>
+          <object class="GtkButton" id="button1">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <property name="border_width">6</property>
+            <property name="use_action_appearance">False</property>
+            <property name="yalign">1</property>
+            <child>
+              <object class="GtkImage" id="image1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="stock">gtk-media-play</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
       </object>
       <packing>
         <property name="expand">False</property>
@@ -196,8 +232,11 @@
         <property name="position">1</property>
       </packing>
     </child>
-    <child>
-      <placeholder/>
-    </child>
+  </object>
+  <object class="GtkTreeStore" id="treestore1">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
   </object>
 </interface>

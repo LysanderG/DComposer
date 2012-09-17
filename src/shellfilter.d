@@ -35,6 +35,8 @@ import gtk.Entry;
 import gtk.Label;
 import gtk.Builder;
 import gtk.Action;
+import gtk.TextIter;
+import gtk.Button;
 
 class SHELLFILTER : ELEMENT
 {
@@ -114,20 +116,58 @@ class SHELLFILTER : ELEMENT
 
 		//ok we got the results in output
 		auto doc = dui.GetDocMan.GetDocument();
+
+		doc.getBuffer.beginUserAction();
+		scope(exit)doc.getBuffer.endUserAction();
 		switch(mOutBox.getActiveText())
 		{
 			case "Insert at cursor" : doc.insertText(Output); break;
 			case "Replace input" :
 			{
-				if(doc.getBuffer.getHasSelection())
+				TextIter InputStart = new TextIter;
+				TextIter InputEnd = new TextIter;
+				
+				switch(mInBox.getActiveText())
 				{
-					doc.getBuffer().deleteSelection(0,0);
-					doc.insertText(Output);
+					case "None" :
+					{
+						doc.getBuffer.getIterAtMark(InputStart,doc.getBuffer.getInsert);
+						InputEnd = InputStart.copy;
+						break;
+					}						
+					case "Word" :
+					{
+						doc.getBuffer.getIterAtMark(InputStart,doc.getBuffer.getInsert);
+						InputEnd = InputStart.copy;
+						InputStart.backwardWordStart();
+						InputEnd.forwardWordEnd();
+						break;
+					}
+					case "Line" :
+					{
+						doc.getBuffer.getIterAtMark(InputStart,doc.getBuffer.getInsert);
+						InputEnd = InputStart.copy;
+						InputStart.setLineOffset(0);
+						InputEnd.forwardToLineEnd();
+						break;
+					}
+					case "Selection" :
+					{
+						 doc.getBuffer.getSelectionBounds (InputStart, InputEnd);
+						 break;
+					}
+					case "Document" :
+					{
+						doc.getBuffer.getStartIter(InputStart);
+						doc.getBuffer.getEndIter(InputEnd);
+						break;
+					}
+
+					default :
 				}
-				else
-				{
-					doc.getBuffer().setText(Output);
-				}
+
+				doc.getBuffer.delet(InputStart, InputEnd);
+				doc.getBuffer.insert(InputStart, Output);
 				break;
 			}
 					
@@ -196,6 +236,8 @@ class SHELLFILTER : ELEMENT
 
 		mBuilder.addFromFile(Config.getString("SHELLFILTER", "glade_file","$(HOME_DIR)/glade/shellfilter.glade"));
 
+		auto tmpButton = cast(Button)mBuilder.getObject("button1");
+		tmpButton.addOnClicked(delegate void (Button x){RunCommand(mCommand);});
 		mRoot 	= cast(VBox)mBuilder.getObject("root");
 		mInBox 	= cast(ComboBox)mBuilder.getObject("combobox1");
 		mOutBox = cast(ComboBox)mBuilder.getObject("combobox2");
@@ -222,7 +264,7 @@ class SHELLFILTER : ELEMENT
 	void Disengage()
 	{
 		string[] saveHistory;
-		foreach(history; uniq(mCmdHistory)) saveHistory ~= history;
+		foreach(history; uniq(mCmdHistory.sort)) saveHistory ~= history;
 		Config.setStringList("SHELLFILTER", "history", saveHistory);
 		mState = false;
 		Log.Entry("Disengaged "~Name()~"\t\telement.");
