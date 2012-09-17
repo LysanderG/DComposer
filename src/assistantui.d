@@ -253,17 +253,15 @@ class ASSISTANT_UI : ELEMENT
 				foreach(key; DocFolderKeys)
 				{
 					string DocFile = buildPath(Config.getString("DOCUMENTATION_FOLDERS", key), StdPrefix ~ SrcHtmlFileName);
+					writeln("DocFile == ",DocFile);
 					if(!exists(DocFile)) continue;
 
 					string url = "file://"~DocFile~"#"~Sym.Name;
 					webkit_web_view_load_uri(mWebView, toStringz(url));
 					return;
 				}
-				
 			}
-
-			ShowUndocumentedPage();	
-				
+			webkit_web_view_load_string(mWebView, toStringz(Sym.Comment), toStringz("text/plain"), null, "");			
 		}
 	}
 	else
@@ -439,19 +437,33 @@ class ASSISTANT_UI : ELEMENT
 
 class ASSISTANT_PAGE : PREFERENCE_PAGE
 {
-    CheckButton    mEnabled;
-    CheckButton    mPseudoToolTipEnabled;
+    CheckButton    	mEnabled;
+    CheckButton		mPseudoToolTipEnabled;
+    LISTUI			mDDocDirectories;
 
     override void PrepGui()
     {
 		mEnabled.setActive(Config.getBoolean("ASSISTANT_UI","enabled", true));
         mPseudoToolTipEnabled.setActive(Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", true));
+        
+        mDDocDirectories.ClearItems(null);
+        string[] DocPaths;
+        foreach(key; Config.getKeys("DOCUMENTATION_FOLDERS"))
+        {
+            DocPaths ~=Config.getString("DOCUMENTATION_FOLDERS", key);
+        }
+        mDDocDirectories.SetItems(DocPaths);
 	}
 
     this(string PageName, string SectionName)
     {
+		string listgladefile = expandTilde(Config.getString("PROJECT", "list_glad_file", "$(HOME_DIR)/glade/multilist.glade"));
+
+		mDDocDirectories = new LISTUI("Documentation Directories", ListType.PATHS, listgladefile);
         super(PageName, Config.getString("PREFERENCES", "glade_file_assistant", "$(HOME_DIR)/glade/assistpref.glade"));
 
+		Add(mDDocDirectories.GetWidget());
+		
         mEnabled = cast (CheckButton) mBuilder.getObject("checkbutton1");
         mPseudoToolTipEnabled = cast (CheckButton) mBuilder.getObject("checkbutton2");
 
@@ -466,6 +478,16 @@ class ASSISTANT_PAGE : PREFERENCE_PAGE
     {
         Config.setBoolean("ASSISTANT_UI", "enabled", mEnabled.getActive());
         Config.setBoolean("ASSISTANT_UI", "follow_doc_tool_tip", mPseudoToolTipEnabled.getActive());
+
+        if(Config.hasGroup("DOCUMENTATION_FOLDERS"))Config.removeGroup("DOCUMENTATION_FOLDERS");
+
+		string [] pkgNames = mDDocDirectories.GetShortItems();
+		string [] DocFolders = mDDocDirectories.GetFullItems();
+		
+        foreach(int i, name; pkgNames)
+        {
+            Config.setString("DOCUMENTATION_FOLDERS", name, DocFolders[i]);
+        }
     }
 }
     
