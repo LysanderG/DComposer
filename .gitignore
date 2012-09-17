@@ -13,3 +13,6 @@ bindir
 systemdir
 sysdir
 tmp
+tmpdocs/*
+dcompro
+

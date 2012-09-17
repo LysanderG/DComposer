@@ -239,35 +239,6 @@ class SYMBOLS
 		    default :break;
 		}
 
-        //if(EventType == "Close")
-        //{
-		//	writeln("closing ", mProjectKey);
-        //    mSymbols.remove(mProjectKey);
-        //    emit();
-        //    return;
-        //}
-//
-        //if(EventType == "CreateTags")
-        //{
-        //    scope(failure){Log.Entry("Failed to load project symbols","Error");return;}
-        //    Load(Project.Name(), Project.Name() ~ ".tags");
-        //    //emit();
-        //    return;
-        //}
-        //if(EventType == "FailedCreateTags")
-        //{
-		//	scope(failure){Log.Entry("Failed to load project symbols","Error");return;}
-		//	if(Project.Name() in mSymbols) return; //keep the symbols we have if none try to load old symbols
-        //    Load(Project.Name(), Project.Name() ~ ".tags");
-		//	//emit();
-        //    return;
-        //}
-//
-        //if(EventType == "Name" || EventType == "New" || EventType == "Opened")
-        //{
-        //    mProjectKey = Project.Name;
-        //}
-        
     }
     DSYMBOL[] GetInScopeSymbols(string[] Scope)
     {
@@ -331,11 +302,18 @@ class SYMBOLS
         }
         string[] keys = Config().getKeys("SYMBOL_LIBS");
 
-        foreach(key; keys)
-        {
-            auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");            
-            Load(key, tmp);
-        }        
+		foreach(key; keys)
+		{
+			auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");			
+			Load(key, tmp);
+		}
+
+		//string[string] tmp;
+		//foreach (key; keys) tmp[key] = Config.getString("SYMBOL_LIBS", key, "huh");
+		//foreach (key; parallel(keys))
+		//{
+		//	mSymbols[key] = LoadConcurrent(key, tmp[key]);
+		//}    
     }
     
     
@@ -362,12 +340,12 @@ class SYMBOLS
         }
 
         Config.Reconfig.connect(&Reconfigure);
-        Reconfigure();
+        //Reconfigure();  //don't need this run now. doubles app load time too.
             
         string x = "Engaged SYMBOLS [";
         foreach(ii, key; keys){if(ii != 0)x ~= `,`; x ~= `"` ~ key ~`"`;}
         x ~= "]";
-        Log().Entry(x);        
+        Log().Entry(x);   
     }
 
     void Disengage()
@@ -407,6 +385,24 @@ class SYMBOLS
         mSymbols[key] = X;
         emit();
 
+    }
+
+    DSYMBOL LoadConcurrent(string key, string symfile)
+        {
+
+        auto JRoot = parseJSON(readText(symfile));
+        
+        DSYMBOL X = new DSYMBOL;
+        X.Name = key;
+        X.Path = key;
+        X.Scope = [key];
+        X.Kind = "package";
+        
+        BuildSymbols(JRoot, X);
+
+        
+        emit();
+		return X;
     }
 
         
