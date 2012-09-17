@@ -53,21 +53,21 @@ class PRINTER : ELEMENT
 
 	Action		mPrintAction;
 
-	Box		CustomPage;
+	Box			mCustomPage;
 
-	CheckButton HighLight;
-	CheckButton WrapText;	
-	CheckButton LineNumber; 
+	CheckButton mHighLight;
+	CheckButton mWrapText;	
+	CheckButton mLineNumber; 
 	
-	CheckButton ShowHeader; 
-	Entry LHEntry;	
-	Entry CHEntry;	
-	Entry RHEntry;	
+	CheckButton mShowHeader; 
+	Entry 		mLHEntry;	
+	Entry 		mCHEntry;	
+	Entry 		mRHEntry;	
 	
-	CheckButton ShowFooter; 
-	Entry LFEntry;	
-	Entry CFEntry;	
-	Entry RFEntry;	
+	CheckButton mShowFooter; 
+	Entry 		mLFEntry;	
+	Entry 		mCFEntry;	
+	Entry 		mRFEntry;	
 
 
 
@@ -101,57 +101,57 @@ class PRINTER : ELEMENT
 			Builder xBuilder = new Builder;
 			xBuilder.addFromFile(Config.getString("PRINTING", "glade_file", "$(HOME_DIR)/glade/printdialogpage.glade"));
 
-			CustomPage = cast(Box)				xBuilder.getObject("root");
+			mCustomPage	= cast(Box)				xBuilder.getObject("root");
 
-			HighLight  = cast(CheckButton) 	xBuilder.getObject("checkbutton1");
-			WrapText	= cast(CheckButton)		xBuilder.getObject("checkbutton2");
-			LineNumber = cast(CheckButton)		xBuilder.getObject("checkbutton3");
+			mHighLight  	= cast(CheckButton) 	xBuilder.getObject("checkbutton1");
+			mWrapText	= cast(CheckButton)		xBuilder.getObject("checkbutton2");
+			mLineNumber 	= cast(CheckButton)		xBuilder.getObject("checkbutton3");
 
-			ShowHeader = cast(CheckButton)		xBuilder.getObject("showheader");
-			LHEntry	= cast(Entry)			xBuilder.getObject("lhentry");
-			CHEntry	= cast(Entry)			xBuilder.getObject("chentry");
-			RHEntry	= cast(Entry)			xBuilder.getObject("rhentry");
+			mShowHeader 	= cast(CheckButton)		xBuilder.getObject("showheader");
+			mLHEntry		= cast(Entry)			xBuilder.getObject("lhentry");
+			mCHEntry		= cast(Entry)			xBuilder.getObject("chentry");
+			mRHEntry		= cast(Entry)			xBuilder.getObject("rhentry");
 
-			ShowFooter = cast(CheckButton)		xBuilder.getObject("showfooter");
-			LFEntry	= cast(Entry)			xBuilder.getObject("lfentry");
-			CFEntry	= cast(Entry)			xBuilder.getObject("cfentry");
-			RFEntry	= cast(Entry)			xBuilder.getObject("rfentry");
+			mShowFooter 	= cast(CheckButton)		xBuilder.getObject("showfooter");
+			mLFEntry		= cast(Entry)			xBuilder.getObject("lfentry");
+			mCFEntry		= cast(Entry)			xBuilder.getObject("cfentry");
+			mRFEntry		= cast(Entry)			xBuilder.getObject("rfentry");
 
-			HighLight	.setActive(Config.getBoolean("PRINTING", "highlight", false));
-			WrapText	.setActive(Config.getBoolean("PRINTING", "wraptext", true));
-			LineNumber	.setActive(Config.getBoolean("PRINTING", "linenumbers", true));
+			mHighLight	.setActive	(Config.getBoolean("PRINTING", "mHighLight", false));
+			mWrapText	.setActive	(Config.getBoolean("PRINTING", "wraptext", true));
+			mLineNumber	.setActive	(Config.getBoolean("PRINTING", "linenumbers", true));
 
-			ShowHeader	.setActive(Config.getBoolean("PRINTING", "showheader", true));
-			LHEntry		.setText(Config.getString("PRINTING", "left_header_text", "%f"));
-			CHEntry		.setText(Config.getString("PRINTING", "center_header_text", ""));
-			RHEntry		.setText(Config.getString("PRINTING", "right_header_text", "%N"));
+			mShowHeader	.setActive	(Config.getBoolean("PRINTING", "showheader", true));
+			mLHEntry		.setText	(Config.getString("PRINTING", "left_header_text", "%f"));
+			mCHEntry		.setText	(Config.getString("PRINTING", "center_header_text", ""));
+			mRHEntry		.setText	(Config.getString("PRINTING", "right_header_text", "%N"));
 			
-			ShowFooter	.setActive(Config.getBoolean("PRINTING", "showfooter", true));
-			LFEntry		.setText(Config.getString("PRINTING", "left_footer_text", ""));
-			CFEntry		.setText(Config.getString("PRINTING", "center_footer_text", ""));
-			RFEntry		.setText(Config.getString("PRINTING", "right_footer_text", ""));			
+			mShowFooter	.setActive	(Config.getBoolean("PRINTING", "showfooter", true));
+			mLFEntry		.setText	(Config.getString("PRINTING", "left_footer_text", ""));
+			mCFEntry		.setText	(Config.getString("PRINTING", "center_footer_text", ""));
+			mRFEntry		.setText	(Config.getString("PRINTING", "right_footer_text", ""));			
 
-			return cast(GObject*)CustomPage.getBoxStruct();
+            return cast(GObject *)mCustomPage.getBoxStruct();
 		}
 
 		void ApplyCustomTab(Widget w, PrintOperation po)
 		{
-			int PrintHighlighting = HighLight.getActive();
-			int PrintWrapText = WrapText.getActive();
-			int PrintLineNumbers = LineNumber.getActive();
+			int PrintHighLighting =mHighLight.getActive();
+			int PrintWrapText = mWrapText.getActive();
+			int PrintLineNumbers = mLineNumber.getActive();
 
-			int PrintHeaders = ShowHeader.getActive();
-			int PrintFooters = ShowFooter.getActive();
+			int PrintHeaders = mShowHeader.getActive();
+			int PrintFooters = mShowFooter.getActive();
 			string[6] formatstr;
 				
-			formatstr[0]= LHEntry.getText();
-			formatstr[1]= CHEntry.getText();
-			formatstr[2]= RHEntry.getText();
-			formatstr[3]= LFEntry.getText();
-			formatstr[4]= CFEntry.getText();
-			formatstr[5]= RFEntry.getText();
+			formatstr[0]= mLHEntry.getText();
+			formatstr[1]= mCHEntry.getText();
+			formatstr[2]= mRHEntry.getText();
+			formatstr[3]= mLFEntry.getText();
+			formatstr[4]= mCFEntry.getText();
+			formatstr[5]= mRFEntry.getText();
 
-			Config.setBoolean("PRINTING", "highlight", PrintHighlighting);
+			Config.setBoolean("PRINTING", "mHighLight", PrintHighLighting);
 			Config.setBoolean("PRINTING", "wraptext", PrintWrapText);
 			Config.setBoolean("PRINTING", "linenumbers", PrintLineNumbers);
 			Config.setBoolean("PRINTING", "showheader", PrintHeaders);
@@ -172,7 +172,7 @@ class PRINTER : ELEMENT
 
 			
 
-			SvCompositor.setHighlightSyntax(PrintHighlighting);
+			SvCompositor.setHighlightSyntax(PrintHighLighting);
 			SvCompositor.setWrapMode( (PrintWrapText)?(GtkWrapMode.WORD):(GtkWrapMode.NONE));
 			SvCompositor.setPrintLineNumbers(PrintLineNumbers);
 
@@ -209,7 +209,7 @@ class PRINTER : ELEMENT
         mState = false;
 
         PREFERENCE_PAGE mPrefPage = null;
-        dui.AddIcon("dcomposer-print", Config.getString("ICONS", "dcomposer_split", "$(HOME_DIR)/glade/printer.png"));
+        dui.AddIcon("dcomposer-print", Config.getString("ICONS", "dcomposer_print", "$(HOME_DIR)/glade/printer.png"));
     }
 
     @property string Name() {return mName;}
