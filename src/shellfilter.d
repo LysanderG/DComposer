@@ -270,3 +270,4 @@ class SHELLFILTER : ELEMENT
 		Log.Entry("Disengaged "~Name()~"\t\telement.");
 	}
 }
+
