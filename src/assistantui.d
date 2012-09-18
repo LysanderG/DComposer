@@ -103,6 +103,8 @@ class ASSISTANT_UI : ELEMENT
 
     DSYMBOL[]   mList;
 
+    string[]	mDocPaths;
+
     bool        mEnabled; //this should be State !! but not sure that will work as planned 6 months ago.
                            //... look into this
 
@@ -244,23 +246,22 @@ class ASSISTANT_UI : ELEMENT
 
 				return;
 			}
-
-			if(Config.hasGroup("DOCUMENTATION_FOLDERS"))
+			
+			string StdPrefix = "";
+			if(Sym.Scope[0] == "std") StdPrefix = "std_";
+			
+			
+			foreach(dpath; mDocPaths)
 			{
-				string StdPrefix = "";
-				if(Sym.Scope[0] == "std") StdPrefix = "std_";
-				auto DocFolderKeys = Config.getKeys("DOCUMENTATION_FOLDERS");
-				foreach(key; DocFolderKeys)
-				{
-					string DocFile = buildPath(Config.getString("DOCUMENTATION_FOLDERS", key), StdPrefix ~ SrcHtmlFileName);
-					writeln("DocFile == ",DocFile);
-					if(!exists(DocFile)) continue;
+				string DocFile = buildPath(dpath, StdPrefix ~ SrcHtmlFileName);
+				
+				if(!exists(DocFile)) continue;
 
-					string url = "file://"~DocFile~"#"~Sym.Name;
-					webkit_web_view_load_uri(mWebView, toStringz(url));
-					return;
-				}
+				string url = "file://"~DocFile~"#"~Sym.Name;
+				webkit_web_view_load_uri(mWebView, toStringz(url));
+				return;
 			}
+
 			webkit_web_view_load_string(mWebView, toStringz(Sym.Comment), toStringz("text/plain"), null, "");			
 		}
 	}
@@ -319,6 +320,11 @@ class ASSISTANT_UI : ELEMENT
     {
         //mMouseHover = Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", false);
         mEnabled    = Config.getBoolean("ASSISTANT_UI", "enabled", true);
+
+		auto dpkeys = Config.getKeys("DOCUMENTATION_FOLDERS");
+		mDocPaths.length = 0;
+
+		foreach(key; dpkeys)mDocPaths ~= Config.getString("DOCUMENTATION_FOLDERS", key, "error");
         
         mRoot.setVisible(mEnabled);
     }
@@ -412,6 +418,7 @@ class ASSISTANT_UI : ELEMENT
         mBtnParent.addOnClicked(delegate void(Button btn){Parent();});
 
         Config.Reconfig.connect(&Reconfigure);
+        Reconfigure();
 
         Log.Entry("Engaged "~Name()~"\t\telement.");
     }
@@ -438,21 +445,22 @@ class ASSISTANT_UI : ELEMENT
 class ASSISTANT_PAGE : PREFERENCE_PAGE
 {
     CheckButton    	mEnabled;
-    CheckButton		mPseudoToolTipEnabled;
+    //CheckButton		mPseudoToolTipEnabled;
     LISTUI			mDDocDirectories;
 
     override void PrepGui()
     {
 		mEnabled.setActive(Config.getBoolean("ASSISTANT_UI","enabled", true));
-        mPseudoToolTipEnabled.setActive(Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", true));
+        //mPseudoToolTipEnabled.setActive(Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", true));
         
         mDDocDirectories.ClearItems(null);
-        string[] DocPaths;
-        foreach(key; Config.getKeys("DOCUMENTATION_FOLDERS"))
+        string[] xDocPaths;
+        string[] xKeys = Config.getKeys("DOCUMENTATION_FOLDERS");
+        foreach(key; xKeys)
         {
-            DocPaths ~=Config.getString("DOCUMENTATION_FOLDERS", key);
+            xDocPaths ~= Config.getString("DOCUMENTATION_FOLDERS", key);
         }
-        mDDocDirectories.SetItems(DocPaths);
+        mDDocDirectories.SetItems(xDocPaths);
 	}
 
     this(string PageName, string SectionName)
@@ -465,10 +473,10 @@ class ASSISTANT_PAGE : PREFERENCE_PAGE
 		Add(mDDocDirectories.GetWidget());
 		
         mEnabled = cast (CheckButton) mBuilder.getObject("checkbutton1");
-        mPseudoToolTipEnabled = cast (CheckButton) mBuilder.getObject("checkbutton2");
+        //mPseudoToolTipEnabled = cast (CheckButton) mBuilder.getObject("checkbutton2");
 
         mEnabled.setActive(Config.getBoolean("ASSISTANT_UI","enabled", true));
-        mPseudoToolTipEnabled.setActive(Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", true));
+        //mPseudoToolTipEnabled.setActive(Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", true));
 
         //Config.ShowConfig.connect(&PrepGui);
         mFrame.showAll();
@@ -477,16 +485,16 @@ class ASSISTANT_PAGE : PREFERENCE_PAGE
     override void Apply()
     {
         Config.setBoolean("ASSISTANT_UI", "enabled", mEnabled.getActive());
-        Config.setBoolean("ASSISTANT_UI", "follow_doc_tool_tip", mPseudoToolTipEnabled.getActive());
+        //Config.setBoolean("ASSISTANT_UI", "follow_doc_tool_tip", mPseudoToolTipEnabled.getActive());
 
         if(Config.hasGroup("DOCUMENTATION_FOLDERS"))Config.removeGroup("DOCUMENTATION_FOLDERS");
 
-		string [] pkgNames = mDDocDirectories.GetShortItems();
-		string [] DocFolders = mDDocDirectories.GetFullItems();
+		string [] xpkgNames = mDDocDirectories.GetShortItems();
+		string [] xDocFolders = mDDocDirectories.GetFullItems();
 		
-        foreach(int i, name; pkgNames)
+        foreach(int x, name; xpkgNames)
         {
-            Config.setString("DOCUMENTATION_FOLDERS", name, DocFolders[i]);
+            Config.setString("DOCUMENTATION_FOLDERS", name, xDocFolders[x]);
         }
     }
 }
