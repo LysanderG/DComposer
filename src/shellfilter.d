@@ -22,6 +22,7 @@ module shellfilter;
 import dcore;
 import ui;
 import elements;
+import document;
 
 import std.process;
 import std.array;
@@ -77,7 +78,7 @@ class SHELLFILTER : ELEMENT
 
 		switch (mInBox.getActiveText())
 		{
-			case "None": 		Input = " ";break;  //tried Input = "" but some commands wait for std input forever causing a freeze
+			case "None": 		Input = "";break;  //tried Input = "" but some commands wait for std input forever causing a freeze
 			case "Word":		Input = dui.GetDocMan.GetWord();		if(Input.length < 1) return; break;
 			case "Line":		Input = dui.GetDocMan.GetLineText();	if(Input.length < 1) return; break;
 			case "Selection": 	Input = dui.GetDocMan.GetSelection(); 	if(Input.length < 1) return; break;
@@ -115,15 +116,23 @@ class SHELLFILTER : ELEMENT
 
 
 		//ok we got the results in output
-		auto doc = dui.GetDocMan.GetDocument();
-
-		doc.getBuffer.beginUserAction();
-		scope(exit)doc.getBuffer.endUserAction();
+		DOCUMENT doc;		
+		scope(exit)if(doc !is null)doc.getBuffer.endUserAction();
+		
 		switch(mOutBox.getActiveText())
 		{
-			case "Insert at cursor" : doc.insertText(Output); break;
+			case "Insert at cursor" :
+			{
+				doc = dui.GetDocMan.GetDocument();
+				doc.getBuffer.beginUserAction();
+				doc.insertText(Output);
+				break;
+			}
+			
 			case "Replace input" :
 			{
+				doc = dui.GetDocMan.GetDocument();
+				doc.getBuffer.beginUserAction();
 				TextIter InputStart = new TextIter;
 				TextIter InputEnd = new TextIter;
 				
@@ -131,6 +140,7 @@ class SHELLFILTER : ELEMENT
 				{
 					case "None" :
 					{
+						
 						doc.getBuffer.getIterAtMark(InputStart,doc.getBuffer.getInsert);
 						InputEnd = InputStart.copy;
 						break;
@@ -175,16 +185,16 @@ class SHELLFILTER : ELEMENT
 			{
 				auto NewAct = dui.Actions.getAction("CreateAct");
 				NewAct.activate();
-				dui.GetDocMan.GetDocument.getBuffer.setText(Output);
+				doc = dui.GetDocMan.GetDocument();
+				doc.getBuffer.beginUserAction();
+				doc.getBuffer.setText(Output);
+				break;
 			}
-			break;
 			default : break;
 		}
 
 		if(!mCmdHistory.canFind(CmdText))mCommandCombox.prependOrReplaceText(CmdText);
 		mCmdHistory ~= CmdText;
-		
-
 	}
 
 	void Configure()
