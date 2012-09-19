@@ -470,9 +470,12 @@ class SEARCH_UI : ELEMENT
     {
         mResultsView.getSelection.selectPath(new TreePath("0"));
 		TI = mResultsView.getSelection.getSelected();
+		string ReplaceText = mReplace.getText();
+		if(ReplaceText is null) ReplaceText = "";
 		
         do
-        {                      
+        {
+			              
 	        if (TI is null) break;	        
 	        if(!mResultsList.iterIsValid(TI)) break;
 	
@@ -485,11 +488,17 @@ class SEARCH_UI : ELEMENT
 	
 	        TextIter txti1 = new TextIter;
 	        TextIter txti2 = new TextIter;
-	
-	        tmp.getBuffer.getIterAtLineOffset (txti1, line-1, offstart);
-	        tmp.getBuffer.getIterAtLineOffset (txti2, line-1, offend);
+	        writeln(line-1, "-", offstart, "-", offend, "--");
+	        tmp.getBuffer.getIterAtLineIndex (txti1, line-1, offstart);
+	        if(offend > txti1.getBytesInLine()) offend = txti1.getCharsInLine();
+
+	        writeln(line-1, "-", offstart, "-", offend, "--", txti1.getBytesInLine());
+	        tmp.getBuffer.getIterAtLineIndex (txti2, line-1, offend);
+			
 	        tmp.getBuffer.delet(txti1, txti2);
-	        tmp.getBuffer.insert(txti1, mReplace.getText(), -1);
+	       
+	        if (ReplaceText.length > 0)tmp.getBuffer.insert(txti1, ReplaceText, -1);
+	        
         
         }while(mResultsList.iterNext(TI));
 
