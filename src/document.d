@@ -65,6 +65,10 @@ import pango.PgFontDescription;
 
 extern(C) GdkAtom gdk_atom_intern(const char *, bool);
 
+/**
+ * Testing Documentation
+ * DOCUMENT is basically SourceView with a couple of personal tweaks
+ * */    
 class DOCUMENT : SourceView
 {
 	private:
