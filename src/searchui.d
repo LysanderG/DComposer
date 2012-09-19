@@ -468,6 +468,46 @@ class SEARCH_UI : ELEMENT
 
     void ReplaceAll()
     {
+		mResultsView.getSelection.selectPath(new TreePath("0"));
+		TI = mResultsView.getSelection.getSelected();
+		string ReplaceText = mReplace.getText();
+		if(ReplaceText is null) ReplaceText = "";
+
+		string[] aFileNames;
+		int[]    aLines;
+		int[]    aOffStarts;
+		int[]    aOffEnds;
+
+		TextIter txti1 = new TextIter;
+	    TextIter txti2 = new TextIter;
+
+		do
+		{
+			if(TI is null)break;
+			if(!mResultsList.iterIsValid(TI)) break;
+
+			aFileNames 	~= mResultsList.getValueString(TI, 3);
+			aLines 		~= mResultsList.getValueInt(TI,1);
+			aOffStarts	~= mResultsList.getValueInt(TI, 4);
+			aOffEnds	~= mResultsList.getValueInt(TI, 5);
+		}while(mResultsList.iterNext(TI));
+
+		foreach_reverse(size_t i, filename; aFileNames)
+		{
+			auto doc = dui.GetDocMan.GetDocument(filename);
+			doc.getBuffer.beginUserAction();
+			if(doc is null) continue;
+			doc.getBuffer.getIterAtLineIndex(txti1, aLines[i]-1, aOffStarts[i]);
+			doc.getBuffer.getIterAtLineIndex(txti2, aLines[i]-1, aOffEnds[i]);
+			doc.getBuffer.delet(txti1, txti2);
+			if(ReplaceText.length > 0) doc.getBuffer.insert(txti1, ReplaceText, -1);
+			doc.getBuffer.endUserAction();
+		}
+		mResultsList.clear();			
+	}
+
+    void ReplaceAllOld()
+    {
         mResultsView.getSelection.selectPath(new TreePath("0"));
 		TI = mResultsView.getSelection.getSelected();
 		string ReplaceText = mReplace.getText();

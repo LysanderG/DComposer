@@ -895,3 +895,22 @@ Every time I think I've discovered the absolute depth of my intellectual prowess
 
 
 Relevent point is ... little programming accomplished.
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+09.18.2012
+
+OMG spent hours trying to figure out why search and replace all would not work!!
+I was testing by creating a new doc with man sort.  then search for "sort" and trying to replace it with some new text.
+Kept crashing saying offset of "sort" was beyond end of line.
+After hours of messing with my code I tried adding the new document with "man -Eutf8 sort" (I finally read the man man.)
+And everything works fine!!
+How the hell is man output encoded that it screws up my code.  Now it looks like I've got lots to learn.
+
+OOOh so dumb, gotta go backwards through replaceall!  Been through this before!
+
+Things I am considering to do next
+	-Figure out all the key bindings and make them configurable
+	-Snippets
+	-A Bookmark View
+	-Code coverage
+	
