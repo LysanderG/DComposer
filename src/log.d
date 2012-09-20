@@ -26,6 +26,8 @@ import std.path;
 import std.datetime;
 import std.file;
 
+import core.stdc.signal;
+
 
 import dcore;
 
@@ -53,7 +55,16 @@ class LOG
         
         mMaxFileSize = 65_535;
         mMaxLines = 124;
+        
+        signal(SIGSEGV, &SegFlush);
+        signal(SIGABRT, &SegFlush);
+        signal(SIGINT, &SegFlush);
+        
     }
+    ~this()
+    {
+		Flush();
+	}
 
     void Engage()
     {
@@ -116,7 +127,8 @@ class LOG
 	{
 		auto f = File(mLogFile, "a");
 		foreach (l; mEntries) f.writeln(l);
-                f.flush;
+        f.flush();
+        f.close();
 		mEntries.length = 0;
 	}
     
@@ -134,6 +146,18 @@ class LOG
 
 	
 
-
-
+import std.c.stdlib;
+extern (C) void SegFlush(int SysSig)nothrow @system
+{
+	try
+	{
+		writeln("Caught Signal = ", SysSig);
+	    Log.Flush();
+	    exit(127);
+    }
+    catch(Exception X)
+    {
+	    return;
+    }
+}
 	

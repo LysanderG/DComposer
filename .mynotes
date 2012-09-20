@@ -913,4 +913,72 @@ Things I am considering to do next
 	-Snippets
 	-A Bookmark View
 	-Code coverage
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+09.19.2012 20:50:01
+	-custom toolbar layout
+	-Debugger ****
+	-export Makefile
+	-maybe a non symbol completion -- keyword/local stuff
+
+Spending a lot of time tonight looking at/for parsers.  Looked at DScanner cool but it doesn't do local variables
+either.  Wonder if that is like 'a thing.'  Anyway I do not think I understand what most people mean by parser.
+
+Ok, messing around with dcomposer some things that really need attention or I just look stupid
+	-sometimes autopopups doesn't display (something to do with inserting stuff)
+	-assistant does not show the logical symbol when there is a choice
+	-have to focus on search entry and press enter to start a search need a better way
+	-log file isn't save on a crash! whats the point of logging errors if you never see em!
 	
+break it down...
+	-broken menu icons
+	-menu order
+	-toolbar order
+	-use status bar or lose it
+	-dirview        -- use matching icons
+	-projectview    -- add args for run w/args option
+	-symbolview     -- better tooltip -- maybe full signature but do not need path/scope
+	-historyview    -- stop the crash on drag
+	-logui          -- font choice
+	-build messages -- get rid of numbers and add progress bar
+	-terminalui     -- nothing simple is good
+	-searchui       -- better ui altogether more intuitive search 
+	-shellfilter    -- either list of favorites or maybe a shell text processing manual of some kind (awk, sed, grep, regex, etc)
+	-assistantui    -- smooth the rough edges... actually using it reveals
+	-printui        -- nothing yet but I can't really test (ink is too expensive :)
+	-ui             -- more storeguistate stuff, better menu w/icons better toolbar, statusbar (on close discard/save all)
+	-autopopups     -- for all all of it need to make it work all the time and make it look better and less obstructive (scrolling!)
+	-symbols        -- faster loading why is parallel loading slower?
+	-splitdoc       -- this is much harder but allow split views of different docs or maybe detach tabs?(two notebooks in centerpane?)
+	-search         -- faster maybe (after everything else is perfect)
+	-projectui      -- a lot of this is duplicated better in proview (get rid of apply button here)
+	-project        -- truthfully I hate this module... too ... blah I guess just not pretty, efficient, sleek.
+	-preferences    -- more functionality in base class less room for deviation.  Too much variations in each subclass
+	-log            -- two things 1. first entries are lost (hacked around) 2. after crash most if not all entries lost 
+	-indent         -- seems to work fine (remember {} indenting)
+	-gotodef        -- simple works fine
+	-elements       -- not plugins but who really cares
+	-document       -- ??? streamline it maybe
+	-docman         -- clean up 
+	-dcore          -- nuthin
+	-dcomposer      -- nuthin
+	-config         -- nuthin maybe some clean up
+	-bookmarks      -- turn into a view (ie sidepane) clean it up -- actually a good beginning I think
+	-all modules    -- clean up, document, conform to convention 
+	
+Tomorrow I'll prioritize all this crap.  Then I'm going to work on making it all nice and pretty before I add anymore
+stuff.  Then I'll try a debugger again.  Then I'll announce this to whoever ... then I'll consider more features.
+
+oh well.
+
+G' night.
+
+	
+	
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Thu Sep 20 01:45:30 EDT 2012
+
+Arrgh forgot to save changes I made here earlier!!
+
+

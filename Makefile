@@ -15,7 +15,7 @@ LIBRARIES = -L-lgtkdsv -L-lgtkd -L-lvte -L-lutil
 
 DFLAGS = -of$(TARGET) -D -Dddocs -odobjdir -J. 
 RELEASEFLAGS = -release
-DEBUGFLAGS = -gc
+DEBUGFLAGS = -g
 
 ifeq ("Linux", $(shell uname))
 	LIBRARIES = $(LIBRARIES) -L-ldl
