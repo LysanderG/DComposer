@@ -44,31 +44,31 @@ import glib.SimpleXML;
 
 class DSYMBOL
 {
-    string		Name;               //symbol name
-    string      Path;               //full path of this symbol
-    string[]    Scope;              //scope path to this symbol (path without Name)
+    string		Name;               ///symbol name
+    string      Path;               ///full path of this symbol
+    string[]    Scope;              ///scope path to this symbol (path without Name)
 
-	string		Base;               //what the symbol inherits (enum's can inherit a type?)    
+	string		Base;               ///what the symbol inherits (enum's can inherit a type?)    
 
-    string		Type;               //basically the signature (w/o the name) ie void(int, string) or uint or not always present
-	string		Kind;               //variable function constructor template struct class module union enum alias ...
-    string      ReturnType;         //if symbol is a function (or a Template?) what does it return? We can do somelib.getAnInterface(input).getData().x
+    string		Type;               ///basically the signature (w/o the name) ie void(int, string) or uint or not always present
+	string		Kind;               ///variable function constructor template struct class module union enum alias ...
+    string      ReturnType;         ///if symbol is a function (or a Template?) what does it return? We can do somelib.getAnInterface(input).getData().x
 
-    string		Comment;            //ddoc comment associated with symbol (only if compiled with -D)
+    string		Comment;            ///ddoc comment associated with symbol (only if compiled with -D)
 
-    string      Protection;         //this is newly added ... going to screw me up!
+    string      Protection;         ///this is newly added ... going to screw me up!
         
-    string		InFile;             //the file where symbol is defined 
-	int			OnLine;             //the line on which it is defined on
+    string		InFile;             ///the file where symbol is defined 
+	int			OnLine;             ///the line on which it is defined on
 
 
     
-    bool		Scoped;             //does this symbol have children
-    DSYMBOL[]   Children;           //All children
+    bool		Scoped;             ///does this symbol have children
+    DSYMBOL[]   Children;           ///All children
     string      Icon;
 
 
-    string GetIcon()                //WHY IS THIS A FUNCTION??? compute once and cache stupid!
+    string GetIcon()                ///WHY IS THIS A FUNCTION??? compute once and cache stupid!
     {
         string color;
         string rv;
@@ -103,21 +103,31 @@ class DSYMBOL
     }
 }
 
-
+/**
+ * Holds all the global symbols.  Symbols are obtained from any json files passed in.
+ * The json files are created with the dmd -X option.
+ * So for any package you want the symbols for just create a json file for it and do SYMBOLS.Load(pkg.json).
+ * Project tag files will automatically be passed in.
+ * */
 class SYMBOLS
 {
     private:
     
-    //ok symbols will be like mSymbols["std"] or mSymbols["gtk"] mSymbols[Project().Name]
-    //or if project type is null foreach opendoc mSymbol["docname"].load ...
+    /**
+     * Associative array of symbols
+     * ie mSymbols["std"] would be phobos std library symbols
+     * mSymbols["gtk"] mSymbols["core"]
+     * Project symbols will be autoloaded as mSymbols[Project.Name]
+     * */
+     
     DSYMBOL[string] mSymbols;
-    string           mProjectKey; //actually project name, used to remove project tags since Project.Name is cleared before Project.Event.emit("close");
+    string          mProjectKey; ///actually project name, used to remove project tags since Project.Name is cleared before Project.Event.emit("close");
 
-    string LastComment; //holds last comment before dittos
+    string LastComment; 		///holds last comment before dittos
 
        
 
-    //given jval from a json file fills up the symbols in this object
+    ///given jval from a json file fills up the symbols in this object
     void BuildSymbols(JSONValue jval, ref DSYMBOL sym , string Module = "")
     {
         switch (jval.type)
@@ -208,6 +218,15 @@ class SYMBOLS
         
     }
 
+	/**
+	 * Watches for project events
+	 * (symbols == tags)
+	 * may
+	 * 	remove project tags
+	 * 	add project tags
+	 * 	refresh tags
+	 *  or change to projectkey
+	 * */
     void ProjectWatch(ProEvent EventType)
     {
 		switch (EventType)
@@ -240,11 +259,19 @@ class SYMBOLS
 		}
 
     }
+
+    /*
+     * Given a 'Scope' returns all the child symbols of that 'Scope'
+     * The more specific the 'Scope' the more accurate the results.
+     * */
     DSYMBOL[] GetInScopeSymbols(string[] Scope)
     {
         
         DSYMBOL[] ReturnSyms;
-        string[] Bases;
+        //string[] Bases; //wth is this for
+
+		//following line is necessary to avoid seg faults processing templates
+        if(Scope.length < 1) return ReturnSyms;
 
         void _Process(DSYMBOL Sym)
         {
@@ -273,9 +300,6 @@ class SYMBOLS
         
         return ReturnSyms;
     }
-
-
-    
 
     DSYMBOL[] GetCompletionSymbols(string Candidate,  DSYMBOL[] Symbols, bool ParseKids = false)
     {
@@ -319,6 +343,10 @@ class SYMBOLS
     
     public :
 
+	/**
+	 * Engage Symbols
+	 * (ie get it ready to run)
+	 * */
     void Engage()
     {
                     
@@ -348,6 +376,10 @@ class SYMBOLS
         Log().Entry(x);   
     }
 
+	/**
+	 * Disengage Symbols
+	 * (ie clean up / save or whatever )
+	 * */
     void Disengage()
     {
         if(Config.getBoolean("SYMBOLS", "auto_load_project_symbols", true))
@@ -358,17 +390,25 @@ class SYMBOLS
     }
 
 
-    //add a tag file to config that will always be in the symbol tree
-    //need a remove commontagfile too
+    /**
+     * Adds a 'TagFile' (dmd -X json file) to the configurtion file.
+     * If user opts for auto symbol loading this file of symbols will
+     * be automatically loaded at start up.
+     *
+     **/
     void AddCommonTagFile(string key, string TagFile)
     {
         Config().setString("SYMBOLS", key, TagFile);
     }       
 
     
-    //this will replace mSymbol[key] if it exists (otherwise adds of course)
-    //actually loads a json file from dmd -X into this structure
 
+	/**
+	 * Loads a 'TagFile'
+	 * PARAMS:
+	 * key = the name of the package of symbols also used as associative array key
+	 * symfile = actual json file to be loaded
+	 * */
     void Load(string key, string symfile)
     {
 
@@ -387,6 +427,11 @@ class SYMBOLS
 
     }
 
+	/**
+	 * Load modified to return a DSYMBOL so it can be used
+	 * in a parallel foreach (see std.parallel)
+	 * Actually slowed symbol loading down significantly.
+	 * */
     DSYMBOL LoadConcurrent(string key, string symfile)
         {
 
@@ -405,7 +450,10 @@ class SYMBOLS
 		return X;
     }
 
-        
+     /**
+      * Dont think this function is even used
+      * +1 for code coverage
+      * */
     DSYMBOL[] PossibleMatches(string Candidate)
     {
         DSYMBOL[] RetSyms;
@@ -450,7 +498,9 @@ class SYMBOLS
     }
     
 
-    
+    /**
+     * ditto
+     * */
     DSYMBOL[] GetMembers(string Base, DSYMBOL[] HayStack = null)
     {
         if(HayStack is null) HayStack = mSymbols.values;
@@ -471,6 +521,10 @@ class SYMBOLS
         return RetSyms;
     }
 
+	/**
+	 * Given a Candidate (aaa.bbb.llll())
+	 * return all matching function symbols
+	 * */
     DSYMBOL[] MatchCallTips( string Candidate)
     {
         DSYMBOL[] ReturnSyms;
@@ -489,7 +543,11 @@ class SYMBOLS
         return ReturnSyms;
     }
         
-
+	/**
+	 * Returns possibles completions of Candidate (ie matches)
+	 * params:
+	 * Candidate = partial symbol to match, can be a symbol path (std.algorithm.sort)
+	 * */
     DSYMBOL[] Match(string Candidate)
     {
         DSYMBOL[] ReturnSyms;
@@ -522,6 +580,13 @@ class SYMBOLS
         
     }
 
+	/**
+	 * Returns any symbol that is an "exact" match for candidate name.
+	 * Multible symbol returns are possible if different packages or objects
+	 * have members with identical names.
+	 * params:
+	 * Candidate = full symbol to match, can be a symbol path (std.algorithm.sort)
+	 * */
    DSYMBOL[] ExactMatches(string Candidate)
     {
         DSYMBOL[] RetSyms;
@@ -542,7 +607,24 @@ class SYMBOLS
     mixin Signal!();
     mixin Signal!(DSYMBOL[]) Forward;
 
-
+	/**
+	 * Gets the 'path' of Candidate removing any whitespace around the "." seperator which
+	 * maybe introduced for fomatting ...
+	 * Examples:
+	 * ----
+	 * string c = "myAClassObject	.Buffer		.flush();";
+	 * string d = "yourAClassObject	.Buffer		.flush();";
+	 *
+	 * string e = StringPath(c);
+	 * string f = StringPath(d);
+	 *
+	 * assert(e == "myAClassObject.Buffer");
+	 * assert(f == "yourAClassObject.Buffer");
+	 * ----
+	 * params:
+	 * Candidate = symbol name possibly including scope/path(aa.bb.name)
+	 * returns: The scope/path part of candidate sans whitespace possibly ""
+	 * */ 
     string StringPath(string Candidate)
     {
         string rv;
@@ -553,6 +635,10 @@ class SYMBOLS
         return rv;
     }
 
+    /**
+     *Similiar to StringPath but
+     *returns:an array of strings for the scope/path of candidate
+     */
     string[] GetCandidatePath(string Candidate)
     {
         
@@ -561,7 +647,10 @@ class SYMBOLS
         return rv;
     }
          
-
+	/**
+	 * Filters out the scope/path of Candidate.
+	 * returns: The name of Candidate (or partial name)
+	 * */
     string GetCandidateName(string Candidate)
     {
         string rv;
@@ -585,7 +674,10 @@ class SYMBOLS
         return rv;
     }
 
-
+    /**
+    * Allows an outside source (ie element) to cause a forward 
+    * signal to be emitted
+    */
     void TriggerSignal(DSYMBOL[] SymbolsToPass)
     {
         Forward.emit(SymbolsToPass);
