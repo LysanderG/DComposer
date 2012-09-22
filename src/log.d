@@ -25,24 +25,34 @@ import std.signals;
 import std.path;
 import std.datetime;
 import std.file;
+import std.string;
 
 import core.stdc.signal;
 
 
 import dcore;
 
+/**
+ * Saves info and errors to file
+ *
+ * Probably better off using someone elses library
+ * */
 class LOG
 {
 	private :
 	string[]        mEntries;                       //buffer of log entries not yet saved to file
     
-	string          mSystemDefaultLogName;          //system log file can be overridden be interimfilename but reverts
+	string          mSystemDefaultLogName;          //system log file can be overridden by interimfilename but reverts
                                                     //if no -l option on command line
     string          mInterimFileName;               //override regular log file name from cmdline for one session
     string          mLogFile;                       //which of the two above is actually being used this session
     
     ulong           mMaxLines;                      //flush entries buffer
     ulong           mMaxFileSize;                   //if log is this size then don't append overwrite
+
+    bool			mLockEntries;					//don't dispose of mEntries if this is true
+
+    bool			mEchoToStdOut;					//whether to write entries to stdout
    
 
 	public:
@@ -54,7 +64,10 @@ class LOG
         mInterimFileName = "unspecifiedlogfile.cfg";
         
         mMaxFileSize = 65_535;
-        mMaxLines = 124;
+        mMaxLines = 1;
+
+        mLockEntries = true;
+        mEchoToStdOut = true;
         
         signal(SIGSEGV, &SegFlush);
         signal(SIGABRT, &SegFlush);
@@ -63,6 +76,7 @@ class LOG
     }
     ~this()
     {
+		mLockEntries = false;
 		Flush();
 	}
 
@@ -76,8 +90,9 @@ class LOG
         }
         else mLogFile = mSystemDefaultLogName;
         
-        mMaxLines = Config.getUint64("LOG", "max_lines_buffer", mMaxLines);
-        mMaxFileSize = Config.getUint64("LOG", "max_file_size", mMaxFileSize);
+        mMaxLines     = Config.getUint64("LOG", "max_lines_buffer", mMaxLines);
+        mMaxFileSize  = Config.getUint64("LOG", "max_file_size", mMaxFileSize);
+        mEchoToStdOut = Config.getBoolean("LOG", "echo_to_std_out", true);
 
         string mode = "w";
         if(exists(mLogFile))
@@ -98,11 +113,13 @@ class LOG
 
     void Disengage()
 	{
-
+		
 		auto rightnow = Clock.currTime();
 		auto logtime = rightnow.toISOExtString();
 
-                Entry("Disengaged LOG");
+		mLockEntries = false;
+
+        Entry("Disengaged LOG");
 
 		mEntries.length += 2;
 		mEntries[$-2] = logtime;
@@ -115,21 +132,23 @@ class LOG
 	{
 		//Level can be any string
 		//but for now "Debug", "Info", and "Error" will be expected (but not required)
-        writeln(Message);
+        if(mEchoToStdOut) writeln(Message);
 		emit(Message, Level, Module);
-		mEntries.length = mEntries.length + 1;
-		mEntries[$-1] = Level ~ ": " ~ Message;
-		if(Module !is null) mEntries[$-1] ~= " in " ~ Module;
+
+		string x = format ("%s: %s", Level, Message);
+		if(Module !is null) x = format("%s in %s", x, Module);
+		mEntries ~= x;
 		if(mEntries.length >= mMaxLines) Flush();
 	}
     
 	void Flush()
 	{
+		if(mLockEntries)return; //no saving entries while entries are locked 
 		auto f = File(mLogFile, "a");
 		foreach (l; mEntries) f.writeln(l);
         f.flush();
         f.close();
-		mEntries.length = 0;
+		 mEntries.length = 0;
 	}
     
     mixin Signal!(string, string, string);
@@ -142,6 +161,8 @@ class LOG
     //.. then mLogFile will have to be exposed
     //-- why have a max lines anyway?? It's silly just extra crap, maybe have a flush every BackUpAtLineCount
     string[] GetEntries(){return mEntries.dup;}
+
+    void SetLockEntries(bool Lock){ mLockEntries = Lock;}
 }
 
 	
@@ -151,7 +172,8 @@ extern (C) void SegFlush(int SysSig)nothrow @system
 {
 	try
 	{
-		writeln("Caught Signal = ", SysSig);
+		string TheError = format("Caught Signal %s", SysSig);
+		Log.Entry(TheError, "Error");
 	    Log.Flush();
 	    exit(127);
     }
