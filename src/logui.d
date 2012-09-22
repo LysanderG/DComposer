@@ -115,8 +115,10 @@ class LOG_UI : ELEMENT
 		foreach (s; Log.GetEntries())
         {
             auto i = s.indexOf(":");
-            CatchLog(s[i+1 .. $], s[0 .. i], null);
+            CatchLog(s[i+2 .. $], s[0 .. i], null);
         }
+        Log.SetLockEntries(false);
+        Log.Entry("Log Entries Unlocked", "Debug");
 
 		mScroller.getVadjustment().addOnChanged(delegate void(Adjustment adj){adj.setValue(adj.getUpper());});
 
