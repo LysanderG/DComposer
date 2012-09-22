@@ -268,7 +268,6 @@ class SYMBOLS
     {
         
         DSYMBOL[] ReturnSyms;
-        //string[] Bases; //wth is this for
 
 		//following line is necessary to avoid seg faults processing templates
         if(Scope.length < 1) return ReturnSyms;
@@ -279,9 +278,7 @@ class SYMBOLS
             foreach(kid; Sym.Children) _Process(kid);
 
             if(endsWith(Sym.Scope[0..$-1]   , Scope))
-            {
-            
-                
+            {                
                 ReturnSyms ~= Sym;                
             }
             
@@ -427,6 +424,11 @@ class SYMBOLS
 	 * */
     void Load(string key, string symfile)
     {
+		scope(failure)
+		{
+			Log.Entry("Failed to Load Tag File " ~ symfile, "Error");
+			return;
+		}
 
         auto JRoot = parseJSON(readText(symfile));
         
@@ -612,9 +614,9 @@ class SYMBOLS
                
         return RetSyms;
     }
+    
  
-    DSYMBOL[string] Symbols(){return  mSymbols.dup;}
-        
+    DSYMBOL[string] Symbols(){return  mSymbols.dup;}        
 
     mixin Signal!();
     mixin Signal!(DSYMBOL[]) Forward;
