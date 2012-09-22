@@ -19,7 +19,13 @@
 
 
 
-//darn core is already taken!
+/*
+ * core module was already taken!
+ * dcore holds the basic functionality of the ide
+ * divorced from the gui or element modules.
+ * Actually turned out to hold a much smaller share of code
+ * than I originally expected.
+ * */
 module dcore;
 
 
@@ -35,6 +41,7 @@ public import search;
 import std.stdio;
 
 private :
+
 
 CONFIG		mConfig;
 LOG 		mLog;
@@ -58,7 +65,9 @@ static ~this()
 }
 
 public:
-
+/**
+ * Engage core components
+ * */
 void Engage(string[] CmdArgs)
 {
 	mConfig	    .Engage(CmdArgs);
@@ -70,6 +79,9 @@ void Engage(string[] CmdArgs)
     Log().Entry("Engaged dcore");
 }
 
+/**
+ * Disengage core components
+ * */
 void Disengage()
 {
 
@@ -81,8 +93,16 @@ void Disengage()
 	mLog     .Disengage();
 }
 
+
+/**
+ * The core component of dcomposer ide.
+ * You'll notice through out the program
+ * I tend to use 0 parameter functions as
+ * if they were properties.
+ * Right or wrong dont be surprised
+ * */
 CONFIG		Config() {return mConfig;}
-LOG 		Log()    {return mLog;}
-PROJECT 	Project(){return mProject;}
-SYMBOLS		Symbols(){return mSymbols;}
+LOG 		Log()    {return mLog;}					///ditto
+PROJECT 	Project(){return mProject;}				///ditto
+SYMBOLS		Symbols(){return mSymbols;}				///ditto
 
