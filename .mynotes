@@ -981,4 +981,25 @@ Thu Sep 20 01:45:30 EDT 2012
 
 Arrgh forgot to save changes I made here earlier!!
 
+ok started a debugging branch
+first prioity
+ --core modules
 
+	-symbols
+		--weird crash on finding template scope members
+	-log
+	-project
+	-search
+	-config
+	
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+09.21.2012
+
+	--documented symbols and looked for potential bugs fixed at least one. x
+		*noticed = I need not only the symbolview for all symbols but a more specific module view (should be helpful)
+		*noticed = need a way to remove highlighting of search result (now only way to change them is to search for
+			something that has no results)
+		*noticed = need to have a search 'project source files' and a 'search all project' search option.
+
+	--Log.d

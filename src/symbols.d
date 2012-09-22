@@ -123,7 +123,7 @@ class SYMBOLS
     DSYMBOL[string] mSymbols;
     string          mProjectKey; ///actually project name, used to remove project tags since Project.Name is cleared before Project.Event.emit("close");
 
-    string LastComment; 		///holds last comment before dittos
+    string mLastComment; 		///holds last comment before dittos
 
        
 
@@ -162,8 +162,8 @@ class SYMBOLS
                         case "comment"      :
                         {
                             sym.Comment       = obj.str;
-                            if(canFind(toLower(sym.Comment), "ditto")) sym.Comment = "~" ~ LastComment;
-                            LastComment = sym.Comment;
+                            if(canFind(toLower(sym.Comment), "ditto")) sym.Comment = "~" ~ mLastComment;
+                            mLastComment = sym.Comment;
                             break;
                         }
                         case "protection"   : sym.Protection    = obj.str;break;
@@ -318,6 +318,12 @@ class SYMBOLS
         return ReturnSyms;
     }
 
+    /**
+     * Reloads all symbol files in configuration file.
+     * And reloads project tags if any.
+     *
+     * Bugs: should remove all symbols first.
+      */
     void Reconfigure()
     {
         foreach(name; mSymbols.keys)
@@ -344,7 +350,7 @@ class SYMBOLS
     public :
 
 	/**
-	 * Engage Symbols
+	 * Engage $(TITLE)
 	 * (ie get it ready to run)
 	 * */
     void Engage()
@@ -377,7 +383,7 @@ class SYMBOLS
     }
 
 	/**
-	 * Disengage Symbols
+	 * Disengage $(TITLE)
 	 * (ie clean up / save or whatever )
 	 * */
     void Disengage()
@@ -392,8 +398,18 @@ class SYMBOLS
 
     /**
      * Adds a 'TagFile' (dmd -X json file) to the configurtion file.
+     
      * If user opts for auto symbol loading this file of symbols will
      * be automatically loaded at start up.
+     
+     * Does not actually load anything.  Have to run Load or Reconfigure
+     * or wait for a restart.  Nor does it check that TagFile exists or key
+     * is already in use.
+     *
+     * params:
+     *  key = name of package, used as associative key.
+     *  TagFile = json file with symbols.
+     * 
      *
      **/
     void AddCommonTagFile(string key, string TagFile)
@@ -531,14 +547,10 @@ class SYMBOLS
 
         ReturnSyms = Match(Candidate);
 
-        //foreach(i, retsym; ReturnSyms)std.stdio.write(i,". ",retsym.Name,"/",retsym.Kind, " --" );
-
         if(ReturnSyms.length > 1) return ReturnSyms;
 
         auto CandiName = GetCandidateName(Candidate);
         if(CandiName.length > 0) ReturnSyms = Match("."~CandiName );
-
-        //foreach(i, retsym; ReturnSyms)std.stdio.write(i,". ",retsym.Name,"/",retsym.Kind, " --" );
 
         return ReturnSyms;
     }
@@ -587,7 +599,7 @@ class SYMBOLS
 	 * params:
 	 * Candidate = full symbol to match, can be a symbol path (std.algorithm.sort)
 	 * */
-   DSYMBOL[] ExactMatches(string Candidate)
+    DSYMBOL[] ExactMatches(string Candidate)
     {
         DSYMBOL[] RetSyms;
         auto CandiPath = GetCandidatePath(Candidate);
@@ -637,6 +649,7 @@ class SYMBOLS
 
     /**
      *Similiar to StringPath but
+     *params: Candidate = optional/partial scope/path plus name of symbol.
      *returns:an array of strings for the scope/path of candidate
      */
     string[] GetCandidatePath(string Candidate)

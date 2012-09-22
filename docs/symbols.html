@@ -14,22 +14,35 @@
 
 <dl><dt><big>void <u>Engage</u>();
 </big></dt>
-<dd><u>Engage</u> Symbols
+<dd><u>Engage</u> symbols
  (ie get it ready to run)<br><br>
 
 </dd>
 <dt><big>void <u>Disengage</u>();
 </big></dt>
-<dd><u>Disengage</u> Symbols
+<dd><u>Disengage</u> symbols
  (ie clean up / save or whatever )<br><br>
 
 </dd>
 <dt><big>void <u>AddCommonTagFile</u>(string <i>key</i>, string <i>TagFile</i>);
 </big></dt>
 <dd>Adds a '<i>TagFile</i>' (dmd -X json file) to the configurtion file.
- If user opts for auto symbol loading this file of symbols will
+<br><br>
+If user opts for auto symbol loading this file of symbols will
  be automatically loaded at start up.
 <br><br>
+
+ Does not actually load anything.  Have to run Load or Reconfigure
+ or wait for a restart.  Nor does it check that <i>TagFile</i> exists or <i>key</i>
+ is already in use.
+
+<br><br>
+<b>Params:</b><br>
+<table><tr><td>string <i>key</i></td>
+<td>name of package, used as associative <i>key</i>.</td></tr>
+<tr><td>string <i>TagFile</i></td>
+<td>json file with symbols.</td></tr>
+</table><br>
 
 </dd>
 <dt><big>void <u>Load</u>(string <i>key</i>, string <i>symfile</i>);
@@ -108,6 +121,32 @@
 </table><br>
 <b>Returns:</b><br>
 The scope/path part of candidate sans whitespace possibly ""<br><br>
+
+</dd>
+<dt><big>string[] <u>GetCandidatePath</u>(string <i>Candidate</i>);
+</big></dt>
+<dd>Similiar to StringPath but
+<br><br>
+<b>Params:</b><br>
+<table><tr><td>string <i>Candidate</i></td>
+<td>optional/partial scope/path plus name of symbol.</td></tr>
+</table><br>
+<b>Returns:</b><br>
+an array of strings for the scope/path of candidate<br><br>
+
+</dd>
+<dt><big>string <u>GetCandidateName</u>(string <i>Candidate</i>);
+</big></dt>
+<dd>Filters out the scope/path of <i>Candidate</i>.
+<br><br>
+<b>Returns:</b><br>
+The name of <i>Candidate</i> (or partial name)<br><br>
+
+</dd>
+<dt><big>void <u>TriggerSignal</u>(DSYMBOL[] <i>SymbolsToPass</i>);
+</big></dt>
+<dd>Allows an outside source (ie element) to cause a forward
+ signal to be emitted<br><br>
 
 </dd>
 </dl>
