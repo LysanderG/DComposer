@@ -328,14 +328,16 @@ class PROJECT
     {
 		Event.emit(ProEvent.Closing);
         Save();
-        mTarget = TARGET.NULL;
-        
-        Name = "";
-        mWorkingPath.length = 0;
 
+
+        mName               = "";
+        mWorkingPath.length = 0;
+        mTarget             = TARGET.NULL;
+        mCompiler           = Config.getString("PROJECT", "default_compiler", "dmd");
+        mVersion            = PROJECT_VERSION;
         scope(failure)Log.Entry("Unable to reset Flags File", "Error");
-        string FlagsFile = Config.getString("PROJECT","flags_file", "$(HOME_DIR)/flags/flagsfile.json" );
-		ReadFlags(FlagsFile);
+		ReadFlags(Config.getString("PROJECT","flags_file", "$(HOME_DIR)/flags/flagsfile.json" ));
+		
         mList.Zero();
         mUseCustomBuild = false;
         mCustomBuildCommand.length = 0;
