@@ -482,6 +482,7 @@ class PROJECT
     }
     bool Build()                                            //build the project
     {
+		scope(success) CreateTags();
 		scope(failure)
 		{
 			Log.Entry("System failure: Unable to build project.", "Error");
@@ -509,7 +510,7 @@ class PROJECT
 
         scope(exit) Process.close();
         Event.emit(ProEvent.Built);
-        CreateTags();
+        
         
         return true;
     }
