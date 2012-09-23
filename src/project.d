@@ -188,6 +188,7 @@ class PROJECT
     void ReadFlags(string FlagFile)
 	{
         scope(failure)Log.Entry("Unable to open Flags File", "Error");
+        scope(success)Log.Entry("Flags file opened successfully");
         
 		auto jstring = readText(FlagFile);
 		auto jval = parseJSON(jstring);
@@ -217,13 +218,21 @@ class PROJECT
 		mCustomBuildCommand = "";
         mTarget = TARGET.NULL;
         mVersion = PROJECT_VERSION;
+        
     }
 
 
     void Engage()                                           //dcore engage
     {
+		mName = "";
+		mCustomBuildCommand = "";
+        mTarget = TARGET.NULL;
+        mVersion = PROJECT_VERSION;
+		mWorkingPath = Config.getString("PROJECT", "default_project_path", ".");
         mCompiler = Config.getString("PROJECT", "default_compiler", "dmd");
-        
+        mList.Zero;
+        mUseCustomBuild = false;
+
         string FlagsFile = Config.getString("PROJECT","flags_file", "$(HOME_DIR)/flags/flagsfile.json" );
 		ReadFlags(FlagsFile);
 
@@ -254,14 +263,19 @@ class PROJECT
         Close();
         
 
+		scope(exit) Event.emit(ProEvent.Opened); 
         scope(failure)
         {
             Close();			
             Log.Entry("Failed to OPEN Project : " ~ pfile, "Error");
             return;
         }
-        scope(success)Log.Entry("Project opened: " ~ mName);
-        
+        scope(success)
+        {
+			CreateTags();
+			Log.Entry("Project opened: " ~ mName);
+			
+		}        
 		auto jstring = readText(pfile);
 		
 		auto jval = parseJSON(jstring);
@@ -272,7 +286,6 @@ class PROJECT
 			{
 				case JSON_TYPE.ARRAY :
 				{
-
 					if(key == "flags")
 					{
 						//I inadvertantly added an extra level to flags json object ... makes it harder to parse!
@@ -285,14 +298,10 @@ class PROJECT
 						}
 						break;
 					}
-					//else its an mList thing
-					
+					//else its an mList thing					
 					string[] tmp;
 					foreach (l; j.array) tmp ~= l.str;
 					SetList(key, tmp);
-                    
-                    //this[key] = tmp;
-
 					break;
 				}
 				
@@ -309,20 +318,12 @@ class PROJECT
 					if(key == "version")	mVersion 	= j.integer;
 					if(key == "target")		Target		= cast (TARGET) j.integer;
 					break;
-				}
-				
+				}				
 				default : break;
-			}
-            
+			}            
 		}
-
         if(mVersion > PROJECT_VERSION)throw new Exception("bad version");
 		if(mTarget == TARGET.NULL) throw new Exception("Invalid Target Type");
-		
-        Event.emit(ProEvent.Opened);
-
-        CreateTags();
-
 	}    
     void Close()                                            //return target type to null , and nothing doing
     {
@@ -437,6 +438,11 @@ class PROJECT
     {
         auto lastProject = Config.getString("PROJECT", "last_project", "no_project");
         if (lastProject == "no_project")return;
+        if (!exists(lastProject))
+        {
+			Log.Entry("Last project loaded, " ~ lastProject ~ ", can not be found.", "Error");
+			return;
+		}
         Open(lastProject);
     }
         
@@ -462,7 +468,7 @@ class PROJECT
         string tagfilename = mName ~ ".tags";
         string docfilename = buildPath(mWorkingPath, "tmptags.doc");
 
-        string CreateTagsCommand = mCompiler ~ " -c -o- -X -Xf" ~ tagfilename ~ " -D -Df" ~ docfilename;
+        string CreateTagsCommand = mCompiler ~ " -c -o- -wi -X -Xf" ~ tagfilename ~ " -D -Df" ~ docfilename;
 
         foreach(pth; this[IMPPATHS]) CreateTagsCommand ~= " -I" ~ pth;
         foreach(src; this[SRCFILES]) CreateTagsCommand ~= " "   ~ src;
@@ -564,18 +570,20 @@ class PROJECT
         
         scope(failure)
         {
-            Log.Entry("Failed to run project");
+            Log.Entry("System Failed to run project", "Error");
             return false;
         }
 
-        string ProcessCommand =  "xterm -hold -e ./" ~ Project.Name;
+        //string ProcessCommand =  "xterm -hold  -title -e ./" ~ Project.Name;
+        string xTermTitle = "dcomposer running " ~ Project.Name;
+        string ProcessCommand = format(`xterm -hold -T "%s" -e %s`, xTermTitle, "./"~Project.Name);
         if(args !is null) ProcessCommand ~= " " ~ args;
         
         std.stdio.File Process;
         Process.popen(ProcessCommand, "r");
 
         Log.Entry("Running ... " ~ ProcessCommand);
-        foreach(string L; lines(Process) ) Log.Entry(chomp(L));//RunMsg.emit(chomp(L));
+        foreach(string L; lines(Process) ) Log.Entry(chomp(L));
     
         Process.close();
         Event.emit(ProEvent.Ran);            
@@ -585,14 +593,14 @@ class PROJECT
     bool RunConcurrent(string args = null)
     {
         if(mTarget != TARGET.APP) return false;
-        string ProcessCommand = "xterm -hold -e ./"~Project.Name;
+        //string ProcessCommand =  "xterm -hold  -title -e ./" ~ Project.Name;
+        string xTermTitle = "dcomposer running " ~ Project.Name;
+        string ProcessCommand = format(`xterm -hold -T "%s" -e %s`, xTermTitle, "./"~Project.Name);
         if(args !is null) ProcessCommand ~= " " ~ args;
 
-        //mIdle = new Idle(&WatchThreads);
-        auto BuildTask = task!funRun(ProcessCommand, thisTid);
-
+        auto RunTask = task!funRun(ProcessCommand, thisTid);
         
-        BuildTask.executeInNewThread();
+        RunTask.executeInNewThread();
         return true;
         
     }
@@ -633,7 +641,7 @@ class PROJECT
 		mList.ConcatData(Key, Item);
 		Event.emit(ProEvent.ListChanged);
 	}
-    string[] GetList(string Key)                                    {   return mList.GetData(Key);}
+	string[] GetList(string Key)                                    {   return mList.GetData(Key);}
     string GetCatList(string Key)
     {
         string rv;

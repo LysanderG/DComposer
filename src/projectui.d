@@ -608,6 +608,7 @@ class PROJECT_UI : ELEMENT
         dui.GetDocMan.SaveAll();
 		if(Project.Target == TARGET.NULL) return RunFile();
         Project.RunConcurrent();
+        //Project.Run();
     }
 	void RunFile()
 	{
