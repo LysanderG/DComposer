@@ -1001,5 +1001,13 @@ first prioity
 		*noticed = need a way to remove highlighting of search result (now only way to change them is to search for
 			something that has no results)
 		*noticed = need to have a search 'project source files' and a 'search all project' search option.
+		*noticed = got that darn treeview / store out of sync error.  Long time no see. (in symbolview)
 
-	--Log.d
+	--Log.d see the git logs ... tired of typing!
+		*noticed = should have used a log library :)
+
+thats it for now tomorrow  the big one project! omg again!
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+09.22.2012
+

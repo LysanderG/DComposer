@@ -482,14 +482,21 @@ class PROJECT
     }
     bool Build()                                            //build the project
     {
+		scope(failure)
+		{
+			Log.Entry("System failure: Unable to build project.", "Error");
+			return false;
+		}
 
         if( (mTarget == TARGET.NULL) || (mTarget == TARGET.UNDEFINED) ) return false;
+
+        string TemporaryFileName = buildPath(tempDir(), "dcomposer_build.tmp");
 
         Event.emit(ProEvent.Building);
 
         BuildMsg.emit(BuildCommand());   
 
-        std.stdio.File Process = File("tmp","w");
+        std.stdio.File Process = File(TemporaryFileName,"w");
 
         foreach (prescript; Project["PRE_BUILD_SCRIPTS"])writeln(shell(prescript));
 
@@ -512,17 +519,6 @@ class PROJECT
         if(mUseCustomBuild) return mCustomBuildCommand;
         
         string cmdline = mCompiler ~ " ";        
-        
-		foreach(lib; this[LIBFILES])    cmdline ~= " -L-l" ~ LibName(lib) ~ " ";
-		
-		foreach (i; this[IMPPATHS])     cmdline ~= " -I" ~ i ~ " ";
-		foreach (l; this[LIBPATHS])     cmdline ~= " -L-L" ~ l ~ " ";
-		
-		foreach (v; this[VERSIONS])     cmdline ~= " -version=" ~ v ~ " ";
-		foreach (d; this[DEBUGS])       cmdline ~= " -debug=" ~ d ~ " ";
-		foreach (j; this[JPATHS])       cmdline ~= " -J" ~ j ~ " ";
-        foreach (m; this[MISC])         cmdline ~= m ~ " ";
-		
 		foreach (f; mFlags)
 		{
 			if (f.State == true)
@@ -531,7 +527,20 @@ class PROJECT
 				if (f.HasAnArg) cmdline ~= f.Argument;
 				cmdline ~= " ";
 			}
-		}
+		}        
+		foreach (v; this[VERSIONS])     cmdline ~= " -version=" ~ v ~ " ";
+		foreach (d; this[DEBUGS])       cmdline ~= " -debug=" ~ d ~ " ";
+
+
+		foreach(lib; this[LIBFILES])    cmdline ~= " -L-l" ~ LibName(lib) ~ " ";
+		
+		foreach (i; this[IMPPATHS])     cmdline ~= " -I" ~ i ~ " ";
+		foreach (l; this[LIBPATHS])     cmdline ~= " -L-L" ~ l ~ " ";
+		
+		foreach (j; this[JPATHS])       cmdline ~= " -J" ~ j ~ " ";
+        foreach (m; this[MISC])         cmdline ~= m ~ " ";
+		
+		
 		
 		if (mFlags["-of"].State == false) cmdline ~= " -of" ~ mName ~ " ";
         
@@ -606,7 +615,7 @@ class PROJECT
         AddItem(Key, Data);
         return mList.GetData(Key);
     }
-    ref string[] opIndex(string Key)                                    {   return mList.GetData(Key);  }//Event.emit("ListChange");}
+    ref string[] opIndex(string Key)                                {   return mList.GetData(Key);  }//Event.emit("ListChange");}
 
     void SetList(string Key, LIST Data)                             {   mList.SetKey(Key, Data);Event.emit(ProEvent.ListChanged);}
     void SetList(string Key, string Data)                           {   mList.SetKey(Key, [Data]);Event.emit(ProEvent.ListChanged);}

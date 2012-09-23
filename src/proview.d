@@ -324,7 +324,7 @@ class PROJECT_VIEW : ELEMENT
 		while(SelFiles !is null)
 		{
             afile = toImpl!(string, char *)(cast(char *)SelFiles.data()); 
-            Project.AddItem(CurrentKey, afile);
+            Project.AddItem(CurrentKey, afile); //AddUniqueItem
             //Project[CurrentKey] ~= afile;
             SelFiles = SelFiles.next();
 		}
@@ -348,7 +348,7 @@ class PROJECT_VIEW : ELEMENT
 		while(SelFiles !is null)
 		{
 			afile = toImpl!(string, char *)(cast(char *)SelFiles.data()); 
-			Project.AddItem(CurrentKey, afile);
+			Project.AddItem(CurrentKey, afile); //AddUniqueItem?
 			SelFiles = SelFiles.next();
 		}
 		
