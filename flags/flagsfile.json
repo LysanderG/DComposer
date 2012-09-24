@@ -1,4 +1,5 @@
 [
+{"version":"DMD64 D Compiler v2.060"},
 {
 "brief":"do not link",
 "cmdstring":"-c",

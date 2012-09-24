@@ -30,6 +30,7 @@ import std.conv;
 import std.xml;
 import std.parallelism;
 import std.concurrency;
+import std.c.stdlib;
 
 import dcore;
 
@@ -70,6 +71,12 @@ class FLAG
         m_String = String;
         m_Argument = Argument;     
     }
+
+    void Reset()
+    {
+		m_On = false;
+		m_Argument = " ";
+	}
     
     @property
     {
@@ -174,6 +181,7 @@ class PROJECT
     string          mCompiler;                              //dmd gdmd ldc 
 
     ulong           mVersion;                               //match file version (can we open or convert .dpro)
+    string			mDmdId;									//version string (as spit out by dmd) compatible with flags
     
 
     FLAG[string]	mFlags;                                 //all cmd line params w/ 1 or less arguments
@@ -187,7 +195,11 @@ class PROJECT
 
     void ReadFlags(string FlagFile)
 	{
-        scope(failure)Log.Entry("Unable to open Flags File", "Error");
+        scope(failure)
+        {
+			Log.Entry("Unable to open Flags File", "Error");
+			exit(127);
+		}
         scope(success)Log.Entry("Flags file opened successfully");
         
 		auto jstring = readText(FlagFile);
@@ -197,6 +209,11 @@ class PROJECT
 		string indx;
 		foreach ( j; (jval.array))
 		{
+			if("version" in j.object)
+			{
+				mDmdId = j.object["version"].str;
+				continue;
+			}
 			indx = j.object["cmdstring"].str;
 			mFlags[indx] = new FLAG;
 			mFlags[indx].State = false;
@@ -205,6 +222,12 @@ class PROJECT
 			mFlags[indx].Argument = " ";
 			mFlags[indx].InitHasArg = (j.object["hasargument"].type == JSON_TYPE.TRUE) ? true : false;
 		}
+		Log.Entry("dcomposer projects prefer " ~ mDmdId , "Info");
+	}
+
+	void ResetFlags()
+	{
+		foreach (f;mFlags) f.Reset();
 	}
 
 
@@ -228,7 +251,7 @@ class PROJECT
 		mCustomBuildCommand = "";
         mTarget = TARGET.NULL;
         mVersion = PROJECT_VERSION;
-		mWorkingPath = Config.getString("PROJECT", "default_project_path", ".");
+		WorkingPath = Config.getString("PROJECT", "default_project_path", ".");
         mCompiler = Config.getString("PROJECT", "default_compiler", "dmd");
         mList.Zero;
         mUseCustomBuild = false;
@@ -243,7 +266,7 @@ class PROJECT
     void Disengage()                                        //dcore disengage
     {
 
-        if( (mTarget != TARGET.NULL) && (mName.length > 0)) Config.setString("PROJECT", "last_project", mWorkingPath ~ "/" ~ mName ~ ".dpro");
+        if( (mTarget != TARGET.NULL) && (Name.length > 0)) Config.setString("PROJECT", "last_project", WorkingPath ~ "/" ~ Name ~ ".dpro");
         else Config.setString("PROJECT", "last_project", "no_project");
         Close();
         Log.Entry("Disengaged PROJECT");
@@ -273,7 +296,7 @@ class PROJECT
         scope(success)
         {
 			CreateTags();
-			Log.Entry("Project opened: " ~ mName);
+			Log.Entry("Project opened: " ~ Name);
 			
 		}        
 		auto jstring = readText(pfile);
@@ -332,12 +355,13 @@ class PROJECT
 
 
         mName               = "";
-        mWorkingPath.length = 0;
+        mWorkingPath      	= "";
         mTarget             = TARGET.NULL;
         mCompiler           = Config.getString("PROJECT", "default_compiler", "dmd");
         mVersion            = PROJECT_VERSION;
-        scope(failure)Log.Entry("Unable to reset Flags File", "Error");
-		ReadFlags(Config.getString("PROJECT","flags_file", "$(HOME_DIR)/flags/flagsfile.json" ));
+        //scope(failure)Log.Entry("Unable to reset Flags File", "Error");
+		//ReadFlags(Config.getString("PROJECT","flags_file", "$(HOME_DIR)/flags/flagsfile.json" ));
+		ResetFlags();
 		
         mList.Zero();
         mUseCustomBuild = false;
@@ -352,12 +376,12 @@ class PROJECT
 		
         scope(failure)
         {
-            Log.Entry("Failed to save project: " ~ mName, "Error");
+            Log.Entry("Failed to save project: " ~ Name, "Error");
             return;
         }
-        scope(success)Log.Entry("Project saved: " ~ mName);
+        scope(success)Log.Entry("Project saved: " ~ Name);
         
-		string Pfile = buildPath(mWorkingPath, mName);
+		string Pfile = buildPath(WorkingPath, Name);
 		Pfile = Pfile.setExtension("dpro");
 		string jstring;
 		JSONValue jval;
@@ -370,11 +394,11 @@ class PROJECT
 		
 		jval.object["name"] 		= JSONValue();
 		jval.object["name"].type 	= JSON_TYPE.STRING;
-		jval.object["name"].str 	= mName;
+		jval.object["name"].str 	= Name;
 		
 		jval.object["basedir"] 		= JSONValue();
 		jval.object["basedir"].type	= JSON_TYPE.STRING;
-		jval.object["basedir"].str	= mWorkingPath;
+		jval.object["basedir"].str	= WorkingPath;
 		
 		jval.object["target"] 		= JSONValue();
 		jval.object["target"].type	= JSON_TYPE.INTEGER;
@@ -465,8 +489,8 @@ class PROJECT
 
         Event.emit(ProEvent.CreatingTags);
 
-        string tagfilename = mName ~ ".tags";
-        string docfilename = buildPath(mWorkingPath, "tmptags.doc");
+        string tagfilename = Name ~ ".tags";
+        string docfilename = buildPath(WorkingPath, "tmptags.doc");
 
         string CreateTagsCommand = mCompiler ~ " -c -o- -wi -X -Xf" ~ tagfilename ~ " -D -Df" ~ docfilename;
 
@@ -551,11 +575,11 @@ class PROJECT
 		
 		
 		
-		if (mFlags["-of"].State == false) cmdline ~= " -of" ~ mName ~ " ";
+		if (mFlags["-of"].State == false) cmdline ~= " -of" ~ Name ~ " ";
         
 		foreach(src; this[SRCFILES])
 		{
-			auto srcopt = relativePath(src, mWorkingPath);
+			auto srcopt = relativePath(src, WorkingPath);
 			srcopt = buildNormalizedPath(srcopt);
 			cmdline ~= " " ~ srcopt ~ " ";
 		}
@@ -667,7 +691,6 @@ class PROJECT
         string WorkingPath() {return mWorkingPath;}
         void WorkingPath(string nuPath)
         {
-            
             scope(failure)
             {
                 mWorkingPath = "";

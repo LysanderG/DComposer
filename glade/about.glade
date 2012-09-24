@@ -10,7 +10,7 @@
     <property name="has_separator">True</property>
     <property name="program_name">DComposer</property>
     <property name="version">0.01a</property>
-    <property name="copyright" translatable="yes">Copyright 2011 Anthony Goins</property>
+    <property name="copyright" translatable="yes">Copyright 2011 - 2012 Anthony Goins</property>
     <property name="comments" translatable="yes">A Naive IDE ForThe D Programming Language</property>
     <property name="website">https://github.com/LysanderG/DComposer</property>
     <property name="website_label" translatable="yes">https://github.com/LysanderG/DComposer</property>
@@ -731,9 +731,9 @@ Public License instead of this License.  But first, please read
                 <property name="label" translatable="yes">NeonTotem</property>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="padding">21</property>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="padding">6</property>
                 <property name="position">1</property>
               </packing>
             </child>
@@ -755,15 +755,24 @@ Public License instead of this License.  But first, please read
                 <property name="label_xalign">0</property>
                 <property name="shadow_type">out</property>
                 <child>
-                  <object class="GtkHBox" id="hbox1">
+                  <object class="GtkVBox" id="vbox3">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="spacing">1</property>
                     <child>
-                      <object class="GtkLinkButton" id="linkbutton1">
-                        <property name="label" translatable="yes">DComposer 
-is based in part on works of the
-GtkD project.</property>
+                      <object class="GtkImage" id="image2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="pixbuf">gtkD_logo.png</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLinkButton" id="linkbutton4">
+                        <property name="label" translatable="yes">DComposer is based in part on works of the GtkD project.</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -772,20 +781,8 @@ GtkD project.</property>
                         <property name="uri">http://www.dsource.org/projects/gtkd</property>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkImage" id="image1">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="pixbuf">gtkD_logo.png</property>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
                         <property name="position">1</property>
                       </packing>
                     </child>

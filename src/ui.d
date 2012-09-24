@@ -373,7 +373,7 @@ class MAIN_UI
     void WatchProjectName(ProEvent EventType)
     {
         //if((EventType == "Name") || (EventType == "New")) mIndicator.setText("Project: " ~ Project.Name);
-        if(EventType == ProEvent.NameChanged) mIndicator.setText("Project: " ~ Project.Name);
+        mIndicator.setText("Project: " ~ Project.Name);
     }
 
 
