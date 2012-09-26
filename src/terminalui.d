@@ -151,7 +151,8 @@ class TERMINAL_UI : ELEMENT
         g_cvte = cvte;
 
         Configure();
-        vte_terminal_fork_command (cvte, null, null, null, null,true, true, true);
+        //vte_terminal_fork_command (cvte, null, null, null, null,true, true, true);
+		vte_terminal_fork_command_full(cvte, 0, null, cast(const (char**))"/bin/bash\0 \0".ptr, null, 0,null , null, null, null);
 
 		
         g_signal_connect_object(cvte, cast(char*)toStringz("child-exited"),&Reset  , null, cast(GConnectFlags)0);
