@@ -433,8 +433,8 @@ class DOCUMENT : SourceView
         setShowLineMarks(true);
         setMarkCategoryIconFromStock ("breakpoint", "gtk-yes");
         setMarkCategoryIconFromStock ("lineindicator", "gtk-go-forward");
-        getBuffer.createTag("hiliteback", "background", "green");
-        getBuffer.createTag("hilitefore", "foreground", "yellow");
+        getBuffer.createTag("hiliteback", "background", Config.getString("DOCMAN", "find_match_background","darkgreen"));
+        getBuffer.createTag("hilitefore", "foreground", Config.getString("DOCMAN", "find_match_foreground","yellow"));
 
 
 		//trying drag and drop
