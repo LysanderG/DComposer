@@ -62,7 +62,11 @@ struct SEARCH_RESULT
 SEARCH_RESULT[] FindInString(string HayStack, string Needle, string DocTitle, SEARCH_OPTIONS opts)
 {
     SEARCH_RESULT[] Results;
-    if(opts.CaseInSensitive)Needle = Needle.toLower();
+    if(opts.CaseInSensitive)
+    {
+		HayStack = HayStack.toLower();
+		Needle = Needle.toLower();
+	}
 
     auto StackLines = HayStack.splitLines();
     
@@ -72,7 +76,7 @@ SEARCH_RESULT[] FindInString(string HayStack, string Needle, string DocTitle, SE
         string FullLineText = lineText;
         do
         {
-            if(opts.CaseInSensitive)lineText = lineText.toLower();
+            //if(opts.CaseInSensitive)lineText = lineText.toLower();
             auto foundSplits = findSplit(lineText, Needle);
             if (foundSplits[1].empty) break;
             Results.length += 1;
@@ -89,7 +93,7 @@ SEARCH_RESULT[] FindInString(string HayStack, string Needle, string DocTitle, SE
 
 		do
 		{
-			if(opts.CaseInSensitive)lineText = lineText.toLower();
+			//if(opts.CaseInSensitive)lineText = lineText.toLower();
 
 			auto foundMatch = match(lineText, regex(Needle));
 			if(foundMatch.empty) break;
