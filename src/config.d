@@ -133,25 +133,25 @@ class CONFIG
         }
         openers = openers.chomp(";");
         if(openers.length > 0)mKeyFile.setString("DOCMAN","files_to_open",openers);
+        Log.Entry("Engaged CONFIG");
 
     }
 
     void Disengage()
+    {
+		Save();
+        mKeyFile.free();
+        Log.Entry("Disengaged config");
+    }
+
+    void Save()
     {
 		scope (failure)
 		{
 			Log.Entry("Unable to save configuration file "~mCfgFile, "Error");
 			return;
 		}
-        gsize len;
-        
-        string data = mKeyFile.toData(len);
-        std.file.write(mCfgFile, data);
-        mKeyFile.free();
-    }
-
-    void Save()
-    {
+		
         gsize len;
         string data = mKeyFile.toData(len);
         std.file.write(mCfgFile, data);

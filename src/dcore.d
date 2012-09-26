@@ -76,7 +76,7 @@ void Engage(string[] CmdArgs)
 	mSymbols    .Engage();
 
 
-    Log().Entry("Engaged dcore");
+    Log().Entry("Engaged DCORE");
 }
 
 /**
@@ -89,7 +89,7 @@ void Disengage()
 	mProject .Disengage();
 	mConfig  .Disengage();
     
-    Log      .Entry("Disengaged dcore");
+    Log      .Entry("Disengaged DCORE");
 	mLog     .Disengage();
 }
 
