@@ -498,19 +498,22 @@ class PROJECT
         foreach(src; this[SRCFILES]) CreateTagsCommand ~= " "   ~ src;
         foreach(exp; this[JPATHS])	 CreateTagsCommand ~= " -J" ~ exp;
         
-        auto result = system(CreateTagsCommand);
+        auto result = shell(CreateTagsCommand);
         
-        if(result == 0)
+        scope(success)
         {
-            system("rm " ~ docfilename);
+            shell("rm " ~ docfilename);
             Event.emit(ProEvent.CreatedTags);
             Log.Entry("Project tags Created");
-            return true;
+            //return true;
         }
-		
-        Log.Entry("Failed to create project tags");
-        Event.emit(ProEvent.FailedTags);
-        return false;        
+		scope(failure)
+		{
+			Log.Entry("Failed to create project tags");
+			Event.emit(ProEvent.FailedTags);
+			return false;
+		}
+		return true;
     }
     bool Build()                                            //build the project
     {
