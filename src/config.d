@@ -96,7 +96,7 @@ class CONFIG
 
         string TmpForLog = " ";                 //can't pass a space as a commandline arg
         string openers;                         //put files on cmdline in ';' seperated list store in mKeyfile to be
-                                                //read when Docman is Engaged
+                                                //read when Docman is Engaged -- I missed setStringList function
                                                 
         
         getopt(CmdArgs, config.passThrough, "c|config", &mCfgFile, "l|log", &TmpForLog, "help", &mShowHelp);
