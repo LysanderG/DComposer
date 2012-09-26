@@ -67,6 +67,8 @@ import gtk.TreeModelIF;
 import gtk.TextIter;
 import gtk.TreeSelection;
 
+import gdk.Keysyms;
+
 import glib.SimpleXML;
 
 
@@ -77,6 +79,8 @@ class SEARCH_UI : ELEMENT
     string          mName;
     string          mInfo;
     bool            mState;
+
+    string			mLastSearchString;
 
     //lots of widget crap ... understand why ppl hate gui programming!!
 
@@ -91,6 +95,7 @@ class SEARCH_UI : ELEMENT
     Button          mReplaceAllBtn;
     Button          mFindNextBtn;
     Button          mFindPrevBtn;
+    Button			mClearHighlightBtn;
     Button          mHideOptionsBtn;
     Button          mHideAllBtn;
     CheckButton     mCaseSensitive;
@@ -101,7 +106,8 @@ class SEARCH_UI : ELEMENT
     RadioButton     mScopeFile;
     RadioButton     mScopeSession;
     RadioButton     mScopeFolder;
-    RadioButton     mScopeProject;
+    RadioButton     mScopeProjectSrc;
+    RadioButton		mScopeProjectAll;
     
     TreeView        mResultsView;
     ListStore       mFindList;
@@ -112,6 +118,7 @@ class SEARCH_UI : ELEMENT
 
 
 
+	//When user hits enter (or whatever activates entry) then get results
     void EditedFind(CellEditableIF ci)
     {
 
@@ -126,11 +133,12 @@ class SEARCH_UI : ELEMENT
     
     }
 
+	//if there is a results list go to the next one
     void FindNextBtnClicked(Button X)
     {
 		if(mPage.getParent.getParent.getVisible() != true) return;
         TreeIter tiFirst = new TreeIter;
-        if(!mResultsList.getIterFirst(tiFirst))GetResults();
+        if(!mResultsList.getIterFirst(tiFirst) || (mLastSearchString != mFind.getText()))GetResults();
         
         TreePath tp = new TreePath(true);
         TreePath errortp;
@@ -150,11 +158,12 @@ class SEARCH_UI : ELEMENT
 
     }
 
+	//if
     void FindPrevBtnClicked(Button X)
     {
 		if(mPage.getParent.getParent.getVisible() != true) return;
         TreeIter tiFirst = new TreeIter;
-        if(!mResultsList.getIterFirst(tiFirst))GetResults();
+        if(!mResultsList.getIterFirst(tiFirst) || (mLastSearchString != mFind.getText()))GetResults();
         
         TreeViewColumn tvc = new TreeViewColumn;
         TreePath tp = new TreePath(true);
@@ -180,6 +189,7 @@ class SEARCH_UI : ELEMENT
 
 		
         string Needle = mFind.getText();
+        mLastSearchString = Needle;
         if (Needle.length < 1) return;
 
         scope(exit)
@@ -198,7 +208,24 @@ class SEARCH_UI : ELEMENT
             
             Results = FindInString(HayStack, Needle, DocTitle, Options);
         }
-        if(mScopeProject.getActive())
+        if(mScopeProjectSrc.getActive())
+        {
+			foreach (srcFile; Project[SRCFILES])
+            {
+                if(dui.GetDocMan.IsOpen(srcFile))
+                {
+                    auto tmpDocument = dui.GetDocMan.GetDocument(srcFile);
+                    string HayStack = tmpDocument.getBuffer.getText();
+                    Results ~= FindInString(HayStack, Needle, srcFile, Options);
+                }
+                else
+                {
+                    Results ~= FindInFile(srcFile, Needle, Options);
+                }
+            }
+			
+		}
+        if(mScopeProjectAll.getActive())
         {
             foreach (srcFile; Project[SRCFILES])
             {
@@ -259,10 +286,13 @@ class SEARCH_UI : ELEMENT
 			}
 		}
 
-        string tagstart = `<span background="black" foreground="green" >`;
+        string tagstart = `<span background="black" foreground="yellow" >`;
         string tagend   = "</span>";
 
+       
+		GC.disable();
         mResultsList.clear();
+        TI = new TreeIter;
         foreach (result; Results)
         {
 
@@ -272,9 +302,8 @@ class SEARCH_UI : ELEMENT
             Splits[1] = SimpleXML.escapeText( result.LineText[result.StartOffset..result.EndOffset], -1);
             Splits[2] = SimpleXML.escapeText( result.LineText[result.EndOffset..$], -1);
             
-            if (Splits[1].empty) return;
+            if (Splits[1].empty) return;            
             
-            TI = new TreeIter;
             mResultsList.append(TI);
             mResultsList.setValue(TI, 0, result.DocName);
             mResultsList.setValue(TI, 1, cast(int)result.LineNumber);
@@ -283,85 +312,86 @@ class SEARCH_UI : ELEMENT
             mResultsList.setValue(TI, 4, cast(int)result.StartOffset);
             mResultsList.setValue(TI, 5, cast(int)result.EndOffset);
         }
+        GC.enable();
         mResultsView.setCursor(new TreePath(true), null, false);
         mResultsView.grabFocus();
     }
     
-    void FillResultsListFromFile()
-    {
-        int matches;
-        int offset;
+    //void FillResultsListFromFile()
+    //{
+    //    int matches;
+    //    int offset;
+    //    
+    //    string needle = mFind.getText();
+    //    DOCUMENT tmpdoc = dui.GetDocMan.Current;
+    //    if (tmpdoc is null ) return;
+    //    auto Text = tmpdoc.getBuffer.getText;
+//
+    //    if(mCaseSensitive.getActive)
+    //    {
+    //        needle = needle.toLower;
+    //        Text = Text.toLower;
+    //    }
+//
+    //    string[] SplitText = Text.splitLines(); //lmao was using just split -- hours figuring out wth was going on!
+//
+    //    void ParseLine(string HayStack, int LineNo)
+    //    {
+    //        string tagstart = `<span background="black" foreground="green" >`;
+    //        string tagend   = "</span>";
+    //        
+    //        auto Splits = HayStack.findSplit(needle);
+    //        if (Splits[1].empty) return;
+    //        
+    //        
+    //        matches++;
+    //        offset += Splits[0].length;
+    //        string[3] markup;
+//
+    //        markup[0] = SimpleXML.escapeText( SplitText[LineNo][0..offset], -1);
+    //        markup[1] = SimpleXML.escapeText( SplitText[LineNo][offset .. offset + needle.length], -1);
+    //        markup[2] = SimpleXML.escapeText( SplitText[LineNo][(offset + needle.length) .. $], -1);
+//
+    //        
+    //        TI = new TreeIter;
+    //        mResultsList.append(TI);
+    //        mResultsList.setValue(TI, 0, tmpdoc.ShortName);
+    //        mResultsList.setValue(TI, 1, cast(int)LineNo+1);
+    //        mResultsList.setValue(TI, 2, markup[0] ~ tagstart ~ markup[1] ~ tagend ~ markup[2]);//MarkupLine);
+    //        mResultsList.setValue(TI, 3, tmpdoc.Name);
+    //        mResultsList.setValue(TI, 4, cast(int)offset);
+    //        mResultsList.setValue(TI, 5, cast(int)needle.length);
+    //        offset += needle.length; //wow this was a tricky one... sure missed it
+//
+//
+    //        ParseLine(Splits[2], LineNo);
+//
+    //    }
+    //    foreach(int LineNo, LineText; SplitText)
+    //    {
+    //        offset = 0;
+    //        ParseLine(LineText, LineNo) ;
+    //    }
+//
+    //}
         
-        string needle = mFind.getText();
-        DOCUMENT tmpdoc = dui.GetDocMan.Current;
-        if (tmpdoc is null ) return;
-        auto Text = tmpdoc.getBuffer.getText;
-
-        if(mCaseSensitive.getActive)
-        {
-            needle = needle.toLower;
-            Text = Text.toLower;
-        }
-
-        string[] SplitText = Text.splitLines(); //lmao was using just split -- hours figuring out wth was going on!
-
-        void ParseLine(string HayStack, int LineNo)
-        {
-            string tagstart = `<span background="black" foreground="green" >`;
-            string tagend   = "</span>";
-            
-            auto Splits = HayStack.findSplit(needle);
-            if (Splits[1].empty) return;
-            
-            
-            matches++;
-            offset += Splits[0].length;
-            string[3] markup;
-
-            markup[0] = SimpleXML.escapeText( SplitText[LineNo][0..offset], -1);
-            markup[1] = SimpleXML.escapeText( SplitText[LineNo][offset .. offset + needle.length], -1);
-            markup[2] = SimpleXML.escapeText( SplitText[LineNo][(offset + needle.length) .. $], -1);
-
-            
-            TI = new TreeIter;
-            mResultsList.append(TI);
-            mResultsList.setValue(TI, 0, tmpdoc.ShortName);
-            mResultsList.setValue(TI, 1, cast(int)LineNo+1);
-            mResultsList.setValue(TI, 2, markup[0] ~ tagstart ~ markup[1] ~ tagend ~ markup[2]);//MarkupLine);
-            mResultsList.setValue(TI, 3, tmpdoc.Name);
-            mResultsList.setValue(TI, 4, cast(int)offset);
-            mResultsList.setValue(TI, 5, cast(int)needle.length);
-            offset += needle.length; //wow this was a tricky one... sure missed it
-
-
-            ParseLine(Splits[2], LineNo);
-
-        }
-        foreach(int LineNo, LineText; SplitText)
-        {
-            offset = 0;
-            ParseLine(LineText, LineNo) ;
-        }
-
-    }
+    //void FillResultsList()
+    //{
+        ////mResultsView.setModel(null);
+        ////mResultsList = new ListStore([GType.STRING, GType.INT, GType.STRING, GType.STRING, GType.INT, GType.INT]);
+        //mResultsList.clear();
         
-    void FillResultsList()
-    {
-        //mResultsView.setModel(null);
-        //mResultsList = new ListStore([GType.STRING, GType.INT, GType.STRING, GType.STRING, GType.INT, GType.INT]);
-        mResultsList.clear();
-        
-        if(mScopeSelection.getActive)Log.Entry("searching selection... (or will soon)","Debug");
-        if(mScopeFile)FillResultsListFromFile();
-        //finish the others later ... open docs .. folder and project
+        //if(mScopeSelection.getActive)Log.Entry("searching selection... (or will soon)","Debug");
+        //if(mScopeFile)FillResultsListFromFile();
+        ////finish the others later ... open docs .. folder and project
 
-        //mResultsView.setModel(mResultsList);
+        ////mResultsView.setModel(mResultsList);
 
-        mResultsView.setCursor(new TreePath(true), null, false);
-        mResultsView.grabFocus();
+        //mResultsView.setCursor(new TreePath(true), null, false);
+        //mResultsView.grabFocus();
 
-        scope(failure){Log.Entry(`Possible attempt to set treepath'0' on an empty treeview`,"Debug"); return;}
-    }
+        //scope(failure){Log.Entry(`Possible attempt to set treepath'0' on an empty treeview`,"Debug"); return;}
+    //}
 
     
 
@@ -378,7 +408,7 @@ class SEARCH_UI : ELEMENT
         
         if(!mResultsList.iterIsValid(TI))
         {
-            FillResultsList();
+            GetResults();
             return;
         }
 
@@ -390,6 +420,19 @@ class SEARCH_UI : ELEMENT
         tmp.HiliteFoundMatch(LineNo -1 , mResultsList.getValueInt(TI, 4), mResultsList.getValueInt(TI, 5)); //pray hard
         mResultsView.grabFocus();
     }
+
+	void ClearHighlightCB(Button x)
+	{
+		auto tmpdoc =dui.GetDocMan.GetDocument();
+		if(tmpdoc is null) return;
+		TextIter tistart, tiend;
+		tistart = new TextIter;
+		tiend = new TextIter;
+		tmpdoc.getBuffer.getStartIter(tistart);
+		tmpdoc.getBuffer.getEndIter(tiend);
+		tmpdoc.getBuffer.removeTagByName("hiliteback", tistart, tiend);
+		tmpdoc.getBuffer.removeTagByName("hilitefore", tistart, tiend);
+	}
 
     void GotoResult2(TreeSelection ts)
     {
@@ -566,11 +609,14 @@ class SEARCH_UI : ELEMENT
         mName = "SEARCH_UI";
         mInfo = "Look for stuff and fix it, maybe";
 
+        mLastSearchString = "";
+
         mBuilder            = new Builder;
         mBuilder.addFromFile(Config.getString("SEARCH", "glade_file", "$(HOME_DIR)/glade/findui.glade"));
 
         mPage               = cast (VBox)           mBuilder.getObject("vbox5");
-        mOptions            = cast (Viewport)       mBuilder.getObject("viewport2");        
+        mOptions            = cast (Viewport)       mBuilder.getObject("viewport2");
+        mClearHighlightBtn	= cast (Button)			mBuilder.getObject("button1");      
         mHideOptionsBtn     = cast (Button)         mBuilder.getObject("button6");
         mHideAllBtn         = cast (Button)         mBuilder.getObject("button5");        
         mFindNextBtn        = cast (Button)         mBuilder.getObject("findnext");
@@ -586,10 +632,18 @@ class SEARCH_UI : ELEMENT
         mScopeSelection     = cast (RadioButton)    mBuilder.getObject("radiobutton6");
         mScopeFile          = cast (RadioButton)    mBuilder.getObject("radiobutton1");
         mScopeSession       = cast (RadioButton)    mBuilder.getObject("radiobutton8");
-        mScopeProject       = cast (RadioButton)    mBuilder.getObject("radiobutton10");
         mScopeFolder		= cast (RadioButton)	mBuilder.getObject("radiobutton9");
+        mScopeProjectSrc    = cast (RadioButton)    mBuilder.getObject("radiobutton10");
+        mScopeProjectAll	= cast (RadioButton)	mBuilder.getObject("radiobutton2");
         mFindComboBox       = new  ComboBoxEntry(true);
         mReplaceComboBox    = new  ComboBoxEntry(true);
+
+        mScopeSelection		.addOnToggled (delegate void(ToggleButton){mLastSearchString = "";});
+        mScopeFile			.addOnToggled (delegate void(ToggleButton){mLastSearchString = "";});
+        mScopeSession		.addOnToggled (delegate void(ToggleButton){mLastSearchString = "";});
+        mScopeFolder		.addOnToggled (delegate void(ToggleButton){mLastSearchString = "";});
+        mScopeProjectSrc	.addOnToggled (delegate void(ToggleButton){mLastSearchString = "";});
+        mScopeProjectAll	.addOnToggled (delegate void(ToggleButton){mLastSearchString = "";});
 
         mResultsList.clear();
         
@@ -634,6 +688,7 @@ class SEARCH_UI : ELEMENT
         tmpTable.attachDefaults (mReplaceComboBox, 1, 2, 1, 2);
 
         
+		mClearHighlightBtn.addOnClicked(&ClearHighlightCB);
         mHideOptionsBtn.addOnClicked(delegate void (Button X){mOptions.setVisible(!mOptions.getVisible());});
         mHideAllBtn.addOnClicked(delegate void (Button X){mPage.getParent.getParent.hide();});
 
@@ -642,6 +697,17 @@ class SEARCH_UI : ELEMENT
 
         mReplaceBtn.addOnClicked(delegate void(Button X){ReplaceOne();});
         mReplaceAllBtn.addOnClicked(delegate void(Button X) {ReplaceAll();});
+
+        //mPage.addOnKeyRelease(delegate bool (GdkEventKey* EvntKy, Widget ThisPage)
+        //{
+		//	if ((EvntKy.keyval == GdkKeysyms.GDK_Return) || (EvntKy.keyval == GdkKeysyms.GDK_KP_Enter))
+		//	{
+		//		GetResults();
+		//		return true;
+		//	}
+		//	writeln("AAAARRRGGGHHH");
+		//	return true;				
+		//});
 
     
     }

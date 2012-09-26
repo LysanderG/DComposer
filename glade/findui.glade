@@ -82,11 +82,13 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button6">
-                    <property name="label" translatable="yes">⇳</property>
+                  <object class="GtkButton" id="button1">
+                    <property name="label" translatable="yes">*</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="has_tooltip">True</property>
+                    <property name="tooltip_text" translatable="yes">Clear highlights in document</property>
                     <property name="use_action_appearance">False</property>
                   </object>
                   <packing>
@@ -96,17 +98,35 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button5">
-                    <property name="label" translatable="yes">⊗</property>
+                  <object class="GtkButton" id="button6">
+                    <property name="label" translatable="yes">⇳</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">True</property>
+                    <property name="has_tooltip">True</property>
+                    <property name="tooltip_text" translatable="yes">Toggle "show only results"</property>
                     <property name="use_action_appearance">False</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
                     <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="button5">
+                    <property name="label" translatable="yes">⊗</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="receives_default">True</property>
+                    <property name="has_tooltip">True</property>
+                    <property name="tooltip_markup">Hide search page</property>
+                    <property name="use_action_appearance">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
               </object>
@@ -299,7 +319,7 @@
                                         <property name="label" translatable="yes">_Begins word</property>
                                         <property name="visible">True</property>
                                         <property name="sensitive">False</property>
-                                        <property name="can_focus">True</property>
+                                        <property name="can_focus">False</property>
                                         <property name="receives_default">False</property>
                                         <property name="has_tooltip">True</property>
                                         <property name="tooltip_text" translatable="yes">Not implemented.</property>
@@ -352,7 +372,7 @@
                                         <property name="label" translatable="yes">_Recursive</property>
                                         <property name="visible">True</property>
                                         <property name="sensitive">False</property>
-                                        <property name="can_focus">True</property>
+                                        <property name="can_focus">False</property>
                                         <property name="receives_default">False</property>
                                         <property name="has_tooltip">True</property>
                                         <property name="tooltip_text" translatable="yes">Not implemented.</property>
@@ -417,6 +437,8 @@
                                       <packing>
                                         <property name="left_attach">2</property>
                                         <property name="right_attach">3</property>
+                                        <property name="top_attach">1</property>
+                                        <property name="bottom_attach">2</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -460,15 +482,13 @@
                                         <property name="group">radiobutton1</property>
                                       </object>
                                       <packing>
-                                        <property name="left_attach">1</property>
-                                        <property name="right_attach">2</property>
-                                        <property name="top_attach">1</property>
-                                        <property name="bottom_attach">2</property>
+                                        <property name="left_attach">2</property>
+                                        <property name="right_attach">3</property>
                                       </packing>
                                     </child>
                                     <child>
                                       <object class="GtkRadioButton" id="radiobutton10">
-                                        <property name="label" translatable="yes">_Project</property>
+                                        <property name="label" translatable="yes">_Project (sources only)</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
                                         <property name="receives_default">False</property>
@@ -483,7 +503,22 @@
                                       </packing>
                                     </child>
                                     <child>
-                                      <placeholder/>
+                                      <object class="GtkRadioButton" id="radiobutton2">
+                                        <property name="label" translatable="yes">Project (All)</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="receives_default">False</property>
+                                        <property name="use_action_appearance">False</property>
+                                        <property name="active">True</property>
+                                        <property name="draw_indicator">True</property>
+                                        <property name="group">radiobutton1</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left_attach">1</property>
+                                        <property name="right_attach">2</property>
+                                        <property name="top_attach">1</property>
+                                        <property name="bottom_attach">2</property>
+                                      </packing>
                                     </child>
                                   </object>
                                 </child>
