@@ -32,16 +32,16 @@ I can't say there is anything particularly special about dcomposer, but I am ver
 
 a few screenshots
 
-![screenshot1](https://github.com/LysanderG/DComposer/blob/master/screenshots/ss1_dcomposer.png)
+![screenshot1](./screenshots/ss1_dcomposer.png)
 Assistant showing documentation for function at the cursor "setText".
 
-![screenshot2](https://github.com/LysanderG/DComposer/blob/master/screenshots/ss2_dcomposer.png)
+![screenshot2](./screenshots/ss2_dcomposer.png)
 Searching for "canFind" in project source files.
 
-![screenshot3](https://github.com/LysanderG/DComposer/blob/master/screenshots/ss3_dcomposer.png)
+![screenshot3](./screenshots/ss3_dcomposer.png)
 Build error.
 
-![screenshot4](https://github.com/LysanderG/DComposer/blob/master/screenshots/ss5_dcomposer.png)
+![screenshot4](./screenshots/ss5_dcomposer.png)
 Sorting selected text through shellfilter.  Text can be manipulated through any shell command.  Much more efficient than any code I could muster up.   
 
 
