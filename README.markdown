@@ -29,6 +29,24 @@ All the preceding features are still under development and can stand to be impro
 
 I can't say there is anything particularly special about dcomposer, but I am very happy that it has made it this far.  My desire is to make it a valuable asset to the D community. 
 
+
+a few screenshots
+
+![screenshot1](./screenshots/ss1_dcomposer.png)
+Assistant showing documentation for function at the cursor "setText".
+
+![screenshot2](./screenshots/ss2_dcomposer.png)
+Searching for "canFind" in project source files.
+
+![screenshot3](./screenshots/ss3_dcomposer.png)
+Build error.
+
+![screenshot4](./screenshots/ss5_dcomposer.png)
+Sorting selected text through shellfilter.  Text can be manipulated through any shell command.  Much more efficient than any code I could muster up.   
+
+
+
+
 #WHERE
 The [dcomposer repository](https://github.com/LysanderG/DComposer) is hosted on Github. (If you're reading this you probably already know this.)
 
@@ -70,7 +88,7 @@ So I went on a tangent and started DComposer.  It was never my intention to rein
 While working on DComposer I have learned that much of my problems with other programming tools (Geany and Vim mostly) have been the result of my own ignorance.  I have grown very comfortable with Geany (still need a cheat sheet for Vim).  Never the less I hope DComposer may evolve into a useful tool one day.
 
 No one can say the world is crowded with Linux IDE's for the D programming language (not yet any way).
- 
+
 
 #WHO REALLY
 DMD Compiler and Phobos standard library
