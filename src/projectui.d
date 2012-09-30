@@ -248,6 +248,7 @@ class PROJECT_UI : ELEMENT
 
         mProjBaseLbl.setText("Projects root folder : " ~ mProjBaseFolder);
         mSetRootBtn.addOnClicked(delegate void (Button btn){ChangeProjectBaseFolder;});
+        EngageActions();
 
     }
 
@@ -256,7 +257,7 @@ class PROJECT_UI : ELEMENT
         mState = true;
         mRootVBox.hide();
         dui.GetCenterPane.prependPage(mRootVBox, mTabLabel);
-        EngageActions();
+        //EngageActions();
         Project.Event.connect(&ProjEventWatcher);
         Log.Entry("Engaged "~Name()~"\t\telement.");
     }
