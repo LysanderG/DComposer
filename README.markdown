@@ -107,7 +107,7 @@ GtkSourceView
 At some time I'll fix (among many others) the following...
 * Non standard menubar
 * Consistent use of notebook tabs (dragging rearranging etc)
-* <strike>Icons!! need icons!</strike>
+* <s>Icons!! need icons!</s>
 * custom key bindings 
 * better project management 
 * export project to makefile
