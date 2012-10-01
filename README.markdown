@@ -23,27 +23,11 @@ So the stuff that is in dcomposer...
 * Split editor windows.
 * Bookmarks.
 * Extensible (kind of).
-* Built under Linux and FreeBSD.
+* Built under Linux and FreeBSD. (My wife wont let me play on her windows box.)
 
 All the preceding features are still under development and can stand to be improved.
 
 I can't say there is anything particularly special about dcomposer, but I am very happy that it has made it this far.  My desire is to make it a valuable asset to the D community. 
-
-
-a few screenshots
-
-![screenshot1](https://github.com/LysanderG/DComposer/blob/master/screenshots/ss1_dcomposer.png)
-Assistant showing documentation for function at the cursor "setText".
-
-![screenshot2](https://github.com/LysanderG/DComposer/blob/master/screenshots/ss2_dcomposer.png)
-Searching for "canFind" in project source files.
-
-![screenshot3](https://github.com/LysanderG/DComposer/blob/master/screenshots/ss3_dcomposer.png)
-Build error.
-
-![screenshot4](https://github.com/LysanderG/DComposer/blob/master/screenshots/ss5_dcomposer.png)
-Sorting selected text through shellfilter.  Text can be manipulated through any shell command.  Much more efficient than any code I could muster up.   
-
 
 
 
@@ -53,11 +37,10 @@ The [dcomposer repository](https://github.com/LysanderG/DComposer) is hosted on 
 #HOW
 
 ###Requirements
-* dmd (2.059) or gdc's gdmd (any d compiler should build dcomposer.  But dcomposer only works with the dmd interface (for now).)
+* dmd 2.060
 * gtkd, gtkdsv from GtkD
 * libvte
 * libutil, libdl(Linux only).  These should be present already.
-* gnu make (only one tested, only one I'm slightly familiar with)
 * (optional) webkit gtk 1.0.
 
 ###Building/Installing
@@ -79,15 +62,13 @@ make uninstall
 Dcomposer is very much in its infancy.  The user interface is in many instances extremely unintuitive.  In some cases it is just dead wrong.  I am actively working on fixing the problems of which I am aware and discovering those that still elude me.
 In other words you are on your own for now.
 
+###Warning
+
 
 #WHY
 DComposer is a fun challenge.  Originally I had no intention of creating an IDE.  I tried several IDE/editors in the beginning.  None of them were truly satisfying.  Many did not fully support D, others were far too complicated to set up and use (never sure if I installed one of them correctly).  Emacs and Vim just had horrific learning curves.  Geany was the IDE I settled for.  I contemplated making a D plug-in for Geany.  Realizing I would have to actually learn C, I gave up the plug-in idea.
 
 So I went on a tangent and started DComposer.  It was never my intention to reinvent the low level components of an IDE (parsing, editing, compiling, debugging ...) but simply to pull existing tools into one application.  How hard could that be?
-
-While working on DComposer I have learned that much of my problems with other programming tools (Geany and Vim mostly) have been the result of my own ignorance.  I have grown very comfortable with Geany (still need a cheat sheet for Vim).  Never the less I hope DComposer may evolve into a useful tool one day.
-
-No one can say the world is crowded with Linux IDE's for the D programming language (not yet any way).
 
 
 #WHO REALLY
@@ -126,28 +107,28 @@ GtkSourceView
 At some time I'll fix (among many others) the following...
 * Non standard menubar
 * Consistent use of notebook tabs (dragging rearranging etc)
-* Icons!! need icons!
-* custom key bindings
+* <strike>Icons!! need icons!</strike>
+* custom key bindings 
 * better project management 
 * export project to makefile
-* allow building source files with out creating a projects.
-* ask to save modified files before closing main window
+* <strike>allow building source files with out creating a projects.</strike>
+* <strike>ask to save modified files before closing main window</strike>
 * faster tag creation/loading/parsing
 * symbols for local variables (only global supported now)
 * more command line options
-* fix and improve search ui
+* fix and improve search ui. (Update: making small steps)
 * beautify assistantui doc text
 * debugger! gdb and d == frustration! tried 2 approaches, 2 fails
 * plug-ins. dmd supports shared libs now so...
 
 And I will add ...
 * snippets
-* split windows
+* <strike>split windows</strike>
 * manual
 * support for more languages / compilers
 * export to different build systems
 * file templates
-* env variables for embedded terminal, easier to work with command line tools
+* <strike>env variables for embedded terminal, easier to work with command line tools</strike> Shell Filter
 * code "prettify"
 * vcs support
 * auto-save/backup
@@ -157,5 +138,6 @@ And I will add ...
 * scripting (lua, python, angel, squirrel, tcl, guile)
 * convert hexadecimal, decimal, octal, binary
 * okay enough plenty more left though.
+* Argh I'm getting old!
 
 
