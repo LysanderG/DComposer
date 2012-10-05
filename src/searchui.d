@@ -1,17 +1,17 @@
 //      searchui.d
-//      
+//
 //      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
+//
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      This program is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with this program; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -108,7 +108,7 @@ class SEARCH_UI : ELEMENT
     RadioButton     mScopeFolder;
     RadioButton     mScopeProjectSrc;
     RadioButton		mScopeProjectAll;
-    
+
     TreeView        mResultsView;
     ListStore       mFindList;
     ListStore       mReplaceList;
@@ -121,16 +121,17 @@ class SEARCH_UI : ELEMENT
 	//When user hits enter (or whatever activates entry) then get results
     void EditedFind(CellEditableIF ci)
     {
-
+		GC.disable();
         CHECK SendData;
         SendData.Text = mFind.getText();
-        SendData.Bool = true;        
-        
-        mFindList.foreac(&Check2, &SendData);            
-        
+        SendData.Bool = true;
+
+        mFindList.foreac(&Check2, &SendData);
+
         if(SendData.Bool) mFindComboBox.appendText(mFind.getText());
         GetResults();
-    
+        GC.enable();
+
     }
 
 	//if there is a results list go to the next one
@@ -139,7 +140,7 @@ class SEARCH_UI : ELEMENT
 		if(mPage.getParent.getParent.getVisible() != true) return;
         TreeIter tiFirst = new TreeIter;
         if(!mResultsList.getIterFirst(tiFirst) || (mLastSearchString != mFind.getText()))GetResults();
-        
+
         TreePath tp = new TreePath(true);
         TreePath errortp;
         TreeViewColumn tvc = new TreeViewColumn;
@@ -164,7 +165,7 @@ class SEARCH_UI : ELEMENT
 		if(mPage.getParent.getParent.getVisible() != true) return;
         TreeIter tiFirst = new TreeIter;
         if(!mResultsList.getIterFirst(tiFirst) || (mLastSearchString != mFind.getText()))GetResults();
-        
+
         TreeViewColumn tvc = new TreeViewColumn;
         TreePath tp = new TreePath(true);
         mResultsView.getCursor(tp, tvc);
@@ -177,17 +178,18 @@ class SEARCH_UI : ELEMENT
 
     void GetResults()
     {
+		GC.disable();
         SEARCH_RESULT[] Results;
         SEARCH_OPTIONS Options;
         TI = new TreeIter;
-        
+
         Options.UseRegex = cast(bool)mRegex.getActive();
         Options.CaseInSensitive = !mCaseSensitive.getActive();
         Options.WholeWordOnly = cast(bool)mWholeWords.getActive;
         Options.WordStart = false;
         Options.RecurseFolder = false;
 
-		
+
         string Needle = mFind.getText();
         mLastSearchString = Needle;
         if (Needle.length < 1) return;
@@ -195,7 +197,7 @@ class SEARCH_UI : ELEMENT
         scope(exit)
 		{
 			string msg;
-			msg = format("Searched for %s, found %s results", Needle, Results.length); 
+			msg = format("Searched for %s, found %s results", Needle, Results.length);
 			dui.Status.push(0, msg);
 		}
 
@@ -205,7 +207,7 @@ class SEARCH_UI : ELEMENT
 			if(tmpDocument is null)  return;
             string HayStack  = tmpDocument.getBuffer.getText();
             string DocTitle  = tmpDocument.Name;
-            
+
             Results = FindInString(HayStack, Needle, DocTitle, Options);
         }
         if(mScopeProjectSrc.getActive())
@@ -223,7 +225,7 @@ class SEARCH_UI : ELEMENT
                     Results ~= FindInFile(srcFile, Needle, Options);
                 }
             }
-			
+
 		}
         if(mScopeProjectAll.getActive())
         {
@@ -270,7 +272,7 @@ class SEARCH_UI : ELEMENT
 			string WhatFolderToSearch;
 			if(dui.GetDocMan.Current is null) WhatFolderToSearch = getcwd();
 			else WhatFolderToSearch = dirName(dui.GetDocMan.Current.Name);
-			
+
 			foreach (string Fname; dirEntries(WhatFolderToSearch, SpanMode.shallow))
 			{
 				if(dui.GetDocMan.IsOpen(Fname))
@@ -289,10 +291,10 @@ class SEARCH_UI : ELEMENT
         string tagstart = `<span background="black" foreground="yellow" >`;
         string tagend   = "</span>";
 
-       
-		GC.disable();
+
         mResultsList.clear();
         TI = new TreeIter;
+
         foreach (result; Results)
         {
 
@@ -301,9 +303,9 @@ class SEARCH_UI : ELEMENT
             Splits[0] = SimpleXML.escapeText( result.LineText[0..result.StartOffset], -1);
             Splits[1] = SimpleXML.escapeText( result.LineText[result.StartOffset..result.EndOffset], -1);
             Splits[2] = SimpleXML.escapeText( result.LineText[result.EndOffset..$], -1);
-            
-            if (Splits[1].empty) return;            
-            
+
+            if (Splits[1].empty) return;
+
             mResultsList.append(TI);
             mResultsList.setValue(TI, 0, result.DocName);
             mResultsList.setValue(TI, 1, cast(int)result.LineNumber);
@@ -312,100 +314,22 @@ class SEARCH_UI : ELEMENT
             mResultsList.setValue(TI, 4, cast(int)result.StartOffset);
             mResultsList.setValue(TI, 5, cast(int)result.EndOffset);
         }
-        GC.enable();
+
         mResultsView.setCursor(new TreePath(true), null, false);
         mResultsView.grabFocus();
+        GC.enable();
     }
-    
-    //void FillResultsListFromFile()
-    //{
-    //    int matches;
-    //    int offset;
-    //    
-    //    string needle = mFind.getText();
-    //    DOCUMENT tmpdoc = dui.GetDocMan.Current;
-    //    if (tmpdoc is null ) return;
-    //    auto Text = tmpdoc.getBuffer.getText;
-//
-    //    if(mCaseSensitive.getActive)
-    //    {
-    //        needle = needle.toLower;
-    //        Text = Text.toLower;
-    //    }
-//
-    //    string[] SplitText = Text.splitLines(); //lmao was using just split -- hours figuring out wth was going on!
-//
-    //    void ParseLine(string HayStack, int LineNo)
-    //    {
-    //        string tagstart = `<span background="black" foreground="green" >`;
-    //        string tagend   = "</span>";
-    //        
-    //        auto Splits = HayStack.findSplit(needle);
-    //        if (Splits[1].empty) return;
-    //        
-    //        
-    //        matches++;
-    //        offset += Splits[0].length;
-    //        string[3] markup;
-//
-    //        markup[0] = SimpleXML.escapeText( SplitText[LineNo][0..offset], -1);
-    //        markup[1] = SimpleXML.escapeText( SplitText[LineNo][offset .. offset + needle.length], -1);
-    //        markup[2] = SimpleXML.escapeText( SplitText[LineNo][(offset + needle.length) .. $], -1);
-//
-    //        
-    //        TI = new TreeIter;
-    //        mResultsList.append(TI);
-    //        mResultsList.setValue(TI, 0, tmpdoc.ShortName);
-    //        mResultsList.setValue(TI, 1, cast(int)LineNo+1);
-    //        mResultsList.setValue(TI, 2, markup[0] ~ tagstart ~ markup[1] ~ tagend ~ markup[2]);//MarkupLine);
-    //        mResultsList.setValue(TI, 3, tmpdoc.Name);
-    //        mResultsList.setValue(TI, 4, cast(int)offset);
-    //        mResultsList.setValue(TI, 5, cast(int)needle.length);
-    //        offset += needle.length; //wow this was a tricky one... sure missed it
-//
-//
-    //        ParseLine(Splits[2], LineNo);
-//
-    //    }
-    //    foreach(int LineNo, LineText; SplitText)
-    //    {
-    //        offset = 0;
-    //        ParseLine(LineText, LineNo) ;
-    //    }
-//
-    //}
-        
-    //void FillResultsList()
-    //{
-        ////mResultsView.setModel(null);
-        ////mResultsList = new ListStore([GType.STRING, GType.INT, GType.STRING, GType.STRING, GType.INT, GType.INT]);
-        //mResultsList.clear();
-        
-        //if(mScopeSelection.getActive)Log.Entry("searching selection... (or will soon)","Debug");
-        //if(mScopeFile)FillResultsListFromFile();
-        ////finish the others later ... open docs .. folder and project
-
-        ////mResultsView.setModel(mResultsList);
-
-        //mResultsView.setCursor(new TreePath(true), null, false);
-        //mResultsView.grabFocus();
-
-        //scope(failure){Log.Entry(`Possible attempt to set treepath'0' on an empty treeview`,"Debug"); return;}
-    //}
-
-    
 
 
-    
 
     void GotoResult()
     {
         //this function is causing a disparity between resultlist and resultview
         //??? how???
 
-        
+
         TI = mResultsView.getSelection.getSelected();
-        
+
         if(!mResultsList.iterIsValid(TI))
         {
             GetResults();
@@ -439,7 +363,7 @@ class SEARCH_UI : ELEMENT
         GC.disable();
         TreeModelIF tmper;
         //foreach (tp; ts.getSelectedRows(tmper))Log.Entry(tp.toString(),"Debug");
-        
+
         TI = ts.getSelected();
 
         if(TI is null) return;
@@ -466,7 +390,7 @@ class SEARCH_UI : ELEMENT
 		if (Selection is null)mFindComboBox.setActiveText(dui.GetDocMan.GetWord(),true);
 		else mFindComboBox.setActiveText(Selection, true);
         mFindComboBox.grabFocus();
-        
+
     }
 
 
@@ -476,7 +400,7 @@ class SEARCH_UI : ELEMENT
 
         if (TI is null) return;
 
-        
+
         if(!mResultsList.iterIsValid(TI)) return;
 
         string filename = mResultsList.getValueString(TI, 3);
@@ -492,12 +416,8 @@ class SEARCH_UI : ELEMENT
         tmp.getBuffer.getIterAtLineOffset (txti1, line-1, offstart);
         tmp.getBuffer.getIterAtLineOffset (txti2, line-1, offend);
         tmp.getBuffer.delet(txti1, txti2);
-        //tmp.getBuffer.getIterAtLineOffset(txti1,line-1,offstart);
         tmp.getBuffer.insert(txti1, mReplace.getText(), -1);
-        
-        //auto DeletedPath = TI.getTreePath(); //after removing the row there will be nothing selected so must reselect the "deleted path"
-        //mResultsList.remove(TI);
-        //mResultsView.getSelection.selectPath(DeletedPath);
+
 
         //instead of deleting row just re-search because all the positions are out of whack after the replace
         auto LastPositionPath = mResultsList.getPath(TI);
@@ -506,7 +426,7 @@ class SEARCH_UI : ELEMENT
         mResultsView.getSelection.selectPath(LastPositionPath);
         mResultsView.setCursor(LastPositionPath, null, false);
         dui.GetDocMan.GotoLine(tmpline);
-        
+
     }
 
     void ReplaceAll()
@@ -546,7 +466,7 @@ class SEARCH_UI : ELEMENT
 			if(ReplaceText.length > 0) doc.getBuffer.insert(txti1, ReplaceText, -1);
 			doc.getBuffer.endUserAction();
 		}
-		mResultsList.clear();			
+		mResultsList.clear();
 	}
 
     void ReplaceAllOld()
@@ -555,20 +475,20 @@ class SEARCH_UI : ELEMENT
 		TI = mResultsView.getSelection.getSelected();
 		string ReplaceText = mReplace.getText();
 		if(ReplaceText is null) ReplaceText = "";
-		
+
         do
         {
-			              
-	        if (TI is null) break;	        
+
+	        if (TI is null) break;
 	        if(!mResultsList.iterIsValid(TI)) break;
-	
+
 	        string filename = mResultsList.getValueString(TI, 3);
 	        int line        = mResultsList.getValueInt(TI,1);
 	        int offstart    = mResultsList.getValueInt(TI, 4);
 	        int offend      = mResultsList.getValueInt(TI, 5);
 	        DOCUMENT tmp 	= dui.GetDocMan.Current;
 	        if (tmp is null) break;
-	
+
 	        TextIter txti1 = new TextIter;
 	        TextIter txti2 = new TextIter;
 	        writeln(line-1, "-", offstart, "-", offend, "--");
@@ -577,12 +497,12 @@ class SEARCH_UI : ELEMENT
 
 	        writeln(line-1, "-", offstart, "-", offend, "--", txti1.getBytesInLine());
 	        tmp.getBuffer.getIterAtLineIndex (txti2, line-1, offend);
-			
+
 	        tmp.getBuffer.delet(txti1, txti2);
-	       
+
 	        if (ReplaceText.length > 0)tmp.getBuffer.insert(txti1, ReplaceText, -1);
-	        
-        
+
+
         }while(mResultsList.iterNext(TI));
 
         mResultsList.clear();
@@ -601,7 +521,7 @@ class SEARCH_UI : ELEMENT
 		}
 		return false;
 	}
-    
+
     public:
 
     this()
@@ -616,9 +536,9 @@ class SEARCH_UI : ELEMENT
 
         mPage               = cast (VBox)           mBuilder.getObject("vbox5");
         mOptions            = cast (Viewport)       mBuilder.getObject("viewport2");
-        mClearHighlightBtn	= cast (Button)			mBuilder.getObject("button1");      
+        mClearHighlightBtn	= cast (Button)			mBuilder.getObject("button1");
         mHideOptionsBtn     = cast (Button)         mBuilder.getObject("button6");
-        mHideAllBtn         = cast (Button)         mBuilder.getObject("button5");        
+        mHideAllBtn         = cast (Button)         mBuilder.getObject("button5");
         mFindNextBtn        = cast (Button)         mBuilder.getObject("findnext");
         mFindPrevBtn        = cast (Button)         mBuilder.getObject("findprev");
         mReplaceBtn         = cast (Button)         mBuilder.getObject("replacebtn");
@@ -646,16 +566,16 @@ class SEARCH_UI : ELEMENT
         mScopeProjectAll	.addOnToggled (delegate void(ToggleButton){mLastSearchString = "";});
 
         mResultsList.clear();
-        
+
 
         mFindList           = new                   ListStore([GType.STRING]);
         mReplaceList        = new                   ListStore([GType.STRING]);
 
-        TI= new TreeIter;
-        mFindList.append(TI);
-        mFindList.setValue(TI, 0, "something!");
-        
-        
+        //TI= new TreeIter;
+        //mFindList.append(TI);
+        //mFindList.setValue(TI, 0, "something!");
+
+
         mFindComboBox.setModel(mFindList);
         mFindComboBox.setTextColumn(0);
         mFind = new Entry;
@@ -668,13 +588,13 @@ class SEARCH_UI : ELEMENT
         mReplaceComboBox.remove(tmp);
         mReplaceComboBox.add(mReplace);
 
-        
+
         mFind.addOnActivate(delegate void(Entry X){mFindComboBox.editingDone();});
         mReplace.addOnActivate(delegate void(Entry X){mFindComboBox.editingDone();});
         mFindComboBox.addOnEditingDone (&EditedFind);
 
-        
-       
+
+
 
         mResultsView.getSelection.setMode(GtkSelectionMode.BROWSE);
         //mResultsView.addOnCursorChanged (delegate void(TreeView tv){GotoResult();});
@@ -682,12 +602,12 @@ class SEARCH_UI : ELEMENT
         mResultsView.getSelection.addOnChanged(&GotoResult2);
         mResultsView.addOnMoveCursor(delegate bool(GtkMovementStep step, int huh, TreeView tv){return true;}, cast(GConnectFlags)0);
         mResultsView.addOnKeyRelease(&ReplaceKey);
-        
+
         auto tmpTable       = cast (Table)          mBuilder.getObject("table1");
         tmpTable.attachDefaults (mFindComboBox, 1, 2, 0, 1);
         tmpTable.attachDefaults (mReplaceComboBox, 1, 2, 1, 2);
 
-        
+
 		mClearHighlightBtn.addOnClicked(&ClearHighlightCB);
         mHideOptionsBtn.addOnClicked(delegate void (Button X){mOptions.setVisible(!mOptions.getVisible());});
         mHideAllBtn.addOnClicked(delegate void (Button X){mPage.getParent.getParent.hide();});
@@ -706,12 +626,12 @@ class SEARCH_UI : ELEMENT
 		//		return true;
 		//	}
 		//	writeln("AAAARRRGGGHHH");
-		//	return true;				
+		//	return true;
 		//});
 
-    
+
     }
-    
+
     @property string Name() {return mName;}
     @property string Information() {return mInfo;}
     @property bool   State() {return mState;}
@@ -727,7 +647,7 @@ class SEARCH_UI : ELEMENT
         mState = true;
         mPage.showAll();
         dui.GetExtraPane().appendPage(mPage.getParent.getParent, "Search");
-        dui.GetExtraPane.setTabReorderable ( mPage.getParent.getParent, true); 
+        dui.GetExtraPane.setTabReorderable ( mPage.getParent.getParent, true);
 
         dui.AddIcon("gtk-find", Config.getString("ICONS", "search", "$(HOME_DIR)/glade/binocular.png"));
 
@@ -737,25 +657,25 @@ class SEARCH_UI : ELEMENT
         dui.Actions().addActionWithAccel(SearchAct, null);
         dui.AddMenuItem("_System", SearchAct.createMenuItem(), 0);
 		dui.AddToolBarItem(SearchAct.createToolItem());
-		
-	
+
+
         Action SearchNextAct = new Action("SearchNextAct", "ne_xt", "Step into the light", null);
         SearchNextAct.addOnActivate(delegate void(Action X){FindNextBtnClicked(null);});
-        //SearchNextAct.setAccelPath("F3");        
-        SearchNextAct.setAccelGroup(dui.GetAccel());        
+        //SearchNextAct.setAccelPath("F3");
+        SearchNextAct.setAccelGroup(dui.GetAccel());
         dui.Actions().addActionWithAccel(SearchNextAct, "F4");
-        
+
         SearchNextAct.connectAccelerator();
 
         Action SearchPrevAct = new Action("SearchPrevAct", "_prev", "Step into the light", null);
         SearchPrevAct.addOnActivate(delegate void(Action X){FindPrevBtnClicked(null);});
-        //SearchPrevAct.setAccelPath("<Shift>F3");        
-        SearchPrevAct.setAccelGroup(dui.GetAccel());        
+        //SearchPrevAct.setAccelPath("<Shift>F3");
+        SearchPrevAct.setAccelGroup(dui.GetAccel());
         dui.Actions().addActionWithAccel(SearchPrevAct, "F3");
         SearchPrevAct.connectAccelerator();
-        
+
         dui.GetDocMan.AddContextMenuAction(SearchAct);
-    	
+
         Log.Entry("Engaged "~Name()~"\t\telement.");
     }
 
@@ -770,7 +690,7 @@ class SEARCH_UI : ELEMENT
     {
         return null;
     }
-       
+
 }
 
 
@@ -783,11 +703,11 @@ class SEARCH_UI : ELEMENT
  +/
 extern (C) int Check2 (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter,  void * data)
 {
-    
+
     CHECK * retData = cast(CHECK *) data;
 
     ListStore ls = new ListStore(cast(GtkListStore*)model);
-    
+
     TreeIter ti = new TreeIter(iter);
     if( retData.Text == ls.getValueString(ti,0))
     {
@@ -813,7 +733,7 @@ struct CHECK
  *
  *just introduced this one...
  * ----- seg faults if search results are 0!! now thats a nice one,  should be easy to fix but I'm tired now
- * 
+ *
  * the interface itself is kinda bad ... (some good ideas but needs to be tweaked)
  * -- default search on enter
  * -- dont focus on option and scope buttons it "hot keys are pressed"
@@ -835,5 +755,5 @@ struct CHECK
   * possiblities
   *     don't "re" new mresultslist ... just
   * */
-  
+
 
