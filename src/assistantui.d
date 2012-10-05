@@ -126,8 +126,8 @@ class ASSISTANT_UI : ELEMENT
 
 	void AssistWord()
 	{
-		string CurrentWord = dui.GetDocMan.GetWord();
-		(dui.GetDocMan.GetSymbol());
+		//string CurrentWord = dui.GetDocMan.GetWord();
+		string CurrentWord = dui.GetDocMan.GetSymbol();
 		if(CurrentWord == mLastDocWord) return;
 		mLastDocWord = CurrentWord;
 

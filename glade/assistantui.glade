@@ -24,7 +24,10 @@ today</property>
             <property name="can_focus">False</property>
             <property name="entry_text_column">0</property>
             <child>
-              <object class="GtkCellRendererText" id="cellrenderertext1"/>
+              <object class="GtkCellRendererText" id="cellrenderertext1">
+                <property name="wrap_mode">word</property>
+                <property name="wrap_width">500</property>
+              </object>
               <attributes>
                 <attribute name="text">0</attribute>
               </attributes>

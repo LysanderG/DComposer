@@ -52,6 +52,7 @@ import gtk.Clipboard;
 import gtk.TextIter;
 import gtk.Paned;
 import gtk.ScrolledWindow;
+import gtk.RecentManager;
 
 import gtkc.gtk;
 
@@ -896,6 +897,9 @@ class DOCUMENT : SourceView
 		Rval.getBuffer().setModified(false);
 		Rval.mInitialLine = LineNo;
 		Rval.Engage();
+
+		string uriFileName = std.uri.encode("file://" ~ FileName);
+		RecentManager.getDefault().addItem(uriFileName);
 
 		return Rval;
 	}
