@@ -220,15 +220,15 @@ class BOOKMARKS : ELEMENT
 
 	void Next(Action X)
 	{
-		write ("--------");
+		//write ("--------");
 		assert(mMarkCurrent !is null);
-		write ("11111111");
+		//write ("11111111");
 		if(mMarkRoot.mNext == mMarkLast)return;
-		write ("22222222");
+		//write ("22222222");
 		mMarkCurrent = mMarkCurrent.Increment();
-		write ("33333333");
+		//write ("33333333");
 		mMarkCurrent.Goto();
-		write("444444444");
+		//write("444444444");
 		
 	}
 
@@ -498,7 +498,7 @@ class DOG_EAR
 
 	@property ref DOG_EAR front()
 	{
-		write("     front is ", mFront.mID);
+		//write("     front is ", mFront.mID);
 		
 		if(mFront.mID == "root_anchor")mFront = mFront.mNext;
 		return  mFront;
@@ -506,7 +506,7 @@ class DOG_EAR
 
 	void popFront()
 	{
-		write("   poping ", mFront.mID);
+		//write("   poping ", mFront.mID);
 		mFront = mFront.mNext;
 	}
 

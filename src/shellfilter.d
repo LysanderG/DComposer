@@ -93,7 +93,7 @@ class SHELLFILTER : ELEMENT
 
 		if(Input.length >0) xInput = `cat  ` ~ TextToProcess ~ ` | `;
 		xInput ~= CmdText ~ " 2> " ~ escapeShellFileName(ErrorFile);
-		writeln(xInput , "\n==========================");
+		//writeln(xInput , "\n==========================");
 		Output = shell(xInput);
 		scope(failure)
 		{
@@ -103,7 +103,7 @@ class SHELLFILTER : ELEMENT
 		auto errortext = ErrorFile.readText();
 		if(errortext.length > 0)
 		{
-			writeln("error");
+			//writeln("error");
 			mErrLabel.setText("Error processing "~errortext);
 			return;
 		}
@@ -111,7 +111,7 @@ class SHELLFILTER : ELEMENT
 		{
 			mErrLabel.setText("");
 		}
-		writeln("=========================\n",Output);
+		//writeln("=========================\n",Output);
 		
 
 
