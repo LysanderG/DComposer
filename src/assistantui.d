@@ -1,17 +1,17 @@
 // assistantui.d
-// 
+//
 // Copyright 2012 Anthony Goins <anthony@LinuxGen11>
-// 
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -68,6 +68,8 @@ version(WEBKIT)
 	extern (C) gboolean webkit_web_view_search_text (GtkWidget *web_view, const gchar *text,  gboolean case_sensitive, gboolean forward,  gboolean wrap);
 	extern (C) void webkit_web_view_load_string 	(GtkWidget *web_view, const gchar *content, const gchar *mime_type, const gchar *encoding,  const gchar *base_uri);
 	extern (C) GObject * webkit_web_view_get_window_features (GtkWidget *web_view);
+	extern (C) GObject * webkit_web_view_get_settings        (GtkWidget *web_view);
+
 }
 
 
@@ -75,13 +77,13 @@ class ASSISTANT_UI : ELEMENT
 {
 
     private :
-    
+
     string      mName;
     string      mInfo;
     bool        mState;
 
     ASSISTANT_PAGE mPreferenceObject;
-    
+
     Builder     mBuilder;
     VBox        mRoot;
     ComboBox    mPossibles;
@@ -90,12 +92,12 @@ class ASSISTANT_UI : ELEMENT
     Button      mBtnWebLink;
     Label       mSignature;
 
-    
+
     TextView    mComments;
     GtkWidget * mWebView;
     Widget		dWebView;
     ScrolledWindow mScrollWin;
-    
+
     TreeView    mChildren;
     ListStore   mPossibleStore;
     ListStore   mChildrenStore;
@@ -112,35 +114,36 @@ class ASSISTANT_UI : ELEMENT
 
     string		mLastDocWord;
 
-    
+
     void WatchForNewDoc(string EventType, DOCUMENT NuDoc)
     {
-		
+
         if(EventType != "AppendDocument")return;
         NuDoc.addOnKeyRelease (delegate bool (GdkEventKey* ev, Widget huh){AssistWord();return false;});
-        NuDoc.addOnButtonRelease (delegate bool (GdkEventButton* ev, Widget huh){AssistWord();return false;}); 
-        
+        NuDoc.addOnButtonRelease (delegate bool (GdkEventButton* ev, Widget huh){AssistWord();return false;});
+
    }
 
 	void AssistWord()
 	{
 		string CurrentWord = dui.GetDocMan.GetWord();
+		(dui.GetDocMan.GetSymbol());
 		if(CurrentWord == mLastDocWord) return;
 		mLastDocWord = CurrentWord;
-		
+
 		auto Possibles = Symbols.ExactMatches(CurrentWord);
 		if(Possibles.length < 1) return;
 		CatchSymbols(Possibles);
-	}   
-        
-        
+	}
+
+
     void CatchSymbols(DSYMBOL[] Symbols)
     {
         if (Symbols.length < 1) return;
         TreeIter ti = new TreeIter;
 
         mList = Symbols;
-        
+
 		GC.disable();
         mPossibleStore.clear();
 
@@ -155,10 +158,10 @@ class ASSISTANT_UI : ELEMENT
         UpdateAssistant();
     }
 
-    
+
     void CatchSymbol(DSYMBOL Symbol)
     {
-        TreeIter ti = new TreeIter;        
+        TreeIter ti = new TreeIter;
         GC.disable();
         mPossibleStore.clear();
         //fill combobox
@@ -183,7 +186,7 @@ class ASSISTANT_UI : ELEMENT
         int indx = mPossibles.getActive();
         if(( indx < 0) || (indx >= mList.length)) return;
         TreeIter ti = new TreeIter;
-        
+
 		GC.disable();
         mChildrenStore.clear();
         foreach (sym; mList[indx].Children)
@@ -194,8 +197,8 @@ class ASSISTANT_UI : ELEMENT
         }
         GC.enable();
 
- 
-		
+
+
         string LabelText = "("~mList[indx].Kind~") -- Signature : " ~ mList[indx].Type;
         mSignature.setText(LabelText);
 
@@ -224,7 +227,7 @@ class ASSISTANT_UI : ELEMENT
 			    none ~= "undocumented.html";
 			    webkit_web_view_load_uri(mWebView, toStringz(none));
 			}
-			
+
 			if(Sym.Comment.length < 1)
 			{
 				ShowUndocumentedPage();
@@ -246,15 +249,15 @@ class ASSISTANT_UI : ELEMENT
 
 				return;
 			}
-			
+
 			string StdPrefix = "";
 			if(Sym.Scope[0] == "std") StdPrefix = "std_";
-			
-			
+
+
 			foreach(dpath; mDocPaths)
 			{
 				string DocFile = buildPath(dpath, StdPrefix ~ SrcHtmlFileName);
-				
+
 				if(!exists(DocFile)) continue;
 
 				string url = "file://"~DocFile~"#"~Sym.Name;
@@ -262,7 +265,7 @@ class ASSISTANT_UI : ELEMENT
 				return;
 			}
 
-			webkit_web_view_load_string(mWebView, toStringz(Sym.Comment), toStringz("text/plain"), null, "");			
+			webkit_web_view_load_string(mWebView, toStringz(Sym.Comment), toStringz("text/plain"), null, "");
 		}
 	}
 	else
@@ -287,7 +290,7 @@ class ASSISTANT_UI : ELEMENT
         if(indx < 0) return;
         string Lookup = mList[indx].Path ~ "." ~ ti.getValueString(0);
 
-        
+
         auto sym = Symbols.ExactMatches(Lookup);
 
         CatchSymbols(sym);
@@ -301,7 +304,7 @@ class ASSISTANT_UI : ELEMENT
         //dui.GetDocMan.OpenDoc(mList[indx].InFile, mList[indx].OnLine);
         dui.GetDocMan.Open(mList[indx].InFile, mList[indx].OnLine);
     }
-    
+
     void Parent()
     {
         auto indx = mPossibles.getActive();
@@ -315,7 +318,7 @@ class ASSISTANT_UI : ELEMENT
         CatchSymbols(PossibleParentSyms);
 
     }
-        
+
     void Reconfigure()
     {
         //mMouseHover = Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", false);
@@ -325,12 +328,12 @@ class ASSISTANT_UI : ELEMENT
 		mDocPaths.length = 0;
 
 		foreach(key; dpkeys)mDocPaths ~= Config.getString("DOCUMENTATION_FOLDERS", key, "error");
-        
+
         mRoot.setVisible(mEnabled);
     }
 
-        
-        
+
+
 
     public:
 
@@ -369,13 +372,20 @@ class ASSISTANT_UI : ELEMENT
 		version(WEBKIT)
 		{
 			mWebView 	= 	webkit_web_view_new();
-			
+
 			dWebView 	= new Widget(mWebView);
+
+
+
+
 			mScrollWin.add(dWebView);
 			dWebView.show();
 
 			auto tmpObj = new ObjectG(webkit_web_view_get_window_features (mWebView));
 			tmpObj.setProperty("statusbar-visible", 1);
+
+			auto tmpObj2 = new ObjectG(webkit_web_view_get_settings(mWebView));
+			tmpObj.setProperty("enable-scripts", 0);
 		}
 		else
 		{
@@ -383,34 +393,34 @@ class ASSISTANT_UI : ELEMENT
 			mScrollWin.add(mComments);
 			mComments.show();
 		}
-        
-        
+
+
         version(WEBKIT) webkit_web_view_load_uri  (mWebView, "http://dlang.org".ptr);
-        
+
         mChildren       =   cast(TreeView)  mBuilder.getObject("treeview2");
         mHPane          =   cast(HPaned)    mBuilder.getObject("hpaned1");
 
         mPossibleStore  =   new ListStore([GType.STRING]);
         mChildrenStore  =   new ListStore([GType.STRING]);
-        
 
-        mHPane.setPosition(Config.getInteger("ASSISTANT_UI", "store_gui_pane_position",10)); 
-        
-        mPossibles.setModel(mPossibleStore);        
+
+        mHPane.setPosition(Config.getInteger("ASSISTANT_UI", "store_gui_pane_position",10));
+
+        mPossibles.setModel(mPossibleStore);
         mChildren.setModel(mChildrenStore);
 
         mEnabled    = Config.getBoolean("ASSISTANT_UI", "enabled", true);
-        
+
         mRoot.setVisible(mEnabled);
         dui.GetExtraPane.appendPage(mRoot, "Assistant");
-		dui.GetExtraPane.setTabReorderable ( mRoot, true); 
+		dui.GetExtraPane.setTabReorderable ( mRoot, true);
         mPossibles.addOnChanged(delegate void(ComboBox cbx){UpdateAssistant();});
 
         dui.GetAutoPopUps.connect(&CatchSymbol);
         dui.GetDocMan.Event.connect(&WatchForNewDoc);
 
 
-        
+
 
         Symbols.Forward.connect(&CatchSymbols);
         mChildren.addOnRowActivated(delegate void (TreePath tp, TreeViewColumn tvc, TreeView tv){FollowChild();});
@@ -428,14 +438,14 @@ class ASSISTANT_UI : ELEMENT
 
         dui.GetAutoPopUps.disconnect(&CatchSymbol);
         dui.GetDocMan.Event.disconnect(&WatchForNewDoc);
-        Config.setInteger("ASSISTANT_UI", "store_gui_pane_position", mHPane.getPosition()); 
+        Config.setInteger("ASSISTANT_UI", "store_gui_pane_position", mHPane.getPosition());
         Log.Entry("Disengaged "~mName~"\t\telement.");
     }
 
     PREFERENCE_PAGE GetPreferenceObject()
-    {        
+    {
         return mPreferenceObject;
-    } 
+    }
 }
 
 
@@ -452,7 +462,7 @@ class ASSISTANT_PAGE : PREFERENCE_PAGE
     {
 		mEnabled.setActive(Config.getBoolean("ASSISTANT_UI","enabled", true));
         //mPseudoToolTipEnabled.setActive(Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", true));
-        
+
         mDDocDirectories.ClearItems(null);
         string[] xDocPaths;
         string[] xKeys = Config.getKeys("DOCUMENTATION_FOLDERS");
@@ -471,7 +481,7 @@ class ASSISTANT_PAGE : PREFERENCE_PAGE
         super(PageName, Config.getString("PREFERENCES", "glade_file_assistant", "$(HOME_DIR)/glade/assistpref.glade"));
 
 		Add(mDDocDirectories.GetWidget());
-		
+
         mEnabled = cast (CheckButton) mBuilder.getObject("checkbutton1");
         //mPseudoToolTipEnabled = cast (CheckButton) mBuilder.getObject("checkbutton2");
 
@@ -491,14 +501,10 @@ class ASSISTANT_PAGE : PREFERENCE_PAGE
 
 		string [] xpkgNames = mDDocDirectories.GetShortItems();
 		string [] xDocFolders = mDDocDirectories.GetFullItems();
-		
+
         foreach(int x, name; xpkgNames)
         {
             Config.setString("DOCUMENTATION_FOLDERS", name, xDocFolders[x]);
         }
     }
 }
-    
-
-    
-        
