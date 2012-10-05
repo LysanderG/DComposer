@@ -1,17 +1,17 @@
 // docman.d
-// 
+//
 // Copyright 2012 Anthony Goins <anthony@LinuxGen11>
-// 
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -61,7 +61,7 @@ import  glib.ListSG;
 class DOCMAN
 {
 	private:
-	
+
 	uint				mUntitledCount;		///number to add to filenames of as yet unnamed files
 
 	string[]			mStartUpFiles;		///need to store startup files until everything is engaged then open them
@@ -69,7 +69,7 @@ class DOCMAN
 	Action[]			mContextMenuActs;	///Actions which will be added to context menu
 
 	DOCUMENT[string]	mDocs;				///all open docs indexed by their file name
-	
+
 	FileFilter[string]	mFileFilters;		///holds the filters for open file dialog
 	FileChooserDialog	mOpenFileDialog;	///Dialog to open files
 	FileChooserDialog	mSaveFileDialog;	///Dialog to save (as) file
@@ -102,14 +102,14 @@ class DOCMAN
         CloseAct.addOnActivate      (delegate void(Action X){Close();});
         CloseAllAct.addOnActivate   (delegate void(Action X){CloseAll();});
 
-        CreateAct.setAccelGroup (dui.GetAccel());  
+        CreateAct.setAccelGroup (dui.GetAccel());
         OpenAct.setAccelGroup   (dui.GetAccel());
-        SaveAct.setAccelGroup   (dui.GetAccel());    
-        SaveAsAct.setAccelGroup (dui.GetAccel());  
-        SaveAllAct.setAccelGroup(dui.GetAccel()); 
-        CloseAct.setAccelGroup  (dui.GetAccel());   
+        SaveAct.setAccelGroup   (dui.GetAccel());
+        SaveAsAct.setAccelGroup (dui.GetAccel());
+        SaveAllAct.setAccelGroup(dui.GetAccel());
+        CloseAct.setAccelGroup  (dui.GetAccel());
         CloseAllAct.setAccelGroup(dui.GetAccel());
-        
+
         dui.Actions.addActionWithAccel(CreateAct  , null);
         dui.Actions.addActionWithAccel(OpenAct    , null);
         dui.Actions.addActionWithAccel(SaveAct    , null);
@@ -145,7 +145,7 @@ class DOCMAN
 		dui.AddIcon("gtk-copy"		, Config.getString("ICONS", "copy", "$(HOME_DIR)/glade/document-copy.png"));
 		dui.AddIcon("gtk-paste"		, Config.getString("ICONS", "paste", "$(HOME_DIR)/glade/clipboard-paste-document-text.png"));
 		dui.AddIcon("gtk-delete"	, Config.getString("ICONS", "delete", "$(HOME_DIR)/glade/cross-circle-frame.png"));
-        
+
         Action      UndoAct     = new Action("UndoAct","_Undo", "Undo last action", StockID.UNDO);
         Action      RedoAct     = new Action("RedoAct","_Redo", "Undo the last undo(ie redo)", StockID.REDO);
         Action      CutAct      = new Action("CutAct", "_Cut", "Remove selected text to clipboard", StockID.CUT);
@@ -164,13 +164,13 @@ class DOCMAN
         SelAllAct   .addOnActivate(delegate void(Action X){Edit("SELALL"); });
         SelNoneAct  .addOnActivate(delegate void(Action X){Edit("SELNONE"); });
 
-        //UndoAct     .setAccelGroup(dui.GetAccel());  
-        //RedoAct     .setAccelGroup(dui.GetAccel());  
-        //CutAct      .setAccelGroup(dui.GetAccel());  
-        //CopyAct     .setAccelGroup(dui.GetAccel());  
-        //PasteAct    .setAccelGroup(dui.GetAccel());  
-        //DeleteAct   .setAccelGroup(dui.GetAccel());  
-        //SelAllAct   .setAccelGroup(dui.GetAccel());  
+        //UndoAct     .setAccelGroup(dui.GetAccel());
+        //RedoAct     .setAccelGroup(dui.GetAccel());
+        //CutAct      .setAccelGroup(dui.GetAccel());
+        //CopyAct     .setAccelGroup(dui.GetAccel());
+        //PasteAct    .setAccelGroup(dui.GetAccel());
+        //DeleteAct   .setAccelGroup(dui.GetAccel());
+        //SelAllAct   .setAccelGroup(dui.GetAccel());
         //SelNoneAct  .setAccelGroup(dui.GetAccel());
 
         dui.Actions().addAction(UndoAct   );
@@ -188,11 +188,11 @@ class DOCMAN
         dui.AddMenuItem("_Edit",CutAct.createMenuItem());
         dui.AddMenuItem("_Edit",CopyAct.createMenuItem());
         dui.AddMenuItem("_Edit",PasteAct.createMenuItem());
-        dui.AddMenuItem("_Edit",DeleteAct.createMenuItem()); 
+        dui.AddMenuItem("_Edit",DeleteAct.createMenuItem());
         dui.AddMenuItem("_Edit",new SeparatorMenuItem()    );
         dui.AddMenuItem("_Edit",SelAllAct.createMenuItem()  );
         dui.AddMenuItem("_Edit",SelNoneAct.createMenuItem());
-        dui.AddMenuItem("_Edit",new SeparatorMenuItem());        
+        dui.AddMenuItem("_Edit",new SeparatorMenuItem());
 
 
 
@@ -228,7 +228,7 @@ class DOCMAN
         Config.setString("DOC_FILTERS", "*"	  , "All Files;pattern;*");
         Config.setString("DOC_FILTERS", "TEST", "THIS; is a test of the docman file filter system!");
 
-        
+
         string[] FilterKeys = Config.getKeys("DOC_FILTERS");
 
         foreach(i, key; FilterKeys)
@@ -241,13 +241,13 @@ class DOCMAN
 			}
             mFileFilters[key] = new FileFilter;
             mFileFilters[key].setName(data[0]);
-            
+
 
             if(data[1] == "mime")mFileFilters[key].addMimeType(data[2]);
             if(data[1] == "pattern")mFileFilters[key].addPattern(data[2]);
         }
-    }		
-		
+    }
+
 	public :
 
 	@property DOCUMENT Current()
@@ -266,7 +266,7 @@ class DOCMAN
 	}
 
 	@property DOCUMENT[string] Documents(){return mDocs;}
-	 
+
 
 	///Create a New DocMan (Document Manager)
 	this()
@@ -297,7 +297,7 @@ class DOCMAN
 		///get last session files and cmdline files to open later (after everything is engaged)
 		LoadStartUpFiles();
 
-		///Creates all document related actions (adds menu and toolbar stuff too)	
+		///Creates all document related actions (adds menu and toolbar stuff too)
 		CreateActions();
 
 		Log.Entry("Engaged Document Manager");
@@ -314,7 +314,7 @@ class DOCMAN
 	void AddContextMenuAction(Action NewAction)
 	{
 		mContextMenuActs ~= NewAction;
-	}	
+	}
 	Action[] GetContextMenuActions(){return mContextMenuActs;}
 
 	void Edit(string EditAction)
@@ -340,6 +340,11 @@ class DOCMAN
 	string GetWord()
 	{
 		if(Current !is null)return Current.Word;
+		return null;
+	}
+	string GetSymbol()
+	{
+		if(Current !is null)return Current.Symbol;
 		return null;
 	}
 	int GetLineNo()
@@ -436,13 +441,13 @@ class DOCMAN
 				Log.Entry(y.msg,"Error");
 			}
 		}
-		
+
 		auto response = mOpenFileDialog.run();
 		mOpenFileDialog.hide();
-		
+
 
 		if (response != ResponseType.GTK_RESPONSE_OK) return;
-        
+
         ListSG   ListOfFiles = mOpenFileDialog.getFilenames();
         //ArrayOfFiles.length = ListOfFiles.length();
 
@@ -468,11 +473,11 @@ class DOCMAN
             auto Doc = DOCUMENT.Open(DocPath, LineNo);
             if(Doc !is null)
             {
-                Append(Doc, LineNo);   
-            }            
+                Append(Doc, LineNo);
+            }
             return;
-        }        
-        mDocs[DocPath].GotoLine(LineNo);             
+        }
+        mDocs[DocPath].GotoLine(LineNo);
         return ;
     }
 
@@ -487,20 +492,20 @@ class DOCMAN
         scope(success)Log.Entry("Document :"~Current.Name ~ " saved.");
         scope(failure){Log.Entry("Document :"~Current.Name ~ " failed to save.", "Error"); return;}
 		if (Current.Virgin) return SaveAs();
-		Current.Save();		
+		Current.Save();
 	}
 
 	void SaveAs()
 	{
 		if(Current is null) return;
 		string OriginalName = Current.Name;
-		
+
 		mSaveFileDialog.setCurrentName(OriginalName);
 		auto response = mSaveFileDialog.run();
 		mSaveFileDialog.hide();
 
 		if (response != ResponseType.GTK_RESPONSE_OK) return;
-		
+
 		scope(failure)
 		{
 			Log.Entry("Document Failed to save "~OriginalName~" as "~mSaveFileDialog.getFilename, "Error");
@@ -513,7 +518,7 @@ class DOCMAN
 			Log.Entry("Document saved "~OriginalName~" as "~mSaveFileDialog.getFilename);
 		}
 
-		
+
 		Current.SaveAs(mSaveFileDialog.getFilename);
 	}
 
@@ -524,7 +529,7 @@ class DOCMAN
 			Doc.Save();
 		}
 	}
-		
+
 	void CloseAll(bool Quitting = false)
 	{
 		string[] KeysToClose;
@@ -544,13 +549,13 @@ class DOCMAN
 			mDocs[key].Disengage();
 			Event.emit("CloseDocument", mDocs[key]);
 			mDocs.remove(key);
-		}			
-		
+		}
+
 	}
 
 	void Close(DOCUMENT XDoc = null, bool Quitting = false)
 	{
-		
+
 		if(XDoc is null)
 		{
 			XDoc = Current;
@@ -574,14 +579,14 @@ class DOCMAN
 	{
 
 		mDocs[ADoc.Name] = ADoc;
-				
+
 		dui.GetCenterPane().appendPageMenu(ADoc.PageWidget(), ADoc.TabWidget(), new Label(ADoc.ShortName));
 
 		dui.GetCenterPane().setTabReorderable(ADoc.PageWidget, 1);
-        
+
         dui.GetCenterPane().setCurrentPage(ADoc.PageWidget);
         ADoc.grabFocus();
-        
+
         //this signal has become the signal to allow other modules/elements to connect to all docs, so
         //it is now important to call AppendDocument exactly one time for each new document.
         Event.emit("AppendDocument", ADoc);
@@ -593,7 +598,7 @@ class DOCMAN
 	void OpenInitialDocs()
 	{
 		ulong LineInFile;
-		foreach(initfile; mStartUpFiles) 
+		foreach(initfile; mStartUpFiles)
 		{
 			auto colon = std.string.indexOf(initfile, ":");
 			if(colon < 1)
@@ -621,15 +626,15 @@ class DOCMAN
 		Config().setString("DOCMAN", "files_last_session", StorageData);
         Config().setString("DOCMAN", "files_to_open",""); //get rid of command line files
 	}
-	
-	
+
+
 	mixin Signal!(string, DOCUMENT) Event;
 }
-	
+
 class DOC_PAGE : PREFERENCE_PAGE
 {
     //indention??? I think I meant indentation.
-    
+
     CheckButton     mAutoIndent;
     CheckButton     mIndentOnTab;
     CheckButton     mSpacesForTab;
@@ -646,7 +651,7 @@ class DOC_PAGE : PREFERENCE_PAGE
     FontButton      mFontStuff;
     ComboBox        mStyleBox;
     ListStore       mStyleChoices;
-    
+
 
     this(string PageName, string FrameTitle)
     {
@@ -679,7 +684,7 @@ class DOC_PAGE : PREFERENCE_PAGE
         mTabWidth.setIncrements(1, -1);
 
         mStyleChoices = new ListStore([GType.STRING]);
-        
+
     }
 
 
@@ -698,12 +703,12 @@ class DOC_PAGE : PREFERENCE_PAGE
 	        mStyleChoices.append(ti);
             mStyleChoices.setValue(ti, 0, baseName(xmlfile.name,".xml"));
             if(currentStyle == mStyleChoices.getValueString(ti, 0)) ActiveChoice = indx;
-            
+
             indx++;
         }
         mStyleBox.setModel(mStyleChoices);
-        mStyleBox.setActive(ActiveChoice);    
-        
+        mStyleBox.setActive(ActiveChoice);
+
         mAutoIndent         .setActive(Config.getBoolean("DOCMAN", "auto_indent"        , true));
         mIndentOnTab        .setActive(Config.getBoolean("DOCMAN", "indent_on_tab"      , true));
         mSpacesForTab       .setActive(Config.getBoolean("DOCMAN", "spaces_for_tabs"    , true));
@@ -726,10 +731,10 @@ class DOC_PAGE : PREFERENCE_PAGE
     {
         TreeIter ti = new TreeIter;
         mStyleBox.getActiveIter(ti);
-        
+
         Config.setString("DOCMAN", "style_scheme", mStyleChoices.getValueString(ti,0));
 
-        
+
         Config.setBoolean("DOCMAN", "auto_indent"        , mAutoIndent         .getActive());
         Config.setBoolean("DOCMAN", "indent_on_tab"      , mIndentOnTab        .getActive());
         Config.setBoolean("DOCMAN", "spaces_for_tabs"    , mSpacesForTab       .getActive());
@@ -746,10 +751,10 @@ class DOC_PAGE : PREFERENCE_PAGE
 
         Config.setString("DOCMAN", "font"              , mFontStuff.getFontName());
     }
-        
 
-}                                         
 
-	
-		
-		
+}
+
+
+
+

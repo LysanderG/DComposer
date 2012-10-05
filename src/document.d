@@ -1,17 +1,17 @@
 // document.d
-// 
+//
 // Copyright 2012 Anthony Goins <anthony@LinuxGen11>
-// 
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -31,6 +31,7 @@ import std.encoding;
 import std.conv;
 import std.datetime;
 import std.signals;
+import std.uni;
 
 import gsv.SourceView;
 import gsv.SourceBuffer;
@@ -68,16 +69,16 @@ extern(C) GdkAtom gdk_atom_intern(const char *, bool);
 /**
  * Testing Documentation
  * DOCUMENT is basically SourceView with a couple of personal tweaks
- * */    
+ * */
 class DOCUMENT : SourceView
 {
 	private:
-	
+
 	string 			mName;
 	bool			mVirgin;
 
 	ulong 			mInitialLine;
-	
+
 	SysTime			mFileTimeStamp;
 
 	bool			mInPastingProcess;
@@ -108,8 +109,8 @@ class DOCUMENT : SourceView
             msg.addButton("Ignore", 2000);
 
             auto rv = msg.run();
-            msg.hide();           
-            
+            msg.hide();
+
 
             if(rv == 1000)
             {
@@ -119,27 +120,27 @@ class DOCUMENT : SourceView
                 getBuffer().beginNotUndoableAction();
                 getBuffer().setText(Text);
                 getBuffer().endNotUndoableAction();
-				getBuffer().setModified(false);      
+				getBuffer().setModified(false);
 			}
             else mFileTimeStamp = timeLastModified(Name);
 			return true;
-        }       
-        
+        }
+
         return false;
     }
-			
-		
+
+
 
 	void UpdatePageTab()
 	{
 		if(Modified)
 		{
-			mTabLabel.setMarkup(`<span foreground="red" >[* `~ShortName~` *]</span>`);			
+			mTabLabel.setMarkup(`<span foreground="red" >[* `~ShortName~` *]</span>`);
 		}
 		else mTabLabel.setText(ShortName);
 		mTabWidget.setTooltipText(Name);
 		mTabWidget.showAll();
-		
+
 	}
 
 	void Configure()
@@ -178,14 +179,14 @@ class DOCUMENT : SourceView
 	}
 
 	void PopulateContextMenu(GtkMenu* gtkBigMenu, TextView ThisOne)
-	{		
+	{
 		Menu X = new Menu(gtkBigMenu);
 
 		foreach(action; dui.GetDocMan.GetContextMenuActions())
 		{
 			X.prepend(action.createMenuItem());
 		}
-		
+
 	}
 
 	/**
@@ -193,14 +194,14 @@ class DOCUMENT : SourceView
 	 * to use for popup location
 	 * better name might be last button press
 	 * */
-	
-	bool CatchPopUpMenuLocation(GdkEventButton * eb,Widget W) 
+
+	bool CatchPopUpMenuLocation(GdkEventButton * eb,Widget W)
 	{
-		
+
 		getPointer(mPopUpX, mPopUpY);
 		mPopUpByKeyBoard = false;
 		return false;
-		
+
 	}
 
 	/**
@@ -255,16 +256,16 @@ class DOCUMENT : SourceView
 
     void DragCatcher(GdkDragContext* Cntxt, int x, int y, GtkSelectionData* SelData, uint info, uint time, Widget user_data)
     {
-		writeln("hello ", SelData);
+		//writeln("hello ", SelData);
 		auto dragctx = new DragContext(Cntxt);
 		auto xx = dragctx.listTargets();
 		while ( xx !is null)
 		{
-			writeln(text(xx.data()));
+			//writeln(text(xx.data()));
 			xx = xx.next();
 		}
 	}
-		
+
 //**********************************************************************************************************************
 
 
@@ -301,18 +302,409 @@ class DOCUMENT : SourceView
 		return tistart.getText(tiend);
 	}
 
+	/**
+	*  Returns fully scoped symbol currently under cursor if any.
+	*/
+	@property string Symbol()
+	{
+
+		bool SkipParensBack(ref TextIter ti)
+		{
+			int Pdepth = 1;
+			while(ti.backwardChar() )
+			{
+				dchar tchar = ti.getChar();
+				if (tchar == ')') Pdepth ++;
+				if (tchar == '(') Pdepth --;
+				if (Pdepth < 1) return false;
+			}
+			return true;
+		}
+		bool SkipParensFore(ref TextIter ti)
+		{
+			int Pdepth = 1;
+
+			while(ti.forwardChar())
+			{
+				dchar tchar = ti.getChar();
+				if(tchar == '(')Pdepth++;
+				if(tchar == ')')Pdepth--;
+				if(Pdepth < 1) return false;
+			}
+			return true;
+		}
+		dstring ScanBack(TextIter ti)
+		{
+			dstring rv = "";
+			dchar ch;
+			dchar LastCh = 0;
+			bool Terminate = false;
+
+			while (ti.backwardChar())
+			{
+				ch = ti.getChar();
+
+				switch (ch)
+				{
+					case 'a' : .. case 'z':
+					case 'A' : .. case 'Z':
+					case '0' : .. case '9':
+					case '_' :
+					{
+												if(( LastCh.isSpace) )
+												{
+													Terminate = true;
+													break;
+												}
+												rv = ch ~ rv;
+												LastCh = ch;
+												break;
+					}
+
+					case '.' :
+					{
+												if( LastCh.isNumber())
+												{
+													Terminate = true;
+													//rv.length = 0;
+													break;
+												}
+												if( LastCh == '.')
+												{
+													Terminate = true;
+													break;
+												}
+												rv = ch ~ rv;
+												LastCh = ch;
+												break;
+					}
+
+					case ')' :
+					{
+												if( (LastCh != '.') && (LastCh != 0))
+												{
+													Terminate = true;
+													break;
+												}
+												Terminate = SkipParensBack(ti);
+												LastCh = '(';
+												break;
+					}
+
+					default :
+					{
+												if(ch.isSpace)
+												{
+													if(LastCh == '(') break;
+													if(LastCh == '.') break;
+													LastCh = ch;
+													break;
+												}
+												Terminate = true;
+					}
+				}
+				if(Terminate)break;
+			}
+			if((rv.length > 0) && (rv[0].isNumber)) rv = [0];
+
+			write ("lastch = ", LastCh, " -- ", rv);
+			return rv;
+		}
+
+		dstring ScanFore(TextIter ti)
+		{
+			bool Terminate = false;
+			dstring rv = "";
+			dchar ch;
+			dchar LastCh;
+			do
+			{
+				ch = ti.getChar();
+				switch (ch)
+				{
+					case 0 :
+					{
+											Terminate = true;
+											break;
+					}
+
+					case 'A': .. case 'Z':
+					case 'a': .. case 'z':
+					case '0': .. case '9':
+					case '_':
+					{
+											if ((LastCh.isSpace()) || (LastCh == ')'))
+											{
+												Terminate = true;
+												break;
+											}
+											rv ~= ch;
+											LastCh = ch;
+											break;
+					}
+
+					case '.' :
+					{
+											if(LastCh == '.')
+											{
+												Terminate = true;
+												break;
+											}
+											rv ~= ch;
+											LastCh = ch;
+											break;
+					}
+
+					case '(' :
+					{
+											Terminate = SkipParensFore(ti);
+											LastCh = ')';
+											break;
+					}
+
+					default :
+					{
+											if(ch.isSpace)
+											{
+												if(LastCh == ')') break;
+												if(LastCh == '.') break;
+												LastCh = ch;
+												break;
+											}
+											Terminate = true;
+											break;
+					}
+				}
+
+				if(Terminate) break;
+			}while(ti.forwardChar());
+
+			writeln('~',rv, " -- ", LastCh, " = LastCh");
+			return rv;
+		}
+
+
+
+		auto cursorti = new TextIter;
+
+		getBuffer.getIterAtMark(cursorti, getBuffer.getInsert());
+
+
+		auto pre = ScanBack(cursorti.copy());
+		auto post = ScanFore(cursorti.copy());
+
+
+
+		if((pre.length == 1) && (pre[0] == 0)) return ""; //basically an invalid symbol (starts with number)
+
+		return to!string(pre ~ post);
+	}
+
+
+
+	@property string SymbolOld()
+	{
+
+		bool Terminate = false;
+
+		auto cursorti   = new TextIter;
+		auto workingti  = new TextIter;
+
+		getBuffer.getIterAtMark(cursorti, getBuffer.getInsert());
+
+		dstring rv = "";
+
+
+		bool SkipParensBack()
+		{
+			int Pdepth = 1;
+			if(workingti.backwardChar() == 0) return true;//skip the first ).
+			do
+			{
+
+				dchar tchar = workingti.getChar();
+				if (tchar == ')') Pdepth ++;
+				if (tchar == '(') Pdepth --;
+				if (Pdepth < 1) return false;
+			}while(workingti.backwardChar() );
+			return true;
+		}
+		bool SkipParensFore()
+		{
+			int Pdepth = 1;
+			if(!workingti.forwardChar()) return true;
+			do
+			{
+				if(Pdepth < 1) return false;
+				dchar tchar = workingti.getChar();
+				if(tchar == '(')Pdepth++;
+				if(tchar == ')')Pdepth--;
+
+			}while(workingti.forwardChar());
+			return true;
+		}
+		bool SkipWhiteSpaceBack()
+		{
+			while(workingti.backwardChar())
+			{
+				dchar tchar = workingti.getChar();
+				if(tchar.isSpace())continue;
+				if(tchar == ')') {SkipParensBack();continue;}
+				if(tchar.isAlpha())return false;
+				if(tchar.isNumber())return false;
+				if(tchar == '_') return false;
+				return true;
+			}
+			return true;
+		}
+		bool SkipWhiteSpaceFore()
+		{
+			while(workingti.forwardChar())
+			{
+				dchar tchar = workingti.getChar();
+				if(tchar.isSpace())continue;
+				if(tchar.isAlpha())return false;
+				//if(tchar.isNumber())return false;
+				if(tchar == '_') return false;
+				return true;
+			}
+			return true;
+		}
+
+		bool SkipToDotBack()
+		{
+			while(workingti.backwardChar())
+			{
+				dchar tchar = workingti.getChar();
+				if(tchar == ')') {SkipParensBack(); continue;}
+				if(tchar.isSpace()){SkipWhiteSpaceBack(); continue;}
+				if(tchar == '.') return false;
+				return true;
+			}
+			return true;
+		}
+		bool SkipToDotFore()
+		{
+			while(workingti.forwardChar())
+			{
+				dchar tchar = workingti.getChar();
+				if(tchar.isSpace())continue;
+				if(tchar == '.') return false;
+				return true;
+			}
+			return true;
+		}
+
+		workingti = cursorti.copy();
+		while(workingti.backwardChar())
+		{
+			dchar ch = workingti.getChar();
+			switch(ch)
+			{
+				case 'a': .. case'z':
+				case 'A': .. case'Z':
+				case '_'			:
+				case '0': .. case'9':
+				case '.'			:
+
+				{
+										rv = ch ~ rv;
+
+										break;
+				}
+
+				case ' '			:
+				case '\t'			:
+				{
+										break;
+				}
+
+				case ')'			:
+				{
+										if((rv.length > 0) && (rv[0] != '.'))rv.length = 0;
+										if(!SkipParensBack())Terminate = false;
+										else Terminate = true;
+										break;
+				}
+				default				: 	Terminate = true;
+			}
+			if(Terminate)break;
+		}
+
+		Terminate = false;
+		workingti = cursorti.copy();
+		do
+		{
+			dchar ch = workingti.getChar();
+			switch(ch)
+			{
+				case 'a': .. case'z':
+				case 'A': .. case'Z':
+				case '_'			:
+				case '0': .. case'9':
+				{
+										rv ~= ch;
+
+										break;
+				}
+
+				case ' '			:
+				case '\t'			:
+				{
+										if(!SkipToDotFore())
+										{
+											Terminate = false;
+											rv ~= workingti.getChar();
+										}
+										else Terminate = true;
+										break;
+
+				}
+
+				case '.'			:
+				{
+										rv ~= '.';
+										if(!SkipWhiteSpaceFore())
+										{
+											Terminate = false;
+											rv ~= workingti.getChar();
+										}
+										else Terminate = true;
+										break;
+				}
+				case '('			:
+				{
+										if(!SkipParensFore())
+										{
+											Terminate = false;
+											rv ~= workingti.getChar();
+										}
+										else Terminate = true;
+										break;
+				}
+
+				default				: 	Terminate = true;
+			}
+			if(Terminate)break;
+		}while(workingti.forwardChar());
+
+		if(rv.length > 0)if( rv[0].isNumber())return "";
+		return to!string(rv);
+		//return startti.getText(endti);
+	}
+
 	///returns the word currently at the insert mark (cursor)
 	///May have to spice this up a little to reflect a programming environment
-	
+
 	@property string Word()
 	{
-        TextIter ti = new TextIter; 
+        TextIter ti = new TextIter;
         getBuffer.getIterAtMark(ti, getBuffer.getInsert());
         if(!ti.insideWord)return "";
         TextIter tiend  = ti.copy();
         tiend.forwardWordEnd();
         if(!ti.startsWord())ti.backwardWordStart();
-        return ti.getSlice(tiend);        
+        return ti.getSlice(tiend);
     }
 
     /**
@@ -329,10 +721,10 @@ class DOCUMENT : SourceView
 		if(mPopUpByKeyBoard) return Word;
 		int trailing, xx, yy;
 
-		 windowToBufferCoords (GtkTextWindowType.WIDGET, mPopUpX, mPopUpY, xx, yy); 
-		
+		 windowToBufferCoords (GtkTextWindowType.WIDGET, mPopUpX, mPopUpY, xx, yy);
+
 		TextIter ti = new TextIter;
-		
+
 		getIterAtPosition (ti, trailing, xx, yy);
 
 		if(!ti.insideWord)return "";
@@ -341,23 +733,23 @@ class DOCUMENT : SourceView
 		if(!ti.startsWord())ti.backwardWordStart();
 		return ti.getSlice(tiend);
 	}
-		
+
 
     ///Returns any selected text
     @property string Selection()
     {
 		TextIter tistart = new TextIter;
 		TextIter tiend = new TextIter;
-		
+
 		if(getBuffer.getSelectionBounds(tistart, tiend))
 		{
 			return getBuffer.getText(tistart, tiend, false);
 		}
 		return null;
 	}
-		
-		
-	
+
+
+
 
 	this()
 	{
@@ -366,11 +758,11 @@ class DOCUMENT : SourceView
 		dui.AddIcon("gtk-no", Config.getString("ICONS", "tab_close", "$(HOME_DIR)/glade/cross-button.png"));
 
 		mTabXBtn  = new Button(StockID.NO, true);
-		
+
 		mTabXBtn.setBorderWidth(1);
 		mTabXBtn.setRelief(ReliefStyle.NONE);
 		mTabXBtn.setSizeRequest(24, 24);
-		
+
 		mTabXBtn.addOnClicked(&OnTabXButton);
 
 		mTabLabel = new Label("constructing");
@@ -382,18 +774,18 @@ class DOCUMENT : SourceView
 		ScrollWin.add(this);
 		ScrollWin.setPolicy(GtkPolicyType.AUTOMATIC, GtkPolicyType.AUTOMATIC);
 		ScrollWin.showAll();
-		
+
 		mPageWidget = ScrollWin;
 		setName("dcomposerdoc");
 	}
 
 	/**Basically connects signals.  Not done in constructor to ensure all objects (meaning Config for now)
 	 * have actually been created and exist.
-	 * */	
+	 * */
 	void Engage()
 	{
-		
-		
+
+
 		//what to do when Config keyfile changes
 		Config.Reconfig.connect(&Configure);
 
@@ -405,7 +797,7 @@ class DOCUMENT : SourceView
 
 		//to catch to location of where the popup menu starts
 		addOnPopupMenu(&KeyPopUpMenu);
-		addOnButtonPress (&CatchPopUpMenuLocation); 
+		addOnButtonPress (&CatchPopUpMenuLocation);
 
 		//this allows certain elements to see paste as a single insert vs an insert for each char
 		getBuffer.addOnPasteDone (delegate void (Clipboard cb, TextBuffer tb) {mInPastingProcess = false;});
@@ -438,11 +830,11 @@ class DOCUMENT : SourceView
 
 
 		//trying drag and drop
-		addOnDragDataReceived (&DragCatcher); 
-		
-		
+		addOnDragDataReceived (&DragCatcher);
+
+
 		UpdatePageTab();
-		
+
 		Configure();
 
 	}
@@ -452,7 +844,7 @@ class DOCUMENT : SourceView
 	{
 		//what to do here??
 	}
-	
+
 	/**
 	 * Returns a new virgin DOCUMENT
 	 * Empty of text and ready to go.
@@ -477,12 +869,12 @@ class DOCUMENT : SourceView
 		string Text;
 		try
 		{
-			
+
 			Text = ReadUTF8(FileName);  //remember this is not std.file.readText (because I can be dumb)
 		}
 		catch(Exception ex)
 		{
-			
+
 			auto msg = new MessageDialog(dui.GetWindow(), GtkDialogFlags.MODAL, GtkMessageType.ERROR, ButtonsType.OK,
             false, ex.msg);
 
@@ -492,8 +884,8 @@ class DOCUMENT : SourceView
             throw ex; //lets rest of dcomposer know there was an error
 		}
 
-		
-		
+
+
 		DOCUMENT Rval = new DOCUMENT;
 		Rval.mFileTimeStamp = timeLastModified(FileName);
 		Rval.mName = FileName;
@@ -501,7 +893,7 @@ class DOCUMENT : SourceView
 		Rval.getBuffer().beginNotUndoableAction();
 		Rval.getBuffer().setText(Text);
 		Rval.getBuffer().endNotUndoableAction();
-		Rval.getBuffer().setModified(false);      
+		Rval.getBuffer().setModified(false);
 		Rval.mInitialLine = LineNo;
 		Rval.Engage();
 
@@ -518,7 +910,7 @@ class DOCUMENT : SourceView
 	{
 		if(!Modified) return true;
 
-		auto ToSaveDiscardOrKeepOpen = new MessageDialog(dui.GetWindow(), DialogFlags.DESTROY_WITH_PARENT, GtkMessageType.QUESTION, ButtonsType.NONE, true, null); 
+		auto ToSaveDiscardOrKeepOpen = new MessageDialog(dui.GetWindow(), DialogFlags.DESTROY_WITH_PARENT, GtkMessageType.QUESTION, ButtonsType.NONE, true, null);
         ToSaveDiscardOrKeepOpen.setMarkup(Name ~ "\nHas unsaved changes.\nWhat do you wish to do?");
         ToSaveDiscardOrKeepOpen.addButton("Save Changes", cast(GtkResponseType) 1);
         ToSaveDiscardOrKeepOpen.addButton("Discard Changes", cast(GtkResponseType) 2);
@@ -589,10 +981,10 @@ class DOCUMENT : SourceView
         TextIter ti = new TextIter;
         getBuffer.getIterAtLine(ti, cast(int)Line);
 		auto mark = getBuffer.createSourceMark(null, "lineindicator", ti);
-		
+
 
         getBuffer.placeCursor(ti);
-        
+
         scrollToMark (mark, 0.01, true , 0.000, 0.500);
     }
 
@@ -630,15 +1022,15 @@ class DOCUMENT : SourceView
 
 	void HiliteFoundMatch(int Line, int start, int len)
     {
-		
+
         TextIter tstart = new TextIter;
         TextIter tend = new TextIter;
         TextIter lineiter = new TextIter;
 
-		
+
         getBuffer.getStartIter(tstart);
         getBuffer.getEndIter(tend);
-        
+
         getBuffer.removeTagByName("hiliteback", tstart, tend);
         getBuffer.removeTagByName("hilitefore", tstart, tend);
 
@@ -653,20 +1045,20 @@ class DOCUMENT : SourceView
 
 		if( (characters <  start) || (characters < start + len) ) return;
 
-         
+
         getBuffer.applyTagByName("hiliteback", tstart, tend);
         getBuffer.applyTagByName("hilitefore", tstart, tend);
     }
 
 
-	
-		
+
+
 	mixin Signal!(TextIter, string, TextBuffer) NewLine;
     mixin Signal!(TextIter, string, TextBuffer) CloseBrace;
     mixin Signal!(DOCUMENT, TextIter, string, SourceBuffer) TextInserted;
     mixin Signal!(string, string, int) BreakPoint;
 }
-	
+
 
 
 
@@ -675,10 +1067,10 @@ string ReadUTF8(string FileName)
 	bool Succeeded;
 
 	ubyte[] data = cast(ubyte[])read(FileName);
-    
-    if(try8(data))  return toUTF8(cast( char[])data);   
+
+    if(try8(data))  return toUTF8(cast( char[])data);
     if(try32(data)) return toUTF8(cast(dchar[])data);
-    throw new Exception("DComposer is limited opening to valid utf files only.\nEnsure " ~ baseName(FileName) ~ " is properly encoded.\nSorry for any inconvenience.");    
+    throw new Exception("DComposer is limited opening to valid utf files only.\nEnsure " ~ baseName(FileName) ~ " is properly encoded.\nSorry for any inconvenience.");
 }
 
 bool try8(const ubyte[] data)
@@ -701,6 +1093,6 @@ bool try32(const ubyte[] data)
 	return true;
 }
 
-	
+
 
 
