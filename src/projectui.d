@@ -1,17 +1,17 @@
 // projectui.d
-// 
+//
 // Copyright 2012 Anthony Goins <anthony@LinuxGen11>
-// 
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -84,7 +84,7 @@ class PROJECT_UI : ELEMENT
 
 
     Builder			    mProBuilder;
-    
+
 	ScrolledWindow			    mRootVBox;
 	Label 			    mTabLabel;
 
@@ -105,7 +105,7 @@ class PROJECT_UI : ELEMENT
     TextView		    mInformation;
 
     string              mProjBaseFolder;
-       
+
     //files
     HBox                mFilesHBox;
     LISTUI              mSrcList;
@@ -117,13 +117,13 @@ class PROJECT_UI : ELEMENT
 	CellRendererText    mFlagArg;
     HBox			    mConditionalsHBox;
 	LISTUI			    mVerList;
-	LISTUI			    mDbgList;    
+	LISTUI			    mDbgList;
     HBox			    mPathsHBox;
 	LISTUI			    mImpList;
 	LISTUI			    mExpList;
 
     //Linker
-	HBox			    mLinkerHBox;    
+	HBox			    mLinkerHBox;
 	LISTUI			    mLibList;
 	LISTUI			    mLLPList;
 
@@ -136,9 +136,9 @@ class PROJECT_UI : ELEMENT
     Entry               mPreBuild;
     Entry               mPostBuild;
     Entry               mRunArguments;
-    
-	
-   
+
+
+
 	AccelGroup		    mAccels;
 	ActionGroup 	    mActions;
 
@@ -146,7 +146,7 @@ class PROJECT_UI : ELEMENT
     bool                mSkipWatchingProject; //multiple connects and disconnect is causing an error
 
     public:
-    
+
     @property string Name() { return "PROJECT_UI";}
     @property string Information(){return "User interface to creating/maintain a D project";}
     @property bool   State(){return mState;}
@@ -169,7 +169,7 @@ class PROJECT_UI : ELEMENT
 
         mRootVBox           = cast(ScrolledWindow)    mProBuilder.getObject("scrolledwindow1");
         mTabLabel           = new           Label(Project.Name ~" project options");
-        
+
 
         mBtnApply           = cast(Button)  mProBuilder.getObject("button1");
         mBtnRevert          = cast(Button)  mProBuilder.getObject("button2");
@@ -191,7 +191,7 @@ class PROJECT_UI : ELEMENT
         mFlagStore          = cast(ListStore)mProBuilder.getObject("listflags");
 		mFlagToggle			= cast(CellRendererToggle)mProBuilder.getObject("cellrenderertoggle1");
 		mFlagArg			= cast(CellRendererText)mProBuilder.getObject("cellrenderertext5");
-        
+
         mConditionalsHBox   = cast(HBox)    mProBuilder.getObject("hbox3");
         mVerList            = new LISTUI("Versions (-version)", ListType.IDENTIFIERS,listgladefile);
 		mDbgList            = new LISTUI("Debugs (-debug)", ListType.IDENTIFIERS, listgladefile);
@@ -202,7 +202,7 @@ class PROJECT_UI : ELEMENT
 
         mLinkerHBox         = cast(HBox)    mProBuilder.getObject("hbox5");
 		mLibList            = new LISTUI("Libraries(-l)", ListType.FILES,listgladefile);
-		mLLPList            = new LISTUI("Library Paths(-L)", ListType.PATHS,listgladefile);            
+		mLLPList            = new LISTUI("Library Paths(-L)", ListType.PATHS,listgladefile);
 
         mMiscAlign          = cast(Alignment)mProBuilder.getObject("alignment3");
         mMiscList           = new LISTUI("Command line extras (-*)", ListType.IDENTIFIERS, listgladefile);
@@ -233,7 +233,7 @@ class PROJECT_UI : ELEMENT
         mFlagToggle.addOnToggled(delegate void(string x, CellRendererToggle t){TreeIter ti = new TreeIter(mFlagStore, x);Value gval = new Value;ti.getValue(0, gval);gval.setBoolean(!gval.getBoolean());mFlagStore.setValue(ti, 0, gval);});
         mFlagArg.addOnEdited(delegate void(string pth, string txt, CellRendererText t){ TreeIter ti = new TreeIter(mFlagStore, pth); mFlagStore.setValue(ti,2,txt);});
 
-        
+
 
         mBtnApply.addOnClicked(delegate void (Button X){SyncProjectToGui(); mSkipWatchingProject=true; Project.Save(); mSkipWatchingProject = false;});
 		mBtnHide.addOnClicked(delegate void (Button X){mRootVBox.hide();});
@@ -272,16 +272,16 @@ class PROJECT_UI : ELEMENT
     void EngageActions()
     {
         //new | open | save? | refresh symbols | build | run | run w/args | whoops forgot options
-		
-		dui.AddIcon("PROJECT_NEW",		Config.getString("ICONS", "project_new", "$(HOME_DIR)/glade/wooden-box-new.png")); 
+
+		dui.AddIcon("PROJECT_NEW",		Config.getString("ICONS", "project_new", "$(HOME_DIR)/glade/wooden-box-new.png"));
 		dui.AddIcon("PROJECT_OPEN",		Config.getString("ICONS", "project_open", "$(HOME_DIR)/glade/wooden-box-open.png"));
-		dui.AddIcon("PROJECT_CLOSE",	Config.getString("ICONS", "project_close", "$(HOME_DIR)/glade/wooden-box-close.png")); 
-		dui.AddIcon("PROJECT_OPTIONS",	Config.getString("ICONS", "project_options", "$(HOME_DIR)/glade/wooden-box--pencil.png")); 
-		dui.AddIcon("PROJECT_BUILD",	Config.getString("ICONS", "project_build", "$(HOME_DIR)/glade/wooden-box-gear.png")); 
-		dui.AddIcon("PROJECT_RUN",		Config.getString("ICONS", "project_run", "$(HOME_DIR)/glade/wooden-box-arrow.png")); 
-		dui.AddIcon("PROJECT_RUN_ARGS",	Config.getString("ICONS", "project_run_args", "$(HOME_DIR)/glade/wooden-box-label.png")); 
-		dui.AddIcon("PROJECT_REFRESH",	Config.getString("ICONS", "project_refresh", "$(HOME_DIR)/glade/wooden-box-refresh.png")); 
-		
+		dui.AddIcon("PROJECT_CLOSE",	Config.getString("ICONS", "project_close", "$(HOME_DIR)/glade/wooden-box-close.png"));
+		dui.AddIcon("PROJECT_OPTIONS",	Config.getString("ICONS", "project_options", "$(HOME_DIR)/glade/wooden-box--pencil.png"));
+		dui.AddIcon("PROJECT_BUILD",	Config.getString("ICONS", "project_build", "$(HOME_DIR)/glade/wooden-box-gear.png"));
+		dui.AddIcon("PROJECT_RUN",		Config.getString("ICONS", "project_run", "$(HOME_DIR)/glade/wooden-box-arrow.png"));
+		dui.AddIcon("PROJECT_RUN_ARGS",	Config.getString("ICONS", "project_run_args", "$(HOME_DIR)/glade/wooden-box-label.png"));
+		dui.AddIcon("PROJECT_REFRESH",	Config.getString("ICONS", "project_refresh", "$(HOME_DIR)/glade/wooden-box-refresh.png"));
+
 
         Action ProNewAct    = new Action("ProNewAct"    , "_New"            , "Create a new Project"                , "PROJECT_NEW");
         Action ProOpenAct   = new Action("ProOpenAct"   , "_Open"           , "Replace current project"             , "PROJECT_OPEN");
@@ -292,7 +292,7 @@ class PROJECT_UI : ELEMENT
         Action ProRunAct    = new Action("ProRunAct"    , "_Run"            , "Launch project application"          , "PROJECT_RUN");
         Action ProRunArgsAct= new Action("ProRunArgsAcg", "Run _with Args"  , "Launch project application with arguments", "PROJECT_RUN_ARGS");
 
-		
+
 
         ProNewAct           .addOnActivate(&New);
         ProOpenAct          .addOnActivate(&Open);
@@ -330,7 +330,7 @@ class PROJECT_UI : ELEMENT
 
         dui.AddMenuItem("_Project", ProOptsAct   .createMenuItem());
         dui.AddMenuItem("_Project",new SeparatorMenuItem()    );
-        
+
         dui.AddMenuItem("_Project", ProRefAct    .createMenuItem());
         dui.AddMenuItem("_Project", ProBuildAct  .createMenuItem());
         dui.AddMenuItem("_Project",new SeparatorMenuItem()    );
@@ -346,34 +346,32 @@ class PROJECT_UI : ELEMENT
         dui.AddToolBarItem(ProBuildAct  .createToolItem());
         dui.AddToolBarItem(ProRunAct    .createToolItem());
         dui.AddToolBarItem(ProRunArgsAct.createToolItem());
-        
+
         dui.AddToolBarItem(new SeparatorToolItem);
-        
+
     }
 
     void SyncGuiToProject()
     {
-        
         scope (exit)mSkipWatchingProject =false;
         mSkipWatchingProject = true;
-        
+
         TreeIter tmpIter = new TreeIter;
 
         //notebook tab label
-
         mTabLabel.setText("Project:"~Project.Name);
-        
+
 		//basics
 		mProjName.setText(Project.Name);
         mFolder.setText("");
-		mFolder.setText(baseName(Project.WorkingPath));
+		if(baseName(Project.WorkingPath) !is null)mFolder.setText(baseName(Project.WorkingPath));
+		else mFolder.setText("");
         //do I need to set mFullPath or will that handle it self??
         mTargetBox.setActive(Project.Target());
 
+
         string newText = (Project.GetCatList("DESCRIPTION") is null) ? "" : Project.GetCatList("DESCRIPTION");
         mInformation.getBuffer.setText(newText);
-
-    
 
         //files
         mSrcList.SetItems(Project[SRCFILES]);
@@ -389,13 +387,13 @@ class PROJECT_UI : ELEMENT
             mFlagStore.insert(tmpIter,0);
             mFlagStore.setValue(tmpIter, 0, gval);
             mFlagStore.setValue(tmpIter, 1, flag.CmdString);
-            
+
             mFlagStore.setValue(tmpIter, 2, flag.Argument);
             gval.setBoolean(cast(int)flag.HasAnArg);
             mFlagStore.setValue(tmpIter, 3, gval);
             mFlagStore.setValue(tmpIter, 4, flag.Brief);
         }
-        
+
 
         //compiler - conditionals
         mVerList.SetItems(Project[VERSIONS]);
@@ -414,8 +412,9 @@ class PROJECT_UI : ELEMENT
 
         //sundry -- custom build
         mUseCustomBuild.setActive(Project.UseCustomBuild);
-		mCustomBuild.setText(Project.CustomBuildCommand);
+
         if(Project.CustomBuildCommand is null) mCustomBuild.setText("");
+        else mCustomBuild.setText(Project.CustomBuildCommand);
 		mAutoCmdLine.setText(Project.BuildCommand);
 
         //sundry -- scripts
@@ -441,10 +440,10 @@ class PROJECT_UI : ELEMENT
         Project.WorkingPath = buildPath(mProjBaseFolder, mFolder.getText);
         Project.Target = cast(TARGET)mTargetBox.getActive();
         Project.SetList("DESCRIPTION",mInformation.getBuffer.getText);
-        
+
         Project.SetList(SRCFILES, mSrcList.GetFullItems);
         Project.SetList(RELFILES, mRelList.GetFullItems);
-        
+
         if(mFlagStore.getIterFirst(tmpIter))
         {
             Value gval = new Value;
@@ -453,7 +452,7 @@ class PROJECT_UI : ELEMENT
             bool    nustate;
             do
             {
-                
+
                 gval    = mFlagStore.getValue(tmpIter, 0, null); //0 = a boolean value for on/off of switch
                 nustate = cast(bool)gval.getBoolean();
                 key     = mFlagStore.getValueString(tmpIter, 1); //1 = the cmdline switch string
@@ -471,13 +470,13 @@ class PROJECT_UI : ELEMENT
         Project.SetList(LIBPATHS, mLLPList.GetFullItems);
 
         Project.SetList(MISC, mMiscList.GetFullItems);
-                
+
         Project.UseCustomBuild = cast(bool)mUseCustomBuild.getActive;
         Project.CustomBuildCommand = mCustomBuild.getText;
-        
+
         Project.SetList("PRE_BUILD_SCRIPTS", mPreBuild.getText);
         Project.SetList("POST_BUILD_SCRIPTS",mPostBuild.getText);
-        
+
         mSkipWatchingProject = false;
     }
 
@@ -509,9 +508,9 @@ class PROJECT_UI : ELEMENT
 		}
 
 		if(mSkipWatchingProject == false) SyncGuiToProject();
-		        
+
     }
-    
+
 
 
     //the following functions do little work
@@ -531,11 +530,11 @@ class PROJECT_UI : ELEMENT
         ff.addPattern("*.dpro");
         fcd.setFilter(ff);
         fcd.setCurrentFolder(Config.getString("PROJECT","last_open_dialog_folder", "./"));
-        
+
         int rt = fcd.run();
 		fcd.hide();
 		if(rt != ResponseType.GTK_RESPONSE_OK) return;
-        
+
         Project.Open(fcd.getFilename);
 
         Config.setString("PROJECT", "last_open_dialog_folder", fcd.getCurrentFolder());
@@ -552,7 +551,7 @@ class PROJECT_UI : ELEMENT
         mRootVBox.showAll();
         SyncGuiToProject();
         dui.GetCenterPane.setCurrentPage(mRootVBox);
-        mRootVBox.grabFocus();        
+        mRootVBox.grabFocus();
     }
 
     void Build(Action x)
@@ -564,7 +563,7 @@ class PROJECT_UI : ELEMENT
         tmpwindow.setCursor(watch);
         Display.getDefault.sync();
         watch.unref();
-        
+
         //restore default cursor
         scope(exit)tmpwindow.setCursor(null);
 
@@ -573,9 +572,9 @@ class PROJECT_UI : ELEMENT
         //save all and build
         dui.GetDocMan.SaveAll();
         Project.BuildMsg.emit(`BEGIN`);
-        Project.Build();        
+        Project.Build();
         Project.BuildMsg.emit(`END`);
-        
+
     }
 
     void BuildFile()
@@ -590,7 +589,7 @@ class PROJECT_UI : ELEMENT
 		Command ~= "-of"~Doc.ShortName.stripExtension ~ " " ~ Doc.Name;
 
 		Project.BuildMsg.emit(`BEGIN`);
-		Project.BuildMsg.emit(Command);   
+		Project.BuildMsg.emit(Command);
 
         std.stdio.File Process = File("tmp","w");
 
@@ -622,16 +621,16 @@ class PROJECT_UI : ELEMENT
 
         Log.Entry("Running ... " ~ ProcessCommand);
         foreach(string L; lines(Process) ) Log.Entry(chomp(L));//RunMsg.emit(chomp(L));
-    
+
         Process.close();
     }
-		
+
 
     void RunWithArgs(Action x)
     {
         dui.GetDocMan.SaveAll();
         Project.RunConcurrent(mRunArguments.getText);
-    }        
+    }
 
     void RefreshTags(Action x)
     {
@@ -641,7 +640,7 @@ class PROJECT_UI : ELEMENT
     void FixProjectPath(EditableIF EntryWidget)
     {
        auto tmpPath = buildPath(mProjBaseFolder, mFolder.getText, mProjName.getText);
-       
+
        tmpPath = defaultExtension(tmpPath, "dpro");
        mFullPath.setText("Projects full folder  : " ~ tmpPath);
     }
@@ -664,7 +663,7 @@ class PROJECT_UI : ELEMENT
     {
         return null;
     }
-        
+
 }
-        
+
 
