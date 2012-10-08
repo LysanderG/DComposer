@@ -385,7 +385,7 @@ class ASSISTANT_UI : ELEMENT
 			tmpObj.setProperty("statusbar-visible", 1);
 
 			auto tmpObj2 = new ObjectG(webkit_web_view_get_settings(mWebView));
-			tmpObj.setProperty("enable-scripts", 0);
+			tmpObj2.setProperty("enable-scripts", 0);
 		}
 		else
 		{
