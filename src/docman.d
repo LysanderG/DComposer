@@ -344,7 +344,7 @@ class DOCMAN
 	}
 	string GetSymbol()
 	{
-		if(Current !is null)return Current.Symbol;
+		if(Current !is null)return Current.Symbol();
 		return null;
 	}
 	int GetLineNo()

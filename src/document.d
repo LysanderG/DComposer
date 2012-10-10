@@ -59,6 +59,7 @@ import gtkc.gtk;
 import gdk.Event;
 import gdk.DragContext;
 import gdk.Color;
+import gdk.Rectangle;
 
 import gobject.ObjectG;
 import gobject.ParamSpec;
@@ -257,12 +258,11 @@ class DOCUMENT : SourceView
 
     void DragCatcher(GdkDragContext* Cntxt, int x, int y, GtkSelectionData* SelData, uint info, uint time, Widget user_data)
     {
-		//writeln("hello ", SelData);
+
 		auto dragctx = new DragContext(Cntxt);
 		auto xx = dragctx.listTargets();
 		while ( xx !is null)
 		{
-			//writeln(text(xx.data()));
 			xx = xx.next();
 		}
 	}
@@ -306,8 +306,32 @@ class DOCUMENT : SourceView
 	/**
 	*  Returns fully scoped symbol currently under cursor if any.
 	*/
-	@property string Symbol()
+	string Symbol()
 	{
+		TextIter  PlaceHolder;
+		auto CursorTI = new TextIter;
+		getBuffer.getIterAtMark(CursorTI, getBuffer.getInsert());
+
+		return Symbol(CursorTI, PlaceHolder);
+	}
+	/**
+	*  Returns fully scoped symbol currently under cursor if any.
+	*  Also returns TextIter at beginning of symbol.
+	*/
+	string Symbol(ref TextIter BeginsAt)
+	{
+		auto CursorTI = new TextIter;
+		getBuffer.getIterAtMark(CursorTI, getBuffer.getInsert());
+		return Symbol(CursorTI, BeginsAt);
+	}
+
+	/**
+	*  Returns fully scoped symbol at AtIter.
+	*  And where that symbols begins is returned in BeginsAtIter
+	*/
+	string Symbol(TextIter AtIter, ref TextIter BeginsAtIter)
+	{
+
 
 		bool SkipParensBack(ref TextIter ti)
 		{
@@ -340,6 +364,9 @@ class DOCUMENT : SourceView
 			dchar ch;
 			dchar LastCh = 0;
 			bool Terminate = false;
+
+			scope(exit) BeginsAtIter = ti.copy();
+
 
 			while (ti.backwardChar())
 			{
@@ -408,7 +435,7 @@ class DOCUMENT : SourceView
 			}
 			if((rv.length > 0) && (rv[0].isNumber)) rv = [0];
 
-			write ("lastch = ", LastCh, " -- ", rv);
+
 			return rv;
 		}
 
@@ -479,22 +506,12 @@ class DOCUMENT : SourceView
 
 				if(Terminate) break;
 			}while(ti.forwardChar());
-
-			writeln('~',rv, " -- ", LastCh, " = LastCh");
 			return rv;
 		}
 
 
-
-		auto cursorti = new TextIter;
-
-		getBuffer.getIterAtMark(cursorti, getBuffer.getInsert());
-
-
-		auto pre = ScanBack(cursorti.copy());
-		auto post = ScanFore(cursorti.copy());
-
-
+		auto pre = ScanBack(AtIter.copy());
+		auto post = ScanFore(AtIter.copy());
 
 		if((pre.length == 1) && (pre[0] == 0)) return ""; //basically an invalid symbol (starts with number)
 
@@ -725,14 +742,17 @@ class DOCUMENT : SourceView
 		 windowToBufferCoords (GtkTextWindowType.WIDGET, mPopUpX, mPopUpY, xx, yy);
 
 		TextIter ti = new TextIter;
+		TextIter tiFiller = new TextIter;
 
 		getIterAtPosition (ti, trailing, xx, yy);
 
-		if(!ti.insideWord)return "";
-		TextIter tiend = ti.copy();
-		tiend.forwardWordEnd();
-		if(!ti.startsWord())ti.backwardWordStart();
-		return ti.getSlice(tiend);
+		return Symbol(ti, tiFiller);
+
+		//if(!ti.insideWord)return "";
+		//TextIter tiend = ti.copy();
+		//tiend.forwardWordEnd();
+		//if(!ti.startsWord())ti.backwardWordStart();
+		//return ti.getSlice(tiend);
 	}
 
 
@@ -1054,6 +1074,21 @@ class DOCUMENT : SourceView
         getBuffer.applyTagByName("hilitefore", tstart, tend);
     }
 
+	void GetIterPosition(TextIter ti, out int xpos, out int ypos, out int xlen, out int ylen)
+	{
+        GdkRectangle gdkRect;
+        int winX, winY, OrigX, OrigY;
+
+        Rectangle LocationRect = new Rectangle(&gdkRect);
+        getIterLocation(ti, LocationRect);
+        bufferToWindowCoords(GtkTextWindowType.TEXT, gdkRect.x, gdkRect.y, winX, winY);
+        getWindow(GtkTextWindowType.TEXT).getOrigin(OrigX, OrigY);
+        xpos = winX + OrigX;
+        ypos = winY + OrigY;
+        xlen = gdkRect.width;
+        ylen = gdkRect.height;
+
+    }
 
 
 
