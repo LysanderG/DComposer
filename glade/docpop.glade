@@ -21,6 +21,7 @@
     </data>
   </object>
   <object class="GtkWindow" id="window1">
+    <property name="width_request">600</property>
     <property name="can_focus">False</property>
     <property name="border_width">2</property>
     <property name="type_hint">popup-menu</property>
@@ -49,10 +50,7 @@
               <object class="GtkTreeViewColumn" id="treeviewcolumn1">
                 <property name="title" translatable="yes">column</property>
                 <child>
-                  <object class="GtkCellRendererText" id="cellrenderertext1">
-                    <property name="width">200</property>
-                    <property name="ellipsize">end</property>
-                  </object>
+                  <object class="GtkCellRendererText" id="cellrenderertext1"/>
                   <attributes>
                     <attribute name="markup">0</attribute>
                   </attributes>

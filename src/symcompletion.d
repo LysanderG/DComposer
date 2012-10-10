@@ -83,9 +83,7 @@ class SYMBOL_COMPLETION : ELEMENT
         if(text.length > 1) return;
 
         TextIter WordStart = new TextIter;
-        WordStart = GetCandidate(ti);
-        string Candidate = WordStart.getText(ti);
-
+        string Candidate = doc.Symbol(ti.copy(), WordStart);
 
         DSYMBOL[] Possibles;
 
@@ -104,59 +102,11 @@ class SYMBOL_COMPLETION : ELEMENT
         }
 
         int xpos, ypos, xlen, ylen;
-        doc.GetIterPosition(WordStart, xpos, ypos, xlen, ylen);
+        doc.GetIterPosition(ti.copy(), xpos, ypos, xlen, ylen);
 
         dui.GetAutoPopUps.CompletionPush(Possibles, xpos, ypos, ylen);
 
     }
-
-
-    void IterGetPostion(DOCUMENT Doc, TextIter ti, out int xpos, out int ypos)
-    {
-        GdkRectangle gdkRect;
-        int winX, winY, OrigX, OrigY;
-
-        Rectangle LocationRect = new Rectangle(&gdkRect);
-        Doc.getIterLocation(ti, LocationRect);
-        Doc.bufferToWindowCoords(GtkTextWindowType.TEXT, gdkRect.x, gdkRect.y, winX, winY);
-        Doc.getWindow(GtkTextWindowType.TEXT).getOrigin(OrigX, OrigY);
-        xpos = winX + OrigX;
-        ypos = winY + OrigY + gdkRect.height;
-
-        int OrigXlen, OrigYlen;
-        Doc.getWindow(GtkTextWindowType.TEXT).getSize(OrigXlen, OrigYlen);
-        if((ypos + dui.GetAutoPopUps.Height) > (OrigY + OrigYlen))
-        {
-            ypos = ypos - gdkRect.height - dui.GetAutoPopUps.Height;
-            ypos *= -1;
-        }
-        return;
-    }
-
-
-    TextIter GetCandidate(TextIter ti)
-    {
-        bool GoForward = true;
-
-        string growingtext;
-        TextIter tstart = new TextIter;
-        tstart = ti.copy();
-        do
-        {
-            if(!tstart.backwardChar())
-            {
-                GoForward = false;
-                break;
-            }
-            growingtext = tstart.getText(ti);
-        }
-        while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_') || (growingtext[0] == '.'));
-        if(GoForward)tstart.forwardChar();
-
-        return tstart;
-
-    }
-
 
     void Configure()
     {

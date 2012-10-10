@@ -424,7 +424,7 @@ class AUTO_POP_UPS
     void Engage()
     {
 
-        mWinXlen = Config.getInteger("DOC_POP", "window_width", 400);
+        mWinXlen = Config.getInteger("DOC_POP", "window_width", 600);
         mWinYlen = Config.getInteger("DOC_POP", "window_heigth", 120);
         auto x   = Config.getInteger("DOC_POP", "window_opacity", 50);
 
