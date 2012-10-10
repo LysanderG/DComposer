@@ -1,17 +1,17 @@
 //      scopelist.d
-//      
+//
 //      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
+//
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      This program is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with this program; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -72,32 +72,37 @@ class SCOPE_LIST : ELEMENT
     {
         if (Doc is null ) return;
         if ((extension(Doc.Name) == ".d") || (extension(Doc.Name) == ".di"))
-        {   
+        {
 			Doc.TextInserted.connect(&WatchDoc);
 		}
     }
 
     void WatchDoc(DOCUMENT sv, TextIter ti, string text, SourceBuffer buffer)
     {
-        int xpos, ypos;
-        
+        int xpos, ypos, xlen, ylen;
+
         if (text != ".") return;
         if (!mEnabled) return;
         if (sv.Pasting) return;
 
-        
-        //pull out candidate
-        TextIter WordStart = new TextIter;
-        WordStart = GetCandidate(ti);
-        string Candidate2 = WordStart.getText(ti);
 
-        string Candidate = to!(string)(GetLongCandidate(ti));
+        //pull out candidate
+        //TextIter WordStart = new TextIter;
+        //WordStart = GetCandidate(ti);
+        //string Candidate2 = WordStart.getText(ti);
+//
+        //string Candidate = to!(string)(GetLongCandidate(ti));
+
+        ti.backwardChar();
+        TextIter TStart = new TextIter;
+
+		string Candidate = sv.Symbol(ti, TStart);
 
         if(Candidate.length < 1) return;
         DSYMBOL[] possibles = Symbols.Match(Candidate);
 
-        IterGetPostion(sv, ti, xpos, ypos);
-        dui.GetAutoPopUps.CompletionPush(possibles, xpos, ypos, STATUS_SCOPE);
+        sv.GetIterPosition(ti, xpos, ypos, xlen, ylen);
+        dui.GetAutoPopUps.CompletionPush(possibles, xpos, ypos, ylen, STATUS_SCOPE);
     }
 
     void IterGetPostion(DOCUMENT Doc, TextIter ti, out int xpos, out int ypos)
@@ -117,13 +122,13 @@ class SCOPE_LIST : ELEMENT
         {
             ypos = ypos - gdkRect.height - dui.GetAutoPopUps.Height;
         }
-        return;        
+        return;
     }
 
     TextIter GetCandidate(TextIter ti)
     {
         bool GoForward = true;
-        
+
         string growingtext;
         TextIter tstart = new TextIter;
         tstart = ti.copy();
@@ -138,15 +143,15 @@ class SCOPE_LIST : ELEMENT
         }
         while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_') || (growingtext[0] == '.'));
         if(GoForward)tstart.forwardChar();
-        
+
         return tstart;
-        
+
     }
 
     dstring GetLongCandidate(TextIter ti)
     {
 
-            
+
         dchar[127] Buffer;
         int index = 126;
         auto frontTI = ti.copy();
@@ -164,13 +169,13 @@ class SCOPE_LIST : ELEMENT
 			frontTI.backwardChar();//skip the first ).
 			while( Pdepth > 0)
 			{
-				
+
 				dchar tchar = frontTI.getChar();
 				if (tchar == ')') Pdepth ++;
 				if (tchar == '(') Pdepth --;
 				if (!frontTI.backwardChar()) break;
 			}
-			CurChar = frontTI.getChar();                
+			CurChar = frontTI.getChar();
 		}
 		void SkipSpaces()
 		{
@@ -181,7 +186,7 @@ class SCOPE_LIST : ELEMENT
             index--;
             if(CurChar == ')') SkipParens();
             if( (CurChar == ' ') || (CurChar == '\t')) SkipSpaces();
-            
+
             Buffer[index] = CurChar;
             if(!frontTI.backwardChar()) break;
 
@@ -198,10 +203,10 @@ class SCOPE_LIST : ELEMENT
         if (character == '.') return true;
 
         return false;
-    }         
+    }
 
     public:
-    
+
     this()
     {
         mName = "SCOPE_LIST";
@@ -211,23 +216,23 @@ class SCOPE_LIST : ELEMENT
         mPrefPage = new SCOPE_LIST_PAGE;
     }
 
-        
+
     @property string Name() { return mName;}
     @property string Information(){ return mInfo;}
     @property bool   State(){return mState;}
     @property void   State(bool nuState)
     {
         mState = nuState;
-        
+
         if(mState)  Engage();
         else        Disengage();
     }
 
-        
+
 
     void Engage()
     {
-        
+
         dui.GetDocMan.Event.connect(&WatchForNewDocument);
         Config.Reconfig.connect(&Configure);
         Configure();

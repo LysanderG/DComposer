@@ -252,7 +252,10 @@ class DOCUMENT : SourceView
         if(text == "\n") NewLine.emit(ti, text, getBuffer);
         if(text == "}" ) CloseBrace.emit(ti, text, getBuffer);
 
-        TextInserted.emit(this, ti, text, getBuffer);
+		dui.Status.push(0, (Pasting?"Pasting":"not Pasting"));
+        TextInserted.emit(this, ti.copy(), text, getBuffer);
+        mInPastingProcess = false;
+
     }
 
 
@@ -421,7 +424,7 @@ class DOCUMENT : SourceView
 
 					default :
 					{
-												if(ch.isSpace)
+												if((ch.isSpace) || (ch == '\t'))
 												{
 													if(LastCh == '(') break;
 													if(LastCh == '.') break;
@@ -492,7 +495,7 @@ class DOCUMENT : SourceView
 
 					default :
 					{
-											if(ch.isSpace)
+											if((ch.isSpace) || (ch == '\t'))
 											{
 												if(LastCh == ')') break;
 												if(LastCh == '.') break;

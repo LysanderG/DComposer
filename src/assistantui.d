@@ -161,23 +161,17 @@ class ASSISTANT_UI : ELEMENT
 
     void CatchSymbol(DSYMBOL Symbol)
     {
+		mList = [Symbol];
+
         TreeIter ti = new TreeIter;
         GC.disable();
         mPossibleStore.clear();
         //fill combobox
         mPossibleStore.append(ti);
         mPossibleStore.setValue(ti,0, SimpleXML.escapeText(Symbol.Path,-1));
-        mSignature.setText(Symbol.Type);
-        mChildrenStore.clear();
-        foreach (sym; Symbol.Children)
-        {
-            ti = new TreeIter;
-            mChildrenStore.append(ti);
-            mChildrenStore.setValue(ti, 0, SimpleXML.escapeText(sym.Name,-1));
-        }
         GC.enable();
         mPossibles.setActive(0);
-        UpdateAssistant();
+        //UpdateAssistant();
     }
 
 

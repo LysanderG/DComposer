@@ -23,7 +23,7 @@
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
     <property name="border_width">2</property>
-    <property name="type">popup</property>
+    <property name="type_hint">popup-menu</property>
     <property name="accept_focus">False</property>
     <property name="opacity">0.66000000000000003</property>
     <property name="ubuntu_no_proxy">True</property>
@@ -49,7 +49,10 @@
               <object class="GtkTreeViewColumn" id="treeviewcolumn1">
                 <property name="title" translatable="yes">column</property>
                 <child>
-                  <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                  <object class="GtkCellRendererText" id="cellrenderertext1">
+                    <property name="width">200</property>
+                    <property name="ellipsize">end</property>
+                  </object>
                   <attributes>
                     <attribute name="markup">0</attribute>
                   </attributes>
@@ -61,7 +64,10 @@
                 <property name="title" translatable="yes">column</property>
                 <property name="expand">True</property>
                 <child>
-                  <object class="GtkCellRendererText" id="cellrenderertext2"/>
+                  <object class="GtkCellRendererText" id="cellrenderertext2">
+                    <property name="width">200</property>
+                    <property name="ellipsize">end</property>
+                  </object>
                   <attributes>
                     <attribute name="text">1</attribute>
                   </attributes>

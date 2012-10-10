@@ -1,17 +1,17 @@
 //      calltips.d
-//      
+//
 //      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
+//
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      This program is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with this program; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -50,14 +50,12 @@ import gdk.Rectangle;
 
 
 class CALL_TIPS : ELEMENT
-{    
+{
     private:
 
     string      mName;
     string      mInfo;
     bool        mState;
-
-    string[]    mStack; //y is this still here?
 
     DOCUMENT[] ConnectedDocs;
 
@@ -68,50 +66,6 @@ class CALL_TIPS : ELEMENT
     {
 		mEnabled = Config.getBoolean("CALL_TIPS", "enabled", true);
 	}
-		
-    
-
-    void IterGetPostion(DOCUMENT Doc, TextIter ti, out int xpos, out int ypos)
-    {
-        GdkRectangle gdkRect;
-        int winX, winY, OrigX, OrigY;
-
-        Rectangle LocationRect = new Rectangle(&gdkRect);
-        Doc.getIterLocation(ti, LocationRect);
-        Doc.bufferToWindowCoords(GtkTextWindowType.TEXT, gdkRect.x, gdkRect.y, winX, winY);
-        Doc.getWindow(GtkTextWindowType.TEXT).getOrigin(OrigX, OrigY);
-        xpos = winX + OrigX;
-        ypos = winY + OrigY + gdkRect.height;
-        int OrigXlen, OrigYlen;
-        Doc.getWindow(GtkTextWindowType.TEXT).getSize(OrigXlen, OrigYlen);
-        if((ypos + dui.GetAutoPopUps.Height) > (OrigY + OrigYlen))
-        {
-            ypos = ypos - gdkRect.height - dui.GetAutoPopUps.Height;
-        }        
-        return;        
-    }
-
-    TextIter GetCandidate(TextIter ti)
-    {
-        bool GoForward = true;
-        
-        string growingtext;
-        TextIter tstart = new TextIter;
-        tstart = ti.copy();
-        do
-        {
-            if(!tstart.backwardChar())
-            {
-                GoForward = false;
-                break;
-            }
-            growingtext = tstart.getText(ti);
-        }
-        while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_') || (growingtext[0] == '.'));
-        if(GoForward)tstart.forwardChar();
-        
-        return tstart;        
-    }
 
     public:
 
@@ -122,14 +76,14 @@ class CALL_TIPS : ELEMENT
 
         mPrefPage = new CALL_TIPS_PREF;
     }
-    
+
     @property string Name(){ return mName;}
     @property string Information(){return mInfo;}
     @property bool   State(){ return mState;}
     @property void   State(bool nuState)
     {
         mState = nuState;
-        
+
         if(mState)  Engage();
         else        Disengage();
     }
@@ -149,17 +103,16 @@ class CALL_TIPS : ELEMENT
         mState = false;
         dui.GetDocMan.Event.disconnect(&WatchForNewDocument);
         foreach(Doc; ConnectedDocs) Doc.TextInserted.disconnect(&WatchDoc);
-        mStack.length = 0;
         ConnectedDocs.length = 0;
         Log.Entry("Disengaged "~mName~"\t\telement.");
-                
+
     }
 
     void WatchForNewDocument(string EventId, DOCUMENT Doc)
     {
         if (Doc is null ) return;
         if ((extension(Doc.Name) == ".d") || (extension(Doc.Name) == ".di"))
-        {   
+        {
 			Doc.TextInserted.connect(&WatchDoc);
 			ConnectedDocs ~= Doc;
 		}
@@ -168,34 +121,34 @@ class CALL_TIPS : ELEMENT
     void WatchDoc(DOCUMENT sv , TextIter ti, string Text, SourceBuffer Buffer)
     {
         if(sv.Pasting) return;
-        if(!mEnabled) return;	
-		
+        if(!mEnabled) return;
+
         switch(Text)
         {
             case "(" :
             {
-                ti.backwardChar();
-                auto TStart = GetCandidate(ti);                
 
-                string Candidate = TStart.getText(ti);
-                
-                //if(Candidate.length < 1) return;
-                auto Possibles = Symbols.MatchCallTips(Candidate);
+				TextIter TStart = new TextIter;
+				ti.backwardChar();//to go back before the '('
+				string Candidate = sv.Symbol(ti, TStart);
+				writeln(Candidate);
 
-                DSYMBOL[] FuncPossibles;
+				auto Possibles = Symbols.MatchCallTips(Candidate);
+				DSYMBOL[] FuncPossibles;
 
-                foreach (dsym; Possibles)
+				foreach (dsym; Possibles)
                 {
                     if(dsym.Kind != "function") continue;
                     if( !endsWith(Candidate, dsym.Scope[$-1])) continue;
                     FuncPossibles ~= dsym;
                 }
 
-                int xpos, ypos;
-                IterGetPostion(sv, TStart, xpos, ypos);
+                int xpos, ypos, xlen, ylen;
+                sv.GetIterPosition(ti, xpos, ypos, xlen, ylen);
 
-                dui.GetAutoPopUps.TipPush(FuncPossibles, xpos, ypos);
+                dui.GetAutoPopUps.TipPush(FuncPossibles, xpos, ypos, ylen);
                 break;
+
             }
             case ")" :
             {
@@ -210,8 +163,8 @@ class CALL_TIPS : ELEMENT
     {
         return mPrefPage;
     }
-    
-}  
+
+}
 /*
 *
 * Ok.. I was going to do a stack of candidates push one when ( was inserted and pop on )

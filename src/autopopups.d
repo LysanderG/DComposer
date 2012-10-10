@@ -1,17 +1,17 @@
 // untitled.d
-// 
+//
 // Copyright 2012 Anthony Goins <anthony@LinuxGen11>
-// 
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -70,14 +70,16 @@ private struct DATA_STORE
 
     long        mXPos;
     long        mYPos;
+    long 		mYLen;
 
-    this(DSYMBOL[] nuPossibles, long Xpos, long Ypos, bool tip = false)
+    this(DSYMBOL[] nuPossibles, long Xpos, long Ypos, long Ylen, bool tip = false)
     {
         mMatches = nuPossibles;
 
-        
+
         mXPos = Xpos;
         mYPos = Ypos;
+        mYLen = Ylen;
 
         mStore = new ListStore([GType.STRING, GType.STRING, GType.STRING]);
         GtkStore = mStore.getListStoreStruct();
@@ -87,28 +89,28 @@ private struct DATA_STORE
         sort!("a.Name < b.Name")(mMatches);
         if(tip) //this is a call tip needs to show the call signature
         {
-            
+
             foreach(match; mMatches)
             {
                 if(match.Kind != "function") continue;
                 mStore.append(mIter);
                 auto x = countUntil(match.Type, "(");
                 string signature = match.Type[0..x] ~" "~ match.Name ~" "~ match.Type[x..$];
-                mStore.setValue(mIter, 0, std.xml.decode(signature));
-                mStore.setValue(mIter, 1, std.xml.decode(match.Path));
+                mStore.setValue(mIter, 0, std.xml.encode(signature));
+                mStore.setValue(mIter, 1, std.xml.encode(match.Path));
                 //mStore.setValue(mIter, 2, std.xml.decode(match.Comment));
-                
+
             }
             return;
         }
 
-        
+
         foreach(match; mMatches)
         {
 			match.Name = encode(match.Name);
             mStore.append(mIter);
-            mStore.setValue(mIter, 0, std.xml.decode(match.GetIcon() ~ match.Name));
-            mStore.setValue(mIter, 1, std.xml.decode(match.Path));
+            mStore.setValue(mIter, 0, match.GetIcon() ~ std.xml.encode( match.Name));
+            mStore.setValue(mIter, 1, std.xml.encode(match.Path));
             //mStore.setValue(mIter, 2, std.xml.decode(match.Comment));
 
         }
@@ -130,11 +132,11 @@ class AUTO_POP_UPS
     int         mWinXlen;
     int         mWinYlen;
     double      mWinOpacity;
-    
+
     Window      mCompletionWin;
     DATA_STORE  mCompletionStore;
     int         mCompletionStatus;
-    TreeView    mCompletionView;  
+    TreeView    mCompletionView;
 
     Window                      mTipsWin;
     DATA_STORE[MAX_TIP_DEPTH]   mTipsStore;
@@ -143,14 +145,14 @@ class AUTO_POP_UPS
 
 
 
+	immutable int padding = 3;
 
-    
     void WatchForNewDocuments(string EventType, DOCUMENT DocXIf)
     {
         auto DocX = cast(DOCUMENT)DocXIf;
         if(EventType != "AppendDocument") return;
 
-        DocX.addOnFocusOut(delegate bool (GdkEventFocus* EvntFocus, Widget wydjit) {Kill();return false;}); 
+        DocX.addOnFocusOut(delegate bool (GdkEventFocus* EvntFocus, Widget wydjit) {Kill();return false;});
         DocX.addOnKeyPress(&CaptureDocumentKeys);
         DocX.addOnButtonPress(&CaptureDocumentButtons);
     }
@@ -158,23 +160,23 @@ class AUTO_POP_UPS
     bool CaptureDocumentKeys(GdkEventKey * EvntKey, Widget Wydjit)
     {
         if (!PopUpVisible()) return false;
-        
+
         DOCUMENT docX = cast(DOCUMENT) Wydjit;
-        
-        
+
+
         switch (EvntKey.keyval)
         {
             case GdkKeysyms.GDK_Escape      :   Kill(); return true;
-            
+
             case GdkKeysyms.GDK_Up          :
             case GdkKeysyms.GDK_KP_Up       :   MoveSelectionUp(Wydjit);return true;
-            
+
             case GdkKeysyms.GDK_Down        :
             case GdkKeysyms.GDK_KP_Down     :   MoveSelectionDown(Wydjit);return true;
-            
+
             case GdkKeysyms.GDK_Tab         :   (EvntKey.state & GdkModifierType.SHIFT_MASK) ? MoveSelectionUp(Wydjit) : MoveSelectionDown(Wydjit); return true;
             case GdkKeysyms.GDK_ISO_Left_Tab:   MoveSelectionUp(Wydjit); return true;
-            
+
             case GdkKeysyms.GDK_Return      :
             case GdkKeysyms.GDK_KP_Enter    :
             {
@@ -207,16 +209,7 @@ class AUTO_POP_UPS
 
         TreePath tp = new TreePath;
         TreeViewColumn tvc = new TreeViewColumn;
-        
-        LocalView.getCursor(tp, tvc);
-        if(tp is null)
-        {
-            tp = new TreePath(true);
-            LocalView.setCursor(tp, null, 0);
-            return;
-        }  
-        tp.next();
-        LocalView.setCursor(tp, null, 0);
+
         LocalView.getCursor(tp, tvc);
         if(tp is null)
         {
@@ -224,6 +217,17 @@ class AUTO_POP_UPS
             LocalView.setCursor(tp, null, 0);
             return;
         }
+        tp.next();
+        LocalView.setCursor(tp, null, 0);
+        tp.free();
+        LocalView.getCursor(tp, tvc);
+        if(tp is null)
+        {
+            tp = new TreePath(true);
+            LocalView.setCursor(tp, null, 0);
+            return;
+        }
+        tp.free();
     }
 
     void MoveSelectionUp(Widget Wydjit)
@@ -231,7 +235,7 @@ class AUTO_POP_UPS
         TreeView LocalView;
         if(mCompletionStatus == STATUS_OFF) LocalView = mTipsView;
         else LocalView =  mCompletionView;
-        
+
         TreePath tp = new TreePath;
         TreeViewColumn tvc = new TreeViewColumn;
 
@@ -243,20 +247,20 @@ class AUTO_POP_UPS
             return;
         }
 
-        if(tp.prev()) LocalView.setCursor(tp, null, 0);        
+        if(tp.prev()) LocalView.setCursor(tp, null, 0);
     }
 
     void CompleteText(Widget OriginDoc)
     {
 
         if(!mCompletionWin.getVisible()) return;
-        
-        DOCUMENT DocX = cast(DOCUMENT) OriginDoc;        
-        
+
+        DOCUMENT DocX = cast(DOCUMENT) OriginDoc;
+
         mCompletionStore.mIter = mCompletionView.getSelectedIter();
-        
+
         string repl = mCompletionStore.mStore.getValueString(mCompletionStore.mIter, 0);
-        
+
 
         TextIter ti = new TextIter;
 
@@ -266,11 +270,11 @@ class AUTO_POP_UPS
 
         TextIter tiStart = ti.copy();
         tiStart.backwardWordStart();
-        if(mCompletionStatus == STATUS_COMPLETION) DocX.getBuffer.delet(tiStart, ti);                
-        
+        if(mCompletionStatus == STATUS_COMPLETION) DocX.getBuffer.delet(tiStart, ti);
+
         DocX.getBuffer().insert(ti, tple[1]);
         DocX.Pasting = false;
-        CompletionPop();        
+        CompletionPop();
     }
 
     void Present()
@@ -279,11 +283,13 @@ class AUTO_POP_UPS
         {
             mTipsWin.hide();
             mCompletionView.setModel(mCompletionStore.GetModel());
-            mCompletionView.setCursor(new TreePath("0"), null, false);
-            mCompletionWin.resize(mWinXlen, mWinYlen);
+            //mCompletionWin.resize(mWinXlen, mWinYlen);
             mCompletionWin.setOpacity(mWinOpacity);
-            mCompletionWin.move(mCompletionStore.mXPos, mCompletionStore.mYPos);
+            //mCompletionWin.move(mCompletionStore.mXPos, mCompletionStore.mYPos);
             mCompletionWin.showAll();
+            //ResizeCompletionWindow(mCompletionWin);
+
+            mCompletionView.setCursor(new TreePath("0"), null, false);
             emit(mCompletionStore.mMatches[0]);
             return;
         }
@@ -291,14 +297,14 @@ class AUTO_POP_UPS
         {
             mCompletionWin.hide();
             mTipsWin.hide();
-            
+
             if (mTipsIndex < 0)  return;
 
             mTipsView.setModel(mTipsStore[mTipsIndex].GetModel());
             mTipsView.setCursor(new TreePath(true), null, false);
-            mTipsWin.resize(mWinXlen, mWinYlen);
+            //mTipsWin.resize(mWinXlen, mWinYlen);
             mTipsWin.setOpacity(mWinOpacity);
-            mTipsWin.move(mTipsStore[mTipsIndex].mXPos, mTipsStore[mTipsIndex].mYPos);
+            //mTipsWin.move(mTipsStore[mTipsIndex].mXPos, mTipsStore[mTipsIndex].mYPos);
             if(mTipsStore[mTipsIndex].mMatches.length > 0)
             {
                 mTipsWin.showAll();
@@ -308,7 +314,7 @@ class AUTO_POP_UPS
         }
     }
 
-    
+
     void UpdateComments(TreeView tv)
     {
         int indx;
@@ -321,15 +327,73 @@ class AUTO_POP_UPS
             indx = xes[0];
             emit(mTipsStore[mTipsIndex].mMatches[indx]);
         }
-        else 
+        else
         {
             auto Path = mCompletionView.getSelection().getSelectedRows(nix);
             if(Path.length < 1) return;
             int[] xes = Path[0].getIndices();
             indx = xes[0];
             emit(mCompletionStore.mMatches[indx]);
-        }        
+        }
     }
+
+
+    void ResizeCompletionWindow(Widget x)
+    {
+		int WinYPos;
+		int WinHeight;
+
+		int OrigXlen, OrigYlen, OrigX, OrigY;
+		dui.GetDocMan.Current.getWindow(GtkTextWindowType.TEXT).getOrigin(OrigX, OrigY);
+        dui.GetDocMan.Current.getWindow(GtkTextWindowType.TEXT).getSize(OrigXlen, OrigYlen);
+
+		GtkRequisition sr;
+		mCompletionView.sizeRequest(sr);
+
+		if(sr.height < mWinYlen)WinHeight = sr.height + 5;
+		else WinHeight = mWinYlen;
+
+		if( (mCompletionStore.mYPos + WinHeight + mCompletionStore.mYLen) < (OrigYlen + OrigY))
+		{
+			WinYPos = cast(int)(mCompletionStore.mYPos + mCompletionStore.mYLen);
+		}
+		else
+		{
+			WinYPos = cast(int)(mCompletionStore.mYPos - (WinHeight + padding));
+		}
+
+		mCompletionWin.resize(mWinXlen, WinHeight);
+		mCompletionWin.move(mCompletionStore.mXPos, WinYPos);
+	}
+
+	void ResizeTipWindow(Widget x)
+	{
+		int WinYPos;
+		int WinHeight;
+
+		int OrigXlen, OrigYlen, OrigX, OrigY;
+		dui.GetDocMan.Current.getWindow(GtkTextWindowType.TEXT).getOrigin(OrigX, OrigY);
+        dui.GetDocMan.Current.getWindow(GtkTextWindowType.TEXT).getSize(OrigXlen, OrigYlen);
+
+		GtkRequisition sr;
+		mTipsView.sizeRequest(sr);
+
+		if(sr.height < mWinYlen)WinHeight = sr.height;
+		else WinHeight = mWinYlen;
+
+		if( (mTipsStore[mTipsIndex].mYPos + WinHeight + mTipsStore[mTipsIndex].mYLen) < (OrigYlen + OrigY))
+		{
+			WinYPos = cast(int)(mTipsStore[mTipsIndex].mYPos + mTipsStore[mTipsIndex].mYLen);
+		}
+		else
+		{
+			WinYPos = cast(int)(mTipsStore[mTipsIndex].mYPos - (WinHeight + padding));
+		}
+
+		mTipsWin.resize(mWinXlen, WinHeight);
+		mTipsWin.move(mTipsStore[mTipsIndex].mXPos, WinYPos);
+	}
+
 //********************************************************************************************************************
 //********************************************************************************************************************
 //********************************************************************************************************************
@@ -351,7 +415,10 @@ class AUTO_POP_UPS
         mTipsIndex = -1;
 
         mTipsView.addOnCursorChanged (&UpdateComments);
-        mCompletionView.addOnCursorChanged(&UpdateComments); 
+        mCompletionView.addOnCursorChanged(&UpdateComments);
+
+        mCompletionWin.addOnShow(&ResizeCompletionWindow);
+        mTipsWin.addOnShow(&ResizeTipWindow);
     }
 
     void Engage()
@@ -362,7 +429,7 @@ class AUTO_POP_UPS
         auto x   = Config.getInteger("DOC_POP", "window_opacity", 50);
 
         mWinOpacity = (cast(double)x)/100;
-        
+
         dui.GetDocMan.Event.connect(&WatchForNewDocuments);
         Log.Entry("Engaged AUTO_POP_UPS");
     }
@@ -374,26 +441,26 @@ class AUTO_POP_UPS
     }
 
 
-    void CompletionPush(DSYMBOL[] Possibles, long xpos, long ypos, int Status = STATUS_COMPLETION)
+    void CompletionPush(DSYMBOL[] Possibles, long xpos, long ypos, int ylen, int Status = STATUS_COMPLETION)
     {
         //if( (mCompletionStatus != Status) && ( Possibles.length < 1)) return;
         CompletionPop();
         if(Possibles.length < 1) return;
-        
+
         mCompletionStatus = Status;
-        mCompletionStore = DATA_STORE(Possibles, xpos, ypos);
+        mCompletionStore = DATA_STORE(Possibles, xpos, ypos, ylen);
         Present();
-        
+
     }
 
     void CompletionPop()
     {
         mCompletionStatus = STATUS_OFF;
         Present();
-        
+
     }
 
-    void TipPush(DSYMBOL[] Possibles, long xpos, long ypos)
+    void TipPush(DSYMBOL[] Possibles, long xpos, long ypos, long ylen)
     {
         CompletionPop();
         mTipsIndex++;
@@ -402,9 +469,9 @@ class AUTO_POP_UPS
             mTipsIndex = MAX_TIP_DEPTH;
             return;
         }
-        mTipsStore[mTipsIndex] = DATA_STORE(Possibles, xpos, ypos, true);
+        mTipsStore[mTipsIndex] = DATA_STORE(Possibles, xpos, ypos, ylen, true);
         Present();
-        
+
     }
 
     void TipPop()
@@ -423,7 +490,20 @@ class AUTO_POP_UPS
 
     int Height()
     {
-        return mWinYlen;
+		int x, y;
+
+		if(mCompletionWin.getVisible())
+		{
+			mCompletionWin.getSize(x,y);
+			return y;
+		}
+
+		if(mTipsWin.getVisible())
+		{
+			mTipsWin.getSize(x,y);
+			return y;
+		}
+		return 0;
     }
 
     //mixin Signal!(string, string);

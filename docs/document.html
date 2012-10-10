@@ -36,9 +36,21 @@
 <dd>Returns current line number<br><br>
 
 </dd>
-<dt><big>@property string <u>Symbol</u>();
+<dt><big>string <u>Symbol</u>();
 </big></dt>
 <dd>Returns fully scoped symbol currently under cursor if any.<br><br>
+
+</dd>
+<dt><big>string <u>Symbol</u>(ref TextIter <i>BeginsAt</i>);
+</big></dt>
+<dd>Returns fully scoped symbol currently under cursor if any.
+  Also returns TextIter at beginning of symbol.<br><br>
+
+</dd>
+<dt><big>string <u>Symbol</u>(TextIter <i>AtIter</i>, ref TextIter <i>BeginsAtIter</i>);
+</big></dt>
+<dd>Returns fully scoped symbol at <i>AtIter</i>.
+  And where that symbols begins is returned in <i>BeginsAtIter</i><br><br>
 
 </dd>
 <dt><big>@property string <u>Word</u>();

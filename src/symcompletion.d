@@ -1,17 +1,17 @@
 //      symcompletion.d
-//      
+//
 //      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
+//
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      This program is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with this program; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -62,7 +62,7 @@ class SYMBOL_COMPLETION : ELEMENT
     {
         if (Doc is null ) return;
         if ((extension(Doc.Name) == ".d") || (extension(Doc.Name) == ".di"))
-        {   
+        {
 			Doc.TextInserted.connect(&WatchDoc);
 			mConnections ~= Doc;
 		}
@@ -73,41 +73,41 @@ class SYMBOL_COMPLETION : ELEMENT
 		if(mEnabled == false) return;
         if(doc.Pasting) return;
         if (text == ".") return;
-		
+
 		if((text == "(") || (text == ")"))
         {
             dui.GetAutoPopUps.CompletionPop();
             return;
         }
-		
-        if(text.length > 1) return; 
-        
+
+        if(text.length > 1) return;
+
         TextIter WordStart = new TextIter;
         WordStart = GetCandidate(ti);
         string Candidate = WordStart.getText(ti);
 
 
         DSYMBOL[] Possibles;
-        
+
         if(Candidate.length < mMinCompletionLength)
         {
             Possibles.length = 0;
         }
         else
         {
-            //Possibles = Symbols.Match(Candidate);
-            foreach(index, sym; Symbols.Match(Candidate))
-            {
-				if(index == 0) {Possibles ~= sym; continue;}
-				if(!Possibles.canFind!"a.Name == b.Name"(sym)) Possibles ~= sym;
-			}
+            Possibles = Symbols.Match(Candidate);
+            //foreach(index, sym; Symbols.Match(Candidate))
+            //{
+			//	if(index == 0) {Possibles ~= sym; continue;}
+			//	if(!Possibles.canFind!"a.Name == b.Name"(sym)) Possibles ~= sym;
+			//}
         }
-        
-        int xpos, ypos;
-        IterGetPostion(doc, WordStart, xpos, ypos);
 
-        dui.GetAutoPopUps.CompletionPush(Possibles, xpos, ypos);
-        
+        int xpos, ypos, xlen, ylen;
+        doc.GetIterPosition(WordStart, xpos, ypos, xlen, ylen);
+
+        dui.GetAutoPopUps.CompletionPush(Possibles, xpos, ypos, ylen);
+
     }
 
 
@@ -128,15 +128,16 @@ class SYMBOL_COMPLETION : ELEMENT
         if((ypos + dui.GetAutoPopUps.Height) > (OrigY + OrigYlen))
         {
             ypos = ypos - gdkRect.height - dui.GetAutoPopUps.Height;
+            ypos *= -1;
         }
-        return;        
+        return;
     }
-        
+
 
     TextIter GetCandidate(TextIter ti)
     {
         bool GoForward = true;
-        
+
         string growingtext;
         TextIter tstart = new TextIter;
         tstart = ti.copy();
@@ -151,18 +152,18 @@ class SYMBOL_COMPLETION : ELEMENT
         }
         while( (isAlphaNum(growingtext[0])) || (growingtext[0] == '_') || (growingtext[0] == '.'));
         if(GoForward)tstart.forwardChar();
-        
+
         return tstart;
-        
+
     }
-        
-            
+
+
     void Configure()
     {
 		mMinCompletionLength = Config.getInteger("SYMBOLS", "minimum_completion_length", 4);
 		mEnabled = Config.getBoolean("SYMBOLS", "completion_enabled", true);
 	}
-    
+
     public:
 
     this()
@@ -170,10 +171,10 @@ class SYMBOL_COMPLETION : ELEMENT
         mName = "SYMBOL_COMPLETION";
         mInfo = "Retrieve any symbol for auto/code/symbol/tag completion (except for pesky local stuff)";
         mState = false;
-        
+
         mPrefPage = new SYMBOL_COMPLETION_PAGE;
     }
-    
+
     @property string Name() {return mName;}
     @property string Information(){return mInfo;}
     @property bool   State() {return mState;}
@@ -195,7 +196,7 @@ class SYMBOL_COMPLETION : ELEMENT
 
         Log.Entry("Engaged "~Name()~"\telement.");
     }
-        
+
 
     void Disengage()
     {
@@ -209,8 +210,8 @@ class SYMBOL_COMPLETION : ELEMENT
     PREFERENCE_PAGE GetPreferenceObject()
     {
         return mPrefPage;
-    } 
-   
+    }
+
 }
 
 class SYMBOL_COMPLETION_PAGE : PREFERENCE_PAGE
@@ -228,7 +229,7 @@ class SYMBOL_COMPLETION_PAGE : PREFERENCE_PAGE
 		mMinLength.setRange(1, 1024);
 		mMinLength.setIncrements(1, -1);
 		mMinLength.setValue(Config.getInteger("SYMBOLS", "minimum_completion_length", 4));
-		
+
 		mFrame.showAll();
 	}
 
@@ -243,6 +244,6 @@ class SYMBOL_COMPLETION_PAGE : PREFERENCE_PAGE
 		mEnable.setActive(Config.getBoolean("SYMBOLS", "completion_enabled", true));
 		mMinLength.setValue(Config.getInteger("SYMBOLS", "minimum_completion_length", 4));
 	}
-	
-	
+
+
 }
