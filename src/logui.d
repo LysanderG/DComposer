@@ -1,17 +1,17 @@
 //      lugui.d
-//      
+//
 //      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
+//
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      This program is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with this program; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -43,18 +43,18 @@ import glib.MessageLog;
 
 
 
-ELEMENT AcquireElement()
-{
-    return new LOG_UI;
-}
+//ELEMENT AcquireElement()
+//{
+//    return new LOG_UI;
+//}
 
 class LOG_UI : ELEMENT
 {
     private:
-    
+
 	string 				mName;
     string              mInformation;
-    
+
 	ScrolledWindow		mScroller;
 	TreeView			mTreeView;
 	ListStore			mList;
@@ -79,15 +79,15 @@ class LOG_UI : ELEMENT
         mInformation = "Element to capture log output and redirect to a pretty window";
 
         mState = true;
-    		
+
 	}
 
 
 	void Engage()
 	{
-		
-        MessageLog.logSetHandler ( null, LogLevelFlags.G_LOG_LEVEL_CRITICAL|LogLevelFlags.G_LOG_LEVEL_WARNING, &GtkMsgCatcher, null); 
-        MessageLog.logSetHandler ("Gtk", LogLevelFlags.G_LOG_LEVEL_CRITICAL|LogLevelFlags.G_LOG_LEVEL_WARNING, &GtkMsgCatcher, null); 
+
+        MessageLog.logSetHandler ( null, LogLevelFlags.G_LOG_LEVEL_CRITICAL|LogLevelFlags.G_LOG_LEVEL_WARNING, &GtkMsgCatcher, null);
+        MessageLog.logSetHandler ("Gtk", LogLevelFlags.G_LOG_LEVEL_CRITICAL|LogLevelFlags.G_LOG_LEVEL_WARNING, &GtkMsgCatcher, null);
 
 		mScroller = new ScrolledWindow;
 		mTreeView = new TreeView;
@@ -96,7 +96,7 @@ class LOG_UI : ELEMENT
 
 		TreeViewColumn tvc  = new TreeViewColumn("Message", new CellRendererText, "markup", 0);
 
-		mTreeView.modifyFont("DroidSansMono",12);
+		mTreeView.modifyFont("DroidSansMono",8);
 		mTreeView.appendColumn(tvc);
 		mTreeView.setRulesHint(1);
 		mTreeView.setModel(mList);
@@ -105,10 +105,10 @@ class LOG_UI : ELEMENT
 
 		mScroller.showAll();
 		dui.GetExtraPane.prependPage(mScroller, mLabel);
-        dui.GetExtraPane.setTabReorderable ( mScroller, true); 
+        dui.GetExtraPane.setTabReorderable ( mScroller, true);
 
         dui.GetExtraPane.setCurrentPage(mScroller);
-		
+
 		Log.connect(&CatchLog);
 
         //catch up on missed log entries before we turned on this visual log viewer
@@ -125,7 +125,7 @@ class LOG_UI : ELEMENT
         Log.Entry("Engaged "~Name()~"\t\t\telement.");
 
         scope(failure)Log.Entry("Failed to Engage LogUI element","Error");
-		
+
 	}
 
 	void Disengage()
@@ -135,7 +135,7 @@ class LOG_UI : ELEMENT
         Log.Entry("Disengaged "~mName~"\t\telement.");
 		Log.disconnect(&CatchLog);
 	}
-		
+
 
 
 	void CatchLog(string mesg, string level, string mod)
@@ -143,11 +143,11 @@ class LOG_UI : ELEMENT
 		//todo make sure to remove or escape "&" from markup text --- causes weird artifacts
 		//dmd "usage output" prints both <= and & both are used by markup text causing gtk-warnings and bad output to treeview lines
         //std.array.replaceInPlace should do it
-        
+
 		if(level == "Error") mesg = `<span foreground="red">`~mesg~ "</span>";
 		if(level == "Debug") mesg = `<span foreground="blue">`~mesg~ "</span>";
 		auto trit = new TreeIter;
-		
+
 		mList.append(trit);
 		mList.setValue(trit, 0, mesg);
 		mTreeView.setModel(mList);

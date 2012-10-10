@@ -17,18 +17,11 @@
 //     f Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 //      MA 02110-1301, USA.
 
-
-
 module dcomposer;
-
-import std.json;
-import std.stdio;
-import core.stdc.stdlib;
 
 import dcore;
 import ui;
 import elements;
-
 
 int main(string[] args)
 {
