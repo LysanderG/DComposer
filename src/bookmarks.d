@@ -40,110 +40,6 @@ immutable int BOOKMARK_CATEGORY_PRIORITY = 5;
 immutable (char[]) BOOKMARK_CATEGORY_NAME = "bookmark";
 
 
-//class MARK
-//{
-//
-//	private:
-//
-//	string 		mFileName;
-//	SourceMark 	mSrcMark;
-//
-//	MARK		mPrev;
-//	MARK		mNext;
-//
-//	MARK		mFront;
-//
-//	bool		mAttachedToBuffer;
-//	int			mUnAttachedLineNumber;
-//
-//	public:
-//	this(string MarkId, string filename = null)
-//	{
-//		mSrcMark = new SourceMark(MarkId, BOOKMARK_CATEGORY_NAME);
-//		if(filename is null) filename = dui.GetDocMan.GetDocument.Name;
-//		mFileName = filename;
-//
-//		mPrev = null;
-//		mNext = null;
-//		mFront = this;
-//	}
-//
-//	void Add(MARK mark, int LineToAttachWhen = 0)
-//	{
-//		mark.mNext = mNext;
-//		mark.mPrev = this;
-//
-//		mNext.mPrev = mark;
-//		mNext = mark;
-//
-//		TextIter ti = new TextIter;
-//
-//		dui.GetDocMan.GetDocument.getBuffer.getIterAtMark(ti, dui.GetDocMan.GetDocument.getBuffer.getInsert());
-//
-//		dui.GetDocMan.GetDocument.getBuffer.addMark (mark.Mark, ti);
-//	}
-//
-//	void Remove()
-//	{
-//		mNext.Prev = mPrev;
-//		mPrev.Next = mNext;
-//
-//		writeln(mNext.Prev.Name, " ------ ", mPrev.Next.Name);
-//	}
-//
-//	@property SourceMark Mark(){return mSrcMark;}
-//	@property MARK Next(){ return mNext;}
-//	@property MARK Prev(){ return mPrev;}
-//
-//	@property void Next(MARK X){mNext = X;}
-//	@property void Prev(MARK X){mPrev = X;}
-//
-//	@property string Name()
-//	{
-//		return mSrcMark.getName();
-//	}
-//
-//	@property string FileName(){return mFileName;}
-//
-//	@property int LineNumber()
-//	{
-//
-//		TextIter ti = new TextIter;
-//		if(mSrcMark.getBuffer is null) return 0;
-//		mSrcMark.getBuffer.getIterAtMark(ti, mSrcMark);
-//		auto rv = ti.getLine();
-//
-//
-//		return rv;
-//	}
-//
-//	@property bool empty()
-//	{
-//		if(mFront.Name == "tail_anchor")
-//		{
-//			mFront = mFront.Next; //should be root_anchor
-//			mFront = this;
-//			return true;
-//		}
-//		return false;
-//
-//	}
-//
-//	@property ref MARK front()
-//	{
-//		//if(Name == "root_anchor")mFront = mNext;
-//		return  mFront;
-//	}
-//
-//	void popFront()
-//	{
-//		mFront = mFront.mNext;
-//	}
-//
-//
-//}
-//
-
 class BOOKMARKS : ELEMENT
 {
 	private:
@@ -220,15 +116,10 @@ class BOOKMARKS : ELEMENT
 
 	void Next(Action X)
 	{
-		//write ("--------");
 		assert(mMarkCurrent !is null);
-		//write ("11111111");
 		if(mMarkRoot.mNext == mMarkLast)return;
-		//write ("22222222");
 		mMarkCurrent = mMarkCurrent.Increment();
-		//write ("33333333");
 		mMarkCurrent.Goto();
-		//write("444444444");
 
 	}
 
@@ -250,7 +141,6 @@ class BOOKMARKS : ELEMENT
 		{
 			if(canFind(Project[SRCFILES], x.GetFileName) || canFind(Project[RELFILES], x.GetFileName))results ~= format("%s:%s",x.GetFileName, x.GetLine);
 		}
-		//if(results.length < 1) return; //this was preventing erasing all bookmarks
 		Project[BOOKMARK_CATEGORY_NAME] = results;
 	}
 
@@ -498,15 +388,12 @@ class DOG_EAR
 
 	@property ref DOG_EAR front()
 	{
-		//write("     front is ", mFront.mID);
-
 		if(mFront.mID == "root_anchor")mFront = mFront.mNext;
 		return  mFront;
 	}
 
 	void popFront()
 	{
-		//write("   poping ", mFront.mID);
 		mFront = mFront.mNext;
 	}
 
