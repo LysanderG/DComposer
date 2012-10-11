@@ -1,17 +1,17 @@
 // bookmarks.d
-// 
+//
 // Copyright 2012 Anthony Goins <neontotem@gmail.com>
-// 
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -44,7 +44,7 @@ immutable (char[]) BOOKMARK_CATEGORY_NAME = "bookmark";
 //{
 //
 //	private:
-//	
+//
 //	string 		mFileName;
 //	SourceMark 	mSrcMark;
 //
@@ -72,15 +72,15 @@ immutable (char[]) BOOKMARK_CATEGORY_NAME = "bookmark";
 //	{
 //		mark.mNext = mNext;
 //		mark.mPrev = this;
-//		
+//
 //		mNext.mPrev = mark;
 //		mNext = mark;
 //
 //		TextIter ti = new TextIter;
 //
 //		dui.GetDocMan.GetDocument.getBuffer.getIterAtMark(ti, dui.GetDocMan.GetDocument.getBuffer.getInsert());
-//		
-//		dui.GetDocMan.GetDocument.getBuffer.addMark (mark.Mark, ti);		
+//
+//		dui.GetDocMan.GetDocument.getBuffer.addMark (mark.Mark, ti);
 //	}
 //
 //	void Remove()
@@ -97,7 +97,7 @@ immutable (char[]) BOOKMARK_CATEGORY_NAME = "bookmark";
 //
 //	@property void Next(MARK X){mNext = X;}
 //	@property void Prev(MARK X){mPrev = X;}
-//	
+//
 //	@property string Name()
 //	{
 //		return mSrcMark.getName();
@@ -113,7 +113,7 @@ immutable (char[]) BOOKMARK_CATEGORY_NAME = "bookmark";
 //		mSrcMark.getBuffer.getIterAtMark(ti, mSrcMark);
 //		auto rv = ti.getLine();
 //
-//		
+//
 //		return rv;
 //	}
 //
@@ -151,7 +151,7 @@ class BOOKMARKS : ELEMENT
 	string 			mName;
 	string			mInfo;
 	bool			mState;
-	
+
 	DOG_EAR			mMarkRoot;
 	DOG_EAR			mMarkLast;
 	DOG_EAR			mMarkCurrent;
@@ -161,7 +161,7 @@ class BOOKMARKS : ELEMENT
 	Action			mGotoNextMarkAct;
 
 	string			mNameTracker;
-	
+
 
 	void WatchDocMan(string Event, DOCUMENT doc)
 	{
@@ -177,8 +177,8 @@ class BOOKMARKS : ELEMENT
 			TextIter tiend = new TextIter;
 			doc.getBuffer.getStartIter(tistart);
 			doc.getBuffer.getEndIter(tiend);
-			doc.getBuffer.removeSourceMarks(tistart, tiend, BOOKMARK_CATEGORY_NAME);			
-		}	
+			doc.getBuffer.removeSourceMarks(tistart, tiend, BOOKMARK_CATEGORY_NAME);
+		}
 	}
 
 
@@ -203,13 +203,13 @@ class BOOKMARKS : ELEMENT
 			mMarkCurrent = mMarkRoot;
 			return;
 		}
-		
+
 		Add();
 	}
 
 	void Add()
 	{
-		DOG_EAR nuMark = new DOG_EAR(NameTracker, dui.GetDocMan.GetName(), dui.GetDocMan.GetLineNo());		
+		DOG_EAR nuMark = new DOG_EAR(NameTracker, dui.GetDocMan.GetName(), dui.GetDocMan.GetLineNo());
 		nuMark.Attach(dui.GetDocMan.GetDocument());
 		if(mMarkCurrent is mMarkLast) mMarkRoot.InsertAfter(nuMark);
 		else mMarkCurrent.InsertAfter(nuMark);
@@ -229,7 +229,7 @@ class BOOKMARKS : ELEMENT
 		//write ("33333333");
 		mMarkCurrent.Goto();
 		//write("444444444");
-		
+
 	}
 
 	void Prev(Action X)
@@ -251,7 +251,7 @@ class BOOKMARKS : ELEMENT
 			if(canFind(Project[SRCFILES], x.GetFileName) || canFind(Project[RELFILES], x.GetFileName))results ~= format("%s:%s",x.GetFileName, x.GetLine);
 		}
 		//if(results.length < 1) return; //this was preventing erasing all bookmarks
-		Project[BOOKMARK_CATEGORY_NAME] = results;	
+		Project[BOOKMARK_CATEGORY_NAME] = results;
 	}
 
 	void Load()
@@ -267,8 +267,8 @@ class BOOKMARKS : ELEMENT
 			auto  rsplit = r.findSplit(":");
 			PlaceHolder = new DOG_EAR(NameTracker, rsplit[0], to!int(rsplit[2]));
 			mMarkCurrent.InsertAfter(PlaceHolder);
-			mMarkCurrent = PlaceHolder;			
-		}		
+			mMarkCurrent = PlaceHolder;
+		}
 	}
 
 	void Clear()
@@ -299,20 +299,20 @@ class BOOKMARKS : ELEMENT
         mInfo = "Manage and navigate bookmarks.";
 
         Clear();
-       
+
     }
-    
+
     @property string Name(){ return mName;}
     @property string Information(){return mInfo;}
     @property bool   State(){ return mState;}
     @property void   State(bool nuState)
     {
         mState = nuState;
-        
+
         if(mState)  Engage();
         else        Disengage();
     }
-	
+
 
 
     void Engage()
@@ -323,9 +323,9 @@ class BOOKMARKS : ELEMENT
 
 		dui.AddIcon("MARK_CREATE",		Config.getString("ICONS", "mark_create", "$(HOME_DIR)/glade/book-open-bookmark.png"));
 		dui.AddIcon("MARK_NEXT",		Config.getString("ICONS", "mark_next"  , "$(HOME_DIR)/glade/book-open-next.png"));
-		dui.AddIcon("MARK_PREV",		Config.getString("ICONS", "mark_prev"  , "$(HOME_DIR)/glade/book-open-previous.png")); 
+		dui.AddIcon("MARK_PREV",		Config.getString("ICONS", "mark_prev"  , "$(HOME_DIR)/glade/book-open-previous.png"));
 		dui.AddIcon("MARK_ICON",		Config.getString("ICONS", "mark_icon"  , "$(HOME_DIR)/glade/bookmark.png"));
-		
+
 		mCreateMarkAct		= new Action("MarkCreateAct"	, "_Book Mark"  , "Toggle Bookmark"	, "MARK_CREATE");
 		mGotoNextMarkAct	= new Action("MarkNextAct"  	, "_Next" , "goto next bookmark"	, "MARK_NEXT");
 		mGotoPrevMarkAct	= new Action("MarkPrevAct"  	, "_Prev" , "goto previous bookmark"	, "MARK_PREV");
@@ -342,7 +342,7 @@ class BOOKMARKS : ELEMENT
         dui.Actions().addActionWithAccel(mGotoNextMarkAct, "<Ctrl>comma");
         dui.Actions().addActionWithAccel(mGotoPrevMarkAct, "<Ctrl>period");
 
-        dui.AddMenuItem("_Navigate", mCreateMarkAct	.createMenuItem());
+        dui.AddMenuItem("_Navigate", mCreateMarkAct	.createMenuItem(), 5);
         dui.AddMenuItem("_Navigate", mGotoNextMarkAct.createMenuItem());
         dui.AddMenuItem("_Navigate", mGotoPrevMarkAct.createMenuItem());
 
@@ -350,7 +350,7 @@ class BOOKMARKS : ELEMENT
         dui.AddToolBarItem(mGotoNextMarkAct.createToolItem());
         dui.AddToolBarItem(mGotoPrevMarkAct.createToolItem());
 
-		
+
 
 		Log.Entry("Engaged "~Name()~"\t\telement.");
 	}
@@ -383,11 +383,11 @@ class BOOKMARKS : ELEMENT
 class DOG_EAR
 {
 	private:
-	
+
 	string 		mID;
 	string		mFileName;
 	int			mLine;
-	
+
 
 	SourceMark	mSrcMark;
 
@@ -411,11 +411,11 @@ class DOG_EAR
 
 	void Attach(DOCUMENT Doc)
 	{
-		
+
 		TextIter ti = new TextIter;
 
 		Doc.getBuffer.getIterAtMark(ti, Doc.getBuffer.getInsert());
-		
+
 		if(mSrcMark is null)mSrcMark = Doc.getBuffer.createSourceMark(mID, BOOKMARK_CATEGORY_NAME, ti);
 		else
 		{
@@ -429,7 +429,7 @@ class DOG_EAR
 
 		mark.mNext = mNext;
 		mark.mPrev = this;
-		
+
 		mNext.mPrev = mark;
 		mNext = mark;
 	}
@@ -455,7 +455,7 @@ class DOG_EAR
 			Attach(dui.GetDocMan.GetDocument);
 			return;
 		}
-			
+
 		if(mID == "root_anchor") return;
 		if(mID == "tail_anchor") return;
 		TextIter ti = new TextIter;
@@ -463,7 +463,7 @@ class DOG_EAR
 		dui.GetDocMan.Open(mFileName, ti.getLine());
 		Attach(dui.GetDocMan.GetDocument);
 	}
-	
+
 
 	int GetLine()
 	{
@@ -499,7 +499,7 @@ class DOG_EAR
 	@property ref DOG_EAR front()
 	{
 		//write("     front is ", mFront.mID);
-		
+
 		if(mFront.mID == "root_anchor")mFront = mFront.mNext;
 		return  mFront;
 	}
@@ -513,7 +513,7 @@ class DOG_EAR
 
 	DOG_EAR Increment()
 	{
-		auto rv = this.mNext;		
+		auto rv = this.mNext;
 		if(rv.mID == "tail_anchor") rv = rv.mNext;
 		if(rv.mID == "root_anchor") rv = rv.mNext;
 		return rv;
@@ -528,7 +528,7 @@ class DOG_EAR
 		return rv;
 	}
 }
-	
-		
-	
-	
+
+
+
+
