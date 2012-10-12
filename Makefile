@@ -1,10 +1,3 @@
-#Hopefully this Makefile will build DComposer.
-#Wish me luck
-
-#comment out not to use libwebkitgtk-1.0   can not use 3.0 with gtk 2
-WEBKITGTK = true
-
-# ok whats th diff := and =?
 DC = dmd
 
 TARGET    = dcomposer
@@ -13,59 +6,56 @@ DSOURCES  = $(shell echo src/*.d)
 INC_PATHS = -I/usr/include/d
 LIBRARIES = -L-lgtkdsv -L-lgtkd -L-lvte -L-lutil
 
-DFLAGS = -of$(TARGET) -D -Dddocs -odobjdir -J. 
+DFLAGS = -of$(TARGET) -odobjdir -J.
 RELEASEFLAGS = -release
-DEBUGFLAGS = -g -debug
+DEBUGFLAGS = -gc -debug
 
 ifeq ("Linux", $(shell uname))
 	LIBRARIES = $(LIBRARIES) -L-ldl
 endif
 
-PREFIX = $(DESTDIR)/usr/local
-BINDIR = $(PREFIX)/bin
+prefix = $(DESTDIR)/usr/local
+BINDIR = $(prefix)/bin
 
-ifdef WEBKITGTK
-LIBRARIES := $(LIBRARIES) -L-lwebkitgtk-1.0
-DFLAGS := $(DFLAGS) -version=WEBKIT
-endif
+webkit: LIBRARIES := $(LIBRARIES) -L-lwebkitgtk-1.0
+webkit: DFLAGS := $(DFLAGS) -version=WEBKIT
+
+release: DFLAGS += -release
+debug: DFLAGS += -g -debug
+
 
 
 all: $(TARGET)
 
-$(TARGET): bindir  systemdir $(DSOURCES)
-	@echo Building $(TARGET) debug
-	$(DC) $(DFLAGS) $(DEBUGFLAGS) $(INC_PATHS) $(LIBRARIES) $(DSOURCES)	
-
-
-release: bindir systemdir
-	@echo Building $(TARGET) release 
-	$(DC) $(DFLAGS) $(RELEASEFLAGS) $(INC_PATHS) $(LIBRARIES) $(DSOURCES)	
+$(TARGET):  $(DSOURCES)
+	$(
+	$(DC) $(DFLAGS) $(INC_PATHS) $(LIBRARIES) $(DSOURCES)
 
 install: $(TARGET)
 	mkdir -p $(BINDIR)
 	install  -s $(TARGET) $(BINDIR)/$(TARGET)
-	mkdir -p $(PREFIX)/share/dcomposer/glade/ 
-	install -m644  glade/*    $(PREFIX)/share/dcomposer/glade/
-	mkdir -p $(PREFIX)/share/dcomposer/docs/  
-	install -m644  docs/*    $(PREFIX)/share/dcomposer/docs/
-	mkdir -p $(PREFIX)/share/dcomposer/flags/ 
-	install -m644  flags/*    $(PREFIX)/share/dcomposer/flags/
-	mkdir -p $(PREFIX)/share/dcomposer/styles/
-	install -m644  styles/*    $(PREFIX)/share/dcomposer/styles/
-	mkdir -p $(PREFIX)/share/dcomposer/tags/	
-	install -m644  tags/*    $(PREFIX)/share/dcomposer/tags/
-	install -m644  elementlist $(PREFIX)/share/dcomposer/
-	install -m755  childrunner.sh $(PREFIX)/share/dcomposer/
-    
+	mkdir -p $(prefix)/share/dcomposer/glade/
+	install -m644  glade/*    $(prefix)/share/dcomposer/glade/
+	mkdir -p $(prefix)/share/dcomposer/docs/
+	install -m644  docs/*    $(prefix)/share/dcomposer/docs/
+	mkdir -p $(prefix)/share/dcomposer/flags/
+	install -m644  flags/*    $(prefix)/share/dcomposer/flags/
+	mkdir -p $(prefix)/share/dcomposer/styles/
+	install -m644  styles/*    $(prefix)/share/dcomposer/styles/
+	mkdir -p $(prefix)/share/dcomposer/tags/
+	install -m644  tags/*    $(prefix)/share/dcomposer/tags/
+	install -m644  elementlist $(prefix)/share/dcomposer/
+	install -m755  childrunner.sh $(prefix)/share/dcomposer/
+
 	xdg-icon-resource install --size 128 glade/stolen2.png dcomposer-Icon
-	xdg-desktop-menu install --novendor dcomposer.desktop 
+	xdg-desktop-menu install --novendor dcomposer.desktop
 	su $(SUDO_USER) -p -c "xdg-desktop-icon install --novendor dcomposer.desktop"
-	
+
 uninstall:
 	rm  -f $(BINDIR)/$(TARGET)
-	rm -Rf $(PREFIX)/share/$(TARGET)/
+	rm -Rf $(prefix)/share/$(TARGET)/
 	rm -rf ~/.config/$(TARGET)/
-	
+
 	xdg-icon-resource uninstall --size 128 dcomposer-Icon
 	xdg-desktop-menu uninstall dcomposer.desktop
 	xdg-desktop-icon uninstall dcomposer.desktop
@@ -78,12 +68,4 @@ clean:
 	rm -f $(TARGET)
 
 
-
-.PHONY:  all  release install uninstall clean 
-
-bindir:
-	echo -n $(BINDIR) > bindir
-
-
-systemdir:
-	echo -n $(PREFIX) > systemdir
+.PHONY:  all install uninstall clean
