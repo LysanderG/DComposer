@@ -630,6 +630,7 @@ class PROJECT_UI : ELEMENT
     {
         dui.GetDocMan.SaveAll();
         Project.RunConcurrent(mRunArguments.getText);
+        //Project.Run(mRunArguments.getText);
     }
 
     void RefreshTags(Action x)

@@ -36,9 +36,12 @@ import core.runtime;
 
 import glib.KeyFile;
 
-string DCOMPOSER_COPYRIGHT;
-
+static string DCOMPOSER_COPYRIGHT;
+//static string DCOMPOSER_VERSION;
+//static string DCOMPOSER_PREFIX;
 mixin(import(".build.info"));
+
+
 
 string HOME_DIR ;
 string SYSTEM_DIR;
@@ -49,6 +52,7 @@ string SYSTEM_DIR;
 //so I made this function and call it from dcore.this
 void PseudoStaticThis()
 {
+
 	DCOMPOSER_COPYRIGHT = "Copyright 2011 Anthony Goins";
 	HOME_DIR = "$(HOME_DIR)/";
 	SYSTEM_DIR  = "$(SYSTEM_DIR)/";

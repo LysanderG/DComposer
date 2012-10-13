@@ -1,17 +1,17 @@
 // project.d
-// 
+//
 // Copyright 2012 Anthony Goins <anthony@LinuxGen11>
-// 
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -56,8 +56,8 @@ class FLAG
     string      m_Brief;                    //'brief' description output for user
     string      m_String;                   //actual string to add to dmd
     string      m_Argument;                 //the ONE argument (if any) for the flag
-    
-    
+
+
     public:
 
 	this()
@@ -69,7 +69,7 @@ class FLAG
 		m_HasArgument = HasArg;
         m_Brief = Brief;
         m_String = String;
-        m_Argument = Argument;     
+        m_Argument = Argument;
     }
 
     void Reset()
@@ -77,21 +77,21 @@ class FLAG
 		m_On = false;
 		m_Argument = " ";
 	}
-    
+
     @property
     {
 		void State(bool NuState) { m_On = NuState;}
 		bool State() {return m_On;}
-		
+
 		bool HasAnArg() {return m_HasArgument;}
 		void InitHasArg(bool DoesIt) { m_HasArgument = DoesIt;}
-		
+
 		string Brief() { return m_Brief;}
 		void Brief(string s) {m_Brief = s;}
-        
+
 		string CmdString() {return m_String;}
 		void CmdString(string s) {m_String = s;}
-		
+
 		void   Argument(string Arg) {if (m_HasArgument) m_Argument = Arg;}
 		string Argument() { return m_Argument;}
 	}
@@ -151,10 +151,10 @@ struct LISTS
 
     void RemoveData(string Key, string Item)
     {
-        if(Key !in mLists) return;		
+        if(Key !in mLists) return;
 		LIST tmp;
 		foreach( i; mLists[Key]) if ( i != Item) tmp ~= i;
-		mLists[Key] = tmp.dup;		
+		mLists[Key] = tmp.dup;
 	}
 
     void Zero()
@@ -166,7 +166,7 @@ struct LISTS
 
 
 enum TARGET:int { NULL = 0, UNDEFINED, APP, SHARED, STATIC, OBJECT, OTHER }
-enum :string { SRCFILES = "srcfiles", RELFILES = "relfiles", LIBFILES = "libfiles" , IMPPATHS = "imppaths" , LIBPATHS = "libpaths" , JPATHS = "jpaths" , VERSIONS = "versions" , DEBUGS = "debugs", MISC = "misc"} 
+enum :string { SRCFILES = "srcfiles", RELFILES = "relfiles", LIBFILES = "libfiles" , IMPPATHS = "imppaths" , LIBPATHS = "libpaths" , JPATHS = "jpaths" , VERSIONS = "versions" , DEBUGS = "debugs", MISC = "misc"}
 
 
 
@@ -178,11 +178,11 @@ class PROJECT
 
     TARGET          mTarget;                                //what kind of proj this object is (null == no proj loaded)
 
-    string          mCompiler;                              //dmd gdmd ldc 
+    string          mCompiler;                              //dmd gdmd ldc
 
     ulong           mVersion;                               //match file version (can we open or convert .dpro)
     string			mDmdId;									//version string (as spit out by dmd) compatible with flags
-    
+
 
     FLAG[string]	mFlags;                                 //all cmd line params w/ 1 or less arguments
     LISTS           mList;                                  //lists of proj related stuff --srcfiles libfiles paths versions other cmd line args ...
@@ -201,7 +201,7 @@ class PROJECT
 			exit(127);
 		}
         scope(success)Log.Entry("Flags file opened successfully");
-        
+
 		auto jstring = readText(FlagFile);
 		auto jval = parseJSON(jstring);
 		//json file should be an array of obj -> each is {"brief":string, "cmdstring":string, "HasArg": true|false}
@@ -233,7 +233,7 @@ class PROJECT
 
     public :
 
-    
+
 
     this()                                                  //ctor
     {
@@ -241,7 +241,7 @@ class PROJECT
 		mCustomBuildCommand = "";
         mTarget = TARGET.NULL;
         mVersion = PROJECT_VERSION;
-        
+
     }
 
 
@@ -262,7 +262,7 @@ class PROJECT
 		mChildRunner = "sh " ~ Config.ExpandPath("$(HOME_DIR)/childrunner.sh") ~ " ";
         Log.Entry("Engaged PROJECT");
     }
-    
+
     void Disengage()                                        //dcore disengage
     {
 
@@ -275,21 +275,21 @@ class PROJECT
     void New()                                              //start a new project with default settings (or just open a default file?)
     {
 		Event.emit(ProEvent.Creating);
-        Close();       
+        Close();
         mTarget = TARGET.UNDEFINED;
-        Event.emit(ProEvent.Created);        
-    }        
-        
+        Event.emit(ProEvent.Created);
+    }
+
     void Open(string pfile)                                             //open a .dpro file and we're off
     {
         Event.emit(ProEvent.Opening);
         Close();
-        
 
-		scope(exit) Event.emit(ProEvent.Opened); 
+
+		scope(exit) Event.emit(ProEvent.Opened);
         scope(failure)
         {
-            Close();			
+            Close();
             Log.Entry("Failed to OPEN Project : " ~ pfile, "Error");
             return;
         }
@@ -297,10 +297,10 @@ class PROJECT
         {
 			CreateTags();
 			Log.Entry("Project opened: " ~ Name);
-			
-		}        
+
+		}
 		auto jstring = readText(pfile);
-		
+
 		auto jval = parseJSON(jstring);
 
 		foreach( key, j; (jval.object))
@@ -321,13 +321,13 @@ class PROJECT
 						}
 						break;
 					}
-					//else its an mList thing					
+					//else its an mList thing
 					string[] tmp;
 					foreach (l; j.array) tmp ~= l.str;
 					SetList(key, tmp);
 					break;
 				}
-				
+
 				case JSON_TYPE.STRING :
 				{
 					//name basedir otherargs
@@ -341,13 +341,13 @@ class PROJECT
 					if(key == "version")	mVersion 	= j.integer;
 					if(key == "target")		Target		= cast (TARGET) j.integer;
 					break;
-				}				
+				}
 				default : break;
-			}            
+			}
 		}
         if(mVersion > PROJECT_VERSION)throw new Exception("bad version");
 		if(mTarget == TARGET.NULL) throw new Exception("Invalid Target Type");
-	}    
+	}
     void Close()                                            //return target type to null , and nothing doing
     {
 		Event.emit(ProEvent.Closing);
@@ -362,48 +362,48 @@ class PROJECT
         //scope(failure)Log.Entry("Unable to reset Flags File", "Error");
 		//ReadFlags(Config.getString("PROJECT","flags_file", "$(HOME_DIR)/flags/flagsfile.json" ));
 		ResetFlags();
-		
+
         mList.Zero();
         mUseCustomBuild = false;
         mCustomBuildCommand.length = 0;
-        Event.emit(ProEvent.Closed);  
+        Event.emit(ProEvent.Closed);
     }
 
     void Save()
 	{
 		if (mTarget == TARGET.NULL) return;
 		Event.emit(ProEvent.Saving);
-		
+
         scope(failure)
         {
             Log.Entry("Failed to save project: " ~ Name, "Error");
             return;
         }
         scope(success)Log.Entry("Project saved: " ~ Name);
-        
+
 		string Pfile = buildPath(WorkingPath, Name);
 		Pfile = Pfile.setExtension("dpro");
 		string jstring;
 		JSONValue jval;
-		
+
 		jval.type = JSON_TYPE.OBJECT;
 
 		jval.object["version"]		= JSONValue();
 		jval.object["version"].type	= JSON_TYPE.INTEGER;
 		jval.object["version"].integer = mVersion;
-		
+
 		jval.object["name"] 		= JSONValue();
 		jval.object["name"].type 	= JSON_TYPE.STRING;
 		jval.object["name"].str 	= Name;
-		
+
 		jval.object["basedir"] 		= JSONValue();
 		jval.object["basedir"].type	= JSON_TYPE.STRING;
 		jval.object["basedir"].str	= WorkingPath;
-		
+
 		jval.object["target"] 		= JSONValue();
 		jval.object["target"].type	= JSON_TYPE.INTEGER;
 		jval.object["target"].integer = mTarget;
-		
+
 		//mLists
 		foreach (key, strs; mList.mLists)
 		{
@@ -416,8 +416,8 @@ class PROJECT
 				jval.object[key].array[i].str	= s;
 			}
 		}
-		
-		//mFlags		
+
+		//mFlags
 		jval.object["flags"] 		=JSONValue();
 		jval.object["flags"].type	=JSON_TYPE.ARRAY;
 		jval.object["flags"].array.length = mFlags.length;
@@ -425,39 +425,39 @@ class PROJECT
 		foreach (key, f; mFlags)
 		{
 			if (f.State == false) continue;
-			
+
 			jval.object["flags"].array[i].type 										= JSON_TYPE.OBJECT;
 			jval.object["flags"].array[i].object[key] 								= JSONValue();
 			jval.object["flags"].array[i].object[key].type 							= JSON_TYPE.OBJECT;
-			
+
 			jval.object["flags"].array[i].object[key].object["state"] 				= JSONValue();
 			jval.object["flags"].array[i].object[key].object["state"].type 			= (f.State) ? JSON_TYPE.TRUE : JSON_TYPE.FALSE;
-			
+
 			jval.object["flags"].array[i].object[key].object["brief"] 				= JSONValue();
 			jval.object["flags"].array[i].object[key].object["brief"].type			= JSON_TYPE.STRING;
 			jval.object["flags"].array[i].object[key].object["brief"].str 			= f.Brief;
-			
+
 			jval.object["flags"].array[i].object[key].object["cmdstring"] 			= JSONValue();
 			jval.object["flags"].array[i].object[key].object["cmdstring"].type 		= JSON_TYPE.STRING;
 			jval.object["flags"].array[i].object[key].object["cmdstring"].str 		= f.CmdString;
-			
+
 			jval.object["flags"].array[i].object[key].object["hasargument"]			= JSONValue();
 			jval.object["flags"].array[i].object[key].object["hasargument"].type	= (f.HasAnArg) ? JSON_TYPE.TRUE : JSON_TYPE.FALSE;
-			
+
 			jval.object["flags"].array[i].object[key].object["argument"]			= JSONValue();
 			jval.object["flags"].array[i].object[key].object["argument"].type		= JSON_TYPE.STRING;
-			jval.object["flags"].array[i].object[key].object["argument"].str		= f.Argument;	
-			i++;				
-			
+			jval.object["flags"].array[i].object[key].object["argument"].str		= f.Argument;
+			i++;
+
 		}
 		jstring = toJSON(&jval);
-		
+
 		std.file.write(Pfile, jstring);
 
 		Event.emit(ProEvent.Saved);
-		
+
 	}
-	
+
     void OpenLastSession()
     {
         auto lastProject = Config.getString("PROJECT", "last_project", "no_project");
@@ -469,7 +469,7 @@ class PROJECT
 		}
         Open(lastProject);
     }
-        
+
     FLAG[string] GetFlags()                                 //returns all flags or a copy of em
     {
         return mFlags.dup;
@@ -477,7 +477,7 @@ class PROJECT
     bool SetFlag(string key, bool NuState, string NuArgument = "")
 	{
 		if ( (key in mFlags) == null) return false;
-		
+
 		mFlags[key].State = NuState;
 		mFlags[key].Argument = NuArgument;
         Event.emit(ProEvent.FlagChanged);
@@ -497,9 +497,9 @@ class PROJECT
         foreach(pth; this[IMPPATHS]) CreateTagsCommand ~= " -I" ~ pth;
         foreach(src; this[SRCFILES]) CreateTagsCommand ~= " "   ~ src;
         foreach(exp; this[JPATHS])	 CreateTagsCommand ~= " -J" ~ exp;
-        
+
         auto result = shell(CreateTagsCommand);
-        
+
         scope(success)
         {
             shell("rm " ~ docfilename);
@@ -530,11 +530,11 @@ class PROJECT
 
         Event.emit(ProEvent.Building);
 
-        BuildMsg.emit(BuildCommand());   
+        BuildMsg.emit(BuildCommand());
 
         std.stdio.File Process = File(TemporaryFileName,"w");
 
-        foreach (prescript; Project["PRE_BUILD_SCRIPTS"])writeln(shell(prescript));
+        foreach (prescript; Project["PRE_BUILD_SCRIPTS"])writeln(prescript, " ",shell(prescript));
 
         Process.popen(mChildRunner ~ BuildCommand() ~ " 2>&1 ", "r");
 
@@ -545,16 +545,16 @@ class PROJECT
 
         scope(exit) Process.close();
         Event.emit(ProEvent.Built);
-        
-        
+
+
         return true;
     }
     string BuildCommand()                                   //return the auto generated command to build the .dpro file
     {
-        
+
         if(mUseCustomBuild) return mCustomBuildCommand;
-        
-        string cmdline = mCompiler ~ " ";        
+
+        string cmdline = mCompiler ~ " ";
 		foreach (f; mFlags)
 		{
 			if (f.State == true)
@@ -563,30 +563,30 @@ class PROJECT
 				if (f.HasAnArg) cmdline ~= f.Argument;
 				cmdline ~= " ";
 			}
-		}        
+		}
 		foreach (v; this[VERSIONS])     cmdline ~= " -version=" ~ v ~ " ";
 		foreach (d; this[DEBUGS])       cmdline ~= " -debug=" ~ d ~ " ";
 
 
 		foreach(lib; this[LIBFILES])    cmdline ~= " -L-l" ~ LibName(lib) ~ " ";
-		
+
 		foreach (i; this[IMPPATHS])     cmdline ~= " -I" ~ i ~ " ";
 		foreach (l; this[LIBPATHS])     cmdline ~= " -L-L" ~ l ~ " ";
-		
+
 		foreach (j; this[JPATHS])       cmdline ~= " -J" ~ j ~ " ";
         foreach (m; this[MISC])         cmdline ~= m ~ " ";
-		
-		
-		
+
+
+
 		if (mFlags["-of"].State == false) cmdline ~= " -of" ~ Name ~ " ";
-        
+
 		foreach(src; this[SRCFILES])
 		{
 			auto srcopt = relativePath(src, WorkingPath);
 			srcopt = buildNormalizedPath(srcopt);
 			cmdline ~= " " ~ srcopt ~ " ";
 		}
-		
+
 		return cmdline;
     }
     bool Run(string args = null )                                              //if app then run the thing
@@ -594,7 +594,7 @@ class PROJECT
         if(mTarget != TARGET.APP) return false;
 
         Event.emit(ProEvent.Running);
-        
+
         scope(failure)
         {
             Log.Entry("System Failed to run project", "Error");
@@ -605,15 +605,15 @@ class PROJECT
         string xTermTitle = "dcomposer running " ~ Project.Name;
         string ProcessCommand = format(`xterm -hold -T "%s" -e %s`, xTermTitle, "./"~Project.Name);
         if(args !is null) ProcessCommand ~= " " ~ args;
-        
+
         std.stdio.File Process;
         Process.popen(ProcessCommand, "r");
 
         Log.Entry("Running ... " ~ ProcessCommand);
         foreach(string L; lines(Process) ) Log.Entry(chomp(L));
-    
+
         Process.close();
-        Event.emit(ProEvent.Ran);            
+        Event.emit(ProEvent.Ran);
         return true;
     }
 
@@ -622,14 +622,15 @@ class PROJECT
         if(mTarget != TARGET.APP) return false;
         //string ProcessCommand =  "xterm -hold  -title -e ./" ~ Project.Name;
         string xTermTitle = "dcomposer running " ~ Project.Name;
-        string ProcessCommand = format(`xterm -hold -T "%s" -e %s`, xTermTitle, "./"~Project.Name);
+        string ProcessCommand = format(`xterm  -T "%s" -e %s`, xTermTitle, "./"~Project.Name);
         if(args !is null) ProcessCommand ~= " " ~ args;
 
-        auto RunTask = task!funRun(ProcessCommand, thisTid);
-        
-        RunTask.executeInNewThread();
+        //auto RunTask = task!funRun(ProcessCommand, thisTid);
+
+        //RunTask.executeInNewThread();
+        spawn(&funRun, ProcessCommand);
         return true;
-        
+
     }
 
     mixin Signal!(ProEvent) Event;                                  //any change to object emits this event string may tell what event is
@@ -642,10 +643,10 @@ class PROJECT
 
     //if target is null should return null!
 
-    //later note... I think i need to do ref string[] opIndex(string Key){return  mList.GetData(Key);} 
+    //later note... I think i need to do ref string[] opIndex(string Key){return  mList.GetData(Key);}
 
     void opOpAssign(string s = "+=")(string Key)                    {   mList.AddKey(Key);          Event.emit(ProEvent.ListChanged);}
-    void opOpAssign(string s = "-=")(string Key)                    {   mList.RemoveKey(Key);       Event.emit(ProEvent.ListChanged);} 
+    void opOpAssign(string s = "-=")(string Key)                    {   mList.RemoveKey(Key);       Event.emit(ProEvent.ListChanged);}
     void opIndexAssign(LIST Data, string Key)                       {   mList.SetKey(Key, Data);    Event.emit(ProEvent.ListChanged);}
     void opOpIndexAssign(string s = "~=")(LIST Data, string Key)    {   mList.ConcatData(Key, Data);Event.emit(ProEvent.ListChanged);}
     ref string opOpIndexAssign(string s = "~=")(string Data, string Key)
@@ -676,7 +677,7 @@ class PROJECT
         if (rv is null) rv = "";
         return rv;
     }
-        
+
 
     //=====================
     //=====================
@@ -719,11 +720,11 @@ class PROJECT
         void Target(int nuTarget){mTarget = cast(TARGET)nuTarget;Event.emit(ProEvent.TargetChanged);}
     }
 
-        
 
-        
+
+
 }
-    
+
 string LibName(string Lib)
 {
     auto retstr = baseName(Lib);
@@ -738,22 +739,20 @@ string LibName(string Lib)
     return retstr;
 }
 
-string[] funRun(string command, Tid bossID)
+void funRun(string command)
 {
     string[] rv;
     std.stdio.File Process;
     Process.popen(command, "r");
     Process.close();
-    foreach(string L; lines(Process) )
-    {
-        rv ~= L;
-    }
-
-    
-
-    return rv;
+    //foreach(string L; lines(Process) )
+    //{
+    //    rv ~= L;
+    //}
+//
+    //return rv;
 }
- 
+
 
 enum ProEvent {
 	Creating,

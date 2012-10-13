@@ -43,7 +43,7 @@ export VERSION_FROM_GIT=$(shell git describe --long --always)
 all: $(TARGET)
 
 $(TARGET):  $(DSOURCES)
-	@./buildinfo.d
+	@rdmd ./buildinfo.d
 	$(DC) $(DFLAGS) $(INC_PATHS) $(LIBRARIES) $(DSOURCES) $(weblib) $(webflag)
 	@rm .build.info
 
