@@ -17,19 +17,34 @@ endif
 prefix = $(DESTDIR)/usr/local
 BINDIR = $(prefix)/bin
 
-webkit: LIBRARIES := $(LIBRARIES) -L-lwebkitgtk-1.0
-webkit: DFLAGS := $(DFLAGS) -version=WEBKIT
+#WEBKIT STUFFS
+webkit ?= 1
 
-release: DFLAGS += -release
-debug: DFLAGS += -g -debug
+
+ifeq (webkit, 1)
+	weblib = -L-lwebkitgtk-1.0
+	webflag = -version=WEBKIT
+endif
+
+release ?= 0
+ifeq ($(release), 1)
+	DFLAGS += $(RELEASEFLAGS)
+endif
+
+debug ?= 1
+ifeq ( debug, 1)
+	DFLAGS += $(DEBUGFLAGS)
+endif
+
 
 
 
 all: $(TARGET)
 
 $(TARGET):  $(DSOURCES)
-	$(
-	$(DC) $(DFLAGS) $(INC_PATHS) $(LIBRARIES) $(DSOURCES)
+	$(DC) $(DFLAGS) $(INC_PATHS) $(LIBRARIES) $(DSOURCES) $(weblib) $(webflag)
+
+
 
 install: $(TARGET)
 	mkdir -p $(BINDIR)

@@ -851,8 +851,7 @@ Some very minor modifications by Anthony Goins.
                     </child>
                     <child>
                       <object class="GtkLinkButton" id="linkbutton3">
-                        <property name="label" translatable="yes">These icons are licensed under a Creative Commons
-Attribution 3.0 License.</property>
+                        <property name="label" translatable="yes">Licensed under Creative Commons Attribution 3.0.</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>

@@ -380,10 +380,12 @@ class MAIN_UI
     void ShowAboutDialog()
     {
         Builder AboutBuilder = new Builder;
+
+
         AboutBuilder.addFromFile(Config.getString("UI", "about_glade_file", "$(HOME_DIR)/glade/about.glade"));
 
         auto About = cast(AboutDialog) AboutBuilder.getObject("aboutdialog1");
-
+		About.setVersion(config.DCOMPOSER_VERSION);
 		About.setLogo(new Pixbuf(Config.getString("UI", "about_logo", "$(HOME_DIR)/glade/stolen2.png")));
         About.run();
         About.hide();

@@ -1,17 +1,17 @@
 //      config.d
-//      
+//
 //      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
+//
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      This program is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with this program; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -37,6 +37,7 @@ import glib.KeyFile;
 
 string DCOMPOSER_VERSION;
 string DCOMPOSER_COPYRIGHT;
+//string DCOMPOSER_BUILD_DATE;
 
 string HOME_DIR ;
 string SYSTEM_DIR;
@@ -47,7 +48,8 @@ string SYSTEM_DIR;
 //so I made this function and call it from dcore.this
 void PseudoStaticThis()
 {
-	DCOMPOSER_VERSION = "0.01a";
+	DCOMPOSER_VERSION = shell("git describe --long --always");
+	//DCOMPOSER_VERSION = "0.01a";
 	DCOMPOSER_COPYRIGHT = "Copyright 2011 Anthony Goins";
 	HOME_DIR = "$(HOME_DIR)/";
 	SYSTEM_DIR  = "$(SYSTEM_DIR)/";
@@ -58,7 +60,7 @@ class CONFIG
 {
 	string 	mCfgFile;               //name of the CONFIG file
 	KeyFile	mKeyFile;               //CONFIG file object... didn't want dcore to depend on gtk+ libs, must fix
-	bool	mShowHelp;				//show help and then exit		
+	bool	mShowHelp;				//show help and then exit
     alias 	mKeyFile this;
 
     string	mHomeDir;				//this should be where user settings will be saved -->default ~/.config/dcomposer/
@@ -68,10 +70,10 @@ class CONFIG
     this()
     {
 		mInstalled = true;
-		mSysDir  = import("systemdir");  //prefix (id /usr /usr/local /opt or whatever
+		mSysDir  = "";//import("systemdir");  //prefix (id /usr /usr/local /opt or whatever
 		mSysDir = buildNormalizedPath(mSysDir, "share/dcomposer/"); //now its pointed at our root!
 		mHomeDir = std.path.expandTilde("~/.config/dcomposer");
-		
+
 		if(!exists(mSysDir))
 		{
 			mInstalled = false;
@@ -86,7 +88,7 @@ class CONFIG
 			}
 			else mHomeDir = absolutePath(dirName(Runtime.args[0]));
 		}
-		
+
         mCfgFile = ExpandPath("$(HOME_DIR)/dcomposer.cfg");
         mKeyFile = new KeyFile;
     }
@@ -97,12 +99,12 @@ class CONFIG
         string TmpForLog = " ";                 //can't pass a space as a commandline arg
         string openers;                         //put files on cmdline in ';' seperated list store in mKeyfile to be
                                                 //read when Docman is Engaged -- I missed setStringList function
-                                                
-        
+
+
         getopt(CmdArgs, config.passThrough, "c|config", &mCfgFile, "l|log", &TmpForLog, "help", &mShowHelp);
 
 		if(mShowHelp){ShowHelp();}
-		
+
         if(!mCfgFile.exists)
         {
             {
@@ -114,12 +116,12 @@ class CONFIG
             File tmp;
             tmp.open(mCfgFile, "w");
             tmp.write("[CONFIG]\nthis_file="~mCfgFile~"\n");
-            
+
             }
         }
 
         mKeyFile.loadFromFile(mCfgFile, GKeyFileFlags.KEEP_COMMENTS);
-        
+
         mKeyFile.setString("CONFIG", "this_file", mCfgFile);
 
 
@@ -128,7 +130,7 @@ class CONFIG
         foreach(filetoopen; CmdArgs[1..$])
         {
 			//guess I'm assuming here if it starts with '-' its a flag otherwise its a file to open
-			//but... what about -c 
+			//but... what about -c
             if(filetoopen[0] != '-') openers ~= buildNormalizedPath((absolutePath(filetoopen))) ~ ";";
         }
         openers = openers.chomp(";");
@@ -151,7 +153,7 @@ class CONFIG
 			Log.Entry("Unable to save configuration file "~mCfgFile, "Error");
 			return;
 		}
-		
+
         gsize len;
         string data = mKeyFile.toData(len);
         std.file.write(mCfgFile, data);
@@ -181,7 +183,7 @@ class CONFIG
         }
         string rVal  = mKeyFile.getString(GroupName, Key);
 
-        return rVal; 
+        return rVal;
     }
 
     void setString(string GroupName, string Key, string Value)
@@ -270,7 +272,7 @@ class CONFIG
 	}
 
 
-	
+
 	string ExpandSysDir(string Input) { return buildNormalizedPath(mSysDir, Input);}
 
 	string ExpandHomeDir(string Input) {return buildNormalizedPath(mHomeDir, Input);}
@@ -299,10 +301,10 @@ class CONFIG
 		writeln(shell(cpCommand));
 		FirstRun.emit();
 	}
-		
 
 
-		
+
+
     mixin Signal!()ShowConfig;  //will be emitted before showing a gui pref dialog ... to set gui elements from keyfile
     mixin Signal!()Reconfig;    //emitted when keyfile changes warrent all modules to reconfigure them selves
     mixin Signal!()Saved;
@@ -314,4 +316,4 @@ class CONFIG
 import dcore :Log;
 
 
-	
+
