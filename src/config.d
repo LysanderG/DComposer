@@ -20,6 +20,8 @@
 
 module config;
 
+import dcore :Log;
+
 import std.stdio;
 import std.signals;
 import std.getopt;
@@ -32,12 +34,11 @@ import std.process;
 import core.stdc.stdlib;
 import core.runtime;
 
-
 import glib.KeyFile;
 
-string DCOMPOSER_VERSION;
 string DCOMPOSER_COPYRIGHT;
-//string DCOMPOSER_BUILD_DATE;
+
+mixin(import(".build.info"));
 
 string HOME_DIR ;
 string SYSTEM_DIR;
@@ -48,8 +49,6 @@ string SYSTEM_DIR;
 //so I made this function and call it from dcore.this
 void PseudoStaticThis()
 {
-	DCOMPOSER_VERSION = shell("git describe --long --always");
-	//DCOMPOSER_VERSION = "0.01a";
 	DCOMPOSER_COPYRIGHT = "Copyright 2011 Anthony Goins";
 	HOME_DIR = "$(HOME_DIR)/";
 	SYSTEM_DIR  = "$(SYSTEM_DIR)/";
@@ -70,9 +69,9 @@ class CONFIG
     this()
     {
 		mInstalled = true;
-		mSysDir  = "";//import("systemdir");  //prefix (id /usr /usr/local /opt or whatever
+		mSysDir  = DCOMPOSER_PREFIX;  //prefix (id /usr /usr/local /opt or whatever
 		mSysDir = buildNormalizedPath(mSysDir, "share/dcomposer/"); //now its pointed at our root!
-		mHomeDir = std.path.expandTilde("~/.config/dcomposer");
+		mHomeDir = std.path.expandTilde("~/.config/dcomposer"); //hmm ~/.config/dcomposer or ~/.local/share/dcomposer ??
 
 		if(!exists(mSysDir))
 		{
@@ -311,9 +310,4 @@ class CONFIG
     mixin Signal!()FirstRun;	//maybe show a welcome screen or allow preconfiguration or whatever
 
 }
-
-
-import dcore :Log;
-
-
 

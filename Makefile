@@ -6,7 +6,7 @@ DSOURCES  = $(shell echo src/*.d)
 INC_PATHS = -I/usr/include/d
 LIBRARIES = -L-lgtkdsv -L-lgtkd -L-lvte -L-lutil
 
-DFLAGS = -of$(TARGET) -odobjdir -J.
+DFLAGS = -of$(TARGET) -odobjdir -J./
 RELEASEFLAGS = -release
 DEBUGFLAGS = -gc -debug
 
@@ -14,20 +14,19 @@ ifeq ("Linux", $(shell uname))
 	LIBRARIES = $(LIBRARIES) -L-ldl
 endif
 
+#DIRECTORY STUFF
 prefix = $(DESTDIR)/usr/local
 BINDIR = $(prefix)/bin
 
-#WEBKIT STUFFS
+#WEBKIT RELEASE AND DUBEG STUFFS
 webkit ?= 1
-
-
 ifeq (webkit, 1)
 	weblib = -L-lwebkitgtk-1.0
 	webflag = -version=WEBKIT
 endif
 
 release ?= 0
-ifeq ($(release), 1)
+ifeq (release, 1)
 	DFLAGS += $(RELEASEFLAGS)
 endif
 
@@ -36,13 +35,18 @@ ifeq ( debug, 1)
 	DFLAGS += $(DEBUGFLAGS)
 endif
 
+#ANY BUILD TIME INFO TO 'SAVE'
+export PREFIX=$(prefix)
+export VERSION_FROM_GIT=$(shell git describe --long --always)
 
-
-
+#TARGETS
 all: $(TARGET)
 
 $(TARGET):  $(DSOURCES)
+	@./buildinfo.d
 	$(DC) $(DFLAGS) $(INC_PATHS) $(LIBRARIES) $(DSOURCES) $(weblib) $(webflag)
+	@rm .build.info
+
 
 
 
