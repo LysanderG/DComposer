@@ -16,4 +16,5 @@ tmp
 tmpdocs/*
 dcompro
 docs/*.html
+.build.info
 
