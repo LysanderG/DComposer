@@ -53,7 +53,7 @@ To clone and build dcomposer from your terminal ...
 git clone https://github.com/LysanderG/DComposer.git .
 make
 ```
-variables: release=_0_/1 debug=0/_1_ webkit=0/_1_
+variables: release=__0__/1 debug=0/__1__ webkit=0/__1__
 
 If you are brave (normally should be root for the next 2 )
 ```
