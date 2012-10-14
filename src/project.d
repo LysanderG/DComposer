@@ -538,7 +538,7 @@ class PROJECT
 
         Process.popen(mChildRunner ~ BuildCommand() ~ " 2>&1 ", "r");
 
-        foreach (postscript; Project["POST_BUILD_SCRIPTS"]) writeln(shell(postscript));
+        
 
         foreach(string L; lines(Process) ) BuildMsg.emit(chomp(L));
 
@@ -546,7 +546,7 @@ class PROJECT
         scope(exit) Process.close();
         Event.emit(ProEvent.Built);
 
-
+        foreach (postscript; Project["POST_BUILD_SCRIPTS"]) writeln(shell(postscript));
         return true;
     }
     string BuildCommand()                                   //return the auto generated command to build the .dpro file

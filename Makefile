@@ -6,7 +6,7 @@ DSOURCES  = $(shell echo src/*.d)
 INC_PATHS = -I/usr/include/d
 LIBRARIES = -L-lgtkdsv -L-lgtkd -L-lvte -L-lutil
 
-DFLAGS = -of$(TARGET) -odobjdir -J./
+DFLAGS = -of$(TARGET) -odobjdir -J./ -D -Dddocs
 RELEASEFLAGS = -release
 DEBUGFLAGS = -gc -debug
 
@@ -20,18 +20,18 @@ BINDIR = $(prefix)/bin
 
 #WEBKIT RELEASE AND DUBEG STUFFS
 webkit ?= 1
-ifeq (webkit, 1)
+ifeq ($(webkit), 1)
 	weblib = -L-lwebkitgtk-1.0
 	webflag = -version=WEBKIT
 endif
 
 release ?= 0
-ifeq (release, 1)
+ifeq ($(release), 1)
 	DFLAGS += $(RELEASEFLAGS)
 endif
 
 debug ?= 1
-ifeq ( debug, 1)
+ifeq ( $(debug), 1)
 	DFLAGS += $(DEBUGFLAGS)
 endif
 
@@ -68,7 +68,7 @@ install: $(TARGET)
 
 	xdg-icon-resource install --size 128 glade/stolen2.png dcomposer-Icon
 	xdg-desktop-menu install --novendor dcomposer.desktop
-	su $(SUDO_USER) -p -c "xdg-desktop-icon install --novendor dcomposer.desktop"
+	su $(SUDO_USER) -m -c "xdg-desktop-icon install --novendor dcomposer.desktop"
 
 uninstall:
 	rm  -f $(BINDIR)/$(TARGET)
