@@ -1050,6 +1050,9 @@ Sun Oct 14 00:15:05 EDT 2012
     * Look for more possible seg faults.  Got a few because of bad defaults and wrong project dpro files
     * SPECIFIC send a damn message to "BUILD MESSAGES" if there is a problem (in dcomposer) while building.
     * horizontal scrolling to find results and other jump to stuff
+    * hey how come tags do not show up after cloning the repository??
+    * more build info --date - build number(who really cares) - version
+    * HUGE ONE get a real build system with packaging and installing and what not (lots to learn)
     
     
 
