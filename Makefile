@@ -6,7 +6,7 @@ DSOURCES  = $(shell echo src/*.d)
 INC_PATHS = -I/usr/include/d
 LIBRARIES = -L-lgtkdsv -L-lgtkd -L-lvte -L-lutil
 
-DFLAGS = -of$(TARGET) -odobjdir -J./
+DFLAGS = -of$(TARGET) -odobjdir -J./ -D -Dddocs
 RELEASEFLAGS = -release
 DEBUGFLAGS = -gc -debug
 
