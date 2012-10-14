@@ -20,18 +20,18 @@ BINDIR = $(prefix)/bin
 
 #WEBKIT RELEASE AND DUBEG STUFFS
 webkit ?= 1
-ifeq (webkit, 1)
+ifeq ($(webkit), 1)
 	weblib = -L-lwebkitgtk-1.0
 	webflag = -version=WEBKIT
 endif
 
 release ?= 0
-ifeq (release, 1)
+ifeq ($(release), 1)
 	DFLAGS += $(RELEASEFLAGS)
 endif
 
 debug ?= 1
-ifeq ( debug, 1)
+ifeq ( $(debug), 1)
 	DFLAGS += $(DEBUGFLAGS)
 endif
 
