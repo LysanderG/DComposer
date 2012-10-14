@@ -68,7 +68,7 @@ install: $(TARGET)
 
 	xdg-icon-resource install --size 128 glade/stolen2.png dcomposer-Icon
 	xdg-desktop-menu install --novendor dcomposer.desktop
-	su $(SUDO_USER) -p -c "xdg-desktop-icon install --novendor dcomposer.desktop"
+	su $(SUDO_USER) -m -c "xdg-desktop-icon install --novendor dcomposer.desktop"
 
 uninstall:
 	rm  -f $(BINDIR)/$(TARGET)

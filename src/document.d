@@ -152,7 +152,8 @@ class DOCUMENT : SourceView
 
 		string StyleId = Config.getString("DOCMAN","style_scheme", "cobalt");
 
-		SourceStyleSchemeManager.getDefault().appendSearchPath("$(HOME_DIR)/styles/");
+		SourceStyleSchemeManager.getDefault().appendSearchPath(Config.ExpandPath("$(HOME_DIR)/styles/"));
+		writeln(Config.ExpandPath("$(HOME_DIR)/styles"));
         getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleId));
 
 		setAutoIndent(Config.getBoolean("DOCMAN", "auto_indent", true));
