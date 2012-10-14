@@ -1033,3 +1033,24 @@ thats it for now tomorrow  the big one project! omg again!
 	-also symbols [] arrays messup following scope types
 	-drag to document inserts url and drag to assist opens the dragged/drug/drugged file in the help area ... blah!
 	-typing a tab normally in a document screws up autopopups stuff (calltips/scopelist/symcompletion)
+
+Sun Oct 14 00:15:05 EDT 2012
+
+    Okay, spent the day working on FreeBSD.  You find a lot of very specific errors just by using 2 different build settings.
+    
+    - project base folder kept gettings set to empty string -- why
+    - linux switches do not = bsd switches
+    - take things for granted that exist in one setting but oops not in the other.
+    
+    some fixit points
+    * default settings lots of em are set screwy 
+    * BIG ONE my test for first run is stupid.  Will not catch if user uninstalls and then reinstalls 
+    * SILLY ONE its hard to tell which version of the ide I'm running (the working version vs testing version)
+        sometimes forget to rebuild and the test version is working but the working version isn't
+    * Look for more possible seg faults.  Got a few because of bad defaults and wrong project dpro files
+    * SPECIFIC send a damn message to "BUILD MESSAGES" if there is a problem (in dcomposer) while building.
+    * horizontal scrolling to find results and other jump to stuff
+    
+    
+
+Sun Oct 14 00:15:07 EDT 2012
