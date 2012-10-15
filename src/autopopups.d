@@ -481,10 +481,16 @@ class AUTO_POP_UPS
         Present();
     }
 
+    void TipPopAll()
+    {
+		mTipsIndex = -1;
+		Present();
+	}
+
     void Kill()
     {
         CompletionPop();
-        TipPop();
+        TipPopAll();
     }
 
 
