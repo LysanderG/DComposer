@@ -1,17 +1,17 @@
 // preferences.d
-// 
+//
 // Copyright 2012 Anthony Goins <anthony@LinuxGen11>
-// 
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -66,12 +66,12 @@ class PREFERENCES_UI : ELEMENT
     PREFERENCE_PAGE[] mObjects;
     Button          mApplyBtn;
     Button          mDiscardBtn;
-    
+
 
 
     void ShowPrefPage()
     {
-        
+
         if(!mGuiBuilt) BuildGui();
         Config.PrepPreferences();
         mRoot.show();
@@ -94,7 +94,7 @@ class PREFERENCES_UI : ELEMENT
 		auto ConfPrefs = new CONFIG_PAGE("Core", "Configuration File :");
 		mObjects ~= ConfPrefs;
 		AddPrefPart(ConfPrefs);
-	
+
 		auto LogPrefs  = new LOG_PAGE("Core", "Logging :");
 		mObjects ~= LogPrefs;
 		AddPrefPart(LogPrefs);
@@ -132,7 +132,7 @@ class PREFERENCES_UI : ELEMENT
         {
             mPage[X.PageName].add(X.GetPrefWidget());
             mPage[X.PageName].setChildPacking (X.GetPrefWidget(), X.Expand(), 1, 8, GtkPackType.START);
-            
+
         }
         else
         {
@@ -144,17 +144,17 @@ class PREFERENCES_UI : ELEMENT
             mPage[X.PageName].setHomogeneous(0);
             mPage[X.PageName].setBorderWidth(5);
             sw.addWithViewport(mPage[X.PageName]);
-			mPage[X.PageName].setChildPacking (X.GetPrefWidget, X.Expand(),1, 8, GtkPackType.START); 
-            
-            
-            
+			mPage[X.PageName].setChildPacking (X.GetPrefWidget, X.Expand(),1, 8, GtkPackType.START);
+
+
+
             mBook.appendPage(sw, X.PageName);
         }
         mPage[X.PageName].showAll();
     }
     void ApplyChanges()
     {
-		//set cursor to a busy cursor 
+		//set cursor to a busy cursor
         int xx, yy;
         auto watch = new Cursor(GdkCursorType.WATCH);
         auto tmpwindow = Display.getDefault.getWindowAtPointer(xx,yy);
@@ -173,9 +173,9 @@ class PREFERENCES_UI : ELEMENT
         //restore default cursor
         tmpwindow.setCursor(null);
     }
-    
+
     public :
-    
+
 
     this()
     {
@@ -191,7 +191,7 @@ class PREFERENCES_UI : ELEMENT
         dui.AddMenuItem("_System", ShowPrefAct.createMenuItem(), 0);
 
     }
-    
+
     @property string Name(){return mName;}
     @property string Information(){return mInfo;}
     @property bool   State(){return mState;}
@@ -217,8 +217,8 @@ class PREFERENCES_UI : ELEMENT
 
         //dui.GetCenterPane.prependPage(mRoot, new Label("Preferences"));
         dui.GetExtraPane.prependPage(mRoot, new Label("Preferences"));
-        dui.GetExtraPane.setTabReorderable ( mRoot, true); 
-        
+        dui.GetExtraPane.setTabReorderable ( mRoot, true);
+
 	    Log.Entry("Engaged "~Name()~"\t\telement.");
     }
 
@@ -240,7 +240,7 @@ class PREFERENCES_UI : ELEMENT
 
 
 
-        
+
 
 
 class CONFIG_PAGE :PREFERENCE_PAGE
@@ -252,15 +252,15 @@ class CONFIG_PAGE :PREFERENCE_PAGE
         super(PageName, Config.getString("PREFERENCES", "glade_file_config", "$(HOME_DIR)/glade/configpref.glade"));
         //mFrame.setLabelWidget(new Label"<b>"~SectionName~"</b>");
         mEntry = cast(Entry) mBuilder.getObject("entry1");
-        
+
         mEntry.setText(Config.getString("CONFIG", "this_file", ""));
-        
+
 
         mEntry.addOnEditingDone(delegate void(CellEditableIF EditCell){Log.Entry("Preferences Test " ~ mEntry.getText());});
         mEntry.addOnActivate(delegate void(Entry x){Log.Entry("Preferences Test " ~ mEntry.getText());});
 
 		//Config.ShowConfig.connect(&PrepGui); //parent does this
-		
+
         mFrame.showAll();
     }
 
@@ -268,7 +268,7 @@ class CONFIG_PAGE :PREFERENCE_PAGE
     {
 		mEntry.setText(Config.getString("CONFIG", "this_file", ""));
 	}
-		
+
 
     override void Apply()
     {
@@ -290,21 +290,21 @@ class LOG_PAGE : PREFERENCE_PAGE
         mMaxLines   = cast(SpinButton) mBuilder.getObject("spinbutton2");
 
 		//Config.ShowConfig.connect(&PrepGui);
-		
+
         mFrame.showAll();
     }
 
     override void PrepGui()
     {
 		mEntry.setText(Config.getString("LOG", "default_log_file", "$(HOME_DIR)/dcomposer.log"));
-        
+
         mMaxSize.setRange(ulong.min, ulong.max);
         mMaxSize.setIncrements(1024, 102400);
-        mMaxSize.setValue(cast(double) Config.getInteger("LOG", "max_file_size", 23));
+        mMaxSize.setValue(cast(double) Config.getInteger("LOG", "max_file_size", 65_535));
 
         mMaxLines.setRange(ulong.min, ulong.max);
         mMaxLines.setIncrements(1, 10);
-        mMaxLines.setValue(cast(double) Config.getInteger("LOG", "max_lines_buffer", 234));
+        mMaxLines.setValue(cast(double) Config.getInteger("LOG", "max_lines_buffer", 255));
 	}
 
     override void Apply()
@@ -313,7 +313,7 @@ class LOG_PAGE : PREFERENCE_PAGE
         Config.setInteger("LOG", "max_file_size", mMaxSize.getValueAsInt());
         Config.setInteger("LOG", "max_lines_buffer", mMaxLines.getValueAsInt());
     }
-    
+
 }
 
 class SYMBOL_PAGE : PREFERENCE_PAGE
@@ -321,29 +321,29 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
     CheckButton mCheckBtn;
     LISTUI      mTagFiles;
     //VBox        mVBox;
-    
+
 
     this(string PageName, string SectionName)
     {
         string listgladefile = expandTilde(Config.getString("PROJECT", "list_glad_file", "$(HOME_DIR)/glade/multilist.glade"));
-        
+
         super(PageName, Config.getString("PREFERENCES", "glade_file_symbols", "$(HOME_DIR)/glade/symbolpref.glade"));
 
         mTagFiles = new LISTUI("Symbol files to load at start up", ListType.FILES, listgladefile);
 
-        
+
 
         mCheckBtn   = cast(CheckButton) mBuilder.getObject("checkbutton1");
 
-        
+
 
         mCheckBtn.addOnToggled(delegate void(ToggleButton x){mTagFiles.GetWidget.setSensitive(mCheckBtn.getActive());});
-                
-        
+
+
         Add(mTagFiles.GetWidget());
 
         //Config.ShowConfig.connect(&PrepGui);
-        
+
         mFrame.showAll();
     }
 
@@ -356,13 +356,13 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
             ItemstoSet ~=Config.getString("SYMBOL_LIBS", key);
         }
         mTagFiles.SetItems(ItemstoSet);
-            
-            
+
+
 
         mCheckBtn.setActive(Config.getBoolean("SYMBOLS", "auto_load_project_symbols", 1));
 
         mTagFiles.GetWidget.setSensitive(mCheckBtn.getActive());
-		
+
 	}
 
     override void Apply()

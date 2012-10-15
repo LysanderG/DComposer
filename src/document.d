@@ -150,10 +150,9 @@ class DOCUMENT : SourceView
 		auto Language = SourceLanguageManager.getDefault().guessLanguage(Name,null);
         getBuffer.setLanguage(Language);
 
-		string StyleId = Config.getString("DOCMAN","style_scheme", "cobalt");
+		string StyleId = Config.getString("DOCMAN","style_scheme", "mnml");
 
 		SourceStyleSchemeManager.getDefault().appendSearchPath(Config.ExpandPath("$(HOME_DIR)/styles/"));
-		writeln(Config.ExpandPath("$(HOME_DIR)/styles"));
         getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleId));
 
 		setAutoIndent(Config.getBoolean("DOCMAN", "auto_indent", true));
@@ -172,7 +171,7 @@ class DOCUMENT : SourceView
         setIndentWidth(Config.getInteger("DOCMAN", "indention_width", 8));
         setTabWidth(Config.getInteger("DOCMAN", "tab_width", 4));
 
-        modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.getString("DOCMAN", "font", "mono 18")));
+        modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.getString("DOCMAN", "font", "Inconsolata Bold 12")));
 
 	}
 

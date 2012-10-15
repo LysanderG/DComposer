@@ -1,17 +1,17 @@
 //      indent.d
-//      
+//
 //      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
+//
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      This program is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with this program; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -69,7 +69,7 @@ class BRACE_INDENT : ELEMENT
 
 		if(!mEnabled) return;
         auto tstart =  ti.copy;
-        
+
         tstart.backwardLine;
         string x = tstart.getText(ti);
         if (x.length < 2) return; //just a new line ?? or totally blank line(is that possible?)
@@ -79,7 +79,7 @@ class BRACE_INDENT : ELEMENT
             Buffer.insert(ti, "\t");
             return;
         }
-        
+
         return;
     }
 
@@ -87,7 +87,7 @@ class BRACE_INDENT : ELEMENT
     {
 		//omg could I understand this less??
 
-		//ok make a textiter tstart that sets at beginning of line --> ti == where } was inserted 
+		//ok make a textiter tstart that sets at beginning of line --> ti == where } was inserted
         auto tstart = ti.copy;
         tstart.setLineOffset(0);
 
@@ -105,8 +105,8 @@ class BRACE_INDENT : ELEMENT
             Buffer.delet(tstart, ti);
             return;
         }
-        
-        auto twidth = Config.getInteger("DOCMAN", "tab_width");
+
+        auto twidth = Config.getInteger("DOCMAN", "tab_width", 4);
 
         //ok if not enough space to unindent don't ... bail
         if(line.length < twidth) return;
@@ -123,16 +123,16 @@ class BRACE_INDENT : ELEMENT
             ti.setLineOffset(twidth);
             Buffer.delet(tstart, ti);
             return;
-        }       
+        }
     }
 
     public:
-    
+
     @property string Name() {return "BRACE_INDENT";}
     @property string Information(){return `Adjusts indentation following braces "{}".  Not related to Auto Indentation.`;}
     @property bool   State() {return mState;}
     @property void   State(bool nuState){mState = nuState;}
-    
+
 
     void Engage()
     {
@@ -145,7 +145,7 @@ class BRACE_INDENT : ELEMENT
         Log.Entry("Engaged "~Name()~"\t\telement.");
     }
 
-    
+
 
     void Disengage()
     {
@@ -157,13 +157,13 @@ class BRACE_INDENT : ELEMENT
     {
         return mPrefPage;
     }
-}    
+}
 
 
 class BRACE_INDENT_PREF : PREFERENCE_PAGE
 {
 	CheckButton		mEnabled;
-	
+
 	this()
 	{
 		//using same simple glade file for proview  -- maybe change name to generice simple glade ??

@@ -1,17 +1,17 @@
 //      proview.d
-//      
+//
 //      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
+//
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      This program is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with this program; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -81,12 +81,12 @@ class PROJECT_VIEW : ELEMENT
 
     TreeIter		mAddedIdentifierTI;
 
-    
+
     void UpdateList(ComboBox X)
     {
         GC.disable;
         scope(exit)GC.enable;
-        
+
         TreeIter ti = new TreeIter;
         if (!X.getActiveIter(ti)) return;
 
@@ -105,20 +105,20 @@ class PROJECT_VIEW : ELEMENT
 
         Value x = new Value(GType.INT);
         mCellText.getProperty("mode", x);
-                        
+
         auto values = Project[key];
 
 
 
         mViewStore.clear();
-        
+
         ti = new TreeIter;
         foreach(val; values)
         {
             mViewStore.append(ti);
             mViewStore.setValue(ti, 0, baseName(val));
             mViewStore.setValue(ti, 1, val);
-            
+
         }
 
     }
@@ -141,7 +141,7 @@ class PROJECT_VIEW : ELEMENT
 
         Value x = new Value(GType.INT);
         mCellText.getProperty("mode", x);
-                
+
         TreeIter ti = new TreeIter;
         if(mKeyBox.getActiveIter(ti))
         {
@@ -175,7 +175,7 @@ class PROJECT_VIEW : ELEMENT
 
         if((CurKey == 0) || (CurKey == 1))
         {
-            
+
             auto ti = tv.getSelectedIter();
             string Filename = ti.getValueString(1);
             dui.GetDocMan.Open(Filename);
@@ -186,7 +186,7 @@ class PROJECT_VIEW : ELEMENT
     {
 		switch (EventType)
 		{
-			
+
 			case ProEvent.Opened				:
 												{
 													UpdateList(mKeyBox);
@@ -237,12 +237,12 @@ class PROJECT_VIEW : ELEMENT
         //{
         //    dui.GetSidePane.setCurrentPage(mRoot);
         //}
-        
+
     }
     void AppendToolItems()
     {
 
-        
+
         auto tmp = dui.Actions.getAction("ProNewAct"    );
         mToolBar.insert(tmp.createToolItem());
         tmp = dui.Actions.getAction("ProOpenAct"   );
@@ -298,10 +298,10 @@ class PROJECT_VIEW : ELEMENT
         else return;
 
         ti = mListView.getSelectedIter();
-        
+
         Project.RemoveItem(CurrentKey, mViewStore.getValueString(ti,1));
-        
-        
+
+
     }
 
 
@@ -323,7 +323,7 @@ class PROJECT_VIEW : ELEMENT
 		auto SelFiles = FileDialog.getFilenames();
 		while(SelFiles !is null)
 		{
-            afile = toImpl!(string, char *)(cast(char *)SelFiles.data()); 
+            afile = toImpl!(string, char *)(cast(char *)SelFiles.data());
             Project.AddItem(CurrentKey, afile); //AddUniqueItem
             //Project[CurrentKey] ~= afile;
             SelFiles = SelFiles.next();
@@ -347,15 +347,15 @@ class PROJECT_VIEW : ELEMENT
 		auto SelFiles = FileDialog.getFilenames();
 		while(SelFiles !is null)
 		{
-			afile = toImpl!(string, char *)(cast(char *)SelFiles.data()); 
+			afile = toImpl!(string, char *)(cast(char *)SelFiles.data());
 			Project.AddItem(CurrentKey, afile); //AddUniqueItem?
 			SelFiles = SelFiles.next();
 		}
-		
+
     }
     void AddAIdentifier(string CurrentKey)
     {
-        
+
         mAddedIdentifierTI = new TreeIter;
         mViewStore.append(mAddedIdentifierTI);
         mViewStore.setValue(mAddedIdentifierTI, 0, "NewValue");
@@ -382,10 +382,10 @@ class PROJECT_VIEW : ELEMENT
 		mEnabled = Config.getBoolean("PROJECT_VIEW", "enabled", true);
 		mRoot.setVisible(mEnabled);
 	}
-        
-        
 
-    
+
+
+
     public:
 
     this()
@@ -395,7 +395,7 @@ class PROJECT_VIEW : ELEMENT
 
         mPrefPage = new PROJECT_VIEW_PREF;
     }
-    
+
     @property string Name(){return mName;}
     @property string Information(){return mInfo;}
     @property bool   State(){return mState;}
@@ -424,17 +424,17 @@ class PROJECT_VIEW : ELEMENT
         mCellText   = cast(CellRendererText) 	mBuilding.getObject("cellrenderertext2");
 
         dui.GetSidePane.appendPage(mRoot, "Project");
-        dui.GetSidePane.setTabReorderable ( mRoot, true); 
+        dui.GetSidePane.setTabReorderable ( mRoot, true);
 
         mCellText.addOnEdited(&EditIdentifier);
 
         AppendToolItems();
-        
+
         mKeyBox.addOnChanged(&UpdateList);
-        
+
         mListView.addOnRowActivated(&OpenFile);
 
-        mRemove.addOnClicked(&Remove); 
+        mRemove.addOnClicked(&Remove);
         mAdd.addOnClicked(&Add);
         Project.Event.connect(&UpdateProject);
 
@@ -462,11 +462,11 @@ class PROJECT_VIEW : ELEMENT
         return mPrefPage;
     }
 }
-    
+
 class PROJECT_VIEW_PREF : PREFERENCE_PAGE
 {
 	CheckButton		mEnabled;
-	
+
 	this()
 	{
 		super("Elements", Config.getString("PREFERENCES", "glade_file_project_view", "$(HOME_DIR)/glade/proviewpref.glade"));

@@ -359,8 +359,7 @@ class PROJECT
         mTarget             = TARGET.NULL;
         mCompiler           = Config.getString("PROJECT", "default_compiler", "dmd");
         mVersion            = PROJECT_VERSION;
-        //scope(failure)Log.Entry("Unable to reset Flags File", "Error");
-		//ReadFlags(Config.getString("PROJECT","flags_file", "$(HOME_DIR)/flags/flagsfile.json" ));
+
 		ResetFlags();
 
         mList.Zero();
@@ -538,7 +537,7 @@ class PROJECT
 
         Process.popen(mChildRunner ~ BuildCommand() ~ " 2>&1 ", "r");
 
-        
+
 
         foreach(string L; lines(Process) ) BuildMsg.emit(chomp(L));
 

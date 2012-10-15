@@ -1,17 +1,17 @@
 //      symbols.d
-//      
+//
 //      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
+//
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      This program is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with this program; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -48,7 +48,7 @@ class DSYMBOL
     string      Path;               ///full path of this symbol
     string[]    Scope;              ///scope path to this symbol (path without Name)
 
-	string		Base;               ///what the symbol inherits (enum's can inherit a type?)    
+	string		Base;               ///what the symbol inherits (enum's can inherit a type?)
 
     string		Type;               ///basically the signature (w/o the name) ie void(int, string) or uint or not always present
 	string		Kind;               ///variable function constructor template struct class module union enum alias ...
@@ -57,12 +57,12 @@ class DSYMBOL
     string		Comment;            ///ddoc comment associated with symbol (only if compiled with -D)
 
     string      Protection;         ///this is newly added ... going to screw me up!
-        
-    string		InFile;             ///the file where symbol is defined 
+
+    string		InFile;             ///the file where symbol is defined
 	int			OnLine;             ///the line on which it is defined on
 
 
-    
+
     bool		Scoped;             ///does this symbol have children
     DSYMBOL[]   Children;           ///All children
     string      Icon;
@@ -72,7 +72,7 @@ class DSYMBOL
     {
         string color;
         string rv;
-        
+
         switch(Protection)
         {
             case "private"      : color = `<span foreground="red">`;break;
@@ -81,7 +81,7 @@ class DSYMBOL
             case "package"      : color = `<span foreground="green">`;break;
             default : color = `<span foreground="green">`;
         }
-        
+
         switch(Kind)
         {
             case "module"       :rv = color ~ `Ⓜ</span>`;break;
@@ -112,20 +112,20 @@ class DSYMBOL
 class SYMBOLS
 {
     private:
-    
+
     /**
      * Associative array of symbols
      * ie mSymbols["std"] would be phobos std library symbols
      * mSymbols["gtk"] mSymbols["core"]
      * Project symbols will be autoloaded as mSymbols[Project.Name]
      * */
-     
+
     DSYMBOL[string] mSymbols;
     string          mProjectKey; ///actually project name, used to remove project tags since Project.Name is cleared before Project.Event.emit("close");
 
     string mLastComment; 		///holds last comment before dittos
 
-       
+
 
     ///given jval from a json file fills up the symbols in this object
     void BuildSymbols(JSONValue jval, ref DSYMBOL sym , string Module = "")
@@ -136,7 +136,7 @@ class SYMBOLS
             {
                 DSYMBOL tsym;
                 sym.Children.length = jval.array.length;
-                
+
                 foreach (indx, jv; jval.array)
                 {
                     tsym = new DSYMBOL;
@@ -150,7 +150,7 @@ class SYMBOLS
             break;
 
             case JSON_TYPE.OBJECT :
-            {                
+            {
                 foreach(key, obj; jval.object)
                 {
                     switch (key)
@@ -189,7 +189,7 @@ class SYMBOLS
                     else sym.ReturnType.length = 0;
                 }
                 sym.Icon = sym.GetIcon();
-                
+
                 sym.InFile = Module;
                 if(sym.Name is null)sym.Name = baseName(Module.chomp(".d"));
                 if(!sym.Path.empty)sym.Path ~= "." ~ sym.Name;
@@ -204,18 +204,18 @@ class SYMBOLS
                 {
                     sym.Scoped = false;
                 }
-                
+
                 auto lastIndex = sym.Name.lastIndexOf(".");
                 if ((lastIndex > -1) && (sym.Kind == "module"))
                 {
                     sym.Name = sym.Name[lastIndex+1..$];
                 }
-                          
+
             }
             break;
             default : writeln("default"); break;
         }
-        
+
     }
 
 	/**
@@ -266,7 +266,7 @@ class SYMBOLS
      * */
     DSYMBOL[] GetInScopeSymbols(string[] Scope)
     {
-        
+
         DSYMBOL[] ReturnSyms;
 
 		//following line is necessary to avoid seg faults processing templates
@@ -278,10 +278,10 @@ class SYMBOLS
             foreach(kid; Sym.Children) _Process(kid);
 
             if(endsWith(Sym.Scope[0..$-1]   , Scope))
-            {                
-                ReturnSyms ~= Sym;                
+            {
+                ReturnSyms ~= Sym;
             }
-            
+
             if(endsWith(Sym.Scope, Scope[$-1]))
             {
 
@@ -293,8 +293,8 @@ class SYMBOLS
 
             }
         }
-        foreach(sym; mSymbols) _Process(sym);        
-        
+        foreach(sym; mSymbols) _Process(sym);
+
         return ReturnSyms;
     }
 
@@ -331,7 +331,7 @@ class SYMBOLS
 
 		foreach(key; keys)
 		{
-			auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");			
+			auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");
 			Load(key, tmp);
 		}
 
@@ -340,10 +340,10 @@ class SYMBOLS
 		//foreach (key; parallel(keys))
 		//{
 		//	mSymbols[key] = LoadConcurrent(key, tmp[key]);
-		//}    
+		//}
     }
-    
-    
+
+
     public :
 
 	/**
@@ -352,15 +352,17 @@ class SYMBOLS
 	 * */
     void Engage()
     {
-                    
+
         string[] keys = Config().getKeys("SYMBOL_LIBS");
+
+        if(keys.length < 1) keys = ["std"];
 
 		if(Config.getBoolean("SYMBOLS", "auto_load_symbols", true))
 		{
-			
+
 			foreach(key; keys)
 			{
-				auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");			
+				auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");
 				Load(key, tmp);
 			}
 		}
@@ -372,11 +374,11 @@ class SYMBOLS
 
         Config.Reconfig.connect(&Reconfigure);
         //Reconfigure();  //don't need this run now. doubles app load time too.
-            
+
         string x = "Engaged SYMBOLS [";
         foreach(ii, key; keys){if(ii != 0)x ~= `,`; x ~= `"` ~ key ~`"`;}
         x ~= "]";
-        Log().Entry(x);   
+        Log().Entry(x);
     }
 
 	/**
@@ -395,10 +397,10 @@ class SYMBOLS
 
     /**
      * Adds a 'TagFile' (dmd -X json file) to the configurtion file.
-     
+
      * If user opts for auto symbol loading this file of symbols will
      * be automatically loaded at start up.
-     
+
      * Does not actually load anything.  Have to run Load or Reconfigure
      * or wait for a restart.  Nor does it check that TagFile exists or key
      * is already in use.
@@ -406,15 +408,15 @@ class SYMBOLS
      * params:
      *  key = name of package, used as associative key.
      *  TagFile = json file with symbols.
-     * 
+     *
      *
      **/
     void AddCommonTagFile(string key, string TagFile)
     {
         Config().setString("SYMBOLS", key, TagFile);
-    }       
+    }
 
-    
+
 
 	/**
 	 * Loads a 'TagFile'
@@ -431,13 +433,13 @@ class SYMBOLS
 		}
 
         auto JRoot = parseJSON(readText(symfile));
-        
+
         DSYMBOL X = new DSYMBOL;
         X.Name = key;
         X.Path = key;
         X.Scope = [key];
         X.Kind = "package";
-        
+
         BuildSymbols(JRoot, X);
 
         mSymbols[key] = X;
@@ -454,16 +456,16 @@ class SYMBOLS
         {
 
         auto JRoot = parseJSON(readText(symfile));
-        
+
         DSYMBOL X = new DSYMBOL;
         X.Name = key;
         X.Path = key;
         X.Scope = [key];
         X.Kind = "package";
-        
+
         BuildSymbols(JRoot, X);
 
-        
+
         emit();
 		return X;
     }
@@ -483,38 +485,38 @@ class SYMBOLS
         void _Process(DSYMBOL x)
         {
             if( startsWith(x.Name, CandiName))
-            {               
-               
+            {
+
                 if(CandiPath.length > 0)
                 {
-                    
+
                     if( endsWith(x.Scope, CandiPath) )
                     {
                         RetSyms ~= x;
-                                            
+
                     }
-  
+
                 }
                 else
                 {
                     RetSyms ~= x;
                 }
-                
+
             }
             if((x.Base.length > 0) && (CandiPath.length > 1) && (x.Scope.length > 1) && endsWith(x.Scope[$-1], CandiPath[$-1]) )
             {
                 auto memsyms = GetMembers(x.Base);
-                foreach (member;memsyms) if( startsWith(member.Name, CandiName)) RetSyms ~= member; 
+                foreach (member;memsyms) if( startsWith(member.Name, CandiName)) RetSyms ~= member;
             }
 
             foreach(kid; x.Children) _Process(kid);
         }
 
-        foreach(symbol; mSymbols) _Process(symbol);        
+        foreach(symbol; mSymbols) _Process(symbol);
 
         return RetSyms;
     }
-    
+
 
     /**
      * ditto
@@ -556,7 +558,7 @@ class SYMBOLS
 
         return ReturnSyms;
     }
-        
+
 	/**
 	 * Returns possibles completions of Candidate (ie matches)
 	 * params:
@@ -575,10 +577,10 @@ class SYMBOLS
         if(CandiPath.length > 0)
         {
             InScopeSyms = GetInScopeSymbols(CandiPath);
-            
-            NoScopeResults = (InScopeSyms.length < 1);           
-            if(NoScopeResults) InScopeSyms = mSymbols.values;           
-            
+
+            NoScopeResults = (InScopeSyms.length < 1);
+            if(NoScopeResults) InScopeSyms = mSymbols.values;
+
         }
         else
         {
@@ -591,7 +593,7 @@ class SYMBOLS
         else if(!NoScopeResults) ReturnSyms = InScopeSyms;
 
         return ReturnSyms;
-        
+
     }
 
 	/**
@@ -611,12 +613,12 @@ class SYMBOLS
         auto tmpSyms = Match(Candidate);
 
         foreach(ts; tmpSyms) if (ts.Scope[$-1] == CandiName) RetSyms ~=  ts;
-               
+
         return RetSyms;
     }
-    
- 
-    DSYMBOL[string] Symbols(){return  mSymbols.dup;}        
+
+
+    DSYMBOL[string] Symbols(){return  mSymbols.dup;}
 
     mixin Signal!();
     mixin Signal!(DSYMBOL[]) Forward;
@@ -638,7 +640,7 @@ class SYMBOLS
 	 * params:
 	 * Candidate = symbol name possibly including scope/path(aa.bb.name)
 	 * returns: The scope/path part of candidate sans whitespace possibly ""
-	 * */ 
+	 * */
     string StringPath(string Candidate)
     {
         string rv;
@@ -656,12 +658,12 @@ class SYMBOLS
      */
     string[] GetCandidatePath(string Candidate)
     {
-        
+
         string[] rv = split(StringPath(Candidate), ".");
 
         return rv;
     }
-         
+
 	/**
 	 * Filters out the scope/path of Candidate.
 	 * returns: The name of Candidate (or partial name)
@@ -675,7 +677,7 @@ class SYMBOLS
             rv = Candidate;
             return rv;
         }
-        
+
         if(indx >= Candidate.length-1)
         {
             rv.length = 0;
@@ -690,14 +692,14 @@ class SYMBOLS
     }
 
     /**
-    * Allows an outside source (ie element) to cause a forward 
+    * Allows an outside source (ie element) to cause a forward
     * signal to be emitted
     */
     void TriggerSignal(DSYMBOL[] SymbolsToPass)
     {
         Forward.emit(SymbolsToPass);
     }
-        
+
 
 
 }

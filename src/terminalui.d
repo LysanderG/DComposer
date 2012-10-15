@@ -1,17 +1,17 @@
 //      terminal.d
-//      
+//
 //      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
+//
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      This program is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with this program; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -78,11 +78,11 @@ class TERMINAL_UI : ELEMENT
     string              mInfo;
     bool                mState;
 
-    
+
     ScrolledWindow      mScrWin;
     Widget              mTerminal;
     GtkWidget 			*cvte;
-    GdkColor 			*ForeColor;	
+    GdkColor 			*ForeColor;
 	GdkColor 			*BackColor;
 
 	TERMINAL_PAGE		PrefPage;
@@ -92,38 +92,38 @@ class TERMINAL_UI : ELEMENT
 
         if(EventType == ProEvent.PathChanged)
         {
-            
+
             immutable(char) * cdcmd = toStringz("cd " ~ getcwd() ~ "\n");
             vte_terminal_feed_child(cvte, cdcmd, getcwd().length +4);
         }
-		
-    }		
+
+    }
 
     void Configure()
     {
 		//************** colors
-		auto foreColor = Config.getString("TERMINAL", "forecolor", "#000000000000");
-		ForeColor = new GdkColor;		
+		auto foreColor = Config.getString("TERMINAL", "forecolor", "#26b8ffff0000");
+		ForeColor = new GdkColor;
 		gdk_color_parse(toStringz(foreColor), ForeColor);
 		gdk_color_to_string(ForeColor);
-		
-		auto backColor = Config.getString("TERMINAL", "backcolor", "#0000ffff0000");
+
+		auto backColor = Config.getString("TERMINAL", "backcolor", "#000000000000");
 		BackColor = new GdkColor;
 		gdk_color_parse(toStringz(backColor), BackColor);
 		gdk_color_to_string(BackColor);
-		
+
 		vte_terminal_set_colors(cvte, ForeColor, BackColor, null, 0);
-		
+
 		//*******************font
 
-		string FullFontName = Config.getString("TERMINAL", "font", "DejaVu Sans Mono 8");
+		string FullFontName = Config.getString("TERMINAL", "font", "Liberation Mono 12");
 		vte_terminal_set_font_from_string(cvte, toStringz(FullFontName));
 
 		//*******************infinite scrolling
 		vte_terminal_set_scrollback_lines(cvte, -1);
-		
+
 	}
-		
+
 
     public:
 
@@ -135,14 +135,14 @@ class TERMINAL_UI : ELEMENT
 
         PrefPage = new TERMINAL_PAGE;
     }
-    
+
     @property string Name(){ return mName;}
     @property string Information(){return mInfo;}
     @property bool   State(){ return mState;}
     @property void   State(bool nuState){mState = nuState;}
 
 
-    
+
 
     void Engage()
     {
@@ -154,27 +154,27 @@ class TERMINAL_UI : ELEMENT
         //vte_terminal_fork_command (cvte, null, null, null, null,true, true, true);
 		vte_terminal_fork_command_full(cvte, 0, null, cast(const (char**))"/bin/bash\0 \0".ptr, null, 0,null , null, null, null);
 
-		
+
         g_signal_connect_object(cvte, cast(char*)toStringz("child-exited"),&Reset  , null, cast(GConnectFlags)0);
         //g_signal_connect_object(cvte, cast(char*)toStringz("commit")      ,cast(GCallback)&ProcessInput     , null, cast(GConnectFlags)0);
 
-		
-		
+
+
         mTerminal = new Widget(cvte);
-        
+
         mScrWin.add(mTerminal);
         mScrWin.showAll();
         dui.GetExtraPane.appendPage(mScrWin, "Terminal");
-        dui.GetExtraPane.setTabReorderable ( mScrWin, true); 
+        dui.GetExtraPane.setTabReorderable ( mScrWin, true);
 
         Project.Event.connect(&WatchProject);
         Config.Reconfig.connect(&Configure);
-        
+
         Log.Entry("Engaged "~mName~"\t\telement.");
 
     }
-        
-        
+
+
 
     void Disengage()
     {
@@ -183,7 +183,7 @@ class TERMINAL_UI : ELEMENT
         Project.Event.disconnect(&WatchProject);
         Config.Reconfig.disconnect(&Configure);
         Log.Entry("Disengaged "~mName~"\t\telement.");
-        
+
     }
 
     PREFERENCE_PAGE GetPreferenceObject()
@@ -196,7 +196,7 @@ private GtkWidget * g_cvte;
 
 extern (C) void Reset()
 {
-    vte_terminal_fork_command (g_cvte, null, null, null, null,true, true, true);    
+    vte_terminal_fork_command (g_cvte, null, null, null, null,true, true, true);
 }
 
 string vtetext;
@@ -205,15 +205,15 @@ string vtetext;
 class TERMINAL_PAGE : PREFERENCE_PAGE
 {
 	private:
-	
+
 	FontButton		mFontButton;
 	ColorButton		mForeColor;
 	ColorButton		mBackColor;
 
 	GdkColor fcolor;
 	GdkColor bcolor;
-	
-	
+
+
 
 	public:
 
@@ -230,13 +230,13 @@ class TERMINAL_PAGE : PREFERENCE_PAGE
 
 	override void PrepGui()
 	{
-		mFontButton.setFontName(Config.getString("TERMINAL", "font", "DejaVu Sans Mono 8"));
+		mFontButton.setFontName(Config.getString("TERMINAL", "font", "Liberation Mono 12"));
 
-		
-		Color.parse(Config.getString("TERMINAL", "forecolor", "#000044440000"), fcolor);
+
+		Color.parse(Config.getString("TERMINAL", "forecolor", "#26b8ffff0000"), fcolor);
 		mForeColor.setColor(new Color(&fcolor));
 
-		
+
 		Color.parse(Config.getString("TERMINAL", "backcolor",  "#000000000000"), bcolor);
 		mBackColor.setColor(new Color(&bcolor));
 	}
@@ -256,5 +256,5 @@ class TERMINAL_PAGE : PREFERENCE_PAGE
 		Config.setString("TERMINAL", "backcolor", b.toString());
 	}
 
-		
+
 }

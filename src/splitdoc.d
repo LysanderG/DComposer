@@ -1,17 +1,17 @@
 // splitdoc.d
-// 
+//
 // Copyright 2012 Anthony Goins <anthony@LinuxGen11>
-// 
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -57,7 +57,7 @@ class SPLIT_DOCUMENT : ELEMENT
 	int  msetTabWidth;
 	string mmodifyFont;
 	SourceSmartHomeEndType msetSmartHomeEnd;
-	
+
 
 	void UnSplit(DOCUMENT SplitDoc)
 	{
@@ -73,7 +73,7 @@ class SPLIT_DOCUMENT : ELEMENT
 
 		//create a new page widget(scrollwindow)
 		auto NewPage = new ScrolledWindow;
-		
+
 
 		//put our doc on the page
 		NewPage.add(SplitDoc);
@@ -87,61 +87,61 @@ class SPLIT_DOCUMENT : ELEMENT
 		//stick new page where old page was
 		dui.GetCenterPane.insertPageMenu(SplitDoc.PageWidget, SplitDoc.TabWidget, new Label(SplitDoc.ShortName), PgIndex);
 		dui.GetCenterPane.setCurrentPage(PgIndex);
-		SplitDoc.grabFocus();	
-		
+		SplitDoc.grabFocus();
+
 	}
 
 	void VSplit()
 	{
-		
+
 		auto mainDoc = dui.GetDocMan.Current;
 		if(mainDoc is null)return;
 		if(mainDoc.PageWidget.classinfo.name == "gtk.VPaned.VPaned") return UnSplit(mainDoc);
 
-		auto extraDoc = new SourceView;		
+		auto extraDoc = new SourceView;
 		extraDoc.setBuffer(dui.GetDocMan.Current.getBuffer());
 		ConfigExtraDoc(extraDoc);
 
 		GtkAllocation HowBigYouAre;
 		HowBigYouAre = dui.GetCenterPane.getAllocation();
-		
+
 		auto ScrollTop = new ScrolledWindow();
 		auto ScrollBottom = new ScrolledWindow();
 		ScrollBottom.add(extraDoc);
 
 
 		auto VPane = new VPaned(ScrollTop, ScrollBottom);
-		
+
 		auto PageIndex = dui.GetCenterPane.pageNum(mainDoc.PageWidget());
-		mainDoc.reparent(ScrollTop);				
+		mainDoc.reparent(ScrollTop);
 		dui.GetCenterPane.removePage(PageIndex);
-		
+
 		mainDoc.SetPageWidget(VPane);
 		VPane.showAll();
-				
+
 		dui.GetCenterPane.insertPageMenu(mainDoc.PageWidget, mainDoc.TabWidget,new Label(mainDoc.ShortName), PageIndex);
 		dui.GetCenterPane.setCurrentPage(PageIndex);
-				
-		VPane.setPosition(HowBigYouAre.height/2);		
-		
+
+		VPane.setPosition(HowBigYouAre.height/2);
+
 		mainDoc.grabFocus();
 
 	}
 
 	void HSplit()
 	{
-		
+
 		auto mainDoc = dui.GetDocMan.Current;
 		if(mainDoc is null) return;
 		if(mainDoc.PageWidget.classinfo.name == "gtk.HPaned.HPaned") return UnSplit(mainDoc);
 
-		auto extraDoc = new SourceView;		
+		auto extraDoc = new SourceView;
 		extraDoc.setBuffer(dui.GetDocMan.Current.getBuffer());
 		ConfigExtraDoc(extraDoc);
 
 		GtkAllocation HowBigYouAre;
 		HowBigYouAre = dui.GetCenterPane.getAllocation();
-				
+
 		auto ScrollTop = new ScrolledWindow();
 		auto ScrollBottom = new ScrolledWindow();
 		ScrollBottom.add(extraDoc);
@@ -151,17 +151,17 @@ class SPLIT_DOCUMENT : ELEMENT
 
 		auto PageIndex = dui.GetCenterPane.pageNum(mainDoc.PageWidget());
 
-		mainDoc.reparent(ScrollTop);				
+		mainDoc.reparent(ScrollTop);
 
 		dui.GetCenterPane.removePage(PageIndex);
 		mainDoc.SetPageWidget(HPane);
 		HPane.showAll();
-				
+
 		dui.GetCenterPane.insertPageMenu(mainDoc.PageWidget, mainDoc.TabWidget,new Label(mainDoc.ShortName), PageIndex);
 		dui.GetCenterPane.setCurrentPage(PageIndex);
-				
-		HPane.setPosition(HowBigYouAre.width/2);		
-		
+
+		HPane.setPosition(HowBigYouAre.width/2);
+
 		mainDoc.grabFocus();
 	}
 
@@ -185,8 +185,8 @@ class SPLIT_DOCUMENT : ELEMENT
         ExtraDoc.modifyFont(pango.PgFontDescription.PgFontDescription.fromString(mmodifyFont));
 
 	}
-	
-		
+
+
 	public:
 
     this()
@@ -215,25 +215,25 @@ class SPLIT_DOCUMENT : ELEMENT
 
 		dui.AddIcon("split-horizontal", Config.getString("ICONS", "split_horizontal", "$(HOME_DIR)/glade/layout-split.png"));
 		dui.AddIcon("split-vertical", Config.getString("ICONS", "split_vertical", "$(HOME_DIR)/glade/layout-split-vertical.png"));
-		
+
 		Action VSplitAction = new Action("VSplitAct", "_Vertical Split", "Create a second view", "split-vertical");
-		
+
 		VSplitAction.addOnActivate( delegate void (Action x){VSplit();});
 		VSplitAction.setAccelGroup(dui.GetAccel());
-		dui.Actions().addActionWithAccel(VSplitAction, "<SHIFT><CONTROL>V");        
+		dui.Actions().addActionWithAccel(VSplitAction, "<SHIFT><CONTROL>V");
         VSplitAction.connectAccelerator();
 
 		dui.AddMenuItem("_Documents",new SeparatorMenuItem()    );
-		
+
         dui.AddMenuItem("_Documents", VSplitAction.createMenuItem());
 		dui.AddToolBarItem(VSplitAction.createToolItem());
 		dui.GetDocMan.AddContextMenuAction(VSplitAction);
 
 		Action HSplitAction = new Action("HSplitAct", "_Horizontal Split", "Create a second view", "split-horizontal");
-		
+
 		HSplitAction.addOnActivate( delegate void (Action x){HSplit();});
 		HSplitAction.setAccelGroup(dui.GetAccel());
-		dui.Actions().addActionWithAccel(HSplitAction, "<SHIFT><CONTROL>H");        
+		dui.Actions().addActionWithAccel(HSplitAction, "<SHIFT><CONTROL>H");
         HSplitAction.connectAccelerator();
 
         dui.AddMenuItem("_Documents", HSplitAction.createMenuItem());
@@ -243,7 +243,7 @@ class SPLIT_DOCUMENT : ELEMENT
 
 		Config.Reconfig.connect(&Configure);
 		Configure();
-		
+
 		Log.Entry("Engaged "~Name()~"\t\telement.");
 	}
 
@@ -261,7 +261,7 @@ class SPLIT_DOCUMENT : ELEMENT
 
 	void Configure()
 	{
-		
+
 		msetAutoIndent = Config.getBoolean("DOCMAN", "auto_indent", true);
         msetIndentOnTab = Config.getBoolean("DOCMAN", "indent_on_tab", true);
         msetInsertSpacesInsteadOfTabs = Config.getBoolean("DOCMAN","spaces_for_tabs", true);
@@ -274,15 +274,15 @@ class SPLIT_DOCUMENT : ELEMENT
         msetShowRightMargin = Config.getBoolean("DOCMAN", "show_right_margin", true);
 
         msetRightMarginPosition = Config.getInteger("DOCMAN", "right_margin", 120);
-        msetIndentWidth = Config.getInteger("DOCMAN", "indention_width", 8);
+        msetIndentWidth = Config.getInteger("DOCMAN", "indention_width", 4);
         msetTabWidth = Config.getInteger("DOCMAN", "tab_width", 4);
 
-        mmodifyFont = Config.getString("DOCMAN", "font", "mono 18");
-		
+        mmodifyFont = Config.getString("DOCMAN", "font", "Inconsolata Bold 12");
+
 	}
-		
+
 }
-		
-		
+
+
 
 

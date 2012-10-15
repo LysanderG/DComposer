@@ -315,7 +315,6 @@ class ASSISTANT_UI : ELEMENT
 
     void Reconfigure()
     {
-        //mMouseHover = Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", false);
         mEnabled    = Config.getBoolean("ASSISTANT_UI", "enabled", true);
 
 		auto dpkeys = Config.getKeys("DOCUMENTATION_FOLDERS");
@@ -455,7 +454,6 @@ class ASSISTANT_PAGE : PREFERENCE_PAGE
     override void PrepGui()
     {
 		mEnabled.setActive(Config.getBoolean("ASSISTANT_UI","enabled", true));
-        //mPseudoToolTipEnabled.setActive(Config.getBoolean("ASSISTANT_UI", "follow_doc_tool_tip", true));
 
         mDDocDirectories.ClearItems(null);
         string[] xDocPaths;

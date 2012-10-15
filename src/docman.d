@@ -691,7 +691,7 @@ class DOC_PAGE : PREFERENCE_PAGE
     override void PrepGui()
     {
         //load choices
-        auto currentStyle = Config.getString("DOCMAN", "style_scheme", "cobalt");
+        auto currentStyle = Config.getString("DOCMAN", "style_scheme", "mnml");
         int ActiveChoice;
         int indx;
         TreeIter ti = new TreeIter;
@@ -719,11 +719,11 @@ class DOC_PAGE : PREFERENCE_PAGE
         mHiliteSyntax       .setActive(Config.getBoolean("DOCMAN", "hilite_syntax"      , true));
         mMatchBrackets      .setActive(Config.getBoolean("DOCMAN", "match_brackets"     , true));
 
-        mRightMargin.setValue(Config.getInteger("DOCMAN", "right_margin", 80));
-        mIndentionWidth.setValue(Config.getInteger("DOCMAN", "indention_width", 8));
-        mTabWidth.setValue(Config.getInteger("DOCMAN", "tab_width", 8));
+        mRightMargin.setValue(Config.getInteger("DOCMAN", "right_margin", 120));
+        mIndentionWidth.setValue(Config.getInteger("DOCMAN", "indention_width", 4));
+        mTabWidth.setValue(Config.getInteger("DOCMAN", "tab_width", 4));
 
-        mFontStuff.setFontName(Config.getString("DOCMAN", "font", "Droid Sans Mono 16"));
+        mFontStuff.setFontName(Config.getString("DOCMAN", "font", "Inconsolata Bold 12"));
 
     }
 

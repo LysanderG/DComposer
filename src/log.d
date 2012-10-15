@@ -1,17 +1,17 @@
 //      log.d
-//      
+//
 //      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
+//
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      This program is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with this program; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -41,19 +41,19 @@ class LOG
 {
 	private :
 	string[]        mEntries;                       //buffer of log entries not yet saved to file
-    
+
 	string          mSystemDefaultLogName;          //system log file can be overridden by interimfilename but reverts
                                                     //if no -l option on command line
     string          mInterimFileName;               //override regular log file name from cmdline for one session
     string          mLogFile;                       //which of the two above is actually being used this session
-    
+
     ulong           mMaxLines;                      //flush entries buffer
     ulong           mMaxFileSize;                   //if log is this size then don't append overwrite
 
     bool			mLockEntries;					//don't dispose of mEntries if this is true
 
     bool			mEchoToStdOut;					//whether to write entries to stdout
-   
+
 
 	public:
 
@@ -62,17 +62,17 @@ class LOG
 
         mSystemDefaultLogName =  Config.ExpandPath("$(HOME_DIR)/dcomposer.log");
         mInterimFileName = "unspecifiedlogfile.cfg";
-        
+
         mMaxFileSize = 65_535;
-        mMaxLines = 1;
+        mMaxLines = 255;
 
         mLockEntries = true;
         mEchoToStdOut = true;
-        
+
         signal(SIGSEGV, &SegFlush);
         signal(SIGABRT, &SegFlush);
         signal(SIGINT, &SegFlush);
-        
+
     }
     ~this()
     {
@@ -89,7 +89,7 @@ class LOG
             Config.removeKey("LOG", "interim_log_file");
         }
         else mLogFile = mSystemDefaultLogName;
-        
+
         mMaxLines     = Config.getUint64("LOG", "max_lines_buffer", mMaxLines);
         mMaxFileSize  = Config.getUint64("LOG", "max_file_size", mMaxFileSize);
         mEchoToStdOut = Config.getBoolean("LOG", "echo_to_std_out", true);
@@ -102,7 +102,7 @@ class LOG
 
         auto rightnow = Clock.currTime();
         auto logtime = rightnow.toISOExtString();
-        
+
         auto f = File(mLogFile, mode);
 
         f.writeln("<<++	LOG BEGINS ++>>");
@@ -113,7 +113,7 @@ class LOG
 
     void Disengage()
 	{
-		
+
 		auto rightnow = Clock.currTime();
 		auto logtime = rightnow.toISOExtString();
 
@@ -125,9 +125,9 @@ class LOG
 		mEntries[$-2] = logtime;
 		mEntries[$-1] = "<<-- LOG ENDS -->>\n";
 		Flush();
-	}     
+	}
 
-	
+
 	void Entry(string Message, string Level = "Info", string Module = null )
 	{
 		//Level can be any string
@@ -140,17 +140,17 @@ class LOG
 		mEntries ~= x;
 		if(mEntries.length >= mMaxLines) Flush();
 	}
-    
+
 	void Flush()
 	{
-		if(mLockEntries)return; //no saving entries while entries are locked 
+		if(mLockEntries)return; //no saving entries while entries are locked
 		auto f = File(mLogFile, "a");
 		foreach (l; mEntries) f.writeln(l);
         f.flush();
         f.close();
 		 mEntries.length = 0;
 	}
-    
+
     mixin Signal!(string, string, string);
 
     //this only returns the current buffer of entries!
@@ -165,7 +165,7 @@ class LOG
     void SetLockEntries(bool Lock){ mLockEntries = Lock;}
 }
 
-	
+
 
 import std.c.stdlib;
 extern (C) void SegFlush(int SysSig)nothrow @system
@@ -182,4 +182,4 @@ extern (C) void SegFlush(int SysSig)nothrow @system
 	    return;
     }
 }
-	
+

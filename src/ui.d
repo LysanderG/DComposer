@@ -423,8 +423,8 @@ class MAIN_UI
 
         xpos = Config.getInteger("UI", "store_gui_window_xpos", 1);
         ypos = Config.getInteger("UI", "store_gui_window_ypos", 1);
-        xlen = Config.getInteger("UI", "store_gui_window_xlen", 1);
-        ylen = Config.getInteger("UI", "store_gui_window_ylen", 1);
+        xlen = Config.getInteger("UI", "store_gui_window_xlen", 1000);
+        ylen = Config.getInteger("UI", "store_gui_window_ylen", 750);
 
         mWindow.move(xpos, ypos);
         mWindow.setDefaultSize(xlen,ylen);
@@ -433,8 +433,8 @@ class MAIN_UI
 
         mWindow.show();
 
-        int vpanePos = Config.getInteger("UI", "store_gui_vpaned_pos", 100);
-        int hpanePos = Config.getInteger("UI", "store_gui_hpaned_pos", 100);
+        int vpanePos = Config.getInteger("UI", "store_gui_vpaned_pos", 450);
+        int hpanePos = Config.getInteger("UI", "store_gui_hpaned_pos", 200);
 
 
         mHPaned.setPosition(hpanePos);
