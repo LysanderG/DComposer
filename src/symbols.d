@@ -355,7 +355,13 @@ class SYMBOLS
 
         string[] keys = Config().getKeys("SYMBOL_LIBS");
 
-        if(keys.length < 1) keys = ["std"];
+		//at least should load the stdlib tags
+        if(keys.length < 1)
+        {
+			keys = ["std"];
+			Config.setString("SYMBOL_LIBS", keys[0], Config.ExpandPath("$(HOME_DIR)/tags/stdlib.json"));
+		}
+
 
 		if(Config.getBoolean("SYMBOLS", "auto_load_symbols", true))
 		{
