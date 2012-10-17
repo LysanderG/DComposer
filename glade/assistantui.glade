@@ -49,6 +49,8 @@ today</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <property name="has_tooltip">True</property>
+                <property name="tooltip_text" translatable="yes">Move up to symbols parent scope</property>
                 <property name="use_action_appearance">False</property>
               </object>
               <packing>
@@ -63,6 +65,8 @@ today</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <property name="has_tooltip">True</property>
+                <property name="tooltip_text" translatable="yes">Go to source code definition</property>
                 <property name="use_action_appearance">False</property>
               </object>
               <packing>
@@ -72,12 +76,14 @@ today</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button3">
-                <property name="label" translatable="yes">Link</property>
+              <object class="GtkToggleButton" id="togglebutton1">
+                <property name="label" translatable="yes">Lock</property>
                 <property name="visible">True</property>
                 <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <property name="has_tooltip">True</property>
+                <property name="tooltip_text" translatable="yes">Prevent changing documentation.</property>
                 <property name="use_action_appearance">False</property>
               </object>
               <packing>

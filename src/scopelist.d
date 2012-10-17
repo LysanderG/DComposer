@@ -86,15 +86,16 @@ class SCOPE_LIST : ELEMENT
         if (!mEnabled) return;
         if (sv.Pasting) return;
 
-        ti.backwardChar();
+        auto tic = ti.copy();
+
         TextIter TStart = new TextIter;
 
-		string Candidate = sv.Symbol(ti, TStart);
+		string Candidate = sv.Symbol(tic, TStart);
 
         if(Candidate.length < 1) return;
         DSYMBOL[] possibles = Symbols.Match(Candidate);
 
-        sv.GetIterPosition(ti, xpos, ypos, xlen, ylen);
+        sv.GetIterPosition(tic, xpos, ypos, xlen, ylen);
         dui.GetAutoPopUps.CompletionPush(possibles, xpos, ypos, ylen, STATUS_SCOPE);
     }
 

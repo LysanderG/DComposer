@@ -154,18 +154,24 @@ class AUTO_POP_UPS
 
         DocX.addOnFocusOut(delegate bool (GdkEventFocus* EvntFocus, Widget wydjit) {Kill();return false;});
         DocX.addOnKeyPress(&CaptureDocumentKeys);
+        //DocX.addOnKeyRelease(&CaptureDocumentKeys);
         DocX.addOnButtonPress(&CaptureDocumentButtons);
     }
 
     bool CaptureDocumentKeys(GdkEventKey * EvntKey, Widget Wydjit)
     {
         if (!PopUpVisible()) return false;
+        //if (EvntKey.type == EventType.KEY_RELEASE) return true;
 
         DOCUMENT docX = cast(DOCUMENT) Wydjit;
 
 
         switch (EvntKey.keyval)
         {
+			case GdkKeysyms.GDK_Left		:
+			case GdkKeysyms.GDK_KP_Left		:
+			case GdkKeysyms.GDK_Right		:
+			case GdkKeysyms.GDK_KP_Right	:
             case GdkKeysyms.GDK_Escape      :   Kill(); return true;
 
             case GdkKeysyms.GDK_Up          :
@@ -279,6 +285,7 @@ class AUTO_POP_UPS
 
     void Present()
     {
+
         if(mCompletionStatus != STATUS_OFF)
         {
             mTipsWin.hide();
@@ -286,10 +293,10 @@ class AUTO_POP_UPS
             //mCompletionWin.resize(mWinXlen, mWinYlen);
             mCompletionWin.setOpacity(mWinOpacity);
             //mCompletionWin.move(mCompletionStore.mXPos, mCompletionStore.mYPos);
+            mCompletionView.setCursor(new TreePath("0"), null, false);
             mCompletionWin.showAll();
             //ResizeCompletionWindow(mCompletionWin);
 
-            mCompletionView.setCursor(new TreePath("0"), null, false);
             emit(mCompletionStore.mMatches[0]);
             return;
         }
@@ -462,6 +469,7 @@ class AUTO_POP_UPS
 
     void TipPush(DSYMBOL[] Possibles, long xpos, long ypos, long ylen)
     {
+		if(Possibles.length < 1) return;
         CompletionPop();
         mTipsIndex++;
         if (mTipsIndex >= MAX_TIP_DEPTH)
@@ -471,6 +479,7 @@ class AUTO_POP_UPS
         }
         mTipsStore[mTipsIndex] = DATA_STORE(Possibles, xpos, ypos, ylen, true);
         Present();
+        writeln("TipsIndex (p) ", mTipsIndex);
 
     }
 
@@ -479,12 +488,14 @@ class AUTO_POP_UPS
         mTipsIndex--;
         if (mTipsIndex < -1) mTipsIndex = -1;
         Present();
+        writeln("TipsIndex (tp) ", mTipsIndex);
     }
 
     void TipPopAll()
     {
 		mTipsIndex = -1;
 		Present();
+		writeln("TipsIndex (tpa) ", mTipsIndex);
 	}
 
     void Kill()

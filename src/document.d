@@ -514,11 +514,12 @@ class DOCUMENT : SourceView
 
 
 		auto pre = ScanBack(AtIter.copy());
-		auto post = ScanFore(AtIter.copy());
+		//auto post = ScanFore(AtIter.copy());
 
 		if((pre.length == 1) && (pre[0] == 0)) return ""; //basically an invalid symbol (starts with number)
 
-		return to!string(pre ~ post);
+		//return to!string(pre ~ post);
+		return to!string(pre);
 	}
 
 
@@ -1090,7 +1091,6 @@ class DOCUMENT : SourceView
         ypos = winY + OrigY;
         xlen = gdkRect.width;
         ylen = gdkRect.height;
-
     }
 
 

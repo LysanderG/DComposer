@@ -141,7 +141,7 @@ class CALL_TIPS : ELEMENT
                     if( !endsWith(Candidate, dsym.Scope[$-1])) continue;
                     FuncPossibles ~= dsym;
                 }
-
+				if(FuncPossibles.length < 1) break;
                 int xpos, ypos, xlen, ylen;
                 sv.GetIterPosition(ti, xpos, ypos, xlen, ylen);
 
