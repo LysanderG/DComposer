@@ -1048,7 +1048,7 @@ class DOCUMENT : SourceView
 		return mTabWidget;
 	}
 
-	void HiliteFoundMatch(int Line, int start, int len)
+	TextIter HiliteFoundMatch(int Line, int start, int len)
     {
 
         TextIter tstart = new TextIter;
@@ -1062,20 +1062,22 @@ class DOCUMENT : SourceView
         getBuffer.removeTagByName("hiliteback", tstart, tend);
         getBuffer.removeTagByName("hilitefore", tstart, tend);
 
-		if(getBuffer.getLineCount < Line) return;
+		if(getBuffer.getLineCount < Line) return null;
 		getBuffer.getIterAtLine(lineiter,Line);
-		if(lineiter.getCharsInLine() < start+len) return;
+		if(lineiter.getCharsInLine() < start+len) return null;
 
         getBuffer.getIterAtLineOffset(tstart, Line, start);
         getBuffer.getIterAtLineOffset(tend, Line, start+len);
 
         int characters = tstart.getCharsInLine();
 
-		if( (characters <  start) || (characters < start + len) ) return;
+		if( (characters <  start) || (characters < start + len) ) return null;
 
 
         getBuffer.applyTagByName("hiliteback", tstart, tend);
         getBuffer.applyTagByName("hilitefore", tstart, tend);
+
+        return tstart.copy();
     }
 
 	void GetIterPosition(TextIter ti, out int xpos, out int ypos, out int xlen, out int ylen)

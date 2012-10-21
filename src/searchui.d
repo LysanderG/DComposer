@@ -372,7 +372,8 @@ class SEARCH_UI : ELEMENT
         dui.GetDocMan.Open(FileName, LineNo-1);
         DOCUMENT tmp = dui.GetDocMan.Current;
         if (tmp is null) return;
-        tmp.HiliteFoundMatch(LineNo -1 , mResultsList.getValueInt(TI, 4), mResultsList.getValueInt(TI, 5) -mResultsList.getValueInt(TI, 4)); //pray hard
+        auto newcursorti =tmp.HiliteFoundMatch(LineNo -1 , mResultsList.getValueInt(TI, 4), mResultsList.getValueInt(TI, 5) -mResultsList.getValueInt(TI, 4)); //pray hard
+		if(newcursorti) tmp.scrollToIter(newcursorti, 0.25, 0, 0.0, 0.0);
         mResultsView.grabFocus();
         GC.enable();
     }
