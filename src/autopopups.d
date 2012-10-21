@@ -74,8 +74,7 @@ private struct DATA_STORE
 
     this(DSYMBOL[] nuPossibles, long Xpos, long Ypos, long Ylen, bool tip = false)
     {
-        mMatches = nuPossibles;
-
+		mMatches = nuPossibles;
 
         mXPos = Xpos;
         mYPos = Ypos;
@@ -84,7 +83,6 @@ private struct DATA_STORE
         mStore = new ListStore([GType.STRING, GType.STRING, GType.STRING]);
         GtkStore = mStore.getListStoreStruct();
         mIter = new TreeIter;
-
 
         sort!("a.Name < b.Name")(mMatches);
         if(tip) //this is a call tip needs to show the call signature
@@ -104,7 +102,6 @@ private struct DATA_STORE
             return;
         }
 
-
         foreach(match; mMatches)
         {
 			match.Name = encode(match.Name);
@@ -112,7 +109,6 @@ private struct DATA_STORE
             mStore.setValue(mIter, 0, match.GetIcon() ~ std.xml.encode( match.Name));
             mStore.setValue(mIter, 1, std.xml.encode(match.Path));
             //mStore.setValue(mIter, 2, std.xml.decode(match.Comment));
-
         }
     }
 
@@ -479,7 +475,6 @@ class AUTO_POP_UPS
         }
         mTipsStore[mTipsIndex] = DATA_STORE(Possibles, xpos, ypos, ylen, true);
         Present();
-        writeln("TipsIndex (p) ", mTipsIndex);
 
     }
 
@@ -488,14 +483,12 @@ class AUTO_POP_UPS
         mTipsIndex--;
         if (mTipsIndex < -1) mTipsIndex = -1;
         Present();
-        writeln("TipsIndex (tp) ", mTipsIndex);
     }
 
     void TipPopAll()
     {
 		mTipsIndex = -1;
 		Present();
-		writeln("TipsIndex (tpa) ", mTipsIndex);
 	}
 
     void Kill()

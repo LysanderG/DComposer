@@ -93,7 +93,7 @@ class SCOPE_LIST : ELEMENT
 		string Candidate = sv.Symbol(tic, TStart);
 
         if(Candidate.length < 1) return;
-        DSYMBOL[] possibles = Symbols.Match(Candidate);
+        //DSYMBOL[] possibles = Symbols.Match(Candidate);
 
         sv.GetIterPosition(tic, xpos, ypos, xlen, ylen);
         dui.GetAutoPopUps.CompletionPush(possibles, xpos, ypos, ylen, STATUS_SCOPE);

@@ -184,7 +184,21 @@ class SYMBOLS
                 if(sym.Kind == "function")
                 {
                     //DONT FORGET stuff like immutable (ident)[] (int paramone, ...) Seriously todo
-                    auto indx = std.string.indexOf(sym.Type, "(");
+					string symtype = sym.Type.removechars("[]");
+					symtype = symtype.removechars("shared");
+					symtype = symtype.removechars("immutable");
+					symtype = symtype.removechars("const");
+					symtype = symtype.removechars("inout");
+					symtype = symtype.removechars("nothrow");
+					symtype = symtype.removechars("pure");
+					symtype = symtype.removechars("@");
+					symtype = symtype.removechars("property");
+					symtype = symtype.removechars("safe");
+					symtype = symtype.removechars("trusted");
+
+
+                    //auto indx = std.string.indexOf(sym.Type, "(");
+                    auto indx = std.string.indexOf(symtype, "(");
                     if (indx > 0)sym.ReturnType = sym.Type[0..indx];
                     else sym.ReturnType.length = 0;
                 }

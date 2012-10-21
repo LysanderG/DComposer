@@ -45,7 +45,7 @@ all: $(TARGET)
 $(TARGET):  $(DSOURCES)
 	@rdmd ./buildinfo.d
 	$(DC) $(DFLAGS) $(INC_PATHS) $(LIBRARIES) $(DSOURCES) $(weblib) $(webflag)
-	@rm .build.info
+	#@rm .build.info
 
 
 
