@@ -1,17 +1,17 @@
 // printui.d
-// 
+//
 // Copyright 2012 Anthony Goins <neontotem@gmail.com>
-// 
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -56,22 +56,22 @@ class PRINTER : ELEMENT
 	Box			mCustomPage;
 
 	CheckButton mHighLight;
-	CheckButton mWrapText;	
-	CheckButton mLineNumber; 
-	
-	CheckButton mShowHeader; 
-	Entry 		mLHEntry;	
-	Entry 		mCHEntry;	
-	Entry 		mRHEntry;	
-	
-	CheckButton mShowFooter; 
-	Entry 		mLFEntry;	
-	Entry 		mCFEntry;	
-	Entry 		mRFEntry;	
+	CheckButton mWrapText;
+	CheckButton mLineNumber;
+
+	CheckButton mShowHeader;
+	Entry 		mLHEntry;
+	Entry 		mCHEntry;
+	Entry 		mRHEntry;
+
+	CheckButton mShowFooter;
+	Entry 		mLFEntry;
+	Entry 		mCFEntry;
+	Entry 		mRFEntry;
 
 
 
-	
+
 
 	void PrintDoc()
 	{
@@ -81,19 +81,17 @@ class PRINTER : ELEMENT
 
 		auto PrintOp = new PrintOperation();
 
-		
+
 		void BeginPrint(PrintContext pc, PrintOperation po)
 		{
-			writeln("in begin print!");
 			while(!SvCompositor.paginate(pc)){}
-			PrintOp.setNPages(SvCompositor.getNPages());			
+			PrintOp.setNPages(SvCompositor.getNPages());
 		}
 
 		void DrawPage(PrintContext pc, int page, PrintOperation po)
 		{
-			writeln("in DrawPage");
 			SvCompositor.drawPage(pc, page);
-			
+
 		}
 
 		GObject * AddCustomTab(PrintOperation po)
@@ -125,11 +123,11 @@ class PRINTER : ELEMENT
 			mLHEntry		.setText	(Config.getString("PRINTING", "left_header_text", "%f"));
 			mCHEntry		.setText	(Config.getString("PRINTING", "center_header_text", ""));
 			mRHEntry		.setText	(Config.getString("PRINTING", "right_header_text", "%N"));
-			
+
 			mShowFooter	.setActive	(Config.getBoolean("PRINTING", "showfooter", true));
 			mLFEntry		.setText	(Config.getString("PRINTING", "left_footer_text", ""));
 			mCFEntry		.setText	(Config.getString("PRINTING", "center_footer_text", ""));
-			mRFEntry		.setText	(Config.getString("PRINTING", "right_footer_text", ""));			
+			mRFEntry		.setText	(Config.getString("PRINTING", "right_footer_text", ""));
 
             return cast(GObject *)mCustomPage.getBoxStruct();
 		}
@@ -143,7 +141,7 @@ class PRINTER : ELEMENT
 			int PrintHeaders = mShowHeader.getActive();
 			int PrintFooters = mShowFooter.getActive();
 			string[6] formatstr;
-				
+
 			formatstr[0]= mLHEntry.getText();
 			formatstr[1]= mCHEntry.getText();
 			formatstr[2]= mRHEntry.getText();
@@ -170,7 +168,7 @@ class PRINTER : ELEMENT
 				if(r[1].length > 0) s = r[0] ~ dui.GetDocMan.GetName() ~ r[2];
 			}
 
-			
+
 
 			SvCompositor.setHighlightSyntax(PrintHighLighting);
 			SvCompositor.setWrapMode( (PrintWrapText)?(GtkWrapMode.WORD):(GtkWrapMode.NONE));
@@ -182,9 +180,9 @@ class PRINTER : ELEMENT
 			SvCompositor.setFooterFormat(1, formatstr[3], formatstr[4], formatstr[5]);
 
 		}
-			
-		
-		
+
+
+
 
 		PrintOp.addOnCreateCustomWidget (&AddCustomTab);
 		PrintOp.addOnCustomWidgetApply(&ApplyCustomTab);
@@ -194,12 +192,12 @@ class PRINTER : ELEMENT
 		PrintOp.setCustomTabLabel("Source Code");
 
 		auto PrintReturn = PrintOp.run( PrintOperationAction.PRINT_DIALOG, dui.GetWindow());
-		
+
 		writefln("Print operation returned %s, which is a %s", PrintReturn, typeid(PrintReturn));
 	}
-		
-	
-	
+
+
+
 	public:
 
     this()
@@ -228,20 +226,20 @@ class PRINTER : ELEMENT
 		return null;
 	}
 
-    
+
 
     void Engage()
     {
-		
+
 		mPrintAction = new Action("PrintAct", "_Print", "Summon from the Digital Plane", "dcomposer-print");
 
 		mPrintAction.addOnActivate( delegate void (Action x){PrintDoc();});
 		mPrintAction.setAccelGroup(dui.GetAccel());
-		dui.Actions().addActionWithAccel(mPrintAction, "<CONTROL>P");        
+		dui.Actions().addActionWithAccel(mPrintAction, "<CONTROL>P");
         mPrintAction.connectAccelerator();
 
 		//dui.AddMenuItem("_System",new SeparatorMenuItem(),2  );
-		
+
         dui.AddMenuItem("_System", mPrintAction.createMenuItem(),2);
 		dui.AddToolBarItem(mPrintAction.createToolItem());
 		dui.GetDocMan.AddContextMenuAction(mPrintAction);
@@ -255,7 +253,7 @@ class PRINTER : ELEMENT
 		Log.Entry("Disengaged "~mName~"\t\telement.");
 	}
 }
-	
+
 
 
 

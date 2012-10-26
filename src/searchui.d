@@ -492,11 +492,9 @@ class SEARCH_UI : ELEMENT
 
 	        TextIter txti1 = new TextIter;
 	        TextIter txti2 = new TextIter;
-	        writeln(line-1, "-", offstart, "-", offend, "--");
 	        tmp.getBuffer.getIterAtLineIndex (txti1, line-1, offstart);
 	        if(offend > txti1.getBytesInLine()) offend = txti1.getCharsInLine();
 
-	        writeln(line-1, "-", offstart, "-", offend, "--", txti1.getBytesInLine());
 	        tmp.getBuffer.getIterAtLineIndex (txti2, line-1, offend);
 
 	        tmp.getBuffer.delet(txti1, txti2);
