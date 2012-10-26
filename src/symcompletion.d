@@ -93,7 +93,7 @@ class SYMBOL_COMPLETION : ELEMENT
         }
         else
         {
-            Possibles = Symbols.Match(Candidate);
+            Possibles = Symbols.GetCompletions(Candidate);
         }
 
         int xpos, ypos, xlen, ylen;

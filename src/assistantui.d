@@ -131,7 +131,7 @@ class ASSISTANT_UI : ELEMENT
 		if(CurrentWord == mLastDocWord) return;
 		mLastDocWord = CurrentWord;
 
-		auto Possibles = Symbols.ExactMatches(CurrentWord);
+		auto Possibles = Symbols.GetMatches(CurrentWord);
 		if(Possibles.length < 1) return;
 		CatchSymbols(Possibles);
 	}
@@ -193,7 +193,8 @@ class ASSISTANT_UI : ELEMENT
 
 
 
-        string LabelText = "("~mList[indx].Kind~") -- Signature : " ~ mList[indx].Type;
+        //string LabelText = "("~mList[indx].Kind~") -- Signature : " ~ mList[indx].Type;
+        string LabelText = "Signature : " ~ mList[indx].Type;
         mSignature.setText(LabelText);
 
 
@@ -211,7 +212,7 @@ class ASSISTANT_UI : ELEMENT
     {
 		void UpdateHtmlDoc(DSYMBOL Sym)
 		{
-			string SrcHtmlFileName = Sym.InFile;
+			string SrcHtmlFileName = Sym.File;
 			SrcHtmlFileName = stripExtension(baseName(SrcHtmlFileName));
 			SrcHtmlFileName = SrcHtmlFileName.setExtension("html");
 
@@ -228,7 +229,7 @@ class ASSISTANT_UI : ELEMENT
 			    return;
 			}
 
-			if(canFind(Project[SRCFILES], Sym.InFile))
+			if(canFind(Project[SRCFILES], Sym.File))
 			{
 				string DocPath = buildPath(Project.WorkingPath, Project.GetFlags["-Dd"].Argument);
 				string DocFile = buildPath(DocPath, SrcHtmlFileName);
@@ -285,7 +286,7 @@ class ASSISTANT_UI : ELEMENT
         string Lookup = mList[indx].Path ~ "." ~ ti.getValueString(0);
 
 
-        auto sym = Symbols.ExactMatches(Lookup);
+        auto sym = Symbols.GetMatches(Lookup);
 
         CatchSymbols(sym);
     }
@@ -296,7 +297,7 @@ class ASSISTANT_UI : ELEMENT
         if(indx < 0) return;
 
         //dui.GetDocMan.OpenDoc(mList[indx].InFile, mList[indx].OnLine);
-        dui.GetDocMan.Open(mList[indx].InFile, mList[indx].OnLine);
+        dui.GetDocMan.Open(mList[indx].File, mList[indx].Line);
     }
 
     void Parent()
@@ -308,7 +309,7 @@ class ASSISTANT_UI : ELEMENT
         auto LastDot = lastIndexOf(mList[indx].Path, ".");
         if(LastDot < 1) return;
         auto Lookup = mList[indx].Path[0..LastDot];
-        auto PossibleParentSyms = Symbols.ExactMatches(Lookup);
+        auto PossibleParentSyms = Symbols.GetMatches(Lookup);
         CatchSymbols(PossibleParentSyms);
 
     }

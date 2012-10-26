@@ -127,27 +127,16 @@ class CALL_TIPS : ELEMENT
         {
             case "(" :
             {
-
 				TextIter TStart = new TextIter;
-				ti.backwardChar();//to go back before the '('
-				string Candidate = sv.Symbol(ti, TStart);
-
-				auto Possibles = Symbols.MatchCallTips(Candidate);
-				DSYMBOL[] FuncPossibles;
-
-				foreach (dsym; Possibles)
-                {
-                    if(dsym.Kind != "function") continue;
-                    if( !endsWith(Candidate, dsym.Scope[$-1])) continue;
-                    FuncPossibles ~= dsym;
-                }
-				if(FuncPossibles.length < 1) break;
+				TextIter Tx = ti.copy();
+				Tx.backwardChar();//to go back before the '('
+				string Candidate = sv.Symbol(Tx, TStart);
+				auto Possibles = Symbols.GetCallTips(Candidate);
+				if(Possibles.length < 1) break;
                 int xpos, ypos, xlen, ylen;
                 sv.GetIterPosition(ti, xpos, ypos, xlen, ylen);
-
-                dui.GetAutoPopUps.TipPush(FuncPossibles, xpos, ypos, ylen);
+                dui.GetAutoPopUps.TipPush(Possibles, xpos, ypos, ylen);
                 break;
-
             }
             case ")" :
             {

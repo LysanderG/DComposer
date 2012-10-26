@@ -1,249 +1,282 @@
-//      symbols.d
-//
-//      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//
-//      This program is free software; you can redistribute it and/or modify
-//      it under the terms of the GNU General Public License as published by
-//      the Free Software Foundation; either version 2 of the License, or
-//      (at your option) any later version.
-//
-//      This program is distributed in the hope that it will be useful,
-//      but WITHOUT ANY WARRANTY; without even the implied warranty of
-//      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//      GNU General Public License for more details.
-//
-//      You should have received a copy of the GNU General Public License
-//      along with this program; if not, write to the Free Software
-//      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//      MA 02110-1301, USA.
-
 module symbols;
 
+import std.algorithm;
+import std.datetime;
+import std.file;
+import std.json;
+import std.signals;
+import std.string;
+import std.path;
+import std.stdio;
 
 import dcore;
 
 
-import std.conv;
-import std.array;
-import std.json;
-import std.file;
-import std.string;
-import std.stdio;
-import std.path;
-import std.algorithm;
-import std.signals;
-import std.parallelism;
-
-import glib.SimpleXML;
-
-
-
-//big warning split scope with std.string.split(".") is too simple --- template constraints have . as a scope operator dumby
-//must fix this you simple minded moron!  how could you over look this and then take over an hour to figure out why crap was crashing!
+//just found interfaces, interfaces are not in members as I assumed.  And interfaces is not interface.
+enum SymKind
+{
+	ALIAS,
+	CLASS,
+	CONSTRUCTOR,
+	ENUM,
+	ENUM_MEMBER,
+	FUNCTION,
+	INTERFACE,
+	MODULE,
+	PACKAGE,
+	STRUCT,
+	TEMPLATE,
+	UNION,
+	VARIABLE,
+	MEMBERS,
+	INTERFACES
+}
 
 
 class DSYMBOL
 {
-    string		Name;               ///symbol name
-    string      Path;               ///full path of this symbol
-    string[]    Scope;              ///scope path to this symbol (path without Name)
+	string			Name;			///Symbols name
+	string			Path;			///Full scope/path of symbol id (std.stdio.File.open, std.file.readText, etc)
+	string[]		Scope;			///path as an array of strings (["std", "stdio", "File", "open"] ; [ "std", "file", "readText"])
 
-	string		Base;               ///what the symbol inherits (enum's can inherit a type?)
+	SymKind			Kind;			///what kind of symbol
+	string			FullType;		///fully QUALIFIED type of the symbol
+	string			Type;			///the UNQUALIFIED type of the symbol (drops trusted, safe, const, etc ... not sure about [] yet)
+	string			Signature;		///actual signature as at declaration
+	string			Protection;		///private package protected public export
 
-    string		Type;               ///basically the signature (w/o the name) ie void(int, string) or uint or not always present
-	string		Kind;               ///variable function constructor template struct class module union enum alias ...
-    string      ReturnType;         ///if symbol is a function (or a Template?) what does it return? We can do somelib.getAnInterface(input).getData().x
+	string			Comment;		///actual comments from source (if ditto, will be the 'dittoed' comment)
 
-    string		Comment;            ///ddoc comment associated with symbol (only if compiled with -D)
+	string			File;
+	int				Line;
 
-    string      Protection;         ///this is newly added ... going to screw me up!
-
-    string		InFile;             ///the file where symbol is defined
-	int			OnLine;             ///the line on which it is defined on
-
-
-
-    bool		Scoped;             ///does this symbol have children
-    DSYMBOL[]   Children;           ///All children
-    string      Icon;
-
-
-    string GetIcon()                ///WHY IS THIS A FUNCTION??? compute once and cache stupid!
-    {
-        string color;
-        string rv;
-
-        switch(Protection)
-        {
-            case "private"      : color = `<span foreground="red">`;break;
-            case "public"       : color = `<span foreground="black">`;break;
-            case "protected"    : color = `<span foreground="cyan">`;break;
-            case "package"      : color = `<span foreground="green">`;break;
-            default : color = `<span foreground="green">`;
-        }
-
-        switch(Kind)
-        {
-            case "module"       :rv = color ~ `Ⓜ</span>`;break;
-            case "template"     :rv = color ~ `Ⓣ</span>`;break;
-            case "function"     :rv = color ~ `⒡</span>`;break;
-            case "struct"       :rv = color ~ `Ⓢ</span>`;break;
-            case "class"        :rv = color ~ `Ⓒ</span>`;break;
-            case "interface"    :rv = color ~ `😐</span>`;break;
-            case "variable"     :rv = color ~ `⒱</span>`;break;
-            case "alias"        :rv = color ~ `ⓐ</span>`;break;
-            case "constructor"  :rv = color ~ `⒞</span>`;break;
-            case "enum"         :rv = color ~ `Ⓔ</span>`;break;
-            case "enum member"  :rv = color ~ `⒠</span>`;break;
-            case "union"        :rv = color ~ `Ⓤ</span>`;break;
-
-            default : rv = color ~ `P</span>`;
-        }
-        return rv;
-    }
+	string			Base;
+	DSYMBOL[]		Children;
+	string			Icon;
 }
 
-/**
- * Holds all the global symbols.  Symbols are obtained from any json files passed in.
- * The json files are created with the dmd -X option.
- * So for any package you want the symbols for just create a json file for it and do SYMBOLS.Load(pkg.json).
- * Project tag files will automatically be passed in.
- * */
+
 class SYMBOLS
 {
-    private:
+	private:
 
-    /**
-     * Associative array of symbols
-     * ie mSymbols["std"] would be phobos std library symbols
-     * mSymbols["gtk"] mSymbols["core"]
-     * Project symbols will be autoloaded as mSymbols[Project.Name]
-     * */
+	bool			mAutoLoad;					//if symbols should be loaded at startup
+	SysTime			mLastLoadTime;				//speed things up by not reloading unchanged files
 
-    DSYMBOL[string] mSymbols;
-    string          mProjectKey; ///actually project name, used to remove project tags since Project.Name is cleared before Project.Event.emit("close");
+	string			mProjectKey;				//key for project mSymbols
 
-    string mLastComment; 		///holds last comment before dittos
+	DSYMBOL[string] mSymbols;
 
 
+	//called at startup if mautoload is true
+	void AutoLoadPackages()
+	{
+		mLastLoadTime  = Clock.currTime();
+		auto PackageKeys = Config.getKeys("SYMBOL_LIBS");
 
-    ///given jval from a json file fills up the symbols in this object
-    void BuildSymbols(JSONValue jval, ref DSYMBOL sym , string Module = "")
-    {
-        switch (jval.type)
-        {
-            case JSON_TYPE.ARRAY :
-            {
-                DSYMBOL tsym;
-                sym.Children.length = jval.array.length;
+		foreach(pckgkey; PackageKeys)
+		{
+			auto tagfile = Config.getString("SYMBOL_LIBS", pckgkey, "");
+			auto NewSymbols = LoadPackage(pckgkey, tagfile);
+			if(NewSymbols !is null) mSymbols[pckgkey] = NewSymbols;
+		}
+	}
 
-                foreach (indx, jv; jval.array)
-                {
-                    tsym = new DSYMBOL;
-                    tsym.Path = sym.Path;
-                    BuildSymbols(jv, tsym, Module);
+	//actual work done to load symbols here!
+	void BuildPackage(DSYMBOL CurrSym, JSONValue SymData)
+	{
+		static string LastComment = "";
+		static string CurrFile = "";
 
-                    sym.Children[indx] = tsym;
-
-                }
-            }
-            break;
-
-            case JSON_TYPE.OBJECT :
-            {
-                foreach(key, obj; jval.object)
-                {
-                    switch (key)
-                    {
-                        case "name"         : sym.Name          = obj.str;break;
-                        case "type"         : sym.Type          = obj.str;break;
-                        case "kind"         : sym.Kind          = obj.str;break;
-                        case "base"         : sym.Base          = obj.str;break;
-                        case "comment"      :
-                        {
-                            sym.Comment       = obj.str;
-                            if(canFind(toLower(sym.Comment), "ditto")) sym.Comment = "~" ~ mLastComment;
-                            mLastComment = sym.Comment;
-                            break;
-                        }
-                        case "protection"   : sym.Protection    = obj.str;break;
-                        case "file"         : Module            = obj.str;break;
-                        case "line"         : sym.OnLine        = cast(int)obj.integer;break;
-                        default         : break;
-                    }
-                }
-                if(sym.Kind != "module")
-                {
-                    sym.Name = sym.Name.replace(".","﹒"); //this is a terrible hack!! gonna screw someone up one day
-                }
-                else
-                {
-                    auto ndx = std.string.indexOf(sym.Name,".");
-                    sym.Name = sym.Name[ndx+1..$];
-                }
-                if(sym.Kind == "function")
-                {
-                    //DONT FORGET stuff like immutable (ident)[] (int paramone, ...) Seriously todo
-					string symtype = sym.Type.removechars("[]");
-					symtype = symtype.removechars("shared");
-					symtype = symtype.removechars("immutable");
-					symtype = symtype.removechars("const");
-					symtype = symtype.removechars("inout");
-					symtype = symtype.removechars("nothrow");
-					symtype = symtype.removechars("pure");
-					symtype = symtype.removechars("@");
-					symtype = symtype.removechars("property");
-					symtype = symtype.removechars("safe");
-					symtype = symtype.removechars("trusted");
+		void SetSymbolKind(string KindAsString)
+		{
+			switch (KindAsString)
+			{
+				case "alias"		:CurrSym.Kind= SymKind.ALIAS		;break;
+				case "class"		:CurrSym.Kind= SymKind.CLASS		;break;
+				case "constructor"	:CurrSym.Kind= SymKind.CONSTRUCTOR	;break;
+				case "enum"			:CurrSym.Kind= SymKind.ENUM			;break;
+				case "enum member"	:CurrSym.Kind= SymKind.ENUM_MEMBER	;break;
+				case "function"		:CurrSym.Kind= SymKind.FUNCTION		;break;
+				case "interface"	:CurrSym.Kind= SymKind.INTERFACE	;break;
+				case "module"		:CurrSym.Kind= SymKind.MODULE		;break;
+				case "package"		:CurrSym.Kind= SymKind.PACKAGE		;break;
+				case "struct"		:CurrSym.Kind= SymKind.STRUCT		;break;
+				case "template"		:CurrSym.Kind= SymKind.TEMPLATE		;break;
+				case "union"		:CurrSym.Kind= SymKind.UNION		;break;
+				case "variable"		:CurrSym.Kind= SymKind.VARIABLE		;break;
+				case "members"		:CurrSym.Kind= SymKind.MEMBERS		;break;
+				case "interfaces"	:CurrSym.Kind= SymKind.INTERFACES	;break;
+				default : Log.Entry("Unrecognized symbol kind " ~ KindAsString, "Error");
+			}
+		}
 
 
-                    //auto indx = std.string.indexOf(sym.Type, "(");
-                    auto indx = std.string.indexOf(symtype, "(");
-                    if (indx > 0)sym.ReturnType = sym.Type[0..indx];
-                    else sym.ReturnType.length = 0;
-                }
-                sym.Icon = sym.GetIcon();
+		void SetSymbolType(string FullType)
+		{
+			//problems -- extern (C)
+			// -- some [] are not removed??
+			CurrSym.FullType = FullType;
+			if(CurrSym.Kind == SymKind.FUNCTION)
+			{
+				auto splits = FullType.findSplit("(");
+				if (splits[0].length < 1) splits[0] = "auto ";
+				CurrSym.Signature = splits[0] ~ CurrSym.Name ~ splits[1] ~ splits[2];
+				splits[0] = splits[0].removechars("()@");
+				auto x = splits[0].findSplit("shared");
+				splits[0] = x[0] ~ x[2];
+				x = splits[0].findSplit("immutable");
+				splits[0] = x[0] ~ x[2];
+				x = splits[0].findSplit("const");
+				splits[0] = x[0] ~ x[2];
+				x = splits[0].findSplit("inout");
+				splits[0] = x[0] ~ x[2];
+				x = splits[0].findSplit("nothrow");
+				splits[0] = x[0] ~ x[2];
+				x = splits[0].findSplit("pure");
+				splits[0] = x[0] ~ x[2];
+				x = splits[0].findSplit("property");
+				splits[0] = x[0] ~ x[2];
+				x = splits[0].findSplit("safe");
+				splits[0] = x[0] ~ x[2];
+				x = splits[0].findSplit("trusted");
+				splits[0] = x[0] ~ x[2];
+				CurrSym.Type = splits[0];
+			}
+			else
+			{
+				CurrSym.Signature = FullType;
+				CurrSym.Type = FullType;
+			}
+		}
 
-                sym.InFile = Module;
-                if(sym.Name is null)sym.Name = baseName(Module.chomp(".d"));
-                if(!sym.Path.empty)sym.Path ~= "." ~ sym.Name;
-                else sym.Path = sym.Name;
-                sym.Scope = split(sym.Path, ".");
-                if("members" in jval.object)
-                {
-                    sym.Scoped = true;
-                    BuildSymbols(jval.object["members"], sym, Module);
-                }
-                else
-                {
-                    sym.Scoped = false;
-                }
+		//set the comments ... complicated because of the ddoc ditto statement
+		//hopefully this will always be in the corrent order
+		void SetSymbolComment(string comment)
+		{
+			if(comment == "ditto")
+			{
+				CurrSym.Comment = LastComment;
+				return;
+			}
+			LastComment = comment;
+			CurrSym.Comment = comment;
+		}
 
-                auto lastIndex = sym.Name.lastIndexOf(".");
-                if ((lastIndex > -1) && (sym.Kind == "module"))
-                {
-                    sym.Name = sym.Name[lastIndex+1..$];
-                }
 
-            }
-            break;
-            default : writeln("default"); break;
-        }
+		switch (SymData.type)
+		{
+			case JSON_TYPE.ARRAY :
+			{
+				DSYMBOL SubSym;
+				foreach(jval; SymData.array)
+				{
+					SubSym = new DSYMBOL;
+					SubSym.Path = CurrSym.Path;		//these two lines are important!
+					SubSym.Scope = CurrSym.Scope;
+					BuildPackage(SubSym, jval);
+					CurrSym.Children ~= SubSym;
+				}
+				break;
+			}
+			case JSON_TYPE.OBJECT:
+			{
+				foreach(key, obj; SymData.object)
+				{
+					switch (key)
+					{
+						case "name" 		: CurrSym.Name = obj.str; break;
+						case "kind" 		: SetSymbolKind(obj.str); break;
+						case "type" 		: SetSymbolType(obj.str); break;
+						case "protection"	: CurrSym.Protection = obj.str; break;
+						case "comment"		: SetSymbolComment(obj.str); break;
+						case "file"			: CurrFile = obj.str; break;
+						case "line"			: CurrSym.Line = cast(int)obj.integer; break;
+						case "base"			: CurrSym.Base = obj.str; break;
+						case "members"		: break;
+						default : Log.Entry("Unrecognized object " ~ key, "Error");break;
+					}
+				}
 
-    }
+				//fix ups
+				//name
+				if(CurrSym.Name is null) CurrSym.Name = baseName(CurrFile.chomp(".d")); //for files without the module statement
+				if(CurrSym.Kind == SymKind.MODULE) //get rid of std. or gtk. etc
+				{
+					auto indx = CurrSym.Name.countUntil(".");
+					if(indx > -1) CurrSym.Name = CurrSym.Name[indx+1 .. $];
+				}
+				//path
+				CurrSym.Path ~= "." ~ CurrSym.Name;
 
-	/**
-	 * Watches for project events
-	 * (symbols == tags)
-	 * may
-	 * 	remove project tags
-	 * 	add project tags
-	 * 	refresh tags
-	 *  or change to projectkey
-	 * */
-    void ProjectWatch(ProEvent EventType)
-    {
-		switch (EventType)
+				//scope
+				CurrSym.Scope ~= CurrSym.Name;
+
+				//File
+				CurrSym.File = CurrFile;
+
+				//icon
+				CurrSym.Icon = GetIcon(CurrSym);
+
+				//children
+				if("members" in SymData.object) BuildPackage(CurrSym, SymData.object["members"]);
+
+				break;
+			}
+			default :
+			{
+				Log.Entry("Unexpected json value", "Error");
+			}
+		}
+	}
+
+	string[] GetScopedCandidate(string Candidate)
+	{
+		Candidate = Candidate.chomp(".");
+		auto range = Candidate.splitter(".");
+		string[] rv;
+		foreach(itm; range) rv ~= itm;
+		return rv;
+	}
+
+	//given a package name and a json file loads the symbols and returns them
+	DSYMBOL LoadPackage(string PackageName, string TagFile)
+	{
+		scope(failure)
+		{
+			Log.Entry("Unable to load Symbol file: " ~ TagFile, "Error");
+			return null;
+		}
+
+		auto SymbolJson = readText(TagFile);
+
+		DSYMBOL X = new DSYMBOL;
+
+		X.Name 		= PackageName;
+		X.Path 		= PackageName;
+		X.Scope 	= [PackageName];
+
+		X.Kind		= SymKind.PACKAGE;
+		X.FullType	= "package";
+		X.Type		= "package";
+		X.Signature = "package";
+		X.Comment	= "";
+
+		X.File		= "";
+		X.Line		= 0;
+
+		X.Base		= "";
+		X.Children.length = 0;
+		X.Icon		= GetIcon(X);
+
+		BuildPackage(X, parseJSON(SymbolJson));
+
+		return X;
+	}
+
+	void WatchProject(ProEvent Event)
+	{
+		switch (Event)
 		{
 			case ProEvent.Closing  				:
 												{
@@ -254,14 +287,15 @@ class SYMBOLS
 			case ProEvent.CreatedTags			:
 												{
 													scope(failure){Log.Entry("Failed to load project symbols", "Error");return;}
-													Load(Project.Name(), Project.Name() ~ ".tags");
+													mSymbols[mProjectKey] = LoadPackage(mProjectKey, buildPath(Project.WorkingPath, mProjectKey ~".tags"));
+													emit();
 													return;
 												}
 			case ProEvent.FailedTags			:
 												{
 													scope(failure){Log.Entry("Failed to load project symbols","Error");return;}
 													if(Project.Name() in mSymbols) return; //keep the symbols we have if none try to load old symbols
-													Load(Project.Name(), Project.Name() ~ ".tags");
+													mSymbols[mProjectKey] = LoadPackage(mProjectKey, buildPath(Project.WorkingPath, mProjectKey ~".tags"));
 													return;
 												}
 			case ProEvent.NameChanged			:
@@ -274,452 +308,248 @@ class SYMBOLS
 
     }
 
-    /*
-     * Given a 'Scope' returns all the child symbols of that 'Scope'
-     * The more specific the 'Scope' the more accurate the results.
-     * */
-    DSYMBOL[] GetInScopeSymbols(string[] Scope)
-    {
 
-        DSYMBOL[] ReturnSyms;
+	public:
 
-		//following line is necessary to avoid seg faults processing templates
-        if(Scope.length < 1) return ReturnSyms;
+	this()
+	{
+	}
 
-        void _Process(DSYMBOL Sym)
-        {
+	void Engage()
+	{
+		mAutoLoad = Config.getBoolean("SYMBOLS", "auto_load_symbols", true);
+		if(mAutoLoad) AutoLoadPackages();
 
-            foreach(kid; Sym.Children) _Process(kid);
+		Project.Event.connect(&WatchProject);
+		Config.Reconfig.connect(&Configure);
 
-            if(endsWith(Sym.Scope[0..$-1]   , Scope))
-            {
-                ReturnSyms ~= Sym;
-            }
+		string x = "Engaged SYMBOLS [";
+        foreach(ii, key; mSymbols.keys){if(ii != 0)x ~= `,`; x ~= `"` ~ key ~`"`;}
+        x ~= "]";
+        Log().Entry(x);
+	}
 
-            if(endsWith(Sym.Scope, Scope[$-1]))
-            {
+	void Disengage()
+	{
+		Log().Entry("Disengaged SYMBOLS");
+	}
 
-                if(Sym.Base.length > 0) ReturnSyms ~= GetInScopeSymbols([Sym.Base]);
+	void Configure()
+	{
+		mAutoLoad = Config.getBoolean("SYMBOLS", "auto_load_symbols", true);
 
-                if(Sym.Kind == "variable") ReturnSyms ~= GetInScopeSymbols(split(Sym.Type, "."));
-
-                if(Sym.Kind == "function") ReturnSyms ~= GetInScopeSymbols(split(Sym.ReturnType,"."));
-
-            }
-        }
-        foreach(sym; mSymbols) _Process(sym);
-
-        return ReturnSyms;
-    }
-
-    DSYMBOL[] GetCompletionSymbols(string Candidate,  DSYMBOL[] Symbols, bool ParseKids = false)
-    {
-        DSYMBOL[] ReturnSyms;
-
-        void _Process(DSYMBOL Sym)
-        {
-            if(startsWith(Sym.Name, Candidate))
-            {
-                ReturnSyms ~= Sym;
-            }
-            if(ParseKids)foreach(kid; Sym.Children) _Process(kid);
-        }
-
-        foreach(sym; Symbols) _Process(sym);
-        return ReturnSyms;
-    }
-
-    /**
-     * Reloads all symbol files in configuration file.
-     * And reloads project tags if any.
-     *
-     * Bugs: should remove all symbols first.
-      */
-    void Reconfigure()
-    {
-        foreach(name; mSymbols.keys)
-        {
-            if(name != Project.Name()) mSymbols.remove(name);
-        }
-        string[] keys = Config().getKeys("SYMBOL_LIBS");
+		string[] keys = Config().getKeys("SYMBOL_LIBS");
 
 		foreach(key; keys)
 		{
-			auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");
-			Load(key, tmp);
+			scope(failure)continue;
+
+			string jsonfile = Config.getString("SYMBOL_LIBS", key);
+			if( (key in mSymbols) && (jsonfile.timeLastModified() <= mLastLoadTime)) continue;
+			mSymbols[key] = LoadPackage(key, jsonfile);
 		}
 
-		//string[string] tmp;
-		//foreach (key; keys) tmp[key] = Config.getString("SYMBOL_LIBS", key, "huh");
-		//foreach (key; parallel(keys))
-		//{
-		//	mSymbols[key] = LoadConcurrent(key, tmp[key]);
-		//}
-    }
+	}
 
+	void SelectSymbol(string FullPathName)
+	{
+	}
 
-    public :
+	DSYMBOL GetSelectedSymbol()
+	{
+		return new DSYMBOL;
+	}
+
 
 	/**
-	 * Engage $(TITLE)
-	 * (ie get it ready to run)
-	 * */
-    void Engage()
-    {
+	 * actually I should have just done foreach(sym; mSymbols) sym.Path.canFind(Candidate)
+	 */
+	DSYMBOL[] GetCompletions(string Candidate)
+	{
+		string[] CandiScope = GetScopedCandidate(Candidate);
+		string CandiName;
 
-        string[] keys = Config().getKeys("SYMBOL_LIBS");
-
-		//at least should load the stdlib tags
-        if(keys.length < 1)
-        {
-			keys = ["std"];
-			Config.setString("SYMBOL_LIBS", keys[0], Config.ExpandPath("$(HOME_DIR)/tags/stdlib.json"));
+		ulong scopelen = CandiScope.length;
+		if(scopelen == 1)
+		{
+			CandiName = CandiScope[0];
+			CandiScope.length = 0;
+		}
+		else
+		{
+			CandiName = CandiScope[$-1];
+			CandiScope = CandiScope[0 .. $-1];
 		}
 
+		DSYMBOL[] rvCompletions;
 
-		if(Config.getBoolean("SYMBOLS", "auto_load_symbols", true))
+		void CheckSymbol(DSYMBOL xsym)
 		{
+			foreach(kid; xsym.Children)CheckSymbol(kid);
 
-			foreach(key; keys)
+			if(xsym.Name.startsWith(CandiName)) rvCompletions ~= xsym;
+
+		}
+		if(scopelen > 1)
+		{
+			auto members = GetMembers(Candidate.chomp(CandiName));
+			foreach (member; members)
 			{
-				auto tmp = Config().getString("SYMBOL_LIBS", key, "huh");
-				Load(key, tmp);
+				if(member.Name.startsWith(CandiName)) rvCompletions ~= member;
 			}
 		}
-
-        if(Config.getBoolean("SYMBOLS", "auto_load_project_symbols", true))
-        {
-            Project.Event.connect(&ProjectWatch);
-        }
-
-        Config.Reconfig.connect(&Reconfigure);
-        //Reconfigure();  //don't need this run now. doubles app load time too.
-
-        string x = "Engaged SYMBOLS [";
-        foreach(ii, key; keys){if(ii != 0)x ~= `,`; x ~= `"` ~ key ~`"`;}
-        x ~= "]";
-        Log().Entry(x);
-    }
-
-	/**
-	 * Disengage $(TITLE)
-	 * (ie clean up / save or whatever )
-	 * */
-    void Disengage()
-    {
-        if(Config.getBoolean("SYMBOLS", "auto_load_project_symbols", true))
-        {
-            Project.Event.disconnect(&ProjectWatch);
-        }
-        Log().Entry("Disengaged SYMBOLS");
-    }
-
-
-    /**
-     * Adds a 'TagFile' (dmd -X json file) to the configurtion file.
-
-     * If user opts for auto symbol loading this file of symbols will
-     * be automatically loaded at start up.
-
-     * Does not actually load anything.  Have to run Load or Reconfigure
-     * or wait for a restart.  Nor does it check that TagFile exists or key
-     * is already in use.
-     *
-     * params:
-     *  key = name of package, used as associative key.
-     *  TagFile = json file with symbols.
-     *
-     *
-     **/
-    void AddCommonTagFile(string key, string TagFile)
-    {
-        Config().setString("SYMBOLS", key, TagFile);
-    }
-
-
-
-	/**
-	 * Loads a 'TagFile'
-	 * PARAMS:
-	 * key = the name of the package of symbols also used as associative array key
-	 * symfile = actual json file to be loaded
-	 * */
-    void Load(string key, string symfile)
-    {
-		scope(failure)
+		else
 		{
-			Log.Entry("Failed to Load Tag File " ~ symfile, "Error");
-			return;
+			foreach(sym; mSymbols) CheckSymbol(sym);
 		}
 
-        auto JRoot = parseJSON(readText(symfile));
-
-        DSYMBOL X = new DSYMBOL;
-        X.Name = key;
-        X.Path = key;
-        X.Scope = [key];
-        X.Kind = "package";
-
-        BuildSymbols(JRoot, X);
-
-        mSymbols[key] = X;
-        emit();
-
-    }
+		return rvCompletions;
+	}
 
 	/**
-	 * Load modified to return a DSYMBOL so it can be used
-	 * in a parallel foreach (see std.parallel)
-	 * Actually slowed symbol loading down significantly.
+	 * returns all possible symbols whose scope fall under candidate
+	 * (hopefully)
 	 * */
-    DSYMBOL LoadConcurrent(string key, string symfile)
-        {
-
-        auto JRoot = parseJSON(readText(symfile));
-
-        DSYMBOL X = new DSYMBOL;
-        X.Name = key;
-        X.Path = key;
-        X.Scope = [key];
-        X.Kind = "package";
-
-        BuildSymbols(JRoot, X);
 
 
-        emit();
-		return X;
-    }
+	DSYMBOL[] GetMembers(string Candidate)
+	{
+		string[] ScopedCandidate = GetScopedCandidate(Candidate);
+		ulong	ScopeElements = ScopedCandidate.length;
 
-     /**
-      * Dont think this function is even used
-      * +1 for code coverage
-      * */
-    DSYMBOL[] PossibleMatches(string Candidate)
-    {
-        DSYMBOL[] RetSyms;
-        auto CandiPath = GetCandidatePath(Candidate);
-        auto CandiName = GetCandidateName(Candidate);
+		DSYMBOL[] rvSymbols;
 
-        //if (CandiName.length == 0) return RetSyms;
+		void CheckSymbol(DSYMBOL chksym)
+		{
 
-        void _Process(DSYMBOL x)
-        {
-            if( startsWith(x.Name, CandiName))
-            {
+			foreach(kid; chksym.Children) CheckSymbol(kid);
 
-                if(CandiPath.length > 0)
-                {
+			if((chksym.Scope[$-1] == ScopedCandidate[$-1]) ||(chksym.Scope.endsWith(ScopedCandidate)))
+			{
+				if(chksym.Base.length > 0)
+				{
+					rvSymbols ~= GetMembers(chksym.Base);
+				}
+				if(chksym.Kind == SymKind.FUNCTION) rvSymbols ~= GetMembers(chksym.Type);
+				if(chksym.Kind == SymKind.VARIABLE) rvSymbols ~= GetMembers(chksym.Type);
+				rvSymbols ~= chksym.Children;
+			}
 
-                    if( endsWith(x.Scope, CandiPath) )
-                    {
-                        RetSyms ~= x;
+		}
 
-                    }
+		foreach(symbol; mSymbols) CheckSymbol(symbol);
 
-                }
-                else
-                {
-                    RetSyms ~= x;
-                }
-
-            }
-            if((x.Base.length > 0) && (CandiPath.length > 1) && (x.Scope.length > 1) && endsWith(x.Scope[$-1], CandiPath[$-1]) )
-            {
-                auto memsyms = GetMembers(x.Base);
-                foreach (member;memsyms) if( startsWith(member.Name, CandiName)) RetSyms ~= member;
-            }
-
-            foreach(kid; x.Children) _Process(kid);
-        }
-
-        foreach(symbol; mSymbols) _Process(symbol);
-
-        return RetSyms;
-    }
-
-
-    /**
-     * ditto
-     * */
-    DSYMBOL[] GetMembers(string Base, DSYMBOL[] HayStack = null)
-    {
-        if(HayStack is null) HayStack = mSymbols.values;
-        DSYMBOL[] RetSyms;
-
-        void _Process(DSYMBOL Sym)
-        {
-            if(Sym.Name == Base)
-            {
-                foreach(kid; Sym.Children) RetSyms ~= kid;
-                if(Sym.Base.length > 0)RetSyms ~= GetMembers(Sym.Base );
-            }
-            foreach(kid; Sym.Children) _Process(kid);
-        }
-        foreach(sym; HayStack) _Process(sym);
-
-
-        return RetSyms;
-    }
-
+		return rvSymbols;
+	}
 	/**
-	 * Given a Candidate (aaa.bbb.llll())
-	 * return all matching function symbols
+	 * returns all functions (and hopefully aliased functions) that match candidate
 	 * */
-    DSYMBOL[] MatchCallTips( string Candidate)
-    {
-        DSYMBOL[] ReturnSyms;
-
-        ReturnSyms = Match(Candidate);
-
-        if(ReturnSyms.length > 1) return ReturnSyms;
-
-        auto CandiName = GetCandidateName(Candidate);
-        if(CandiName.length > 0) ReturnSyms = Match("."~CandiName );
-
-        return ReturnSyms;
-    }
-
-	/**
-	 * Returns possibles completions of Candidate (ie matches)
-	 * params:
-	 * Candidate = partial symbol to match, can be a symbol path (std.algorithm.sort)
-	 * */
-    DSYMBOL[] Match(string Candidate)
-    {
-        DSYMBOL[] ReturnSyms;
-        DSYMBOL[] InScopeSyms;
-
-        bool NoScopeResults;
-
-        auto CandiPath = GetCandidatePath(Candidate);
-        auto CandiName = GetCandidateName(Candidate);
-
-        if(CandiPath.length > 0)
-        {
-            InScopeSyms = GetInScopeSymbols(CandiPath);
-
-            NoScopeResults = (InScopeSyms.length < 1);
-            if(NoScopeResults) InScopeSyms = mSymbols.values;
-
-        }
-        else
-        {
-            InScopeSyms = mSymbols.values;
-            NoScopeResults = true;
-        }
+	DSYMBOL[] GetCallTips(string Candidate)
+	{
+		DSYMBOL[] rvTips;
+		string[] CandiPath = GetScopedCandidate(Candidate);
 
 
-        if(CandiName.length > 0) ReturnSyms = GetCompletionSymbols(CandiName, InScopeSyms, NoScopeResults);
-        else if(!NoScopeResults) ReturnSyms = InScopeSyms;
+		void CheckSymbol(DSYMBOL xsym)
+		{
+			foreach(kid; xsym.Children) CheckSymbol(kid);
 
-        return ReturnSyms;
+			////wierd template check kind of skips template symbol and looks at 'eponymous' member
+			//if(xsym.Kind == SymKind.TEMPLATE)
+			//{
+//
+			//	string[] tmp;
+//
+			//	if(CandiPath.length == 1) tmp = [xsym.Name , "." , CandiPath[0]];
+			//	else
+			//	{
+			//		tmp = CandiPath[0 .. $-1];
+			//		tmp ~= xsym.Name;
+			//		tmp ~= CandiPath[$-1];
+			//	}
+			//	string subtmp;
+			//	subtmp = tmp[0];
+			//	if(tmp.length > 1)foreach (t; tmp[1..$])subtmp ~= "." ~ t;
+			//	rvTips ~= GetCallTips(subtmp);
+			//	return ;
+			//}
+			//if(xsym.Kind == SymKind.ALIAS) rvTips ~= GetCallTips(xsym.Type);
+			if(xsym.Kind != SymKind.FUNCTION) return;
+			if(CandiPath[$-1] != xsym.Name) return;
 
-    }
+			rvTips ~= xsym;
+		}
+
+		foreach(sym; mSymbols) CheckSymbol(sym);
+
+		return rvTips;
+	}
 
 	/**
-	 * Returns any symbol that is an "exact" match for candidate name.
-	 * Multible symbol returns are possible if different packages or objects
-	 * have members with identical names.
-	 * params:
-	 * Candidate = full symbol to match, can be a symbol path (std.algorithm.sort)
-	 * */
-    DSYMBOL[] ExactMatches(string Candidate)
-    {
-        DSYMBOL[] RetSyms;
-        auto CandiPath = GetCandidatePath(Candidate);
-        auto CandiName = GetCandidateName(Candidate);
-
-
-        auto tmpSyms = Match(Candidate);
-
-        foreach(ts; tmpSyms) if (ts.Scope[$-1] == CandiName) RetSyms ~=  ts;
-
-        return RetSyms;
-    }
-
-
-    DSYMBOL[string] Symbols(){return  mSymbols.dup;}
-
-    mixin Signal!();
-    mixin Signal!(DSYMBOL[]) Forward;
-
-	/**
-	 * Gets the 'path' of Candidate removing any whitespace around the "." seperator which
-	 * maybe introduced for fomatting ...
-	 * Examples:
-	 * ----
-	 * string c = "myAClassObject	.Buffer		.flush();";
-	 * string d = "yourAClassObject	.Buffer		.flush();";
+	 * Generic method to get symbol information given a complete Name and possible scope
 	 *
-	 * string e = StringPath(c);
-	 * string f = StringPath(d);
-	 *
-	 * assert(e == "myAClassObject.Buffer");
-	 * assert(f == "yourAClassObject.Buffer");
-	 * ----
-	 * params:
-	 * Candidate = symbol name possibly including scope/path(aa.bb.name)
-	 * returns: The scope/path part of candidate sans whitespace possibly ""
 	 * */
-    string StringPath(string Candidate)
-    {
-        string rv;
-        rv = Candidate.removechars(std.ascii.whitespace);
-        auto indx = rv.lastIndexOf(".");
-        if(indx > 0) rv = rv[0..indx];
-        else rv.length = 0;
-        return rv;
-    }
+	DSYMBOL[] GetMatches(string Candidate)
+	{
+		return null;
+		DSYMBOL[] rvMatches;
 
-    /**
-     *Similiar to StringPath but
-     *params: Candidate = optional/partial scope/path plus name of symbol.
-     *returns:an array of strings for the scope/path of candidate
-     */
-    string[] GetCandidatePath(string Candidate)
-    {
+		void CheckSymbol(DSYMBOL xsym)
+		{
+			foreach(kid; xsym.Children) CheckSymbol(xsym);
+			if(xsym.Path.endsWith(Candidate)) rvMatches ~= xsym;
+		}
 
-        string[] rv = split(StringPath(Candidate), ".");
+		foreach(sym; mSymbols) CheckSymbol(sym);
+		return rvMatches;
+	}
 
-        return rv;
-    }
+	DSYMBOL[string] Symbols(){return  mSymbols.dup;}
 
-	/**
-	 * Filters out the scope/path of Candidate.
-	 * returns: The name of Candidate (or partial name)
-	 * */
-    string GetCandidateName(string Candidate)
-    {
-        string rv;
-        auto indx = std.string.lastIndexOf(Candidate,".");
-        if(indx < 0)
-        {
-            rv = Candidate;
-            return rv;
-        }
+	mixin Signal!();
+	mixin Signal!(DSYMBOL[]) Forward;
 
-        if(indx >= Candidate.length-1)
-        {
-            rv.length = 0;
-            return rv;
-        }
-        if( indx < Candidate.length-1)
-        {
-            rv = Candidate[indx+1..$];
-            return rv;
-        }
-        return rv;
-    }
-
-    /**
-    * Allows an outside source (ie element) to cause a forward
-    * signal to be emitted
-    */
-    void TriggerSignal(DSYMBOL[] SymbolsToPass)
-    {
-        Forward.emit(SymbolsToPass);
-    }
-
-
-
+	void ForwardSignal(DSYMBOL[] syms)
+	{
+		Forward.emit(syms);
+	}
 }
+
+
+
+
+
+string GetIcon(DSYMBOL X)
+{
+	string color;
+	string rv;
+
+	switch(X.Protection)
+	{
+		case "private"      : color = `<span foreground="red">`;break;
+		case "public"       : color = `<span foreground="black">`;break;
+		case "protected"    : color = `<span foreground="cyan">`;break;
+		case "package"      : color = `<span foreground="green">`;break;
+		default : color = `<span foreground="green">`;
+	}
+
+	switch(X.Kind)
+	{
+		case SymKind.MODULE			:rv = color ~ `Ⓜ</span>`;break;
+		case SymKind.TEMPLATE       :rv = color ~ `Ⓣ</span>`;break;
+		case SymKind.FUNCTION       :rv = color ~ `⒡</span>`;break;
+		case SymKind.STRUCT         :rv = color ~ `Ⓢ</span>`;break;
+		case SymKind.CLASS          :rv = color ~ `Ⓒ</span>`;break;
+		case SymKind.INTERFACE      :rv = color ~ `😐</span>`;break;
+		case SymKind.VARIABLE       :rv = color ~ `⒱</span>`;break;
+		case SymKind.ALIAS          :rv = color ~ `ⓐ</span>`;break;
+		case SymKind.CONSTRUCTOR    :rv = color ~ `⒞</span>`;break;
+		case SymKind.ENUM           :rv = color ~ `Ⓔ</span>`;break;
+		case SymKind.ENUM_MEMBER    :rv = color ~ `⒠</span>`;break;
+		case SymKind.UNION          :rv = color ~ `Ⓤ</span>`;break;
+
+		default : rv = color ~ `P</span>`;
+	}
+	return rv;
+}
+

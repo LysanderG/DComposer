@@ -80,6 +80,7 @@ private struct DATA_STORE
         mYPos = Ypos;
         mYLen = Ylen;
 
+
         mStore = new ListStore([GType.STRING, GType.STRING, GType.STRING]);
         GtkStore = mStore.getListStoreStruct();
         mIter = new TreeIter;
@@ -87,13 +88,12 @@ private struct DATA_STORE
         sort!("a.Name < b.Name")(mMatches);
         if(tip) //this is a call tip needs to show the call signature
         {
-
             foreach(match; mMatches)
             {
-                if(match.Kind != "function") continue;
+                if(match.Kind != SymKind.FUNCTION) continue;
                 mStore.append(mIter);
-                auto x = countUntil(match.Type, "(");
-                string signature = match.Type[0..x] ~" "~ match.Name ~" "~ match.Type[x..$];
+                auto x = countUntil(match.FullType, "(");
+                string signature = match.FullType[0..x] ~" "~ match.Name ~" "~ match.FullType[x..$];
                 mStore.setValue(mIter, 0, std.xml.encode(signature));
                 mStore.setValue(mIter, 1, std.xml.encode(match.Path));
                 //mStore.setValue(mIter, 2, std.xml.decode(match.Comment));
@@ -101,7 +101,6 @@ private struct DATA_STORE
             }
             return;
         }
-
         foreach(match; mMatches)
         {
 			match.Name = encode(match.Name);
@@ -467,6 +466,7 @@ class AUTO_POP_UPS
     {
 		if(Possibles.length < 1) return;
         CompletionPop();
+
         mTipsIndex++;
         if (mTipsIndex >= MAX_TIP_DEPTH)
         {
@@ -474,6 +474,7 @@ class AUTO_POP_UPS
             return;
         }
         mTipsStore[mTipsIndex] = DATA_STORE(Possibles, xpos, ypos, ylen, true);
+
         Present();
 
     }
