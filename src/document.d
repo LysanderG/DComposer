@@ -332,7 +332,7 @@ class DOCUMENT : SourceView
 	*  Returns fully scoped symbol at AtIter.
 	*  And where that symbols begins is returned in BeginsAtIter
 	*/
-	string Symbol(TextIter AtIter, ref TextIter BeginsAtIter)
+	string Symbol(TextIter AtIter, ref TextIter BeginsAtIter , bool FullScan = false)
 	{
 
 
@@ -514,12 +514,12 @@ class DOCUMENT : SourceView
 
 
 		auto pre = ScanBack(AtIter.copy());
-		//auto post = ScanFore(AtIter.copy());
+		dstring post = "";
+		if(FullScan) post = ScanFore(AtIter.copy());
 
 		if((pre.length == 1) && (pre[0] == 0)) return ""; //basically an invalid symbol (starts with number)
 
-		//return to!string(pre ~ post);
-		return to!string(pre);
+		return to!string(pre ~ post);
 	}
 
 
@@ -750,7 +750,7 @@ class DOCUMENT : SourceView
 
 		getIterAtPosition (ti, trailing, xx, yy);
 
-		return Symbol(ti, tiFiller);
+		return Symbol(ti, tiFiller, true);
 
 		//if(!ti.insideWord)return "";
 		//TextIter tiend = ti.copy();
