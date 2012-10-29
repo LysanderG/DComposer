@@ -418,6 +418,8 @@ class SYMBOLS
 		ulong	ScopeElements = ScopedCandidate.length;
 
 		DSYMBOL[] rvSymbols;
+		if(ScopeElements < 1) return rvSymbols;
+
 
 		void CheckSymbol(DSYMBOL chksym)
 		{
@@ -491,12 +493,12 @@ class SYMBOLS
 	 * */
 	DSYMBOL[] GetMatches(string Candidate)
 	{
-		return null;
+
 		DSYMBOL[] rvMatches;
 
 		void CheckSymbol(DSYMBOL xsym)
 		{
-			foreach(kid; xsym.Children) CheckSymbol(xsym);
+			foreach(kid; xsym.Children) CheckSymbol(kid);
 			if(xsym.Path.endsWith(Candidate)) rvMatches ~= xsym;
 		}
 

@@ -97,19 +97,18 @@ class SYMBOL_VIEW : ELEMENT
     {
         TreeIter ti = mSymbolTree.getSelectedIter();
 
-        string FileToOPen;
+        string FileToOpen;
         int AtLineNo;
 
         auto sym = Symbols.GetMatches(ti.getValueString(3));
         if(sym.length < 1) return;
 
-        FileToOPen = sym[0].File;
+        FileToOpen = sym[0].File;
         AtLineNo = sym[0].Line;
 
 
-        if(FileToOPen.length < 1)return;
-
-        dui.GetDocMan.Open(FileToOPen, AtLineNo-1);
+        if(FileToOpen.length < 1)return;
+        dui.GetDocMan.Open(FileToOpen, AtLineNo-1);
     }
 
 
