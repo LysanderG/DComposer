@@ -25,6 +25,7 @@ import dcore;
 import ui;
 
 import std.stdio;
+import std.string;
 
 import gtk.Action;
 
@@ -41,8 +42,15 @@ class GOTODEF : ELEMENT
 	void Go(Action Act)
 	{
 		string CurrentWord = dui.GetDocMan.Current.WordAtPopUpMenu;
-
+		writeln(CurrentWord);
 		auto Results = Symbols.GetMatches(CurrentWord);
+
+		if(Results.length < 1)
+		{
+			auto DotIndex = lastIndexOf(CurrentWord, ".");
+			if(DotIndex != -1)  Results = Symbols.GetMatches(CurrentWord[DotIndex .. $]);
+		}
+		writeln(Results.length);
 
 		if(Results.length < 1) return;
 		if(Results.length != 1) Log.Entry("Multiple definitions possible for " ~ CurrentWord);
