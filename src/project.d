@@ -247,11 +247,11 @@ class PROJECT
 
     void Engage()                                           //dcore engage
     {
-		mName = "";
+		mName = "new_project";
 		mCustomBuildCommand = "";
         mTarget = TARGET.NULL;
         mVersion = PROJECT_VERSION;
-		WorkingPath = Config.getString("PROJECT", "default_project_path", ".");
+		WorkingPath = Config.ExpandPath(Config.getString("PROJECT", "default_project_path", "~/projects"));
         mCompiler = Config.getString("PROJECT", "default_compiler", "dmd");
         mList.Zero;
         mUseCustomBuild = false;
@@ -332,7 +332,8 @@ class PROJECT
 				{
 					//name basedir otherargs
 					if(key == "name") 		Name      	= j.str;
-					if(key == "basedir") 	WorkingPath= j.str;
+					if(key == "basedir") 	WorkingPath = j.str;
+
 					//if(key == "other")		this[MISC] 	= [j.str];
 					break;
 				}
@@ -354,8 +355,8 @@ class PROJECT
         Save();
 
 
-        mName               = "";
-        mWorkingPath      	= "";
+        mName               = "new_project";
+        mWorkingPath      	= Config.ExpandPath(Config.getString("PROJECT", "default_project_path", "~/projects"));
         mTarget             = TARGET.NULL;
         mCompiler           = Config.getString("PROJECT", "default_compiler", "dmd");
         mVersion            = PROJECT_VERSION;
