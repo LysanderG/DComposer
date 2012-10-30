@@ -53,12 +53,12 @@ class MESSAGE_UI :ELEMENT
 
     void WatchDMD(string line)
     {       
-    	static int ActivityIndicator = 0;
+    	//static int ActivityIndicator = 0;
     	
         //scope(exit)mErrorView.setModel(mStore);
         if(line == `BEGIN`)
         {
-            if(ActivityIndicator-- < -2) ActivityIndicator = -1;
+            //if(ActivityIndicator-- < -2) ActivityIndicator = -1;
            
             mStore.clear();
             dui.GetExtraPane.setCurrentPage(mRoot);
@@ -74,7 +74,7 @@ class MESSAGE_UI :ELEMENT
         if(m.empty)
         {
             mStore.append(ti);
-            mStore.setValue(ti, 1, ActivityIndicator);
+            //mStore.setValue(ti, 1, ActivityIndicator);
             mStore.setValue(ti, 2, line);
             return;
         }
