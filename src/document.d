@@ -309,23 +309,23 @@ class DOCUMENT : SourceView
 	/**
 	*  Returns fully scoped symbol currently under cursor if any.
 	*/
-	string Symbol()
+	string Symbol(bool FullSymbol = false)
 	{
 		TextIter  PlaceHolder;
 		auto CursorTI = new TextIter;
 		getBuffer.getIterAtMark(CursorTI, getBuffer.getInsert());
 
-		return Symbol(CursorTI, PlaceHolder);
+		return Symbol(CursorTI, PlaceHolder, FullSymbol);
 	}
 	/**
 	*  Returns fully scoped symbol currently under cursor if any.
 	*  Also returns TextIter at beginning of symbol.
 	*/
-	string Symbol(ref TextIter BeginsAt)
+	string Symbol(ref TextIter BeginsAt, bool FullSymbol)
 	{
 		auto CursorTI = new TextIter;
 		getBuffer.getIterAtMark(CursorTI, getBuffer.getInsert());
-		return Symbol(CursorTI, BeginsAt);
+		return Symbol(CursorTI, BeginsAt, FullSymbol);
 	}
 
 	/**
