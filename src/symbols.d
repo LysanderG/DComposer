@@ -194,6 +194,7 @@ class SYMBOLS
 						case "line"			: CurrSym.Line = cast(int)obj.integer; break;
 						case "base"			: CurrSym.Base = obj.str; break;
 						case "members"		: break;
+						case "interfaces"	: break;
 						default : Log.Entry("Unrecognized object " ~ key, "Error");break;
 					}
 				}
