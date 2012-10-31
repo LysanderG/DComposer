@@ -342,9 +342,9 @@ class DOCMAN
 		if(Current !is null)return Current.Word;
 		return null;
 	}
-	string GetSymbol()
+	string GetSymbol(bool FullSymbol = false)
 	{
-		if(Current !is null)return Current.Symbol();
+		if(Current !is null)return Current.Symbol(FullSymbol);
 		return null;
 	}
 	int GetLineNo()
