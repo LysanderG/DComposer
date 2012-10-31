@@ -127,13 +127,20 @@ class ASSISTANT_UI : ELEMENT
 	void AssistWord()
 	{
 		//string CurrentWord = dui.GetDocMan.GetWord();
-		string CurrentWord = dui.GetDocMan.GetSymbol();
-		if((CurrentWord is null ) || (CurrentWord.length < 1)) return;
+		string CurrentWord = dui.GetDocMan.GetSymbol(true);
+		if((CurrentWord is null ) || (CurrentWord.length < 1))  return;
+
 		if(CurrentWord == mLastDocWord) return;
 		mLastDocWord = CurrentWord;
 
 		auto Possibles = Symbols.GetMatches(CurrentWord);
-		if(Possibles.length < 1) return;
+		if(Possibles.length < 1)
+		{
+			CurrentWord = dui.GetDocMan.GetWord();
+			if((CurrentWord is null ) || (CurrentWord.length < 1))  return;
+			Possibles = Symbols.GetMatches(CurrentWord);
+			mLastDocWord = CurrentWord;
+		}
 		CatchSymbols(Possibles);
 	}
 
@@ -195,7 +202,7 @@ class ASSISTANT_UI : ELEMENT
 
 
         //string LabelText = "("~mList[indx].Kind~") -- Signature : " ~ mList[indx].Type;
-        string LabelText = "Signature : " ~ mList[indx].Type;
+        string LabelText = "Signature : " ~ mList[indx].FullType;
         mSignature.setText(LabelText);
 
 
@@ -219,8 +226,8 @@ class ASSISTANT_UI : ELEMENT
 
 			void ShowUndocumentedPage()
 			{
-				string none = "file://" ~ Config.getString("ASSISTANT_UI","doc_folder", "$(SYSTEM_DIR)/docs/");
-			    none ~= "undocumented.html";
+				string none = "file://" ~ Config.getString("ASSISTANT_UI","doc_folder", "$(SYSTEM_DIR)/glade/");
+			    none ~= "/undocumented.html";
 			    webkit_web_view_load_uri(mWebView, toStringz(none));
 			}
 
