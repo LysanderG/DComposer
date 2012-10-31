@@ -494,13 +494,14 @@ class SYMBOLS
 	 * */
 	DSYMBOL[] GetMatches(string Candidate)
 	{
+		auto CandiScope = GetScopedCandidate(Candidate);
 
 		DSYMBOL[] rvMatches;
 
 		void CheckSymbol(DSYMBOL xsym)
 		{
 			foreach(kid; xsym.Children) CheckSymbol(kid);
-			if(xsym.Path.endsWith(Candidate)) rvMatches ~= xsym;
+			if(xsym.Scope.endsWith(CandiScope)) rvMatches ~= xsym;
 		}
 
 		foreach(sym; mSymbols) CheckSymbol(sym);
