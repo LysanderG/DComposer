@@ -1,17 +1,17 @@
 //      dirview.d
-//      
+//
 //      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
+//
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      This program is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with this program; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -68,7 +68,7 @@ class DIR_VIEW : ELEMENT
     string              mName;
     string              mInfo;
     bool                mState;
-    
+
     string              mFolder;
 
     DirEntry[]          mContents;
@@ -97,7 +97,7 @@ class DIR_VIEW : ELEMENT
 
     DIR_VIEW_PREF		mPrefPage;
     bool				mEnabled;
-    
+
 
     void RefreshOLD()
     {
@@ -108,7 +108,7 @@ class DIR_VIEW : ELEMENT
             mStore.clear();
             return;
         }
-        
+
         TreeIter ti = new TreeIter;
         mDirLabel.setText(mFolder);
         mStore.clear();
@@ -119,21 +119,21 @@ class DIR_VIEW : ELEMENT
 
         theFileFilter = mComboFilter.getActiveText();
         if(theFileFilter.length < 1) theFileFilter = "*";
-        
+
 		scope(failure)
 		{
 			xStore.append(ti);
 			xStore.setValue(ti, 1, "Check Folder/File permissions");
 			return;
 		}
-            
+
         auto Contents = dirEntries(mFolder, SpanMode.shallow);
-            
+
 
         foreach(DirEntry item; Contents)
         {
             if((!mHiddenBtn.getActive) && (baseName(item.name)[0] == '.')) continue;
-            
+
             if(item.isDir)
             {
                 xStore.append(ti);
@@ -141,7 +141,7 @@ class DIR_VIEW : ELEMENT
                 xStore.setValue(ti, 1, baseName(item.name));
                 xStore.setValue(ti, 2, to!string(item.size));
             }
-                 
+
             else if (globMatch(baseName(item.name), theFileFilter))
             {
                 xStore.append(ti);
@@ -175,12 +175,12 @@ class DIR_VIEW : ELEMENT
 		}
 
 		mDirLabel.setText(mFolder);
-		
+
         string theFileFilter = mComboFilter.getActiveText();
         if(theFileFilter.length < 1) theFileFilter = "*";
 
-		auto Contents = dirEntries(mFolder, SpanMode.shallow);	
-		
+		auto Contents = dirEntries(mFolder, SpanMode.shallow);
+
 		ti = new TreeIter;
 
 		GC.disable();
@@ -188,28 +188,30 @@ class DIR_VIEW : ELEMENT
 		foreach(DirEntry item; Contents)
         {
             if((!mHiddenBtn.getActive) && (baseName(item.name)[0] == '.')) continue;
-            
+
             if(item.isDir)
             {
                 mStore.append(ti);
                 mStore.setValue(ti, 0, " " );
                 mStore.setValue(ti, 1, baseName(item.name));
-                mStore.setValue(ti, 2, to!string(item.size));
+                mStore.setValue(ti, 2, "            ");
             }
-                 
+
             else if (globMatch(baseName(item.name), theFileFilter))
             {
                 mStore.append(ti);
                 mStore.setValue(ti, 0, " ");
                 mStore.setValue(ti, 1, baseName(item.name));
-                mStore.setValue(ti, 2, to!string(item.size));
+                auto number = xformat("%s", item.size);
+
+                mStore.setValue(ti, 2, number);
             }
         }
         GC.enable();
 		mStore.setSortColumnId(1,SortType.ASCENDING);
         mStore.setSortFunc(0, &SortFunciton, null, null); //ha darn paste and copy funciton ... and it all works
         mStore.setSortFunc(1, &SortFunciton, null, null);
-		
+
 	}
 
     void UpClicked(ToolButton x)
@@ -219,7 +221,7 @@ class DIR_VIEW : ELEMENT
 
     void GoHome(ToolButton x)
     {
-        if((Project.Target == TARGET.NULL) || (Project.Target == TARGET.UNDEFINED))Folder = expandTilde("~"); 
+        if((Project.Target == TARGET.NULL) || (Project.Target == TARGET.UNDEFINED))Folder = expandTilde("~");
         else Folder = Project.WorkingPath;
     }
 
@@ -253,17 +255,17 @@ class DIR_VIEW : ELEMENT
         dui.Status.push(0, mStore.getValueString(ti,0) ~ ": " ~ mStore.getValueString(ti, 1) ~ "\t:\t\tsize " ~ mStore.getValueString(ti,2));
 
     }
-        
+
 
     void AddFilter()
     {
-        
+
         CHECK SendData;
         SendData.Text = mEntryFilter.getText();
-        SendData.Bool = true;        
-        
-        mComboFilter.getModel().foreac(&Check, &SendData);            
-        
+        SendData.Bool = true;
+
+        mComboFilter.getModel().foreac(&Check, &SendData);
+
        if(SendData.Bool) mComboFilter.appendText(mEntryFilter.getText());
     }
 
@@ -284,8 +286,8 @@ class DIR_VIEW : ELEMENT
 		mRoot.showAll();
 		mRoot.setVisible(mEnabled);
 	}
-    
-    
+
+
 
     public:
 
@@ -316,13 +318,13 @@ class DIR_VIEW : ELEMENT
         mFolder = nuFolder;
         Refresh();
     }
-    
+
     void Engage()
     {
 		scope(failure) Log.Entry("Failed to Engage DIR_VIEW element", "Error");
         mBuilder = new Builder;
         mBuilder.addFromFile(Config.getString("DIRVIEW","glade_file", "$(HOME_DIR)/glade/dirview.glade"));
-        
+
         //mRoot           = cast(Viewport)    mBuilder.getObject("viewport1");
         mRoot           = cast(VBox)    mBuilder.getObject("vbox1");
 
@@ -334,7 +336,7 @@ class DIR_VIEW : ELEMENT
         mHomeBtn        = cast(ToolButton)  mBuilder.getObject("toolbutton3");
         mSetBtn         = cast(ToolButton)  mBuilder.getObject("toolbutton4");
         mHiddenBtn      = cast(ToggleToolButton)  mBuilder.getObject("toolbutton5");
-        
+
         mStore2         = cast(ListStore)   mBuilder.getObject("liststore2");
 
 		mStore.setSortColumnId(1,SortType.ASCENDING);
@@ -362,19 +364,19 @@ class DIR_VIEW : ELEMENT
 
         mComboFilter.addOnChanged(delegate void (ComboBox x){Refresh();});
         mEntryFilter.addOnActivate(delegate void (Entry x){AddFilter();});
-        mEntryFilter.addOnIconPress(delegate void (GtkEntryIconPosition pos, GdkEvent* event, Entry entry) {AddFilter();}); 
+        mEntryFilter.addOnIconPress(delegate void (GtkEntryIconPosition pos, GdkEvent* event, Entry entry) {AddFilter();});
 
         mhbox = cast(HBox)mBuilder.getObject("hbox1");
 
         mhbox.add(mComboFilter);
-        
+
 
         mFolderView.addOnCursorChanged(&FileSelected);
         mFolderView.addOnRowActivated(&FileClicked);
 
         Refresh();
         mRoot.showAll();
-        
+
         dui.GetSidePane.appendPage(mRoot, "Files");
         dui.GetSidePane.setTabReorderable (mRoot, true);
         Config.Reconfig.connect(&Configure);
@@ -382,18 +384,18 @@ class DIR_VIEW : ELEMENT
         Configure();
         Log.Entry("Engaged "~Name()~"\t\telement.");
     }
-        
+
 
     void Disengage()
     {
         string FilterString;
         TreeIter x = new TreeIter;
-        
+
 
         if(mStore2.getIterFirst(x))
         {
             FilterString = mStore2.getValueString(x,0);
-            
+
             while(mStore2.iterNext(x)) FilterString ~= ":" ~ mStore2.getValueString(x, 0);
         }
         if(FilterString.length < 1) FilterString = "*.d:*.di:*.dpro";
@@ -406,7 +408,7 @@ class DIR_VIEW : ELEMENT
     {
         return mPrefPage;
     }
-    
+
 }
 
 
@@ -415,7 +417,7 @@ class DIR_VIEW_PREF :PREFERENCE_PAGE
 {
 	LISTUI 			mFilterList;
 	CheckButton 	mEnabled;
-	
+
 	this()
 	{
 		super("Elements", Config.getString("PREFERENCES", "glade_file_dir_view", "$(HOME_DIR)/glade/dirviewpref.glade"));
@@ -427,7 +429,7 @@ class DIR_VIEW_PREF :PREFERENCE_PAGE
 
 		//mVBox.add(mFilterList.GetWidget());
 		mVBox.packEnd(mFilterList.GetWidget(), 1, 1, 0);
-		
+
 		mFrame.showAll();
 	}
 
@@ -451,9 +453,9 @@ class DIR_VIEW_PREF :PREFERENCE_PAGE
 
 	override bool Expand() {return true;}
 }
-		
 
-		
+
+
 
 
 /++
@@ -463,11 +465,11 @@ class DIR_VIEW_PREF :PREFERENCE_PAGE
  +/
 extern (C) int Check (GtkTreeModel *model, GtkTreePath *path, GtkTreeIter *iter,  void * data)
 {
-    
+
     CHECK * retData = cast(CHECK *) data;
 
     ListStore ls = new ListStore(cast(GtkListStore*)model);
-    
+
     TreeIter ti = new TreeIter(iter);
     if( retData.Text == ls.getValueString(ti,0))
     {
@@ -486,7 +488,7 @@ struct CHECK
 /++
  +  Sort the dir contents with folders up top
  +  Removes leading '.' and is case insensitive
- + 
+ +
 +/
 
 extern (C) int SortFunciton(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b, gpointer user_data)
