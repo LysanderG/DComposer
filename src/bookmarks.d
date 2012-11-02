@@ -178,6 +178,8 @@ class BOOKMARKS : ELEMENT
 	{
 		if(event == ProEvent.Saving)Save();
 		if(event == ProEvent.Opened)Load();
+		if(event == ProEvent.Creating)Clear();
+		if(event == ProEvent.Closed)Clear();
 		//hmm... what to do with all the extra bookmarks ater opening multiple projects?
 	}
 
