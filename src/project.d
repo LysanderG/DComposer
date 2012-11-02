@@ -251,7 +251,7 @@ class PROJECT
 		mCustomBuildCommand = "";
         mTarget = TARGET.NULL;
         mVersion = PROJECT_VERSION;
-		WorkingPath = Config.ExpandPath(Config.getString("PROJECT", "default_project_path", "~/projects"));
+		WorkingPath = "";//Config.ExpandPath(Config.getString("PROJECT", "default_project_path", "~/projects"));
         mCompiler = Config.getString("PROJECT", "default_compiler", "dmd");
         mList.Zero;
         mUseCustomBuild = false;
@@ -356,7 +356,7 @@ class PROJECT
 
 
         mName               = "new_project";
-        mWorkingPath      	= Config.ExpandPath(Config.getString("PROJECT", "default_project_path", "~/projects"));
+        mWorkingPath      	= "new_project";//Config.ExpandPath(Config.getString("PROJECT", "default_project_path", "~/projects"));
         mTarget             = TARGET.NULL;
         mCompiler           = Config.getString("PROJECT", "default_compiler", "dmd");
         mVersion            = PROJECT_VERSION;
