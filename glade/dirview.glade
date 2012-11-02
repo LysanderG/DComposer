@@ -176,9 +176,9 @@
                 <property name="sort_indicator">True</property>
                 <property name="sort_column_id">0</property>
                 <child>
-                  <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                  <object class="GtkCellRendererPixbuf" id="cellrenderertext1"/>
                   <attributes>
-                    <attribute name="text">0</attribute>
+                    <attribute name="stock-id">0</attribute>
                   </attributes>
                 </child>
               </object>

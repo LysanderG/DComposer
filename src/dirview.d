@@ -192,7 +192,8 @@ class DIR_VIEW : ELEMENT
             if(item.isDir)
             {
                 mStore.append(ti);
-                mStore.setValue(ti, 0, " " );
+                //mStore.setValue(ti, 0, " " );
+                mStore.setValue(ti, 0, "DIRVIEW_FOLDER" );
                 mStore.setValue(ti, 1, baseName(item.name));
                 mStore.setValue(ti, 2, "            ");
             }
@@ -200,7 +201,7 @@ class DIR_VIEW : ELEMENT
             else if (globMatch(baseName(item.name), theFileFilter))
             {
                 mStore.append(ti);
-                mStore.setValue(ti, 0, " ");
+                mStore.setValue(ti, 0, "DIRVIEW_DOCUMENT");
                 mStore.setValue(ti, 1, baseName(item.name));
                 auto number = xformat("%s", item.size);
 
@@ -240,8 +241,8 @@ class DIR_VIEW : ELEMENT
 
         string type = mStore.getValueString(ti, 0);
 
-        if(type == " ") Folder = buildPath(mFolder , mStore.getValueString(ti,1));
-        if(type == " ") dui.GetDocMan.Open(buildPath(mFolder, mStore.getValueString(ti,1)));
+        if(type == "DIRVIEW_FOLDER") Folder = buildPath(mFolder , mStore.getValueString(ti,1));
+        if(type == "DIRVIEW_DOCUMENT") dui.GetDocMan.Open(buildPath(mFolder, mStore.getValueString(ti,1)));
 
     }
 
@@ -297,6 +298,9 @@ class DIR_VIEW : ELEMENT
         mInfo = "Simple File Browser";
         mFolder = getcwd();
         mEnabled = true;
+
+        dui.AddIcon("DIRVIEW_FOLDER", Config.ExpandPath("$(HOME_DIR)/glade/folder-horizontal-open.png"));
+        dui.AddIcon("DIRVIEW_DOCUMENT", Config.ExpandPath("$(HOME_DIR)/glade/document.png"));
 
         mPrefPage = new DIR_VIEW_PREF;
     }
