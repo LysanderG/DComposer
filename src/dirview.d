@@ -301,7 +301,11 @@ class DIR_VIEW : ELEMENT
 
         dui.AddIcon("DIRVIEW_FOLDER", Config.ExpandPath("$(HOME_DIR)/glade/folder-horizontal-open.png"));
         dui.AddIcon("DIRVIEW_DOCUMENT", Config.ExpandPath("$(HOME_DIR)/glade/document.png"));
-
+        dui.AddIcon("DIRVIEW_UP", Config.ExpandPath("$(HOME_DIR)/glade/arrow-090.png"));
+        dui.AddIcon("DIRVIEW_REFRESH", Config.ExpandPath("$(HOME_DIR)/glade/arrow-circle-double.png"));
+        dui.AddIcon("DIRVIEW_HOME", Config.ExpandPath("$(HOME_DIR)/glade/home.png"));
+        dui.AddIcon("DIRVIEW_SET", Config.ExpandPath("$(HOME_DIR)/glade/arrow-step.png"));
+        dui.AddIcon("DIRVIEW_HIDDEN", Config.ExpandPath("$(HOME_DIR)/glade/ghost.png"));
         mPrefPage = new DIR_VIEW_PREF;
     }
 
@@ -352,6 +356,12 @@ class DIR_VIEW : ELEMENT
         mHomeBtn.addOnClicked(&GoHome);
         mSetBtn.addOnClicked(&GoToCurrentDocFolder);
         mHiddenBtn.addOnClicked(delegate void (ToolButton x){Refresh();});
+
+        mUpBtn.setStockId("DIRVIEW_UP");
+        mRefreshBtn.setStockId("DIRVIEW_REFRESH");
+        mHomeBtn.setStockId("DIRVIEW_HOME");
+        mSetBtn.setStockId("DIRVIEW_SET");
+        mHiddenBtn.setStockId("DIRVIEW_HIDDEN");
 
 
         //all the following section is for the comboboxentry crap that wont work out of the box
