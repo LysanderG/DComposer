@@ -42,15 +42,14 @@ class GOTODEF : ELEMENT
 	void Go(Action Act)
 	{
 		string CurrentWord = dui.GetDocMan.Current.WordAtPopUpMenu;
-		writeln(CurrentWord);
 		auto Results = Symbols.GetMatches(CurrentWord);
 
 		if(Results.length < 1)
 		{
+			writeln(CurrentWord);
 			auto DotIndex = lastIndexOf(CurrentWord, ".");
-			if(DotIndex != -1)  Results = Symbols.GetMatches(CurrentWord[DotIndex .. $]);
+			if(DotIndex != -1)  Results = Symbols.GetMatches(CurrentWord[DotIndex+1 .. $]);
 		}
-		writeln(Results.length);
 
 		if(Results.length < 1) return;
 		if(Results.length != 1) Log.Entry("Multiple definitions possible for " ~ CurrentWord);

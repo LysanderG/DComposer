@@ -92,10 +92,8 @@ class SCOPE_LIST : ELEMENT
         TextIter TStart = new TextIter;
 
 		string Candidate = sv.Symbol(tic, TStart);
-		writeln("scopelist '",Candidate,"'");
 
         if(Candidate.length < 2) return; //less than 2 because Candidate will include the '.'
-        writeln("Shouldn't be here");
         DSYMBOL[] possibles = Symbols.GetMembers(Candidate);
 
         sv.GetIterPosition(tic, xpos, ypos, xlen, ylen);

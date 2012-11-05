@@ -254,7 +254,6 @@ class DOCUMENT : SourceView
 
 		//dui.Status.push(0, (Pasting?"Pasting":"not Pasting"));
         TextInserted.emit(this, ti.copy(), text, getBuffer);
-        writeln("hello");
         mInPastingProcess = false;
 
     }
