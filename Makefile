@@ -31,7 +31,7 @@ ifeq ($(release), 1)
 endif
 
 debug ?= 1
-ifeq ( $(debug), 1)
+ifeq ($(debug), 1)
 	DFLAGS += $(DEBUGFLAGS)
 endif
 
