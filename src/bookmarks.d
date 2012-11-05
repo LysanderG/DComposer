@@ -163,6 +163,7 @@ class BOOKMARKS : ELEMENT
 
 	void Clear()
 	{
+		if(mMarkRoot !is null)foreach (x; mMarkRoot)x.Remove();
 		mMarkRoot = new DOG_EAR("root_anchor", "anchor", 0);
         mMarkLast = new DOG_EAR("tail_anchor", "anchor", 0);
 
