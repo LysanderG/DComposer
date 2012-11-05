@@ -252,8 +252,9 @@ class DOCUMENT : SourceView
         if(text == "\n") NewLine.emit(ti, text, getBuffer);
         if(text == "}" ) CloseBrace.emit(ti, text, getBuffer);
 
-		dui.Status.push(0, (Pasting?"Pasting":"not Pasting"));
+		//dui.Status.push(0, (Pasting?"Pasting":"not Pasting"));
         TextInserted.emit(this, ti.copy(), text, getBuffer);
+        writeln("hello");
         mInPastingProcess = false;
 
     }
@@ -428,6 +429,7 @@ class DOCUMENT : SourceView
 												{
 													if(LastCh == '(') break;
 													if(LastCh == '.') break;
+													if(LastCh == 0)break;
 													LastCh = ch;
 													break;
 												}
