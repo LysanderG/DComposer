@@ -128,7 +128,7 @@ class ASSISTANT_UI : ELEMENT
 	{
 		//string CurrentWord = dui.GetDocMan.GetWord();
 		string CurrentWord = dui.GetDocMan.GetSymbol(true);
-		if((CurrentWord is null ) || (CurrentWord.length < 1))  return;
+		if((CurrentWord is null ) || (CurrentWord.length < 2))  return;
 
 		if(CurrentWord == mLastDocWord) return;
 		mLastDocWord = CurrentWord;

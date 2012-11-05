@@ -79,6 +79,7 @@ class SCOPE_LIST : ELEMENT
 
     void WatchDoc(DOCUMENT sv, TextIter ti, string text, SourceBuffer buffer)
     {
+
         int xpos, ypos, xlen, ylen;
 
 		if (text.length > 1) return;
@@ -91,8 +92,10 @@ class SCOPE_LIST : ELEMENT
         TextIter TStart = new TextIter;
 
 		string Candidate = sv.Symbol(tic, TStart);
+		writeln("scopelist '",Candidate,"'");
 
-        if(Candidate.length < 1) return;
+        if(Candidate.length < 2) return; //less than 2 because Candidate will include the '.'
+        writeln("Shouldn't be here");
         DSYMBOL[] possibles = Symbols.GetMembers(Candidate);
 
         sv.GetIterPosition(tic, xpos, ypos, xlen, ylen);
