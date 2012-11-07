@@ -235,7 +235,7 @@ class PROJECT_UI : ELEMENT
 
 
 
-        mBtnApply.addOnClicked(delegate void (Button X){SyncProjectToGui(); mSkipWatchingProject=true; Project.Save(); mSkipWatchingProject = false;});
+        mBtnApply.addOnClicked(delegate void (Button X){SyncProjectToGui(); mSkipWatchingProject=true; Project.Save(); SyncGuiToProject(); mSkipWatchingProject = false;});
 		mBtnHide.addOnClicked(delegate void (Button X){mRootVBox.hide();});
 		mBtnRevert.addOnClicked(delegate void (Button X){SyncGuiToProject();});
 
