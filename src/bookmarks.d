@@ -31,6 +31,7 @@ import std.algorithm;
 
 import gtk.Action;
 import gtk.TextIter;
+import gtk.SeparatorToolItem;
 
 import gsv.SourceMark;
 import glib.ListSG;
@@ -242,6 +243,7 @@ class BOOKMARKS : ELEMENT
         dui.AddToolBarItem(mCreateMarkAct  .createToolItem());
         dui.AddToolBarItem(mGotoNextMarkAct.createToolItem());
         dui.AddToolBarItem(mGotoPrevMarkAct.createToolItem());
+        dui.AddToolBarItem(new SeparatorToolItem);
 
 
 
