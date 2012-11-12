@@ -181,7 +181,6 @@
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn1">
                     <property name="title" translatable="yes">Item</property>
-                    <property name="alignment">0.019999999552965164</property>
                     <property name="sort_indicator">True</property>
                     <property name="sort_column_id">0</property>
                     <child>
