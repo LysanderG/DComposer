@@ -205,7 +205,7 @@ class MAIN_UI
             return false;
         });
 
-		DragAndDrop.destSet (mWindow, GtkDestDefaults.ALL  , &FileDropTargets[0], 4,  GdkDragAction.ACTION_COPY | GdkDragAction.ACTION_MOVE | GdkDragAction.ACTION_LINK | GdkDragAction.ACTION_ASK);
+		DragAndDrop.destSet (mWindow, GtkDestDefaults.ALL  , FileDropTargets.ptr, 4,  GdkDragAction.ACTION_COPY | GdkDragAction.ACTION_MOVE | GdkDragAction.ACTION_LINK | GdkDragAction.ACTION_ASK);
 
 		mWindow.addOnDragDataReceived (&DragCatcher);
 
@@ -252,7 +252,7 @@ class MAIN_UI
         mActions.addActionWithAccel(QuitAction, null);
         AddMenuItem("_System", QuitAction.createMenuItem());
         AddToolBarItem(QuitAction.createToolItem());
-        AddToolBarItem(new SeparatorToolItem);
+        //AddToolBarItem(new SeparatorToolItem);
 
 
         //view Actions
@@ -286,7 +286,7 @@ class MAIN_UI
         AddMenuItem("_View", ViewExtraPaneAct.createMenuItem());
         AddMenuItem("_View", ViewStatusBarAct.createMenuItem());
 
-        AddMenuItem("_Help", new MenuItem(delegate void(MenuItem mi){ShowAboutDialog();}, "About"),7);
+        AddMenuItem("_Help", new MenuItem(delegate void(MenuItem mi){ShowAboutDialog();}, "About"),17);
 
 
         Project.Event.connect(&WatchProjectName);
@@ -321,7 +321,7 @@ class MAIN_UI
         return true;
     }
 
-    void AddMenuItem(string MenuID, Widget Addition, int Position =0)
+    void AddMenuItem(string MenuID, Widget Addition, int Position = -1)
     {
         if(MenuID in mSubMenus)
         {
