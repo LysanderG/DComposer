@@ -61,7 +61,6 @@
             </child>
             <child>
               <object class="GtkTreeViewColumn" id="treeviewcolumn2">
-                <property name="sizing">autosize</property>
                 <property name="min_width">0</property>
                 <property name="title" translatable="yes">column</property>
                 <property name="expand">True</property>
