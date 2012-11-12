@@ -426,12 +426,13 @@ class SEARCH_UI : ELEMENT
         GetResults();
         mResultsView.getSelection.selectPath(LastPositionPath);
         mResultsView.setCursor(LastPositionPath, null, false);
-        dui.GetDocMan.GotoLine(tmpline);
+        //dui.GetDocMan.GotoLine(tmpline);
 
     }
 
     void ReplaceAll()
     {
+		scope(failure)writeln("hmm");
 		mResultsView.getSelection.selectPath(new TreePath("0"));
 		TI = mResultsView.getSelection.getSelected();
 		string ReplaceText = mReplace.getText();
@@ -447,6 +448,7 @@ class SEARCH_UI : ELEMENT
 
 		do
 		{
+			scope(failure)writeln("in dowhile");
 			if(TI is null)break;
 			if(!mResultsList.iterIsValid(TI)) break;
 
@@ -458,9 +460,10 @@ class SEARCH_UI : ELEMENT
 
 		foreach_reverse(size_t i, filename; aFileNames)
 		{
+			scope(failure)writeln("in foreachreverse");
 			auto doc = dui.GetDocMan.GetDocument(filename);
-			doc.getBuffer.beginUserAction();
 			if(doc is null) continue;
+			doc.getBuffer.beginUserAction();
 			doc.getBuffer.getIterAtLineIndex(txti1, aLines[i]-1, aOffStarts[i]);
 			doc.getBuffer.getIterAtLineIndex(txti2, aLines[i]-1, aOffEnds[i]);
 			doc.getBuffer.delet(txti1, txti2);
