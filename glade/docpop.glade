@@ -24,6 +24,7 @@
     <property name="width_request">600</property>
     <property name="can_focus">False</property>
     <property name="border_width">2</property>
+    <property name="type">popup</property>
     <property name="type_hint">popup-menu</property>
     <property name="accept_focus">False</property>
     <property name="opacity">0.66000000000000003</property>
