@@ -288,6 +288,23 @@ class DIR_VIEW : ELEMENT
 		mRoot.setVisible(mEnabled);
 	}
 
+	void SetPagePosition(UI_EVENT uie)
+	{
+		switch (uie)
+		{
+			case UI_EVENT.RESTORE_GUI :
+			{
+				dui.GetSidePane.reorderChild(mRoot, Config.getInteger("DIRVIEW", "page_position"));
+				break;
+			}
+			case UI_EVENT.STORE_GUI :
+			{
+				Config.setInteger("DIRVIEW", "page_position", dui.GetSidePane.pageNum(mRoot));
+				break;
+			}
+			default :break;
+		}
+	}
 
 
     public:
@@ -333,7 +350,6 @@ class DIR_VIEW : ELEMENT
         mBuilder = new Builder;
         mBuilder.addFromFile(Config.getString("DIRVIEW","glade_file", "$(HOME_DIR)/glade/dirview.glade"));
 
-        //mRoot           = cast(Viewport)    mBuilder.getObject("viewport1");
         mRoot           = cast(VBox)    mBuilder.getObject("vbox1");
 
         mFolderView     = cast(TreeView)    mBuilder.getObject("treeview1");
@@ -392,6 +408,7 @@ class DIR_VIEW : ELEMENT
         mRoot.showAll();
 
         dui.GetSidePane.appendPage(mRoot, "Files");
+        dui.connect(&SetPagePosition);
         dui.GetSidePane.setTabReorderable (mRoot, true);
         Config.Reconfig.connect(&Configure);
 
@@ -405,7 +422,6 @@ class DIR_VIEW : ELEMENT
         string FilterString;
         TreeIter x = new TreeIter;
 
-
         if(mStore2.getIterFirst(x))
         {
             FilterString = mStore2.getValueString(x,0);
@@ -413,7 +429,6 @@ class DIR_VIEW : ELEMENT
             while(mStore2.iterNext(x)) FilterString ~= ":" ~ mStore2.getValueString(x, 0);
         }
         if(FilterString.length < 1) FilterString = "*.d:*.di:*.dpro";
-
         Config.setString("DIRVIEW", "file_filter", FilterString);
         Log.Entry("Disengaged "~mName~"\t\telement.");
     }

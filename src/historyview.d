@@ -1,17 +1,17 @@
 //      history.d
-//      
+//
 //      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
+//
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      This program is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with this program; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -66,6 +66,24 @@ class HISTORY_VIEW : ELEMENT
 		mRoot.setVisible(mEnabled);
 	}
 
+	void SetPagePosition(UI_EVENT uie)
+	{
+		switch (uie)
+		{
+			case UI_EVENT.RESTORE_GUI :
+			{
+				dui.GetSidePane.reorderChild(mRoot, Config.getInteger("RECENT_VIEW", "page_position"));
+				break;
+			}
+			case UI_EVENT.STORE_GUI :
+			{
+				Config.setInteger("RECENT_VIEW", "page_position", dui.GetSidePane.pageNum(mRoot));
+				break;
+			}
+			default :break;
+		}
+	}
+
 
     public:
 
@@ -87,7 +105,7 @@ class HISTORY_VIEW : ELEMENT
 
         mPrefPage = new HISTORY_VIEW_PREF;
     }
-    
+
 
 
     void Engage()
@@ -100,7 +118,7 @@ class HISTORY_VIEW : ELEMENT
         mRecentFiles        =   cast(RecentChooserWidget)   mBuilder.getObject("recentchooser2");
 
         mFilterProjects = new RecentFilter;
-        
+
         mFilterProjects.addPattern("*.dpro");
         mFilterProjects.addApplication("/home/anthony/projects/dcomposer2/dcomposer");
 
@@ -108,7 +126,7 @@ class HISTORY_VIEW : ELEMENT
         mRecentProjects.setFilter(mFilterProjects);
 
         mFilterFiles = new RecentFilter;
-    
+
         mFilterFiles.addPattern("*.d");
         mFilterFiles.addPattern("*.sh");
         mFilterFiles.addApplication("/home/anthony/projects/dcomposer2/dcomposer");
@@ -117,7 +135,7 @@ class HISTORY_VIEW : ELEMENT
         mRecentFiles.setFilter(mFilterFiles);
 
 
-        mRecentProjects.addOnItemActivated ( delegate void(RecentChooserIF x) {string str = x.getCurrentUri(); Project.Open(str[7..$]);}); 
+        mRecentProjects.addOnItemActivated ( delegate void(RecentChooserIF x) {string str = x.getCurrentUri(); Project.Open(str[7..$]);});
 
         mRecentFiles.addOnItemActivated(delegate void (RecentChooserIF x) {string str = x.getCurrentUri(); dui.GetDocMan.Open(str[7..$]);});
 
@@ -126,29 +144,30 @@ class HISTORY_VIEW : ELEMENT
         mHistoryAct.addOnActivate(&ShowHistory);
         mHistoryAct.setAccelGroup(dui.GetAccel());
         dui.Actions().addActionWithAccel(mHistoryAct, "<Ctrl>h");
-        
+
         dui.AddMenuItem("_View", mHistoryAct.createMenuItem());
 		dui.AddToolBarItem(mHistoryAct.createToolItem());
 		dui.AddToolBarItem(new SeparatorToolItem);
 
         dui.GetSidePane.appendPage(mRoot, "History");
-        dui.GetSidePane.setTabReorderable (mRoot, true); 
+        dui.connect(&SetPagePosition);
+        dui.GetSidePane.setTabReorderable (mRoot, true);
         mRoot.showAll();
 
 		Config.Reconfig.connect(&Configure);
 		Configure();
-		
+
         Log.Entry("Engaged "~Name()~"\t\telement.");
-        
+
     }
-        
+
 
     void Disengage()
     {
         mRoot.hide();
         Log.Entry("Disengaged "~mName~"\t\telement.");
-    } 
-    
+    }
+
     void ShowHistory(Action X)
     {
 		if(!mEnabled) return;
@@ -187,5 +206,5 @@ class HISTORY_VIEW_PREF : PREFERENCE_PAGE
 	{
 		mEnabled.setActive(Config.getBoolean("HISTORY_VIEW", "enabled", true));
 	}
-} 
+}
 

@@ -66,6 +66,7 @@ import gtk.RadioButton;
 import gtk.TreeModelIF;
 import gtk.TextIter;
 import gtk.TreeSelection;
+import gtk.Label;
 
 import gdk.Keysyms;
 
@@ -524,6 +525,24 @@ class SEARCH_UI : ELEMENT
 		return false;
 	}
 
+	void SetPagePosition(UI_EVENT uie)
+	{
+		switch (uie)
+		{
+			case UI_EVENT.RESTORE_GUI :
+			{
+				dui.GetExtraPane.reorderChild(mPage.getParent.getParent, Config.getInteger("SEARCH", "page_position"));
+				break;
+			}
+			case UI_EVENT.STORE_GUI :
+			{
+				Config.setInteger("SEARCH", "page_position", dui.GetExtraPane.pageNum(mPage.getParent.getParent));
+				break;
+			}
+			default :break;
+		}
+	}
+
     public:
 
     this()
@@ -649,6 +668,7 @@ class SEARCH_UI : ELEMENT
         mState = true;
         mPage.showAll();
         dui.GetExtraPane().appendPage(mPage.getParent.getParent, "Search");
+		dui.connect(&SetPagePosition);
         dui.GetExtraPane.setTabReorderable ( mPage.getParent.getParent, true);
 
         dui.AddIcon("gtk-find", Config.getString("ICONS", "search", "$(HOME_DIR)/glade/binocular.png"));
@@ -683,7 +703,6 @@ class SEARCH_UI : ELEMENT
 
     void Disengage()
     {
-
         mState = false;
         Log.Entry("Disengaged "~mName~"\t\telement.");
     }

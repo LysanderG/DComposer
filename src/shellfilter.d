@@ -1,17 +1,17 @@
 // shellfilter.d
-// 
+//
 // Copyright 2012 Anthony Goins <neontotem@gmail.com>
-// 
+//
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -60,18 +60,18 @@ class SHELLFILTER : ELEMENT
 
 	void RunCommand(Entry E)
 	{
-		
-		
+
+
 		if (E.getText().length < 1) return;
 
 		string ErrorFile = tempDir()~"/dcomposer.temp";
 		if(exists(ErrorFile))remove(ErrorFile);
-		
+
 		string Input;
 		string Output;
 		string CmdText = E.getText();
 
-		
+
 
 		string TextToProcess = tempDir()~"/dcompprocess.text";
 		File TextToProcessFile = File(TextToProcess, "w");
@@ -88,7 +88,7 @@ class SHELLFILTER : ELEMENT
 
 		TextToProcessFile.write(Input);
 		TextToProcessFile.close();
-		
+
 		string xInput = "";
 
 		if(Input.length >0) xInput = `cat  ` ~ TextToProcess ~ ` | `;
@@ -112,13 +112,13 @@ class SHELLFILTER : ELEMENT
 			mErrLabel.setText("");
 		}
 		//writeln("=========================\n",Output);
-		
+
 
 
 		//ok we got the results in output
-		DOCUMENT doc;		
+		DOCUMENT doc;
 		scope(exit)if(doc !is null)doc.getBuffer.endUserAction();
-		
+
 		switch(mOutBox.getActiveText())
 		{
 			case "Insert at cursor" :
@@ -128,23 +128,23 @@ class SHELLFILTER : ELEMENT
 				doc.insertText(Output);
 				break;
 			}
-			
+
 			case "Replace input" :
 			{
 				doc = dui.GetDocMan.GetDocument();
 				doc.getBuffer.beginUserAction();
 				TextIter InputStart = new TextIter;
 				TextIter InputEnd = new TextIter;
-				
+
 				switch(mInBox.getActiveText())
 				{
 					case "None" :
 					{
-						
+
 						doc.getBuffer.getIterAtMark(InputStart,doc.getBuffer.getInsert);
 						InputEnd = InputStart.copy;
 						break;
-					}						
+					}
 					case "Word" :
 					{
 						doc.getBuffer.getIterAtMark(InputStart,doc.getBuffer.getInsert);
@@ -180,7 +180,7 @@ class SHELLFILTER : ELEMENT
 				doc.getBuffer.insert(InputStart, Output);
 				break;
 			}
-					
+
 			case "New document" :
 			{
 				auto NewAct = dui.Actions.getAction("CreateAct");
@@ -203,12 +203,12 @@ class SHELLFILTER : ELEMENT
 
 
 		foreach(cmd; mCmdHistory) mCommandCombox.appendText(cmd);
-		 
+
 	}
-		
 
 
-		
+
+
 
 	public:
 
@@ -238,7 +238,7 @@ class SHELLFILTER : ELEMENT
 		return null;
 	}
 
-    
+
 
     void Engage()
     {
@@ -254,25 +254,29 @@ class SHELLFILTER : ELEMENT
 		//mCommand= cast(Entry)mBuilder.getObject("entry1");
 		mCommandCombox = cast(ComboBox)mBuilder.getObject("commandbox");
 		mErrLabel=cast(Label)mBuilder.getObject("errorlabel");
-		
+
 		mCommandCombox.add(new Entry);
 		mCommand = cast(Entry)(mCommandCombox.getChild());
-		
+
 		mErrLabel.setText("");
 		mRoot.showAll();
-		dui.GetExtraPane.appendPage(mRoot, "Shell Filter");
+		//dui.GetExtraPane.appendPage(mRoot, "Shell Filter");
+        dui.GetExtraPane.insertPage(mRoot, new Label("Shell Filter"), Config.getInteger("SHELLFILTER", "page_position"));
+
 		dui.GetExtraPane.setTabReorderable ( mRoot, true);
 
 		Configure();
 
-		mCommand.addOnActivate(&RunCommand);		
-		
+		mCommand.addOnActivate(&RunCommand);
+
 		Log.Entry("Engaged "~Name()~"\t\t\telement.");
-		
+
 	}
 
 	void Disengage()
 	{
+		Config.setInteger("SHELLFILTER", "page_position", dui.GetExtraPane.pageNum(mRoot));
+
 		string[] saveHistory;
 		foreach(history; uniq(mCmdHistory.sort)) saveHistory ~= history;
 		Config.setStringList("SHELLFILTER", "history", saveHistory);

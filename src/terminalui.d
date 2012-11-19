@@ -41,6 +41,7 @@ import gtk.Widget;
 import gtk.FontButton;
 import gtk.ColorButton;
 import gtk.Notebook;
+import gtk.Label;
 
 import pango.PgFontDescription;
 
@@ -124,6 +125,23 @@ class TERMINAL_UI : ELEMENT
 
 	}
 
+	void SetPagePosition(UI_EVENT uie)
+	{
+		switch (uie)
+		{
+			case UI_EVENT.RESTORE_GUI :
+			{
+				dui.GetExtraPane.reorderChild(mScrWin, Config.getInteger("TERMINAL", "page_position"));
+				break;
+			}
+			case UI_EVENT.STORE_GUI :
+			{
+				Config.setInteger("TERMINAL", "page_position", dui.GetExtraPane.pageNum(mScrWin));
+				break;
+			}
+			default :break;
+		}
+	}
 
     public:
 
@@ -165,6 +183,8 @@ class TERMINAL_UI : ELEMENT
         mScrWin.add(mTerminal);
         mScrWin.showAll();
         dui.GetExtraPane.appendPage(mScrWin, "Terminal");
+        dui.connect(&SetPagePosition);
+
         dui.GetExtraPane.setTabReorderable ( mScrWin, true);
 
         Project.Event.connect(&WatchProject);

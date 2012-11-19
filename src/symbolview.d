@@ -34,6 +34,7 @@ import gtk.TreeIter;
 import gtk.TreePath;
 import gtk.ScrolledWindow;
 import gtk.TreeViewColumn;
+import gtk.Label;
 
 import glib.SimpleXML;
 
@@ -123,6 +124,24 @@ class SYMBOL_VIEW : ELEMENT
         Symbols.ForwardSignal(sym);
     }
 
+    void SetPagePosition(UI_EVENT uie)
+	{
+		switch (uie)
+		{
+			case UI_EVENT.RESTORE_GUI :
+			{
+				dui.GetSidePane.reorderChild(mRoot, Config.getInteger("SYMBOL_VIEW", "page_position"));
+				break;
+			}
+			case UI_EVENT.STORE_GUI :
+			{
+				Config.setInteger("SYMBOL_VIEW", "page_position", dui.GetSidePane.pageNum(mRoot));
+				break;
+			}
+			default :break;
+		}
+	}
+
 
     public:
 
@@ -163,6 +182,8 @@ class SYMBOL_VIEW : ELEMENT
 
         mRoot.showAll();
         dui.GetSidePane.appendPage(mRoot, "SYMBOLS");
+        dui.connect(&SetPagePosition);
+
         dui.GetSidePane.setTabReorderable ( mRoot, true);
         Refresh();
 

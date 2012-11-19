@@ -1,17 +1,17 @@
 //      messageui.d
-//      
+//
 //      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
+//
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      This program is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with this program; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -36,6 +36,7 @@ import gtk.TreeIter;
 import gtk.ListStore;
 import gtk.CellRendererText;
 import gtk.TreePath;
+import gtk.Label;
 
 class MESSAGE_UI :ELEMENT
 {
@@ -52,14 +53,14 @@ class MESSAGE_UI :ELEMENT
     GtkListStore *  mGtkStore;
 
     void WatchDMD(string line)
-    {       
+    {
     	//static int ActivityIndicator = 0;
-    	
+
         //scope(exit)mErrorView.setModel(mStore);
         if(line == `BEGIN`)
         {
             //if(ActivityIndicator-- < -2) ActivityIndicator = -1;
-           
+
             mStore.clear();
             dui.GetExtraPane.setCurrentPage(mRoot);
             return;
@@ -82,7 +83,7 @@ class MESSAGE_UI :ELEMENT
         auto m2 = m.hit;
         auto m3 = m.post;
         string lno = m2[1..$-1];
-       
+
         int number = to!int(lno);
 
         mStore.append(ti);
@@ -102,8 +103,26 @@ class MESSAGE_UI :ELEMENT
         if(line < 0) return; //if this is not an error line (ie an info line) then do not try to open
         dui.GetDocMan.Open(file, line);
     }
-        
-    
+
+    void SetPagePosition(UI_EVENT uie)
+	{
+		switch (uie)
+		{
+			case UI_EVENT.RESTORE_GUI :
+			{
+				dui.GetExtraPane.reorderChild(mRoot, Config.getInteger("MESSAGE_UI", "page_position"));
+				break;
+			}
+			case UI_EVENT.STORE_GUI :
+			{
+				Config.setInteger("MESSAGE_UI", "page_position", dui.GetExtraPane.pageNum(mRoot));
+				break;
+			}
+			default :break;
+		}
+	}
+
+
     public:
 
     this()
@@ -111,7 +130,7 @@ class MESSAGE_UI :ELEMENT
         mName = "MESSAGE_UI";
         mInfo = "Display compiler output (and allow navigating to error lines)";
     }
-        
+
     @property string Name() {return mName;}
     @property string Information(){return mInfo;}
     @property bool   State() {return mState;}
@@ -134,7 +153,7 @@ class MESSAGE_UI :ELEMENT
         mErrorView.insertColumn(new TreeViewColumn("Error",new CellRendererText, "text", 2), -1);
 
         mErrorView.addOnRowActivated (&RowActivated);
-        
+
         mScrWin = new ScrolledWindow;
         mScrWin.add(mErrorView);
         mRoot = new Viewport(null, null);
@@ -145,14 +164,15 @@ class MESSAGE_UI :ELEMENT
         mRoot.showAll();
 
         dui.GetExtraPane.appendPage(mRoot, "Build Messages");
-        dui.GetExtraPane.setTabReorderable ( mRoot, true); 
-        
+		dui.connect(&SetPagePosition);
+        dui.GetExtraPane.setTabReorderable ( mRoot, true);
+
 
         Project.BuildMsg.connect(&WatchDMD);
 
         Log.Entry("Engaged "~Name()~"\t\telement.");
     }
-        
+
 
     void Disengage()
     {
@@ -167,5 +187,5 @@ class MESSAGE_UI :ELEMENT
         return null;
     }
 
-    
+
 }

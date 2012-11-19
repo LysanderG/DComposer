@@ -383,8 +383,23 @@ class PROJECT_VIEW : ELEMENT
 		mRoot.setVisible(mEnabled);
 	}
 
-
-
+	void SetPagePosition(UI_EVENT uie)
+	{
+		switch (uie)
+		{
+			case UI_EVENT.RESTORE_GUI :
+			{
+				dui.GetSidePane.reorderChild(mRoot, Config.getInteger("PROJECT_VIEW", "page_position"));
+				break;
+			}
+			case UI_EVENT.STORE_GUI :
+			{
+				Config.setInteger("PROJECT_VIEW", "page_position", dui.GetSidePane.pageNum(mRoot));
+				break;
+			}
+			default :break;
+		}
+	}
 
     public:
 
@@ -424,6 +439,7 @@ class PROJECT_VIEW : ELEMENT
         mCellText   = cast(CellRendererText) 	mBuilding.getObject("cellrenderertext2");
 
         dui.GetSidePane.appendPage(mRoot, "Project");
+        dui.connect(&SetPagePosition);
         dui.GetSidePane.setTabReorderable ( mRoot, true);
 
         mCellText.addOnEdited(&EditIdentifier);

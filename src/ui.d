@@ -30,6 +30,7 @@ import  std.uri;
 import  std.conv;
 import 	std.algorithm;
 import  std.string;
+import  std.signals;
 
 import  gtk.Main;
 import  gtk.Builder;
@@ -412,6 +413,8 @@ class MAIN_UI
         Config.setInteger("UI", "store_gui_hpaned_pos", hpanePos);
         Config.setInteger("UI", "store_gui_vpaned_pos", vpanePos);
 
+        emit(UI_EVENT.STORE_GUI);
+
 
     }
 
@@ -440,6 +443,8 @@ class MAIN_UI
         mHPaned.setPosition(hpanePos);
         mVPaned.setPosition(vpanePos);
 
+        emit(UI_EVENT.RESTORE_GUI);
+
         Log.Entry("GUI State restored");
 
     }
@@ -466,8 +471,12 @@ class MAIN_UI
 
 	}
 
+	mixin Signal!(UI_EVENT);
+
 
 }
+
+enum UI_EVENT { RESTORE_GUI, STORE_GUI}
 
 
 //popdoc types??

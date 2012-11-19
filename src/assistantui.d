@@ -334,6 +334,23 @@ class ASSISTANT_UI : ELEMENT
         mRoot.setVisible(mEnabled);
     }
 
+	void SetPagePosition(UI_EVENT uie)
+	{
+		switch (uie)
+		{
+			case UI_EVENT.RESTORE_GUI :
+			{
+				dui.GetExtraPane.reorderChild(mRoot, Config.getInteger("ASSISTANT_UI", "page_position"));
+				break;
+			}
+			case UI_EVENT.STORE_GUI :
+			{
+				Config.setInteger("ASSISTANT_UI", "page_position", dui.GetExtraPane.pageNum(mRoot));
+				break;
+			}
+			default :break;
+		}
+	}
 
 
 
@@ -415,6 +432,7 @@ class ASSISTANT_UI : ELEMENT
 
         mRoot.setVisible(mEnabled);
         dui.GetExtraPane.appendPage(mRoot, "Assistant");
+        dui.connect(&SetPagePosition);
 		dui.GetExtraPane.setTabReorderable ( mRoot, true);
         mPossibles.addOnChanged(delegate void(ComboBox cbx){UpdateAssistant();});
 
@@ -437,7 +455,6 @@ class ASSISTANT_UI : ELEMENT
 
     void Disengage()
     {
-
         dui.GetAutoPopUps.disconnect(&CatchSymbol);
         dui.GetDocMan.Event.disconnect(&WatchForNewDoc);
         Config.setInteger("ASSISTANT_UI", "store_gui_pane_position", mHPane.getPosition());

@@ -62,6 +62,24 @@ class LOG_UI : ELEMENT
 
 	bool 				mState;
 
+	void SetPagePosition(UI_EVENT uie)
+	{
+		switch (uie)
+		{
+			case UI_EVENT.RESTORE_GUI :
+			{
+				dui.GetExtraPane.reorderChild(mScroller, Config.getInteger("LOG_UI", "page_position"));
+				break;
+			}
+			case UI_EVENT.STORE_GUI :
+			{
+				Config.setInteger("LOG_UI", "page_position", dui.GetExtraPane.pageNum(mScroller));
+				break;
+			}
+			default :break;
+		}
+	}
+
     public:
 
     @property string Name() {return "LOG_UI";}
@@ -105,6 +123,7 @@ class LOG_UI : ELEMENT
 
 		mScroller.showAll();
 		dui.GetExtraPane.prependPage(mScroller, mLabel);
+		dui.connect(&SetPagePosition);
         dui.GetExtraPane.setTabReorderable ( mScroller, true);
 
         dui.GetExtraPane.setCurrentPage(mScroller);
