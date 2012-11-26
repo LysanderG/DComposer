@@ -264,13 +264,16 @@ class AUTO_POP_UPS
 
 
         TextIter ti = new TextIter;
+        TextIter tiStart = new TextIter;
 
-        DocX.getBuffer.getIterAtMark(ti, DocX.getBuffer.getInsert());
         auto tple = repl.findSplitAfter("</span>");
 
+        DocX.getBuffer.getIterAtMark(ti, DocX.getBuffer.getInsert());
+        //TextIter tiStart = ti.copy();
+        //tiStart.backwardWordStart();
 
-        TextIter tiStart = ti.copy();
-        tiStart.backwardWordStart();
+        DocX.Symbol(tiStart, false);
+
         if(mCompletionStatus == STATUS_COMPLETION) DocX.getBuffer.delet(tiStart, ti);
 
         DocX.getBuffer().insert(ti, tple[1]);
