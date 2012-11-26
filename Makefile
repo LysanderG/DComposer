@@ -3,7 +3,7 @@ DC = dmd
 TARGET    = dcomposer
 DSOURCES  = $(shell echo src/*.d)
 
-INC_PATHS = -I/usr/include/d
+INC_PATHS = -I/usr/local/include/d
 LIBRARIES = -L-lgtkdsv -L-lgtkd -L-lvte -L-lutil
 
 DFLAGS = -of$(TARGET) -odobjdir -J./ -D -Dddocs
