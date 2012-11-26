@@ -311,7 +311,7 @@ class DOCUMENT : SourceView
 	*/
 	string Symbol(bool FullSymbol = false)
 	{
-		TextIter  PlaceHolder;
+		TextIter  PlaceHolder = new TextIter;
 		auto CursorTI = new TextIter;
 		getBuffer.getIterAtMark(CursorTI, getBuffer.getInsert());
 
@@ -363,6 +363,7 @@ class DOCUMENT : SourceView
 		}
 		dstring ScanBack(TextIter ti)
 		{
+			TextIter tmpIter = ti.copy();
 			dstring rv = "";
 			dchar ch;
 			dchar LastCh = 0;
@@ -371,9 +372,9 @@ class DOCUMENT : SourceView
 			scope(exit) BeginsAtIter = ti.copy();
 
 
-			while (ti.backwardChar())
+			while (tmpIter.backwardChar())
 			{
-				ch = ti.getChar();
+				ch = tmpIter.getChar();
 
 				switch (ch)
 				{
@@ -389,6 +390,7 @@ class DOCUMENT : SourceView
 												}
 												rv = ch ~ rv;
 												LastCh = ch;
+												ti = tmpIter.copy();
 												break;
 					}
 
@@ -407,6 +409,7 @@ class DOCUMENT : SourceView
 												}
 												rv = ch ~ rv;
 												LastCh = ch;
+
 												break;
 					}
 
