@@ -288,7 +288,8 @@ class SYMBOLS
 			case ProEvent.CreatedTags			:
 												{
 													scope(failure){Log.Entry("Failed to load project symbols", "Error");return;}
-													mSymbols[mProjectKey] = LoadPackage(mProjectKey, buildPath(Project.WorkingPath, mProjectKey ~".tags"));
+													auto pckagekey = LoadPackage(mProjectKey, buildPath(Project.WorkingPath, mProjectKey ~".tags"));
+													if (pckagekey !is null) mSymbols[mProjectKey] = pckagekey;
 													emit();
 													return;
 												}
@@ -296,7 +297,8 @@ class SYMBOLS
 												{
 													scope(failure){Log.Entry("Failed to load project symbols","Error");return;}
 													if(Project.Name() in mSymbols) return; //keep the symbols we have if none try to load old symbols
-													mSymbols[mProjectKey] = LoadPackage(mProjectKey, buildPath(Project.WorkingPath, mProjectKey ~".tags"));
+													auto pkgkey = LoadPackage(mProjectKey, buildPath(Project.WorkingPath, mProjectKey ~".tags"));
+													if(pkgkey !is null) mSymbols[mProjectKey] = pkgkey;
 													return;
 												}
 			case ProEvent.NameChanged			:
