@@ -288,12 +288,10 @@ class AUTO_POP_UPS
         {
             mTipsWin.hide();
             mCompletionView.setModel(mCompletionStore.GetModel());
-            //mCompletionWin.resize(mWinXlen, mWinYlen);
             mCompletionWin.setOpacity(mWinOpacity);
-            //mCompletionWin.move(mCompletionStore.mXPos, mCompletionStore.mYPos);
             mCompletionView.setCursor(new TreePath("0"), null, false);
+            ResizeCompletionWindow(null);
             mCompletionWin.showAll();
-            //ResizeCompletionWindow(mCompletionWin);
 
             emit(mCompletionStore.mMatches[0]);
             return;
@@ -307,9 +305,7 @@ class AUTO_POP_UPS
 
             mTipsView.setModel(mTipsStore[mTipsIndex].GetModel());
             mTipsView.setCursor(new TreePath(true), null, false);
-            //mTipsWin.resize(mWinXlen, mWinYlen);
             mTipsWin.setOpacity(mWinOpacity);
-            //mTipsWin.move(mTipsStore[mTipsIndex].mXPos, mTipsStore[mTipsIndex].mYPos);
             if(mTipsStore[mTipsIndex].mMatches.length > 0)
             {
                 mTipsWin.showAll();
@@ -369,6 +365,7 @@ class AUTO_POP_UPS
 
 		mCompletionWin.resize(mWinXlen, WinHeight);
 		mCompletionWin.move(mCompletionStore.mXPos, WinYPos);
+
 	}
 
 	void ResizeTipWindow(Widget x)
@@ -422,7 +419,7 @@ class AUTO_POP_UPS
         mTipsView.addOnCursorChanged (&UpdateComments);
         mCompletionView.addOnCursorChanged(&UpdateComments);
 
-        mCompletionWin.addOnShow(&ResizeCompletionWindow);
+        //mCompletionWin.addOnShow(&ResizeCompletionWindow);
         mTipsWin.addOnShow(&ResizeTipWindow);
     }
 
