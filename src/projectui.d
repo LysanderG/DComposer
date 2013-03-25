@@ -533,7 +533,7 @@ class PROJECT_UI : ELEMENT
 
         int rt = fcd.run();
 		fcd.hide();
-		if(rt != ResponseType.GTK_RESPONSE_OK) return;
+		if(rt != ResponseType.OK) return;
 
         Project.Open(fcd.getFilename);
 
@@ -653,7 +653,7 @@ class PROJECT_UI : ELEMENT
         FolderChoice.setCurrentFolder(mProjBaseFolder);
         auto choice = FolderChoice.run();
         FolderChoice.hide();
-        if (choice != ResponseType.GTK_RESPONSE_OK) return;
+        if (choice != ResponseType.OK) return;
 
         mProjBaseFolder = chompPrefix(FolderChoice.getUri(), "file://");
         mProjBaseLbl.setText("Projects root folder : " ~ mProjBaseFolder);

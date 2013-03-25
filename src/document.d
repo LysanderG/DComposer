@@ -431,7 +431,7 @@ class DOCUMENT : SourceView
 												{
 													if(LastCh == '(') break;
 													if(LastCh == '.') break;
-													if(LastCh == 0)break;
+													//if(LastCh == 0)break;
 													LastCh = ch;
 													break;
 												}
@@ -958,7 +958,7 @@ class DOCUMENT : SourceView
             case 1: Save();return true;
             case 2: return true;
             case 3: return false;
-            case GtkResponseType.GTK_RESPONSE_DELETE_EVENT : return true;
+            case GtkResponseType.DELETE_EVENT : return true;
             default : Log().Entry("Bad (unexpected) ResponseType from Confirm CloseFileDialog", "Error");
         }
 

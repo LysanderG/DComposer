@@ -21,7 +21,7 @@
     </data>
   </object>
   <object class="GtkWindow" id="window1">
-    <property name="width_request">600</property>
+    <property name="width_request">1000</property>
     <property name="can_focus">False</property>
     <property name="border_width">2</property>
     <property name="type">popup</property>
@@ -50,8 +50,9 @@
             <child>
               <object class="GtkTreeViewColumn" id="treeviewcolumn1">
                 <property name="fixed_width">200</property>
-                <property name="max_width">400</property>
+                <property name="max_width">600</property>
                 <property name="title" translatable="yes">column</property>
+                <property name="expand">True</property>
                 <child>
                   <object class="GtkCellRendererText" id="cellrenderertext1"/>
                   <attributes>
@@ -62,12 +63,14 @@
             </child>
             <child>
               <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+                <property name="visible">False</property>
+                <property name="sizing">autosize</property>
                 <property name="min_width">0</property>
                 <property name="title" translatable="yes">column</property>
-                <property name="expand">True</property>
                 <child>
                   <object class="GtkCellRendererText" id="cellrenderertext2">
                     <property name="width">200</property>
+                    <property name="visible">False</property>
                     <property name="ellipsize">end</property>
                   </object>
                   <attributes>

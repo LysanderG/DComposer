@@ -3,8 +3,9 @@ DC = dmd
 TARGET    = dcomposer
 DSOURCES  = $(shell echo src/*.d)
 
-INC_PATHS = -I/usr/local/include/d
-LIBRARIES = -L-lgtkdsv -L-lgtkd -L-lvte -L-lutil
+INC_PATHS = -I/usr/local/include/d/gtkd-1
+LIB_PATHS = -L-L/usr/lib
+LIBRARIES = -L-lgtkdsv-1 -L-lgtkd-1 -L-lvte -L-lutil
 
 DFLAGS = -of$(TARGET) -odobjdir -J./ -D -Dddocs
 RELEASEFLAGS = -release
@@ -44,7 +45,7 @@ all: $(TARGET)
 
 $(TARGET):  $(DSOURCES)
 	@rdmd ./buildinfo.d
-	$(DC) $(DFLAGS) $(INC_PATHS) $(LIBRARIES) $(DSOURCES) $(weblib) $(webflag)
+	$(DC) $(DFLAGS) $(INC_PATHS) $(LIB_PATHS) $(LIBRARIES) $(DSOURCES) $(weblib) $(webflag)
 	#@rm .build.info
 
 

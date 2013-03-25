@@ -314,7 +314,7 @@ class PROJECT_VIEW : ELEMENT
 		auto DialogResponse = FileDialog.run();
 		FileDialog.hide();
 
-		if(DialogResponse != ResponseType.GTK_RESPONSE_OK)return;
+		if(DialogResponse != ResponseType.OK)return;
 
         string afile;
 		TreeIter ti = new TreeIter;
@@ -338,7 +338,7 @@ class PROJECT_VIEW : ELEMENT
 		auto DialogResponse = FileDialog.run();
 		FileDialog.hide();
 
-		if(DialogResponse != ResponseType.GTK_RESPONSE_OK)return;
+		if(DialogResponse != ResponseType.OK)return;
 
 		string afile;
 		TreeIter ti = new TreeIter;

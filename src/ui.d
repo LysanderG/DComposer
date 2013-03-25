@@ -246,7 +246,7 @@ class MAIN_UI
 
         mWindow.addAccelGroup(mAccelerators);
         mWindow.addOnDelete(&ConfirmQuit);
-        mWindow.addOnDestroy(&ConfirmQuit);
+        //mWindow.addOnDestroy(&ConfirmQuit);
         auto QuitAction = new Action("UI_QUIT", "_Quit", "Exit DComposer", StockID.QUIT);
         QuitAction.addOnActivate(delegate void(Action x){ConfirmQuit(null,null);});
         QuitAction.setAccelGroup(mAccelerators);
@@ -717,7 +717,7 @@ class LISTUI
 		auto DialogResponse = FileDialog.run();
 		FileDialog.hide();
 
-		if(DialogResponse != ResponseType.GTK_RESPONSE_OK)return;
+		if(DialogResponse != ResponseType.OK)return;
 
 		auto SelFiles = FileDialog.getFilenames();
 		while(SelFiles !is null)
@@ -753,7 +753,7 @@ class LISTUI
 		auto DialogResponse = FileDialog.run();
 		FileDialog.hide();
 
-		if(DialogResponse != ResponseType.GTK_RESPONSE_OK)return;
+		if(DialogResponse != ResponseType.OK)return;
 
 		auto SelFiles = FileDialog.getFilenames();
 		while(SelFiles !is null)

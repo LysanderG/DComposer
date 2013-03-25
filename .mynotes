@@ -1077,3 +1077,30 @@ Mon Oct 15 18:26:34 EDT 2012
     
 
 
+Sat Dec 29 20:46:58 EST 2012
+    Oh my it's been awhile.
+    Been actually using dcomposer to get some perspective on priority fixes.  But I didn't keep notes so here are some...
+    
+    * project editor -> working should update with project name ie(projects/caravan/caravan.dpro)
+    * hot keys and memorized shell filter commands. definable by user (example. comment out selection is useful, indent and unindent blocks... )
+    * bookmark improvments -- a side view list... more like a web browser thingy with back and forward through history
+    * spell checking for plain text
+    * don't limit opening files to d source files as a default.
+    * symbols suck! only updated on successful compile ... lose place on side view ... no local symbols
+    * actually implement the 'module' side view to show current doc symbols
+    * at least do word completion to make up for sucky symbol fails (see 2 up)
+    * once again do away with 'apply' buttons just make it happen now!
+    * big ones. Make it easier to ...
+      - add symbols (make sure full paths are in json files or can't open modules)
+      - and assistant documentation files (hell I can't hardly get it to work!)
+      - library paths and libraries
+    * every element should have an enable/disable preference at the least
+    * search still needs tweaking
+        - on context search actually search do not just switch to search page with the symbol
+        - how search actually 'begins' is kind of obfuscated (see need a spell checker) clearify it.
+        - seriously F3 and F4 as hot keys wtf?
+        - maybe speed it up.  A few hundred results is slow, thousands ... feels like a freeze.
+    * history should include all files not just d source files
+    * do not scroll split window when pasting
+    * choosing project type library should really set apropiate compiler flags
+    * smart indentation with multi line comments and perhaps add a * to each line?

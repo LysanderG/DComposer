@@ -32,6 +32,7 @@ import std.stdio;
 import std.algorithm;
 import std.xml;
 import std.signals;
+import std.string;
 
 
 import gtk.Builder;
@@ -272,9 +273,14 @@ class AUTO_POP_UPS
         //TextIter tiStart = ti.copy();
         //tiStart.backwardWordStart();
 
-        DocX.Symbol(tiStart, false);
 
-        if(mCompletionStatus == STATUS_COMPLETION) DocX.getBuffer.delet(tiStart, ti);
+        if(mCompletionStatus == STATUS_COMPLETION)
+        {
+			auto OriginalText = DocX.Symbol(tiStart, false);
+			auto lastdot = OriginalText.lastIndexOf('.');
+			if(lastdot > -1)tiStart.forwardChars(cast(int)lastdot+1);
+			DocX.getBuffer.delet(tiStart, ti);
+		}
 
         DocX.getBuffer().insert(ti, tple[1]);
         DocX.Pasting = false;

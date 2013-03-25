@@ -104,8 +104,8 @@ class LOG_UI : ELEMENT
 	void Engage()
 	{
 
-        MessageLog.logSetHandler ( null, LogLevelFlags.G_LOG_LEVEL_CRITICAL|LogLevelFlags.G_LOG_LEVEL_WARNING, &GtkMsgCatcher, null);
-        MessageLog.logSetHandler ("Gtk", LogLevelFlags.G_LOG_LEVEL_CRITICAL|LogLevelFlags.G_LOG_LEVEL_WARNING, &GtkMsgCatcher, null);
+        MessageLog.logSetHandler ( null, LogLevelFlags.LEVEL_CRITICAL|LogLevelFlags.LEVEL_WARNING, &GtkMsgCatcher, null);
+        MessageLog.logSetHandler ("Gtk", LogLevelFlags.LEVEL_CRITICAL|LogLevelFlags.LEVEL_WARNING, &GtkMsgCatcher, null);
 
 		mScroller = new ScrolledWindow;
 		mTreeView = new TreeView;
@@ -187,9 +187,9 @@ extern(C) void  GtkMsgCatcher (char* Domain, GLogLevelFlags Flags, char* Msg, vo
 {
 	string Level;
 
-	if(Flags && LogLevelFlags.G_LOG_LEVEL_ERROR) Level = "Error";
-	if(Flags && LogLevelFlags.G_LOG_LEVEL_CRITICAL) Level = "Error";
-	if(Flags && LogLevelFlags.G_LOG_LEVEL_WARNING) Level = "Debug";
+	if(Flags && LogLevelFlags.LEVEL_ERROR) Level = "Error";
+	if(Flags && LogLevelFlags.LEVEL_CRITICAL) Level = "Error";
+	if(Flags && LogLevelFlags.LEVEL_WARNING) Level = "Debug";
 	Log.Entry( to!string(Msg), "Debug");
 }
 

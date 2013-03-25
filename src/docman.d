@@ -446,7 +446,7 @@ class DOCMAN
 		mOpenFileDialog.hide();
 
 
-		if (response != ResponseType.GTK_RESPONSE_OK) return;
+		if (response != ResponseType.OK) return;
 
         ListSG   ListOfFiles = mOpenFileDialog.getFilenames();
         //ArrayOfFiles.length = ListOfFiles.length();
@@ -504,7 +504,7 @@ class DOCMAN
 		auto response = mSaveFileDialog.run();
 		mSaveFileDialog.hide();
 
-		if (response != ResponseType.GTK_RESPONSE_OK) return;
+		if (response != ResponseType.OK) return;
 
 		scope(failure)
 		{
