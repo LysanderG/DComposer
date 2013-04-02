@@ -449,16 +449,15 @@ class DOCMAN
 		if (response != ResponseType.OK) return;
 
         ListSG   ListOfFiles = mOpenFileDialog.getFilenames();
-        //ArrayOfFiles.length = ListOfFiles.length();
-
 
 		while(ListOfFiles !is null)
 		{
-			auto f = toImpl!(string, char *)(cast(char*)ListOfFiles.data());
+
+			auto f = text(cast(char *)ListOfFiles.data());
+			if(f is null) continue;
 			Open(f);
 			ListOfFiles = ListOfFiles.next();
 		}
-
 	}
 
 	void Open(string DocPath, ulong LineNo = 0)
