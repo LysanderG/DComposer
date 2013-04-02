@@ -612,7 +612,11 @@ class PROJECT_UI : ELEMENT
     }
 	void RunFile()
 	{
-		if(dui.GetDocMan.Current is null) return;
+		if(dui.GetDocMan.Current is null)
+		{
+			Log.Entry("Nothing to run", "Error");
+			return;
+		}
 
         string ProcessCommand =  "xterm -hold -e rdmd " ~ dui.GetDocMan.GetName();
 

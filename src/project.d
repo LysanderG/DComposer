@@ -619,7 +619,16 @@ class PROJECT
 
     bool RunConcurrent(string args = null)
     {
-        if(mTarget != TARGET.APP) return false;
+        if(mTarget != TARGET.APP)
+        {
+			Log.Entry("Project is not a runnable application", "Error");
+			return false;
+		}
+        if(!exists(Project.Name))
+        {
+			Log.Entry(Project.Name ~ " executable file not found. (Has project been built?)", "Error");
+			return false;
+		}
         //string ProcessCommand =  "xterm -hold  -title -e ./" ~ Project.Name;
         string xTermTitle = "dcomposer running " ~ Project.Name;
         string ProcessCommand = format(`xterm  -T "%s" -e %s`, xTermTitle, "./"~Project.Name);
