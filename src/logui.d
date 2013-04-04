@@ -171,6 +171,8 @@ class LOG_UI : ELEMENT
 		mList.setValue(trit, 0, mesg);
 		mTreeView.setModel(mList);
 
+		dui.Status.push(0, mesg);
+
 
 		//mScroller.getVadjustment().setValue(mScroller.getVadjustment().getUpper());
 	}
