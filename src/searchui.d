@@ -363,9 +363,8 @@ class SEARCH_UI : ELEMENT
     {
         GC.disable();
         TreeModelIF tmper;
-        //foreach (tp; ts.getSelectedRows(tmper))Log.Entry(tp.toString(),"Debug");
 
-        TI = ts.getSelected();
+        ts.getSelected(tmper, TI);
 
         if(TI is null) return;
         string FileName = mResultsList.getValueString(TI, 3);
