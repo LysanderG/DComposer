@@ -260,12 +260,12 @@ class DIR_VIEW : ELEMENT
 
     void AddFilter()
     {
-
         CHECK SendData;
         SendData.Text = mEntryFilter.getText();
         SendData.Bool = true;
 
-        mComboFilter.getModel().foreac(&Check, &SendData);
+        mStore2.foreac(&Check, &SendData);
+        //mComboFilter.getModel().foreac(&Check, &SendData);
 
        if(SendData.Bool) mComboFilter.appendText(mEntryFilter.getText());
     }
