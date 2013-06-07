@@ -202,7 +202,7 @@ class ASSISTANT_UI : ELEMENT
 
 
         //string LabelText = "("~mList[indx].Kind~") -- Signature : " ~ mList[indx].Type;
-        string LabelText = "Signature : " ~ mList[indx].FullType;
+        string LabelText = "Signature : " ~ mList[indx].Signature;
         mSignature.setText(LabelText);
 
 

@@ -93,8 +93,9 @@ private struct DATA_STORE
             {
                 if(match.Kind != SymKind.FUNCTION) continue;
                 mStore.append(mIter);
-                auto x = countUntil(match.FullType, "(");
-                string signature = match.FullType[0..x] ~" "~ match.Name ~" "~ match.FullType[x..$];
+
+                //string signature = match.FullType[0..x] ~" "~ match.Name ~" "~ match.FullType[x..$];
+                string signature = match.Signature;
                 mStore.setValue(mIter, 0, std.xml.encode(signature));
                 mStore.setValue(mIter, 1, std.xml.encode(match.Path));
                 //mStore.setValue(mIter, 2, std.xml.decode(match.Comment));
@@ -457,6 +458,7 @@ class AUTO_POP_UPS
 
         mCompletionStatus = Status;
         mCompletionStore = DATA_STORE(Possibles, xpos, ypos, ylen);
+        writeln("here");
         Present();
 
     }
@@ -479,9 +481,11 @@ class AUTO_POP_UPS
             mTipsIndex = MAX_TIP_DEPTH;
             return;
         }
+
         mTipsStore[mTipsIndex] = DATA_STORE(Possibles, xpos, ypos, ylen, true);
 
         Present();
+
 
     }
 
