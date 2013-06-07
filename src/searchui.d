@@ -432,7 +432,7 @@ class SEARCH_UI : ELEMENT
 
     void ReplaceAll()
     {
-		scope(failure)writeln("hmm");
+
 		mResultsView.getSelection.selectPath(new TreePath("0"));
 		TI = mResultsView.getSelection.getSelected();
 		string ReplaceText = mReplace.getText();
@@ -448,7 +448,6 @@ class SEARCH_UI : ELEMENT
 
 		do
 		{
-			scope(failure)writeln("in dowhile");
 			if(TI is null)break;
 			if(!mResultsList.iterIsValid(TI)) break;
 
@@ -460,7 +459,7 @@ class SEARCH_UI : ELEMENT
 
 		foreach_reverse(size_t i, filename; aFileNames)
 		{
-			scope(failure)writeln("in foreachreverse");
+
 			auto doc = dui.GetDocMan.GetDocument(filename);
 			if(doc is null) continue;
 			doc.getBuffer.beginUserAction();
@@ -637,18 +636,6 @@ class SEARCH_UI : ELEMENT
 
         mReplaceBtn.addOnClicked(delegate void(Button X){ReplaceOne();});
         mReplaceAllBtn.addOnClicked(delegate void(Button X) {ReplaceAll();});
-
-        //mPage.addOnKeyRelease(delegate bool (GdkEventKey* EvntKy, Widget ThisPage)
-        //{
-		//	if ((EvntKy.keyval == GdkKeysyms.GDK_Return) || (EvntKy.keyval == GdkKeysyms.GDK_KP_Enter))
-		//	{
-		//		GetResults();
-		//		return true;
-		//	}
-		//	writeln("AAAARRRGGGHHH");
-		//	return true;
-		//});
-
 
     }
 
