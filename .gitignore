@@ -18,4 +18,5 @@ dcompro
 docs/*.html
 .build.info
 tags/dallegro5.json
+*~
 

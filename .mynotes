@@ -834,6 +834,8 @@ Ok long time.  Got the beginnings of a doc viewer through webkit in assistantui.
 	. Make it look half way decent without html
 
 
+
+
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 08.25.2012
 
@@ -1037,14 +1039,14 @@ thats it for now tomorrow  the big one project! omg again!
 Sun Oct 14 00:15:05 EDT 2012
 
     Okay, spent the day working on FreeBSD.  You find a lot of very specific errors just by using 2 different build settings.
-    
+
     - project base folder kept gettings set to empty string -- why
     - linux switches do not = bsd switches
     - take things for granted that exist in one setting but oops not in the other.
-    
+
     some fixit points
-    * default settings lots of em are set screwy 
-    * BIG ONE my test for first run is stupid.  Will not catch if user uninstalls and then reinstalls 
+    * default settings lots of em are set screwy
+    * BIG ONE my test for first run is stupid.  Will not catch if user uninstalls and then reinstalls
     * SILLY ONE its hard to tell which version of the ide I'm running (the working version vs testing version)
         sometimes forget to rebuild and the test version is working but the working version isn't
     * Look for more possible seg faults.  Got a few because of bad defaults and wrong project dpro files
@@ -1053,20 +1055,20 @@ Sun Oct 14 00:15:05 EDT 2012
     * hey how come git tags do not show up after cloning the repository??
     * more build info --date - build number(who really cares) - version
     * HUGE ONE get a real build system with packaging and installing and what not (lots to learn)
-    
-    
+
+
 
 Mon Oct 15 18:26:34 EDT 2012
-    
-    stuff 
-    
+
+    stuff
+
     * I assumed xterm was on every linux distro !WRONG!
         on a fresh mint install bash env TERM=xterm ... but xterm not installed
     * AUTO_POP_UPS is on the fritz again not as bad as previous but... it sucks
     * tried  a "save as" whole damn X thingy frooze up.  had to 'ctl alt F1' to get out
     * AutoTools makes no damn sense; CMake I almost saw the light
     * People are starting to try DComposer ... It aint ready for them.
-    * Without feedback ... It'll never work.  
+    * Without feedback ... It'll never work.
     * my ui is goofy
     * I like my ui.
     * I'm typing a stupid list because I'm not sure what to do next.
@@ -1074,13 +1076,13 @@ Mon Oct 15 18:26:34 EDT 2012
         -- adjust for qualifiers (@property, const, ...)
         -- adjust for [] on return values
         -- go through templates to the ... whatchacallits ... eponymous under function
-    
+
 
 
 Sat Dec 29 20:46:58 EST 2012
     Oh my it's been awhile.
     Been actually using dcomposer to get some perspective on priority fixes.  But I didn't keep notes so here are some...
-    
+
     * project editor -> working should update with project name ie(projects/caravan/caravan.dpro)
     * hot keys and memorized shell filter commands. definable by user (example. comment out selection is useful, indent and unindent blocks... )
     * bookmark improvments -- a side view list... more like a web browser thingy with back and forward through history
@@ -1097,10 +1099,26 @@ Sat Dec 29 20:46:58 EST 2012
     * every element should have an enable/disable preference at the least
     * search still needs tweaking
         - on context search actually search do not just switch to search page with the symbol
-        - how search actually 'begins' is kind of obfuscated (see need a spell checker) clearify it.
+        - how search actually 'begins' is kind of obfuscated (see need a spell checker) clarify it.
         - seriously F3 and F4 as hot keys wtf?
         - maybe speed it up.  A few hundred results is slow, thousands ... feels like a freeze.
     * history should include all files not just d source files
     * do not scroll split window when pasting
     * choosing project type library should really set apropiate compiler flags
     * smart indentation with multi line comments and perhaps add a * to each line?
+
+
+Tuesday June 4 2013
+	So finally decided to get back to work.  New json format from dmd 2.063 (or 2.062?) has really made getting back difficult.
+	Anyway couldn't get the new symbols stuff to work at all with calltips, symbol completion or scope completion.
+	Spent ALL DAY trying, messing with code, searching for the bug.  Finally! (and accidentally) realized it WAS working
+	but the opacity on the pop up window was set to ZERO!
+
+	I'm back.  Dread getting the new symbols module working.
+	But after that there are some things I really want to work on.
+	Notably I want to (yay long time since I was able to make a bullet list)
+	-finish the moduleview element
+	-add a code coverage element (newsgroup suggestion from Walter Bright)
+	-add profiling
+	-add unittesting
+	-finally implement a real build system (more accurately hijack one)
