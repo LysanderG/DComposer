@@ -24,7 +24,7 @@ import std.json;
 import std.signals;
 import std.file;
 import std.path;
-import std.process;
+import std.process : shell;
 import std.string;
 import std.conv;
 import std.xml;
@@ -33,6 +33,7 @@ import std.concurrency;
 import std.c.stdlib;
 
 import dcore;
+
 
 immutable long PROJECT_VERSION = 1;
 

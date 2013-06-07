@@ -1,5 +1,4 @@
 [
-{"version":"DMD64 D Compiler v2.060"},
 {
 "brief":"do not link",
 "cmdstring":"-c",
@@ -11,14 +10,19 @@
 "hasargument":false
 },
 {
+"brief":"require at least %nnn code coverage",
+"cmdstring":"-cov",
+"hasargument":true
+},
+{
 "brief":"generate documentation",
 "cmdstring":"-D",
 "hasargument":false
 },
 {
 "brief":"write documentation file to docdir directory",
-"cmdstring":"-Dd",
-"hasargument":true
+"cmdstring":"-Dddocdir",
+"hasargument":false
 },
 {
 "brief":"write documentation file to filename",
@@ -26,8 +30,18 @@
 "hasargument":true
 },
 {
-"brief":"allow deprecated features",
+"brief":"silently allow deprecated features",
 "cmdstring":"-d",
+"hasargument":false
+},
+{
+"brief":"show use of deprecated features as warnings (default)",
+"cmdstring":"-dw",
+"hasargument":false
+},
+{
+"brief":"show use of deprecated features as errors (halt compilation)",
+"cmdstring":"-de",
 "hasargument":false
 },
 {
@@ -68,6 +82,11 @@
 {
 "brief":"always emit stack frame",
 "cmdstring":"-gs",
+"hasargument":false
+},
+{
+"brief":"add stack stomp code",
+"cmdstring":"-gx",
 "hasargument":false
 },
 {
@@ -116,6 +135,11 @@
 "hasargument":false
 },
 {
+"brief":"add default main() (e.g. for unittesting)",
+"cmdstring":"-main",
+"hasargument":false
+},
+{
 "brief":"open web browser on manual page",
 "cmdstring":"-man",
 "hasargument":false
@@ -128,11 +152,6 @@
 {
 "brief":"turns off array bounds checking for all functions",
 "cmdstring":"-noboundscheck",
-"hasargument":false
-},
-{
-"brief":"do not emit reference to floating point",
-"cmdstring":"-nofloat",
 "hasargument":false
 },
 {
@@ -156,7 +175,7 @@
 "hasargument":true
 },
 {
-"brief":"do not strip paths from source file",
+"brief":"preserve source path for output files",
 "cmdstring":"-op",
 "hasargument":false
 },
@@ -186,9 +205,19 @@
 "hasargument":true
 },
 {
-"brief":"generate shared library",
+"brief":"generate shared library (DLL)",
 "cmdstring":"-shared",
 "hasargument":false
+},
+{
+"brief":"show additional info about language change identified by 'id'",
+"cmdstring":"-transition",
+"hasargument":true
+},
+{
+"brief":"list all language changes",
+"cmdstring":"-transition",
+"hasargument":true
 },
 {
 "brief":"compile in unit tests",
@@ -206,12 +235,12 @@
 "hasargument":false
 },
 {
-"brief":"enable warnings",
+"brief":"warnings as errors (compilation will halt)",
 "cmdstring":"-w",
 "hasargument":false
 },
 {
-"brief":"enable informational warnings",
+"brief":"warnings as messages (compilation will continue)",
 "cmdstring":"-wi",
 "hasargument":false
 },

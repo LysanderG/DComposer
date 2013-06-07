@@ -187,6 +187,7 @@ class DIR_VIEW : ELEMENT
 		mStore.clear();
 		foreach(DirEntry item; Contents)
         {
+			scope(failure)continue;
             if((!mHiddenBtn.getActive) && (baseName(item.name)[0] == '.')) continue;
 
             if(item.isDir)
@@ -203,12 +204,12 @@ class DIR_VIEW : ELEMENT
                 mStore.append(ti);
                 mStore.setValue(ti, 0, "DIRVIEW_DOCUMENT");
                 mStore.setValue(ti, 1, baseName(item.name));
-                auto number = xformat("%s", item.size);
+                auto number = format("%s", item.size);
 
                 mStore.setValue(ti, 2, number);
             }
         }
-        GC.enable();
+        //GC.enable();
 		mStore.setSortColumnId(1,SortType.ASCENDING);
         mStore.setSortFunc(0, &SortFunciton, null, null); //ha darn paste and copy funciton ... and it all works
         mStore.setSortFunc(1, &SortFunciton, null, null);
