@@ -63,7 +63,7 @@ class SYMBOL_VIEW : ELEMENT
         {
 
             auto tix = mSymbolStore.append(tiParent);
-            mSymbolStore.setValue(tix, 0, symx.GetIcon());
+            mSymbolStore.setValue(tix, 0, symx.Icon);
             mSymbolStore.setValue(tix, 1, symx.Name);
             mSymbolStore.setValue(tix, 2, SimpleXML.escapeText(symx.Path, -1));
             mSymbolStore.setValue(tix, 3, symx.Path);
@@ -73,7 +73,7 @@ class SYMBOL_VIEW : ELEMENT
         foreach(sym; Symbols.Symbols())
         {
             ti = mSymbolStore.append(null);
-            mSymbolStore.setValue(ti, 0, sym.GetIcon());
+            mSymbolStore.setValue(ti, 0, sym.Icon);
             mSymbolStore.setValue(ti, 1, sym.Name);
             if(sym.Path.length == 0) sym.Path = sym.Name;
             mSymbolStore.setValue(ti, 2, SimpleXML.escapeText(sym.Path,-1));
