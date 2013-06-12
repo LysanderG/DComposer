@@ -91,12 +91,12 @@ private struct DATA_STORE
         {
             foreach(match; mMatches)
             {
-                if(match.Kind != SymKind.FUNCTION) continue;
+                if(!((match.Kind == SymKind.FUNCTION) || (match.Kind == SymKind.CONSTRUCTOR))) continue;
                 mStore.append(mIter);
 
                 //string signature = match.FullType[0..x] ~" "~ match.Name ~" "~ match.FullType[x..$];
                 string signature = match.Signature;
-                mStore.setValue(mIter, 0, std.xml.encode(signature));
+                mStore.setValue(mIter, 0,  match.Icon ~ std.xml.encode(signature));
                 mStore.setValue(mIter, 1, std.xml.encode(match.Path));
                 //mStore.setValue(mIter, 2, std.xml.decode(match.Comment));
 
@@ -107,7 +107,7 @@ private struct DATA_STORE
         {
 			match.Name = encode(match.Name);
             mStore.append(mIter);
-            mStore.setValue(mIter, 0, match.GetIcon() ~ std.xml.encode( match.Name));
+            mStore.setValue(mIter, 0, match.Icon ~ std.xml.encode( match.Name));
             mStore.setValue(mIter, 1, std.xml.encode(match.Path));
             //mStore.setValue(mIter, 2, std.xml.decode(match.Comment));
         }
