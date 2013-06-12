@@ -9,7 +9,10 @@ import std.string;
 import std.path;
 import std.stdio;
 import std.conv;
+import std.format;
 import std.range;
+import std.uni;
+import std.concurrency;
 
 import core.demangle;
 
@@ -65,23 +68,23 @@ class DSYMBOL
 	DSYMBOL[]		Children;
 	string			Icon;
 
-	this()
-	{
-		Name = "-no name-";
-		Path = "-no path-";
-		Scope.length = 0;
-		Kind = SymKind.ERROR;
-		//FullType = "error";
-		Type = "-no type-";
-		Signature = "no signature";
-		Protection = "-no protection-";
-		Comment = "";
-		File = "-no file-";
-		Line = 0;
-		Base = "-no base-";
-		Children.length = 0;
-		Icon = "!";
-	}
+	//this()
+	//{
+	//	Name = "";
+	//	Path = "";
+	//	Scope.length = 0;
+	//	Kind = SymKind.ERROR;
+	//	//FullType = "error";
+	//	Type = "";
+	//	Signature = "";
+	//	Protection = "";
+	//	Comment = "";
+	//	File = "";
+	//	Line = 0;
+	//	Base = "";
+	//	Children.length = 0;
+	//	Icon = "!";
+	//}
 }
 
 
@@ -96,22 +99,39 @@ class SYMBOLS
 
 	DSYMBOL[string] mSymbols;
 
-	ulong 			mSymCount;					//i was curious about how many symbols were loaded; (just short of 25000)
-
 
 	//called at startup if mautoload is true
+	//the commented stuff is concurrency and timer stuff for bench marking
 	void AutoLoadPackages()
 	{
+		//StopWatch stopwatch;
+		//stopwatch.start();
 		mLastLoadTime  = Clock.currTime();
 		auto PackageKeys = Config.getKeys("SYMBOL_LIBS");
 
-		foreach(pckgkey; PackageKeys)
+		shared string[] jsontext;
+		//Tid[] tid;
+
+		foreach(jfile; PackageKeys)
 		{
-			auto tagfile = Config.getString("SYMBOL_LIBS", pckgkey, "");
-			auto NewSymbols = LoadPackage(pckgkey, tagfile);
-			if(NewSymbols !is null) mSymbols[pckgkey] = NewSymbols;
+			//tid ~= spawn(&SpawnRead, thisTid);
+			//send(tid[$-1], Config.getString("SYMBOL_LIBS",jfile, ""));
+			jsontext ~= readText(Config.getString("SYMBOL_LIBS",jfile, ""));
 		}
+
+		//auto mid = stopwatch.peek().msecs;
+
+		foreach(i, pkgkey; PackageKeys)
+		{
+			//jsontext ~= receiveOnly!(string);
+			auto NewSymbols = LoadPackage(pkgkey, jsontext[i]);
+			if(NewSymbols !is null) mSymbols[pkgkey] = NewSymbols;
+		}
+		//stopwatch.stop();
+		//auto end = stopwatch.peek().msecs;
+		//writeln("done ",mid, " -- ", end);
 	}
+
 
 	void BuildSymbol(DSYMBOL CurrSym, JSONValue SymData)
 	{
@@ -121,13 +141,6 @@ class SYMBOLS
 			CurrSym.Icon = `<span foreground="red">!</span>`;
 			return;
 		}
-
-		scope(exit)
-		{
-			mSymCount++;
-		}
-
-
 
 		void SetType()
 		{
@@ -185,6 +198,7 @@ class SYMBOLS
 			}
 		}
 
+
 		void SetSignature()
 		{
 			int unneeded;
@@ -193,7 +207,7 @@ class SYMBOLS
 			{
 				case SymKind.ALIAS :
 				{
-					CurrSym.Signature = "alias ";
+					CurrSym.Signature ~= "alias ";
 					if("storageClass" in SymData.object)
 					{
 						foreach(strclass; SymData.object["storageClass"].array) CurrSym.Signature ~= strclass.str ~ " ";
@@ -203,6 +217,28 @@ class SYMBOLS
 				}
 
 				case SymKind.CONSTRUCTOR:
+				{
+					if("storageClass" in SymData.object)
+					{
+						foreach(strclass; SymData.object["storageClass"].array) CurrSym.Signature ~= strclass.str ~ " ";
+					}
+					CurrSym.Signature ~= CurrSym.Type ~ "(";
+					if("parameters" in SymData.object)
+					{
+						foreach(i, param; SymData.object["parameters"].array)
+						{
+							if(i > 0) CurrSym.Signature ~= ", ";
+							if("deco" in param.object)CurrSym.Signature ~= GetTypeFromDeco(param.object["deco"].str, unneeded);
+							if("type" in param.object)CurrSym.Signature ~= param.object["type"].str; //template member funtion
+							if("name" in param.object)CurrSym.Signature ~= " " ~ param.object["name"].str;
+							if("defaultValue" in param.object) CurrSym.Signature ~=  "=" ~ param.object["defaultValue"].str;
+							if("defaultAlias" in param.object) CurrSym.Signature ~=  "=" ~ param.object["defaultAlias"].str;
+							if("default" in param.object) CurrSym.Signature ~=  "=" ~ param.object["default"].str;
+						}
+					}
+					CurrSym.Signature ~= ")";
+					break;
+				}
 				case SymKind.FUNCTION :
 				{
 					if("storageClass" in SymData.object)
@@ -224,6 +260,7 @@ class SYMBOLS
 						}
 					}
 					CurrSym.Signature ~= ")";
+
 					break;
 				}
 				case SymKind.VARIABLE :
@@ -246,8 +283,6 @@ class SYMBOLS
 			}
 		}
 
-
-
 		if(SymData.type == JSON_TYPE.OBJECT)
 		{
 
@@ -265,7 +300,9 @@ class SYMBOLS
 			}
 
 			SetKind();
+			//CurrSym.Type = " ";
 			SetType();
+			//CurrSym.Signature = " ";
 			SetSignature();
 			if("protection" in SymData.object)CurrSym.Protection = SymData.object["protection"].str;
 			if("comment" in SymData.object)CurrSym.Comment = SymData.object["comment"].str;
@@ -278,17 +315,22 @@ class SYMBOLS
 
 			CurrSym.Path = CurrSym.Scope[0];
 			foreach(s; CurrSym.Scope[1..$]) CurrSym.Path ~= '.' ~ s;
+			CurrSym.Icon = GetIcon(CurrSym);
 
 			if("members" in SymData.object)
 			{
 				foreach(obj; SymData.object["members"].array)
 				{
+					if(obj.object["name"].str.startsWith("__unittest"))continue;
+					if(obj.object["kind"].str.startsWith("import"))continue;
 					auto ChildSym = new DSYMBOL;
 					ChildSym.Path = CurrSym.Path;
 					ChildSym.File = CurrSym.File;
 					ChildSym.Scope = CurrSym.Scope;
+
 					BuildSymbol(ChildSym, obj);
-					if(ChildSym.Name.startsWith("__unittest")) continue;
+					//if(ChildSym.Name.startsWith("__unittest")) continue;
+					if(ChildSym.Kind == SymKind.IMPORT)continue;
 					CurrSym.Children ~= ChildSym;
 				}
 			}
@@ -300,18 +342,14 @@ class SYMBOLS
 			DSYMBOL membersym;
 			foreach(obj; SymData.array)
 			{
+				if(obj.object["name"].str.startsWith("__unittest"))continue;
 				membersym = new DSYMBOL;
 				BuildSymbol(membersym, obj);
-				if(membersym.Name.startsWith("__unittest"))continue;
+				//if(membersym.Name.startsWith("__unittest"))continue;
 				CurrSym.Children ~= membersym;
 			}
 		}
-
-
 	}
-
-
-
 
 	string[] GetScopedCandidate(string Candidate)
 	{
@@ -323,15 +361,13 @@ class SYMBOLS
 	}
 
 	//given a package name and a json file loads the symbols and returns them
-	DSYMBOL LoadPackage(string PackageName, string TagFile)
+	DSYMBOL LoadPackage(string PackageName, string SymbolJson)
 	{
 		scope(failure)
 		{
-			Log.Entry("Unable to load Symbol file: " ~ TagFile, "Error");
+			Log.Entry("Unable to load Symbol file: " ~ PackageName, "Error");
 			return null;
 		}
-
-		auto SymbolJson = readText(TagFile);
 
 		DSYMBOL X = new DSYMBOL;
 
@@ -340,7 +376,6 @@ class SYMBOLS
 		X.Scope 	= [PackageName];
 
 		X.Kind		= SymKind.PACKAGE;
-		//X.FullType	= "package";
 		X.Type		= "package";
 		X.Signature = "package";
 		X.Comment	= "";
@@ -352,7 +387,6 @@ class SYMBOLS
 		X.Children.length = 0;
 		X.Icon		= GetIcon(X);
 
-		//BuildPackage(X, parseJSON(SymbolJson));
 		BuildSymbol(X, parseJSON(SymbolJson));
 
 		return X;
@@ -360,6 +394,12 @@ class SYMBOLS
 
 	void WatchProject(ProEvent Event)
 	{
+		scope(failure)
+		{
+			Log.Entry("Failed to load project symbols", "Error");
+			return;
+		}
+
 		switch (Event)
 		{
 			case ProEvent.Closing  				:
@@ -373,17 +413,16 @@ class SYMBOLS
 												}
 			case ProEvent.CreatedTags			:
 												{
-													scope(failure){Log.Entry("Failed to load project symbols", "Error");return;}
-													auto pckagekey = LoadPackage(mProjectKey, buildPath(Project.WorkingPath, mProjectKey ~".tags"));
+													writeln(mProjectKey);
+													auto pckagekey = LoadPackage(mProjectKey, readText(buildPath(Project.WorkingPath, mProjectKey ~".tags")));
 													if (pckagekey !is null) mSymbols[mProjectKey] = pckagekey;
 													emit();
 													return;
 												}
 			case ProEvent.FailedTags			:
 												{
-													scope(failure){Log.Entry("Failed to load project symbols","Error");return;}
 													if(Project.Name() in mSymbols) return; //keep the symbols we have if none try to load old symbols
-													auto pkgkey = LoadPackage(mProjectKey, buildPath(Project.WorkingPath, mProjectKey ~".tags"));
+													auto pkgkey = LoadPackage(mProjectKey, readText(buildPath(Project.WorkingPath, mProjectKey ~".tags")));
 													if(pkgkey !is null) mSymbols[mProjectKey] = pkgkey;
 													return;
 												}
@@ -395,7 +434,7 @@ class SYMBOLS
 														mSymbols.remove(mProjectKey);
 													}
 													mProjectKey = Project.Name;
-													auto tmppkg = LoadPackage(mProjectKey, buildPath(Project.WorkingPath, mProjectKey ~".tags"));
+													auto tmppkg = LoadPackage(mProjectKey, readText(buildPath(Project.WorkingPath, mProjectKey ~".tags")));
 													if(tmppkg !is null) mSymbols[mProjectKey] = tmppkg;
 													emit();
 													return;
@@ -428,7 +467,6 @@ class SYMBOLS
 
 	void Disengage()
 	{
-		Log().Entry((mSymCount.to!string) ~ " symbols were in memory", "INFO");
 		Log().Entry("Disengaged SYMBOLS");
 	}
 
@@ -478,7 +516,6 @@ class SYMBOLS
 	{
 		string[] CandiScope = GetScopedCandidate(Candidate);
 		string CandiName;
-		writeln(CandiScope);
 
 		ulong scopelen = CandiScope.length;
 		if(scopelen == 1)
@@ -514,7 +551,6 @@ class SYMBOLS
 			foreach(sym; mSymbols) CheckSymbol(sym);
 		}
 
-		foreach (rv; rvCompletions)writeln(rv.Name);
 		return rvCompletions;
 	}
 
@@ -560,39 +596,57 @@ class SYMBOLS
 	 * */
 	DSYMBOL[] GetCallTips(string Candidate)
 	{
+		auto CandiPath = GetScopedCandidate(Candidate);
+		string[] ParentPath;
+		if(CandiPath.length > 1) ParentPath = CandiPath[0..$-1];
+
 
 		DSYMBOL[] rvTips;
-		string[] CandiPath = GetScopedCandidate(Candidate);
 
 
-		void CheckSymbol(DSYMBOL xsym)
+		void CheckSymbol(DSYMBOL Sym)
 		{
-			foreach(kid; xsym.Children) CheckSymbol(kid);
+			foreach(kid; Sym.Children) CheckSymbol(kid);
 
-			////wierd template check kind of skips template symbol and looks at 'eponymous' member
-			//if(xsym.Kind == SymKind.TEMPLATE)
-			//{
-//
-			//	string[] tmp;
-//
-			//	if(CandiPath.length == 1) tmp = [xsym.Name , "." , CandiPath[0]];
-			//	else
-			//	{
-			//		tmp = CandiPath[0 .. $-1];
-			//		tmp ~= xsym.Name;
-			//		tmp ~= CandiPath[$-1];
-			//	}
-			//	string subtmp;
-			//	subtmp = tmp[0];
-			//	if(tmp.length > 1)foreach (t; tmp[1..$])subtmp ~= "." ~ t;
-			//	rvTips ~= GetCallTips(subtmp);
-			//	return ;
-			//}
-			//if(xsym.Kind == SymKind.ALIAS) rvTips ~= GetCallTips(xsym.Type);
-			if(xsym.Kind != SymKind.FUNCTION) return;
-			if(CandiPath[$-1] != xsym.Name) return;
 
-			rvTips ~= xsym;
+			if(Sym.Scope.endsWith(CandiPath) )
+			{
+				writeln("yes");
+				if(Sym.Kind == SymKind.FUNCTION)
+				{
+					rvTips ~= Sym;
+					return;
+				}
+				if( Sym.Kind == SymKind.CLASS || Sym.Kind == SymKind.STRUCT)
+				{
+					writeln("->yes");
+					foreach(kid; Sym.Children)
+					{
+						writeln(kid.Kind);
+						if (kid.Kind == SymKind.CONSTRUCTOR)
+						{
+							rvTips ~= kid;
+							return;
+						}
+					}
+				}
+			}
+
+			if(ParentPath.length > 0 && Sym.Scope.endsWith(ParentPath))
+			{
+				if(Sym.Base.length > 0)
+				{
+					writeln("-->",Sym.Base ~"."~CandiPath[$-1]);
+					rvTips ~= GetCallTips(Sym.Base ~"."~CandiPath[$-1]);
+					return;
+				}
+				if(Sym.Kind == SymKind.VARIABLE)
+				{
+					writeln(">>>", Sym.Type ~ "." ~ CandiPath[$-1]);
+					rvTips ~= GetCallTips(Sym.Type ~ "." ~ CandiPath[$-1]);
+					return;
+				}
+			}
 		}
 
 		foreach(sym; mSymbols) CheckSymbol(sym);
@@ -679,8 +733,16 @@ string GetIcon(DSYMBOL X)
 
 void SkipFunction(string deco, ref int index)
 {
-     while(!"XYZ".canFind(deco[index]))index++;
+     //while(!"XYZ".canFind(deco[index]))index++;
+     //index++;
      index++;
+     switch(deco[0])
+     {
+		 case 'X' :
+		 case 'Y' :
+		 case 'Z' : return;
+		 default : deco = deco[1..$];
+	 }
 }
 
 string ReadQualifiedName(string Name)
@@ -696,13 +758,23 @@ string ReadQualifiedName(string Name)
      {
 
           scope(failure) break;
-          value = parse!int(local);
+          //value = parse!int(local); //omg throws like a billion exceptions (must read docs)
+          char[] strnum;
+          while(local[0].isNumber)
+          {
+			  strnum ~= local[0];
+			  local = local[1..$];
+		  }
+		  value = to!int(strnum);
 
-          if(!local.startsWith("__T"))
+
+          //local = local[formattedRead(local, "%s", &value)..$];
+
+          /*if(!local.startsWith("__T"))
           {
                if(rv.length > 0) rv ~= ".";
                rv ~= local[0..value];
-          }
+          }*/
           local = local[value..$];
      }while(true);
      return rv;
@@ -721,9 +793,6 @@ string GetTypeFromDeco(string deco, ref int mangledlen)
      string AssocType;
 
      string rv;
-
-
-
 
      switch(deco[index])
      {
@@ -845,4 +914,21 @@ string GetTypeFromDeco(string deco, ref int mangledlen)
      if(mangledlen != -1) mangledlen = index;
      return rv;
 
+}
+
+
+//another concurrent read attempt
+string rval[Tid];
+void SpawnRead(Tid tid)
+{
+	string FileToRead;
+	//get the file name
+	receive(
+		(string fname){ writeln(fname);FileToRead = fname;}
+	);
+
+	rval[tid] = readText(FileToRead);
+
+	send(tid, rval[tid]);
+	writeln(true);
 }
