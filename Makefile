@@ -7,8 +7,8 @@ INC_PATHS = -I/usr/local/include/d/gtkd-1
 LIB_PATHS = -L-L/usr/lib
 LIBRARIES = -L-lgtkdsv-1 -L-lgtkd-1 -L-lvte -L-lutil -L-lgdk-x11-2.0
 
-DFLAGS = -of$(TARGET) -odobjdir -J./ -D -Dddocs
-RELEASEFLAGS = -release
+DFLAGS = -v -D -Dd./doc -of$(TARGET) -odobjdir -J./
+RELEASEFLAGS = -O -inline -release
 DEBUGFLAGS = -gc -debug
 
 ifeq (Linux, $(shell uname))
@@ -19,7 +19,7 @@ endif
 prefix = $(DESTDIR)/usr/local
 BINDIR = $(prefix)/bin
 
-#WEBKIT RELEASE AND DUBEG STUFFS
+#WEBKIT RELEASE AND DEBUG STUFFS
 webkit ?= 1
 ifeq ($(webkit), 1)
 	weblib = -L-lwebkitgtk-1.0
