@@ -24,7 +24,7 @@ import ui;
 import elements;
 import document;
 
-import std.process;
+import std.process : escapeShellFileName;
 import std.array;
 import std.stdio;
 import std.file;
