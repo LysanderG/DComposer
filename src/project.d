@@ -248,7 +248,7 @@ class PROJECT
 
     void Engage()                                           //dcore engage
     {
-		mName = "new_project";
+		mName = "";
 		mCustomBuildCommand = "";
         mTarget = TARGET.NULL;
         mVersion = PROJECT_VERSION;
@@ -276,7 +276,7 @@ class PROJECT
     void New()                                              //start a new project with default settings (or just open a default file?)
     {
 		Event.emit(ProEvent.Creating);
-        Close();
+        Clear();
         mTarget = TARGET.UNDEFINED;
         Event.emit(ProEvent.Created);
     }
@@ -284,28 +284,24 @@ class PROJECT
     void Open(string pfile)                                             //open a .dpro file and we're off
     {
         Event.emit(ProEvent.Opening);
-        Close();
+        Clear();
 
-
-		scope(exit) Event.emit(ProEvent.Opened);
         scope(failure)
         {
-            Close();
+            Clear();
             Log.Entry("Failed to OPEN Project : " ~ pfile, "Error");
             return;
-        }
-        scope(success)
-        {
-			CreateTags();
-			Log.Entry("Project opened: " ~ Name);
 
-		}
+        }
+		//scope(exit) Event.emit(ProEvent.Opened);
+
 		auto jstring = readText(pfile);
 
 		auto jval = parseJSON(jstring);
 
-		foreach( key, j; (jval.object))
+		foreach( key, j; jval.object)
 		{
+
 			switch (j.type)
 			{
 				case JSON_TYPE.ARRAY :
@@ -335,7 +331,6 @@ class PROJECT
 					if(key == "name") 		Name      	= j.str;
 					if(key == "basedir") 	WorkingPath = j.str;
 
-					//if(key == "other")		this[MISC] 	= [j.str];
 					break;
 				}
 				case JSON_TYPE.INTEGER :
@@ -349,15 +344,15 @@ class PROJECT
 		}
         if(mVersion > PROJECT_VERSION)throw new Exception("bad version");
 		if(mTarget == TARGET.NULL) throw new Exception("Invalid Target Type");
+		CreateTags();
+		Log.Entry("Project opened: " ~ Name);
+		Event.emit(ProEvent.Opened);
+
 	}
-    void Close()                                            //return target type to null , and nothing doing
-    {
-		Event.emit(ProEvent.Closing);
-        Save();
-
-
-        mName               = "new_project";
-        mWorkingPath      	= "new_project";//Config.ExpandPath(Config.getString("PROJECT", "default_project_path", "~/projects"));
+	void Clear()
+	{
+		mName               = "";
+        mWorkingPath      	= "";//Config.ExpandPath(Config.getString("PROJECT", "default_project_path", "~/projects"));
         mTarget             = TARGET.NULL;
         mCompiler           = Config.getString("PROJECT", "default_compiler", "dmd");
         mVersion            = PROJECT_VERSION;
@@ -367,7 +362,15 @@ class PROJECT
         mList.Zero();
         mUseCustomBuild = false;
         mCustomBuildCommand.length = 0;
+	}
+
+    void Close()                                            //return target type to null , and nothing doing
+    {
+		Event.emit(ProEvent.Closing);
+        Save();
+        Clear();
         Event.emit(ProEvent.Closed);
+
     }
 
     void Save()
@@ -486,12 +489,27 @@ class PROJECT
     }
     bool CreateTags()                                       //command to build tags (ie dmd -X) json file
     {
+		string docfilename;
+		scope(success)
+        {
+            if (exists(docfilename)) shell("rm " ~ docfilename);
+            Event.emit(ProEvent.CreatedTags);
+            Log.Entry("Project tags Created");
+
+        }
+		scope(failure)
+		{
+			Log.Entry("Failed to create project tags");
+			Event.emit(ProEvent.FailedTags);
+			return false;
+		}
+
         if((mTarget == TARGET.NULL) || mTarget == (TARGET.UNDEFINED)) return false;
 
         Event.emit(ProEvent.CreatingTags);
 
         string tagfilename = Name ~ ".tags";
-        string docfilename = buildPath(WorkingPath, "tmptags.doc");
+        docfilename = buildPath(WorkingPath, "tmptags.doc");
 
         string CreateTagsCommand = mCompiler ~ " -c -o- -wi -X -Xf" ~ tagfilename ~ " -D -Df" ~ docfilename;
 
@@ -501,19 +519,6 @@ class PROJECT
 
         auto result = shell(CreateTagsCommand);
 
-        scope(success)
-        {
-            shell("rm " ~ docfilename);
-            Event.emit(ProEvent.CreatedTags);
-            Log.Entry("Project tags Created");
-            //return true;
-        }
-		scope(failure)
-		{
-			Log.Entry("Failed to create project tags");
-			Event.emit(ProEvent.FailedTags);
-			return false;
-		}
 		return true;
     }
     bool Build()                                            //build the project
@@ -632,7 +637,7 @@ class PROJECT
 		}
         //string ProcessCommand =  "xterm -hold  -title -e ./" ~ Project.Name;
         string xTermTitle = "dcomposer running " ~ Project.Name;
-        string ProcessCommand = format(`xterm  -T "%s" -e %s`, xTermTitle, "./"~Project.Name);
+        string ProcessCommand = format(`xterm  -T "%s" -e "%s; bash " &`, xTermTitle, "./"~Project.Name);
         if(args !is null) ProcessCommand ~= " " ~ args;
 
         //auto RunTask = task!funRun(ProcessCommand, thisTid);
