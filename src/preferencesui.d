@@ -359,7 +359,7 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
 
 
 
-        mCheckBtn.setActive(Config.getBoolean("SYMBOLS", "auto_load_project_symbols", 1));
+        mCheckBtn.setActive(Config.getBoolean("SYMBOLS", "auto_load_symbols", 1));
 
         mTagFiles.GetWidget.setSensitive(mCheckBtn.getActive());
 
@@ -367,7 +367,7 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
 
     override void Apply()
     {
-        Config.setBoolean("SYMBOLS", "auto_load_project_symbols", mCheckBtn.getActive());
+        Config.setBoolean("SYMBOLS", "auto_load_symbols", mCheckBtn.getActive());
 
         string[] Names = mTagFiles.GetShortItems();
         string[] Files = mTagFiles.GetFullItems();
