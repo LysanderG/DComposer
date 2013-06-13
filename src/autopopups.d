@@ -204,7 +204,7 @@ class AUTO_POP_UPS
         return false;
     }
 
-    void MoveSelectionDown(Widget Wydjit)
+    /*void MoveSelectionDown(Widget Wydjit)
     {
         TreeView LocalView;
         if(mCompletionStatus == STATUS_OFF) LocalView = mTipsView;
@@ -231,7 +231,32 @@ class AUTO_POP_UPS
             return;
         }
         tp.free();
-    }
+    }*/
+
+    void MoveSelectionDown(Widget Wydjit)
+    {
+		TreeView LocalView;
+		if(mCompletionStatus == STATUS_OFF) LocalView = mTipsView;
+        else LocalView =  mCompletionView;
+
+        TreePath tp = new TreePath;
+        TreeViewColumn tvc = new TreeViewColumn;
+
+		LocalView.getCursor(tp, tvc);
+		if(tp is null) tp = new TreePath(true);
+		else tp.next();
+		LocalView.setCursorOnCell(tp, tvc, null, 0);
+		tp.free();
+		LocalView.getCursor(tp, tvc);
+		if(tp.getTreePathStruct() is null)
+		{
+			tp = new TreePath(true);
+			LocalView.setCursorOnCell(tp, tvc, null, 0);
+		}
+		tp.free();
+	}
+
+
 
     void MoveSelectionUp(Widget Wydjit)
     {
@@ -458,7 +483,6 @@ class AUTO_POP_UPS
 
         mCompletionStatus = Status;
         mCompletionStore = DATA_STORE(Possibles, xpos, ypos, ylen);
-        writeln("here");
         Present();
 
     }

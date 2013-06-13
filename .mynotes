@@ -1122,3 +1122,6 @@ Tuesday June 4 2013
 	-add profiling
 	-add unittesting
 	-finally implement a real build system (more accurately hijack one)
+
+Wednesday June 12 2013
+	-after more dconf videos need to add static analysis stuff.
