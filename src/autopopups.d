@@ -461,7 +461,7 @@ class AUTO_POP_UPS
 
         mWinXlen = Config.getInteger("DOC_POP", "window_width", 600);
         mWinYlen = Config.getInteger("DOC_POP", "window_heigth", 120);
-        auto x   = Config.getInteger("DOC_POP", "window_opacity", 50);
+        auto x   = Config.getInteger("DOC_POP", "window_opacity", 99);
 
         mWinOpacity = (cast(double)x)/100;
 
