@@ -7,7 +7,7 @@ INC_PATHS = -I/usr/local/include/d/gtkd-1
 LIB_PATHS = -L-L/usr/lib
 LIBRARIES = -L-lgtkdsv-1 -L-lgtkd-1 -L-lvte -L-lutil -L-lgdk-x11-2.0
 
-DFLAGS = -v -D -Dd./doc -of$(TARGET) -odobjdir -J./
+DFLAGS = -v -D -Dd./docs -of$(TARGET) -odobjdir -J./
 RELEASEFLAGS = -O -inline -release
 DEBUGFLAGS = -gc -debug
 
