@@ -89,6 +89,7 @@ private struct DATA_STORE
         sort!("a.Name < b.Name")(mMatches);
         if(tip) //this is a call tip needs to show the call signature
         {
+
             foreach(match; mMatches)
             {
                 if(!((match.Kind == SymKind.FUNCTION) || (match.Kind == SymKind.CONSTRUCTOR))) continue;
@@ -103,7 +104,7 @@ private struct DATA_STORE
             }
             return;
         }
-        foreach(match; mMatches)
+        foreach(match; uniq!("a.Name == b.Name")(mMatches))
         {
 			match.Name = encode(match.Name);
             mStore.append(mIter);
@@ -360,14 +361,14 @@ class AUTO_POP_UPS
             indx = xes[0];
             emit(mTipsStore[mTipsIndex].mMatches[indx]);
         }
-        else
+        /*else
         {
             auto Path = mCompletionView.getSelection().getSelectedRows(nix);
             if(Path.length < 1) return;
             int[] xes = Path[0].getIndices();
             indx = xes[0];
             emit(mCompletionStore.mMatches[indx]);
-        }
+        }*/
     }
 
 
