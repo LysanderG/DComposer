@@ -333,7 +333,15 @@ class DOG_EAR
 	{
 		mNext.mPrev = mPrev;
 		mPrev.mNext = mNext;
-		if(mSrcMark !is null)mSrcMark.getBuffer.deleteMarkByName(mSrcMark.getName());
+		scope(failure)return;
+		if(mSrcMark !is null)
+		{
+			if(mSrcMark.getBuffer !is null)
+			{
+				 mSrcMark.getBuffer.deleteMarkByName(mSrcMark.getName());
+			}
+		}
+
 	}
 
 	void Goto()
