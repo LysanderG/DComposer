@@ -143,7 +143,7 @@ class AUTO_POP_UPS
 
 
 
-	immutable int padding = 3;
+	enum padding = 3;
 
     void WatchForNewDocuments(string EventType, DOCUMENT DocXIf)
     {
