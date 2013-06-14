@@ -286,7 +286,7 @@ class SYMBOLS
 		if(SymData.type == JSON_TYPE.OBJECT)
 		{
 
-			auto nametuple = SymData.object["name"].str.findSplit(".");
+			/+auto nametuple = SymData.object["name"].str.findSplit(".");
 
 			if(nametuple[1].length == 0)
 			{
@@ -297,7 +297,13 @@ class SYMBOLS
 			{
 				CurrSym.Name = nametuple[2];
 				CurrSym.Scope ~= [nametuple[0] ,nametuple[2]];
+			}+/
+
+			foreach(subname; SymData.object["name"].str.splitter('.'))
+			{
+				CurrSym.Scope ~= subname;
 			}
+			CurrSym.Name = CurrSym.Scope[$-1];
 
 			SetKind();
 			//CurrSym.Type = " ";
@@ -414,7 +420,7 @@ class SYMBOLS
 			case ProEvent.CreatedTags			:
 												{
 													writeln(mProjectKey);
-													auto pckagekey = LoadPackage(mProjectKey, readText(buildPath(Project.WorkingPath, mProjectKey ~".tags")));
+													auto pckagekey = LoadPackage(mProjectKey, readText(buildPath(Project.WorkingPath, mProjectKey ~".json")));
 													if (pckagekey !is null) mSymbols[mProjectKey] = pckagekey;
 													emit();
 													return;
@@ -422,7 +428,7 @@ class SYMBOLS
 			case ProEvent.FailedTags			:
 												{
 													if(Project.Name() in mSymbols) return; //keep the symbols we have if none try to load old symbols
-													auto pkgkey = LoadPackage(mProjectKey, readText(buildPath(Project.WorkingPath, mProjectKey ~".tags")));
+													auto pkgkey = LoadPackage(mProjectKey, readText(buildPath(Project.WorkingPath, mProjectKey ~".json")));
 													if(pkgkey !is null) mSymbols[mProjectKey] = pkgkey;
 													return;
 												}
@@ -434,7 +440,7 @@ class SYMBOLS
 														mSymbols.remove(mProjectKey);
 													}
 													mProjectKey = Project.Name;
-													auto tmppkg = LoadPackage(mProjectKey, readText(buildPath(Project.WorkingPath, mProjectKey ~".tags")));
+													auto tmppkg = LoadPackage(mProjectKey, readText(buildPath(Project.WorkingPath, mProjectKey ~".json")));
 													if(tmppkg !is null) mSymbols[mProjectKey] = tmppkg;
 													emit();
 													return;
@@ -482,7 +488,7 @@ class SYMBOLS
 
 			string jsonfile = Config.getString("SYMBOL_LIBS", key);
 			if( (key in mSymbols) && (jsonfile.timeLastModified() <= mLastLoadTime)) continue;
-			mSymbols[key] = LoadPackage(key, jsonfile);
+			mSymbols[key] = LoadPackage(key, jsonfile.readText);
 		}
 		string[] KeysToRemove;
 		foreach(assockey, symbol; mSymbols)

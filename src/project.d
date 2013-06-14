@@ -508,7 +508,7 @@ class PROJECT
 
         Event.emit(ProEvent.CreatingTags);
 
-        string tagfilename = Name ~ ".tags";
+        string tagfilename = Name ~ ".json";
         docfilename = buildPath(WorkingPath, "tmptags.doc");
 
         string CreateTagsCommand = mCompiler ~ " -c -o- -wi -X -Xf" ~ tagfilename ~ " -D -Df" ~ docfilename;

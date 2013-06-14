@@ -375,7 +375,8 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
         if(Config.hasGroup("SYMBOL_LIBS"))Config.removeGroup("SYMBOL_LIBS");
         foreach(int i, name; Names)
         {
-            name = name.chomp("lib.json");
+            name = name.chomp(".json");
+            //name = name.chomp(".tags");
             Config.setString("SYMBOL_LIBS", name, Files[i]);
         }
     }
