@@ -735,14 +735,17 @@ void SkipFunction(string deco, ref int index)
 {
      //while(!"XYZ".canFind(deco[index]))index++;
      //index++;
-     index++;
-     switch(deco[0])
+     do
      {
-		 case 'X' :
-		 case 'Y' :
-		 case 'Z' : return;
-		 default : deco = deco[1..$];
-	 }
+		switch(deco[0])
+		{
+			case 'X' :
+			case 'Y' :
+			case 'Z' : index++;return;
+			default : deco = deco[1..$];
+		}
+		index++;
+	 }while(true);
 }
 
 string ReadQualifiedName(string Name)
