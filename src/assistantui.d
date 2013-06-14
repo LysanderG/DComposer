@@ -226,8 +226,7 @@ class ASSISTANT_UI : ELEMENT
 
 			void ShowUndocumentedPage()
 			{
-				string none = "file://" ~ Config.getString("ASSISTANT_UI","doc_folder", "$(SYSTEM_DIR)/glade/");
-			    none ~= "/undocumented.html";
+				string none = "file://" ~ Config.getString("ASSISTANT_UI","undocumented_file", "$(SYSTEM_DIR)/glade/undocumented.html");
 			    webkit_web_view_load_uri(mWebView, toStringz(none));
 			}
 
@@ -239,18 +238,32 @@ class ASSISTANT_UI : ELEMENT
 
 			if(canFind(Project[SRCFILES], Sym.File))
 			{
-				string DocPath = buildPath(Project.WorkingPath, Project.GetFlags["-Dd"].Argument);
-				string DocFile = buildPath(DocPath, SrcHtmlFileName);
-				if(!exists(DocFile))
+
+				foreach(Folder; mDocPaths)
 				{
-					dui.Status.push(0, "Unable to find " ~ DocFile ~ " showing Documentation as plain text.");
-					return webkit_web_view_load_string(mWebView, toStringz(Sym.Comment), toStringz("text/plain"), null, "");
+					string DocFile = buildPath(Folder, SrcHtmlFileName);
+					if(!exists(DocFile)) continue;
+
+					string url = "file://"~DocFile~"#"~Sym.Name;
+					webkit_web_view_load_uri(mWebView, toStringz(url));
+					return;
 				}
 
-				string url = "file://"~DocFile~"#"~Sym.Name;
-				webkit_web_view_load_uri(mWebView, toStringz(url));
+				if("-Dd" in Project.GetFlags())
+				{
+					string DocFile = buildPath(Project.GetFlags()["-Dd"].Argument, SrcHtmlFileName);
+					if(exists(DocFile))
+					{
+						string url = "file://"~DocFile~"#"~Sym.Name;
+						webkit_web_view_load_uri(mWebView, toStringz(url));
+						return;
+					}
+				}
 
-				return;
+
+				dui.Status.push(0, "Unable to find " ~ Sym.Name ~ " showing Documentation as plain text.");
+				return webkit_web_view_load_string(mWebView, toStringz(Sym.Comment), toStringz("text/plain"), null, "");
+
 			}
 
 			string StdPrefix = "";
