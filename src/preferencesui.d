@@ -376,7 +376,6 @@ class SYMBOL_PAGE : PREFERENCE_PAGE
         foreach(int i, name; Names)
         {
             name = name.chomp(".json");
-            //name = name.chomp(".tags");
             Config.setString("SYMBOL_LIBS", name, Files[i]);
         }
     }
