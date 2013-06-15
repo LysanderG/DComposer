@@ -65,8 +65,8 @@ class SYMBOL_VIEW : ELEMENT
             auto tix = mSymbolStore.append(tiParent);
             mSymbolStore.setValue(tix, 0, symx.Icon);
             mSymbolStore.setValue(tix, 1, symx.Name);
-            mSymbolStore.setValue(tix, 2, SimpleXML.escapeText(symx.Path, -1));
-            mSymbolStore.setValue(tix, 3, symx.Path);
+            //mSymbolStore.setValue(tix, 2, SimpleXML.escapeText(symx.Path, -1));
+            //mSymbolStore.setValue(tix, 3, symx.Path);
             foreach (kidx; symx.Children) FillSym(kidx, tix);
         }
 

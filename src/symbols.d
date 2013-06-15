@@ -101,35 +101,21 @@ class SYMBOLS
 
 
 	//called at startup if mautoload is true
-	//the commented stuff is concurrency and timer stuff for bench marking
+	//also called on configure
 	void AutoLoadPackages()
 	{
-		//StopWatch stopwatch;
-		//stopwatch.start();
 		mLastLoadTime  = Clock.currTime();
 		auto PackageKeys = Config.getKeys("SYMBOL_LIBS");
-
-		shared string[] jsontext;
-		//Tid[] tid;
+		shared string jsontext;
 
 		foreach(jfile; PackageKeys)
 		{
-			//tid ~= spawn(&SpawnRead, thisTid);
-			//send(tid[$-1], Config.getString("SYMBOL_LIBS",jfile, ""));
-			jsontext ~= readText(Config.getString("SYMBOL_LIBS",jfile, ""));
+			jsontext = readText(Config.getString("SYMBOL_LIBS",jfile, ""));
+			//jsontext = cast(string)read(Config.getString("SYMBOL_LIBS", jfile, ""));
+			auto NewSymbols = LoadPackage(jfile, jsontext);
+			if(NewSymbols !is null) mSymbols[jfile] = NewSymbols;
 		}
 
-		//auto mid = stopwatch.peek().msecs;
-
-		foreach(i, pkgkey; PackageKeys)
-		{
-			//jsontext ~= receiveOnly!(string);
-			auto NewSymbols = LoadPackage(pkgkey, jsontext[i]);
-			if(NewSymbols !is null) mSymbols[pkgkey] = NewSymbols;
-		}
-		//stopwatch.stop();
-		//auto end = stopwatch.peek().msecs;
-		//writeln("done ",mid, " -- ", end);
 	}
 
 
@@ -228,12 +214,29 @@ class SYMBOLS
 						foreach(i, param; SymData.object["parameters"].array)
 						{
 							if(i > 0) CurrSym.Signature ~= ", ";
-							if("deco" in param.object)CurrSym.Signature ~= GetTypeFromDeco(param.object["deco"].str, unneeded);
-							if("type" in param.object)CurrSym.Signature ~= param.object["type"].str; //template member funtion
-							if("name" in param.object)CurrSym.Signature ~= " " ~ param.object["name"].str;
-							if("defaultValue" in param.object) CurrSym.Signature ~=  "=" ~ param.object["defaultValue"].str;
-							if("defaultAlias" in param.object) CurrSym.Signature ~=  "=" ~ param.object["defaultAlias"].str;
-							if("default" in param.object) CurrSym.Signature ~=  "=" ~ param.object["default"].str;
+							if("deco" in param.object)
+							{
+								CurrSym.Signature ~= GetTypeFromDeco(param.object["deco"].str, unneeded);
+							}
+							else if("type" in param.object)
+							{
+								CurrSym.Signature ~= param.object["type"].str; //template member funtion
+							}
+							if("name" in param.object)
+							{
+								CurrSym.Signature ~= " " ~ param.object["name"].str;
+							}
+							if("defaultValue" in param.object)
+							{
+								CurrSym.Signature ~=  "=" ~ param.object["defaultValue"].str;
+								continue;
+							}
+							if("defaultAlias" in param.object)
+							{
+								CurrSym.Signature ~=  "=" ~ param.object["defaultAlias"].str;
+								continue;
+							}
+							if("default" in param.object)CurrSym.Signature ~=  "=" ~ param.object["default"].str;
 						}
 					}
 					CurrSym.Signature ~= ")";
@@ -251,12 +254,20 @@ class SYMBOLS
 						foreach(i, param; SymData.object["parameters"].array)
 						{
 							if(i > 0) CurrSym.Signature ~= ", ";
-							if("deco" in param.object)CurrSym.Signature ~= GetTypeFromDeco(param.object["deco"].str, unneeded);
 							if("type" in param.object)CurrSym.Signature ~= param.object["type"].str; //template member funtion
+							else if("deco" in param.object)CurrSym.Signature ~= GetTypeFromDeco(param.object["deco"].str, unneeded);
 							if("name" in param.object)CurrSym.Signature ~= " " ~ param.object["name"].str;
-							if("defaultValue" in param.object) CurrSym.Signature ~=  "=" ~ param.object["defaultValue"].str;
+							if("default" in param.object)
+							{
+								CurrSym.Signature ~=  "=" ~ param.object["default"].str;
+								continue;
+							}
+							if("defaultValue" in param.object)
+							{
+								CurrSym.Signature ~=  "=" ~ param.object["defaultValue"].str;
+								continue;
+							}
 							if("defaultAlias" in param.object) CurrSym.Signature ~=  "=" ~ param.object["defaultAlias"].str;
-							if("default" in param.object) CurrSym.Signature ~=  "=" ~ param.object["default"].str;
 						}
 					}
 					CurrSym.Signature ~= ")";
@@ -367,7 +378,7 @@ class SYMBOLS
 	}
 
 	//given a package name and a json file loads the symbols and returns them
-	DSYMBOL LoadPackage(string PackageName, string SymbolJson)
+	DSYMBOL LoadPackage(const string PackageName, const string SymbolJson)
 	{
 		scope(failure)
 		{
@@ -754,39 +765,83 @@ void SkipFunction(string deco, ref int index)
 	 }while(true);
 }
 
+string ReadQualifiedName_old(string Name)
+{
+    uint index;
+    string local = Name.idup;
+    string rv;
+
+    int value;
+
+    scope(exit) index = index + cast(uint)(Name.length - local.length);
+    do
+	{
+		value = 0;
+        scope(failure) break;
+        char[] strnum;
+        while(local[0].isNumber)
+        {
+			strnum ~= local[0];
+			local = local[1..$];
+		}
+		//value = to!int(strnum);
+		long place = strnum.length -1;
+		long total = strnum.length;
+		long ix;
+		do
+		{
+			value += (cast(ubyte)(local[ix]) - 48) * cast(long)(10.0 ^^ place);
+			place--;
+			ix++;
+		}while (ix < total);
+		writeln(strnum, "--", value);
+
+        local = local[value..$];
+
+	}while(true);
+	return rv;
+}
+
 string ReadQualifiedName(string Name)
 {
-     uint index;
-     string local = Name.idup;
-     string rv;
+	string rval;
 
-     int value;
+	//scope(failure)writeln("fail ",rval, " ", DecoName);
+	do
+	{
+		scope(failure)break;
+		//if(!Name[0].isNumber)break;
+		if( (Name[0] < '0') || (Name[0] > '9'))break;
+		string NumberString;
 
-     scope(exit) index = index + cast(uint)(Name.length - local.length);
-     do
-     {
+		//get string telling name part length
+		while(Name[0].isNumber)
+		{
+			NumberString ~= Name[0];
+			Name = Name[1..$];
 
-          scope(failure) break;
-          //value = parse!int(local); //omg throws like a billion exceptions (must read docs)
-          char[] strnum;
-          while(local[0].isNumber)
-          {
-			  strnum ~= local[0];
-			  local = local[1..$];
-		  }
-		  value = to!int(strnum);
+		}
+		//convert it to a number
+		auto place = NumberString.length - 1;
+		auto ictr = 0;
+		long value = 0;
+		do
+		{
+			value += (cast(ubyte)(NumberString[ictr]) - 48) * cast(long)(10.0 ^^ place);
+			ictr++;
+			place--;
+		}while(ictr < NumberString.length);
+
+		//add name part to output
+		if(rval.length > 0) rval ~= ".";
+		rval ~= Name[0..value];
+
+		//adjust input string again
+		Name = Name[value..$];
+	}while(true);
 
 
-          //local = local[formattedRead(local, "%s", &value)..$];
-
-          /*if(!local.startsWith("__T"))
-          {
-               if(rv.length > 0) rv ~= ".";
-               rv ~= local[0..value];
-          }*/
-          local = local[value..$];
-     }while(true);
-     return rv;
+	return rval;
 }
 
 
@@ -833,7 +888,8 @@ string GetTypeFromDeco(string deco, ref int mangledlen)
           {
                isStaticArray = true;
                index++;
-               while("0123456789".canFind(deco[index]))
+               //while("0123456789".canFind(deco[index]))
+               while( (deco[index] >= '0') && (deco[index] <= '9') )
                {
                     elements ~= deco[index];
                     index++;
@@ -878,6 +934,7 @@ string GetTypeFromDeco(string deco, ref int mangledlen)
           {
                index++;
                rv = ReadQualifiedName(deco[index..$]);
+
                break;
           }
 
