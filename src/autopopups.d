@@ -451,6 +451,14 @@ class AUTO_POP_UPS
 
         mTipsView.addOnCursorChanged (&UpdateComments);
         mCompletionView.addOnCursorChanged(&UpdateComments);
+        mCompletionView.addOnButtonRelease(
+		delegate bool (GdkEventButton* x, Widget Origin)
+		{
+			CompleteText(dui.GetDocMan.Current);
+			return true;
+		});
+
+
 
         //mCompletionWin.addOnShow(&ResizeCompletionWindow);
         mTipsWin.addOnShow(&ResizeTipWindow);
