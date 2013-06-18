@@ -113,10 +113,6 @@ class MAIN_UI
 
 	void DragCatcher(GdkDragContext* Cntxt, int x, int y, GtkSelectionData* SelData, uint info, uint time, Widget user_data)
     {
-		//string[] SelectedFiles = splitLines(text(SelData.data));
-		//writeln("hello ", SelectedFiles);
-
-		//foreach(ref file; SelectedFiles) if(file.startsWith("file://")) file = std.uri.decode(file[7..$]); else
 
 		string[] SelectedFiles;
 

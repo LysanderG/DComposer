@@ -337,7 +337,6 @@ class PROJECT
 		auto jstring = readText(pfile);
 
 		auto jval = parseJSON(jstring);
-		writeln("here");
 
 		foreach( key, j; jval.object)
 		{

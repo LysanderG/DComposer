@@ -60,7 +60,11 @@ class SHELLFILTER : ELEMENT
 
 	void RunCommand(Entry E)
 	{
-
+		scope(failure)
+		{
+			mErrLabel.setText("Error");
+			return;
+		}
 
 		if (E.getText().length < 1) return;
 
@@ -93,17 +97,11 @@ class SHELLFILTER : ELEMENT
 
 		if(Input.length >0) xInput = `cat  ` ~ TextToProcess ~ ` | `;
 		xInput ~= CmdText ~ " 2> " ~ escapeShellFileName(ErrorFile);
-		//writeln(xInput , "\n==========================");
 		Output = shell(xInput);
-		scope(failure)
-		{
-			mErrLabel.setText("Error");
-			return;
-		}
+
 		auto errortext = ErrorFile.readText();
 		if(errortext.length > 0)
 		{
-			//writeln("error");
 			mErrLabel.setText("Error processing "~errortext);
 			return;
 		}
@@ -111,7 +109,6 @@ class SHELLFILTER : ELEMENT
 		{
 			mErrLabel.setText("");
 		}
-		//writeln("=========================\n",Output);
 
 
 

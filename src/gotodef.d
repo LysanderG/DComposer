@@ -46,7 +46,6 @@ class GOTODEF : ELEMENT
 
 		if(Results.length < 1)
 		{
-			writeln(CurrentWord);
 			auto DotIndex = lastIndexOf(CurrentWord, ".");
 			if(DotIndex != -1)  Results = Symbols.GetMatches(CurrentWord[DotIndex+1 .. $]);
 		}

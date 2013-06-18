@@ -363,7 +363,6 @@ class PROJECT_UI : ELEMENT
 
 		//basics
 		mProjName.setText(Project.Name);
-        mFolder.setText("");
 		if(baseName(Project.WorkingPath) !is null)mFolder.setText(baseName(Project.WorkingPath));
 		else mFolder.setText("");
         //do I need to set mFullPath or will that handle it self??

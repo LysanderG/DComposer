@@ -430,7 +430,6 @@ class SYMBOLS
 												}
 			case ProEvent.CreatedTags			:
 												{
-													writeln(mProjectKey);
 													auto pckagekey = LoadPackage(mProjectKey, readText(buildPath(Project.WorkingPath, mProjectKey ~".json")));
 													if (pckagekey !is null) mSymbols[mProjectKey] = pckagekey;
 													emit();
@@ -628,7 +627,6 @@ class SYMBOLS
 
 			if(Sym.Scope.endsWith(CandiPath) )
 			{
-				writeln("yes");
 				if(Sym.Kind == SymKind.FUNCTION)
 				{
 					rvTips ~= Sym;
@@ -636,10 +634,8 @@ class SYMBOLS
 				}
 				if( Sym.Kind == SymKind.CLASS || Sym.Kind == SymKind.STRUCT)
 				{
-					writeln("->yes");
 					foreach(kid; Sym.Children)
 					{
-						writeln(kid.Kind);
 						if (kid.Kind == SymKind.CONSTRUCTOR)
 						{
 							rvTips ~= kid;
@@ -653,13 +649,11 @@ class SYMBOLS
 			{
 				if(Sym.Base.length > 0)
 				{
-					writeln("-->",Sym.Base ~"."~CandiPath[$-1]);
 					rvTips ~= GetCallTips(Sym.Base ~"."~CandiPath[$-1]);
 					return;
 				}
 				if(Sym.Kind == SymKind.VARIABLE)
 				{
-					writeln(">>>", Sym.Type ~ "." ~ CandiPath[$-1]);
 					rvTips ~= GetCallTips(Sym.Type ~ "." ~ CandiPath[$-1]);
 					return;
 				}
@@ -718,7 +712,7 @@ string GetIcon(DSYMBOL X)
 		case "public"       : color = `<span foreground="black">`;break;
 		case "protected"    : color = `<span foreground="cyan">`;break;
 		case "package"      : color = `<span foreground="green">`;break;
-		default : color = `<span foreground="green">`;
+		default : color = `<span foreground="black">`;
 	}
 
 	switch(X.Kind)
@@ -794,7 +788,6 @@ string ReadQualifiedName_old(string Name)
 			place--;
 			ix++;
 		}while (ix < total);
-		writeln(strnum, "--", value);
 
         local = local[value..$];
 
@@ -806,7 +799,6 @@ string ReadQualifiedName(string Name)
 {
 	string rval;
 
-	//scope(failure)writeln("fail ",rval, " ", DecoName);
 	do
 	{
 		scope(failure)break;
@@ -996,5 +988,4 @@ void SpawnRead(Tid tid)
 	rval[tid] = readText(FileToRead);
 
 	send(tid, rval[tid]);
-	writeln(true);
 }
