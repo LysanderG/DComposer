@@ -147,6 +147,12 @@ class BOOKMARKS : ELEMENT
 
 	void Load()
 	{
+		scope(failure)
+		{
+			Clear();
+			Log.Entry("Failed to load project bookmarks");
+			return;
+		}
 		string[] results = Project[BOOKMARK_CATEGORY_NAME];
 
 		DOG_EAR PlaceHolder;

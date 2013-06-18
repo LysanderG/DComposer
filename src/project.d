@@ -160,7 +160,8 @@ struct LISTS
 
     void Zero()
     {
-        foreach(key,  L; mLists) mLists[key].length = 0;
+        //foreach(key,  L; mLists) mLists[key].length = 0;
+        foreach(key,  L; mLists) mLists[key] = [""];
     }
 
 }
@@ -232,6 +233,44 @@ class PROJECT
 	}
 
 
+	string PrettySave()
+	{
+		string output;
+		output = "{\n";
+		//version
+		output ~= format("\"version\":%s,\n", mVersion);
+		output ~= format("\"name\": \"%s\",\n", Name);
+		output ~= format("\"basedir\": \"%s\",\n", WorkingPath);
+		output ~= format("\"target\":%s,\n", cast(int)mTarget);
+
+
+		foreach(key, strs; mList.mLists)
+		{
+			output ~= format("\"%s\":\n[\n", key);
+			foreach(Ndx, s;strs)
+			{
+				output ~= format("\t\"%s\",\n",s);
+			}
+			if(strs.length > 0)output = output[0..$-2];
+			output ~= "\n],\n";
+		}
+
+		output ~= "\"flags\":\n[\n";
+		foreach(key, f; mFlags)
+		{
+			output ~= "\t{\n";
+			output ~= format("\t\t\"%s\":\n\t\t{\n",key);
+			output ~= format("\t\t\"state\":%s,\"cmdstring\":\"%s\",\"hasargument\":%s,\n",f.State, f.CmdString, f.HasAnArg);
+			output ~= format("\t\t\"argument\":\"%s\",\n\t\t\"brief\":\"%s\"\n\t\t}\n",f.Argument, f.Brief);
+			output ~= "\t},\n";
+		}
+		output = output[0..$-2];
+		output ~= "\n]\n}";
+
+		return output;
+	}
+
+
     public :
 
 
@@ -298,6 +337,7 @@ class PROJECT
 		auto jstring = readText(pfile);
 
 		auto jval = parseJSON(jstring);
+		writeln("here");
 
 		foreach( key, j; jval.object)
 		{
@@ -390,7 +430,7 @@ class PROJECT
 		string jstring;
 		JSONValue jval;
 
-		jval.type = JSON_TYPE.OBJECT;
+		/*jval.type = JSON_TYPE.OBJECT;
 
 		jval.object["version"]		= JSONValue();
 		jval.object["version"].type	= JSON_TYPE.INTEGER;
@@ -454,12 +494,11 @@ class PROJECT
 			i++;
 
 		}
-		jstring = toJSON(&jval);
+		jstring = toJSON(&jval);*/
 
-		std.file.write(Pfile, jstring);
+		std.file.write(Pfile, PrettySave());
 
 		Event.emit(ProEvent.Saved);
-
 	}
 
     void OpenLastSession()
