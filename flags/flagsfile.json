@@ -1,5 +1,6 @@
 [
 {
+"version":"DMD 2.063",
 "brief":"do not link",
 "cmdstring":"-c",
 "hasargument":false
