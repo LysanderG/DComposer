@@ -87,6 +87,7 @@ class BOOKMARKS : ELEMENT
 		//thats it
 		bool TogglingOff = false;
 		int Iline = dui.GetDocMan.GetLineNo();
+		if(Iline < 0) return;
 		foreach(x; mMarkRoot)
 		{
 			if(x.GetLine == Iline)
