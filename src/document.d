@@ -23,6 +23,7 @@ import dcore;
 import ui;
 import docman;
 
+import std.algorithm;
 import std.path;
 import std.stdio;
 import std.file;
@@ -415,13 +416,13 @@ class DOCUMENT : SourceView
 
 					case ')' :
 					{
-												if( (LastCh != '.') && (LastCh != 0))
+												if( (LastCh == '.') || (LastCh == 0))
 												{
-													Terminate = true;
+													Terminate = SkipParensBack(ti);
+													LastCh = '(';
 													break;
 												}
-												Terminate = SkipParensBack(ti);
-												LastCh = '(';
+												Terminate = true;
 												break;
 					}
 
@@ -524,6 +525,90 @@ class DOCUMENT : SourceView
 		if((pre.length == 1) && (pre[0] == 0)) return ""; //basically an invalid symbol (starts with number)
 
 		return to!string(pre ~ post);
+	}
+
+	string[] ScopedSymbol( TextIter AtIter, TextIter BeginsAtIter)
+	{
+		string[] rval;
+
+		BeginsAtIter = AtIter.copy();
+
+
+		bool SkipToMatchingCharacter(dchar  c)
+		{
+			char matchchar;
+
+			switch (c)
+			{
+				case ')': matchchar = '(';break;
+				case ']': matchchar = '[';break;
+				case '"': matchchar = '"';break;
+				default : return false;
+			}
+			int depth = 1;
+			while(BeginsAtIter.backwardChar())
+			{
+				auto currChar = BeginsAtIter.getChar();
+				if(currChar == c) depth++;
+				if(currChar == matchchar) depth--;
+				if(depth < 1) return true;
+			}
+			return false;
+		}
+
+
+		bool ContinueScanLoop = true;
+		do
+		{
+			if(!BeginsAtIter.backwardChar()) break;
+			auto ch = BeginsAtIter.getChar();
+			switch (ch)
+			{
+				case 'A': .. case 'Z':
+				case 'a': .. case 'z':
+				case '0': .. case '9':
+				case '_':
+				case '!':
+				case '.':
+				{
+					ContinueScanLoop = true;
+					break;
+				}
+				case ')':
+				case ']':
+				case '"':
+				{
+					ContinueScanLoop =  SkipToMatchingCharacter(BeginsAtIter.getChar());
+					break;
+				}
+				default:
+				{
+					ContinueScanLoop = false;
+					BeginsAtIter.forwardChar();
+					break;
+				}
+			}
+
+		}while(ContinueScanLoop);
+
+		string pretext = getBuffer.getText(BeginsAtIter, AtIter, 0);
+
+		//pretext = pretext.chomp(".");
+
+		long index;
+		foreach(unit; pretext.splitter('.'))
+		{
+			index = unit.countUntil('!');
+			if(index >= 0)unit = unit[0..index];
+			index = unit.countUntil('(');
+			if(index >= 0) unit = unit[0..index];
+			index = unit.countUntil('[');
+			if(index >=0)unit = unit[0..index];
+			rval ~= unit;
+		}
+
+		writeln(pretext, " --> ",rval);
+		return rval;
 	}
 
 
@@ -993,6 +1078,8 @@ class DOCUMENT : SourceView
 		string OriginalName = Name;
 		scope(failure) Name = OriginalName;
 		Name = NewName;
+		dui.GetCenterPane.setMenuLabelText(mPageWidget, ShortName);
+		Configure();
 		Save();
 	}
 
