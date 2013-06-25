@@ -144,7 +144,17 @@ class SYMBOLS
 			}
 			if("type" in SymData.object)
 			{
-				xtra = cast(int)SymData.object["type"].str.lastIndexOf('(');
+				auto type = SymData.object["type"].str;
+				xtra = cast(int)type.length;
+				int depth;
+				do
+				{
+					xtra--;
+					if(type[xtra] == ')') depth++;
+					if(type[xtra] == '(') depth--;
+				}while((depth > 0) && (xtra > 0));
+
+				//xtra = cast(int)SymData.object["type"].str.lastIndexOf('(');
 				if(xtra < 1)CurrSym.Type = "";
 				else CurrSym.Type = SymData.object["type"].str[0..xtra];
 				return;
@@ -297,19 +307,6 @@ class SYMBOLS
 		if(SymData.type == JSON_TYPE.OBJECT)
 		{
 
-			/+auto nametuple = SymData.object["name"].str.findSplit(".");
-
-			if(nametuple[1].length == 0)
-			{
-				CurrSym.Name = nametuple[0];
-				CurrSym.Scope ~= nametuple[0];
-			}
-			else
-			{
-				CurrSym.Name = nametuple[2];
-				CurrSym.Scope ~= [nametuple[0] ,nametuple[2]];
-			}+/
-
 			foreach(subname; SymData.object["name"].str.splitter('.'))
 			{
 				CurrSym.Scope ~= subname;
@@ -317,9 +314,7 @@ class SYMBOLS
 			CurrSym.Name = CurrSym.Scope[$-1];
 
 			SetKind();
-			//CurrSym.Type = " ";
 			SetType();
-			//CurrSym.Signature = " ";
 			SetSignature();
 			if("protection" in SymData.object)CurrSym.Protection = SymData.object["protection"].str;
 			if("comment" in SymData.object)CurrSym.Comment = SymData.object["comment"].str;
@@ -346,7 +341,6 @@ class SYMBOLS
 					ChildSym.Scope = CurrSym.Scope;
 
 					BuildSymbol(ChildSym, obj);
-					//if(ChildSym.Name.startsWith("__unittest")) continue;
 					if(ChildSym.Kind == SymKind.IMPORT)continue;
 					CurrSym.Children ~= ChildSym;
 				}
@@ -362,20 +356,12 @@ class SYMBOLS
 				if(obj.object["name"].str.startsWith("__unittest"))continue;
 				membersym = new DSYMBOL;
 				BuildSymbol(membersym, obj);
-				//if(membersym.Name.startsWith("__unittest"))continue;
 				CurrSym.Children ~= membersym;
 			}
 		}
 	}
 
-	string[] GetScopedCandidate(string Candidate)
-	{
-		Candidate = Candidate.chomp(".");
-		auto range = Candidate.splitter(".");
-		string[] rv;
-		foreach(itm; range) rv ~= itm;
-		return rv;
-	}
+
 
 	//given a package name and a json file loads the symbols and returns them
 	DSYMBOL LoadPackage(const string PackageName, const string SymbolJson)
@@ -528,141 +514,104 @@ class SYMBOLS
 	/**
 	 * actually I should have just done foreach(sym; mSymbols) sym.Path.canFind(Candidate)
 	 */
-	DSYMBOL[] GetCompletions(string Candidate)
+	DSYMBOL[] GetCompletions(string[] Candidate)
 	{
-		string[] CandiScope = GetScopedCandidate(Candidate);
-		string CandiName;
+		string[] ScopedCandi;
+		if(Candidate.length > 1)ScopedCandi = Candidate[0..$-1];
+		string CandiName = Candidate[$-1];
 
-		ulong scopelen = CandiScope.length;
-		if(scopelen == 1)
-		{
-			CandiName = CandiScope[0];
-			CandiScope.length = 0;
-		}
-		else
-		{
-			CandiName = CandiScope[$-1];
-			CandiScope = CandiScope[0 .. $-1];
-		}
 
-		DSYMBOL[] rvCompletions;
+		DSYMBOL[] rval;
+		DSYMBOL[] pool;
 
 		void CheckSymbol(DSYMBOL xsym)
 		{
-			foreach(kid; xsym.Children)CheckSymbol(kid);
+			foreach(kid; xsym.Children) CheckSymbol(kid);
 
-			if(xsym.Name.startsWith(CandiName)) rvCompletions ~= xsym;
-
-		}
-		if(scopelen > 1)
-		{
-			auto members = GetMembers(Candidate.chomp(CandiName));
-			foreach (member; members)
-			{
-				if(member.Name.startsWith(CandiName)) rvCompletions ~= member;
-			}
-		}
-		else
-		{
-			foreach(sym; mSymbols) CheckSymbol(sym);
+			if(xsym.Name.startsWith(CandiName)) rval ~= xsym;
 		}
 
-		return rvCompletions;
+		if(ScopedCandi.length > 0)pool = GetMembers(ScopedCandi);
+		if(pool.length < 1)pool = mSymbols.values;
+
+		foreach(sym; pool)CheckSymbol(sym);
+		return rval;
 	}
 
 	/**
 	 * returns all possible symbols whose scope fall under candidate
 	 * (hopefully)
 	 * */
-
-
-	DSYMBOL[] GetMembers(string Candidate)
+	DSYMBOL[] GetMembers(string[] Candidate)
 	{
-		string[] ScopedCandidate = GetScopedCandidate(Candidate);
-		ulong	ScopeElements = ScopedCandidate.length;
-
-		DSYMBOL[] rvSymbols;
-		if(ScopeElements < 1) return rvSymbols;
-
-
-		void CheckSymbol(DSYMBOL chksym)
+		DSYMBOL[] rval;
+		void CheckSymbol(DSYMBOL xsym)
 		{
-
-			foreach(kid; chksym.Children) CheckSymbol(kid);
-
-			if((chksym.Scope[$-1] == ScopedCandidate[$-1]) ||(chksym.Scope.endsWith(ScopedCandidate)))
+			//making classname = to module name should be an error!
+			foreach(kid; xsym.Children) CheckSymbol(kid);
+			if(xsym.Scope.endsWith(Candidate))
 			{
-				if(chksym.Base.length > 0)
-				{
-					rvSymbols ~= GetMembers(chksym.Base);
-				}
-				if(chksym.Kind == SymKind.FUNCTION) rvSymbols ~= GetMembers(chksym.Type);
-				if(chksym.Kind == SymKind.VARIABLE) rvSymbols ~= GetMembers(chksym.Type);
-				rvSymbols ~= chksym.Children;
+				rval ~= xsym.Children;
+				if(xsym.Base.length > 0)rval ~= GetMembers(ScopeSymbol(xsym.Base));
+				rval ~= GetMembers(ScopeSymbol(xsym.Type));
+				return;
 			}
+			if(Candidate[$-1] == xsym.Scope[$-1])
+			{
+				writeln(xsym.Type);
+				rval ~= xsym.Children;
+				if(xsym.Base.length > 0)rval ~= GetMembers(ScopeSymbol(xsym.Base));
+				rval ~= GetMembers(ScopeSymbol(xsym.Type));
+				return;
+			}
+
 
 		}
 
-		foreach(symbol; mSymbols) CheckSymbol(symbol);
-
-		return rvSymbols;
+		foreach(sym; mSymbols)
+		{
+			CheckSymbol(sym);
+		}
+		return rval;
 	}
+
+
 	/**
 	 * returns all functions (and hopefully aliased functions) that match candidate
 	 * */
-	DSYMBOL[] GetCallTips(string Candidate)
+	DSYMBOL[] GetCallTips(string[] Candidate)
 	{
-		auto CandiPath = GetScopedCandidate(Candidate);
-		string[] ParentPath;
-		if(CandiPath.length > 1) ParentPath = CandiPath[0..$-1];
+		string[] CandiPath;
+		string CandiName;
 
+		if(Candidate.length > 1) CandiPath = Candidate[0..$-1];
+		CandiName = Candidate[$-1];
 
-		DSYMBOL[] rvTips;
+		DSYMBOL[] rval;
+		DSYMBOL[] pool;
 
-
-		void CheckSymbol(DSYMBOL Sym)
+		void CheckSymbol(DSYMBOL xsym)
 		{
-			foreach(kid; Sym.Children) CheckSymbol(kid);
+			foreach(kid; xsym.Children) CheckSymbol(kid);
 
-
-			if(Sym.Scope.endsWith(CandiPath) )
+			if(xsym.Name == CandiName)
 			{
-				if(Sym.Kind == SymKind.FUNCTION)
+				if(xsym.Kind == SymKind.FUNCTION) rval ~= xsym;
+				if(xsym.Kind == SymKind.CLASS || xsym.Kind == SymKind.STRUCT)
 				{
-					rvTips ~= Sym;
-					return;
-				}
-				if( Sym.Kind == SymKind.CLASS || Sym.Kind == SymKind.STRUCT)
-				{
-					foreach(kid; Sym.Children)
-					{
-						if (kid.Kind == SymKind.CONSTRUCTOR)
-						{
-							rvTips ~= kid;
-							return;
-						}
-					}
+					foreach(kid; xsym.Children) if(kid.Kind == SymKind.CONSTRUCTOR) rval ~= kid;
 				}
 			}
 
-			if(ParentPath.length > 0 && Sym.Scope.endsWith(ParentPath))
-			{
-				if(Sym.Base.length > 0)
-				{
-					rvTips ~= GetCallTips(Sym.Base ~"."~CandiPath[$-1]);
-					return;
-				}
-				if(Sym.Kind == SymKind.VARIABLE)
-				{
-					rvTips ~= GetCallTips(Sym.Type ~ "." ~ CandiPath[$-1]);
-					return;
-				}
-			}
 		}
 
-		foreach(sym; mSymbols) CheckSymbol(sym);
 
-		return rvTips;
+		if(CandiPath.length >0)pool = GetMembers(CandiPath);
+		if(pool.length < 1) pool = mSymbols.values;
+
+		foreach(sym; pool) CheckSymbol(sym);
+
+		return rval;
 	}
 
 	/**
@@ -672,7 +621,7 @@ class SYMBOLS
 	DSYMBOL[] GetMatches(string Candidate)
 	{
 
-		auto CandiScope = GetScopedCandidate(Candidate);
+		auto CandiScope = ScopeSymbol(Candidate);
 
 		DSYMBOL[] rvMatches;
 
@@ -989,3 +938,4 @@ void SpawnRead(Tid tid)
 
 	send(tid, rval[tid]);
 }
+

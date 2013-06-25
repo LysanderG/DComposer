@@ -83,13 +83,13 @@ class SYMBOL_COMPLETION : ELEMENT
         if(text.length > 1) return;
 
         TextIter WordStart = new TextIter;
-        string Candidate = doc.Symbol(ti.copy(), WordStart);
+        auto Candidate = doc.ScopedSymbol(ti.copy(), WordStart);
 
         DSYMBOL[] Possibles;
 
-        if(Candidate.length < mMinCompletionLength)
+        if(Candidate.length < 2 && Candidate[$-1].length < mMinCompletionLength)
         {
-            Possibles.length = 0;
+            return;
         }
         else
         {

@@ -131,8 +131,8 @@ class CALL_TIPS : ELEMENT
 				TextIter TStart = new TextIter;
 				TextIter Tx = ti.copy();
 				Tx.backwardChar();//to go back before the '('
-				string Candidate = sv.Symbol(Tx, TStart);
-				if(Candidate.length < 1) break;
+				auto Candidate = sv.ScopedSymbol(Tx, TStart);
+				if(Candidate[$-1].length < 1) break;
 				auto Possibles = Symbols.GetCallTips(Candidate);
 				if(Possibles.length < 1) break;
                 int xpos, ypos, xlen, ylen;

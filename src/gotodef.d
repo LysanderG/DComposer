@@ -41,7 +41,7 @@ class GOTODEF : ELEMENT
 
 	void Go(Action Act)
 	{
-		string CurrentWord = dui.GetDocMan.Current.WordAtPopUpMenu;
+		string CurrentWord = dui.GetDocMan.Current.Symbol(true);
 		auto Results = Symbols.GetMatches(CurrentWord);
 
 		if(Results.length < 1)

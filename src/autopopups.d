@@ -303,9 +303,31 @@ class AUTO_POP_UPS
 
         if(mCompletionStatus == STATUS_COMPLETION)
         {
-			auto OriginalText = DocX.Symbol(tiStart, false);
-			auto lastdot = OriginalText.lastIndexOf('.');
-			if(lastdot > -1)tiStart.forwardChars(cast(int)lastdot+1);
+			tiStart = ti.copy();
+
+			bool continueBacking;
+			do
+			{
+				tiStart.backwardChar();
+				write(tiStart.getChar());
+				switch(tiStart.getChar())
+				{
+					case 'A': .. case 'Z':
+					case 'a': .. case 'z':
+					case '0': .. case '9':
+					case '_':
+					{
+						continueBacking = true;
+						break;
+					}
+					default :
+					{
+						tiStart.forwardChar();
+						continueBacking = false;
+					}
+				}
+
+			}while (continueBacking);
 			DocX.getBuffer.delet(tiStart, ti);
 		}
 

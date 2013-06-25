@@ -593,22 +593,7 @@ class DOCUMENT : SourceView
 
 		string pretext = getBuffer.getText(BeginsAtIter, AtIter, 0);
 
-		//pretext = pretext.chomp(".");
-
-		long index;
-		foreach(unit; pretext.splitter('.'))
-		{
-			index = unit.countUntil('!');
-			if(index >= 0)unit = unit[0..index];
-			index = unit.countUntil('(');
-			if(index >= 0) unit = unit[0..index];
-			index = unit.countUntil('[');
-			if(index >=0)unit = unit[0..index];
-			rval ~= unit;
-		}
-
-		writeln(pretext, " --> ",rval);
-		return rval;
+		return ScopeSymbol(pretext);
 	}
 
 
