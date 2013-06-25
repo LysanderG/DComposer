@@ -106,3 +106,30 @@ LOG 		Log()    {return mLog;}					///ditto
 PROJECT 	Project(){return mProject;}				///ditto
 SYMBOLS		Symbols(){return mSymbols;}				///ditto
 
+
+//utility function to take
+//a symbol name such as "document.DOCUMENT.Configure"
+//and return an array ["document", "DOCUMENT", "Configure"]
+//useful for symbol look up and matching.
+string[] ScopeSymbol(string preText)
+{
+	import std.string;
+	import std.algorithm;
+	string[] rval;
+
+	preText = preText.chomp(".");
+
+	long index;
+	foreach(unit; preText.splitter('.'))
+	{
+		index = unit.countUntil('!');
+		if(index >= 0)unit = unit[0..index];
+		index = unit.countUntil('(');
+		if(index >= 0) unit = unit[0..index];
+		index = unit.countUntil('[');
+		if(index >=0)unit = unit[0..index];
+		rval ~= unit;
+	}
+	writeln(preText, " --> ",rval);
+	return rval;
+}
