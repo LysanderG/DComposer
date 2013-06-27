@@ -129,7 +129,7 @@ struct LISTS
 
     ref LIST GetData(string Key)
     {
-        //static string[] almostnull = [""];
+        //static string[] almostnull = [""]; //lmao, what was I thinking?
         //if(Key !in mLists) return  almostnull; //used to return null but gui widget complained invalid text
         static LIST nothing = null; //what the hell is this?? why a reference return?
         if(Key !in mLists) return  nothing;

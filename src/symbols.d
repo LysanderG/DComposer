@@ -12,6 +12,7 @@ import std.conv;
 import std.format;
 import std.range;
 import std.uni;
+import std.parallelism;
 import std.concurrency;
 
 import core.demangle;
@@ -106,14 +107,14 @@ class SYMBOLS
 	{
 		mLastLoadTime  = Clock.currTime();
 		auto PackageKeys = Config.getKeys("SYMBOL_LIBS");
-		shared string jsontext;
+		string jsontext;
 
 		foreach(jfile; PackageKeys)
 		{
-			jsontext = readText(Config.getString("SYMBOL_LIBS",jfile, ""));
-			//jsontext = cast(string)read(Config.getString("SYMBOL_LIBS", jfile, ""));
+			jsontext = readText(Config.getString("SYMBOL_LIBS", jfile, ""));
 			auto NewSymbols = LoadPackage(jfile, jsontext);
 			if(NewSymbols !is null) mSymbols[jfile] = NewSymbols;
+			writeln(jfile);
 		}
 
 	}

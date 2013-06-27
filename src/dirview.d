@@ -99,64 +99,6 @@ class DIR_VIEW : ELEMENT
     bool				mEnabled;
 
 
-    void RefreshOLD()
-    {
-		scope(exit) GC.enable();
-        scope(failure)
-        {
-            mComboFilter.setActiveText("");
-            mStore.clear();
-            return;
-        }
-
-        TreeIter ti = new TreeIter;
-        mDirLabel.setText(mFolder);
-        mStore.clear();
-
-        ListStore xStore = new ListStore([GType.STRING, GType.STRING, GType.STRING]);
-
-        string theFileFilter;
-
-        theFileFilter = mComboFilter.getActiveText();
-        if(theFileFilter.length < 1) theFileFilter = "*";
-
-		scope(failure)
-		{
-			xStore.append(ti);
-			xStore.setValue(ti, 1, "Check Folder/File permissions");
-			return;
-		}
-
-        auto Contents = dirEntries(mFolder, SpanMode.shallow);
-
-
-        foreach(DirEntry item; Contents)
-        {
-            if((!mHiddenBtn.getActive) && (baseName(item.name)[0] == '.')) continue;
-
-            if(item.isDir)
-            {
-                xStore.append(ti);
-                xStore.setValue(ti, 0, " " );
-                xStore.setValue(ti, 1, baseName(item.name));
-                xStore.setValue(ti, 2, to!string(item.size));
-            }
-
-            else if (globMatch(baseName(item.name), theFileFilter))
-            {
-                xStore.append(ti);
-                xStore.setValue(ti, 0, " ");
-                xStore.setValue(ti, 1, baseName(item.name));
-                xStore.setValue(ti, 2, to!string(item.size));
-            }
-        }
-
-        mStore = xStore;
-        mFolderView.setModel(xStore);
-        mStore.setSortColumnId(1,SortType.ASCENDING);
-        mStore.setSortFunc(0, &SortFunciton, null, null); //ha darn paste and copy funciton ... and it all works
-        mStore.setSortFunc(1, &SortFunciton, null, null);
-    }
 
 	void Refresh()
 	{
@@ -211,8 +153,8 @@ class DIR_VIEW : ELEMENT
         }
         //GC.enable();
 		mStore.setSortColumnId(1,SortType.ASCENDING);
-        mStore.setSortFunc(0, &SortFunciton, null, null); //ha darn paste and copy funciton ... and it all works
-        mStore.setSortFunc(1, &SortFunciton, null, null);
+        mStore.setSortFunc(0, &SortFunciton, cast(void *)mFolderView.getTreeViewStruct(), null); //ha darn paste and copy funciton ... and it all works
+        mStore.setSortFunc(1, &SortFunciton, cast(void *)mFolderView.getTreeViewStruct(), null);
 
 	}
 
@@ -365,8 +307,9 @@ class DIR_VIEW : ELEMENT
         mStore2         = cast(ListStore)   mBuilder.getObject("liststore2");
 
 		mStore.setSortColumnId(1,SortType.ASCENDING);
-        mStore.setSortFunc(0, &SortFunciton, null, null); //ha darn paste and copy funciton ... and it all works
-        mStore.setSortFunc(1, &SortFunciton, null, null);
+        mStore.setSortFunc(0, &SortFunciton, cast(void *)mFolderView.getTreeViewStruct(), null); //ha darn paste and copy funciton ... and it all works
+        //mStore.setSortFunc(1, &SortFunciton, null, null);
+		mStore.setSortFunc(1, &SortFunciton, cast(void *)mFolderView.getTreeViewStruct(), null);
 
         mUpBtn.addOnClicked(&UpClicked);
         mRefreshBtn.addOnClicked(delegate void (ToolButton x){Refresh();});
@@ -526,16 +469,28 @@ extern (C) int SortFunciton(GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter *b,
     ListStore ls = new ListStore(cast (GtkListStore *) model);
     TreeIter tiA  = new TreeIter(a);
     TreeIter tiB  = new TreeIter(b);
-    if(ls.getValueString(tiA,0) < ls.getValueString(tiB,0)) return -1;
-    if(ls.getValueString(tiA,0) > ls.getValueString(tiB,0)) return 1;
 
+    auto tv = new TreeView(cast (GtkTreeView *)user_data);
+    auto tvc = tv.getColumn(1);
+    auto updown = tvc.getSortOrder();
 
-    string Aname = ls.getValueString(tiA,1);
-    Aname = chompPrefix(Aname, ".").toUpper();
-    string Bname = ls.getValueString(tiB,1);
-    Bname = chompPrefix(Bname, ".").toUpper();
-    if(Aname < Bname) return -1;
-    if(Aname > Bname) return 1;
+	string alpha;
+	string beta;
 
+    if(updown == SortType.ASCENDING)
+    {
+		alpha = (ls.getValueString(tiA,0) == "DIRVIEW_FOLDER") ? "a" : "z";
+		beta =  (ls.getValueString(tiB,0)== "DIRVIEW_FOLDER") ? "a" : "z";
+	}
+	else
+	{
+		alpha = (ls.getValueString(tiA,0) == "DIRVIEW_FOLDER") ? "z" : "a";
+		beta =  (ls.getValueString(tiB,0)== "DIRVIEW_FOLDER") ? "z" : "a";
+	}
+
+    alpha ~= ls.getValueString(tiA,1);
+    beta ~= ls.getValueString(tiB,1);
+    if(alpha < beta) return -1;
+    if(alpha > beta) return 1;
     return 0;
 }
