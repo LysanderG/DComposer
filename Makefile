@@ -8,8 +8,8 @@ LIB_PATHS = -L-L/usr/lib
 LIBRARIES = -L-lgtkdsv-1 -L-lgtkd-1 -L-lvte -L-lutil -L-lgdk-x11-2.0
 
 DFLAGS = -D -Dd./docs -of$(TARGET) -odobjdir -J./
-RELEASEFLAGS = -O -inline -release -profile
-DEBUGFLAGS = -gc -debug
+RELEASEFLAGS = -O -inline -release -noboundscheck
+DEBUGFLAGS = -gc -debug -noboundscheck
 
 ifeq (Linux, $(shell uname))
 	LIBRARIES += -L-ldl
