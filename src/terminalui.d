@@ -239,7 +239,7 @@ class TERMINAL_PAGE : PREFERENCE_PAGE
 
 	this()
 	{
-		super("Elements", Config.getString("PREFERENCES", "glade_file_terminal", "$(HOME_DIR)/glade/terminalpref.glade"));
+		super("Terminal", Config.getString("PREFERENCES", "glade_file_terminal", "$(HOME_DIR)/glade/terminalpref.glade"));
 
 		mFontButton = cast(FontButton)  mBuilder.getObject("fontbutton1");
 		mForeColor  = cast(ColorButton) mBuilder.getObject("colorbutton1");

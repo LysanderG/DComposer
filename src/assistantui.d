@@ -375,7 +375,7 @@ class ASSISTANT_UI : ELEMENT
         mInfo = "Show Symbol information";
         mState = false;
 
-        mPreferenceObject = new ASSISTANT_PAGE("Elements", "Assistant");
+        mPreferenceObject = new ASSISTANT_PAGE("Assistant", "Assistant");
 
     }
 

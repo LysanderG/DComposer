@@ -393,7 +393,7 @@ class DIR_VIEW_PREF :PREFERENCE_PAGE
 
 	this()
 	{
-		super("Elements", Config.getString("PREFERENCES", "glade_file_dir_view", "$(HOME_DIR)/glade/dirviewpref.glade"));
+		super("Folder View", Config.getString("PREFERENCES", "glade_file_dir_view", "$(HOME_DIR)/glade/dirviewpref.glade"));
 
 		mEnabled = cast (CheckButton) mBuilder.getObject("checkbutton1");
 
