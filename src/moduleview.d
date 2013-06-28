@@ -24,104 +24,213 @@ module moduleview;
 import elements;
 import dcore;
 import ui;
+import symbols;
+
+import std.stdio;
+import std.path;
+import core.memory;
 
 import gtk.Builder;
-import gtk.VBox;
 import gtk.TreeView;
+import gtk.TreeStore;
+import gtk.TreeIter;
+import gtk.TreePath;
+import gtk.ScrolledWindow;
+import gtk.TreeViewColumn;
 import gtk.Label;
 import gtk.Notebook;
-import gtk.Widget;
-import gtk.Container;
 
+import glib.SimpleXML;
 
-class MODULE_VIEW :ELEMENT
+class MODULE_VIEW : ELEMENT
 {
-	private:
+    private :
 
-	string 		mName;
-	string		mInfo;
-	bool		mState;
+    bool                mState;
 
-	Builder		mBuilder;
-	VBox		mRootWidget;
-	TreeView	mObjectsView;
-	TreeView	mMembersView;
-	Label		mModuleLabel;
+    Builder             mSymBuilder;
+    ScrolledWindow      mRoot;
+    TreeView            mSymbolTree;
+    TreeStore        	mSymbolStore;
+    int					mBufferStore;
 
-	void UpdateModule()
-	{
-		auto doc = dui.GetDocMan.Current;
-		if(doc is null) mModuleLabel.setText("No module");
-		else mModuleLabel.setText(doc.ShortName);
-	}
+    GtkTreeStore *		mTreeStoreCache;
 
-	void SetPagePosition(UI_EVENT uie)
+
+
+    void FillTreeStore(void * newPage)
+    {
+		writeln("hi fill");
+        TreeIter tiRoots = new TreeIter;
+        TreeIter ti;
+
+        void FillSym(DSYMBOL symx, TreeIter tiParent)
+        {
+
+            auto tix = mSymbolStore.append(tiParent);
+            mSymbolStore.setValue(tix, 0, symx.Icon);
+            mSymbolStore.setValue(tix, 1, symx.Name);
+            mSymbolStore.setValue(tix, 2, SimpleXML.escapeText(symx.Path, -1));
+            mSymbolStore.setValue(tix, 3, symx.Path);
+            foreach (kidx; symx.Children) FillSym(kidx, tix);
+        }
+        DSYMBOL[] ModuleSyms;
+        foreach(doc; dui.GetDocMan.Documents)
+        {
+			if(newPage == doc.PageWidget.getWidgetStruct())
+			{
+				ModuleSyms = Symbols.GetMatches(doc.ShortName.stripExtension());
+				break;
+			}
+		}
+		if(ModuleSyms.length < 1)
+		{
+			if(dui.GetDocMan.Current)ModuleSyms = Symbols.GetMatches(dui.GetDocMan.Current.ShortName.stripExtension());
+		}
+		writeln(ModuleSyms.length);
+        foreach(sym; ModuleSyms)
+        {
+			if(sym.Kind != SymKind.MODULE)continue;
+            ti = mSymbolStore.append(null);
+            mSymbolStore.setValue(ti, 0, sym.Icon);
+            mSymbolStore.setValue(ti, 1, sym.Name);
+            if(sym.Path.length == 0) sym.Path = sym.Name;
+            mSymbolStore.setValue(ti, 2, SimpleXML.escapeText(sym.Path,-1));
+            mSymbolStore.setValue(ti, 3, sym.Path);
+            foreach (kid; sym.Children) FillSym(kid, ti);
+        }
+    }
+
+
+    void Refresh(void * newPage)
+    {
+		writeln("hi refresh");
+
+        mSymbolStore.clear;
+        FillTreeStore(newPage);
+        mSymbolTree.expandRow(new TreePath(true), 0);
+
+    }
+    void Refresh()
+    {
+		writeln("hi refresh");
+
+        mSymbolStore.clear;
+        FillTreeStore(null);
+        mSymbolTree.expandRow(new TreePath(true), 0);
+    }
+
+
+    void JumpTo()
+    {
+        TreeIter ti = mSymbolTree.getSelectedIter();
+
+        string FileToOpen;
+        int AtLineNo;
+
+        auto sym = Symbols.GetMatches(ti.getValueString(3));
+        if(sym.length < 1) return;
+
+        FileToOpen = sym[0].File;
+        AtLineNo = sym[0].Line;
+
+
+        if(FileToOpen.length < 1)return;
+        dui.GetDocMan.Open(FileToOpen, AtLineNo-1);
+    }
+
+
+    void ForwardSymbol(TreeView tv)
+    {
+		writeln("hi forward");
+        TreeIter ti = mSymbolTree.getSelectedIter();
+
+        if(ti is null) return;
+
+        auto sym = Symbols.GetMatches(ti.getValueString(3));
+
+        Symbols.ForwardSignal(sym);
+    }
+
+    void SetPagePosition(UI_EVENT uie)
 	{
 		switch (uie)
 		{
 			case UI_EVENT.RESTORE_GUI :
 			{
-				dui.GetSidePane.reorderChild(mRootWidget, Config.getInteger("MODULE_VIEW", "page_position"));
+				dui.GetSidePane.reorderChild(mRoot, Config.getInteger("MODULE_VIEW", "page_position"));
 				break;
 			}
 			case UI_EVENT.STORE_GUI :
 			{
-				Config.setInteger("MODULE_VIEW", "page_position", dui.GetSidePane.pageNum(mRootWidget));
+				Config.setInteger("MODULE_VIEW", "page_position", dui.GetSidePane.pageNum(mRoot));
 				break;
 			}
 			default :break;
 		}
 	}
 
-	public:
 
-	this()
+    public:
+
+    @property string    Name(){return "MODULE_VIEW";}
+    @property string    Information(){return "List of symbols in current module";}
+    @property bool      State(){return mState;}
+    @property void      State(bool nustate) {mState = nustate;}
+
+    this()
     {
-        mName = "MODULE_VIEW";
-        mInfo = "Browse current modules symbols";
+
+        mSymBuilder =   new Builder ;
+
+        mSymBuilder.addFromFile(Config.getString("MODULE_VIEW", "glade_file", "$(HOME_DIR)/glade/dsymview.glade"));
+        mRoot           = cast (ScrolledWindow) mSymBuilder.getObject("scrolledwindow1");
+        mSymbolTree     = cast (TreeView) mSymBuilder.getObject("treeview1");
+
+		mSymbolStore = new TreeStore([GType.STRING, GType.STRING, GType.STRING, GType.STRING]);
+
+
+		mTreeStoreCache = mSymbolStore.getTreeStoreStruct();
+
+		mSymbolTree.setModel(mSymbolStore);
+
+
+        Symbols.connect(&Refresh);
+
+        mSymbolTree.addOnRowActivated(delegate void (TreePath tp, TreeViewColumn tvc, TreeView tv){JumpTo();});
+		writeln("hi this");
+    }
+
+    void Engage()
+    {
+        mState = true;
+
+		dui.GetCenterPane.addOnSwitchPage (delegate void(void* x, guint i, Notebook t){Refresh(x);});
+		//dui.GetCenterPane.addOnChangeCurrentPage(delegate bool(gint e, Notebook nb){Refresh();return false;});
+        mSymbolTree.addOnCursorChanged(&ForwardSymbol);
+
+        mRoot.showAll();
+        dui.GetSidePane.appendPage(mRoot, "ModuleView");
+        dui.connect(&SetPagePosition);
+
+        dui.GetSidePane.setTabReorderable ( mRoot, true);
+        Refresh();
+
+        Log.Entry("Engaged "~Name()~"\t\telement.");
+
+        writeln("hi engage");
+    }
+
+    void Disengage()
+    {
         mState = false;
-
-        PREFERENCE_PAGE mPrefPage = null;
+        mRoot.hide();
+        Log.Entry("Disengaged "~Name()~"\t\telement.");
     }
 
-    @property string Name() {return mName;}
-    @property string Information(){return mInfo;}
-    @property bool   State() {return mState;}
-    @property void   State(bool nuState)
-    {
-        if(mState == nuState) return;
-        mState = nuState;
-        if(mState) Engage();
-        else Disengage();
 
-    }
     PREFERENCE_PAGE GetPreferenceObject()
-	{
-		return null;
-	}
-
-	void Engage()
-	{
-		mBuilder = new Builder;
-
-		mBuilder.addFromFile(Config.getString("MODULE_VIEW", "glade_file", "$(HOME_DIR)/glade/moduleview.glade"));
-
-		mRootWidget = cast(VBox)mBuilder.getObject("rootwidget");
-		mModuleLabel = cast(Label)mBuilder.getObject("label1");
-
-		dui.GetSidePane.appendPage(mRootWidget, "Module");
-		dui.connect(&SetPagePosition);
-		dui.GetSidePane.setTabReorderable ( mRootWidget, true);
-
-		dui.GetCenterPane(). addOnSetFocusChild (delegate void(Widget w, Container c){UpdateModule();});
-
-		Log.Entry("Engaged "~Name()~"\t\t\telement.");
-	}
-
-	void Disengage()
-	{
-		Log.Entry("Disengaged "~Name()~"\t\telement.");
-	}
-
+    {
+        return null;
+    }
 }
-
