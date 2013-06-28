@@ -680,6 +680,8 @@ string GetIcon(DSYMBOL X)
 		case SymKind.ENUM_MEMBER    :rv = color ~ `⒠</span>`;break;
 		case SymKind.UNION          :rv = color ~ `Ⓤ</span>`;break;
 		case SymKind.IMPORT			:rv = color ~ `I</span>`;break;
+		case SymKind.MIXIN			:rv = color ~ `m</span>`;break;
+
 
 		default : rv = color ~ `P</span>`;
 	}
