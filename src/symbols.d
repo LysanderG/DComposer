@@ -114,7 +114,6 @@ class SYMBOLS
 			jsontext = readText(Config.getString("SYMBOL_LIBS", jfile, ""));
 			auto NewSymbols = LoadPackage(jfile, jsontext);
 			if(NewSymbols !is null) mSymbols[jfile] = NewSymbols;
-			writeln(jfile);
 		}
 
 	}
@@ -559,7 +558,6 @@ class SYMBOLS
 			}
 			if(Candidate[$-1] == xsym.Scope[$-1])
 			{
-				writeln(xsym.Type);
 				rval ~= xsym.Children;
 				if(xsym.Base.length > 0)rval ~= GetMembers(ScopeSymbol(xsym.Base));
 				rval ~= GetMembers(ScopeSymbol(xsym.Type));
@@ -767,14 +765,14 @@ string ReadQualifiedName(string Name)
 		}
 		//convert it to a number
 		auto place = NumberString.length - 1;
-		auto ictr = 0;
 		long value = 0;
-		do
+		foreach(ch; NumberString)
 		{
-			value += (cast(ubyte)(NumberString[ictr]) - 48) * cast(long)(10.0 ^^ place);
-			ictr++;
+			value += cast(long)(ch-48) * cast(long)(10^^place);
 			place--;
-		}while(ictr < NumberString.length);
+		}
+
+
 
 		//add name part to output
 		if(rval.length > 0) rval ~= ".";
