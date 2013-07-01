@@ -74,9 +74,10 @@ class SYMBOL_COMPLETION : ELEMENT
         if(doc.Pasting) return;
         if (text == ".") return;
 
+		dui.GetAutoPopUps.CompletionPop();
 		if((text == "(") || (text == ")"))
         {
-            dui.GetAutoPopUps.CompletionPop();
+            //dui.GetAutoPopUps.CompletionPop();
             return;
         }
 
