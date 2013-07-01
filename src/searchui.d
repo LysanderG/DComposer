@@ -115,6 +115,10 @@ class SEARCH_UI : ELEMENT
     ListStore       mReplaceList;
     ListStore       mResultsList;
 
+    GtkListStore*   mgtkFindListHolder;
+    GtkListStore*   mgtkReplaceListHolder;
+    GtkListStore*   mResultsListHolder;
+
     TreeIter        TI; //see if makings this a class member stops d's gc from screwing up my treeview/treemodel stuff
 
 
@@ -293,6 +297,8 @@ class SEARCH_UI : ELEMENT
         string tagend   = "</span>";
 
 
+
+		mResultsView.getSelection.unselectAll();
         mResultsList.clear();
         TI = new TreeIter;
 
@@ -327,8 +333,6 @@ class SEARCH_UI : ELEMENT
     {
         //this function is causing a disparity between resultlist and resultview
         //??? how???
-
-
         TI = mResultsView.getSelection.getSelected();
 
         if(!mResultsList.iterIsValid(TI))
@@ -364,7 +368,7 @@ class SEARCH_UI : ELEMENT
         GC.disable();
         TreeModelIF tmper;
 
-        ts.getSelected(tmper, TI);
+        if(ts.getSelected(tmper, TI) == 0)return;
 
         if(TI is null) return;
         string FileName = mResultsList.getValueString(TI, 3);
@@ -397,7 +401,8 @@ class SEARCH_UI : ELEMENT
 
     void ReplaceOne()
     {
-        TI = mResultsView.getSelection.getSelected();
+		TreeModelIF tmpmodel = new ListStore(mResultsListHolder);
+        mResultsView.getSelection.getSelected(tmpmodel, TI);
 
         if (TI is null) return;
 
@@ -424,17 +429,17 @@ class SEARCH_UI : ELEMENT
         auto LastPositionPath = mResultsList.getPath(TI);
         ulong tmpline =  dui.GetDocMan.GetLineNo();
         GetResults();
+        LastPositionPath.prev();
         mResultsView.getSelection.selectPath(LastPositionPath);
         mResultsView.setCursor(LastPositionPath, null, false);
-        //dui.GetDocMan.GotoLine(tmpline);
-
     }
 
     void ReplaceAll()
     {
-
+		mResultsView.setModel(mResultsList);
 		mResultsView.getSelection.selectPath(new TreePath("0"));
-		TI = mResultsView.getSelection.getSelected();
+		TreeModelIF tmp = new ListStore(mResultsListHolder);
+		mResultsView.getSelection.getSelected(tmp, TI);
 		string ReplaceText = mReplace.getText();
 		if(ReplaceText is null) ReplaceText = "";
 
@@ -469,45 +474,10 @@ class SEARCH_UI : ELEMENT
 			if(ReplaceText.length > 0) doc.getBuffer.insert(txti1, ReplaceText, -1);
 			doc.getBuffer.endUserAction();
 		}
+		mResultsView.getSelection.unselectAll();
 		mResultsList.clear();
 	}
 
-    void ReplaceAllOld()
-    {
-        mResultsView.getSelection.selectPath(new TreePath("0"));
-		TI = mResultsView.getSelection.getSelected();
-		string ReplaceText = mReplace.getText();
-		if(ReplaceText is null) ReplaceText = "";
-
-        do
-        {
-
-	        if (TI is null) break;
-	        if(!mResultsList.iterIsValid(TI)) break;
-
-	        string filename = mResultsList.getValueString(TI, 3);
-	        int line        = mResultsList.getValueInt(TI,1);
-	        int offstart    = mResultsList.getValueInt(TI, 4);
-	        int offend      = mResultsList.getValueInt(TI, 5);
-	        DOCUMENT tmp 	= dui.GetDocMan.Current;
-	        if (tmp is null) break;
-
-	        TextIter txti1 = new TextIter;
-	        TextIter txti2 = new TextIter;
-	        tmp.getBuffer.getIterAtLineIndex (txti1, line-1, offstart);
-	        if(offend > txti1.getBytesInLine()) offend = txti1.getCharsInLine();
-
-	        tmp.getBuffer.getIterAtLineIndex (txti2, line-1, offend);
-
-	        tmp.getBuffer.delet(txti1, txti2);
-
-	        if (ReplaceText.length > 0)tmp.getBuffer.insert(txti1, ReplaceText, -1);
-
-
-        }while(mResultsList.iterNext(TI));
-
-        mResultsList.clear();
-    }
 
     bool ReplaceKey(GdkEventKey* keyinfo, Widget wedjet)
     {
@@ -584,15 +554,15 @@ class SEARCH_UI : ELEMENT
         mScopeProjectSrc	.addOnToggled (delegate void(ToggleButton){mLastSearchString = "";});
         mScopeProjectAll	.addOnToggled (delegate void(ToggleButton){mLastSearchString = "";});
 
+		mResultsView.getSelection.unselectAll();
         mResultsList.clear();
+
+        mResultsListHolder = mResultsList.getListStoreStruct();
 
 
         mFindList           = new                   ListStore([GType.STRING]);
         mReplaceList        = new                   ListStore([GType.STRING]);
 
-        //TI= new TreeIter;
-        //mFindList.append(TI);
-        //mFindList.setValue(TI, 0, "something!");
 
 
         mFindComboBox.setModel(mFindList);
@@ -615,11 +585,11 @@ class SEARCH_UI : ELEMENT
 
 
 
-        mResultsView.getSelection.setMode(GtkSelectionMode.BROWSE);
+        mResultsView.getSelection.setMode(GtkSelectionMode.SINGLE);
         //mResultsView.addOnCursorChanged (delegate void(TreeView tv){GotoResult();});
         //mResultsView.addOnRowActivated (delegate void(TreePath tp, TreeViewColumn tvc, TreeView tv){GotoResult();});
         mResultsView.getSelection.addOnChanged(&GotoResult2);
-        mResultsView.addOnMoveCursor(delegate bool(GtkMovementStep step, int huh, TreeView tv){return true;}, cast(GConnectFlags)0);
+        //mResultsView.addOnMoveCursor(delegate bool(GtkMovementStep step, int huh, TreeView tv){return true;}, cast(GConnectFlags)0);
         mResultsView.addOnKeyRelease(&ReplaceKey);
 
         auto tmpTable       = cast (Table)          mBuilder.getObject("table1");
