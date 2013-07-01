@@ -308,8 +308,7 @@ class AUTO_POP_UPS
 			bool continueBacking;
 			do
 			{
-				tiStart.backwardChar();
-				write(tiStart.getChar());
+				if(tiStart.backwardChar() == 0) break;
 				switch(tiStart.getChar())
 				{
 					case 'A': .. case 'Z':

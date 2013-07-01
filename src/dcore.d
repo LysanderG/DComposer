@@ -130,6 +130,5 @@ string[] ScopeSymbol(string preText)
 		if(index >=0)unit = unit[0..index];
 		rval ~= unit;
 	}
-	writeln(preText, " --> ",rval);
 	return rval;
 }
