@@ -20,7 +20,6 @@
 
 module moduleview;
 
-
 import elements;
 import dcore;
 import ui;
@@ -57,12 +56,9 @@ class MODULE_VIEW : ELEMENT
     GtkTreeStore *		mTreeStoreCache;
 
 
-
     void FillTreeStore(void * newPage)
     {
-		writeln("hi fill");
-        TreeIter tiRoots = new TreeIter;
-        TreeIter ti;
+        TreeIter tiRoots;// = new TreeIter;
 
         void FillSym(DSYMBOL symx, TreeIter tiParent)
         {
@@ -72,52 +68,60 @@ class MODULE_VIEW : ELEMENT
             mSymbolStore.setValue(tix, 1, symx.Name);
             mSymbolStore.setValue(tix, 2, SimpleXML.escapeText(symx.Path, -1));
             mSymbolStore.setValue(tix, 3, symx.Path);
+            if(symx.Base.length > 0)
+            {
+				auto BaseSymbols = Symbols.GetMatches(symx.Base);
+				foreach(base; BaseSymbols)
+				{
+					if(base.Kind == SymKind.CLASS) FillSym(base, tix);
+				}
+			}
             foreach (kidx; symx.Children) FillSym(kidx, tix);
         }
         DSYMBOL[] ModuleSyms;
-        foreach(doc; dui.GetDocMan.Documents)
-        {
-			if(newPage == doc.PageWidget.getWidgetStruct())
+		if(newPage is null)
+		{
+			if(dui.GetDocMan.Current)
 			{
-				ModuleSyms = Symbols.GetMatches(doc.ShortName.stripExtension());
-				break;
+				mSymbolTree.getColumn(1).setTitle("Module symbols: " ~ dui.GetDocMan.Current.ShortName());
+				ModuleSyms = Symbols.GetMatches(dui.GetDocMan.Current.ShortName.stripExtension());
+			}
+		}
+		else
+		{
+			foreach(doc; dui.GetDocMan.Documents)
+			{
+				if(newPage == doc.PageWidget.getWidgetStruct())
+				{
+					mSymbolTree.getColumn(1).setTitle("Module symbols: " ~ doc.ShortName());
+					ModuleSyms = Symbols.GetMatches(doc.ShortName.stripExtension());
+					break;
+				}
 			}
 		}
 		if(ModuleSyms.length < 1)
 		{
-			if(dui.GetDocMan.Current)ModuleSyms = Symbols.GetMatches(dui.GetDocMan.Current.ShortName.stripExtension());
+			mSymbolTree.getColumn(1).setTitle("No Symbols");
+			return;
 		}
-		writeln(ModuleSyms.length);
         foreach(sym; ModuleSyms)
         {
 			if(sym.Kind != SymKind.MODULE)continue;
-            ti = mSymbolStore.append(null);
-            mSymbolStore.setValue(ti, 0, sym.Icon);
-            mSymbolStore.setValue(ti, 1, sym.Name);
-            if(sym.Path.length == 0) sym.Path = sym.Name;
-            mSymbolStore.setValue(ti, 2, SimpleXML.escapeText(sym.Path,-1));
-            mSymbolStore.setValue(ti, 3, sym.Path);
-            foreach (kid; sym.Children) FillSym(kid, ti);
+			tiRoots = null;
+			foreach (kid; sym.Children) FillSym(kid, tiRoots);
         }
     }
 
 
     void Refresh(void * newPage)
     {
-		writeln("hi refresh");
-
         mSymbolStore.clear;
         FillTreeStore(newPage);
-        mSymbolTree.expandRow(new TreePath(true), 0);
-
     }
     void Refresh()
     {
-		writeln("hi refresh");
-
         mSymbolStore.clear;
-        FillTreeStore(null);
-        mSymbolTree.expandRow(new TreePath(true), 0);
+        FillTreeStore(cast(void *)null);
     }
 
 
@@ -134,7 +138,6 @@ class MODULE_VIEW : ELEMENT
         FileToOpen = sym[0].File;
         AtLineNo = sym[0].Line;
 
-
         if(FileToOpen.length < 1)return;
         dui.GetDocMan.Open(FileToOpen, AtLineNo-1);
     }
@@ -142,7 +145,6 @@ class MODULE_VIEW : ELEMENT
 
     void ForwardSymbol(TreeView tv)
     {
-		writeln("hi forward");
         TreeIter ti = mSymbolTree.getSelectedIter();
 
         if(ti is null) return;
@@ -198,7 +200,6 @@ class MODULE_VIEW : ELEMENT
         Symbols.connect(&Refresh);
 
         mSymbolTree.addOnRowActivated(delegate void (TreePath tp, TreeViewColumn tvc, TreeView tv){JumpTo();});
-		writeln("hi this");
     }
 
     void Engage()
@@ -210,7 +211,7 @@ class MODULE_VIEW : ELEMENT
         mSymbolTree.addOnCursorChanged(&ForwardSymbol);
 
         mRoot.showAll();
-        dui.GetSidePane.appendPage(mRoot, "ModuleView");
+        dui.GetSidePane.appendPage(mRoot, "Module");
         dui.connect(&SetPagePosition);
 
         dui.GetSidePane.setTabReorderable ( mRoot, true);
@@ -218,7 +219,6 @@ class MODULE_VIEW : ELEMENT
 
         Log.Entry("Engaged "~Name()~"\t\telement.");
 
-        writeln("hi engage");
     }
 
     void Disengage()
