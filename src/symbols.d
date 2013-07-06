@@ -545,20 +545,39 @@ class SYMBOLS
 	DSYMBOL[] GetMembers(string[] Candidate)
 	{
 		DSYMBOL[] rval;
+		//static long depth = 0;
+		//scope(exit)
+		//{
+		//	depth--;
+		//	writeln(depth);
+		//}
+		//depth++;
+		//if(depth > 2) return rval;
+
+
+		if(Candidate.length < 1)return rval;
 		void CheckSymbol(DSYMBOL xsym)
 		{
 			//making classname = to module name should be an error!
 			foreach(kid; xsym.Children) CheckSymbol(kid);
+
 			if(xsym.Scope.endsWith(Candidate))
 			{
-				rval ~= xsym.Children;
+
+				foreach(kid; xsym.Children)
+				{
+					if(kid.Name != Candidate[$-1]) rval ~= kid;
+				}
 				if(xsym.Base.length > 0)rval ~= GetMembers(ScopeSymbol(xsym.Base));
-				rval ~= GetMembers(ScopeSymbol(xsym.Type));
+				if(xsym.Kind == SymKind.FUNCTION) rval ~= GetMembers(ScopeSymbol(xsym.Type));
 				return;
 			}
 			if(Candidate[$-1] == xsym.Scope[$-1])
 			{
-				rval ~= xsym.Children;
+				foreach(kid; xsym.Children)
+				{
+					if(kid.Name != Candidate[$-1]) rval ~= kid;
+				}
 				if(xsym.Base.length > 0)rval ~= GetMembers(ScopeSymbol(xsym.Base));
 				rval ~= GetMembers(ScopeSymbol(xsym.Type));
 				return;
@@ -571,7 +590,9 @@ class SYMBOLS
 		{
 			CheckSymbol(sym);
 		}
+
 		return rval;
+
 	}
 
 

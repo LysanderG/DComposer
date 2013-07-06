@@ -530,6 +530,10 @@ class DOCUMENT : SourceView
 	string[] ScopedSymbol( TextIter AtIter, TextIter BeginsAtIter)
 	{
 		string[] rval;
+		scope(exit)
+		{
+			if(rval.length > 1)dui.Status.push(0u, rval[$-1]);
+		}
 
 		BeginsAtIter = AtIter.copy();
 
@@ -543,6 +547,8 @@ class DOCUMENT : SourceView
 				case ')': matchchar = '(';break;
 				case ']': matchchar = '[';break;
 				case '"': matchchar = '"';break;
+				case '\'': matchchar= '\'';break;
+				case '`': matchchar = '`';break;
 				default : return false;
 			}
 			int depth = 1;
