@@ -290,6 +290,7 @@ class DOCMAN
 									dui.GetWindow(),
 									FileChooserAction.SAVE
 								);
+		mSaveFileDialog.setCreateFolders(1);
 	}
 
 	void Engage()
@@ -435,6 +436,7 @@ class DOCMAN
 			try
 			{
 				mOpenFileDialog.addShortcutFolder(Project.WorkingPath);
+				mOpenFileDialog.setCurrentFolder(Project.WorkingPath);
 			}
 			catch(Exception y)
 			{
@@ -499,7 +501,8 @@ class DOCMAN
 		if(Current is null) return;
 		string OriginalName = Current.Name;
 
-		mSaveFileDialog.setCurrentName(OriginalName);
+		mSaveFileDialog.setCurrentFolder(dirName(OriginalName));
+		mSaveFileDialog.setCurrentName(Current.ShortName);
 		auto response = mSaveFileDialog.run();
 		mSaveFileDialog.hide();
 
