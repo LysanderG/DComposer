@@ -123,7 +123,7 @@ class SYMBOLS
 	{
 		scope(failure)
 		{
-			Log.Entry("Error loading symbol tag information " ~ CurrSym.Name);
+			Log.Entry("SYMBOLS.BuildSymbol :Error loading symbol tag information " ~ CurrSym.Name);
 			CurrSym.Icon = `<span foreground="red">!</span>`;
 			return;
 		}
@@ -368,7 +368,7 @@ class SYMBOLS
 	{
 		scope(failure)
 		{
-			Log.Entry("Unable to load Symbol file: " ~ PackageName, "Error");
+			Log.Entry("SYMBOL.LoadPackage : Unable to load Symbol file: " ~ PackageName, "Error");
 			return null;
 		}
 
@@ -399,7 +399,7 @@ class SYMBOLS
 	{
 		scope(failure)
 		{
-			Log.Entry("Failed to load project symbols", "Error");
+			Log.Entry("SYMBOLS.WatchProject : Failed to load project symbols", "Error");
 			return;
 		}
 

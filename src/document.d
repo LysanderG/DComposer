@@ -219,7 +219,7 @@ class DOCUMENT : SourceView
 	}
 	void SetBreakPoint(TextIter ti, GdkEvent * event, SourceView sv)
 	{
-		scope (failure) {Log.Entry("Error toggling breakpoint.","Error");return;}
+		scope (failure) {Log.Entry("DOCUMENT.SetBreakPoint : Error toggling breakpoint.","Error");return;}
 
 		auto x = getBuffer.getSourceMarksAtIter(ti,"breakpoint");
 
@@ -974,14 +974,14 @@ class DOCUMENT : SourceView
 		string Text;
 		try
 		{
-
+			if(!FileName.isFile)throw new Exception("Attempted to open  "~ FileName ~ " which is a special file.");
 			Text = ReadUTF8(FileName);  //remember this is not std.file.readText (because I can be dumb)
 		}
 		catch(Exception ex)
 		{
 
 			auto msg = new MessageDialog(dui.GetWindow(), GtkDialogFlags.MODAL, GtkMessageType.ERROR, ButtonsType.OK,
-            false, ex.msg);
+            false, "   " ~ ex.msg ~ "   ");
 
             msg.setTitle("Unable to open " ~ FileName);
             msg.run();
@@ -1047,11 +1047,10 @@ class DOCUMENT : SourceView
 	 * */
 	void Save()
 	{
-		scope(failure)
-		{
-			Log.Entry("Failed to save " ~ mName, "Error");
-			return;
-		}
+		//scope(failure)
+		//{
+		//	Log.Entry("DOCUMENT.Save: Failed to save " ~ mName, "Error");
+		//}
 		string saveText = getBuffer.getText();
 
 		std.file.write(mName, saveText);

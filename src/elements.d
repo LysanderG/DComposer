@@ -1,17 +1,17 @@
 //      element.d
-//      
+//
 //      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//      
+//
 //      This program is free software; you can redistribute it and/or modify
 //      it under the terms of the GNU General Public License as published by
 //      the Free Software Foundation; either version 2 of the License, or
 //      (at your option) any later version.
-//      
+//
 //      This program is distributed in the hope that it will be useful,
 //      but WITHOUT ANY WARRANTY; without even the implied warranty of
 //      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //      GNU General Public License for more details.
-//      
+//
 //      You should have received a copy of the GNU General Public License
 //      along with this program; if not, write to the Free Software
 //      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -42,7 +42,7 @@ interface ELEMENT
     void Disengage();
 
     PREFERENCE_PAGE GetPreferenceObject();
-    
+
 }
 
 
@@ -64,7 +64,7 @@ void Disengage()
 
 void AcquireElements()
 {
-    
+
     string elementlist = readText(Config.getString("ELEMENTS","element_list", "$(HOME_DIR)/elementlist"));
     foreach (line; (elementlist.splitLines()))
     {
@@ -73,8 +73,8 @@ void AcquireElements()
         if (line.startsWith('#')) continue;
         if (line.length < 1) continue;
         tmp = cast(ELEMENT)Object.factory(line);
-        
-        if(tmp is null) Log.Entry("Failed to Acquire " ~ line ~ " element!", "Error");
+
+        if(tmp is null) Log.Entry("AcquireElements : Failed to Acquire " ~ line ~ " element!", "Error");
         else
         {
             Log.Entry("Acquired " ~ line ~ " element.");

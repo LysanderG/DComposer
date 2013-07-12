@@ -143,7 +143,7 @@ class LOG_UI : ELEMENT
 
         Log.Entry("Engaged "~Name()~"\t\t\telement.");
 
-        scope(failure)Log.Entry("Failed to Engage LogUI element","Error");
+        scope(failure)Log.Entry("LOG_UI.Engage :Failed to Engage LogUI element","Error");
 
 	}
 

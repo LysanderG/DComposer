@@ -236,7 +236,7 @@ class DOCMAN
             string[] data = Config.getString("DOC_FILTERS", key).split(";");
             if(data.length  != 3 )
             {
-				Log.Entry("DocManager detected malformed file filter", "Error");
+				Log.Entry("DOCMAN.LoadFileFilters : detected malformed file filter", "Error");
 				continue;
 			}
             mFileFilters[key] = new FileFilter;
@@ -413,7 +413,7 @@ class DOCMAN
 		string TitleString;
 		do
 		{
-			TitleString = std.string.format("DComposer%.3s%s", UnTitledCount++, extension);
+			TitleString = std.string.format("DComposer%s%s", UnTitledCount++, extension);
 			TitleString = buildPath(getcwd(), TitleString);
 			if(UnTitledCount > 1000)
 			{
@@ -422,8 +422,8 @@ class DOCMAN
 			}
 		}while (exists(TitleString));
 
-        scope(failure) {Log().Entry("Document " ~ TitleString ~ " failed creation" , "Error"); return;}
-        scope(success) Log().Entry("Document " ~ TitleString ~ " created.");
+        scope(failure) {Log().Entry("DOCMAN.Create : " ~ TitleString ~ " failed creation" , "Error"); return;}
+        scope(success) Log().Entry("DOCMAN.Create " ~ TitleString ~ " created.");
 
         auto NuDoc = DOCUMENT.Create(TitleString);
 
@@ -468,8 +468,8 @@ class DOCMAN
 
         if(!IsOpen(DocPath, true))
         {
-            scope(failure){Log.Entry("Document: "~DocPath~" failed to open.", "Error"); return;}
-            scope(success)Log.Entry("Document: "~DocPath~" opened.");
+            scope(failure){Log.Entry("DOCUMENT.Open: "~DocPath~" failed to open.", "Error"); return;}
+            scope(success)Log.Entry("DOCUMENT.Open: "~DocPath~" opened.");
 
             auto Doc = DOCUMENT.Open(DocPath, LineNo);
             if(Doc !is null)
@@ -487,12 +487,19 @@ class DOCMAN
 		foreach (docpath; DocPaths) Open(docpath);
 	}
 
+
     void Save()
     {
 		if (Current is null) return;
-        scope(success)Log.Entry("Document :"~Current.Name ~ " saved.");
-        scope(failure){Log.Entry("Document :"~Current.Name ~ " failed to save.", "Error"); return;}
-		if (Current.Virgin) return SaveAs();
+
+        scope(failure){Log.Entry("DOCMAN.Save :"~Current.Name ~ " failed to save.", "Error"); return; }
+
+		if (Current.Virgin)
+		{
+			SaveAs();
+			return;
+		}
+		scope(success)Log.Entry("DOCMAN.Save :"~Current.Name ~ " saved.");
 		Current.Save();
 	}
 
@@ -510,25 +517,34 @@ class DOCMAN
 
 		scope(failure)
 		{
-			Log.Entry("Document Failed to save "~OriginalName~" as "~mSaveFileDialog.getFilename, "Error");
+			Log.Entry("DOCMAN.SaveAs : Failed to save "~OriginalName~" as "~mSaveFileDialog.getFilename, "Error");
 			return;
 		}
-		scope (success)
+
+		Current.SaveAs(mSaveFileDialog.getFilename);
+
+		if(mSaveFileDialog.getFilename != OriginalName)
 		{
 			mDocs[mSaveFileDialog.getFilename] = mDocs[OriginalName];
 			mDocs.remove(OriginalName);
-			Log.Entry("Document saved "~OriginalName~" as "~mSaveFileDialog.getFilename);
 		}
-
-
-		Current.SaveAs(mSaveFileDialog.getFilename);
+		Log.Entry("DOCMAN.SaveAs : saved "~OriginalName~" as "~mSaveFileDialog.getFilename);
 	}
 
 	void SaveAll()
 	{
 		foreach(Doc; mDocs)
 		{
-			Doc.Save();
+			try
+			{
+				Doc.Save();
+			}
+			catch (Exception T)
+			{
+				Log.Entry(T.msg);
+				continue;
+			}
+
 		}
 	}
 

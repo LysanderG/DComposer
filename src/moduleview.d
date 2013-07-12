@@ -117,11 +117,13 @@ class MODULE_VIEW : ELEMENT
     {
         mSymbolStore.clear;
         FillTreeStore(newPage);
+        mSymbolTree.expandAll();
     }
     void Refresh()
     {
         mSymbolStore.clear;
         FillTreeStore(cast(void *)null);
+        mSymbolTree.expandAll();
     }
 
 

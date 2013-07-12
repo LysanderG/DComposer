@@ -1125,3 +1125,22 @@ Tuesday June 4 2013
 
 Wednesday June 12 2013
 	-after more dconf videos need to add static analysis stuff.
+
+
+Wednesday July 10 2013
+	-Fix opening special files (/dev/random/ etc)
+	-crashes if trying to save my file to folder without permission
+	-think some kind of warning would be nice and then maybe not crashing!
+
+
+Thu Jul 11 23:09:09 EDT 2013
+
+    Okay I'm actually using DComposer more.  Fixin some bugs.  Latest fix was trying to save file in folders without permission.
+    Exceptions busting out all over my code. (Document save/saveas/ DocMan save/saveas/saveall all intertwined)
+    So time for another list...
+    
+    1. only save project if modified
+    2. Moduleview is cool but... should remember how it was expanded (what was showing)
+    3. 
+
+

@@ -151,7 +151,7 @@ class BOOKMARKS : ELEMENT
 		scope(failure)
 		{
 			Clear();
-			Log.Entry("Failed to load project bookmarks");
+			Log.Entry("BOOKMARKS.Load:Failed to load project bookmarks");
 			return;
 		}
 		string[] results = Project[BOOKMARK_CATEGORY_NAME];

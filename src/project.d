@@ -199,10 +199,10 @@ class PROJECT
 	{
         scope(failure)
         {
-			Log.Entry("Unable to open Flags File", "Error");
+			Log.Entry("PROJECT.ReadFlags : Unable to open Flags File", "Error");
 			exit(127);
 		}
-        scope(success)Log.Entry("Flags file opened successfully");
+        scope(success)Log.Entry("PROJECTS.ReadFlags : Flags file opened successfully");
 
 		auto jstring = readText(FlagFile);
 		auto jval = parseJSON(jstring);
@@ -328,7 +328,7 @@ class PROJECT
         scope(failure)
         {
             Clear();
-            Log.Entry("Failed to OPEN Project : " ~ pfile, "Error");
+            Log.Entry("PROJECT.Open : Failed to OPEN Project : " ~ pfile, "Error");
             return;
 
         }
@@ -419,7 +419,7 @@ class PROJECT
 
         scope(failure)
         {
-            Log.Entry("Failed to save project: " ~ Name, "Error");
+            Log.Entry("PROJECT.Save :  Failed to save project: " ~ Name, "Error");
             return;
         }
         scope(success)Log.Entry("Project saved: " ~ Name);

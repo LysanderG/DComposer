@@ -113,7 +113,7 @@ class CONFIG
             {
             scope(failure)
             {
-                Log.Entry("Unable to create configuration file: " ~ mCfgFile, "Error");
+                Log.Entry("CONFIG.Engage: Unable to create configuration file: " ~ mCfgFile, "Error");
                 return;
             }
             File tmp;
@@ -153,7 +153,7 @@ class CONFIG
     {
 		scope (failure)
 		{
-			Log.Entry("Unable to save configuration file "~mCfgFile, "Error");
+			Log.Entry("CONFIG.Save : Unable to save configuration file "~mCfgFile, "Error");
 			return;
 		}
 
