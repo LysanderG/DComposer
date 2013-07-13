@@ -402,6 +402,7 @@ class SYMBOLS
 			Log.Entry("SYMBOLS.WatchProject : Failed to load project symbols", "Error");
 			return;
 		}
+		if (Project.Target == TARGET.NULL) return;
 
 		switch (Event)
 		{
@@ -428,6 +429,7 @@ class SYMBOLS
 													if(pkgkey !is null) mSymbols[mProjectKey] = pkgkey;
 													return;
 												}
+			case ProEvent.Opened				:
 			case ProEvent.NameChanged			:
 												{
 													if(mProjectKey in mSymbols)

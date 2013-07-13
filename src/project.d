@@ -383,9 +383,9 @@ class PROJECT
 		}
         if(mVersion > PROJECT_VERSION)throw new Exception("bad version");
 		if(mTarget == TARGET.NULL) throw new Exception("Invalid Target Type");
-		CreateTags();
 		Log.Entry("Project opened: " ~ Name);
 		Event.emit(ProEvent.Opened);
+		CreateTags();
 
 	}
 	void Clear()
