@@ -239,7 +239,7 @@ class PROJECT_UI : ELEMENT
 		mBtnHide.addOnClicked(delegate void (Button X){mRootVBox.hide();});
 		mBtnRevert.addOnClicked(delegate void (Button X){SyncGuiToProject();});
 
-        mProjName.addOnChanged(&FixProjectPath);
+        mProjName.addOnChanged(&FixProjectFolder);
         mFolder.addOnChanged(&FixProjectPath);
 
         mProjBaseFolder = Config.getString("PROJECT", "default_project_path", "~/projects");
@@ -648,6 +648,18 @@ class PROJECT_UI : ELEMENT
        tmpPath = defaultExtension(tmpPath, "dpro");
        mFullPath.setText("Projects full folder  : " ~ tmpPath);
     }
+
+    void FixProjectFolder(EditableIF EntryWidget)
+    {
+
+		auto nametext = mProjName.getText();
+		auto foldertext = mFolder.getText();
+		if(nametext is null) nametext = "";
+
+		mFolder.setText(nametext);
+
+
+	}
 
     void ChangeProjectBaseFolder()
     {
