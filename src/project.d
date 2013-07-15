@@ -224,7 +224,7 @@ class PROJECT
 			mFlags[indx].Argument = " ";
 			mFlags[indx].InitHasArg = (j.object["hasargument"].type == JSON_TYPE.TRUE) ? true : false;
 		}
-		Log.Entry("dcomposer projects prefer " ~ mDmdId , "Info");
+		Log.Entry("dcomposer project flags for " ~ mDmdId , "Info");
 	}
 
 	void ResetFlags()
