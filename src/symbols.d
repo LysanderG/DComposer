@@ -572,6 +572,7 @@ class SYMBOLS
 				}
 				if(xsym.Base.length > 0)rval ~= GetMembers(ScopeSymbol(xsym.Base));
 				if(xsym.Kind == SymKind.FUNCTION) rval ~= GetMembers(ScopeSymbol(xsym.Type));
+				if(xsym.Kind == SymKind.VARIABLE) rval ~= GetMembers(ScopeSymbol(xsym.Type));
 				return;
 			}
 			if(Candidate[$-1] == xsym.Scope[$-1])
