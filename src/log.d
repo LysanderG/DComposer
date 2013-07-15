@@ -70,8 +70,8 @@ class LOG
         mEchoToStdOut = true;
 
         signal(SIGSEGV, &SegFlush);
-        signal(SIGABRT, &SegFlush);
-        signal(SIGINT, &SegFlush);
+        //signal(SIGABRT, &SegFlush);
+        //signal(SIGINT, &SegFlush);
 
     }
     ~this()
