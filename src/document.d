@@ -171,7 +171,8 @@ class DOCUMENT : SourceView
         setRightMarginPosition(Config.getInteger("DOCMAN", "right_margin", 120));
         setIndentWidth(Config.getInteger("DOCMAN", "indention_width", 8));
         setTabWidth(Config.getInteger("DOCMAN", "tab_width", 4));
-
+        setBorderWindowSize(GtkTextWindowType.BOTTOM, 5);
+		setPixelsBelowLines(1);
         modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.getString("DOCMAN", "font", "Inconsolata Bold 12")));
 
 	}
