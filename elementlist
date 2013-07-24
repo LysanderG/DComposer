@@ -5,6 +5,7 @@
 
 #   ELEMENTS
 
+debugui.DEBUG_UI
 logui.LOG_UI
 searchui.SEARCH_UI
 projectui.PROJECT_UI
@@ -26,3 +27,5 @@ bookmarks.BOOKMARKS
 printui.PRINTER
 shellfilter.SHELLFILTER
 moduleview.MODULE_VIEW
+
+
