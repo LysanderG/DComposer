@@ -41,7 +41,7 @@ import gtk.SeparatorToolItem;
 
 class HISTORY_VIEW : ELEMENT
 {
-    private:
+private:
 
     string              mName;
     string              mInfo;
@@ -60,6 +60,7 @@ class HISTORY_VIEW : ELEMENT
     HISTORY_VIEW_PREF	mPrefPage;
     bool				mEnabled;
 
+protected:
     void Configure()
     {
 		mEnabled = Config.getBoolean("HISTORY_VIEW", "enabled", true);
@@ -85,7 +86,7 @@ class HISTORY_VIEW : ELEMENT
 	}
 
 
-    public:
+public:
 
     @property string Name() {return mName;}
     @property string Information(){return mInfo;}

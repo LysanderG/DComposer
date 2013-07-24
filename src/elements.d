@@ -32,6 +32,13 @@ public import gtk.Frame;
 
 interface ELEMENT
 {
+protected:
+	void SetPagePosition(UI_EVENT uie);
+	void Configure();
+
+
+public:
+
     @property string Name();
     @property string Information();
     @property bool   State();

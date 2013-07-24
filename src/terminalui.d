@@ -73,7 +73,7 @@ extern(C) void vte_terminal_set_colors(GtkWidget *terminal,  const GdkColor *for
 
 class TERMINAL_UI : ELEMENT
 {
-    private:
+private:
 
     string              mName;
     string              mInfo;
@@ -99,6 +99,8 @@ class TERMINAL_UI : ELEMENT
         }
 
     }
+
+protected:
 
     void Configure()
     {
@@ -143,7 +145,7 @@ class TERMINAL_UI : ELEMENT
 		}
 	}
 
-    public:
+public:
 
     this()
     {

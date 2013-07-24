@@ -50,7 +50,7 @@ import glib.MessageLog;
 
 class LOG_UI : ELEMENT
 {
-    private:
+private:
 
 	string 				mName;
     string              mInformation;
@@ -61,6 +61,11 @@ class LOG_UI : ELEMENT
 	Label				mLabel;
 
 	bool 				mState;
+
+protected:
+
+	void Configure()
+	{}
 
 	void SetPagePosition(UI_EVENT uie)
 	{
@@ -80,7 +85,7 @@ class LOG_UI : ELEMENT
 		}
 	}
 
-    public:
+public:
 
     @property string Name() {return "LOG_UI";}
     @property string Information() {return mInformation;}

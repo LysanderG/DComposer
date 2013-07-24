@@ -51,7 +51,7 @@ import gdk.Cursor;
 
 class PREFERENCES_UI : ELEMENT
 {
-    private:
+private:
 
     string          mName;
     string          mInfo;
@@ -174,7 +174,28 @@ class PREFERENCES_UI : ELEMENT
         tmpwindow.setCursor(null);
     }
 
-    public :
+protected:
+	void SetPagePosition(UI_EVENT uie)
+	{
+		switch (uie)
+		{
+			case UI_EVENT.RESTORE_GUI :
+			{
+				dui.GetExtraPane.reorderChild(mRoot, Config.getInteger("PREFERENCES", "page_position"));
+				break;
+			}
+			case UI_EVENT.STORE_GUI :
+			{
+				Config.setInteger("PREFERENCES", "page_position", dui.GetExtraPane.pageNum(mRoot));
+				break;
+			}
+			default :break;
+		}
+	}
+	void Configure()
+	{}
+
+public :
 
 
     this()
@@ -218,6 +239,9 @@ class PREFERENCES_UI : ELEMENT
         //dui.GetCenterPane.prependPage(mRoot, new Label("Preferences"));
         dui.GetExtraPane.prependPage(mRoot, new Label("Preferences"));
         dui.GetExtraPane.setTabReorderable ( mRoot, true);
+
+        dui.connect(&SetPagePosition);
+        Config.Reconfig.connect(&Configure);
 
 	    Log.Entry("Engaged "~Name()~"\t\telement.");
     }

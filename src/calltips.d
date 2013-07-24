@@ -51,7 +51,7 @@ import gdk.Rectangle;
 
 class CALL_TIPS : ELEMENT
 {
-    private:
+private:
 
     string      mName;
     string      mInfo;
@@ -62,10 +62,13 @@ class CALL_TIPS : ELEMENT
     CALL_TIPS_PREF	mPrefPage;
     bool 			mEnabled;
 
+protected:
     void Configure()
     {
 		mEnabled = Config.getBoolean("CALL_TIPS", "enabled", true);
 	}
+
+	void SetPagePosition(UI_EVENT uie){}
 
     public:
 

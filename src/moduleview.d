@@ -43,7 +43,7 @@ import glib.SimpleXML;
 
 class MODULE_VIEW : ELEMENT
 {
-    private :
+private :
 
     bool                mState;
 
@@ -155,6 +155,10 @@ class MODULE_VIEW : ELEMENT
 
         Symbols.ForwardSignal(sym);
     }
+
+protected:
+	void Configure()
+	{}
 
     void SetPagePosition(UI_EVENT uie)
 	{

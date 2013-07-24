@@ -23,6 +23,29 @@ private:
     VBox mSideRoot;
     VBox mExtraRoot;
 
+protected:
+	void Configure()
+    {}
+
+	void SetPagePosition(UI_EVENT uie)
+	{
+		switch (uie)
+		{
+			case UI_EVENT.RESTORE_GUI :
+			{
+				dui.GetExtraPane.reorderChild(mSideRoot, Config.getInteger("DEBUG_UI", "side_page_position"));
+				dui.GetExtraPane.reorderChild(mExtraRoot, Config.getInteger("DEBUG_UI", "extra_page_position"));
+				break;
+			}
+			case UI_EVENT.STORE_GUI :
+			{
+				Config.setInteger("DEBUG_UI", "side_page_position", dui.GetExtraPane.pageNum(mSideRoot));
+				Config.setInteger("DEBUG_UI", "extra_page_position", dui.GetExtraPane.pageNum(mExtraRoot));
+				break;
+			}
+			default :break;
+		}
+	}
 
 
 public:
@@ -61,13 +84,14 @@ public:
 	    mExtraRoot = cast(VBox) mBuilder.getObject("vbox1");
 	    mSideRoot = cast(VBox) mBuilder.getObject("vbox5");
 
-	    //dui.GetSidePane().appendPage(mSideRoot, "Debug");
-	   // dui.GetExtraPane().appendPage(mExtraRoot, "Debug");
+	    dui.GetSidePane().appendPage(mSideRoot, "Debug");
+	    dui.GetExtraPane().appendPage(mExtraRoot, "Debug");
 
-	    dui.GetExtraPane.insertPage(mExtraRoot, new Label("Debug"), Config.getInteger("DEBUG_UI", "extra_page_position"));
-	    dui.GetSidePane.insertPage(mSideRoot, new Label("Debug"), Config.getInteger("DEBUG_UI", "side_page_position"));
 	    dui.GetSidePane.setTabReorderable ( mSideRoot, true);
 	    dui.GetExtraPane.setTabReorderable ( mExtraRoot, true);
+
+	    dui.connect(&SetPagePosition);
+	    Config.Reconfig.connect(&Configure);
 
 	    mSideRoot.showAll();
 	    mExtraRoot.showAll();

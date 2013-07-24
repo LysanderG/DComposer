@@ -76,7 +76,7 @@ import glib.SimpleXML;
 
 class SEARCH_UI : ELEMENT
 {
-    private:
+private:
     string          mName;
     string          mInfo;
     bool            mState;
@@ -493,6 +493,8 @@ class SEARCH_UI : ELEMENT
 		return false;
 	}
 
+protected:
+
 	void SetPagePosition(UI_EVENT uie)
 	{
 		switch (uie)
@@ -510,8 +512,10 @@ class SEARCH_UI : ELEMENT
 			default :break;
 		}
 	}
+	void Configure()
+	{}
 
-    public:
+public:
 
     this()
     {

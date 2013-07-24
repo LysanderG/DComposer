@@ -47,10 +47,6 @@ class BRACE_INDENT : ELEMENT
     BRACE_INDENT_PREF mPrefPage;
     bool mEnabled;
 
-    void Configure()
-    {
-		mEnabled = Config.getBoolean("BRACE_INDENT", "enabled", true);
-	}
 
     void CatchNewDocs(string EventId, DOCUMENT nu_doc)
     {
@@ -126,7 +122,15 @@ class BRACE_INDENT : ELEMENT
         }
     }
 
-    public:
+protected:
+	void SetPagePosition(UI_EVENT uie)
+	{}
+	void Configure()
+    {
+		mEnabled = Config.getBoolean("BRACE_INDENT", "enabled", true);
+	}
+
+public:
 
     @property string Name() {return "BRACE_INDENT";}
     @property string Information(){return `Adjusts indentation following braces "{}".  Not related to Auto Indentation.`;}

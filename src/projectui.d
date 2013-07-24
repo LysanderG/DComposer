@@ -144,8 +144,13 @@ class PROJECT_UI : ELEMENT
 
 
     bool                mSkipWatchingProject; //multiple connects and disconnect is causing an error
+protected:
+	void SetPagePosition(UI_EVENT uie)
+	{}
+	void Configure()
+	{}
 
-    public:
+public:
 
     @property string Name() { return "PROJECT_UI";}
     @property string Information(){return "User interface to creating/maintain a D project";}

@@ -32,7 +32,7 @@ import gtk.Action;
 
 class GOTODEF : ELEMENT
 {
-	private :
+private :
 
 	string 		mName;
 	string 		mInfo;
@@ -59,8 +59,14 @@ class GOTODEF : ELEMENT
 
 	}
 
+protected:
+	void SetPagePosition(UI_EVENT uie)
+	{}
+	void Configure()
+	{}
 
-	public:
+
+public:
 	this()
     {
         mName = "GOTO_DEF";

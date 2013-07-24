@@ -40,7 +40,7 @@ import gsv.SourceView;
 
 class SPLIT_DOCUMENT : ELEMENT
 {
-	private:
+private:
 
 	string		mName;
 	string		mInfo;
@@ -187,7 +187,7 @@ class SPLIT_DOCUMENT : ELEMENT
 	}
 
 
-	public:
+public:
 
     this()
     {
@@ -258,6 +258,10 @@ class SPLIT_DOCUMENT : ELEMENT
 		return null;
 	}
 
+protected:
+
+	void SetPagePosition(UI_EVENT uie)
+	{}
 
 	void Configure()
 	{

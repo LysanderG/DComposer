@@ -43,7 +43,7 @@ immutable (char[]) BOOKMARK_CATEGORY_NAME = "bookmark";
 
 class BOOKMARKS : ELEMENT
 {
-	private:
+private:
 
 	string 			mName;
 	string			mInfo;
@@ -192,8 +192,13 @@ class BOOKMARKS : ELEMENT
 		//hmm... what to do with all the extra bookmarks ater opening multiple projects?
 	}
 
+protected:
+	void SetPagePosition(UI_EVENT uie)
+	{}
+	void Configure()
+	{}
 
-	public:
+public:
 	this()
     {
         mName = "BOOKMARKS";

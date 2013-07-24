@@ -103,6 +103,9 @@ class SYMBOL_COMPLETION : ELEMENT
         dui.GetAutoPopUps.CompletionPush(Possibles, xpos, ypos, ylen);
 
     }
+protected:
+	void SetPagePosition(UI_EVENT uie)
+	{}
 
     void Configure()
     {

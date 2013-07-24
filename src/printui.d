@@ -45,7 +45,7 @@ import gsv.SourcePrintCompositor;
 
 class PRINTER : ELEMENT
 {
-	private:
+private:
 
 	string		mName;
 	string		mInfo;
@@ -196,9 +196,12 @@ class PRINTER : ELEMENT
 		writefln("Print operation returned %s, which is a %s", PrintReturn, typeid(PrintReturn));
 	}
 
+protected:
+	void SetPagePosition(UI_EVENT uie){}
+	void Configure(){}
 
 
-	public:
+public:
 
     this()
     {

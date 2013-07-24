@@ -76,7 +76,7 @@ version(WEBKIT)
 class ASSISTANT_UI : ELEMENT
 {
 
-    private :
+private :
 
     string      mName;
     string      mInfo;
@@ -335,18 +335,9 @@ class ASSISTANT_UI : ELEMENT
 
     }
 
-    void Reconfigure()
-    {
-        mEnabled    = Config.getBoolean("ASSISTANT_UI", "enabled", true);
 
-		auto dpkeys = Config.getKeys("DOCUMENTATION_FOLDERS");
-		mDocPaths.length = 0;
 
-		foreach(key; dpkeys)mDocPaths ~= Config.getString("DOCUMENTATION_FOLDERS", key, "error");
-
-        mRoot.setVisible(mEnabled);
-    }
-
+protected:
 	void SetPagePosition(UI_EVENT uie)
 	{
 		switch (uie)
@@ -365,9 +356,20 @@ class ASSISTANT_UI : ELEMENT
 		}
 	}
 
+    void Configure()
+    {
+        mEnabled    = Config.getBoolean("ASSISTANT_UI", "enabled", true);
+
+		auto dpkeys = Config.getKeys("DOCUMENTATION_FOLDERS");
+		mDocPaths.length = 0;
+
+		foreach(key; dpkeys)mDocPaths ~= Config.getString("DOCUMENTATION_FOLDERS", key, "error");
+
+        mRoot.setVisible(mEnabled);
+    }
 
 
-    public:
+public:
 
     this()
     {
@@ -460,8 +462,8 @@ class ASSISTANT_UI : ELEMENT
         mBtnJumpTo.addOnClicked(delegate void(Button btn){JumpTo();});
         mBtnParent.addOnClicked(delegate void(Button btn){Parent();});
 
-        Config.Reconfig.connect(&Reconfigure);
-        Reconfigure();
+        Config.Reconfig.connect(&Configure);
+        Configure();
 
         Log.Entry("Engaged "~Name()~"\t\telement.");
     }

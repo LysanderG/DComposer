@@ -63,7 +63,7 @@ import gtkc.gtk;
 
 class DIR_VIEW : ELEMENT
 {
-    private:
+private:
 
     string              mName;
     string              mInfo;
@@ -213,6 +213,8 @@ class DIR_VIEW : ELEMENT
        if(SendData.Bool) mComboFilter.appendText(mEntryFilter.getText());
     }
 
+protected:
+
     void Configure()
     {
 		mEnabled = Config.getBoolean("DIRVIEW","enabled", true);
@@ -250,7 +252,7 @@ class DIR_VIEW : ELEMENT
 	}
 
 
-    public:
+public:
 
     this()
     {

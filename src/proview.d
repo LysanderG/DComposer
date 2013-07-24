@@ -53,7 +53,7 @@ import gobject.Value;
 
 class PROJECT_VIEW : ELEMENT
 {
-    private:
+private:
 
     string          mName;
     string          mInfo;
@@ -377,6 +377,8 @@ class PROJECT_VIEW : ELEMENT
         }
     }
 
+protected:
+
     void Configure()
     {
 		mEnabled = Config.getBoolean("PROJECT_VIEW", "enabled", true);
@@ -401,7 +403,7 @@ class PROJECT_VIEW : ELEMENT
 		}
 	}
 
-    public:
+public:
 
     this()
     {

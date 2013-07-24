@@ -40,7 +40,7 @@ import gtk.Label;
 
 class MESSAGE_UI :ELEMENT
 {
-    private:
+private:
 
     string          mName;
     string          mInfo;
@@ -104,6 +104,11 @@ class MESSAGE_UI :ELEMENT
         dui.GetDocMan.Open(file, line);
     }
 
+protected:
+
+	void Configure()
+	{}
+
     void SetPagePosition(UI_EVENT uie)
 	{
 		switch (uie)
@@ -123,7 +128,7 @@ class MESSAGE_UI :ELEMENT
 	}
 
 
-    public:
+public:
 
     this()
     {

@@ -40,7 +40,7 @@ import glib.SimpleXML;
 
 class SYMBOL_VIEW : ELEMENT
 {
-    private :
+private :
 
     bool                mState;
 
@@ -124,6 +124,8 @@ class SYMBOL_VIEW : ELEMENT
         Symbols.ForwardSignal(sym);
     }
 
+protected:
+
     void SetPagePosition(UI_EVENT uie)
 	{
 		switch (uie)
@@ -142,8 +144,10 @@ class SYMBOL_VIEW : ELEMENT
 		}
 	}
 
+	void Configure()
+	{}
 
-    public:
+public:
 
     @property string    Name(){return "SYMBOL_VIEW";}
     @property string    Information(){return "List of D programming symbols";}

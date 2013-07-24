@@ -41,6 +41,7 @@ import gtk.Button;
 
 class SHELLFILTER : ELEMENT
 {
+private:
 	string		mName;
 	string		mInfo;
 	bool		mState;
@@ -194,20 +195,37 @@ class SHELLFILTER : ELEMENT
 		mCmdHistory ~= CmdText;
 	}
 
+protected:
 	void Configure()
 	{
 		mCmdHistory = Config.getStringList("SHELLFILTER", "history", ["sort", "date"]);
 
 
 		foreach(cmd; mCmdHistory) mCommandCombox.appendText(cmd);
+	}
 
+	void SetPagePosition(UI_EVENT uie)
+	{
+		switch (uie)
+		{
+			case UI_EVENT.RESTORE_GUI :
+			{
+				dui.GetSidePane.reorderChild(mRoot, Config.getInteger("SHELLFILTER", "page_position"));
+				break;
+			}
+			case UI_EVENT.STORE_GUI :
+			{
+				Config.setInteger("SHELLFILTER", "page_position", dui.GetSidePane.pageNum(mRoot));
+				break;
+			}
+			default :break;
+		}
 	}
 
 
 
 
-
-	public:
+public:
 
     this()
     {
@@ -257,10 +275,13 @@ class SHELLFILTER : ELEMENT
 
 		mErrLabel.setText("");
 		mRoot.showAll();
-		//dui.GetExtraPane.appendPage(mRoot, "Shell Filter");
-        dui.GetExtraPane.insertPage(mRoot, new Label("Shell Filter"), Config.getInteger("SHELLFILTER", "page_position"));
+		dui.GetExtraPane.appendPage(mRoot, "Shell Filter");
+        //dui.GetExtraPane.insertPage(mRoot, new Label("Shell Filter"), Config.getInteger("SHELLFILTER", "page_position"));
 
 		dui.GetExtraPane.setTabReorderable ( mRoot, true);
+
+		dui.connect(&SetPagePosition);
+		Config.Reconfig.connect(&Configure);
 
 		Configure();
 

@@ -63,10 +63,7 @@ class SCOPE_LIST : ELEMENT
 							//A superfluous solution at that.
 
 
-	void Configure()
-	{
-		mEnabled = Config.getBoolean("SCOPE_LIST", "enabled", true);
-	}
+
 
     void WatchForNewDocument(string EventId, DOCUMENT Doc)
     {
@@ -99,8 +96,16 @@ class SCOPE_LIST : ELEMENT
         dui.GetAutoPopUps.CompletionPush(possibles, xpos, ypos, ylen, STATUS_SCOPE);
     }
 
+protected:
 
-    public:
+	void Configure()
+	{
+		mEnabled = Config.getBoolean("SCOPE_LIST", "enabled", true);
+	}
+	void SetPagePosition(UI_EVENT uie)
+	{}
+
+public:
 
     this()
     {
