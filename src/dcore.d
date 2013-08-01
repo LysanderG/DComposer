@@ -28,14 +28,13 @@
  * */
 module dcore;
 
-
 import config;
+import debugger;
 import log;
-public import project;
 import symbols;
-
-
+public import project;
 public import search;
+
 
 
 import std.stdio;
@@ -47,6 +46,7 @@ CONFIG		mConfig;
 LOG 		mLog;
 PROJECT 	mProject;
 SYMBOLS	    mSymbols;
+DEBUGGER    mDebugger;
 
 
 static this()
@@ -56,12 +56,13 @@ static this()
 	mLog	    = new LOG;
 	mProject    = new PROJECT;
 	mSymbols    = new SYMBOLS;
+	mDebugger   = new DEBUGGER;
 
 }
 
 static ~this()
 {
-    delete mLog;
+    delete mLog; //UMMM ... ? ISN'T THIS WRONG?
 }
 
 public:
@@ -74,7 +75,7 @@ void Engage(string[] CmdArgs)
 	mLog		.Engage();
 	mProject    .Engage();
 	mSymbols    .Engage();
-
+	mDebugger   .Engage();
 
     Log().Entry("Engaged DCORE");
 }
@@ -85,10 +86,10 @@ void Engage(string[] CmdArgs)
 void Disengage()
 {
 
+    mDebugger.Disengage();
 	mSymbols .Disengage();
 	mProject .Disengage();
 	mConfig  .Disengage();
-
     Log      .Entry("Disengaged DCORE");
 	mLog     .Disengage();
 }
@@ -105,6 +106,7 @@ CONFIG		Config() {return mConfig;}
 LOG 		Log()    {return mLog;}					///ditto
 PROJECT 	Project(){return mProject;}				///ditto
 SYMBOLS		Symbols(){return mSymbols;}				///ditto
+DEBUGGER    Debugger(){return mDebugger;}          ///ditto
 
 
 //utility function to take
