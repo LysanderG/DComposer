@@ -19,6 +19,7 @@ import gtk.TextView;
 import gtk.ToggleButton;
 import gtk.VBox;
 import gtk.VPaned;
+import gtk.TextIter;
 
 import gdk.Color;
 
@@ -28,7 +29,8 @@ import std.conv;
 import std.stdio;
 import std.string;
 import std.file;
-
+import std.demangle;
+import std.algorithm;
 
 class DEBUG_UI : ELEMENT
 {
@@ -83,34 +85,72 @@ private:
     string StrCmdRunToCursor = "-exec-until";
     string StrCmdInsertBreakPoint = "-break-insert";
 
+    int mDisFuncLen;
+    int mDisAddressLen;
+    int mDisOffsetLen;
+    int mDisInstLen;
+    int mDisOpcodeLen;
+
+    string mLocationFile;
+    int mLocationLine;
+    string mLocationAddress;
+
     void PromptCommands()
     {
-		write ('>');
-	    Debugger.Command(`-data-disassemble -s "$pc" -e "$pc + 240" -- 0`);
+	    GotoIP();
+	    Debugger.Command(`100-data-disassemble -s "$pc-16" -e "$pc + 256" -- 0`);
     }
 
     void RecieveDisassembly(string msg)
     {
-		writeln(" >>> ",msg);
-	    if(msg.startsWith("^done,"))
+		int hiliteLine = -1;
+
+	    if(msg.startsWith("100^done,"))
 	    {
-		    auto msgslice = msg["^done,".length .. $];
-		    auto result = RESULT(msgslice);
-            writeln(result._name);
-	        if(result._name != "asm_insns") return;
+		    auto msgslice = msg["100^done,".length .. $];
+		    auto result = RECORD(msgslice);
 	        mDisassemblyText.length = 0;
-	        foreach(ln; result._value._list._tupleItems)
+	        string oldfname = "aggm1967firstrun";
+	        auto loops = result.GetValue("asm_insns")._list._values.length;
+	        foreach(i, ln; result.GetValue("asm_insns")._list._values)
 	        {
 				string fname, address, offset, inst;
-				string space = "                                           ";
-				writeln('-',ln);
-				if("func-name" in ln)fname   = ln["func-name"]._value._const.leftJustify(20); else fname = space;
-				if("address" in ln)  address = ln["address"]._value._const.leftJustify(22); else address = space;
-				if("offset" in ln)   offset  = ln["offset"]._value._const.center(3);else offset = space[0..3];
-				if("inst" in ln)     inst    = ln["inst"]._value._const.leftJustify(20);else inst = space ;
-	            mDisassemblyText ~= format("%s:%s-%s: %s\n", fname[0..20], address[0..22], offset, inst[0..20]);
+
+				if("func-name" in ln._values) fname   = ln.Get("func-name").toString().demangle();
+				else fname = " ";
+				if("address" in ln._values)   address = ln.Get("address").toString().leftJustify(mDisAddressLen);
+				else {address.length = mDisAddressLen; }
+				if("offset" in ln._values)    offset  = ln.Get("offset").toString().leftJustify(mDisOffsetLen);
+				else offset = "           ";
+				if("inst" in ln._values)      inst    = ln.Get("inst").toString().leftJustify(mDisInstLen);
+				else inst = "------";
+
+				if( (fname != oldfname) || (oldfname == "aggm1967firstrun"))
+				{
+					oldfname = fname;
+					mDisassemblyText ~= oldfname ~ '\n';
+				}
+				mDisassemblyText ~= format("     %s:%s   %s\n",address, offset, inst);
+				writeln(address.strip(), "--",mLocationAddress);
+				if(address.strip() == mLocationAddress) hiliteLine = cast(int)i;
             }
+            writeln(hiliteLine);
             mDisassemblyView.getBuffer.setText(mDisassemblyText);
+
+			TextIter tis = new TextIter;
+			TextIter tie = new TextIter;
+
+			mDisassemblyView.getBuffer.getBounds(tis, tie);
+
+			mDisassemblyView.getBuffer.removeAllTags(tis, tie);
+			if(hiliteLine > -1)
+			{
+				mDisassemblyView.getBuffer.getIterAtLine(tie, hiliteLine);
+				tie.forwardToLineEnd();
+				mDisassemblyView.getBuffer.getIterAtLine(tis, hiliteLine);
+				mDisassemblyView.getBuffer.applyTagByName("hilite", tis, tie);
+			}
+
         }
     }
 
@@ -123,10 +163,9 @@ private:
 
 	void GotoIP()
 	{
-		string sfile;
-		int sline;
-		Debugger.GetLocation(sfile, sline);
-		if(sfile.exists())dui.GetDocMan.Open(sfile, sline);
+
+		Debugger.GetLocation(mLocationFile, mLocationLine, mLocationAddress);
+		if(mLocationFile.exists())dui.GetDocMan.Open(mLocationFile, mLocationLine);
 	}
 
 
@@ -210,6 +249,23 @@ private:
 		if(TheButton is mBtnStepIn)
 		{
 			Debugger.Command(StrCmdStepIn);
+			return;
+		}
+		if(TheButton is mBtnStepOver)
+		{
+			Debugger.Command(StrCmdStepOver);
+			return;
+		}
+		if(TheButton is mBtnStepOut)
+		{
+			Debugger.Command(StrCmdStepOut);
+			return;
+		}
+		if(TheButton is mBtnRunToCursor)
+		{
+			string cmd = StrCmdRunToCursor;
+			cmd ~= " " ~ dui.GetDocMan.Current().ShortName() ~":" ~ to!string(dui.GetDocMan.GetLineNo);
+			Debugger.Command(cmd);
 			return;
 		}
 
@@ -311,7 +367,8 @@ public:
         mDisassemblyView= cast(TextView)     mBuilder.getObject("disassemblyView");
         mCallStackView  = cast(TextView)     mBuilder.getObject("callStackView");
         mOutputView.modifyBase(StateType.NORMAL, new Color(1000, 1000, 1000));
-        mDisassemblyView.modifyFont("freemono", 10);
+        mDisassemblyView.modifyFont("freemono", 14);
+        mDisassemblyView.getBuffer.createTag("hilite", "background", "yellow");
 
 
 
@@ -327,6 +384,8 @@ public:
         mBtnContinue.addOnClicked(&BtnCommand);
         mBtnStepIn.addOnClicked(&BtnCommand);
         mBtnStepOver.addOnClicked(&BtnCommand);
+        mBtnStepOut.addOnClicked(&BtnCommand);
+        mBtnRunToCursor.addOnClicked(&BtnCommand);
         mBtnStop.addOnClicked(&BtnCommand);
 
 
@@ -340,12 +399,18 @@ public:
         Debugger.AsyncOutput.connect(&GdbListener);
         Debugger.ResultOutput.connect(&GdbListener);
         Debugger.ResultOutput.connect(&RecieveDisassembly);
-        Debugger.Prompt.connect(&GotoIP);
+        //Debugger.Prompt.connect(&GotoIP);
         Debugger.Stopped.connect(&PromptCommands);
 
         Debugger.GdbExited.connect(&ClearText);
 
         dui.GetDocMan.Event.connect(&WatchForNewDocument);
+
+		mDisFuncLen = Config.getInteger("DEBUG_UI","disfunclen" , 30);
+		mDisAddressLen = Config.getInteger("DEBUG_UI","misaddresslen" ,22);
+		mDisOffsetLen = Config.getInteger("DEBUG_UI", "disoffsetlen" ,6);
+		mDisInstLen = Config.getInteger("DEBUG_UI", "disinstlen",40);
+		mDisOpcodeLen = Config.getInteger("DEBUG_UI", "disopcodelen",40);
 
 	    mState = true;
 	    Log.Entry("Engaged "~Name()~"\t\telement.");

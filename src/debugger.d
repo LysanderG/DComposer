@@ -43,6 +43,7 @@ private:
 
 	string mCurrSrcfile;                                        //location in target ... probably will remove this and let other modules
 	int mCurrLine;                                              //just grab and parse gdbstring
+	string mCurrAddress;
 
 
 
@@ -60,11 +61,12 @@ private:
 	        case '+' :
 	        case '=' : FormAsyncOutput(msg); break;
 
+			case '0' : .. case '9' :
 	        case '^' : FormResultOutput(msg); break;
 
 	        case '(' : StreamOutput.emit(msg);break;
 
-	        default : break;
+	        default : Output.emit(msg);
         }
 
         if( (msg.startsWith("(gdb)")) && (mState != STATE.TARGET_RUNNING))
@@ -96,37 +98,25 @@ private:
 		}
 	    if(msg.startsWith("*running"))
 	    {
-			//Output.emit(msg[1..$]);
 		    State = STATE.TARGET_RUNNING;
 	    }
 
 	    if(msg.startsWith("*stopped"))
         {
-			//Output.emit(msg[1..$]);
-			string two = msg[9..$];
-			auto rezult = TUPLE(two);
 	        State = STATE.BUSY;
 	        mTargetHasJustStopped = true;
-
-	        //might not have a file/line if from some shared object or something
-            //going to forego doing this in debugger module let callers (connectors) find the location
-			//scope(failure)return;
-			//mCurrSrcfile = rezult._resultItems["frame"]._value._tuple._resultItems["file"]._value._const[1..$-1];
-			//mCurrLine = to!int(rezult._resultItems["frame"]._value._tuple._resultItems["line"]._value._const[1..$-1]) -1;
-			try
-			{
-				if("frame" in rezult._resultItems)
-				{
-					mCurrSrcfile = rezult["frame"]._value._tuple["file"]._value._const[1..$-1];
-					mCurrLine = to!int(rezult["frame"]._value._tuple["line"]._value._const[1..$-1]) -1;
-				}
-		    }
-		    catch(Exception X)
-		    {
-			    mCurrLine = 0;
-			    mCurrSrcfile = "";
-		    }
-
+	        //set new location here ... easier than making others find it
+	        writeln(msg["*stopped,".length..$]);
+	        auto result = RECORD(msg["*stopped,".length..$]);
+	        writeln("here");
+	        mCurrSrcfile = result.Get("frame", "fullname");
+	        writeln("here2");
+			auto tmpstr = result.Get("frame", "line");
+			writeln("here3");
+	        if(tmpstr.length > 0)mCurrLine = to!int(tmpstr);
+	        writeln("here4");
+	        mCurrAddress = result.Get("frame", "addr");
+	        writeln("mCurrAddress ", mCurrAddress);
         }
         AsyncOutput.emit(msg);
     }
@@ -268,10 +258,11 @@ public:
 		if(mState == STATE.OFF) GdbExited.emit();
 	}
 
-	void GetLocation(out string SrcFile, out int SrcLine)
+	void GetLocation(out string SrcFile, out int SrcLine, out string Address)
 	{
 		SrcFile = mCurrSrcfile;
 		SrcLine = mCurrLine;
+		Address = mCurrAddress;
 	}
 
 
@@ -289,206 +280,294 @@ public:
 
 
 
-enum VALUE_TYPE :int {CONST, TUPLE, LIST}
+enum VALUE_TYPE :int {EMPTY = -1, CONST, TUPLE, LIST}
 
-struct RESULT
+//if -break-insert overloadedfunc
+//gdb will set a breakpoint for each function named overloadedfunc
+//BUT (UNDOCUMENTED BUT) it puts a LIST smack dab in the the middle of a TUPLE
+//so to get around this will allow skipping key reading for tuples named "bkpt"
+//who the hell would name all the variables in a tuple the same name anyway
+//{varID="firstvalue",varID="highvalue",varID="lowvalue"}wtf! but thats not bad enough
+//{varID="firstvalue","anothervalue","thisvalue",varID="thatvalue",varID="lastvalue"}
+//no... no I don't see a reason to document that !!!  Its easy to see what the value of varID is... right?
+
+/* hah all my fault ... failed to see that record is a list not a tuple!!tuple, oh wait never mind*/
+
+
+
+struct RECORD
 {
-	string _name;
-	VALUE _value;
 
-	this(ref string InString)
-	{
+    VALUE[string] _values; //i think all results are a tuple of results at least one
+    //alias _values this;
 
-		auto EqualPos = InString.indexOf("=");
-		if(EqualPos < 1)throw new Exception("Error Reading gdb Result");
-		_name = InString[0..EqualPos];
-		InString = InString[EqualPos+1..$];
-		_value = VALUE(InString);
+    this(string recordString)
+    {
+	    do
+	    {
+		    if(recordString[0] ==',')recordString = recordString[1..$];
+	        string _tmpKey;
 
-	}
+	        auto EqualPos = recordString.indexOf("=");
+	        auto BracePos = recordString.indexOf("{");
+	        if((EqualPos < 0) || ((EqualPos > BracePos) && (BracePos > -1)))
+	        {
+		        throw new Exception("Error Reading gdb ResultRecord");
+	        }
+	        _tmpKey = recordString[0..EqualPos];
+	        recordString = recordString[EqualPos+1..$];
 
-	string toString()
-	{
-		string rv = _name ~ " : " ~ _value.toString() ~ '\n';
-		return rv;
-	}
+	        //trying again with bkpt multi problems
+	        if(_tmpKey == "bkpt")
+	        {
+		        recordString = '[' ~ recordString ~ ']';
+	        }
+	        _values[_tmpKey] = VALUE(recordString);
+	        if(recordString.length < 1) break;
+        }while(recordString[0] == ',');
+    }
 
+
+    VALUE GetValue(INDEX1, INDEX...)(INDEX1 FirstIndex, INDEX Indices)
+    {
+
+	    VALUE _tmpV = _values[FirstIndex];
+
+
+	    foreach(indx; Indices)
+	    {
+	        if(_tmpV._type == VALUE_TYPE.EMPTY) return _tmpV;
+	        if(_tmpV._type == VALUE_TYPE.CONST) return _tmpV;
+	        if(_tmpV._type == VALUE_TYPE.TUPLE)
+	        {
+		        _tmpV = _tmpV.Get(indx);
+		        continue;
+	        }
+	        if(_tmpV._type == VALUE_TYPE.LIST)
+	        {
+		        _tmpV = _tmpV._list.Get(indx);
+		        continue;
+	        }
+	    }
+	    return _tmpV;
+
+    }
+
+    string Get(INDEX1, INDEX...)(INDEX1 FirstIndex, INDEX Indices)
+    {
+	    scope(failure)return "";
+
+	    VALUE _tmpV = _values[FirstIndex];
+
+
+	    foreach(indx; Indices)
+	    {
+	        if(_tmpV._type == VALUE_TYPE.EMPTY) return "[]";
+	        if(_tmpV._type == VALUE_TYPE.CONST) return _tmpV._const;
+	        if(_tmpV._type == VALUE_TYPE.TUPLE)
+	        {
+		        _tmpV = _tmpV.Get(indx);
+		        continue;
+	        }
+	        if(_tmpV._type == VALUE_TYPE.LIST)
+	        {
+		        _tmpV = _tmpV._list.Get(indx);
+		        continue;
+	        }
+	    }
+	    return _tmpV._const;
+    }
 }
 
 
 struct VALUE
 {
-	VALUE_TYPE _type;
+    VALUE_TYPE _type;
 	string _const;
-	TUPLE _tuple;
+	VALUE[string] _values;
 	LIST _list;
 
-	this(ref string InString)
+	static string _UniqueKeyName;
+
+	this(ref string recordString)
 	{
-		switch (InString[0])
+		_type = VALUE_TYPE.EMPTY;
+
+		switch(recordString[0])
 		{
-			case '"' :
+			case '"' : //a simple value aka _const
 			{
 				_type = VALUE_TYPE.CONST;
-				auto endQuote = InString[1..$].indexOf('"');
-				_const = InString[0..endQuote+2];
-				InString = InString[endQuote+2..$];
+				auto closeQuotePos = recordString[1..$].indexOf('"');
+				_const = recordString[1..closeQuotePos+1];
+				recordString = recordString[closeQuotePos+2..$];
 				break;
 			}
-			case '{' :
+			case '{' : //a tuple
 			{
+				//CHECK FOR EMPTY TUPLE (WHY WOULD THERE BE ONE THOUGH
+				if(recordString[1] == '}')
+				{
+					recordString = recordString[2..$];
+					return;
+				}
 
-			    _type = VALUE_TYPE.TUPLE;
-			    _tuple = TUPLE(InString);
-			    break;
+				_type = VALUE_TYPE.TUPLE;
+				//this is tuple aka VALUE[string]
+				//skip {
+				recordString = recordString[1..$];
+				do
+				{
+					if(recordString[0] == ',') recordString = recordString[1..$];
+					string _tmpKey;
+					auto EqualPos = recordString.indexOf("=");
+					auto BracePos = recordString.indexOf("{");
+					if((EqualPos < 0) || ((EqualPos > BracePos) && BracePos > -1))
+					{
+						throw new Exception("Error reading gdb tuple");
+					}
+					_tmpKey = recordString[0..EqualPos];
+	                recordString = recordString[EqualPos+1..$];
+	                _values[_tmpKey] = VALUE(recordString);
+
+    	            if(recordString.length < 1) break;
+	            }while(recordString[0] == ',');
+	            //skip }
+	            recordString = recordString[1..$];
+	            break;
 			}
-			case '[' :
+			case '[' : // a list
 			{
 				_type = VALUE_TYPE.LIST;
-				_list = LIST(InString);
+				_list = LIST(recordString);
 				break;
 			}
-			case 'a' : ..case 'z':
-			case 'A' : ..case 'Z':return;
-			default : return;//throw new Exception("Error Reading gdb Value" ~ InString[0]);
+			default :
 		}
 	}
-    string toString()
-    {
-	    switch (_type) with(VALUE_TYPE)
-	    {
-		    case CONST : return _const[1..$-1];
-		    case TUPLE : return _tuple.toString();
-		    case LIST  : return _list.toString();
-		    default : return "ERROR";
-	    }
-    }
 
-}
-
-struct TUPLE
-{
-	RESULT[string] _resultItems;
-	alias _resultItems this;
-
-	this(ref string InString)
+	VALUE Get(string index)
 	{
-		do
-		{
-		    //skip the { or ,
-		    InString = InString[1..$];
-		    auto newResult = RESULT(InString);
-			_resultItems[newResult._name] = newResult;
-			if(InString.length < 1) return;
-		}while(InString[0] == ',');
-		//should be }
-		InString = InString[1..$];
+		return _values[index];
+	}
+	VALUE Get(int index)
+	{
+		return _list._values[index];
 	}
 
-	string toString()
+	string toString(string nameValueSep = "=", string itemSep = ",")
 	{
+
 		string rv;
-		foreach(ri; _resultItems)
+		bool notFirstItem;
+
+		switch(_type) with(VALUE_TYPE)
 		{
-			rv ~=  ri.toString();
+			case EMPTY : return "[]";
+			case CONST : return _const;
+			case TUPLE :
+			{
+
+				foreach(key, t; _values)
+				{
+					if(t._type == CONST)
+					{
+						if(notFirstItem) rv ~= itemSep;
+					    rv ~= key ~ nameValueSep ~ t._const;
+					    notFirstItem = true;
+				    }
+				}
+				return rv;
+			}
+			case LIST :
+			{
+				rv ~= "[";
+				foreach(i; _list._values)
+				{
+					if(notFirstItem) rv ~= itemSep;
+					if(i._type == CONST) rv ~= i._const;
+					if(i._type == LIST) foreach( ti; i._list._values) rv ~= ti.toString();
+					notFirstItem = true;
+				}
+				rv = rv ~ "]";
+				return rv;
+			}
+			default :return "{}";
 		}
-		return rv;
 	}
 }
 
 struct LIST
 {
-	int _ltype; //0 result, 1 tuple, 2 value, -1 empty list
-	RESULT[] _resultItems;
-	TUPLE[] _tupleItems;
-	VALUE[] _valueItems;
-	this(ref string InString)
+				//this sucks... given an array of tuples they MIGHT all have the same name!name
+				//so can I treat them like arrays of tuples and just drop all names?
+	VALUE_TYPE _type;
+	VALUE[] _values;
+	//alias _values this;
+	//VALUE[string] _tuples; //forget this for now
+
+	this(ref string recordString)
 	{
-		if(InString[0..2] == "[]")
+		_type = VALUE_TYPE.EMPTY; //initial value should change;
+		//skip [
+		recordString = recordString[1..$];
+		if(recordString[0] == ']')//empty array
 		{
-			InString = InString[2..$];
+			recordString = recordString[1..$];
 			return;
 		}
-		if(InString[1] == '"') //its a value
-	    {
-		    _ltype = 2;
-		    do
-		    {
-			    //skip [ or ,
-			    InString = InString[1..$];
-			    _valueItems ~= VALUE(InString);
-			    if(InString.length < 1) return;
-		    }while(InString[0] == ',');
-		    //skip final ]
-		    InString = InString[1..$];
-		    return;
-	    }
-	    if(InString[1] == '{') //its an array of tuples old school crap
-	    {
-		    _ltype = 1;
-		    //skip [
-		    InString = InString[1..$];
-		    do
-		    {
-			    if(InString[0] == ',')InString = InString[1..$];
-			    _tupleItems ~= TUPLE(InString);
-			    if(InString.length < 1) return;
-		    }while (InString[0] == ',');
-		    //skip }] both
-		    InString = InString[1..$];
-		    return;
-	    }
-	    //guess its a result ... stupid gdb documentation is so wrong!
-	    //no offense :) mine is worse ... well if I had any, it'd be worse.
-	    _ltype = 0;
 
-	    do
-	    {
-		    if(InString[0] == ',')InString = InString[1..$];
-		    _resultItems ~= RESULT(InString);
-		    if(InString.length < 1) return;
-	    }while(InString[0] == ',');
-	    //skip ]
-	    InString = InString[1..$];
-	}
-
-	string toString()
-	{
-		string rv;
-		foreach(vi; _valueItems)
+		if(recordString[0] == '"')//we are an array of simple strings
 		{
-			rv ~= vi.toString();
+			_type = VALUE_TYPE.CONST;
+			do
+			{
+				if(recordString[0] == ',') recordString = recordString[1..$];
+				_values ~= VALUE(recordString);
+				if(recordString.length < 1) return;
+			}while(recordString[0] == ',');
+			//skip ]
+			recordString = recordString[1..$];
+			return;
 		}
-		return rv;
-	}
-}
-
-xpoint breakpoint;
-
-struct xpoint
-{
-	string[string] _items;
-
-	this(VALUE vtuple)
-	{
-
-		if (vtuple._type != VALUE_TYPE.TUPLE) throw new Exception("Bad breakpoint value");
-
-
-		foreach(key, gdbitem; vtuple._tuple._resultItems)
+		if(recordString[0] == '{') // an array of tuples
 		{
-	        //_items[key] = gdbitem._value._const;
-	        _items[key] = gdbitem._value.toString();
-        }
-    }
-}
-unittest
-{
-	string gdb_string = `bkpt={number="1",type="breakpoint",disp="keep",enabled="y",addr="0x08048564",func="main",file="myprog.c",fullname="/home/nickrob/myprog.c",line="68",thread-groups=["i1","i2"],times="0"}`;
-	auto rout = RESULT(gdb_string);
+			_type = VALUE_TYPE.TUPLE;
+			do
+			{
+				if(recordString[0] == ',') recordString = recordString[1..$];
+				_values ~= VALUE(recordString);
 
-    string xdb = `bkpt={number="1",type="breakpoint",disp="keep",enabled="y",addr="0x000100d0",func="main",file="hello.c",fullname="/home/foo/hello.c",line="5",thread-groups=["i1","02"],times="0",ignore="3"}`;
+				if(recordString.length < 1)return;
+			}while(recordString[0] == ',');
+			//skip ] again
+			recordString = recordString[1..$];
+			return;
+		}
+		//now it should be an array of results ie
+		//[bkpt={blah="blah",ant="insect"},bkpt={blah="humph",ant="bee"}]
+		_type = VALUE_TYPE.TUPLE;
+		do
+		{
+			if(recordString[0] == ',') recordString = recordString[1..$];
+			auto equalPos = recordString.indexOf('=');
+			auto bracePos = recordString.indexOf('{');
+			//if(equalPos < 0)throw new Exception("Error reading an array of tuples from gdb");
+			if( (equalPos < 0) || (equalPos >= bracePos)) equalPos = -1;
+			recordString = recordString[equalPos+1..$];
+			_values ~= VALUE(recordString);
+			if(recordString.length < 1)return;
+		}while(recordString[0] == ',');
+		//skip ]
+		recordString = recordString[1..$];
+	}
 
-    auto xout = RESULT(xdb);
-
+	VALUE Get(int index)
+	{
+    	return _values[index];
+	}
+	VALUE Get(string index)
+	{
+        throw new Exception("Tried to access LIST value with a string index");
+	}
 }

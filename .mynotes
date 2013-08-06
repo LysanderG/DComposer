@@ -1161,3 +1161,17 @@ Thu Jul 25 21:00:22 EDT 2013
     8.  really need hot keys (ability to set them... wish sourceview/textview had a list of all of them)
     9.  Just realized shouldn't use project name as the projects app name. should have a target name member or something
     10. Still getting stupid failed to create tags, tags created nonsense
+
+Mon Aug  5 12:22:06 EDT 2013
+
+    OMG! I just spent the whole day looking for a bug and hacking my gdb output "parser"!! The only problem, which I checked a hundred times, was that 
+    I wrote "asm-insns" instead of "asm_insns".  Even worse I knew the code worked because it worked before I rewrote that small section.  Morale of 
+    story, "Don't change code unless you know what it is doing before the change and what it will (or should) do after the change."  I was strictly adhering
+    to the "let's see what happens if I change this to that."
+
+Tue Aug  6 01:13:49 EDT 2013
+    
+    Another partially wasted day.  Somehow managed to erase debugui.d. File went to 0bytes, just hoping it wasn't caused by DComposer.
+    Actually seemed to happen when geany was asking to load/ignore external changes.  Anyway I was very tired hard to concentrate so 
+    I probably made a wreck of everything I touched today. ... oh well.  Time for bed another early day tomorrow... good night.
+    
