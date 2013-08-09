@@ -938,6 +938,8 @@ class DOCUMENT : SourceView
 		//trying drag and drop
 		addOnDragDataReceived (&DragCatcher);
 
+        //has a tooltip
+        setHasTooltip(1);
 
 		UpdatePageTab();
 

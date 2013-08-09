@@ -19,6 +19,15 @@ import dcore;
 
 enum STATE
 {
+	//not a complete list ...
+	//really need
+	//gdb-off tgt-off
+	//gdb-on tgt-off
+	//gdb-on tgt-onrunning
+	//gdb-on tgt-onpaused
+	//gdb-on tgt-quitting
+	//gdb-quitting tgt-ignore
+	
     OFF,             //GDB NOT RUNNING
     SPAWNING,         //FORKED AND LOADED
     PROMPTING,          //REALLY WAITING FOR INPUT
@@ -44,7 +53,8 @@ private:
 	string mCurrSrcfile;                                        //location in target ... probably will remove this and let other modules
 	int mCurrLine;                                              //just grab and parse gdbstring
 	string mCurrAddress;
-
+    
+    string[] mCommandStack;
 
 
 
@@ -106,17 +116,16 @@ private:
 	        State = STATE.BUSY;
 	        mTargetHasJustStopped = true;
 	        //set new location here ... easier than making others find it
-	        writeln(msg["*stopped,".length..$]);
 	        auto result = RECORD(msg["*stopped,".length..$]);
-	        writeln("here");
-	        mCurrSrcfile = result.Get("frame", "fullname");
-	        writeln("here2");
-			auto tmpstr = result.Get("frame", "line");
-			writeln("here3");
-	        if(tmpstr.length > 0)mCurrLine = to!int(tmpstr);
-	        writeln("here4");
-	        mCurrAddress = result.Get("frame", "addr");
-	        writeln("mCurrAddress ", mCurrAddress);
+	        auto reason = result.Get("reason");
+	        if(!reason.startsWith("exited"))
+	        {
+	            mCurrSrcfile = result.Get("frame", "fullname");
+			    auto tmpstr = result.Get("frame", "line");
+	            if(tmpstr.length > 0)mCurrLine = to!int(tmpstr)-1;
+	            mCurrAddress = result.Get("frame", "addr");
+            }
+
         }
         AsyncOutput.emit(msg);
     }
@@ -128,6 +137,19 @@ private:
 	    }
 	    ResultOutput.emit(msg);
     }
+    
+    void ExecuteCommand()
+    {
+	    if(mCommandStack.length > 0)
+	    {
+		    auto cmd = mCommandStack[0];		    
+		    mCommandStack = mCommandStack[1..$];
+		 	StreamOutput.emit(":> " ~ cmd);
+		    mGdbProcess.stdin.writeln(cmd);
+		    mGdbProcess.stdin.flush();		    
+		    State = STATE.BUSY;
+         }
+    }    
 
 public:
     this()
@@ -147,6 +169,7 @@ public:
 
     void Spawn(string Target)
     {
+	    mCommandStack.length = 0;
 		mTargetId = -1;
 	    string[] cmdline = ["gdb", "--interpreter=mi", Target];
 	    mGdbProcess = pipeProcess(cmdline, Redirect.all);
@@ -155,6 +178,7 @@ public:
 		fcntl(mPollFd.fd, F_SETFL, O_NONBLOCK);
 	    mGdbProcess.stdin.flush();
 	    State = STATE.SPAWNING;
+	    //Command("set target-async on");
     }
 
     void Unload()
@@ -206,19 +230,29 @@ public:
 			case SPAWNING       :
 			case BUSY           :
 			case TARGET_RUNNING : GetGdbOutput(); break;
-			case PROMPTING      : break; //not looking for input waiting for orders
+			case PROMPTING      : ExecuteCommand();break; //not looking for input waiting for orders
 		}
 	}
 
 
 
+
 	void Command(string cmd)
 	{
-		StreamOutput.emit(":> " ~ cmd);
-		mGdbProcess.stdin.writeln(cmd);
-		mGdbProcess.stdin.flush();
-		State = STATE.BUSY;
+		if(mCommandStack.length > 3)return;
+		if(mCommandStack.length > 0 && (mCommandStack[$-1] == cmd))return;
+		mCommandStack ~= cmd;
 	}
+	
+	
+	void Interrupt()
+	{
+		mCommandStack.length = 0;
+		mGdbProcess.stdin.writeln("-exec-interrupt");
+	    mGdbProcess.stdin.flush();		    
+	    State = STATE.BUSY;
+    }
+	    
 
 
 	Pid ProcessID()
@@ -257,6 +291,7 @@ public:
 
 		if(mState == STATE.OFF) GdbExited.emit();
 	}
+	@property STATE State(){return mState;}
 
 	void GetLocation(out string SrcFile, out int SrcLine, out string Address)
 	{

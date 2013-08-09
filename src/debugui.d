@@ -20,8 +20,11 @@ import gtk.ToggleButton;
 import gtk.VBox;
 import gtk.VPaned;
 import gtk.TextIter;
+import gtk.Widget;
+import gtk.Tooltip;
 
 import gdk.Color;
+import gdk.Rectangle;
 
 import glib.Idle;
 
@@ -77,6 +80,8 @@ private:
 
     Label mLblWarning;
 
+    //commonly used commands stored to hopefully reduce errors
+    //and a common place to make changes
     string StrCmdRun = "-exec-run";
     string StrCmdContinue = "-exec-continue";
     string StrCmdStepIn = "-exec-step";
@@ -85,23 +90,32 @@ private:
     string StrCmdRunToCursor = "-exec-until";
     string StrCmdInsertBreakPoint = "-break-insert";
 
+    
+    //store length of disassembly values to make a "pretty" table
     int mDisFuncLen;
     int mDisAddressLen;
     int mDisOffsetLen;
     int mDisInstLen;
     int mDisOpcodeLen;
 
+    //store where program was *stopped
     string mLocationFile;
     int mLocationLine;
     string mLocationAddress;
+    
+    //value of tooltip will on querytooltip will ask for --data-eval-exp word at mouse
+    //then when that value is returned will set tooltip to it
+    string mDebugTooltip;
+    bool mTooltipHolding;
 
-    void PromptCommands()
+    void IssueCommands()
     {
 	    GotoIP();
 	    Debugger.Command(`100-data-disassemble -s "$pc-16" -e "$pc + 256" -- 0`);
+	    Debugger.Command(`110-stack-list-frames`);
     }
 
-    void RecieveDisassembly(string msg)
+    void ReceiveDisassembly(string msg)
     {
 		int hiliteLine = -1;
 
@@ -131,10 +145,8 @@ private:
 					mDisassemblyText ~= oldfname ~ '\n';
 				}
 				mDisassemblyText ~= format("     %s:%s   %s\n",address, offset, inst);
-				writeln(address.strip(), "--",mLocationAddress);
 				if(address.strip() == mLocationAddress) hiliteLine = cast(int)i;
             }
-            writeln(hiliteLine);
             mDisassemblyView.getBuffer.setText(mDisassemblyText);
 
 			TextIter tis = new TextIter;
@@ -152,8 +164,65 @@ private:
 			}
 
         }
+        
+        if(msg.startsWith("100^error,"))
+        {
+	        auto result = RECORD(msg["100^error,".length .. $]);
+	        mDisassemblyText = result.Get("msg");
+            mDisassemblyView.getBuffer.setText(mDisassemblyText);
+        }
+        
     }
+    
+    void ReceiveCallStack(string msg)
+    {
+	    auto msgStart = msg[0..std.string.indexOf(msg,',')+1];
+	    msg = msg[msgStart.length..$];
+	    
+	    writeln(msgStart);
+	    if(msgStart == "110^error,")
+	    {
+		    auto result = RECORD(msg);
+		    mCallStackView.getBuffer.setText(result.Get("msg"));
+		    return;
+	    }
+	    
+	    if(msgStart != "110^done,") return;
+	            
+        mCallStackText.length = 0;
+        string indentation;
 
+	    auto result = RECORD(msg);	    
+	    foreach(frame; result.GetValue("stack")._list._values)
+	    {
+		    string func;
+		    if("func" in frame._values)func = frame.Get("func").toString().demangle();
+		    else func = "indeterminate";
+		      
+		    mCallStackText ~= frame.Get("level").toString() ~ "| ";
+		    mCallStackText ~= indentation ~ frame.Get("addr").toString() ~". ";
+		    mCallStackText ~= func ~ '\n'; 
+		    indentation =indentation ~ " ";		    
+	    }
+	    mCallStackView.getBuffer.setText(mCallStackText);
+    }
+	    
+    void ReceiveTooltip(string msg)
+    {
+	    //gdb with a token of 120 is returning a -data-eval-exp for a tooltip query
+	    auto msgStart = msg[0..std.string.indexOf(msg,',')+1];
+	    msg = msg[msgStart.length..$];
+	    
+	    mDebugTooltip.length = 0;
+
+	    if(msgStart != "120^done,") {return;}
+	    
+	    mDebugTooltip = RECORD(msg).Get("value");
+	    //dui.GetDocMan.Current.triggerTooltipQuery();
+	    
+    }
+    
+    
     void ClearText()
     {
 	    mOutputView.getBuffer.setText(" ");
@@ -181,9 +250,47 @@ private:
         if(EventId != "AppendDocument") return;
 
         NewDoc.BreakPoint.connect(&CatchBreakPoint);
+        
+       // NewDoc.addOnQueryTooltip(&SetSymbolTip);
+    }
+    
+    bool SetSymbolTip(int X, int Y, int FromKeyBoard, GtkTooltip * tt, Widget obj)
+    {
+	    
+	    static string DocSym;
+	    
+	    void GetDocSym()
+	    {
+		    int x,y, unusedTrailing;
+	        TextIter ti = new TextIter;	
+	        TextIter tiBegins = new TextIter;    
+	        //auto Thedoc = cast(DOCUMENT)obj;
+	        auto Thedoc = dui.GetDocMan.Current();	    	    
+	        Thedoc.windowToBufferCoords(TextWindowType.WIDGET, X, Y, x, y);
+	        Thedoc.getIterAtPosition(ti, unusedTrailing, x, y);	    
+	        DocSym = Thedoc.Symbol(ti, tiBegins, true);
+	        writeln(DocSym, " and ", ti, " @x",x,":y",y);
+        }
+        
+
+	    //writeln("--", X, ":", Y, mTooltipHolding,":",mDebugTooltip, " :blahbhabha ",FromKeyBoard);
+	    auto docTip = new Tooltip(tt); 
+	    GdkRectangle gdkRectangle = {x:X-5, y:Y-5, width:10, height:10};
+	    docTip.setTipArea(new Rectangle(&gdkRectangle));
+        
+        GetDocSym();
+        
+        if(DocSym.length > 1)
+        {
+	        Debugger.Command("120-data-evaluate-expression " ~ DocSym);
+        }
+
+        docTip.setText(to!string(X) ~ ":" ~ to!string(Y) ~ " > " ~ DocSym ~ " = " ~ mDebugTooltip);
+	    writeln(DocSym ~ " = " ~ mDebugTooltip);
+        return true;
     }
 
-    void GdbListener(string message)
+    void ReceiveGdb(string message)
     {
 	    mOutputView.appendText(message ~ '\n');
     }
@@ -223,7 +330,7 @@ private:
 	    {
 		    mButtonBox.setSensitive(1);
 		    Debugger.Spawn(Project.Name());
-		    mIdle = new Idle(&PollGdb);
+		    mIdle = new Idle(&PollGdb, GPriority.LOW);
 
 	    }
 	    else
@@ -271,8 +378,9 @@ private:
 
 		if(TheButton is mBtnStop)
 		{
-			import core.sys.posix.signal;
-			kill(Debugger.TargetID,2);
+			//import core.sys.posix.signal;
+			//kill(Debugger.TargetID,2);
+			Debugger.Interrupt();			
 			return;
 		}
 
@@ -369,7 +477,7 @@ public:
         mOutputView.modifyBase(StateType.NORMAL, new Color(1000, 1000, 1000));
         mDisassemblyView.modifyFont("freemono", 14);
         mDisassemblyView.getBuffer.createTag("hilite", "background", "yellow");
-
+        mCallStackView.modifyFont("freemono", 14);
 
 
 	    dui.GetSidePane().appendPage(mSideRoot, "Debug");
@@ -395,12 +503,14 @@ public:
 	    mSideRoot.showAll();
 	    mExtraRoot.showAll();
 
-        Debugger.StreamOutput.connect(&GdbListener);
-        Debugger.AsyncOutput.connect(&GdbListener);
-        Debugger.ResultOutput.connect(&GdbListener);
-        Debugger.ResultOutput.connect(&RecieveDisassembly);
+        Debugger.StreamOutput.connect(&ReceiveGdb);
+        Debugger.AsyncOutput.connect(&ReceiveGdb);
+        Debugger.ResultOutput.connect(&ReceiveGdb);
+        Debugger.ResultOutput.connect(&ReceiveDisassembly);
+        Debugger.ResultOutput.connect(&ReceiveCallStack);
+        Debugger.ResultOutput.connect(&ReceiveTooltip);
         //Debugger.Prompt.connect(&GotoIP);
-        Debugger.Stopped.connect(&PromptCommands);
+        Debugger.Stopped.connect(&IssueCommands);
 
         Debugger.GdbExited.connect(&ClearText);
 
@@ -412,6 +522,7 @@ public:
 		mDisInstLen = Config.getInteger("DEBUG_UI", "disinstlen",40);
 		mDisOpcodeLen = Config.getInteger("DEBUG_UI", "disopcodelen",40);
 
+		
 	    mState = true;
 	    Log.Entry("Engaged "~Name()~"\t\telement.");
     }

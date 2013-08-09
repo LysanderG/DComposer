@@ -1175,3 +1175,95 @@ Tue Aug  6 01:13:49 EDT 2013
     Actually seemed to happen when geany was asking to load/ignore external changes.  Anyway I was very tired hard to concentrate so 
     I probably made a wreck of everything I touched today. ... oh well.  Time for bed another early day tomorrow... good night.
     
+    Okay by popular demand a list before bed
+    
+    1. Debugger
+        a. call stack/frames/whatever
+        b. variables local/parameters/watch
+        c. toggle/remove breakpoints (and conditional)
+        d. a command input straight to gdb
+    2. Log  
+        a. a less verbose option
+    3. Assistant
+        a. get rid of webkit... maybe just text2html something simple
+        b. don't pick first match pick closest match
+        c. a tool to create and store documentation
+    4. Autopopups
+        a. fixem -- sometimes invisible sometimes wrong size ...
+    5. bookmarks
+        a. improve worth allow going back to where you jumped from
+        b. a listview of bookmarks on the side pane?
+        c. basically more like a browser
+    6. Calltips/completion/symbols
+        a. scan for symbols without needing a full compile!
+        b. local symbols keywords
+    7. Dirview
+        a. more file managerery.  shouldn't be hard
+        b. (add this to everything) CONEXT MENUS
+    8. HistoryView
+        a. scrap it cuz i must be using it completely wrong
+           How hard should it be to remember a few file names.
+    9. Log
+        a. might look into using the log in review (can't be worse)
+   10. ModuleView
+        a. save the treeview foreach module open (keep its state when switching documents)
+        b. sortable (more sortable)
+   11. Preferences
+        a. just looks ugly and ugly is harder and sucks
+   12. Project/ProjectUI
+        a. Bad design (very) More I work on this project the more short sighted it gets
+        b. Multiple languages/targets/ compile flags for each source file (if needed)
+        c. Nothing overly complex simple as possible but... some improvements are needed
+   13. Proview
+        a. Have I mentioned I really like this?  I find it very useful.
+   14. Search/UI
+        a. It crashed last time I tried replace All (I cried)
+        b. top part is to bulky
+        c. add search selection
+        d. (tangent) let documents maintained their selection 
+   15. shellfilter
+        a. I really want to improve this
+        b. favorites 
+        c. some help for shell commands (easy with man)
+        d. Hot keys for most used
+   16. splitdoc
+        a. another really bad design should restrict split to only the same doc
+
+thats the old
+heres the new
+    17. profile/coverage viewer (diff too?)(patch??)
+    18. snippets or templates whatever ... type i<ctrl-J> get "if(|)|;else|; 
+    19. decimal/octal/hex converter
+    20. automatically add imports when a symbol is used
+    21. autosave/backup
+    22. version control (I barely can use git... how's this going to go over)[yeah but u can't use gdb either]
+    23. customize toolbar (fix your stupid menu)
+    24. part of project above but at least support ldc/gdc
+    25. BIG ONE hot keys
+        a. look at vim's (or emacs I guess) key movements it rocks
+        b. not going to be whatzit called mode switching but less mousing around is better
+    26. kinda clipboard
+        a. borland had a text page were all cuts/copies where kept it was editable very useful
+        b. geany scratchpad is rather similar but any copy operation could automatically add text to it
+        c. (ok not really abcd but) Helps out with copy and paste stuff lets u keep a kind of reminder of whats been changed
+    27. ok really the only one that counts
+        a. make it stable.       
+           
+Tuesday August  6 2013
+    things i gotta fix today
+        crashes on step out
+
+
+Thursday August  8 2013
+
+    OK
+    1. DOCUMENT api really really sucks
+        just spent all night trying to find a bug because 
+        one "Symbol" method takes an iter as an 'out' parameter
+            gets the symbol under the cursor.  sets iter to symbol beginning.
+        another takes an iter (determined from x:y position) and returns the
+            symbol at that iterator.
+        Its been so long since I looked at that code ... no way to figure that out.
+    2. hmm brain just stalled had a few to list... need to organize these issues.         
+    3. oh yeah ... clear debugger command stack on interrupt and killing gdb
+
