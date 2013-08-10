@@ -107,6 +107,10 @@ private:
     //then when that value is returned will set tooltip to it
     string mDebugTooltip;
     bool mTooltipHolding;
+    
+    void SetButtonSensitivity()
+    {
+	    
 
     void IssueCommands()
     {
@@ -297,22 +301,9 @@ private:
 
     bool PollGdb()
     {
-	    bool AreStepButtonsSensitive;
+	    
 	    Debugger.Process();
-	    //if debugger state = prompting buttons = sensitive stop = not sensitive
-	    if(Debugger.IsPrompting()) AreStepButtonsSensitive = true;
-	    else AreStepButtonsSensitive = false;
-
-	    //set stepping buttons sensitivity
-	    //mBtnRun.setSensitive(AreExecButtonsSensitive());
-	    mBtnStepIn.setSensitive(AreStepButtonsSensitive);
-	    mBtnStepOut.setSensitive(AreStepButtonsSensitive);
-	    mBtnStepOver.setSensitive(AreStepButtonsSensitive);
-	    mBtnContinue.setSensitive(AreStepButtonsSensitive);
-	    mBtnRunToCursor.setSensitive(AreStepButtonsSensitive);
-
-	    //set run button sensitivity should only be on if (gdbspawned / target not running)
-	    mBtnRun.setSensitive(!Debugger.IsRunning());
+	   
 
 	    return (cast (bool)mSpawnGdb.getActive());
     }
@@ -321,24 +312,19 @@ private:
     {
 	    if(Project.Target() != TARGET.APP)
 	    {
-			Log.Entry("Failed to spawn gdb. Presently can only debug projects with an executable target.", "Error");
+			Log.Entry("DEBUG_UI: Failed to spawn gdb. Presently can only debug projects with an executable target.", "Error");
 		    tb.setActive(0);
 		    return;
         }
-
-	    if (tb.getActive())
-	    {
-		    mButtonBox.setSensitive(1);
-		    Debugger.Spawn(Project.Name());
-		    mIdle = new Idle(&PollGdb, GPriority.LOW);
-
-	    }
-	    else
-	    {
-		    mButtonBox.setSensitive(0);
-		    Debugger.Unload();
-	    }
-
+        if(!Project.Name.exists())
+        {
+	        Log.Entry("DEBUG_UI: Target executable does not exist.","Error");
+	        tb.setActive(0);
+	        return;
+        }
+	    if (tb.getActive()) mIdle = new Idle(&PollGdb, GPriority.LOW);
+	    else Debugger.State = KILL;
+        SetButtonSensitivity();
     }
 
     void BtnCommand(Button TheButton)
@@ -509,9 +495,7 @@ public:
         Debugger.ResultOutput.connect(&ReceiveDisassembly);
         Debugger.ResultOutput.connect(&ReceiveCallStack);
         Debugger.ResultOutput.connect(&ReceiveTooltip);
-        //Debugger.Prompt.connect(&GotoIP);
         Debugger.Stopped.connect(&IssueCommands);
-
         Debugger.GdbExited.connect(&ClearText);
 
         dui.GetDocMan.Event.connect(&WatchForNewDocument);

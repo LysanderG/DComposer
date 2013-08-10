@@ -16,301 +16,239 @@ import std.file;
 
 import dcore;
 
-
-enum STATE
+enum DBGR_STATE
 {
-	//not a complete list ...
-	//really need
-	//gdb-off tgt-off
-	//gdb-on tgt-off
-	//gdb-on tgt-onrunning
-	//gdb-on tgt-onpaused
-	//gdb-on tgt-quitting
-	//gdb-quitting tgt-ignore
-	
-    OFF,             //GDB NOT RUNNING
-    SPAWNING,         //FORKED AND LOADED
-    PROMPTING,          //REALLY WAITING FOR INPUT
-    BUSY,            //PROCESSING INPUT
-    TARGET_RUNNING,  //TARGET IS RUNNING GDB IS INACTIVE
-    QUITTING         //RECEIVED THE SIGNAL TO QUIT GDB
+	OFF_OFF,            //NOTHING RUNNING NOT DEBUGGING
+	ON_OFF,             //GDB IS READY BUT TARGET IS NOT RUNNING (ALMOST LIKE ON_PAUSED BUT TARGET IS NOT RUNNING ERRORS WILL SHOW UP)
+	ON_PAUSED,          //GDB IS WAITING FOR INPUT TARGET IS NOT RUNNING
+	BUSY_PAUSED,        //GDB HAS RECEIVED A COMMAND AND IS PROCESSING IT ... MAYBE GETTING INFO OR STARTING TARGET
+	BUSY_RUNNING,       //GDB IS NOT ACCESSABLE TARGET IS RUNNING (INTERRUPT IS THE ONLY COMMAND THAT SHOULD WORK
+	BUSY_STOPPED,       //ONLY WHEN RECEIVES A ASYNC *STOPPED AND THEN CHANGED IMMEDIATELY
+	ON_QUITTING,        //GDB IS RECEIVING AN ASYNC OUTPUT *STOPPED WITH 'EXIT' REASON --> GOING TO ON_OFF STATE
+	QUITTING_ANY,       //GDB HAS RECEIVED ^EXIT ... SO WHO CARES ABOUT TARGET
 }
 
+alias QUITTING_ANY KILL;
 
 class DEBUGGER
 {
 
 private:
+	
+    ProcessPipes    mGdbProcess;
+    int             mTargetId;
 
-	STATE mState;                                               //self explained
-	ProcessPipes mGdbProcess;                                   //see phobos std.process this is our gdb child process
-
-	pollfd mPollFd;                                             //not using this anymore get rid of it (just use O_NONBLOCK and stdc read
-	string mGdbString;                                          //basically a buffer for what gdb returns
-	int mTargetId;                                              //this is what gdb is debugging
-	bool mTargetHasJustStopped;									//flag to indicate target just stopped running before a new prompt
-
-	string mCurrSrcfile;                                        //location in target ... probably will remove this and let other modules
-	int mCurrLine;                                              //just grab and parse gdbstring
-	string mCurrAddress;
+    DBGR_STATE      mState;
     
-    string[] mCommandStack;
-
-
-
-	void FormGdbOutput(string msg)
-	{
-		if(msg.length < 1)return;
-        switch (msg[0])
-        {
-	        case '~' :
-	        case '@' :
-	        case '&' : FormStreamOutput(msg); break;
-
-	        case '*' :
-	        case '+' :
-	        case '=' : FormAsyncOutput(msg); break;
-
-			case '0' : .. case '9' :
-	        case '^' : FormResultOutput(msg); break;
-
-	        case '(' : StreamOutput.emit(msg);break;
-
-	        default : Output.emit(msg);
-        }
-
-        if( (msg.startsWith("(gdb)")) && (mState != STATE.TARGET_RUNNING))
-        {
-	        State = STATE.PROMPTING;
-        }
-    }
-
-    void FormStreamOutput(string msg)
+    COMMAND[]       mCommandStack;
+    
+    //location stuff
+    string          mSrcFile;
+    int             mSrcLine;
+    string          mAddress;
+    
+    string          mTarget;
+    string          mGdbString;
+    
+    
+    struct COMMAND
     {
-	    if (msg[0] == '~')
+	    bool Show;
+	    string Command;
+	    alias Command this;
+    }
+    
+    
+    void Execute()
+    {
+	    if(!((mState != DBGR_STATE.ON_OFF) || (mState != DBGR_STATE.ON_PAUSED))) return;
+	    if(mCommandStack.length < 1) return;
+	    
+	    auto cmd = mCommandStack[0];
+	    if(cmd.Show)
 	    {
-		    StreamOutput.emit(msg);
+		    StreamOutput.emit("::> " ~ cmd);
 	    }
-	    return;
+	    mGdbProcess.stdin.writeln(cmd);
+	    mGdbProcess.stdin.flush();
+	    State = DBGR_STATE.BUSY_PAUSED;
     }
-
-    void FormAsyncOutput(string msg)
+    
+    void Spawn()
     {
-		//finds target pid from gdb output right after -exec-run
-		if(mTargetId == -1)
-		{
-			auto splitResult = msg.findSplitAfter(`pid="`);
-			if(splitResult[0].length > 0)
+	    if(mTarget.length == 0) mTarget  = Project.Name;
+	    mCommandStack.length = 0;
+		mTargetId = -1;
+	    string[] cmdline = ["gdb", "--interpreter=mi", mTarget];
+	    mGdbProcess = pipeProcess(cmdline, Redirect.all);
+		fcntl(mGdbProcess.stdout.fileno, F_SETFL, O_NONBLOCK);
+	    mGdbProcess.stdin.flush();
+	    State = DBGR_STATE.ON_OFF;
+    }
+    
+    void Abort()
+    {
+	    //how to invalidate mGdbProcess??
+	    mTargetId = -1;
+	    State = DBGR_STATE.OFF_OFF;
+	    mCommandStack.length = 0;
+	    mSrcFile.length = 0;
+	    mSrcLine = 0;
+	    mAddress.length = 0;
+	    
+	    kill(mGdbProcess.pid);
+	    wait(mGdbProcess.pid);
+    }
+    
+    void ReadGdbOutput()
+    {
+	    bool DoNotBreakout ;
+		while( DoNotBreakout)
+		{            		
+			char[] buffer;
+			buffer.length = 25;
+
+			auto read_response = read(mGdbProcess.stdout.fileno, buffer.ptr, buffer.length);
+			if(read_response < buffer.length) {DoNotBreakout = false;} //should check for errno
+			if(read_response < 1)return;
+			
+			mGdbString ~= cast(string)buffer[0..read_response];
+
+			auto returnPos = mGdbString.indexOf('\n');
+			if(returnPos > 0)
 			{
-				string rstring = splitResult[1][0..splitResult[1].indexOf('"')];
-				mTargetId = to!int(rstring);
+				ProcessGdbOutput(mGdbString[0..returnPos]);
+				mGdbString = mGdbString[returnPos+1 .. $];
 			}
 		}
-	    if(msg.startsWith("*running"))
-	    {
-		    State = STATE.TARGET_RUNNING;
-	    }
-
-	    if(msg.startsWith("*stopped"))
-        {
-	        State = STATE.BUSY;
-	        mTargetHasJustStopped = true;
-	        //set new location here ... easier than making others find it
-	        auto result = RECORD(msg["*stopped,".length..$]);
-	        auto reason = result.Get("reason");
-	        if(!reason.startsWith("exited"))
-	        {
-	            mCurrSrcfile = result.Get("frame", "fullname");
-			    auto tmpstr = result.Get("frame", "line");
-	            if(tmpstr.length > 0)mCurrLine = to!int(tmpstr)-1;
-	            mCurrAddress = result.Get("frame", "addr");
-            }
-
-        }
-        AsyncOutput.emit(msg);
-    }
-    void FormResultOutput(string msg)
-    {
-	    if(msg.startsWith("^exit"))
-	    {
-		    State = STATE.QUITTING;
-	    }
-	    ResultOutput.emit(msg);
+	}
+	
+	void ProcessGdbOutput(string msg)
+	{
+		string reason;
+		
+		if(msg.length < 1) return;
+		switch(msg[0])
+		{
+			case '~' :
+			case '@' :
+			case '&' : StreamOutput.emit(msg); break;
+			
+			case '*' :
+			case '+' :
+			case '=' : AsyncOutput.emit(msg);
+			           if(msg.startsWith("=thread-group-started,"))
+			           {
+				           mTargetId = to!int(RECORD(msg["=thread-group-started,".length..$]).Get("pid")[1..$-1]);
+			           }
+			           if(msg.startsWith("*stopped,"))
+			           {
+				           auto Record = RECORD(msg["*stopped,".length..$]);
+				           reason = RECORD(msg["*stopped,".length..$]).Get("reason");
+				           State = DBGR_STATE.BUSY_STOPPED;
+		               }
+		               if(msg.startsWith("*running,")) State = DBGR_STATE.BUSY_RUNNING;
+		               break;
+			
+			case '^' : ResultOutput.emit(msg);
+			           if(msg.startsWith("^exit"))State = DBGR_STATE.QUITTING_ANY;
+			           break;
+            default  : Output.emit(msg);
+        }		
+        
+        if( msg.startsWith("(gdb)"))State = DBGR_STATE.ON_PAUSED;
+        if(reason.startsWith("exited"))State = DBGR_STATE.ON_QUITTING;
     }
     
-    void ExecuteCommand()
-    {
-	    if(mCommandStack.length > 0)
-	    {
-		    auto cmd = mCommandStack[0];		    
-		    mCommandStack = mCommandStack[1..$];
-		 	StreamOutput.emit(":> " ~ cmd);
-		    mGdbProcess.stdin.writeln(cmd);
-		    mGdbProcess.stdin.flush();		    
-		    State = STATE.BUSY;
-         }
-    }    
-
+    
+    
+	    
+    
 public:
+    
     this()
     {
-	    mState = STATE.OFF;
+	    mState = DBGR_STATE.OFF_OFF;
 	    mTargetId = -1;
     }
-
+    
     void Engage()
     {
 	    Log.Entry("Engaged DEBUGGER");
     }
-    void Disengage()
+    void Disengaged()
     {
 	    Log.Entry("Disengaged DEBUGGER");
     }
-
-    void Spawn(string Target)
-    {
-	    mCommandStack.length = 0;
-		mTargetId = -1;
-	    string[] cmdline = ["gdb", "--interpreter=mi", Target];
-	    mGdbProcess = pipeProcess(cmdline, Redirect.all);
-	    mPollFd.fd = mGdbProcess.stdout.fileno;
-	    mPollFd.events = POLLIN | POLLPRI;
-		fcntl(mPollFd.fd, F_SETFL, O_NONBLOCK);
-	    mGdbProcess.stdin.flush();
-	    State = STATE.SPAWNING;
-	    //Command("set target-async on");
-    }
-
-    void Unload()
-    {
-		mTargetId = -1;
-	    State = STATE.OFF;
-	    kill(mGdbProcess.pid);
-	    wait(mGdbProcess.pid);
-
-    }
-
+    
+    
     void Process()
     {
-
-        mPollFd.fd = mGdbProcess.stdout.fileno;
-        mPollFd.events = POLLIN |  POLLPRI;
-
-        void GetGdbOutput()
-		{
-			while(true)
-			{
-				char[] buffer;
-				buffer.length = 5;
-
-				auto read_response = read(mGdbProcess.stdout.fileno, buffer.ptr, buffer.length);
-				if(read_response < 1) {errno = 0;return;} //should check for errno
-				mGdbString ~= cast(string)buffer[0..read_response];
-
-				auto returnPos = mGdbString.indexOf('\n');
-				if(returnPos > 0)
-				{
-					FormGdbOutput(mGdbString[0..returnPos]);
-					mGdbString = mGdbString[returnPos+1 .. $];
-				}
-
-				if(mState == STATE.TARGET_RUNNING) return;
-				if(mState == STATE.PROMPTING)return;
-				if(mState == STATE.QUITTING)return;
-
-			}
-		}
-
-
-
-		final switch (mState) with (STATE)
-		{
-			case OFF            :
-			case QUITTING       : return;
-			case SPAWNING       :
-			case BUSY           :
-			case TARGET_RUNNING : GetGdbOutput(); break;
-			case PROMPTING      : ExecuteCommand();break; //not looking for input waiting for orders
-		}
-	}
-
-
-
-
-	void Command(string cmd)
-	{
-		if(mCommandStack.length > 3)return;
-		if(mCommandStack.length > 0 && (mCommandStack[$-1] == cmd))return;
-		mCommandStack ~= cmd;
-	}
-	
-	
-	void Interrupt()
-	{
-		mCommandStack.length = 0;
-		mGdbProcess.stdin.writeln("-exec-interrupt");
-	    mGdbProcess.stdin.flush();		    
-	    State = STATE.BUSY;
+	    final switch(mState) with(DBGR_STATE)
+	    {
+		    case    OFF_OFF     : Spawn();break;
+		    case    ON_OFF      : Execute();break; 
+		    case    ON_PAUSED   : Execute();break;
+		    case    BUSY_PAUSED : ReadGdbOutput();break;
+		    case    BUSY_RUNNING: ReadGdbOutput();break;
+		    case    BUSY_STOPPED: break; //never should show up here
+		    case    ON_QUITTING : State = ON_OFF;break;
+		    case    QUITTING_ANY: Abort();break;
+	    }
     }
+    
+    void Command(string cmd, bool show = true)
+    {
+	    COMMAND x;
+	    x.Show = show;
+	    x.Command = cmd;
 	    
-
-
-	Pid ProcessID()
-	{
-	    return mGdbProcess.pid;
+	    mCommandStack ~= x;
     }
-
-    bool IsPrompting()
+    
+    void Interrupt()
     {
-	    return(mState == STATE.PROMPTING);
+	    import core.sys.posix.signal;	    
+	    if(mState == DBGR_STATE.BUSY_RUNNING)kill(mTargetId, 2);
     }
-
-    bool IsRunning()
+    
+    void GetLocation(out string file, out int line, out string address)
     {
-	    return mState == STATE.TARGET_RUNNING;
-	    //return (mState != STATE.QUITTING) || (mState == STATE.OFF);
+	    file = mSrcFile;
+	    line = mSrcLine;
+	    address = mAddress;
     }
-
-    int TargetID()
+    
+    @property void State(DBGR_STATE NuState)
     {
-		return mTargetId;
-	}
-
-	@property void State(STATE nuState)
-	{
-		mState = nuState;
-		if(mState == STATE.PROMPTING)
-		{
-			if(mTargetHasJustStopped)
-			{
-				mTargetHasJustStopped = false;
-				Stopped.emit();
-			}
-			Prompt.emit();
-		}
-
-		if(mState == STATE.OFF) GdbExited.emit();
-	}
-	@property STATE State(){return mState;}
-
-	void GetLocation(out string SrcFile, out int SrcLine, out string Address)
-	{
-		SrcFile = mCurrSrcfile;
-		SrcLine = mCurrLine;
-		Address = mCurrAddress;
-	}
-
-
-    mixin Signal!string Output;
-    mixin Signal!string StreamOutput;
-    mixin Signal!string AsyncOutput;
-    mixin Signal!string ResultOutput;
-    mixin Signal Stopped;
-    mixin Signal Prompt;
+	    final switch(NuState) with (DBGR_STATE)
+	    {
+		    case    OFF_OFF     : break; //already unloaded think thats good enough
+		    case    ON_OFF      : break;
+		    case    ON_PAUSED   : break;
+		    case    BUSY_PAUSED : break;
+		    case    BUSY_RUNNING: break;
+		    case    BUSY_STOPPED: mState = DBGR_STATE.ON_PAUSED;
+		                          TargetStopped.emit();
+		                          break;
+            case    ON_QUITTING : break;
+            case    QUITTING_ANY: GdbExited.emit();
+        }
+        NewState.emit(NuState);
+    }
+    @property DBGR_STATE State(){return mState;}
+        	                          
+	        
+    
+    mixin Signal!(string) StreamOutput;
+    mixin Signal!(string) AsyncOutput;
+    mixin Signal!(string) ResultOutput;
+    mixin Signal!(string) Output;
+    mixin Signal!(DBGR_STATE) NewState;
     mixin Signal GdbExited;
+    mixin Signal TargetStopped;
+
 }
-
-
 
 
 
@@ -606,3 +544,4 @@ struct LIST
         throw new Exception("Tried to access LIST value with a string index");
 	}
 }
+
