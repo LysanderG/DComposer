@@ -19,16 +19,19 @@ import dcore;
 enum DBGR_STATE
 {
 	OFF_OFF,            //NOTHING RUNNING NOT DEBUGGING
+	
 	ON_OFF,             //GDB IS READY BUT TARGET IS NOT RUNNING (ALMOST LIKE ON_PAUSED BUT TARGET IS NOT RUNNING ERRORS WILL SHOW UP)
-	ON_PAUSED,          //GDB IS WAITING FOR INPUT TARGET IS NOT RUNNING
-	BUSY_PAUSED,        //GDB HAS RECEIVED A COMMAND AND IS PROCESSING IT ... MAYBE GETTING INFO OR STARTING TARGET
+	ON_PAUSED,          //GDB IS WAITING FOR INPUT TARGET IS HAS BEEN RUN BUT IS INTERRUPTED
+	BUSY_OFF,	        //GDB IS PROCESSING COMMAND (insert break, get some info) TARGET IS NOT RUNNING
+	BUSY_PAUSED,        //GDB HAS RECEIVED A COMMAND AND IS PROCESSING IT(step, disassemble, stack info) TARGET IS INTERRUPTED
 	BUSY_RUNNING,       //GDB IS NOT ACCESSABLE TARGET IS RUNNING (INTERRUPT IS THE ONLY COMMAND THAT SHOULD WORK
 	BUSY_STOPPED,       //ONLY WHEN RECEIVES A ASYNC *STOPPED AND THEN CHANGED IMMEDIATELY
+	
 	ON_QUITTING,        //GDB IS RECEIVING AN ASYNC OUTPUT *STOPPED WITH 'EXIT' REASON --> GOING TO ON_OFF STATE
 	QUITTING_ANY,       //GDB HAS RECEIVED ^EXIT ... SO WHO CARES ABOUT TARGET
 }
 
-alias QUITTING_ANY KILL;
+alias DBGR_STATE.QUITTING_ANY KILL;
 
 class DEBUGGER
 {
@@ -61,15 +64,17 @@ private:
     
     void Execute()
     {
-	    if(!((mState != DBGR_STATE.ON_OFF) || (mState != DBGR_STATE.ON_PAUSED))) return;
+
 	    if(mCommandStack.length < 1) return;
 	    
-	    auto cmd = mCommandStack[0];
+	    COMMAND cmd = mCommandStack[0];
+	    mCommandStack = mCommandStack[1..$];
 	    if(cmd.Show)
 	    {
-		    StreamOutput.emit("::> " ~ cmd);
+		    StreamOutput.emit("::> " ~ cmd.Command);
 	    }
-	    mGdbProcess.stdin.writeln(cmd);
+
+	    mGdbProcess.stdin.writeln(cmd.Command);
 	    mGdbProcess.stdin.flush();
 	    State = DBGR_STATE.BUSY_PAUSED;
     }
@@ -84,6 +89,7 @@ private:
 		fcntl(mGdbProcess.stdout.fileno, F_SETFL, O_NONBLOCK);
 	    mGdbProcess.stdin.flush();
 	    State = DBGR_STATE.ON_OFF;
+
     }
     
     void Abort()
@@ -102,15 +108,17 @@ private:
     
     void ReadGdbOutput()
     {
-	    bool DoNotBreakout ;
+	    if(mState == DBGR_STATE.OFF_OFF) return;
+	    bool DoNotBreakout = true ;
 		while( DoNotBreakout)
 		{            		
 			char[] buffer;
-			buffer.length = 25;
+			buffer.length = 4;
 
+            mGdbProcess.stdout.flush();
 			auto read_response = read(mGdbProcess.stdout.fileno, buffer.ptr, buffer.length);
-			if(read_response < buffer.length) {DoNotBreakout = false;} //should check for errno
 			if(read_response < 1)return;
+			if(read_response < buffer.length) {DoNotBreakout = false;} //should check for errno
 			
 			mGdbString ~= cast(string)buffer[0..read_response];
 
@@ -125,6 +133,7 @@ private:
 	
 	void ProcessGdbOutput(string msg)
 	{
+
 		string reason;
 		
 		if(msg.length < 1) return;
@@ -139,13 +148,22 @@ private:
 			case '=' : AsyncOutput.emit(msg);
 			           if(msg.startsWith("=thread-group-started,"))
 			           {
-				           mTargetId = to!int(RECORD(msg["=thread-group-started,".length..$]).Get("pid")[1..$-1]);
+				           mTargetId = to!int(RECORD(msg["=thread-group-started,".length..$]).Get("pid"));
 			           }
 			           if(msg.startsWith("*stopped,"))
 			           {
 				           auto Record = RECORD(msg["*stopped,".length..$]);
 				           reason = RECORD(msg["*stopped,".length..$]).Get("reason");
-				           State = DBGR_STATE.BUSY_STOPPED;
+				           if(reason.startsWith("exited"))State = DBGR_STATE.ON_QUITTING;
+				           else 
+				           {
+					           //this assumes any reasons for stopping other than exited* will have a frame in the results
+					           State = DBGR_STATE.BUSY_STOPPED;
+					           mSrcFile = Record.Get("frame","fullname");
+					           mSrcLine = to!int(Record.Get("frame","line")) - 1; //-1  cuz zero based vs one based line numbering
+					           mAddress = Record.Get("frame", "addr");
+				           }
+				           
 		               }
 		               if(msg.startsWith("*running,")) State = DBGR_STATE.BUSY_RUNNING;
 		               break;
@@ -153,10 +171,16 @@ private:
 			case '^' : ResultOutput.emit(msg);
 			           if(msg.startsWith("^exit"))State = DBGR_STATE.QUITTING_ANY;
 			           break;
+			           
+		    case '0' : .. case '9' :
+		              State = DBGR_STATE.BUSY_PAUSED;
+		              ResultOutput.emit(msg);
+		              break;
             default  : Output.emit(msg);
+                       AsyncOutput.emit(msg);
         }		
         
-        if( msg.startsWith("(gdb)"))State = DBGR_STATE.ON_PAUSED;
+        if(msg.startsWith("(gdb)"))State = DBGR_STATE.ON_PAUSED;
         if(reason.startsWith("exited"))State = DBGR_STATE.ON_QUITTING;
     }
     
@@ -176,7 +200,7 @@ public:
     {
 	    Log.Entry("Engaged DEBUGGER");
     }
-    void Disengaged()
+    void Disengage()
     {
 	    Log.Entry("Disengaged DEBUGGER");
     }
@@ -184,17 +208,21 @@ public:
     
     void Process()
     {
+
+	    ReadGdbOutput();
 	    final switch(mState) with(DBGR_STATE)
 	    {
 		    case    OFF_OFF     : Spawn();break;
 		    case    ON_OFF      : Execute();break; 
 		    case    ON_PAUSED   : Execute();break;
-		    case    BUSY_PAUSED : ReadGdbOutput();break;
-		    case    BUSY_RUNNING: ReadGdbOutput();break;
+		    case    BUSY_OFF    : break;
+		    case    BUSY_PAUSED : break;
+		    case    BUSY_RUNNING: break;
 		    case    BUSY_STOPPED: break; //never should show up here
 		    case    ON_QUITTING : State = ON_OFF;break;
 		    case    QUITTING_ANY: Abort();break;
 	    }
+	    ReadGdbOutput();
     }
     
     void Command(string cmd, bool show = true)
@@ -204,11 +232,13 @@ public:
 	    x.Command = cmd;
 	    
 	    mCommandStack ~= x;
+
     }
     
     void Interrupt()
     {
 	    import core.sys.posix.signal;	    
+
 	    if(mState == DBGR_STATE.BUSY_RUNNING)kill(mTargetId, 2);
     }
     
@@ -220,21 +250,29 @@ public:
     }
     
     @property void State(DBGR_STATE NuState)
-    {
+    {       
 	    final switch(NuState) with (DBGR_STATE)
 	    {
-		    case    OFF_OFF     : break; //already unloaded think thats good enough
-		    case    ON_OFF      : break;
-		    case    ON_PAUSED   : break;
-		    case    BUSY_PAUSED : break;
-		    case    BUSY_RUNNING: break;
+		    case    OFF_OFF     : mState = NuState;break; //already unloaded think thats good enough
+		    case    ON_OFF      : mState = NuState;break;
+		    case    ON_PAUSED   : if(mState == BUSY_RUNNING)break; //only go to on_pause from busy_stopped when target running 
+		                          if(mState == ON_QUITTING)break;
+		                          if(mState == ON_OFF)break; 
+		                          if(mState == BUSY_OFF)mState = ON_OFF; //keep track if target has started running yet
+		                          else mState = NuState;
+		                          break;
+		    case    BUSY_OFF    : mState = NuState;break;
+		    case    BUSY_PAUSED : if(mState == ON_OFF)mState = DBGR_STATE.BUSY_OFF;
+	                              else mState = BUSY_PAUSED;
+	                              break;
+		    case    BUSY_RUNNING: mState = NuState;break;
 		    case    BUSY_STOPPED: mState = DBGR_STATE.ON_PAUSED;
 		                          TargetStopped.emit();
 		                          break;
-            case    ON_QUITTING : break;
-            case    QUITTING_ANY: GdbExited.emit();
+            case    ON_QUITTING : mState = NuState;break;
+            case    QUITTING_ANY: mState = NuState;GdbExited.emit();
         }
-        NewState.emit(NuState);
+        NewState.emit(mState);
     }
     @property DBGR_STATE State(){return mState;}
         	                          
@@ -371,7 +409,10 @@ struct VALUE
 			case '"' : //a simple value aka _const
 			{
 				_type = VALUE_TYPE.CONST;
-				auto closeQuotePos = recordString[1..$].indexOf('"');
+				//auto closeQuotePos = recordString[1..$].indexOf('"');
+				auto closeQuotePos = recordString[1..$].findQuote();
+				
+				
 				_const = recordString[1..closeQuotePos+1];
 				recordString = recordString[closeQuotePos+2..$];
 				break;
@@ -544,4 +585,26 @@ struct LIST
         throw new Exception("Tried to access LIST value with a string index");
 	}
 }
+
+private int findQuote(string text)
+{
+	int rv = -1;
+	bool skipnext = false;
+	foreach(int i, x;text)
+	{
+		if(skipnext)
+		{
+			skipnext = false;
+			continue;
+		}
+		if(x == '\\')skipnext = true;
+		if(x == '"')
+		{
+	        rv = i;
+	        break;
+        }
+    }
+    return rv;
+}
+		
 

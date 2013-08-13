@@ -34,6 +34,7 @@ import std.string;
 import std.file;
 import std.demangle;
 import std.algorithm;
+import std.path;
 
 class DEBUG_UI : ELEMENT
 {
@@ -108,15 +109,71 @@ private:
     string mDebugTooltip;
     bool mTooltipHolding;
     
-    void SetButtonSensitivity()
+    void SetItemSensitivity(DBGR_STATE state)
     {
+	    mButtonBox.setSensitive(1);
+	    mBtnRun.setSensitive(1);
+	    mBtnStop.setSensitive(0);
 	    
+        void TraceButtonsSensitive(bool active)
+        {
+	        mBtnContinue.setSensitive(active);
+	        mBtnStepIn.setSensitive(active);
+	        mBtnStepOver.setSensitive(active);
+	        mBtnStepOut.setSensitive(active);
+	        mBtnRunToCursor.setSensitive(active);
+        }
+	    
+	    final switch (state) with (DBGR_STATE)
+	    {
+		    case OFF_OFF:
+		            mButtonBox.setSensitive(0);
+		            break;
+		            
+	        case ON_OFF:
+	                TraceButtonsSensitive(0);
+	                break;
+	                
+	        case ON_PAUSED:
+	                TraceButtonsSensitive(1);
+	                break;
+	        
+	        case BUSY_OFF:
+	                TraceButtonsSensitive(0);
+	                break;
+	        
+	        case BUSY_PAUSED:
+	                TraceButtonsSensitive(0);
+	                break;
+	                
+	        case BUSY_RUNNING:
+                    mBtnRun.setSensitive(0);
+                    TraceButtonsSensitive(0);
+                    mBtnStop.setSensitive(1);
+	                break;
+	                
+	        case BUSY_STOPPED:
+	                break;
+	        case ON_QUITTING:
+	                TraceButtonsSensitive(1);
+	                ClearText();
+	                break;
+	                
+	        case QUITTING_ANY:
+	                mButtonBox.setSensitive(0);
+	                ClearText();
+        }
+        
+
+		    
+    }
 
     void IssueCommands()
     {
 	    GotoIP();
-	    Debugger.Command(`100-data-disassemble -s "$pc-16" -e "$pc + 256" -- 0`);
-	    Debugger.Command(`110-stack-list-frames`);
+	    Debugger.Command(`100-data-disassemble -s "$pc-16" -e "$pc + 256" -- 0`, false);
+	    Debugger.Command(`110-stack-list-frames`,false);
+
     }
 
     void ReceiveDisassembly(string msg)
@@ -148,7 +205,7 @@ private:
 					oldfname = fname;
 					mDisassemblyText ~= oldfname ~ '\n';
 				}
-				mDisassemblyText ~= format("     %s:%s   %s\n",address, offset, inst);
+				mDisassemblyText ~= format(" %s+%s   %s\n",address, offset, inst);
 				if(address.strip() == mLocationAddress) hiliteLine = cast(int)i;
             }
             mDisassemblyView.getBuffer.setText(mDisassemblyText);
@@ -183,7 +240,6 @@ private:
 	    auto msgStart = msg[0..std.string.indexOf(msg,',')+1];
 	    msg = msg[msgStart.length..$];
 	    
-	    writeln(msgStart);
 	    if(msgStart == "110^error,")
 	    {
 		    auto result = RECORD(msg);
@@ -204,8 +260,8 @@ private:
 		    else func = "indeterminate";
 		      
 		    mCallStackText ~= frame.Get("level").toString() ~ "| ";
-		    mCallStackText ~= indentation ~ frame.Get("addr").toString() ~". ";
-		    mCallStackText ~= func ~ '\n'; 
+		    mCallStackText ~= frame.Get("addr").toString() ~".";
+		    mCallStackText ~= indentation ~ func ~ '\n'; 
 		    indentation =indentation ~ " ";		    
 	    }
 	    mCallStackView.getBuffer.setText(mCallStackText);
@@ -221,7 +277,7 @@ private:
 
 	    if(msgStart != "120^done,") {return;}
 	    
-	    mDebugTooltip = RECORD(msg).Get("value");
+	    mDebugTooltip = RECORD(msg).GetValue("value").toString();	    
 	    //dui.GetDocMan.Current.triggerTooltipQuery();
 	    
     }
@@ -229,9 +285,12 @@ private:
     
     void ClearText()
     {
-	    mOutputView.getBuffer.setText(" ");
-	    mDisassemblyView.getBuffer.setText(" ");
-	    mCallStackView.getBuffer.setText(" ");
+	    string nutext;
+	    if(Debugger.State == DBGR_STATE.ON_QUITTING)nutext = "Target program not running";
+	    if(Debugger.State == DBGR_STATE.QUITTING_ANY) nutext = "Debugging process (gdb) is not running";
+	    mOutputView.getBuffer.setText(nutext);
+	    mDisassemblyView.getBuffer.setText(nutext);
+	    mCallStackView.getBuffer.setText(nutext);
     }
 
 	void GotoIP()
@@ -253,14 +312,17 @@ private:
         if (NewDoc is null ) return;
         if(EventId != "AppendDocument") return;
 
+        writeln(NewDoc.Name.extension);
+        if(!((NewDoc.Name.extension == ".d") || (NewDoc.Name.extension == ".di"))) return;
+        writeln("here");
         NewDoc.BreakPoint.connect(&CatchBreakPoint);
         
-       // NewDoc.addOnQueryTooltip(&SetSymbolTip);
+        NewDoc.addOnQueryTooltip(&SetSymbolTip);
     }
     
     bool SetSymbolTip(int X, int Y, int FromKeyBoard, GtkTooltip * tt, Widget obj)
     {
-	    
+	    if(Debugger.State != DBGR_STATE.ON_PAUSED) return true;
 	    static string DocSym;
 	    
 	    void GetDocSym()
@@ -273,11 +335,9 @@ private:
 	        Thedoc.windowToBufferCoords(TextWindowType.WIDGET, X, Y, x, y);
 	        Thedoc.getIterAtPosition(ti, unusedTrailing, x, y);	    
 	        DocSym = Thedoc.Symbol(ti, tiBegins, true);
-	        writeln(DocSym, " and ", ti, " @x",x,":y",y);
         }
         
 
-	    //writeln("--", X, ":", Y, mTooltipHolding,":",mDebugTooltip, " :blahbhabha ",FromKeyBoard);
 	    auto docTip = new Tooltip(tt); 
 	    GdkRectangle gdkRectangle = {x:X-5, y:Y-5, width:10, height:10};
 	    docTip.setTipArea(new Rectangle(&gdkRectangle));
@@ -286,16 +346,17 @@ private:
         
         if(DocSym.length > 1)
         {
-	        Debugger.Command("120-data-evaluate-expression " ~ DocSym);
+	        Debugger.Command("120-data-evaluate-expression " ~ DocSym, false);
         }
 
-        docTip.setText(to!string(X) ~ ":" ~ to!string(Y) ~ " > " ~ DocSym ~ " = " ~ mDebugTooltip);
-	    writeln(DocSym ~ " = " ~ mDebugTooltip);
+        docTip.setText(mDebugTooltip);
+        if(mDebugTooltip.length < 1) return false;
         return true;
     }
 
     void ReceiveGdb(string message)
     {
+	    if(message[0] == '1')return;
 	    mOutputView.appendText(message ~ '\n');
     }
 
@@ -303,7 +364,6 @@ private:
     {
 	    
 	    Debugger.Process();
-	   
 
 	    return (cast (bool)mSpawnGdb.getActive());
     }
@@ -322,9 +382,17 @@ private:
 	        tb.setActive(0);
 	        return;
         }
-	    if (tb.getActive()) mIdle = new Idle(&PollGdb, GPriority.LOW);
-	    else Debugger.State = KILL;
-        SetButtonSensitivity();
+	    if (tb.getActive()) 
+	    {
+		    mIdle = new Idle(&PollGdb, GPriority.LOW);
+		    //Debugger.Spawn();
+	    }
+	    else 
+	    {
+		    mIdle.stop();
+		    Debugger.State = KILL;
+	    }
+      
     }
 
     void BtnCommand(Button TheButton)
@@ -495,8 +563,9 @@ public:
         Debugger.ResultOutput.connect(&ReceiveDisassembly);
         Debugger.ResultOutput.connect(&ReceiveCallStack);
         Debugger.ResultOutput.connect(&ReceiveTooltip);
-        Debugger.Stopped.connect(&IssueCommands);
+        Debugger.TargetStopped.connect(&IssueCommands);
         Debugger.GdbExited.connect(&ClearText);
+        Debugger.NewState.connect(&SetItemSensitivity);
 
         dui.GetDocMan.Event.connect(&WatchForNewDocument);
 
