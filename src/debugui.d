@@ -36,6 +36,8 @@ import std.demangle;
 import std.algorithm;
 import std.path;
 
+import core.sys.posix.unistd;
+
 class DEBUG_UI : ELEMENT
 {
 
@@ -164,7 +166,6 @@ private:
 	                ClearText();
         }
         
-
 		    
     }
 
@@ -173,7 +174,11 @@ private:
 	    GotoIP();
 	    Debugger.Command(`100-data-disassemble -s "$pc-16" -e "$pc + 256" -- 0`, false);
 	    Debugger.Command(`110-stack-list-frames`,false);
-
+	    Debugger.Command(`220-stack-list-variables 2`);
+	    Debugger.Command(`-data-evaluate-expression _D10ntsyncmain5SongsC9syncsongs5SONGS`);
+	    Debugger.Command(`-var-create x1 * _D10ntsyncmain4OptsC10syncptions4OPTS`);
+	    Debugger.Command(`-var-list-children --all-values x1`);
+	    Debugger.Command(`-var-info-expression x1.mPlayList`);
     }
 
     void ReceiveDisassembly(string msg)
@@ -309,20 +314,18 @@ private:
 
 	void WatchForNewDocument(string EventId, DOCUMENT NewDoc)
     {
+	
         if (NewDoc is null ) return;
         if(EventId != "AppendDocument") return;
-
-        writeln(NewDoc.Name.extension);
         if(!((NewDoc.Name.extension == ".d") || (NewDoc.Name.extension == ".di"))) return;
-        writeln("here");
-        NewDoc.BreakPoint.connect(&CatchBreakPoint);
         
+        NewDoc.BreakPoint.connect(&CatchBreakPoint);        
         NewDoc.addOnQueryTooltip(&SetSymbolTip);
     }
     
     bool SetSymbolTip(int X, int Y, int FromKeyBoard, GtkTooltip * tt, Widget obj)
     {
-	    if(Debugger.State != DBGR_STATE.ON_PAUSED) return true;
+	    if(Debugger.State != DBGR_STATE.ON_PAUSED) return false;
 	    static string DocSym;
 	    
 	    void GetDocSym()
@@ -356,7 +359,15 @@ private:
 
     void ReceiveGdb(string message)
     {
-	    if(message[0] == '1')return;
+	    static string lastmsg;
+	    
+	    //hides automatic commands issued on every *stopped 
+	    if(message[0] == '1')return;	    
+	    
+	    //next 2 lines prevent spamming (gdb) on every mouse move event
+	    if(message == lastmsg)return;
+	    lastmsg = message;	    
+	    
 	    mOutputView.appendText(message ~ '\n');
     }
 
@@ -364,6 +375,9 @@ private:
     {
 	    
 	    Debugger.Process();
+	    
+	    //try to stop 100%cpu usage
+	    usleep(250);
 
 	    return (cast (bool)mSpawnGdb.getActive());
     }

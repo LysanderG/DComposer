@@ -51,6 +51,7 @@ private:
     TreeView        mErrorView;
     ListStore       mStore;
     GtkListStore *  mGtkStore;
+    
 
     void WatchDMD(string line)
     {
@@ -77,6 +78,7 @@ private:
             mStore.append(ti);
             //mStore.setValue(ti, 1, ActivityIndicator);
             mStore.setValue(ti, 2, line);
+            mStore.setValue(ti, 3, "black");
             return;
         }
         auto m1 = m.pre;
@@ -90,6 +92,9 @@ private:
         mStore.setValue(ti, 0, m1);
         mStore.setValue(ti, 1, number);
         mStore.setValue(ti, 2, m3);
+        mStore.setValue(ti, 3, "red");
+        
+        
     }
 
     void RowActivated(TreePath tp, TreeViewColumn tvc, TreeView tv)
@@ -149,14 +154,20 @@ public:
 
     void Engage()
     {
-        mStore = new ListStore([GType.STRING, GType.INT, GType.STRING]);
+        mStore = new ListStore([GType.STRING, GType.INT, GType.STRING, GType.STRING]);
         mGtkStore = mStore.getListStoreStruct();
+        
 
         mErrorView = new TreeView;
         mErrorView.insertColumn(new TreeViewColumn("File", new CellRendererText, "text", 0), -1);
         mErrorView.insertColumn(new TreeViewColumn("Line", new CellRendererText, "text", 1), -1);
-        mErrorView.insertColumn(new TreeViewColumn("Error",new CellRendererText, "text", 2), -1);
+        //mErrorView.insertColumn(new TreeViewColumn("Error",new CellRendererText, "text", 2), -1);
 
+        auto crt = new CellRendererText;
+        auto tvc = new TreeViewColumn("Error", crt , "text", 2);
+        tvc.addAttribute(crt,"foreground", 3);
+        mErrorView.insertColumn(tvc, -1);
+        
         mErrorView.addOnRowActivated (&RowActivated);
 
         mScrWin = new ScrolledWindow;

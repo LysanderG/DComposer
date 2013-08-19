@@ -96,6 +96,7 @@ private:
     {
 	    //how to invalidate mGdbProcess??
 	    mTargetId = -1;
+	    mTarget.length = 0;
 	    State = DBGR_STATE.OFF_OFF;
 	    mCommandStack.length = 0;
 	    mSrcFile.length = 0;
@@ -158,10 +159,10 @@ private:
 				           else 
 				           {
 					           //this assumes any reasons for stopping other than exited* will have a frame in the results
-					           State = DBGR_STATE.BUSY_STOPPED;
 					           mSrcFile = Record.Get("frame","fullname");
 					           mSrcLine = to!int(Record.Get("frame","line")) - 1; //-1  cuz zero based vs one based line numbering
 					           mAddress = Record.Get("frame", "addr");
+					           State = DBGR_STATE.BUSY_STOPPED;
 				           }
 				           
 		               }
@@ -209,7 +210,7 @@ public:
     void Process()
     {
 
-	    ReadGdbOutput();
+	    //ReadGdbOutput();
 	    final switch(mState) with(DBGR_STATE)
 	    {
 		    case    OFF_OFF     : Spawn();break;
