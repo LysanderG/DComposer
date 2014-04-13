@@ -1,0 +1,455 @@
+module ui_project;
+
+import dcore;
+import ui;
+import ui_list;
+
+import std.path;
+import std.file;
+import std.string;
+import std.stdio;
+
+import core.memory;
+
+import json;
+
+import gtk.Adjustment;
+import gtk.Builder;
+import gtk.Label;
+import gtk.Button;
+import gtk.Frame;
+import gtk.Entry;
+import gtk.EditableIF;
+import gtk.ComboBoxText;
+import gtk.TextView;
+import gtk.TextBuffer;
+import gtk.TreeView;
+import gtk.TreeViewColumn;
+import gtk.ListStore;
+import gtk.TreeModelIF;
+import gtk.TreePath;
+import gtk.TreeIter;
+import gtk.CheckButton;
+import gtk.ToggleButton;
+import gtk.Box;
+import gtk.Widget;
+import gtk.Action;
+import gtk.CellRendererText;
+import gtk.CellRendererToggle;
+import gtk.FileChooserDialog;
+import gtk.Dialog;
+
+import gobject.Value;
+
+
+
+class UI_PROJECT
+{
+	private :
+
+	Frame 	mRootWidget;
+
+	Label	ProjTitle;
+	Button	ProjHide;
+
+	Entry	ProjName;
+	Entry 	ProjRelPath;
+	Label	ProjAbsPath;
+	ComboBoxText ProjTargetType;
+	ComboBoxText ProjCompiler;
+	TextView ProjNotes;
+
+	UI_LIST ProjSrcFiles;
+	UI_LIST ProjRelFiles;
+
+	TreeView ProjFlagsView;
+	ListStore ProjFlagsStore;
+	CellRendererText ProjCellArgs;
+	CellRendererToggle ProjCellToggle;
+	UI_LIST ProjVersions;
+	UI_LIST ProjDebugs;
+	UI_LIST ProjImportPaths;
+	UI_LIST ProjStringExpressionPaths;
+
+	UI_LIST ProjLibraries;
+	UI_LIST ProjLibraryPaths;
+
+	UI_LIST ProjOtherFlags;
+	UI_LIST ProjPreBuildScripts;
+	UI_LIST ProjPostBuildScripts;
+	CheckButton ProjCustomBuild;
+	Entry ProjCustomBuildCommand;
+
+	bool mFlagsLoading; //variable to stop emitting signal when initially loading flags (on project open)
+
+	void WatchProject(PROJECT_EVENT event)
+	{
+		switch (event) with(PROJECT_EVENT)
+		{
+			case CREATED:
+			{
+				UpdateFlags();
+				mRootWidget.show();
+				DocBook.setCurrentPage(mRootWidget);
+				break;
+			}
+			case EDIT:
+			{
+				mRootWidget.show();
+				DocBook.setCurrentPage(mRootWidget);
+				break;
+			}
+			case NAME:
+			{
+				ProjName.setText(Project.Name);
+				ui.SetProjectTitle("PROJECT : " ~ Project.Name);
+				CalculateFolder();
+				break;
+			}
+
+			case FOLDER:
+			{
+				string relpath = relativePath(Project.Folder, Project.DefaultProjectRootPath);
+				ProjRelPath.setText(relpath);
+				break;
+			}
+			case COMPILER:
+			{
+				ProjCompiler.setActive(ProjCompiler.getIndex(Project.Compiler));
+				break;
+			}
+			case TARGET_TYPE:
+			{
+				ProjTargetType.setActive(Project.TargetType);
+				break;
+			}
+			case USE_CUSTOM_BUILD:
+			{
+				ProjCustomBuild.setActive(Project.UseCustomBuild);
+				break;
+			}
+			case CUSTOM_BUILD_COMMAND:
+			{
+				ProjCustomBuildCommand.setText(Project.CustomBuildCommand);
+				break;
+			}
+			case FLAG:
+			{
+
+				UpdateFlags();
+
+				break;
+			}
+
+
+			case LISTS:
+			{
+				foreach(key,lillist; Project.Lists)
+				{
+					switch (key) with(LIST_NAMES)
+					{
+						case SRC_FILES: ProjSrcFiles.UpdateItems(lillist); break;
+						case REL_FILES: ProjRelFiles.UpdateItems(lillist); break;
+						case VERSIONS: ProjVersions.UpdateItems(lillist);  break;
+						case DEBUGS: ProjDebugs.UpdateItems(lillist);  break;
+						case IMPORT: ProjImportPaths.UpdateItems(lillist); break;
+						case STRING: ProjStringExpressionPaths.UpdateItems(lillist); break;
+						case LIBRARIES: ProjLibraries.UpdateItems(lillist); break;
+						case LIBRARY_PATHS: ProjLibraryPaths.UpdateItems(lillist); break;
+						case PREBUILD: ProjPreBuildScripts.UpdateItems(lillist); break;
+						case POSTBUILD: ProjPostBuildScripts.UpdateItems(lillist); break;
+						case OTHER: ProjOtherFlags.UpdateItems(lillist);  break;
+						case "Notes":
+						{
+							if(Project.Lists[key].length > 0)ProjNotes.getBuffer().setText(Project.Lists[key][0]);
+							ProjNotes.getBuffer().setText("");break;
+						}
+						default: writeln("not here!!");break;
+					}
+				}
+			}
+			default :break;
+		}
+	}
+
+	void WatchLists(string ListName, string[] Values)
+	{
+		Project.SetListData(ListName, Values);
+	}
+
+	string CalculateFolder()
+	{
+		string rv = buildNormalizedPath(Project.DefaultProjectRootPath, ProjRelPath.getText());
+		string project_name;
+		if(ProjName.getText().length > 0) project_name = ProjName.getText().setExtension(".dpro");
+		ProjAbsPath.setText(buildPath(rv,project_name));
+		return rv;
+	}
+
+
+	void LoadFlags()
+	{
+		ProjFlagsStore.clear();
+
+		foreach (obj; Project.Flags())
+		{
+			auto ti = new TreeIter;
+			ProjFlagsStore.append(ti);
+			ProjFlagsStore.setValue(ti, 0, false);
+			ProjFlagsStore.setValue(ti, 1, obj.mSwitch);
+			ProjFlagsStore.setValue(ti, 2, " ");
+			ProjFlagsStore.setValue(ti, 3, obj.mBrief);
+			ProjFlagsStore.setValue(ti, 4, obj.mArgument);
+		}
+	}
+
+	void UpdateFlags()
+	{
+		auto ti = new TreeIter;
+
+		int NotLastFlag = ProjFlagsStore.getIterFirst(ti);
+
+		while(NotLastFlag)
+		{
+
+			auto cmdswitch = ProjFlagsStore.getValueString(ti, 1);
+			if (cmdswitch.length < 1) return;
+			auto state = cast(int)Project.GetFlag(cmdswitch);
+			auto arg = Project.GetFlagArgument(cmdswitch);
+
+			ProjFlagsStore.setValue(ti, 0, state);
+			ProjFlagsStore.setValue(ti, 2, arg);
+
+			NotLastFlag = ProjFlagsStore.iterNext(ti);
+		}
+
+	}
+
+
+	public :
+
+	void Engage()
+	{
+		mFlagsLoading = false;
+
+		auto uiBuilder = new Builder;
+		uiBuilder.addFromFile(Config.GetValue("ui_project", "glade_file",SystemPath("glade/ui_project.glade")));
+
+		mRootWidget		= cast(Frame)uiBuilder.getObject("frame1");
+
+		ProjTitle		= cast(Label)uiBuilder.getObject("label1");
+		ProjHide 		= cast(Button)uiBuilder.getObject("hideBtn");
+
+		ProjName		= cast(Entry)uiBuilder.getObject("projName");
+		ProjRelPath		= cast(Entry)uiBuilder.getObject("relPath");
+		ProjAbsPath		= cast(Label)uiBuilder.getObject("absPath");
+		ProjTargetType 	= cast(ComboBoxText)uiBuilder.getObject("targetType");
+		ProjCompiler	= cast(ComboBoxText)uiBuilder.getObject("compiler");
+		ProjNotes		= cast(TextView)uiBuilder.getObject("textview1");
+
+		auto filesbox 	= cast(Box)uiBuilder.getObject("box2");
+
+		ProjFlagsView	= cast(TreeView)uiBuilder.getObject("flagsView");
+		ProjFlagsStore  = cast(ListStore)uiBuilder.getObject("liststore1");
+		ProjCellArgs	= cast(CellRendererText)uiBuilder.getObject("cellrenderertext2");
+		ProjCellToggle	= cast(CellRendererToggle)uiBuilder.getObject("cellrenderertoggle1");
+		auto condbox	= cast(Box)uiBuilder.getObject("conditionalBox");
+		auto pathbox	= cast(Box)uiBuilder.getObject("pathsBox");
+
+		auto linkerbox	= cast(Box)uiBuilder.getObject("box3");
+
+		auto flagsbox 	= cast(Box)uiBuilder.getObject("box4");
+		auto scriptbox	= cast(Box)uiBuilder.getObject("box5");
+		ProjCustomBuild = cast(CheckButton)uiBuilder.getObject("checkbutton1");
+		ProjCustomBuildCommand = cast(Entry)uiBuilder.getObject("entry1");
+
+		//------ setup ui_lists
+		with(LIST_NAMES)
+		{
+			dwrite("locating");
+			ProjSrcFiles = new UI_LIST(SRC_FILES, ListType.FILES);
+			filesbox.packStart(ProjSrcFiles.GetRootWidget(), 1, 1, 1);
+			ProjRelFiles = new UI_LIST(REL_FILES, ListType.FILES);
+			filesbox.packStart(ProjRelFiles.GetRootWidget(), 1, 1, 1);
+
+			ProjVersions = new UI_LIST(VERSIONS, ListType.IDENTIFIERS);
+			condbox.packStart(ProjVersions.GetRootWidget(), 1, 1, 1);
+			ProjDebugs = new UI_LIST(DEBUGS, ListType.IDENTIFIERS);
+			condbox.packStart(ProjDebugs.GetRootWidget(), 1, 1, 1);
+
+			ProjImportPaths = new UI_LIST(IMPORT, ListType.PATHS);
+			pathbox.packStart(ProjImportPaths.GetRootWidget(), 1, 1, 1);
+			ProjStringExpressionPaths = new UI_LIST(STRING, ListType.PATHS);
+			pathbox.packStart(ProjStringExpressionPaths.GetRootWidget(), 1, 1, 1);
+
+			ProjLibraries = new UI_LIST(LIBRARIES, ListType.FILES);
+			linkerbox.packStart(ProjLibraries.GetRootWidget(), 1, 1, 1);
+			ProjLibraryPaths = new UI_LIST(LIBRARY_PATHS, ListType.FILES);
+			linkerbox.packStart(ProjLibraryPaths.GetRootWidget(), 1, 1, 1);
+
+			ProjOtherFlags = new UI_LIST(OTHER, ListType.IDENTIFIERS);
+			flagsbox.packStart(ProjOtherFlags.GetRootWidget(), 1, 1, 1);
+			flagsbox.reorderChild(ProjOtherFlags.GetRootWidget(), 0);
+
+			ProjPreBuildScripts = new UI_LIST(PREBUILD, ListType.FILES);
+			ProjPostBuildScripts = new UI_LIST(POSTBUILD, ListType.FILES);
+			scriptbox.packStart(ProjPreBuildScripts.GetRootWidget(), 1, 1, 0);
+			scriptbox.packStart(ProjPostBuildScripts.GetRootWidget(), 1, 1, 0);
+			dwrite("locating");
+		}
+		LoadFlags();
+
+		//========================================================================
+		// actions ===============================================================
+
+		//new
+		AddIcon("dcmp-proj-new", Config.GetValue("icons", "proj-new", SystemPath("resources/color-new.png")));
+		auto ActNew = "ActProjNew".AddAction("_New","Create a project", "dcmp-proj-new","<Control>F5",delegate void(Action a){Project.Create();});
+		AddToMenuBar("ActProjNew", "_Project");
+		//AddToToolBar("ActProjNew");
+
+		//Open
+		AddIcon("dcmp-proj-open", Config.GetValue("icons", "proj-open", SystemPath("resources/color-open.png")));
+		auto ActOpen = "ActProjOpen".AddAction("_Open","Open a project", "dcmp-proj-open","<Control>F6",delegate void(Action a){Open();});
+		AddToMenuBar("ActProjOpen", "_Project");
+		//AddToToolBar("ActProjOpen");
+
+		//Save
+		AddIcon("dcmp-proj-save", Config.GetValue("icons", "proj-save", SystemPath("resources/color-save.png")));
+		auto ActSave = "ActProjSave".AddAction("_Save","Save project", "dcmp-proj-save","<Control>F7",delegate void(Action a){Project.Save();});
+		AddToMenuBar("ActProjSave", "_Project");
+		//AddToToolBar("ActProjSave");
+
+		//Edit
+		AddIcon("dcmp-proj-edit", Config.GetValue("icons", "proj-edit", SystemPath("resources/color-edit.png")));
+		auto ActEdit = "ActProjEdit".AddAction("_Edit","Edit project", "dcmp-proj-edit","<Control>F8",delegate void(Action a){Project.Edit();});
+		AddToMenuBar("ActProjEdit", "_Project");
+		//AddToToolBar("ActProjEdit");
+
+		//Build
+		AddIcon("dcmp-proj-build", Config.GetValue("icons", "proj-build", SystemPath("resources/color-build.png")));
+		auto ActBuild = "ActProjBuild".AddAction("_Build","Build project", "dcmp-proj-build","<Control>F9",delegate void(Action a){SetBusyCursor(true);Project.Build();SetBusyCursor(false);});
+		AddToMenuBar("ActProjBuild", "_Project");
+		//AddToToolBar("ActProjBuild");
+
+		//run
+		AddIcon("dcmp-proj-run", Config.GetValue("icons", "proj-run", SystemPath("resources/color-arrow.png")));
+		auto ActRun = "ActProjRun".AddAction("_Run","Run project", "dcmp-proj-run","<Control>F10",delegate void(Action a){Project.Run();});
+		AddToMenuBar("ActProjRun", "_Project");
+		//AddToToolBar("ActProjRun");
+
+		//run args
+		AddIcon("dcmp-proj-run-args", Config.GetValue("icons", "proj-run-args", SystemPath("resources/color-run-args.png")));
+		auto ActRunArgs = "ActProjRunArgs".AddAction("Run with _Args","Run project with arguments", "dcmp-proj-run-args","<Control><Shift>F10",delegate void(Action a){auto args = GetArgs(); Project.Run(args);});
+		AddToMenuBar("ActProjRunArgs", "_Project");
+		//AddToToolBar("ActProjRunArgs");
+
+		//Close
+		AddIcon("dcmp-proj-close", Config.GetValue("icons", "proj-close", SystemPath("resources/color-close.png")));
+		auto ActClose = "ActProjClose".AddAction("_Close","Close project", "dcmp-proj-close","<Control><Shift>F5",delegate void(Action a){Project.Create();mRootWidget.hide();});
+		AddToMenuBar("ActProjClose", "_Project");
+		//AddToToolBar("ActProjClose");
+
+		//=============================================================================================================
+		//=============================================================================================================
+		//signals!!!
+
+		ProjHide.addOnClicked(delegate void(Button b){mRootWidget.hide();});
+
+		ProjName.addOnChanged(delegate void (EditableIF e){Project.Name = ProjName.getText(); ui.SetProjectTitle("Project : " ~ ProjName.getText());});
+		ProjRelPath.addOnChanged(delegate void (EditableIF e){ if(ProjRelPath.getText().endsWith(`/`))return; Project.Folder = CalculateFolder();});
+		ProjTargetType.addOnChanged(delegate void (ComboBoxText cbt){Project.TargetType = cast(TARGET)ProjTargetType.getActive();});
+		ProjCompiler.addOnChanged(delegate void (ComboBoxText cbt){Project.Compiler = cast(COMPILER)ProjCompiler.getActiveText();});
+		ProjNotes.getBuffer().addOnChanged(delegate void (TextBuffer tb){Project.Lists["Notes"] = tb.getText();});
+		ProjCustomBuild.addOnToggled(delegate void(ToggleButton tb){Project.UseCustomBuild = cast(bool)tb.getActive();ProjCustomBuildCommand.setEditable(ProjCustomBuild.getActive());});
+		ProjCustomBuildCommand.addOnChanged(delegate void (EditableIF e){Project.CustomBuildCommand = ProjCustomBuildCommand.getText();});
+
+		ProjSrcFiles.connect(&WatchLists);
+		ProjRelFiles.connect(&WatchLists);
+		ProjImportPaths.connect(&WatchLists);
+		ProjStringExpressionPaths.connect(&WatchLists);
+		ProjVersions.connect(&WatchLists);
+		ProjDebugs.connect(&WatchLists);
+		ProjLibraries.connect(&WatchLists);
+		ProjLibraryPaths.connect(&WatchLists);
+		ProjPreBuildScripts.connect(&WatchLists);
+		ProjPostBuildScripts.connect(&WatchLists);
+		ProjOtherFlags.connect(&WatchLists);
+
+
+		Project.Event.connect(&WatchProject);
+
+		ProjCellToggle.addOnToggled(delegate void(string path, CellRendererToggle crt)
+		{
+
+			auto ti = new TreeIter(ProjFlagsStore, path);
+			auto oldvalue = ProjFlagsStore.getValue(ti, 0);
+			int bvalue = oldvalue.getBoolean();
+			oldvalue.setBoolean(!bvalue);
+			Project.SetFlag(ProjFlagsStore.getValueString(ti, 1), cast(bool)oldvalue.getBoolean());
+
+		}, cast(GConnectFlags)1);
+		ProjCellArgs.addOnEdited(delegate void (string path, string text, CellRendererText crt)
+		{
+			if(mFlagsLoading == true)return;
+			auto ti = new TreeIter(ProjFlagsStore, path);
+			Project.SetFlagArgument(ProjFlagsStore.getValueString(ti, 1), text);
+		});
+
+		bool IsVisible = Config.GetValue("ui_project", "is_visible", true);
+		mRootWidget.setVisible(IsVisible);
+		Log.Entry("Engaged");
+	}
+
+	void PostEngage()
+	{
+
+	}
+
+	void Disengage()
+	{
+		bool IsVisible = cast(bool)mRootWidget.isVisible();
+		Config.SetValue("ui_project", "is_visible", IsVisible);
+		Log.Entry("Disengaged");
+	}
+
+	Widget GetRootWidget()
+	{
+		return cast(Widget) mRootWidget;
+	}
+
+	void Open()
+	{
+		string rv;
+		auto OD = new  FileChooserDialog("What project do you wish to DCompose", null, FileChooserAction.OPEN);
+		OD.setSelectMultiple(false);
+		auto resp = OD.run();
+		OD.hide();
+
+		if(resp == ResponseType.CANCEL) return ;
+
+		rv = OD.getFilename();
+
+		if(rv is null)return;
+		Project.Open(rv) ;
+	}
+/** this is a comment!!!
+ * */
+	string[] GetArgs()
+	{
+		static string[] lastargs;
+
+		auto ArgList = new UI_LIST("Program Arguments", ListType.IDENTIFIERS);
+		ArgList.SetItems(lastargs);
+
+		auto ArgDialog = new Dialog("Run with Arguments", ui.MainWindow, DialogFlags.MODAL, ["Ok",],[ResponseType.OK]);
+
+		ArgDialog.getContentArea().packStart(ArgList.GetRootWidget(), 1, 1, 10);
+
+		ArgDialog.run();
+		ArgDialog.hide();
+
+		lastargs = ArgList.GetItems();
+		return lastargs;
+	}
+}

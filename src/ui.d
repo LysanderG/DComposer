@@ -1,826 +1,799 @@
-//      ui.d
-//
-//      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//
-//      This program is free software; you can redistribute it and/or modify
-//      it under the terms of the GNU General Public License as published by
-//      the Free Software Foundation; either version 2 of the License, or
-//      (at your option) any later version.
-//
-//      This program is distributed in the hope that it will be useful,
-//      but WITHOUT ANY WARRANTY; without even the implied warranty of
-//      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//      GNU General Public License for more details.
-//
-//      You should have received a copy of the GNU General Public License
-//      along with this program; if not, write to the Free Software
-//      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//      MA 02110-1301, USA.
-
-
 module ui;
 
 import dcore;
-import docman;
-import autopopups;
 
-import  std.stdio;
-import  std.path;
-import  std.uri;
-import  std.conv;
-import 	std.algorithm;
-import  std.string;
-import  std.signals;
+public import ui_docbook;
+public import ui_list;
+public import ui_project;
+public import ui_search;
+public import ui_completion;
+public import ui_elementmanager;
+public import ui_preferences;
+public import ui_contextmenu;
 
-import  gtk.Main;
-import  gtk.Builder;
-import  gtk.Window;
-import  gtk.MenuBar;
-import  gtk.Menu;
-import  gtk.MenuItem;
-import  gtk.SeparatorMenuItem;
-import  gtk.Toolbar;
-import  gtk.ToolItem;
-import  gtk.SeparatorToolItem;
-import  gtk.Label;
-import  gtk.Notebook;
-import  gtk.Statusbar;
-import  gtk.ActionGroup;
-import  gtk.AccelGroup;
-import  gtk.Action;
-import  gtk.Widget;
-import  gtk.MessageDialog;
-import  gdk.Event;
-import  gtk.ToggleAction;
-import  gtk.AboutDialog;
-import  gtk.VPaned;
-import  gtk.HPaned;
-import  gtk.Frame;
-import  gtk.Alignment;
-import  gtk.VBox;
-import  gtk.TreeView;
-import  gtk.ListStore;
-import  gtk.Button;
-import  gtk.Entry;
-import  gtk.Dialog;
-import  gtk.TreeIter;
-import  gtk.FileChooserDialog;
-import  gtk.IconFactory;
-import  gtk.IconSet;
+import document;
 
-import  gtk.DragAndDrop;
-import	gdk.Pixbuf;
+import std.stdio;
+import std.algorithm;
+import std.conv;
 
 
+public import gtk.AccelGroup;
+public import gtk.Action;
+public import gtk.ActionGroup;
+public import gtk.Box;
+public import gtk.Builder;
+public import gtk.Builder;
+public import gtk.CheckButton;
+public import gtk.CheckMenuItem;
+public import gtk.Clipboard;
+public import gtk.ColorButton;
+public import gtk.Container;
+public import gtk.Entry;
+public import gtk.FontButton;
+public import gtk.Grid;
+public import gtk.IconFactory;
+public import gtk.IconSet;
+public import gtk.Label;
+public import gtk.Main;
+public import gtk.Menu;
+public import gtk.MenuBar;
+public import gtk.MenuItem;
+public import gtk.MessageDialog;
+public import gtk.Notebook;
+public import gtk.Paned;
+public import gtk.ScrolledWindow;
+public import gtk.SeparatorMenuItem;
+public import gtk.SpinButton;
+public import gtk.Statusbar;
+public import gtk.TextView;
+public import gtk.ToggleAction;
+public import gtk.ToggleToolButton;
+public import gtk.ToolItem;
+public import gtk.Toolbar;
+public import gtk.Widget;
+public import gtk.Window;
+public import gtk.TreeStore;
+public import gtk.Bin;
+public import gtk.ComboBox;
+public import gtk.ComboBoxText;
+public import gtk.Button;
+public import gtk.TreeView;
+public import gtk.TreeViewColumn;
+public import gtk.ListStore;
+public import gtk.TreeModelIF;
 
-MAIN_UI dui;
 
-static this()
+import gsv.SourceView;
+
+public import gdk.Event;
+public import gdk.Keysyms;
+public import gdk.Atoms;
+public import gdk.RGBA;
+public import gdk.Event;
+public import gdk.Color;
+public import gdk.RGBA;
+public import gdk.Pixbuf;
+public import gdk.Cursor;
+public import gdk.Display;
+
+public import gio.Icon;
+public import gio.FileIcon;
+public import gio.File;
+public import gio.ContentType;
+
+public import glib.Idle;
+
+
+import vte.Terminal;
+
+
+
+void Engage(string[] CmdLineArgs)
 {
-    dui = new MAIN_UI;
+	Main.init(CmdLineArgs);
+
+	mAccelGroup = new AccelGroup;
+
+	mIconFactory = new IconFactory;
+	mIconFactory.addDefault();
+
+	mClipBoard = Clipboard.get(gdk.Atoms.atomIntern("CLIPBOARD",true));
+
+	mBuilder = new Builder;
+	mBuilder.addFromFile(Config.GetValue("ui", "ui_main_glade", SystemPath("glade/ui_main.glade")));
+	mProjectTitle = cast(Label)mBuilder.getObject("label2");
+	MainWindow = cast(Window)mBuilder.getObject("window1");
+	MainWindow.addOnDelete(delegate bool(Event event, Widget widget){Quit();  return true;});
+
+	MainWindow.addAccelGroup(mAccelGroup);
+
+	auto tmp =  cast(Notebook)mBuilder.getObject("centerpane");
+
+	mStatusbar = cast(Statusbar)mBuilder.getObject("statusbar1");
+
+	DocBook = new UI_DOCBOOK(tmp);
+	uiProject = new UI_PROJECT;
+	uiSearch = new UI_SEARCH;
+	uiCompletion = new UI_COMPLETION;
+	uiContextMenu = new UI_CONTEXTMENU;
+
+	EngageActions();
+	EngageSidePane();
+	EngageExtraPane();
+	DocBook.Engage();
+	uiProject.Engage();
+	uiSearch.Engage();
+	uiCompletion.Engage();
+	ui_elementmanager.Engage();
+	uiContextMenu.Engage();
+
+
+	//AddSidePage(new TextView, "text");
+	//AddSidePage(new SourceView, "src");
+	ui.DocBook.prependPageMenu(uiProject.GetRootWidget(), cast(Widget)new Label("Project Options"), cast(Widget)new Label("Project Options"));
+
+	MainWindow.setIconFromFile(Config.GetValue("ui", "main_icon", SystemPath("resources/mushroom.png")));
+	Log.Entry("Engaged");
 }
 
-class MAIN_UI
+void PostEngage()
 {
-
-    private :
-
-    Builder		mBuilder;
-
-    Window 		mWindow;
-    MenuBar		mMenuBar;
-    Toolbar		mToolBar;
-    Notebook	mCenterPane;
-    Notebook	mSidePane;
-    Notebook	mExtraPane;
-    Statusbar	mStatusBar;
-    ActionGroup	mActions;
-    AccelGroup  mAccelerators;
-    Label       mIndicator;
-    HPaned      mHPaned;
-    VPaned      mVPaned;
-
-    IconFactory AllMyIcons;
-
-    Menu[string] mSubMenus;
-    DOCMAN      mDocMan;
-    AUTO_POP_UPS mAutoPopUps;
-
-    bool        mIsWindowMaximized;
-
-    GtkTargetEntry FileDropTargets[];
-
-
-	void DragCatcher(GdkDragContext* Cntxt, int x, int y, GtkSelectionData* SelData, uint info, uint time, Widget user_data)
-    {
-
-		string[] SelectedFiles;
-
-		foreach(line; splitLines(text(SelData.data)))
-		{
-			if(line.startsWith("file://"))
-			{
-				SelectedFiles ~= std.uri.decode(line[7..$]);
-			}
-		}
-		mDocMan.Open(SelectedFiles);
-
-		DragAndDrop huh = new DragAndDrop(Cntxt);
-
-		huh.finish(true, false, time);
-	}
-
-    public :
-
-    void Engage(string[] CmdArgs)
-    {
-
-        Main.initMultiThread(CmdArgs);
-        //Main.init(CmdArgs);
-
-        EngageWidgets();
-
-        AllMyIcons = new IconFactory;
-		AllMyIcons.addDefault();
-
-
-        mDocMan     = new DOCMAN;
-        mDocMan.Engage();
-
-        mAutoPopUps = new AUTO_POP_UPS;
-        mAutoPopUps.Engage();
-
-        Log().Entry("Engaged UI");
-    }
-
-    void Disengage()
-    {
-        Project.Event.disconnect(&WatchProjectName);
-        mAutoPopUps.Disengage();
-        mDocMan.Disengage();
-        Log().Entry("Disengaged UI");
-    }
-
-    void Run()
-    {
-        GetDocMan.OpenInitialDocs();
-        Project.OpenLastSession();
-
-        ReStoreGuiState();
-        mWindow.show();
-
-        Log().Entry("Entering GTK Main Loop\n++++++++++");
-        Main.run();
-        Log().Entry("----------\nExiting GTK Main Loop");
-
-        StoreGuiState();
-        mWindow.hide();
-    }
-
-    void EngageWidgets()
-    {
-        mBuilder = new Builder;
-        mBuilder.addFromFile(Config().getString("UI", "ui_glade_file", "$(HOME_DIR)/glade/dcomui2.glade") );
-
-        mWindow     = cast(Window)      mBuilder.getObject("window1");
-        mMenuBar    = cast(MenuBar)     mBuilder.getObject("menubar");
-        mToolBar    = cast(Toolbar)     mBuilder.getObject("toolbar");
-        mCenterPane = cast(Notebook)    mBuilder.getObject("mainpane");
-        mSidePane   = cast(Notebook)    mBuilder.getObject("sidepane");
-        mExtraPane  = cast(Notebook)    mBuilder.getObject("extrapane");
-        mStatusBar  = cast(Statusbar)   mBuilder.getObject("statusbar");
-        mIndicator  = cast(Label)       mBuilder.getObject("label1");
-        mHPaned     = cast(HPaned)      mBuilder.getObject("hpaned1");
-        mVPaned     = cast(VPaned)      mBuilder.getObject("vpaned1");
-
-        mActions    = new ActionGroup("global");
-        mAccelerators=new AccelGroup();
-
-        mWindow.addOnWindowState(delegate bool(GdkEventWindowState* WS, Widget Windough)
-        {
-            mIsWindowMaximized = (WS.newWindowState == WindowState.MAXIMIZED);
-            return false;
-        });
-
-		DragAndDrop.destSet (mWindow, GtkDestDefaults.ALL  , FileDropTargets.ptr, 4,  GdkDragAction.ACTION_COPY | GdkDragAction.ACTION_MOVE | GdkDragAction.ACTION_LINK | GdkDragAction.ACTION_ASK);
-
-		mWindow.addOnDragDataReceived (&DragCatcher);
-
-        //setup menubar
-        mSubMenus["_System"] = new Menu;
-        MenuItem tmp = new MenuItem("_System");
-        tmp.setSubmenu(mSubMenus["_System"]);
-        //mSubMenus[MenuID].insert(Addition, Position);
-        mMenuBar.append(tmp);
-
-        mSubMenus["_View"] = new Menu;
-        tmp = new MenuItem("_View");
-        tmp.setSubmenu(mSubMenus["_View"]);
-        //mSubMenus[MenuID].insert(Addition, Position);
-        mMenuBar.append(tmp);
-
-        mSubMenus["_Edit"] = new Menu;
-        tmp = new MenuItem("_Edit");
-        tmp.setSubmenu(mSubMenus["_Edit"]);
-        //mSubMenus[MenuID].insert(Addition, Position);
-        mMenuBar.append(tmp);
-
-        mSubMenus["_Documents"] = new Menu;
-        tmp = new MenuItem("_Documents");
-        tmp.setSubmenu(mSubMenus["_Documents"]);
-        //mSubMenus[MenuID].insert(Addition, Position);
-        mMenuBar.append(tmp);
-
-        mSubMenus["_Project"] = new Menu;
-        tmp = new MenuItem("_Project");
-        tmp.setSubmenu(mSubMenus["_Project"]);
-        //mSubMenus[MenuID].insert(Addition, Position);
-        mMenuBar.append(tmp);
-
-
-
-
-        mWindow.addAccelGroup(mAccelerators);
-        mWindow.addOnDelete(&ConfirmQuit);
-        //mWindow.addOnDestroy(&ConfirmQuit);
-        auto QuitAction = new Action("UI_QUIT", "_Quit", "Exit DComposer", StockID.QUIT);
-        QuitAction.addOnActivate(delegate void(Action x){ConfirmQuit(null,null);});
-        QuitAction.setAccelGroup(mAccelerators);
-        mActions.addActionWithAccel(QuitAction, null);
-        AddMenuItem("_System", QuitAction.createMenuItem());
-        AddToolBarItem(QuitAction.createToolItem());
-        //AddToolBarItem(new SeparatorToolItem);
-
-
-        //view Actions
-
-        auto ViewToolBarAct = new ToggleAction("ViewToolBarAct", "_Toolbar", "Show/Hide Toolbar", null);
-        auto ViewSidePaneAct = new ToggleAction("ViewSidePaneAct", "_Side Pane", "Show/Hide Side Window", null);
-        auto ViewExtraPaneAct = new ToggleAction("ViewExtraPaneAct", "_Extra Pane", "Show/Hide Extra Pane", null);
-        auto ViewStatusBarAct = new ToggleAction("ViewStatusBarAct", "Status_bar","Show/Hide Statusbar", null);
-
-        mActions.addAction(ViewToolBarAct);
-        mActions.addAction(ViewSidePaneAct);
-        mActions.addAction(ViewExtraPaneAct);
-        mActions.addAction(ViewStatusBarAct);
-
-        ViewToolBarAct.setActive(Config.getBoolean("UI","view_toolbar", true));
-        ViewSidePaneAct.setActive(Config.getBoolean("UI", "view_sidepane", true));
-        ViewExtraPaneAct.setActive(Config.getBoolean("UI", "view_extrapane", true));
-        ViewStatusBarAct.setActive(Config.getBoolean("UI", "view_statusbar", false));
-        (ViewToolBarAct.getActive())?mToolBar.show() : mToolBar.hide();
-        (ViewSidePaneAct.getActive())?mSidePane.show() : mSidePane.hide();
-        (ViewExtraPaneAct.getActive())?mExtraPane.show() : mExtraPane.hide();
-        (ViewStatusBarAct.getActive())?mStatusBar.show() : mStatusBar.hide();
-
-        ViewToolBarAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mToolBar.show() : mToolBar.hide(); Config.setBoolean("UI","view_toolbar", cast(bool)x.getActive());});
-        ViewSidePaneAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mSidePane.show() : mSidePane.hide();Config.setBoolean("UI","view_sidepane",cast(bool)x.getActive());});
-        ViewExtraPaneAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mExtraPane.show() : mExtraPane.hide();Config.setBoolean("UI","view_extrapane",cast(bool)x.getActive());});
-        ViewStatusBarAct.addOnToggled(delegate void(ToggleAction x){(x.getActive)?mStatusBar.show() : mStatusBar.hide();Config.setBoolean("UI","view_statusbar",cast(bool)x.getActive());});
-
-        AddMenuItem("_View", ViewToolBarAct.createMenuItem());
-        AddMenuItem("_View", ViewSidePaneAct.createMenuItem());
-        AddMenuItem("_View", ViewExtraPaneAct.createMenuItem());
-        AddMenuItem("_View", ViewStatusBarAct.createMenuItem());
-
-        AddMenuItem("_Help", new MenuItem(delegate void(MenuItem mi){ShowAboutDialog();}, "About"),17);
-
-
-        Project.Event.connect(&WatchProjectName);
-    }
-
-    void AddIcon(string IconID, string IconFile)
-    {
-		IconSet tmpIconSet = new IconSet(new Pixbuf(IconFile));
-		AllMyIcons.add(IconID, tmpIconSet);
-	}
-
-
-    bool ConfirmQuit(Event e, Widget w)
-    {
-		if(mDocMan.HasModifiedDocs)
-		{
-
-        ////this(Window parent, GtkDialogFlags flags, GtkMessageType type, GtkButtonsType buttons, bool markup, string messageFormat, string message = null);
-			auto ConDi = new MessageDialog(mWindow, GtkDialogFlags.DESTROY_WITH_PARENT, GtkMessageType.INFO, GtkButtonsType.NONE, false, null);
-			ConDi.addButtons(["Stay","Leave"],[cast(GtkResponseType)0,cast(GtkResponseType)1]);
-			ConDi.setMarkup("There are unsaved changes to open documents... Do you wish to exit?");
-			ConDi.setTitle("GoodBye??");
-			bool rvQuit = cast(bool)ConDi.run();
-			ConDi.destroy();
-
-			if(!rvQuit) return true;
-		}
-
-        mDocMan.StoreOpenSessionFiles();
-        mDocMan.CloseAll(true);
-        Main.quit();
-        return true;
-    }
-
-    void AddMenuItem(string MenuID, Widget Addition, int Position = -1)
-    {
-        if(MenuID in mSubMenus)
-        {
-            mSubMenus[MenuID].insert(Addition, Position);
-        }
-        else
-        {
-            mSubMenus[MenuID] = new Menu;
-            MenuItem tmp = new MenuItem(MenuID);
-            tmp.setSubmenu(mSubMenus[MenuID]);
-            mSubMenus[MenuID].insert(Addition, Position);
-            mMenuBar.insert(tmp, Position);
-        }
-        mMenuBar.showAll();
-    }
-
-    void AddToolBarItem(ToolItem NuItem, int Position = -2)
-    {
-        NuItem.show();
-
-        if(Position == -2)
-        {
-            if(mToolBar.getNItems() > 0) Position = mToolBar.getNItems() - 1;
-            else Position = -1;
-        }
-
-        mToolBar.insert(NuItem, Position);
-    }
-    void PerformAction(string ActionName)
-    {
-        auto tmp = mActions.getAction(ActionName);
-        if(tmp is null) Log.Entry("Attempt to perform invalid Action "~ActionName, "Error");
-        else tmp.activate();
-    }
-
-    Window          GetWindow(){return mWindow;}
-    Notebook        GetCenterPane(){return mCenterPane;}
-    Notebook        GetSidePane(){return mSidePane;}
-    Notebook        GetExtraPane() { return mExtraPane;}
-    ActionGroup     Actions() {return mActions;}
-    MenuBar         GetMenuBar(){return mMenuBar;}
-    AccelGroup      GetAccel(){return mAccelerators;}
-    Statusbar       Status(){return mStatusBar;}
-
-    DOCMAN          GetDocMan(){return mDocMan;}
-    AUTO_POP_UPS    GetAutoPopUps(){return mAutoPopUps;}
-
-
-    void WatchProjectName(ProEvent EventType)
-    {
-        //if((EventType == "Name") || (EventType == "New")) mIndicator.setText("Project: " ~ Project.Name);
-        mIndicator.setText("Project: " ~ Project.Name);
-    }
-
-
-    void ShowAboutDialog()
-    {
-        Builder AboutBuilder = new Builder;
-
-
-        AboutBuilder.addFromFile(Config.getString("UI", "about_glade_file", "$(HOME_DIR)/glade/about.glade"));
-
-        auto About = cast(AboutDialog) AboutBuilder.getObject("aboutdialog1");
-		About.setVersion(config.DCOMPOSER_VERSION);
-		About.setLogo(new Pixbuf(Config.getString("UI", "about_logo", "$(HOME_DIR)/glade/stolen2.png")));
-        About.run();
-        About.hide();
-    }
-
-
-    void StoreGuiState()
-    {
-        int xpos, xlen, ypos, ylen;
-
-        Config.setBoolean("UI", "store_gui_window_maxed", mIsWindowMaximized);
-
-        mWindow.getPosition(xpos, ypos);
-        mWindow.getSize(xlen, ylen);
-
-        Config.setInteger("UI", "store_gui_window_xpos", xpos);
-        Config.setInteger("UI", "store_gui_window_ypos", ypos);
-        Config.setInteger("UI", "store_gui_window_xlen", xlen);
-        Config.setInteger("UI", "store_gui_window_ylen", ylen);
-
-        int hpanePos = mHPaned.getPosition;
-        int vpanePos = mVPaned.getPosition;
-
-        Config.setInteger("UI", "store_gui_hpaned_pos", hpanePos);
-        Config.setInteger("UI", "store_gui_vpaned_pos", vpanePos);
-
-        emit(UI_EVENT.STORE_GUI);
-
-
-    }
-
-    void ReStoreGuiState()
-    {
-        int xpos, ypos, xlen, ylen;
-
-        bool Maxed = Config.getBoolean("UI", "store_gui_window_maxed", false);
-
-        xpos = Config.getInteger("UI", "store_gui_window_xpos", 1);
-        ypos = Config.getInteger("UI", "store_gui_window_ypos", 1);
-        xlen = Config.getInteger("UI", "store_gui_window_xlen", 1000);
-        ylen = Config.getInteger("UI", "store_gui_window_ylen", 750);
-
-        mWindow.move(xpos, ypos);
-        mWindow.setDefaultSize(xlen,ylen);
-        //mWindow.resize(xlen, ylen);
-        if(Maxed) mWindow.maximize();
-
-        mWindow.show();
-
-        int vpanePos = Config.getInteger("UI", "store_gui_vpaned_pos", 450);
-        int hpanePos = Config.getInteger("UI", "store_gui_hpaned_pos", 200);
-
-
-        mHPaned.setPosition(hpanePos);
-        mVPaned.setPosition(vpanePos);
-
-        emit(UI_EVENT.RESTORE_GUI);
-
-        Log.Entry("GUI State restored");
-
-    }
-
-    this()
-    {
-		FileDropTargets.length = 4;
-
-		FileDropTargets[0].target = "STRING".dup.ptr;
-		FileDropTargets[0].flags  = 0;
-		FileDropTargets[0].info   = 0;
-
-		FileDropTargets[1].target = "UTF8_STRING".dup.ptr;
-		FileDropTargets[1].flags  = 0;
-		FileDropTargets[1].info   = 0;
-
-		FileDropTargets[2].target = "text/plain".dup.ptr;
-		FileDropTargets[2].flags  = 0;
-		FileDropTargets[2].info   = 0;
-
-		FileDropTargets[3].target = "text/uri-list".dup.ptr;
-		FileDropTargets[3].flags  = 0;
-		FileDropTargets[3].info   = 0;
-
-	}
-
-	mixin Signal!(UI_EVENT);
-
-
+	DocBook.PostEngage();
+	uiProject.PostEngage();
+	uiSearch.PostEngage();
+	uiCompletion.PostEngage();
+	ui_elementmanager.PostEngage();
+	uiContextMenu.PostEngage();
+
+	RestoreGui();
+
+	Log.Entry("PostEngaged");
 }
 
-enum UI_EVENT { RESTORE_GUI, STORE_GUI}
-
-
-//popdoc types??
-enum :int { TYPE_NONE, TYPE_CALLTIP, TYPE_SCOPELIST, TYPE_SYMCOM}
-
-
-// --- menu
-//system        view        Document        edit        search      project     tools       elements        help
-//      qu    it  w
-
-
-
-//base class (probably should be abstract) for all gui preference widgets
-//any module/element with user changeable options will implement a child of this class
-//it must return a page/section gui
-//must connect to Config.ShowConfig to reset values to keyfile values
-//must connect to Config.ReConfig to apply changes to keyfile
-//then modules/elements will reconfigure themselves from the keyfile.
-
-/**
- * Any element or other object which needs a GUI preference page must create a subclass of PREFERENCE_PAGE.
- * For elements the mFrame will automatically be added to the Elements preference page.  NonElements must add mFrame manually
- * as a new page or a frame in another page.
- * The Config.ShowConfig signal will be sent when the 'keyfile' has changed and the gui must be updated.
- * The Config.ReConfig signal will issue when changes to the GUI need to be 'Applied'.
- * (after some testing I've decided I don't like the 'APPLY' button,
- * at some point I'll do away with it and make changes to the gui take place immediately.)
- * */
-abstract class PREFERENCE_PAGE
+void RestoreGui()
 {
-    string      mPageName;		///
-
-    Builder     mBuilder;
-    Frame       mFrame;
-    Alignment   mFrameKid;
-    VBox        mVBox;
-
-    this(string PageName, string gladefile)
-    {
-        mPageName = PageName;  											///Page to add mVbox to (actually PREFERENCE_PAGE should be PREFERENCE_FRAME or SECTION
-
-        mBuilder = new Builder;
-        mBuilder.addFromFile(gladefile);
-
-        mFrame = cast(Frame)mBuilder.getObject("frame");
-
-        mFrameKid = cast(Alignment)mBuilder.getObject("alignment1");
-        mVBox = cast(VBox)mBuilder.getObject("vbox1");
-
-        Config.ShowConfig.connect(&PrepGui);
-
-    }
-
-	/**
-	 * The root widget of the class.  Used to add to the preference dialog.
-	 * Subclasses are completely resposonsible for items in this widget.
-	 *
-	 * Returns:
-	 * A Frame containing all preference items.
-	 * */
-    Frame GetPrefWidget()
-    {
-        return mFrame;
-    }
-
-    /**
-     * The name of the page (from PREFERENCES_UI.mBook) where mFrame is located.
-     * */
-    string PageName()
-    {
-        return mPageName;
-    }
-
-	/**
-	 * Add a widget item to this 'PAGE'
-	 * Kind of superfluous if mVBox is not going to be private.
-	 * */
-    void Add(Widget Addition)
-    {
-        mVBox.add(Addition);
-    }
-
-	/**
-	 * If 'PAGE' should expand to fill extra space.
-	 * Usually should not. But if more space is needed to display 'PAGE'
-	 * then this function can be overriden to return true;
-	 * */
-	bool Expand() {return false;}
-	/**
-	 * Applies changes made to the GUI.  Actually saves changes to the Config.keyfile. And then Config applies changes.
-	 * This strategy needs to be disgarded.  It is very unresponsive, annoying having to press apply instead of seeing instant changes.
-	 * */
-    abstract void Apply();
-    abstract void PrepGui();
-}
+	auto win_x_pos = Config.GetValue!int("ui", "win_x_pos", 1);
+	auto win_y_pos = Config.GetValue!int("ui", "win_y_pos", 1);
+	auto win_x_len = Config.GetValue!int("ui", "win_x_len", 1000);
+	auto win_y_len = Config.GetValue!int("ui", "win_y_len", 750);
 
 
-enum ListType {FILES, PATHS, IDENTIFIERS};
+	MainWindow.move(win_x_pos, win_y_pos);
+	MainWindow.setDefaultSize(win_x_len, win_y_len);
 
-/**
- *	Basically a simple "widget" to present a list (files, paths, or simple strings).
- *
- *  It provides methods for adding new items (through apropriate dialogs), deleting individual items,
- *  and clearing all items.
- *  Simple reusable utility.  Nothing special.
- *	A note... this class attempts to display the basename of any added item (non path strings basename should be the string itself)
- * 	the actual item originally given will be displayed as a tooltip
- *
- *
- * */
-class LISTUI
-{
 
-	Builder		mBuilder;
 
-	VBox		mVBox;
-	Label		mFrameLabel;
-	TreeView	mListView;
-	ListStore	mListStore;
-	Button		mAddButton;
-	Button		mRemoveButton;
-	Button		mClearButton;
-	Dialog 		mAddItemDialog;
-	Entry		mAddItemEntry;
+	RestoreSidePane();
 
-    /**
-    Creates a new LISTUI
+	RestoreExtraPane();
 
-    Params:
-    ListTitle = Frame Label, identifies list for user.
-    Type = list can be  a file (filechooser) path(filechooser flagged for folder selection) or string(text entry)
-    GladeFile = The glade file that defines this "widget"
-    */
-	this(string ListTitle, ListType Type, string GladeFile )
-	{
-        scope(failure) Log.Entry("Failed to instantiate LISTUI!!", "Debug");
+	RestoreToolbar();
 
-		mBuilder = new Builder;
-		mBuilder.addFromFile(GladeFile);
-
-		mVBox 			= cast(VBox)mBuilder.getObject("vbox1");
-		mFrameLabel 	= cast(Label)mBuilder.getObject("label1");
-		mListView 		= cast(TreeView)mBuilder.getObject("treeview");
-		mListStore		= cast(ListStore)mBuilder.getObject("thestore");
-		mAddButton 		= cast(Button)mBuilder.getObject("buttonadd");
-		mRemoveButton 	= cast(Button)mBuilder.getObject("buttonremove");
-		mClearButton 	= cast(Button)mBuilder.getObject("buttonclear");
-
-		mAddItemDialog = cast(Dialog)mBuilder.getObject("dialog1");
-		mAddItemEntry 	= cast(Entry)mBuilder.getObject("entry");
-
-		if(Type == ListType.FILES) mAddButton.addOnClicked(&AddFiles);
-		if(Type == ListType.PATHS) mAddButton.addOnClicked(&AddPaths);
-		if(Type == ListType.IDENTIFIERS) mAddButton.addOnClicked(&AddItem);
-
-		mRemoveButton.addOnClicked(&RemoveItems);
-		mClearButton.addOnClicked(&ClearItems);
-
-		mFrameLabel.setText(ListTitle);
-
-		mListView.getSelection().setMode(GtkSelectionMode.MULTIPLE);
-		mListView.setRubberBanding(false);
-		mListView.setReorderable(true);
-
-		mVBox.showAll();
-	}
-
-	/**
-	 *Clears all items in the list and sets a new list of items
-	 * Params:
-	 * Items = Sets list items to this array of strings.  If strings are file paths the base names will be displayed and
-	 * the full string will show as a tooltip.
-	 * */
-	void SetItems(string[] Items)
-	{
-		TreeIter ti = new TreeIter;
-		mListStore.clear();
-		foreach (index, i; Items)
-		{
-			mListStore.insert(ti, 0);
-			mListStore.setValue(ti, 0, baseName(i));
-			//mListStore.setValue(ti, 1, relativePath(i));
-            mListStore.setValue(ti, 1, i);
-		}
-		mListView.setModel(mListStore);
-	}
-
-	/**
-	 * Retrieves the array of items.
-	 *
-	 * Params:
-	 * col = if 0 (the default) the returned array will be the basename/displayed items.  If 1 the originals/fullnames will be returned. At this time other values will cause DComposer to explode ... hmmm that's not good.
-	 *
-	 * Returns:
-	 * Either an array of basename/display items. Or an array of the original/fullname items.
-	 *
-	 * */
-	string[] GetShortItems(int col = 0)
-	{
-		if((col < 0) || (col > 1)) col = 0;
-		string[] rval;
-		TreeIter ti = new TreeIter;
-
-		if (!mListStore.getIterFirst(ti)) return rval;
-
-		rval ~= mListStore.getValueString(ti,col);
-		while(mListStore.iterNext(ti)) rval ~= mListStore.getValueString(ti,col);
-
-		return rval;
-	}
-	/**
-	 * Actully calls GetShortItems with the col parameter of 1.
-	 *
-	 * This is actually a silly kind of trick to reuse a very simple function.  Probably would be better, clearer to avoid calling another function (or fix the name.)
-	 *
-	 * Returns:
-	 * An array of the items fullname
-	 * */
-	string[] GetFullItems()
-	{
-		return GetShortItems(1);
-	}
-
-	/**
-	 * Initiates a dialog to add file(s) to items.
-	 *
-	 * This method is called from mAddButton signal when list type is FILES.
-	 * Note... Type is not stored in this class, it is discard after ctor
-	 * */
-	void AddFiles(Button btn)
-	{
-		string afile;
-		TreeIter ti = new TreeIter;
-
-		auto FileDialog = new FileChooserDialog("Select Files", dui.GetWindow(), FileChooserAction.OPEN);
-		FileDialog.setSelectMultiple(true);
-
-		auto DialogResponse = FileDialog.run();
-		FileDialog.hide();
-
-		if(DialogResponse != ResponseType.OK)return;
-
-		auto SelFiles = FileDialog.getFilenames();
-		while(SelFiles !is null)
-		{
-			afile = toImpl!(string, char *)(cast(char *)SelFiles.data());
-			//disallow duplicates
-			if (GetFullItems.canFind(afile))
-			{
-				SelFiles = SelFiles.next();
-				continue;
-			}
-			mListStore.append(ti);
-			mListStore.setValue(ti, 0, baseName(afile));
-			mListStore.setValue(ti, 1, afile);
-			SelFiles = SelFiles.next();
-		}
-		mListView.setModel(mListStore);
-	}
-	/**
-	 * Initiates a dialog to add path(s) to items.
-	 *
-	 * This method is called from mAddButton signal when list type is PATHS.
-	 * Note... Type is not stored in this class, it is discard after ctor
-	 * */
-	void AddPaths(Button btn)
-	{
-		string afile;
-		TreeIter ti = new TreeIter;
-
-		auto FileDialog = new FileChooserDialog("Select Files", dui.GetWindow(), FileChooserAction.SELECT_FOLDER);
-		FileDialog.setSelectMultiple(true);
-
-		auto DialogResponse = FileDialog.run();
-		FileDialog.hide();
-
-		if(DialogResponse != ResponseType.OK)return;
-
-		auto SelFiles = FileDialog.getFilenames();
-		while(SelFiles !is null)
-		{
-			afile = toImpl!(string, char *)(cast(char *)SelFiles.data());
-			//disallow duplicates
-			if (GetFullItems.canFind(afile))
-			{
-				SelFiles = SelFiles.next();
-				continue;
-			}
-			mListStore.append(ti);
-			mListStore.setValue(ti, 0, baseName(afile));
-			mListStore.setValue(ti, 1, afile);
-			SelFiles = SelFiles.next();
-		}
-		mListView.setModel(mListStore);
-	}
-	/**
-	 * Initiates a dialog to add string(s) to items.
-	 *
-	 * This method is called from mAddButton signal when list type is IDENTIFIERS.
-	 * Note... Type is not stored in this class, it is discard after ctor
-	 * */
-	void AddItem(Button btn)
-	{
-		TreeIter ti = new TreeIter;
-		auto rv = mAddItemDialog.run();
-		mAddItemDialog.hide();
-		if(rv == 0) return;
-
-		string x = mAddItemEntry.getText();
-
-		if (x.length < 1) return;
-		mListStore.append(ti);
-		mListStore.setValue(ti, 0, x);
-		mListStore.setValue(ti, 1, x);
-		mListView.setModel(mListStore);
-	}
-
-	/**
-	 *Removes the currently selected item(s) from the list, if any.
-	 * */
-	void RemoveItems(Button btn)
-	{
-		TreeIter[] xs = mListView.getSelectedIters();
-
-		foreach(x; xs)
-		{
-			mListStore.remove(x);
-		}
-		mListView.setModel(mListStore);
-	}
-	/**
-	 *Removes all items from the list, obviously, leaving an empty list.
-	 * */
-	void ClearItems(Button btn)
-	{
-		mListStore.clear();
-		mListView.setModel(mListStore);
-	}
-
-	/**
-	 * Returns the root widget of the LISTUI a VBox.
-	 *
-	 * Good candidate for an alias this.
-	 * */
-	Widget GetWidget() { return mVBox;}
 
 }
 
 
 
-//;
+void Run()
+{
+	MainWindow.show();
+
+	Log.Entry("++++++++++++++ Entering GTK Main Loop");
+    Main.run();
+    Log.Entry("-------------- Exiting GTK Main Loop");
+
+   	StoreGui();
+}
+
+void Disengage()
+{
+	uiContextMenu.Disengage();
+	ui_elementmanager.Disengage();
+	uiCompletion.Disengage();
+	uiSearch.Disengage();
+	uiProject.Disengage();
+	Log.Entry("Disengaged");
+}
+
+void StoreGui()
+{
+	int xpos, ypos, xlen, ylen;
+	MainWindow.getPosition(xpos, ypos);
+	MainWindow.getSize(xlen, ylen);
+
+	Config.SetValue("ui", "win_x_pos", xpos);
+	Config.SetValue("ui", "win_y_pos", ypos);
+	Config.SetValue("ui", "win_x_len", xlen);
+	Config.SetValue("ui", "win_y_len", ylen);
+
+	StoreExtraPane();
+	StoreSidePane();
+	StoreActions();
+}
+
+
+/////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////
+
+private:
+
+
+Builder     mBuilder;
+MenuBar     mMenuBar;
+Toolbar     mToolbar;
+Notebook    mCenterPane;
+Statusbar   mStatusbar;
+IconFactory mIconFactory;
+Paned		mPaneV;
+Paned		mPaneH;
+Clipboard   mClipBoard;
+Label		mProjectTitle;
+
+
+
+
+public:
+Window 	    MainWindow;
+UI_DOCBOOK	DocBook;
+ActionGroup mActions;
+AccelGroup 	mAccelGroup;
+UI_PROJECT	uiProject;
+UI_SEARCH	uiSearch;
+UI_COMPLETION uiCompletion;
+Notebook    mExtraPane;
+Notebook    mSidePane;
+
+
+//////////////////////////////////////////////////////////////////////
+////////////////////////// ui_actions -> menus and toolbar
+string[] mRootMenuNames = ["_System", "_View", "_Edit", "_Document", "_Project", "_Tools", "E_lements", "_Help"] ;
+Menu[string] mRootMenu;
+string[] AllActions;
+string[] ActionsOnToolbar;
+
+
+void EngageActions()
+{
+	mActions = new ActionGroup("dcomposer");
+	mMenuBar = cast(MenuBar)mBuilder.getObject("menubar1");
+	mToolbar = cast(Toolbar)mBuilder.getObject("toolbar1");
+
+
+	AddIcon("dcmp-quit", SystemPath("resources/yin-yang.png"));
+	AddIcon("dcmp-view-toolbar", SystemPath("resources/yin-yang.png"));
+	AddIcon("dcmp-toolbar-separator", SystemPath("resources/ui-separator-vertical.png"));
+	AddIcon("dcmp-toolbar-configure", SystemPath("resources/ui-toolbar-configure.png"));
+
+
+	AddToggleAction("ActViewToolbar", "viewtoolbar", "show/hide toolbar", "dcmp-view-toolbar", "",
+		delegate void(Action a){auto y = cast(ToggleAction)a;mToolbar.setVisible(y.getActive());});
+	AddAction("ActQuit", "quit", "exit dcomposer", "dcmp-quit", "<Control>q", delegate void(Action a){Quit();});
+	AddAction("ActConfigureToolbar", "Edit Toolbar", "customize toolbar buttons", "dcmp-toolbar-configure", "",
+		delegate void (Action a){ConfigureToolBar();});
+	foreach(name; mRootMenuNames) mRootMenu[name] = mMenuBar.append(name);
+
+
+	AddToMenuBar("ActQuit",mRootMenuNames[0]);
+	AddToMenuBar("ActViewToolbar", mRootMenuNames[1]);
+	AddToMenuBar("ActConfigureToolbar", mRootMenuNames[0], 0);
+
+	//"ActQuit".AddToToolBar();
+	mMenuBar.showAll();
+	mToolbar.showAll();
+
+}
+
+void RestoreActions()
+{
+
+
+	//ClearToolbar();
+	auto ActionNames = Config.GetArray("toolbar", "actions", ["ActViewToolbar","ActQuit"]);
+	foreach(name; ActionNames) {mToolbar.insert(mActions.getAction(name).createToolItem(),1);}
+
+	bool ToolbarVisible = Config.GetValue("ui", "visible_toolbar", true);
+	mToolbar.setVisible(ToolbarVisible);
+	auto tact = cast(ToggleAction)GetAction("ActViewToolbar");
+	tact.setActive(ToolbarVisible);
+	ConfigureToolBar();
+}
+
+void StoreActions()
+{
+	Config.SetValue("ui", "visible_toolbar", mToolbar.getVisible());
+}
+
+void AddIcon(string name, string icon_file)
+{
+	mIconFactory.add(name, new IconSet(new Pixbuf(icon_file)));
+}
+
+Action AddAction(string name, string label, string tooltip, string stock_id, string accel, void delegate(Action) dlg)
+{
+		auto NuAction = new Action (name, label, tooltip, stock_id);
+		NuAction.addOnActivate(dlg);
+		NuAction.setAccelGroup(mAccelGroup);
+		if(accel.length == 0) mActions.addAction(NuAction);
+		else mActions.addActionWithAccel(NuAction, accel);
+		return NuAction;
+}
+void AddToggleAction(string name, string label, string tooltip, string stock_id, string accel, void delegate(Action) dlg)
+{
+		auto NuAction = new ToggleAction (name, label, tooltip, stock_id);
+		NuAction.addOnActivate(dlg);
+		NuAction.setAccelGroup(mAccelGroup);
+		if(accel.length == 0) mActions.addAction(NuAction);
+		else mActions.addActionWithAccel(NuAction, accel);
+}
+
+
+void AddToMenuBar(string ActionName, string TopMenu, int Position = -1)
+{
+	if(ActionName == "-")
+	{
+		auto sep = new SeparatorMenuItem;
+		sep.show();
+		mRootMenu[TopMenu].append(sep);
+		return;
+	}
+	if(Position == -1)mRootMenu[TopMenu].append(mActions.getAction(ActionName).createMenuItem());
+	else mRootMenu[TopMenu].insert(mActions.getAction(ActionName).createMenuItem(), Position);
+}
+
+Menu AddMenuToMenuBar(string label, string TopMenu)
+{
+	auto t = mRootMenu[TopMenu].appendSubmenu(label);
+	t.showAll();
+	return t;
+}
+void AddItemToMenuBar(MenuItem mi, string TopMenu)
+{
+	mi.show();
+	mRootMenu[TopMenu].append(mi);
+}
+
+
+@disable void AddToToolBar(string ActionName, int Position = 0)
+{
+	auto actnames = Config.GetArray!string("toolbar", "actions");
+
+	if(actnames.canFind(ActionName))return;
+
+	if(Position < 1) actnames = ActionName ~ actnames;
+	else if(Position >= actnames.length) actnames ~= ActionName;
+	else actnames = actnames[0..Position] ~ ActionName ~ actnames[Position .. $];
+
+	Config.SetValue("toolbar", "actions", actnames);
+}
+
+@disable void AddItemToToolBar(ToolItem item, int pos = 0)
+{
+	mToolbar.insert(item, pos);
+}
+
+
+@disable void RemoveFromToolBar(string ActionName)
+{
+	string[] nunames;
+	auto toolnames = Config.GetArray!string("toolbar","actions");
+	foreach(name; toolnames) if(name != ActionName) nunames ~= name;
+	Config.SetValue("toolbar", "actions", nunames);
+	RestoreActions();
+}
+
+
+Action GetAction(string name)
+{
+	return mActions.getAction(name);
+}
+
+string[] ListActions()
+{
+	string[] rv;
+	auto actnode = mActions.listActions();
+	Action x;
+
+	while(actnode !is null)
+	{
+		x  = new Action(cast(GtkAction*)actnode.data());
+		rv ~= x.getName();
+		actnode = actnode.next();
+	}
+	return rv;
+}
+
+void AddStatus(string Context, string StatusMessage)
+{
+	if(mStatusbar is null) return;
+	auto tmp = mStatusbar.getContextId(Context);
+	mStatusbar.push(tmp, StatusMessage);
+}
+
+
+
+
+///////////////////////////////////////////////////////////////////////
+////////////////////////// ui_panes
+
+void EngageSidePane()
+{
+	mPaneH = cast(Paned)mBuilder.getObject("paned2");
+	mSidePane = cast(Notebook)mBuilder.getObject("sidepane");
+
+	AddIcon("dcmp_view_side_pane", SystemPath("resources/ui-split-panel-vertical.png"));
+	AddToggleAction("ActViewSidePane","Side Pane","show/hide left side pane","dcmp_view_side_pane","",
+		delegate void (Action x){auto y = cast(ToggleAction)x;mSidePane.setVisible(y.getActive());});
+	"ActViewSidePane".AddToMenuBar("_View");
+	mSidePane.showAll();
+
+}
+
+void AddSidePage(Container page, string tab_text)
+{
+	mSidePane.appendPage(page, tab_text);
+	mSidePane.setTabReorderable(page, 1);
+
+}
+void RemoveSidePage(Container page)
+{
+	mSidePane.remove(page);
+}
+void StoreSidePane()
+{
+	Config.SetValue("ui", "side_pane_position", mPaneH.getPosition());
+	Config.SetValue("ui", "side_pane_visible", mSidePane.getVisible());
+	foreach(int i; 0 .. (mSidePane.getNPages()))
+	{
+		auto pageWidget = mSidePane.getNthPage(i);
+		auto pageTitle = mSidePane.getTabLabelText(pageWidget);
+		if(pageTitle.length > 0) Config.SetValue("ui_side_pane_page_positions", pageTitle, i);
+
+	}
+
+}
+void RestoreSidePane()
+{
+	mPaneH.setPosition(Config.GetValue!int("ui", "side_pane_position", 120));
+
+	bool SidePaneVisible = Config.GetValue("ui", "side_pane_visible", true);
+	mSidePane.setVisible(SidePaneVisible);
+	auto tact = cast(ToggleAction)GetAction("ActViewSidePane");
+	tact.setActive(SidePaneVisible);
+	mSidePane.showAll();
+
+	int[Widget] NewPage;
+
+	foreach(int i; 0..mSidePane.getNPages())
+	{
+		auto tmpwidget = mSidePane.getNthPage(i);
+		string pageTitle = mSidePane.getTabLabelText(tmpwidget);
+		NewPage[tmpwidget] = Config.GetValue!int("ui_side_pane_page_positions", pageTitle);
+		auto pageWidget = mSidePane.getNthPage(i);
+	}
+	foreach(keywidget, indx; NewPage)
+	{
+		mSidePane.reorderChild(keywidget, indx);
+	}
+	mSidePane.setCurrentPage(0);
+}
+
+
+void EngageExtraPane()
+{
+	mPaneV = cast(Paned)mBuilder.getObject("paned1");
+	mExtraPane = cast(Notebook)mBuilder.getObject("extrapane");
+
+	AddIcon("dcmp_view_extra_pane", SystemPath("resources/ui-split-panel.png"));
+	AddToggleAction("ActViewExtraPane","Extra Pane","show/hide Extra pane","dcmp_view_extra_pane","",
+		delegate void (Action x){auto y = cast(ToggleAction)x;mExtraPane.setVisible(y.getActive());});
+	"ActViewExtraPane".AddToMenuBar("_View");
+	mExtraPane.setCurrentPage(0);
+	mExtraPane.showAll();
+}
+void AddExtraPage(Container subject, string tab_text)
+{
+	mExtraPane.appendPage(subject, tab_text);
+	mExtraPane.setTabReorderable(subject, 1);
+
+}
+void RemoveExtraPage(Container page)
+{
+	mExtraPane.remove(page);
+}
+void StoreExtraPane()
+{
+	Config.SetValue("ui", "extra_pane_position", mPaneV.getPosition());
+	Config.SetValue("ui", "extra_pane_visible", mExtraPane.getVisible());
+
+	foreach(int i; 0 .. (mExtraPane.getNPages()))
+	{
+		auto pageWidget = mExtraPane.getNthPage(i);
+		auto pageTitle = mExtraPane.getTabLabelText(pageWidget);
+		if(pageTitle.length > 0) Config.SetValue("ui_extra_pane_page_positions", pageTitle, i);
+
+	}
+
+}
+void RestoreExtraPane()
+{
+	mPaneV.setPosition(Config.GetValue!int("ui", "extra_pane_position", 120));
+
+	bool ExtraPaneVisible = Config.GetValue("ui", "extra_pane_visible", true);
+	mExtraPane.setVisible(ExtraPaneVisible);
+	auto tact = cast(ToggleAction)GetAction("ActViewExtraPane");
+	tact.setActive(ExtraPaneVisible);
+
+	int[Widget] NewPage;
+
+	foreach(int i; 0..mExtraPane.getNPages())
+	{
+		auto tmpwidget = mExtraPane.getNthPage(i);
+		string pageTitle = mExtraPane.getTabLabelText(tmpwidget);
+		NewPage[tmpwidget] = Config.GetValue!int("ui_extra_pane_page_positions", pageTitle);
+		auto pageWidget = mExtraPane.getNthPage(i);
+	}
+	foreach(keywidget, indx; NewPage)
+	{
+		mExtraPane.reorderChild(keywidget, indx);
+	}
+	mExtraPane.setCurrentPage(0);
+}
+
+
+//this really needs a button parameter or its useless!
+void ShowMessage(string Title, string Message)
+{
+	auto x = new MessageDialog(MainWindow, DialogFlags.MODAL, MessageType.OTHER, ButtonsType.NONE, "");
+	x.addButtons(["Continue", "Uninstall DComposer"],[ResponseType.OK, ResponseType.NONE]);
+	x.setTitle(Title);
+	x.setMarkup(Message);
+	x.run();
+	x.destroy();
+}
+
+int ShowMessage(string Title, string Message, string[] Buttons ...)
+{
+	auto dialog = new MessageDialog(MainWindow, DialogFlags.MODAL, MessageType.OTHER, ButtonsType.NONE, "");
+	dialog.setTitle(Title);
+	dialog.setMarkup(Message);
+	foreach(int indx, string btn;Buttons)
+	{
+		dialog.addButton(btn, indx);
+	}
+
+	auto response = dialog.run();
+	dialog.destroy();
+	return response;
+}
+
+
+void Quit()
+{
+	auto ModdedDocs = DocMan.Modified();
+	if(ModdedDocs) with (ResponseType)
+	{
+		//confirm quit or return
+		auto ConfQuit = new MessageDialog(MainWindow, DialogFlags.MODAL, MessageType.QUESTION, ButtonsType.NONE, false, "");
+		ConfQuit.setTitle("Quit DComposer?");
+		ConfQuit.setMarkup("Do you really wish to quit with " ~ to!string(ModdedDocs) ~ " modified documents?");
+		ConfQuit.addButtons(["Save all & quit", "Discard all & quit", "Pick & choose", "Oops, don't quit!!"], [YES, NO,OK,CANCEL]);
+		auto response = ConfQuit.run();
+		ConfQuit.destroy();
+		switch (response)
+		{
+			case YES : DocMan.SaveAll();break;
+			case NO  : break;
+			case OK  : DocMan.CloseAll();
+			           if(!DocMan.Empty)return;
+			           break;
+			default  : return;
+		}
+
+	}
+
+	//mWindow.hide();
+	Main.quit();
+}
+
+
+void SetProjectTitle(string nuTitle)
+{
+	mProjectTitle.setText(nuTitle);
+}
+
+//======================================================================================================================
+//======================================================================================================================
+//======================================================================================================================
+//toolbar configuration
+//======================================================================================================================
+
+import gtk.IconView;
+import gtk.ListStore;
+import gtk.TreeIter;
+import gtk.TreePath;
+import gtk.Dialog;
+import gtk.SeparatorToolItem;
+
+import gobject.Value;
+
+
+void ConfigureToolBar()
+{
+	auto tbBuilder = new Builder;
+	tbBuilder.addFromFile(Config.GetValue("toolbar", "toolbar_glade", SystemPath("glade/ui_toolbar.glade")));
+	auto tbWin = cast(Dialog)tbBuilder.getObject("dialog1");
+	auto tbAvailIcons = cast(IconView)tbBuilder.getObject("iconview1");
+	auto tbAvailList = cast(ListStore)tbBuilder.getObject("liststore1");
+
+	auto ti = new TreeIter;
+
+	//first add separator icon which is not an action
+	tbAvailList.append(ti);
+	tbAvailList.setValue(ti, 0, "Separator");
+	tbAvailList.setValue(ti, 1, "Separator");
+	tbAvailList.setValue(ti, 2, "Separator");
+	tbAvailList.setValue(ti, 3, "dcmp-toolbar-separator");
+
+
+
+	foreach(actid; ListActions())
+	{
+		auto workingAction = GetAction(actid);
+
+		Value StockIdValue = new Value;
+		StockIdValue.init(GType.STRING);
+
+		string thelabel;
+		foreach(ch; workingAction.getLabel())if(ch != '_')thelabel ~= ch;
+		workingAction.getProperty("stock-id", StockIdValue);
+		tbAvailList.append(ti);
+		tbAvailList.setValue(ti, 0, workingAction.getName());
+		tbAvailList.setValue(ti, 1, thelabel);
+		tbAvailList.setValue(ti, 2, workingAction.getTooltip());
+		tbAvailList.setValue(ti, 3, StockIdValue.getString());
+	}
+
+	tbAvailList. setSortColumnId (1, SortType.ASCENDING);
+
+
+	//ok available toolbar actions are loaded
+	//now lets get the current toolbar actions
+	auto tbCurrentIcons = cast(IconView)tbBuilder.getObject("iconview2");
+	auto tbCurrentList = cast(ListStore)tbBuilder.getObject("liststore2");
+
+	string[] currentToolbarActions = Config.GetArray!(string)("toolbar", "configured_actions", ["ActQuit"]);
+
+	foreach(toolaction; currentToolbarActions)
+	{
+		auto iter = new TreeIter;
+		tbCurrentList.append(iter);
+
+		if(toolaction == "Separator")
+		{
+			tbCurrentList.setValue(iter, 0, "Separator");
+			tbCurrentList.setValue(iter, 1, "Separator");
+			tbCurrentList.setValue(iter, 2, "Separator");
+			tbCurrentList.setValue(iter, 3, "dcmp-toolbar-separator");
+		}
+		else
+		{
+
+			auto workingAction = GetAction(toolaction);
+
+			Value StockIdValue = new Value;
+			StockIdValue.init(GType.STRING);
+
+			string thelabel;
+			foreach(ch; workingAction.getLabel())if(ch != '_')thelabel ~= ch;
+			workingAction.getProperty("stock-id", StockIdValue);
+			tbCurrentList.setValue(iter, 0, workingAction.getName());
+			tbCurrentList.setValue(iter, 1, thelabel);
+			tbCurrentList.setValue(iter, 2, workingAction.getTooltip());
+			tbCurrentList.setValue(iter, 3, StockIdValue.getString());
+		}
+	}
+
+	//manipulate everything
+
+	void AddToolbarAction(TreePath tp, IconView availView)
+	{
+
+		//get the source  iter to add from
+		auto srcTi = new TreeIter;
+		tbAvailList.getIter(srcTi, tp);
+
+		//get the dest iter to add to
+		auto destTi = new TreeIter;
+		tbCurrentList.append(destTi);
+
+		tbCurrentList.setValue(destTi, 0, tbAvailList.getValueString(srcTi, 0));
+		tbCurrentList.setValue(destTi, 1, tbAvailList.getValueString(srcTi, 1));
+		tbCurrentList.setValue(destTi, 2, tbAvailList.getValueString(srcTi, 2));
+		tbCurrentList.setValue(destTi, 3, tbAvailList.getValueString(srcTi, 3));
+	}
+	void RemoveToolbarAction(TreePath tp, IconView currIcons)
+	{
+		auto deleteIter = new TreeIter;
+		tbCurrentList.getIter(deleteIter, tp);
+
+		tbCurrentList.remove(deleteIter);
+	}
+
+	tbAvailIcons.addOnItemActivated (&AddToolbarAction);//void delegate(TreePath, IconView)
+	tbCurrentIcons.addOnItemActivated (&RemoveToolbarAction);//void delegate(TreePath, IconView)
+
+
+	//show it modal baby
+	auto x = tbWin.run();
+	tbWin.destroy;
+	if(x < 0) //canceled so just bail?
+	{
+		return;
+	}
+
+	//now save actions!!
+	string[] ActsToSave;
+	auto treeiter = new TreeIter;
+	int iterValid = tbCurrentList.getIterFirst(treeiter);
+	while(iterValid)
+	{
+		ActsToSave ~= tbCurrentList.getValueString(treeiter, 0);
+		iterValid = tbCurrentList.iterNext(treeiter);
+	}
+
+	Config.SetArray("toolbar", "configured_actions", ActsToSave);
+
+	RestoreToolbar();
+}
+
+
+void RestoreToolbar()
+{
+	ClearToolbar();
+	foreach(string toolaction; Config.GetArray!string("toolbar", "configured_actions"))
+	{
+		if(toolaction == "Separator")
+		{
+			auto sep = new SeparatorToolItem();
+			//sep.setDraw(1);
+			sep.showAll();
+			mToolbar.insert(sep);
+		}
+		else mToolbar.insert(GetAction(toolaction).createToolItem());
+	}
+	bool ToolbarVisible = Config.GetValue("ui", "visible_toolbar", true);
+	mToolbar.setVisible(ToolbarVisible);
+
+	Action actnott = GetAction("ActViewToolbar");
+	actnott.setProperty("active", ToolbarVisible);
+
+}
+
+void ClearToolbar()
+{
+	extern (C) void cback(GtkWidget * gtkWidget, void * somedata)
+	{
+		auto oldthingy = new Widget(gtkWidget);
+		mToolbar.remove(oldthingy);
+	}
+	mToolbar.foreac(&cback, cast(void *)null);
+}
+
+void SetBusyCursor(bool value)
+{
+	if(!MainWindow.isVisible())return;
+	if(value is false)
+	{
+		MainWindow.getWindow().setCursor(null);
+		Display.getDefault.flush();
+	}
+	else
+	{
+		auto busyMouse = new Cursor(GdkCursorType.WATCH);
+		MainWindow.getWindow().setCursor(busyMouse);
+		Display.getDefault.flush();
+		busyMouse.unref();
+	}
+}
+

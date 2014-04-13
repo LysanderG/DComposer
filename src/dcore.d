@@ -1,134 +1,68 @@
-//      core.d
-//
-//      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//
-//      This program is free software; you can redistribute it and/or modify
-//      it under the terms of the GNU General Public License as published by
-//      the Free Software Foundation; either version 2 of the License, or
-//      (at your option) any later version.
-//
-//      This program is distributed in the hope that it will be useful,
-//      but WITHOUT ANY WARRANTY; without even the implied warranty of
-//      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//      GNU General Public License for more details.
-//
-//      You should have received a copy of the GNU General Public License
-//      along with this program; if not, write to the Free Software
-//      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//      MA 02110-1301, USA.
-
-
-
-/*
- * core module was already taken!
- * dcore holds the basic functionality of the ide
- * divorced from the gui or element modules.
- * Actually turned out to hold a much smaller share of code
- * than I originally expected.
- * */
 module dcore;
 
 
-import config;
-import log;
+public import config;
+public import log;
+public import docman;
 public import project;
-import symbols;
-
-
+public import symbols;
 public import search;
+public import shellfilter;
+//import debugger;
+
+CONFIG		Config;
+LOG			Log;
+DOCMAN		DocMan;
+PROJECT 	Project;
+SYMBOLS 	Symbols;
+//DEBUGGER 	Debugger;
+//history
+//bookmarks
+//terminal --maybe
+//shellif (for the shell filter thingy)
 
 
-import std.stdio;
-
-private :
-
-
-CONFIG		mConfig;
-LOG 		mLog;
-PROJECT 	mProject;
-SYMBOLS	    mSymbols;
-
-
-static this()
+void Engage(string[] CmdLineArgs)
 {
-	config.PseudoStaticThis();
-    mConfig	    = new CONFIG;
-	mLog	    = new LOG;
-	mProject    = new PROJECT;
-	mSymbols    = new SYMBOLS;
+	Log = new LOG;
+	Config = new CONFIG;
+	DocMan = new DOCMAN;
+	Project = new PROJECT;
+	Symbols = new SYMBOLS;
 
+	Config.		Engage(CmdLineArgs);
+	Log.		Engage();
+	DocMan.		Engage();
+	Project.	Engage();
+	Symbols.	Engage();
+	search.		Engage();
+	//debugger.	Engage();
+
+	Log.Entry("Engaged");
 }
 
-static ~this()
+void PostEngage()
 {
-    delete mLog;
+	Config.		PostEngage();
+	Log.		PostEngage();
+	DocMan.     PostEngage();
+	Project.	PostEngage();
+	Symbols.	PostEngage();
+	search.		PostEngage();
+	//Debugger.	PostEngage();
+
+	Log.Entry("PostEngaged");
 }
 
-public:
-/**
- * Engage core components
- * */
-void Engage(string[] CmdArgs)
-{
-	mConfig	    .Engage(CmdArgs);
-	mLog		.Engage();
-	mProject    .Engage();
-	mSymbols    .Engage();
-
-
-    Log().Entry("Engaged DCORE");
-}
-
-/**
- * Disengage core components
- * */
 void Disengage()
 {
-
-	mSymbols .Disengage();
-	mProject .Disengage();
-	mConfig  .Disengage();
-
-    Log      .Entry("Disengaged DCORE");
-	mLog     .Disengage();
+	//Debugger.	Disengage();
+	search.		Disengage();
+	Symbols.	Disengage();
+	Project.	Disengage();
+	DocMan. 	Disengage();
+	Config.		Disengage();
+	Log.		Entry("Disengaged");
+	Log.		Disengage();
 }
 
-
-/**
- * The core component of dcomposer ide.
- * You'll notice through out the program
- * I tend to use 0 parameter functions as
- * if they were properties.
- * Right or wrong dont be surprised
- * */
-CONFIG		Config() {return mConfig;}
-LOG 		Log()    {return mLog;}					///ditto
-PROJECT 	Project(){return mProject;}				///ditto
-SYMBOLS		Symbols(){return mSymbols;}				///ditto
-
-
-//utility function to take
-//a symbol name such as "document.DOCUMENT.Configure"
-//and return an array ["document", "DOCUMENT", "Configure"]
-//useful for symbol look up and matching.
-string[] ScopeSymbol(string preText)
-{
-	import std.string;
-	import std.algorithm;
-	string[] rval;
-
-	preText = preText.chomp(".");
-
-	long index;
-	foreach(unit; preText.splitter('.'))
-	{
-		index = unit.countUntil('!');
-		if(index >= 0)unit = unit[0..index];
-		index = unit.countUntil('(');
-		if(index >= 0) unit = unit[0..index];
-		index = unit.countUntil('[');
-		if(index >=0)unit = unit[0..index];
-		rval ~= unit;
-	}
-	return rval;
-}

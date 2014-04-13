@@ -1,0 +1,30 @@
+dmd -gc -release -I./src -Ideps/dson/ \
+src/dcomposer.d \
+src/dcore.d \
+src/config.d \
+src/log.d \
+src/docman.d \
+src/symbols.d \
+src/document.d \
+src/project.d \
+src/search.d \
+src/shellfilter.d \
+src/ui.d \
+src/ui_search.d \
+src/ui_completion.d \
+src/ui_list.d \
+src/ui_project.d \
+src/ui_elementmanager.d \
+src/ui_preferences.d \
+src/ui_contextmenu.d \
+src/ui_docbook.d \
+src/elements.d \
+deps/dson/json.d \
+-odobjdir -J./ \
+-L-rpath=/home/anthony/apps/dmd/phobos/generated/linux/release/64/ \
+-L-rpath=./elements \
+-L-lvted-2 \
+-defaultlib=libphobos2.so \
+-L-lgtkd-2 \
+-L-lgtkdsv-2 \
+-L-ldl \

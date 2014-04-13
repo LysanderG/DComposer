@@ -1,171 +1,175 @@
-// search.d
-// 
-// Copyright 2012 Anthony Goins <anthony@LinuxGen11>
-// 
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-// MA 02110-1301, USA.
-
-
 module search;
 
-import std.algorithm;
-import std.range;
+import std.regex;
 import std.string;
 import std.file;
-import std.regex;
+import std.signals;
 import std.stdio;
 
 import dcore;
 
+
 struct SEARCH_OPTIONS
 {
-    bool    UseRegex;
-    bool    CaseInSensitive;
-    bool    WholeWordOnly;
-    bool    WordStart;
-    bool    RecurseFolder;
+	bool	Regex;
+	bool	CaseSensitive;
+	bool	StartsWord;
+	bool	EndsWord;
+	bool	RecurseDirectory;
+}
+
+struct ITEM
+{
+	string 	DocFile;
+	string  Text;
+	int		Line;
+	int 	OffsetStart;
+	int	 	OffsetEnd;
+
+	this(string ItemFile, string ItemText, int ItemLine, int ItemStart, int ItemEnd)
+	{
+		DocFile = ItemFile;
+		Text = ItemText;
+		Line = ItemLine;
+		OffsetStart = ItemStart;
+		OffsetEnd = ItemEnd;
+	}
+
+
+}
+
+enum SCOPE { DOC_CURRENT, DOC_OPEN, PROJ_SOURCE, PROJ_ALL, FOLDER}
+
+
+
+ITEM[] FindInDoc(DOC_IF doc, Regex!char Needle)
+{
+	import std.xml;
+	ITEM[] rv;
+	auto HayStackLines = doc.GetText().splitLines();
+
+	foreach(ulong line, string text; HayStackLines)
+	{
+		auto found = matchAll(text, Needle);
+		foreach(find; found) rv ~= ITEM(doc.Name, find.pre ~  find.hit  ~ find.post, cast(int)line, cast(int)find.pre.length, cast(int)find.pre.length + cast(int)find.hit.length);
+	}
+	return rv;
+}
+
+ITEM[] FindInFile(string FileName, Regex!char Needle)
+{
+	ITEM[] rv;
+	auto HayStackLines = readText(FileName).splitLines();
+	foreach(ulong line, string text; HayStackLines)
+	{
+		auto found = matchAll(text, Needle);
+		foreach(find; found) rv ~= ITEM(FileName, text, cast(int)line, cast(int)find.pre.length, cast(int)find.pre.length + cast(int)find.hit.length);
+	}
+	return rv;
 }
 
 
-struct SEARCH_RESULT
+
+ITEM[] Search( SCOPE Scope, string Needle, SEARCH_OPTIONS Opts)
 {
-    string  DocName;
-    int     LineNumber;
-    string  LineText;
 
-    size_t    StartOffset;
-    size_t    EndOffset;
-
-    this(string title, int line, string text, ulong start, ulong end)
-    {
-        DocName = title;
-        LineNumber = line;
-        LineText = text;
-        StartOffset = cast(size_t) start;
-        EndOffset = cast(size_t) end;
-    }
-}
-
-
-SEARCH_RESULT[] FindInString(string HayStack, string Needle, string DocTitle, SEARCH_OPTIONS opts)
-{
-    SEARCH_RESULT[] Results;
-    if(opts.CaseInSensitive)
-    {
-		HayStack = HayStack.toLower();
-		Needle = Needle.toLower();
-	}
-
-    auto StackLines = HayStack.splitLines();
-    
-    void SearchLine(string lineText, int lineNo)
-    {
-        ulong MultiMatchAddToOffset = 0;
-        string FullLineText = lineText;
-        do
-        {
-            //if(opts.CaseInSensitive)lineText = lineText.toLower();
-            auto foundSplits = findSplit(lineText, Needle);
-            if (foundSplits[1].empty) break;
-            Results.length += 1;
-            Results[$-1] = SEARCH_RESULT(DocTitle, lineNo+1, FullLineText, foundSplits[0].length + MultiMatchAddToOffset, (foundSplits[0] ~ foundSplits[1]).length + MultiMatchAddToOffset );
-            MultiMatchAddToOffset = Results[$-1].EndOffset;
-            lineText = foundSplits[2];
-        }while (true);
-    }
-
-	void SearchLineRegex(string lineText, int lineNo)
+	try
 	{
-        ulong MultiMatchAddToOffset = 0;
-		string FullLineText = lineText;
+		if(!Opts.Regex)Needle = Needle.Escape();
+		if(Opts.StartsWord) Needle = `\b` ~ Needle;
+		if(Opts.EndsWord) Needle = Needle ~ `\b`;
 
-		do
+		string Flags = "";
+		if(!Opts.CaseSensitive) Flags ~= "i";
+
+
+		auto rgx = regex(Needle, Flags);
+
+
+		ITEM[] rv;
+
+		final switch(Scope) with (SCOPE)
 		{
-			//if(opts.CaseInSensitive)lineText = lineText.toLower();
+			case DOC_CURRENT :
+			{
+				if(DocMan.Current())rv = FindInDoc(DocMan.Current(), rgx);
+				break;
+			}
+			case DOC_OPEN :
+			{
+				foreach(doc; DocMan.GetOpenDocs) rv ~= FindInDoc(doc, rgx);
+				break;
+			}
+			case PROJ_ALL :
+			{
+				if(Project.Lists[LIST_NAMES.REL_FILES] != [""])
+				foreach(item; Project.Lists[LIST_NAMES.SRC_FILES] ~ Project.Lists[LIST_NAMES.REL_FILES]) rv ~= FindInFile(item, rgx);
+			}
 
-			auto foundMatch = match(lineText, regex(Needle));
-			if(foundMatch.empty) break;
-			Results.length +=1;
-			Results[$-1] = SEARCH_RESULT(DocTitle, lineNo+1, FullLineText, foundMatch.pre.length + MultiMatchAddToOffset, (foundMatch.pre ~ foundMatch.hit).length + MultiMatchAddToOffset);
+			case PROJ_SOURCE :
+			{
+				if(Project.Lists[LIST_NAMES.SRC_FILES] == [""])break;
+				foreach(item; Project.Lists[LIST_NAMES.SRC_FILES]) rv ~= FindInFile(item, rgx);
+				break;
+			}
+			case FOLDER :
+			{
+				auto mode = SpanMode.shallow;
+				if(Opts.RecurseDirectory) mode = SpanMode.breadth;
 
-            MultiMatchAddToOffset = Results[$-1].EndOffset;
-			lineText = foundMatch.post;
-		}while(true);
-	}
-
-	void delegate (string, int) Search;
-	
-	if(opts.UseRegex)
-	{
-		Search = &SearchLineRegex;
-		if(opts.WholeWordOnly) Needle = `\b` ~ Needle ~ `\b`;
-	}
-		
-	else
-	{
-		Search = &SearchLine;
-		if(opts.WholeWordOnly)
-		{
-			Search = &SearchLineRegex;
-			Needle = `\b` ~ Needle ~ `\b`;
+				foreach(string FileItem; dirEntries(CurrentPath(), mode))
+				{
+					scope(failure)continue;
+					if(DocMan.IsOpen(FileItem))rv ~= FindInDoc(DocMan.GetDoc(FileItem), rgx);
+					else rv ~= FindInFile(FileItem, rgx);
+				}
+				break;
+			}
 		}
+		Found.emit(Needle, "hmmm", rv);
+		return rv;
 	}
-
-
-    foreach(int lineNumber, lineText; StackLines)Search(lineText, lineNumber);
-
-    return Results;
-}
-
-
-
-SEARCH_RESULT[] FindInFile(string FileName, string Needle, SEARCH_OPTIONS Opts)
-{
-    scope(failure)
-    {
-		Log.Entry("Failed to search in file " ~ FileName);
-		return null;
+	//catch (RegexException rgxX)
+	catch(Exception allexceptions)
+	{
+		writeln(allexceptions);
+		return [];
 	}
-    string HayStack = readText(FileName);
-
-
-    return FindInString(HayStack, Needle, FileName, Opts);
 }
 
-
-SEARCH_RESULT[] FindInStrings(string[string] HayStacks, string Needle, SEARCH_OPTIONS Opts)
+string Escape(string OldNeedle)
 {
-    SEARCH_RESULT[] Results;
+	import std.array;
+	string rv = OldNeedle;
+	string specials = "[]-{}()*+?.,^$|#";
 
-    
-    foreach (DocKey, HayStack; HayStacks)
-    {
-        Results ~= FindInString(HayStack, Needle, DocKey, Opts);
-    }
-    return Results;
+	rv = rv.replace(`\`, `\\`);
+	foreach(specChar; specials) rv = rv.replace([specChar], ['\\'] ~specChar);
+
+	return rv;
+
 }
 
-SEARCH_RESULT[] FindInFiles(string[] Filenames, string Needle, SEARCH_OPTIONS Opts)
+//class just to implement signals?? really?
+class FOUND
 {
-    string[string] HayStacks;
-    
-    foreach(file; Filenames)
-    {
-        HayStacks[file] = readText(file);
-    }
-    return FindInStrings(HayStacks, Needle, Opts);
-
+	mixin Signal!(string, string, ITEM[]);
 }
 
+FOUND Found;
+
+void Engage()
+{
+	Found = new FOUND;
+	Log.Entry("Engaged");
+}
+
+void PostEngage()
+{
+	Log.Entry("PostEngaged");
+}
+
+void Disengage()
+{
+	Log.Entry("Disengaged");
+}

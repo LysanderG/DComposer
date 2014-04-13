@@ -1,93 +1,199 @@
-//      element.d
-//
-//      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//
-//      This program is free software; you can redistribute it and/or modify
-//      it under the terms of the GNU General Public License as published by
-//      the Free Software Foundation; either version 2 of the License, or
-//      (at your option) any later version.
-//
-//      This program is distributed in the hope that it will be useful,
-//      but WITHOUT ANY WARRANTY; without even the implied warranty of
-//      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//      GNU General Public License for more details.
-//
-//      You should have received a copy of the GNU General Public License
-//      along with this program; if not, write to the Free Software
-//      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//      MA 02110-1301, USA.
-
 module elements;
-
-import std.stdio;
-import std.array;
-import std.file;
-import std.string;
-import std.parallelism;
-
 
 import dcore;
 import ui;
-public import gtk.Frame;
+public import ui_preferences;
 
-interface ELEMENT
-{
-protected:
-	void SetPagePosition(UI_EVENT uie);
-	void Configure();
+import std.algorithm;
+import std.range;
+import std.path;
+import std.file;
+import std.string;
+import std.conv;
+import std.typecons;
 
-
-public:
-
-    @property string Name();
-    @property string Information();
-    @property bool   State();
-    @property void   State(bool);
-
-    void Engage();
-
-    void Disengage();
-
-    PREFERENCE_PAGE GetPreferenceObject();
-
-}
+import core.runtime;
+import core.sys.posix.dlfcn;
 
 
-ELEMENT[string] mElements;
+
+LIBRARY[string]	Libraries;
+string[]	LibsNewlyAdded;		//diff of the above two
+
+
+ELEMENT[string] Elements;
+
 
 void Engage()
 {
-    AcquireElements();
-    Log.Entry("Engaging Elements ...");
-    foreach(E; mElements) E.Engage();
-    Log.Entry("Elements Engaged !!!");
+	auto NewLibraries = AcquireLibraries();
+
+	if(NewLibraries.length > 0)
+	{
+		string newElementsString;
+		foreach(elemlib; NewLibraries) newElementsString ~= "\t"~ elemlib.baseName() ~"\n";
+
+		auto response =ShowMessage("DComposer detected new elements", newElementsString ~ "To enable these elements please run element manager", "Ignore", "Manage Elements");
+
+		if(response == 1) ui_elementmanager.Execute();
+	}
+	//ok now lets load the libraries and  engage elements
+	LoadElements();
+
+
+	Log.Entry("Engaged");
+}
+
+
+void PostEngage()
+{
+
+	Log.Entry("PostEngaged");
 }
 
 void Disengage()
 {
-    Log.Entry("Disengaging Elements ...");
-    foreach_reverse(E; mElements) E.Disengage();
+	RegisterLibraries();
+	foreach(elem; Elements) elem.Disengage();
+	Log.Entry("Disengaged");
 }
 
-void AcquireElements()
+string[] AcquireLibraries()
 {
+	string[] newLibs;
+	//first lets see what we have in the search paths ---> add a user option for more search paths silly
+	auto available  = filter!`endsWith(a.name, ".so")`(dirEntries(Config.GetValue("elements", "element_path", SystemPath("elements")),SpanMode.shallow));
 
-    string elementlist = readText(Config.getString("ELEMENTS","element_list", "$(HOME_DIR)/elementlist"));
-    foreach (line; (elementlist.splitLines()))
-    {
-		ELEMENT tmp = null;
-        line = removechars!(string)(line, std.ascii.whitespace);
-        if (line.startsWith('#')) continue;
-        if (line.length < 1) continue;
-        tmp = cast(ELEMENT)Object.factory(line);
+	//now lets see whats "on record"
+	auto LibsRegistered = Config.GetKeys("element_libraries");
 
-        if(tmp is null) Log.Entry("AcquireElements : Failed to Acquire " ~ line ~ " element!", "Error");
-        else
-        {
-            Log.Entry("Acquired " ~ line ~ " element.");
-            mElements[tmp.Name] = tmp;
-            Log.Entry("  :>" ~ tmp.Information);
-        }
-    }
+	//check for new elements (libsavailable - libsregistered)
+	foreach (string elemlib; available)
+	{
+		Libraries[elemlib] = LIBRARY(elemlib);
+		if(LibsRegistered.canFind(elemlib))
+		{
+			string[] libStuff = Config.GetArray!string("element_libraries", elemlib);
+			Libraries[elemlib].mFile = libStuff[0];
+			Libraries[elemlib].mClassName = libStuff[1];
+			Libraries[elemlib].mName = libStuff[2];
+			Libraries[elemlib].mInfo = libStuff[3];
+			Libraries[elemlib].mEnabled = (libStuff[4] == "Enabled");
+			Libraries[elemlib].mRegistered = true;
+			continue;
+		}
+		newLibs ~= elemlib;
+	}
+	return newLibs;
 }
 
+void RegisterLibraries()
+{
+	foreach(lib;Libraries)
+	{
+		//if(lib.mRegistered == false) continue;
+		string[5] regval;
+		regval[0] = lib.mFile;
+		regval[1] = lib.mClassName;
+		regval[2] = lib.mName;
+		regval[3] = lib.mInfo;
+		if(lib.mEnabled)regval[4] = "Enabled"; else regval[4] = "Disabled";
+		Config.SetArray("element_libraries", lib.mFile, regval);
+	}
+}
+
+
+//for dynamically loading ....only load enabled elements which are not loaded ...?
+void LoadElements()
+{
+	foreach(keyfile, ref lib; Libraries)
+	{
+		if(lib.mEnabled)
+		{
+			if(lib.ptr is null)
+			{
+				lib.ptr = Runtime.loadLibrary(lib.mFile);
+				if(lib.ptr is null)
+				{
+					lib.mEnabled = false;
+					ShowMessage("Error loading dynamic library", "Failed to load " ~ lib.mFile, "Continue");
+					Log.Entry("     Failed to load library: " ~ lib.mFile, "Error");
+					continue;
+				}
+				Log.Entry("     Loaded library: " ~ lib.mFile);
+				auto tmpvar = dlsym(lib.ptr, "GetClassName");
+				string function() GetClassName = cast(string function())tmpvar; //wouldn't work without tmpvar??
+				lib.mClassName = GetClassName();
+				auto  tmp = cast(ELEMENT)Object.factory(lib.mClassName);
+				lib.mName = tmp.Name;
+				lib.mInfo = tmp.Info;
+				lib.mRegistered = true;
+				Elements[lib.mClassName] = tmp;
+				Elements[lib.mClassName].Engage();
+			}
+		}
+	}
+}
+
+
+/* *** NOTICE ***
+ * ALL ELEMENT MODULES MUST HAVE A
+ * extern (C) string GetClassName()
+ * {
+ * 		return fullyQualifiedName!Element;
+ * }
+ * */
+
+interface ELEMENT
+{
+	void Engage();
+	void Disengage();
+
+	void Configure();
+
+	string Name();
+	string Info();
+	string Version();
+	string License();
+	string CopyRight();
+	string[] Authors();
+
+	PREFERENCE_PAGE PreferencePage();
+}
+
+
+struct LIBRARY
+{
+	void * mVptr;
+	string mFile;
+	string mClassName;
+	string mName;
+	string mInfo;
+	bool mEnabled;
+	bool mRegistered;
+
+
+	@property void ptr(void * x){mVptr = x;}
+	@property void * ptr(){return mVptr;}
+	this(void * x){ptr = x;}
+
+	this(string xFile)
+	{
+		mVptr = null;
+		mFile = xFile;
+		mClassName = null;
+		mName = "unknown";
+		mInfo = "unknown";
+		mEnabled = false;
+		mRegistered = false;
+	}
+}
+
+/*
+ * todo's
+ *
+ * add version numbers and possibly check em?
+ * element manager! enable and or disable whenever not just at start up
+ * preferences!! oh ... thats what i'm trying to do now
+ *
+ */

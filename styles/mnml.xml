@@ -17,7 +17,7 @@ theme for GTKSourceView 2.
 	<color name="boolean_color" value="#9b859d"/>
 	<color name="keyword_color" value="#9b703f"/>
 	<color name="error_color" value="#ff0000"/>
-
+	
 <!-- Color of text and editing area -->
 
 	<color name="text_fg" value="#f8f8f8"/>

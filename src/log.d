@@ -1,23 +1,3 @@
-//      log.d
-//
-//      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//
-//      This program is free software; you can redistribute it and/or modify
-//      it under the terms of the GNU General Public License as published by
-//      the Free Software Foundation; either version 2 of the License, or
-//      (at your option) any later version.
-//
-//      This program is distributed in the hope that it will be useful,
-//      but WITHOUT ANY WARRANTY; without even the implied warranty of
-//      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//      GNU General Public License for more details.
-//
-//      You should have received a copy of the GNU General Public License
-//      along with this program; if not, write to the Free Software
-//      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//      MA 02110-1301, USA.
-
-
 module log;
 
 import std.stdio;
@@ -31,6 +11,7 @@ import core.stdc.signal;
 
 
 import dcore;
+
 
 /**
  * Saves info and errors to file
@@ -47,8 +28,8 @@ class LOG
     string          mInterimFileName;               //override regular log file name from cmdline for one session
     string          mLogFile;                       //which of the two above is actually being used this session
 
-    ulong           mMaxLines;                      //flush entries buffer
-    ulong           mMaxFileSize;                   //if log is this size then don't append overwrite
+    int           mMaxLines;                      //flush entries buffer
+    int           mMaxFileSize;                   //if log is this size then don't append overwrite
 
     bool			mLockEntries;					//don't dispose of mEntries if this is true
 
@@ -60,7 +41,7 @@ class LOG
     this()
     {
 
-        mSystemDefaultLogName =  Config.ExpandPath("$(HOME_DIR)/dcomposer.log");
+
         mInterimFileName = "unspecifiedlogfile.cfg";
 
         mMaxFileSize = 65_535;
@@ -69,30 +50,25 @@ class LOG
         mLockEntries = true;
         mEchoToStdOut = true;
 
-        signal(SIGSEGV, &SegFlush);
-        //signal(SIGABRT, &SegFlush);
+        //signal(SIGSEGV, &SegFlush);
         //signal(SIGINT, &SegFlush);
 
     }
-    ~this()
-    {
-		mLockEntries = false;
-		Flush();
-	}
+
 
     void Engage()
     {
-        mSystemDefaultLogName = Config.getString("LOG", "default_log_file", mSystemDefaultLogName);
-        if(Config.hasKey("LOG", "interim_log_file"))
+        mSystemDefaultLogName = Config.GetValue("log", "default_log_file", buildPath(config.userDirectory, "dcomposer.log"));
+        if(Config.HasKey("log", "interim_log_file"))
         {
-            mLogFile = Config.getString("LOG", "interim_log_file","$(HOME_DIR)/error.log");
-            Config.removeKey("LOG", "interim_log_file");
+            mLogFile = Config.GetValue("log", "interim_log_file",buildPath(userDirectory, "error.log"));
+            Config.Remove("log", "interim_log_file");
         }
         else mLogFile = mSystemDefaultLogName;
 
-        mMaxLines     = Config.getUint64("LOG", "max_lines_buffer", mMaxLines);
-        mMaxFileSize  = Config.getUint64("LOG", "max_file_size", mMaxFileSize);
-        mEchoToStdOut = Config.getBoolean("LOG", "echo_to_std_out", true);
+        mMaxLines     = Config.GetValue("log", "max_lines_buffer", mMaxLines);
+        mMaxFileSize  = Config.GetValue("log", "max_file_size", mMaxFileSize);
+        mEchoToStdOut = Config.GetValue("log", "echo_to_std_out", true);
 
         string mode = "w";
         if(exists(mLogFile))
@@ -104,12 +80,24 @@ class LOG
         auto logtime = rightnow.toISOExtString();
 
         auto f = File(mLogFile, mode);
-
         f.writeln("<<++	LOG BEGINS ++>>");
 		f.writeln(logtime);
+		f.writeln(DCOMPOSER_VERSION);
+		f.writeln(DCOMPOSER_BUILD_DATE);
+		f.writeln(DCOMPOSER_COPYRIGHT);
+		f.writeln(userDirectory);
+		f.writeln(sysDirectory);
+		f.writeln(installDirectories);
+		f.writeln(BUILD_USER);
+		f.writeln(BUILD_MACHINE);
+		f.writeln(BUILD_NUMBER) ;
 
-        Entry("Engaged LOG");
+        Entry("Engaged");
     }
+    void PostEngage()
+    {
+		Log.Entry("PostEngaged");
+	}
 
     void Disengage()
 	{
@@ -119,7 +107,7 @@ class LOG
 
 		mLockEntries = false;
 
-        Entry("Disengaged LOG");
+        Entry("Disengaged");
 
 		mEntries.length += 2;
 		mEntries[$-2] = logtime;
@@ -128,17 +116,18 @@ class LOG
 	}
 
 
-	void Entry(string Message, string Level = "Info", string Module = null )
+	void Entry(string Message, string Level = "Info", string Module = __MODULE__ )
 	{
 		//Level can be any string
 		//but for now "Debug", "Info", and "Error" will be expected (but not required)
-        if(mEchoToStdOut) writeln(Message);
+
 		emit(Message, Level, Module);
 
-		string x = format ("%s: %s", Level, Message);
-		if(Module !is null) x = format("%s in %s", x, Module);
+		string x = format ("%8s [%20s] : %s", Level, Module,  Message);
+		//if(Module !is null) x = format("%s in %s", x, Module);
 		mEntries ~= x;
 		if(mEntries.length >= mMaxLines) Flush();
+		if(mEchoToStdOut) writeln(x);
 	}
 
 	void Flush()
@@ -167,6 +156,12 @@ class LOG
 
 
 
+void dwrite(T...) (T args)
+{
+	writeln(args);
+}
+
+
 import std.c.stdlib;
 extern (C) void SegFlush(int SysSig)nothrow @system
 {
@@ -175,11 +170,10 @@ extern (C) void SegFlush(int SysSig)nothrow @system
 		string TheError = format("Caught Signal %s", SysSig);
 		Log.Entry(TheError, "Error");
 	    Log.Flush();
-	    exit(127);
+        abort();
     }
     catch(Exception X)
     {
 	    return;
     }
 }
-

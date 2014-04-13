@@ -1,317 +1,386 @@
-//      config.d
-//
-//      Copyright 2011 Anthony Goins <anthony@LinuxGen11>
-//
-//      This program is free software; you can redistribute it and/or modify
-//      it under the terms of the GNU General Public License as published by
-//      the Free Software Foundation; either version 2 of the License, or
-//      (at your option) any later version.
-//
-//      This program is distributed in the hope that it will be useful,
-//      but WITHOUT ANY WARRANTY; without even the implied warranty of
-//      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-//      GNU General Public License for more details.
-//
-//      You should have received a copy of the GNU General Public License
-//      along with this program; if not, write to the Free Software
-//      Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-//      MA 02110-1301, USA.
-
-
 module config;
 
-import dcore :Log;
+import dcore;
 
+import json;
+
+import std.array;
+import std.file;
+import std.getopt;
+import std.path;
+import std.process: executeShell;
 import std.stdio;
 import std.signals;
-import std.getopt;
-import std.string;
-import std.path;
-import std.file;
-import std.algorithm;
-import std.process;
 
-import core.stdc.stdlib;
+import std.c.stdlib;
 import core.runtime;
 
-import glib.KeyFile;
-
-static string DCOMPOSER_COPYRIGHT;
-//static string DCOMPOSER_VERSION;
-//static string DCOMPOSER_PREFIX;
-mixin(import(".build.info"));
 
 
 
-string HOME_DIR ;
-string SYSTEM_DIR;
+/*string DCOMPOSER_VERSION;
+string DCOMPOSER_BUILD_DATE;
+string DCOMPOSER_COPYRIGHT;
 
+string userDirectory;  //defaults to ~/.config/dcomposer  users config log history whatever changes run to run
+string sysDirectory;   //defaults to ~/.local/share/dcomposer  keeps copies of install directory user can change these (plugins syntax highlighting)
+string installDirectories; //defaults to /usr/local/share/dcomposer basically defaults for all users on system
+*/
 
-//creating an actual static this causes an error
-//"Cycle detected between modules with ctors/dtors:"
-//so I made this function and call it from dcore.this
-void PseudoStaticThis()
+bool isDcomposerInstalled;
+bool isFirstRun;
+
+string DCOMPOSER_VERSION;
+string DCOMPOSER_BUILD_DATE;
+string DCOMPOSER_COPYRIGHT;
+
+string userDirectory;
+string sysDirectory;
+string installDirectories;
+
+string BUILD_USER;
+string BUILD_MACHINE;
+long BUILD_NUMBER ;
+
+static this()
 {
-
-	DCOMPOSER_COPYRIGHT = "Copyright 2011 Anthony Goins";
-	HOME_DIR = "$(HOME_DIR)/";
-	SYSTEM_DIR  = "$(SYSTEM_DIR)/";
+	mixin(import(".build.data"));
 }
 
 
 class CONFIG
 {
-	string 	mCfgFile;               //name of the CONFIG file
-	KeyFile	mKeyFile;               //CONFIG file object... didn't want dcore to depend on gtk+ libs, must fix
-	bool	mShowHelp;				//show help and then exit
-    alias 	mKeyFile this;
+private:
 
-    string	mHomeDir;				//this should be where user settings will be saved -->default ~/.config/dcomposer/
-    string 	mSysDir;     			//this is where stuff the user shouldn't change will reside -->default /usr/local/
-    bool	mInstalled;
-
-    this()
-    {
-		mInstalled = true;
-		mSysDir  = DCOMPOSER_PREFIX;  //prefix (id /usr /usr/local /opt or whatever
-		mSysDir = buildNormalizedPath(mSysDir, "share/dcomposer/"); //now its pointed at our root!
-		mHomeDir = std.path.expandTilde("~/.config/dcomposer"); //hmm ~/.config/dcomposer or ~/.local/share/dcomposer ??
-
-		if(!exists(mSysDir))
-		{
-			mInstalled = false;
-			mSysDir = absolutePath(dirName(Runtime.args[0]));  //not installed so lets work in binary's folder
-		}
-
-		if(!exists(mHomeDir))
-		{
-			if(mInstalled )
-			{
-				FirstUserRun();
-			}
-			else mHomeDir = absolutePath(dirName(Runtime.args[0]));
-		}
-
-        mCfgFile = ExpandPath("$(HOME_DIR)/dcomposer.cfg");
-        mKeyFile = new KeyFile;
-    }
-
-    void Engage(string[] CmdArgs)
-    {
-
-        string TmpForLog = " ";                 //can't pass a space as a commandline arg
-        string openers;                         //put files on cmdline in ';' seperated list store in mKeyfile to be
-                                                //read when Docman is Engaged -- I missed setStringList function
-
-
-        getopt(CmdArgs, config.passThrough, "c|config", &mCfgFile, "l|log", &TmpForLog, "help", &mShowHelp);
-
-		if(mShowHelp){ShowHelp();}
-
-        if(!mCfgFile.exists)
-        {
-            {
-            scope(failure)
-            {
-                Log.Entry("CONFIG.Engage: Unable to create configuration file: " ~ mCfgFile, "Error");
-                return;
-            }
-            File tmp;
-            tmp.open(mCfgFile, "w");
-            tmp.write("[CONFIG]\nthis_file="~mCfgFile~"\n");
-
-            }
-        }
-
-        mKeyFile.loadFromFile(mCfgFile, GKeyFileFlags.KEEP_COMMENTS);
-
-        mKeyFile.setString("CONFIG", "this_file", mCfgFile);
-
-
-        if(TmpForLog != " ") mKeyFile.setString("LOG","interim_log_file", TmpForLog);
-
-        foreach(filetoopen; CmdArgs[1..$])
-        {
-			//guess I'm assuming here if it starts with '-' its a flag otherwise its a file to open
-			//but... what about -c
-            if(filetoopen[0] != '-') openers ~= buildNormalizedPath((absolutePath(filetoopen))) ~ ";";
-        }
-        openers = openers.chomp(";");
-        if(openers.length > 0)mKeyFile.setString("DOCMAN","files_to_open",openers);
-        Log.Entry("Engaged CONFIG");
-
-    }
-
-    void Disengage()
-    {
-		Save();
-        mKeyFile.free();
-        Log.Entry("Disengaged config");
-    }
-
-    void Save()
-    {
-		scope (failure)
-		{
-			Log.Entry("CONFIG.Save : Unable to save configuration file "~mCfgFile, "Error");
-			return;
-		}
-
-        gsize len;
-        string data = mKeyFile.toData(len);
-        std.file.write(mCfgFile, data);
-        Saved.emit();
-    }
-
-    string[] getStringList (string GroupName, string Key, string[] Default = [""])
-    {
-		gsize UnusedLength;
-		scope(failure)
-		{
-			mKeyFile.setStringList(GroupName, Key, Default);
-			return Default;
-		}
-		string[] rval = mKeyFile.getStringList(GroupName, Key, UnusedLength);
-		return rval;
-	}
-
-    string getString(string GroupName, string Key, string Default = "")
-    {
-        scope (failure)
-        {
-            Default = ExpandPath(Default);
-            mKeyFile.setString(GroupName, Key, Default);
-
-            return Default;
-        }
-        string rVal  = mKeyFile.getString(GroupName, Key);
-
-        return rVal;
-    }
-
-    void setString(string GroupName, string Key, string Value)
-    {
-		mKeyFile.setString(GroupName, Key,ExpandPath( Value));
-	}
-
-    bool getBoolean(string GroupName, string Key, bool Default = false)
-    {
-
-        scope(failure)
-        {
-            mKeyFile.setBoolean(GroupName, Key, Default);
-            //Save();
-            return Default;
-        }
-        bool rVal = cast(bool)mKeyFile.getBoolean(GroupName, Key);
-
-        return rVal;
-    }
-
-    int getInteger(string GroupName, string Key, int Default = 0)
-    {
-       scope(failure)
-       {
-           mKeyFile.setInteger(GroupName, Key , Default);
-           return Default;
-       }
-       int rVal = mKeyFile.getInteger(GroupName,  Key);
-
-       return rVal;
-    }
-
-    ulong getUint64(string GroupName, string Key, ulong Default = 0uL)
-    {
-        scope(failure)
-        {
-            mKeyFile.setUint64(GroupName, Key, Default);
-            return Default;
-        }
-        ulong rVal = mKeyFile.getUint64(GroupName, Key);
-        return rVal;
-    }
-
-    string[] getKeys (string groupName)
-    {
-        scope (failure) return null;
-
-        gsize waste;
-        string[] rVal =  mKeyFile.getKeys(groupName, waste);
-        return rVal;
-    }
-
-    void Reconfigure()
-    {
-        mCfgFile = getString("CONFIG", "this_file", mCfgFile);
-        Save();
-        Reconfig.emit();
-    }
-
-    void PrepPreferences()
-    {
-        //preps a gui dialog to set all elements to keyfile values
-        ShowConfig.emit();
-    }
-
-    void ShowHelp()
-    {
-		writeln("DComposer a Naive IDE for the D programming Language");
-		writeln("Version :",DCOMPOSER_VERSION);
-		writeln(DCOMPOSER_COPYRIGHT);
-		writeln();
-		writeln("Usage:");
-		writeln("  dcomposer [OPTION...] [FILES...]");
-		writeln();
-		writeln("OPTIONS");
-		writeln("  -c,  --config=CFG_FILE    specify session configuration file");
-		writeln("                            (~/.neontotem/dcomposer/dcomposer.cfg is default)");
-		writeln("  -l,  --log=LOG_FILE       specify session log file");
-		writeln("                            (~/.neontotem/dcomposer/dcomposer.log is default)");
-		writeln("  -h, --help                show this help message");
-		writeln("\nFILES");
-		writeln("Any text files to open for editing.  Must be valid utf8 encoded files for this version");
-		writeln("Also at this time project files are only opened as text files");
-		exit(0);
-	}
-
-
-
-	string ExpandSysDir(string Input) { return buildNormalizedPath(mSysDir, Input);}
-
-	string ExpandHomeDir(string Input) {return buildNormalizedPath(mHomeDir, Input);}
-	string ExpandPath(string Input)
-	{
-		if (Input.skipOver(HOME_DIR))
-		{
-			return ExpandHomeDir(Input);
-		}
-		if (Input.skipOver(SYSTEM_DIR))
-		{
-			return ExpandSysDir(Input);
-		}
-		Input = expandTilde(Input);
-
-		return Input;
-	}
-
+	string mCfgFile;
+	JSON mJson;
 
 	void FirstUserRun()
 	{
 		//copy system directory folders to local directory
-		string src = buildPath(mSysDir, "*");
-		string cpCommand = "cp -r " ~ src ~ " " ~ mHomeDir;
-		shell("mkdir " ~ mHomeDir);
-		writeln(shell(cpCommand));
+		string src = buildPath(sysDirectory, "*");
+		string cpCommand = "cp -r " ~ src ~ " " ~ userDirectory;
+		executeShell("mkdir " ~ userDirectory);
+		writeln(executeShell(cpCommand));
 		FirstRun.emit();
+		Log.Entry("Users first run.");
 	}
 
 
+public:
+    alias mJson this;
+	this()
+	{
+		//check if installed (as in sudo make install)
+		//don't know how well this will work but
+		//check xdg data dirs for a dcomposer subdirectory
+		//if no xdg_data_dirs checks /usr/local/share /usr/share and /opt for a dcomposer directory
+		isDcomposerInstalled = false;
+		isFirstRun = false;
+
+		if(sysDirectory != getcwd()) isDcomposerInstalled = true;
+
+		//if installed (system wide) but not run yet by user then setup for user stuff
+		//ie a user accessible config file/directory log, styles, what nots
+		if(isDcomposerInstalled)
+		{
+			if(!userDirectory.exists()) isFirstRun = true; //can't call FirstRun yet mJson, log, etc not instantiated
+
+		}
+		else
+		{
+			userDirectory = sysDirectory;
+		}
+
+		mCfgFile = buildPath(userDirectory, "dcomposer.cfg");
+	}
+
+	void Engage(string[] CmdArgs)
+	{
+		scope(failure) Log.Entry("Failed", "Error");
+
+		string TmpForLog;   //to use a seperate one off log file
+        string project;     //start up with this project
+        long Verbosity;     //how much stuff to log
+        bool Quiet;         //show log stuff to std out
+		bool Help;		    //show a help screen
+
+		CmdArgs.getopt(std.getopt.config.noPassThrough, "c|config", &mCfgFile, "l|log", &TmpForLog, "v|verbosity", &Verbosity, "q|quiet", &Quiet, "p|project", &project, "h|help", &Help);
+
+        if(Help) ShowHelp();
+
+        if(!mCfgFile.exists)
+        {
+            {
+                scope(failure)
+                {
+
+                    Log.Entry("Failed: Unable to create configuration file: " ~ mCfgFile, "Error");
+                }
+                File tmp;
+                tmp.open(mCfgFile, "w");
+                tmp.write(`{"config": { "this_file": "` ~ mCfgFile ~`"}}`);
+            }
+        }
+        mJson = parseJSON(readText(mCfgFile));
+
+        if(TmpForLog.length)SetValue("log", "interim_log_file", TmpForLog);
+
+        if(project.length)SetValue("project", "cmd_line_project", project);
+
+        string[] Cmdfiles;
+        foreach(cmd_line_file; CmdArgs[1 .. $])
+        {
+	        if(cmd_line_file[0] != '-')
+	        {
+		        Cmdfiles ~= buildNormalizedPath(absolutePath(cmd_line_file));
+	        }
+        }
+        SetValue("docman", "cmd_line_files", Cmdfiles);
+        Config.Save();
+
+        Log.Entry("Engaged");
+    }
+
+    void PostEngage()
+    {
+		CurrentPath(getcwd());
+	    if(isFirstRun) FirstUserRun();
+	    Log.Entry("PostEngaged");
+    }
 
 
-    mixin Signal!()ShowConfig;  //will be emitted before showing a gui pref dialog ... to set gui elements from keyfile
-    mixin Signal!()Reconfig;    //emitted when keyfile changes warrent all modules to reconfigure them selves
-    mixin Signal!()Saved;
-    mixin Signal!()FirstRun;	//maybe show a welcome screen or allow preconfiguration or whatever
+    void Disengage()
+    {
+	    Save();
+	    Log.Entry("Disengaged");
+    }
+
+    void Save()
+    {
+	    scope(failure)
+	    {
+		    Log.Entry("Unable to save configuration file " ~ mCfgFile, "Error");
+            return;
+        }
+
+        mJson.writeJSON!(3)(File(mCfgFile,"w"));
+        Saved.emit();
+    }
+
+    void SetValue(T)(string Section, string Name, T value)
+	{
+		if(Section !in mJson.object)mJson[Section] = jsonObject();
+		mJson[Section][Name] = convertJSON(value);
+
+		Changed.emit(Section,Name);
+	}
+
+	alias SetValue SetArray;
+
+
+    void SetValue(T...)(string Section, string Name, T args)
+	{
+		if(Section !in mJson.object)mJson[Section] = jsonObject();
+		mJson[Section][Name] = jsonArray();
+		foreach (arg; args) mJson[Section][Name] ~= convertJSON(arg);
+		Changed.emit(Section,Name);
+    }
+
+    void AppendValue(T...)(string Section, string Name, T args)
+    {
+	    if(Section !in mJson.object)mJson[Section] = jsonObject();
+	    if(Name !in mJson[Section].object) mJson[Section][Name] = jsonArray();
+	    foreach(arg; args) mJson[Section][Name] ~= convertJSON(arg);
+		Changed.emit(Section,Name);
+    }
+
+
+    /+void AppendObject(DocPos)(string Section, string Name, DocPos Value )
+    {
+	    if( Section !in mJson.object) mJson[Section] = jsonObject();
+	    if( Name !in mJson[Section].object) mJson[Section][Name] = jsonArray();
+	    if( !mJson[Section][Name].isArray())return;
+	    //foreach(V; Value)
+	    //{
+		    //writeln(V.expand);
+		    auto tmpjson = jsonObject();
+		    tmpjson["document"] = convertJSON(Value[0]);
+		    tmpjson["line"] = convertJSON(Value[1]);
+		    mJson[Section][Name] ~= tmpjson;
+	   // }
+		Changed.emit(Section,Name);
+
+    }+/
+
+    void AppendObject(string Section, string Name, JSON jobject)
+    {
+	    if( Section !in mJson.object) mJson[Section] = jsonObject();
+	    if( Name !in mJson[Section].object) mJson[Section][Name] = jsonArray();
+	    if( !mJson[Section][Name].isArray())return;
+
+
+		mJson[Section][Name] ~= jobject;
+		Changed.emit(Section,Name);
+	}
+
+
+    T GetValue(T)(string Section, string Name, T Default = T.init)
+    {
+        if(Section !in mJson.object)
+        {
+	        mJson[Section] = jsonObject();
+
+        }
+        if(Name !in mJson.object[Section].object)
+        {
+			mJson[Section].object[Name] = convertJSON(Default);
+		}
+        return cast(T)(mJson[Section][Name]);
+    }
+    T[] GetArray(T)(string Section, string Name, T[] Default = T[].init)
+    {
+	    if(Section !in mJson.object)
+	    {
+		    mJson[Section] = jsonObject();
+		    mJson[Section][Name] = jsonArray();
+		    mJson[Section][Name] = convertJSON(Default);
+	    }
+	    if(Name !in mJson[Section].object)
+	    {
+			mJson[Section][Name] = jsonArray();
+			mJson[Section][Name] = convertJSON(Default);
+		}
+	    T[] rv;
+	    foreach(elem; mJson[Section][Name].array)rv ~= cast(T)elem;
+	    return rv;
+    }
+
+    void Remove(string Section, string key = "")
+    {
+		if((Section in mJson.object) is null) return;
+	    if(key.length)
+	    {
+			if((key in mJson[Section]) is null) return;
+		    mJson[Section].object.remove(key);
+	    }
+	    else
+	    {
+		    mJson.object.remove(Section);
+	    }
+		Changed.emit(Section, key);
+
+    }
+
+    string[] GetKeys(string Section = "")
+    {
+		if(Section == "")return mJson.object.keys;
+		if(Section !in mJson.object) return [];
+		return mJson[Section].object.keys;
+	}
+
+	bool HasSection(string Section)
+	{
+		return cast(bool)(Section in mJson.object);
+	}
+
+	bool HasKey(string Section, string Key)
+	{
+		if(Section !in mJson.object) return false;
+		if(Key !in mJson[Section].object) return false;
+		return true;
+	}
+
+
+    mixin Signal!() FirstRun;                   //sets up users environment
+    mixin Signal!(string, string) Changed;      //some option has been changed
+    mixin Signal!() Saved;                      //cfg has been saved
+    mixin Signal!() Preconfigure;               //about to present option guis to user ... make sure values in guis are accurate/up to date
+    mixin Signal!() Reconfigure;                //set variables to cfg values... ie apply all changes
+
 
 }
 
+void ShowHelp()
+{
+	writeln("DComposer a Naive IDE for the D programming Language");
+	writeln("Version :",DCOMPOSER_VERSION);
+	writeln(DCOMPOSER_COPYRIGHT);
+	writeln();
+	writeln("Usage:");
+	writeln("  dcomposer [OPTION...] [FILES...]");
+	writeln();
+	writeln("OPTIONS");
+	writeln("  -c, --config=CFG_FILE      specify session configuration file");
+	writeln("                             (~/.neontotem/dcomposer/dcomposer.cfg is default)");
+	writeln("  -l, --log=LOG_FILE         specify session log file");
+	writeln("                             (~/.neontotem/dcomposer/dcomposer.log is default)");
+	writeln("  -p, --project=PROJECT_FILE specify project to open");
+	writeln("  -v, --verbosity=LEVEL      amount of logging information shown(LEVEL has not been defined yet)");
+	writeln("  -q, --quiet                do not echo log messages to std out");
+	writeln("  -h, --help                 show this help message");
+
+	writeln("\nFILES");
+	writeln("Any text files to open for editing.  Must be valid utf8 encoded files for this version");
+	writeln("DComposer has been brought to you by the letter 'D'");
+	//writeln("Also at this time project files are only opened as text files");
+	exit(0);
+}
+
+
+private string mCurPath;
+
+public string CurrentPath()
+{
+	return mCurPath;
+}
+public bool CurrentPath(string nuPath)
+{
+	scope(failure) return false;
+	if(nuPath.isDir)
+	{
+		mCurPath = nuPath;
+		chdir(nuPath);
+		ui.AddStatus("mCurPath", mCurPath);
+		return true;
+	}
+	return false;
+}
+
+
+
+public string ConfigPath(string subFolder)
+{
+	scope(failure) Log.Entry("Failed to build configuration path", "Error");
+	return buildPath(userDirectory, subFolder);
+}
+
+public string SystemPath(string subFolder)
+{
+	scope(failure) Log.Entry("Failed to build system path", "Error");
+	return buildPath(sysDirectory, subFolder);
+}
+
+
+/*
+ * Ok, some notes about paths after hitting a few stone walls.
+ * dir 1  defaults to ~/.config/dcomposer (or should it be ~/.local/share/dcomposer)
+ * 	userDirectory
+ * 		anything the user can add and/or change
+ * 			. user configuration
+ * 			. log file
+ * 			. styles
+ * 			. help files
+ * 			. user added stuff (mods, plugins, blah blah)
+ *
+ * dir list XDG_DATA_DIR (/usr/local/share/dcomposer /usr/share/dcomposer /opt/dcomposer most likely)
+ * 	installDirectories
+ * 		where to search for the installed dcomposer directory (this seems like a silly way to find ones self)
+ * dir 2 search installDirectories if dcomposer is
+ * 	sysDirectory
+ * 		permanent stuff
+ * 			.glade files
+ * 			.icons
+ * 			.read only stuff
+ * 			.everything in userDirectory for global usage (environment copied for new users)
+ * */
