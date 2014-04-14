@@ -16,7 +16,7 @@ int main(string[] args)
 
     auto ver = executeShell(`git describe --long --always`);
     auto date = executeShell(`date "+%x @ %R"`);
-    auto copy = "Copyright 2011 - 2013 Anthony Goins";
+    auto copy = "Copyright 2011 - " ~ executeShell(`date "+%Y"`).output.chomp() ~ " Anthony Goins";
     auto user = environment.get("XDG_CONFIG_HOME", "~/.config".expandTilde());
     auto sys = getcwd();
     auto install = environment.get("XDG_DATA_DIRS", "/usr/local/share/:/usr/share/:/opt/");

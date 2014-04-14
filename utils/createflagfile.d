@@ -1,3 +1,5 @@
+#!/usr/local/bin/rdmd -I../deps/dson/
+
 module createflagfile;
 
 import std.stdio;
@@ -5,114 +7,104 @@ import std.process;
 import std.string;
 import std.uni;
 import std.algorithm;
+import std.xml;
+
+import json;
+
+
+bool CheckFlagState(string switchFlag, ref string switchString, out bool hasarg)
+{
+	if(switchString.startsWith("-version=ident"))return false;
+	if(switchString.startsWith("-debug=ident"))return false;
+	if(switchString.startsWith("-I"))return false;
+	if(switchString.startsWith("-L"))return false;
+	if(switchString.startsWith("-J"))return false;
+
+	if(switchString.length <= 2) //"-x" "-xx"
+	{
+		hasarg = false;
+		return true;
+	}
+
+	if(switchString.canFind("="))
+	{
+		auto idx = switchString.indexOf("=");
+		switchString = switchString[0..idx];
+		hasarg = true;
+		return true;
+	}
+
+	auto placeholder = switchString.endsWith("filename", "directory", "objdir", "docdir");
+	if(placeholder > 0)
+	{
+		if(placeholder == 1)switchString = switchString.chomp("filename");
+		if(placeholder == 2)switchString = switchString.chomp("directory");
+		if(placeholder == 3)switchString = switchString.chomp("objdir");
+		if(placeholder == 4)switchString = switchString.chomp("docdir");
+		hasarg = true;
+		return true;
+	}
+
+	//everything else
+	hasarg = false;
+	return true;
+}
+
+
+
+
 
 int main(string[] args)
 {
-	string CmdString;
-	string Brief;
-	bool HasArgs;
-	bool AdjustComma;
-	
-	string FlagsOutFile;
-	if (args.length > 1) FlagsOutFile = args[1];
-	else FlagsOutFile = "flags.json";
-	
-	File x = File(FlagsOutFile, "w");
-	string dmdoutput;
+	string jfilename = "fileofflags.json";
+	if(args.length > 1) jfilename = args[1];
+
+	auto jflags = jsonObject();
+
+	auto dmdOutput = executeShell("dmd --help");
+
+	if(dmdOutput.status == 0)
 	{
-		dmdoutput = shell("dmd --help");
-		scope(failure)writeln("huh");
-	}
-	
-	
-	foreach(index,line; dmdoutput.splitLines)
-	{
-		line = line.stripLeft;
-		if(index = 0)
-        {
-            
-    		x.write("[");
-		if(line.startsWith("-"))
+		auto flagarray = jsonArray();
+		foreach(index, line; dmdOutput.output.splitLines())
 		{
+			writeln(line);
 
-			auto indx = countUntil!(std.uni.isWhite)(line);
-			CmdString = stripLeft(line[0.. indx]);
-			Brief = stripLeft(line[indx..$]);
-			
-			auto checkstate = CheckState(CmdString);
-			
-			if(checkstate == 0) continue; //multiple arguments 
-			if(checkstate == 1) HasArgs = true;
-			if(checkstate == 2) HasArgs = false;
-			
-			
-			
-			
-			if(AdjustComma) x.write(",\n");
-			else x.write("\n");
-			AdjustComma = true;
-			x.write("{\n");
-			x.write("\"brief\":\"" ~ Brief ~ "\",\n");
-			x.write("\"cmdstring\":\"" ~ CmdString ~ "\",\n");
-			if(HasArgs) x.write("\"hasargument\":true\n");
-			else 		x.write("\"hasargument\":false\n");
-			x.write("}");
-			
-			
+			if(index == 0) jflags["dmdversion"] = line;
+			else
+			{
+				line = line.stripLeft();
+				if(line.length < 1)continue;
+				if(line[0] != '-')continue;
+				auto spacedIndex = line.indexOf(" ");
+				//auto equalIndex = line.indexOf("=");
+				//if(equalIndex == -1) equalIndex = spacedIndex;
+				auto switchString = line[0..spacedIndex];
+				auto briefString = line[spacedIndex..$];
+				bool hasArg;
+				if(CheckFlagState(switchString, switchString, hasArg))
+				{
+					auto jsonFlagObject = jsonObject();
+					jsonFlagObject["cmdstring"] = switchString;
+					jsonFlagObject["brief"] = briefString.strip().encode();
+					jsonFlagObject["hasargument"] = hasArg;
+
+					flagarray ~= jsonFlagObject;
+					writeln("    ",switchString, " : ", briefString.strip(), "(", hasArg, ")");
+				}
+			}
 		}
+		jflags["flags"] = flagarray;
+		writeJSON!4(jflags, File(jfilename,"w"));
 	}
-	x.write("\n]\n");
-	
+	else
+	{
+		writeln("error executing dmd");
+		return 64;
+	}
+
 	return 0;
-}			
-			
-
-
-int CheckState(ref string Cmd)
-{
-	//0 = multi args 1 = single args 2 = no args
-	
-	writeln(Cmd);
-	if(Cmd.length < 4) return 2; //no args
-
-	if(Cmd.startsWith("-version=")) return 0; //skip, multi args
-	if(Cmd.startsWith("-debug=")) return 0;
-
-	if(Cmd.startsWith("-L")) return 0;
-	if(Cmd.startsWith("-I") || Cmd.startsWith("-J")) return 0;
-	
-	
-	if(Cmd.canFind("=")) //single arg
-	{
-		Cmd = Cmd[0..Cmd.countUntil!("a == b ")("=")];
-		return 1;
-	}
-	
-	if(Cmd.startsWith("-run")) return 1;
-	
-	auto tmp = Cmd.endsWith("filename" , "directory", "objdir");
-	if (tmp > 0)
-	{
-		if(tmp == 1) Cmd = Cmd.chomp("filename");
-		if(tmp == 2) Cmd = Cmd.chomp("directory");
-		if(tmp == 3) Cmd = Cmd.chomp("objdir");
-		return 1;
-	}	
-	
-	writeln("Confirm ", Cmd);
-	writeln("If ",Cmd," takes one argument enter command switch...");
-	writeln("ie -Odobjdir you would enter \"-Od\"");
-	writeln(`(for default `, Cmd[0..3], ` enter "-") :`);
-	string response = readln();
-	response = chomp(response);
-	if(response == "-") 
-	{
-		Cmd = Cmd[0..3];
-		return 1;
-	}
-	if(response.length <2) return 2;
-	Cmd = response;
-	return 1;
-	
 }
+
+
 
