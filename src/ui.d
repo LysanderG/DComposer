@@ -743,7 +743,7 @@ void ConfigureToolBar()
 	}
 
 	Config.SetArray("toolbar", "configured_actions", ActsToSave);
-
+	Config.Save();
 	RestoreToolbar();
 }
 
