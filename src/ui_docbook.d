@@ -321,7 +321,6 @@ public:
 	{
 		auto xdoc = cast (DOCUMENT)Current();
 		if(xdoc is null) return;
-		dwrite ("HERE");
 		xdoc.getBuffer.undo();
 		//mInstanceAndParamsForSignal.setObject(xdoc.getSourceViewStruct());
 		//mReturnValueForSignal.setObject(xdoc.getSourceViewStruct());
