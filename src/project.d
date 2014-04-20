@@ -45,12 +45,12 @@ class PROJECT
 	void Clear()
 	{
 		mDcomposerProjectVersion = PROJECT_MODULE_VERSION;
-		Name = "New Project";
-		Folder = ".";
+		Name = "\0";
+		Folder = mDefaultProjectRootPath;
 		Compiler = COMPILER.DMD;
 		TargetType = TARGET.EMPTY;
 		UseCustomBuild = false;
-		CustomBuildCommand = "";
+		CustomBuildCommand = "\0";
 		foreach(ref flag; mFlags) flag.Reset();
 		mData.Zero();
 		Event.emit(PROJECT_EVENT.LISTS);
@@ -71,7 +71,7 @@ class PROJECT
 			tmp.mArgument = cast(bool)obj["hasargument"];
 			tmp.mBrief = cast(string)obj["brief"];
 			tmp.mSwitch = cast(string)obj["cmdstring"];
-			tmp.mValue = "";
+			tmp.mValue = "\0";
 			mFlags ~= tmp;
 		}
 
@@ -150,13 +150,13 @@ class PROJECT
 	{
 		Clear();
 		mStartUpProject = "";
-		mDefaultProjectRootPath = Config.GetValue("project","project_root_path", ".");
+		mDefaultProjectRootPath = Config.GetValue("project","project_root_path", "~/projects/dprojects/").expandTilde();
 		string tmp1 = Config.GetValue!string("project", "last_session_project");
 		string tmp2 = Config.GetValue!string("project", "cmd_line_project");
 		if(tmp1.length > 0) mStartUpProject = tmp1;
 		if(tmp2.length > 0) mStartUpProject = tmp2;
 		LoadFlags();
-		foreach(member; __traits(allMembers, LIST_NAMES)) mData[mixin("LIST_NAMES."~member)] = [""];
+		foreach(member; __traits(allMembers, LIST_NAMES)) mData[mixin("LIST_NAMES."~member)] = ["\0"];
 		Log.Entry("Engaged");
 	}
 	void PostEngage()
@@ -169,7 +169,7 @@ class PROJECT
 		Save();
 		Config.Remove("project", "cmd_line_project");
 		Config.Remove("project", "last_session_project");
-		if(mTargetType != TargetType.EMPTY)	Config.SetValue("project", "last_session_project", buildNormalizedPath(mFolder,mName.setExtension(".dpro")));
+		if(mTargetType != TARGET.EMPTY)	Config.SetValue("project", "last_session_project", buildNormalizedPath(mFolder,mName.setExtension(".dpro")));
 		foreach(pid; mRunPids)kill(pid);
 		foreach(pid; mRunPids)wait(pid);
 		Log.Entry("Disengaged");
@@ -179,9 +179,17 @@ class PROJECT
 	{
 		Save();
 		Clear();
+		Name = "new_project";
+		Folder = DefaultProjectRootPath;
+		TargetType = TARGET.UNDEFINED;
 		Event.emit(PROJECT_EVENT.CREATED);
 		Log.Entry("Created");
-
+	}
+	void Close()
+	{
+		Save();
+		Clear();
+		Log.Entry("Closed");
 	}
 
 	void Open(string projfile = null)
@@ -225,7 +233,6 @@ class PROJECT
 
 	void Save()
 	{
-
 		if(TargetType == TARGET.EMPTY) return;
 		if(mName.length < 1)
 		{
@@ -248,7 +255,6 @@ class PROJECT
 		}
 		if(!mFolder.exists())mkdirRecurse(mFolder);
 		mFolder.chdir();
-
 
 		auto data = jsonObject();
 
@@ -284,7 +290,6 @@ class PROJECT
 			}
 		}
 		std.file.write(projfile,data.toJSON!(5));
-
 		Event.emit(PROJECT_EVENT.SAVED);
 		Log.Entry("Saved " ~ Name);
 	}
@@ -348,6 +353,7 @@ class PROJECT
 
 	@property void Name(string nuName)
 	{
+		if(nuName == mName) return;
 		mName = nuName;
 		Event.emit(PROJECT_EVENT.NAME);
 	}
@@ -357,11 +363,15 @@ class PROJECT
 	}
 	@property void Folder(string nuFolder)
 	{
-		if(CurrentPath(nuFolder))
-		{
-			mFolder = nuFolder;
-			Event.emit(PROJECT_EVENT.FOLDER);
-		}
+		if(nuFolder == mFolder)return;
+		mFolder = nuFolder;
+		Event.emit(PROJECT_EVENT.FOLDER);
+	}
+	//silly function to stop the endless crap
+	void SetNameAndFolder(string nuName, string nuFolder )
+	{
+		mFolder = nuFolder;
+		mName = nuName;
 	}
 	@property string Folder()
 	{
@@ -530,7 +540,7 @@ struct FLAG
 	string mSwitch;
 	string mValue;
 
-	this(string Switch, string Brief, bool HasArg, string Arg = " ")
+	this(string Switch, string Brief, bool HasArg, string Arg = "\0")
 	{
 		mState = false;
 		mSwitch = Switch;
@@ -542,7 +552,7 @@ struct FLAG
 	void Reset()
 	{
 		mState = false;
-		mValue = " ";
+		mValue = "\0";
 	}
 
 }

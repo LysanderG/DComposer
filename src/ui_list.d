@@ -32,6 +32,9 @@ class UI_LIST
 {
 	ListType    mType;
 
+	string		mBasePath;
+
+
 	Frame		mRoot;
 
 	Label 		mTitle;
@@ -69,6 +72,8 @@ class UI_LIST
 
 		mType = Type;
 		mTitle.setText(Title);
+
+		mBasePath = "/";
 
 		mClearBtn.addOnClicked(delegate void(Button b){mStore.clear();emit(mTitle.getText(), GetItems());});
 		mRemoveBtn.addOnClicked(delegate void(Button b){RemoveString();});
@@ -180,7 +185,7 @@ class UI_LIST
 
 	void AddIdentifier()
 	{
-		mItemEntry.setText("");
+		mItemEntry.setText("\0");
 		mItemDialog.present();
 		mItemEntry.grabFocus();
 
@@ -203,7 +208,7 @@ class UI_LIST
 			if(!GetItems.canFind(afile))
 			{
 				if(afile.startsWith(Project.Folder))afile = afile.relativePath(Project.Folder);
-				AddString(afile);
+				AddString(afile.relativePath(mBasePath));
 			}
 			ChosenFiles = ChosenFiles.next();
 		}
@@ -226,7 +231,7 @@ class UI_LIST
 			if(!GetItems.canFind(apath))
 			{
 				if(apath.startsWith(Project.Folder))apath = apath.relativePath(Project.Folder);
-				AddString(apath);
+				AddString(apath.relativePath(mBasePath));
 			}
 			chosenpaths = chosenpaths.next();
 		}
@@ -261,6 +266,11 @@ class UI_LIST
 		mStore.append(ti);
 		mStore.setValue(ti, 0, baseName(nuString));
 		mStore.setValue(ti, 1, nuString);
+	}
+
+	void SetRootPath(string NuBasePath)
+	{
+		mBasePath = NuBasePath;
 	}
 
 }

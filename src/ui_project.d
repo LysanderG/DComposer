@@ -86,8 +86,10 @@ class UI_PROJECT
 	{
 		switch (event) with(PROJECT_EVENT)
 		{
+			case OPENED:
 			case CREATED:
 			{
+				ProjRelPath.setText(Project.Folder.relativePath(Project.DefaultProjectRootPath));
 				UpdateFlags();
 				mRootWidget.show();
 				DocBook.setCurrentPage(mRootWidget);
@@ -100,17 +102,11 @@ class UI_PROJECT
 				break;
 			}
 			case NAME:
-			{
-				ProjName.setText(Project.Name);
-				ui.SetProjectTitle("PROJECT : " ~ Project.Name);
-				CalculateFolder();
-				break;
-			}
-
 			case FOLDER:
 			{
-				string relpath = relativePath(Project.Folder, Project.DefaultProjectRootPath);
-				ProjRelPath.setText(relpath);
+				if(WeAreSettingNameAndFolder)break;
+				ProjName.setText(Project.Name);
+				ProjRelPath.setText(relativePath(Project.DefaultProjectRootPath,Project.Folder));
 				break;
 			}
 			case COMPILER:
@@ -177,13 +173,18 @@ class UI_PROJECT
 		Project.SetListData(ListName, Values);
 	}
 
-	string CalculateFolder()
+	bool WeAreSettingNameAndFolder;
+	void  CalculateFolder()
 	{
-		string rv = buildNormalizedPath(Project.DefaultProjectRootPath, ProjRelPath.getText());
-		string project_name;
-		if(ProjName.getText().length > 0) project_name = ProjName.getText().setExtension(".dpro");
-		ProjAbsPath.setText(buildPath(rv,project_name));
-		return rv;
+		WeAreSettingNameAndFolder = true;
+		scope(exit)WeAreSettingNameAndFolder = false;
+
+		ProjAbsPath.setText(buildPath(Project.DefaultProjectRootPath, ProjRelPath.getText(), ProjName.getText().setExtension(".dpro")));
+		Project.Name = ProjName.getText();
+		Project.Folder = buildPath(Project.DefaultProjectRootPath, ProjRelPath.getText());
+
+		//Project.SetNameAndFolder(ProjName.getText(), buildPath(Project.DefaultProjectRootPath, ProjRelPath.getText()));
+		ui.SetProjectTitle(Project.Name);
 	}
 
 
@@ -346,7 +347,7 @@ class UI_PROJECT
 
 		//Close
 		AddIcon("dcmp-proj-close", Config.GetValue("icons", "proj-close", SystemPath("resources/color-close.png")));
-		auto ActClose = "ActProjClose".AddAction("_Close","Close project", "dcmp-proj-close","<Control><Shift>F5",delegate void(Action a){Project.Create();mRootWidget.hide();});
+		auto ActClose = "ActProjClose".AddAction("_Close","Close project", "dcmp-proj-close","<Control><Shift>F5",delegate void(Action a){Project.Close();mRootWidget.hide();});
 		AddToMenuBar("ActProjClose", "_Project");
 		//AddToToolBar("ActProjClose");
 
@@ -356,8 +357,14 @@ class UI_PROJECT
 
 		ProjHide.addOnClicked(delegate void(Button b){mRootWidget.hide();});
 
-		ProjName.addOnChanged(delegate void (EditableIF e){Project.Name = ProjName.getText(); ui.SetProjectTitle("Project : " ~ ProjName.getText());});
-		ProjRelPath.addOnChanged(delegate void (EditableIF e){ if(ProjRelPath.getText().endsWith(`/`))return; Project.Folder = CalculateFolder();});
+		ProjName.addOnChanged(delegate void (EditableIF e)
+		{
+			CalculateFolder();
+		});
+		ProjRelPath.addOnChanged(delegate void (EditableIF)
+		{
+			CalculateFolder();
+		});
 		ProjTargetType.addOnChanged(delegate void (ComboBoxText cbt){Project.TargetType = cast(TARGET)ProjTargetType.getActive();});
 		ProjCompiler.addOnChanged(delegate void (ComboBoxText cbt){Project.Compiler = cast(COMPILER)ProjCompiler.getActiveText();});
 		ProjNotes.getBuffer().addOnChanged(delegate void (TextBuffer tb){Project.Lists["Notes"] = tb.getText();});
@@ -451,5 +458,21 @@ class UI_PROJECT
 
 		lastargs = ArgList.GetItems();
 		return lastargs;
+	}
+
+	void SetRootPath(string NuBasePath)
+	{
+
+		ProjDebugs.SetRootPath(NuBasePath);
+		ProjImportPaths.SetRootPath(NuBasePath);
+		ProjLibraries.SetRootPath(NuBasePath);
+		ProjLibraryPaths.SetRootPath(NuBasePath);
+		ProjOtherFlags.SetRootPath(NuBasePath);
+		ProjPostBuildScripts.SetRootPath(NuBasePath);
+		ProjPreBuildScripts.SetRootPath(NuBasePath);
+		ProjRelFiles.SetRootPath(NuBasePath);
+		ProjSrcFiles.SetRootPath(NuBasePath);
+		ProjStringExpressionPaths.SetRootPath(NuBasePath);
+		ProjVersions.SetRootPath(NuBasePath);
 	}
 }
