@@ -545,10 +545,11 @@ void RestoreExtraPane()
 void ShowMessage(string Title, string Message)
 {
 	auto x = new MessageDialog(MainWindow, DialogFlags.MODAL, MessageType.OTHER, ButtonsType.NONE, "");
-	x.addButtons(["Continue", "Uninstall DComposer"],[ResponseType.OK, ResponseType.NONE]);
+	x.addButtons(["DONE"],[ResponseType.OK]);
 	x.setTitle(Title);
 	x.setMarkup(Message);
 	x.run();
+	x.hide();
 	x.destroy();
 }
 
@@ -599,7 +600,7 @@ void Quit()
 
 void SetProjectTitle(string nuTitle)
 {
-	mProjectTitle.setText(nuTitle);
+	mProjectTitle.setText("Project: "~nuTitle);
 }
 
 //======================================================================================================================
