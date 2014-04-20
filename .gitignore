@@ -17,7 +17,8 @@ tmpdocs/*
 dcompro
 docs/*.html
 .build.info
+.build.data
 tags/dallegro5.json
 *~
 *.json
-
+*.so
