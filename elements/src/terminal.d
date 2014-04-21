@@ -45,6 +45,11 @@ class TERMINAL : ELEMENT
 		mTerminal.forkCommandFull (VtePtyFlags.DEFAULT, getcwd(), ["/bin/bash"], [], GSpawnFlags.DEFAULT, null, null, childPid);
 	}
 
+	void WatchProjectEvents(PROJECT_EVENT event)
+	{
+		if(event == PROJECT_EVENT.FOLDER) mTerminal.feedChild("cd " ~ Project.Folder() ~ ";clear\n");
+	}
+
 	public:
 
 	string Name() { return "Terminal";}
@@ -60,7 +65,7 @@ class TERMINAL : ELEMENT
 		mScroll = new ScrolledWindow;
 
 		mTerminal = new Terminal;
-		Configure();
+		//Configure();
 
 		mScroll.add(mTerminal);
 		mRoot.packStart(mScroll, 1, 1, 0);
@@ -75,6 +80,8 @@ class TERMINAL : ELEMENT
 		mTerminal.feedChild("clear\n");
 
 		Configure();
+
+		Project.Event.connect(&WatchProjectEvents);
 		Log.Entry("Engaged");
 	}
 
