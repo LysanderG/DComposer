@@ -371,6 +371,15 @@ class UI_PROJECT
 		ProjCustomBuild.addOnToggled(delegate void(ToggleButton tb){Project.UseCustomBuild = cast(bool)tb.getActive();ProjCustomBuildCommand.setEditable(ProjCustomBuild.getActive());});
 		ProjCustomBuildCommand.addOnChanged(delegate void (EditableIF e){Project.CustomBuildCommand = ProjCustomBuildCommand.getText();});
 
+
+		ProjLibraries.mStore.addOnRowInserted (delegate void(TreePath, TreeIter, TreeModelIF)
+		{
+			dwrite("  ",ProjLibraries.GetItems());
+			Project.SetListData(LIST_NAMES.LIBRARIES, ProjLibraries.GetItems());
+
+		});
+
+
 		ProjSrcFiles.connect(&WatchLists);
 		ProjRelFiles.connect(&WatchLists);
 		ProjImportPaths.connect(&WatchLists);

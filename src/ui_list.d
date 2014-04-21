@@ -253,6 +253,7 @@ class UI_LIST
 
 	void UpdateItems(string[] items)
 	{
+		if(items == GetItems) return;
 		mStore.clear();
 		if(items.length < 1) return;
 		foreach(i; items)UpdateString(i);
