@@ -89,7 +89,7 @@ class UI_PROJECT
 			case OPENED:
 			case CREATED:
 			{
-				ProjRelPath.setText(Project.Folder.relativePath(Project.DefaultProjectRootPath));
+				ProjRelPath.setText(relativePath(Project.Folder, Project.DefaultProjectRootPath));
 				UpdateFlags();
 				mRootWidget.show();
 				DocBook.setCurrentPage(mRootWidget);
@@ -106,7 +106,7 @@ class UI_PROJECT
 			{
 				if(WeAreSettingNameAndFolder)break;
 				ProjName.setText(Project.Name);
-				ProjRelPath.setText(relativePath(Project.DefaultProjectRootPath,Project.Folder));
+				ProjRelPath.setText(relativePath(Project.Folder, Project.DefaultProjectRootPath));
 				break;
 			}
 			case COMPILER:
