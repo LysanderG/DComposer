@@ -67,9 +67,9 @@ class MESSAGE_VIEW :ELEMENT
         }
         if(line == "END") return;
 
-		auto rgx = regex(`\([\d]+,?[\d]+\)`);  //regex to look for
+		auto rgx = regex(`\([\d]+,?[\d]+\)`);  //regex to look for [323,45]
 
-        auto caps = line.matchFirst(rgx); //caps = what is found
+        auto caps = line.matchFirst(rgx); //caps = what is found (captures)
 
         auto ti = new TreeIter;
 
@@ -83,11 +83,15 @@ class MESSAGE_VIEW :ELEMENT
         }
         else
         {
+			int lno;
+			int cno;
+
             string location = caps.hit()[1..$-1];
             auto hits = location.findSplit(",");
 
-            int lno = to!int(hits[0]);
-            int cno = to!int(hits[2]);
+           	lno = to!int(hits[0]);
+
+            if(hits[2].length > 0) cno = to!int(hits[2]);
 
             mStore.append(ti);
             mStore.setValue(ti, 0, caps.pre()); //part before regex found ... file
