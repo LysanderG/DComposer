@@ -156,6 +156,8 @@ void Execute()
 		mStore.setValue(ti, 4, lib.mFile);
 	}
 
+	mView.setCursor(new TreePath(true), null, false);
+
 	mElementManager.run();
 	mElementManager.hide();
 
