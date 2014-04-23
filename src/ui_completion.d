@@ -127,7 +127,7 @@ class UI_COMPLETION
     void MoveSelectionDown()
     {
         TreePath tp = new TreePath;
-        auto lasttp = new TreePath(true);;
+        auto lasttp = new TreePath(true);
         TreeViewColumn tvc = new TreeViewColumn;
 
 		mList.getCursor(tp, tvc);
@@ -242,13 +242,13 @@ class UI_COMPLETION
 												}
 												else return false;
 
-			default 						:	return false;
+			default 	:	return false;
 												//if(mState == COMPLETION) Kill();
 
 
 		}
 
-		return false;
+		//return false;
 	}
 
 	void WatchTreeActivated(TreePath tp, TreeViewColumn tvc, TreeView tv)

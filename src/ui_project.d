@@ -163,6 +163,7 @@ class UI_PROJECT
 						default: writeln("not here!!");break;
 					}
 				}
+				break;
 			}
 			default :break;
 		}
@@ -285,7 +286,7 @@ class UI_PROJECT
 
 			ProjLibraries = new UI_LIST(LIBRARIES, ListType.FILES);
 			linkerbox.packStart(ProjLibraries.GetRootWidget(), 1, 1, 1);
-			ProjLibraryPaths = new UI_LIST(LIBRARY_PATHS, ListType.FILES);
+			ProjLibraryPaths = new UI_LIST(LIBRARY_PATHS, ListType.PATHS);
 			linkerbox.packStart(ProjLibraryPaths.GetRootWidget(), 1, 1, 1);
 
 			ProjOtherFlags = new UI_LIST(OTHER, ListType.IDENTIFIERS);
