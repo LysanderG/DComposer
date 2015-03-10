@@ -21,20 +21,68 @@ import gtk.Button;
 import gtk.TextBuffer;
 import gtk.MessageDialog;
 import gtk.Adjustment;
+import gtkc.gtk;
+import gtkc.glib;
+
 
 import gdk.Event;
 import gdk.Keysyms;
 
 import gobject.ObjectG;
 import gobject.ParamSpec;
+import gobject.Signals;
+import gobject.Type;
 
-import gsv.SourceView;
+import glib.Quark;
+
+
+import gtkc.gobject;
+import gtkc.gobject;
+import gtkc.Loader;
+import gtkc.paths;
+
 import gsv.SourceBuffer;
+import gsv.SourceCompletion;
+import gsv.SourceCompletionContext;
+import gsv.SourceCompletionInfo;
+import gsv.SourceCompletionItem;
+import gsv.SourceCompletionProposalIF;
+import gsv.SourceCompletionProvider;
+import gsv.SourceCompletionProviderIF;
+import gsv.SourceCompletionProviderT;
+import gsv.SourceCompletionWords;
 import gsv.SourceLanguage;
 import gsv.SourceLanguageManager;
 import gsv.SourceStyleSchemeManager;
 import gsv.SourceUndoManager;
 import gsv.SourceUndoManagerIF;
+import gsv.SourceView;
+
+
+import gtk.Widget;
+import gtk.TextIter;
+import gtk.TextBuffer;
+
+import gsv.SourceCompletionProviderIF;
+import gsv.SourceCompletionProvider;
+import gsv.SourceCompletionContext;
+import gsv.SourceCompletionInfo;
+import gsv.SourceCompletionProposalIF;
+import gsv.SourceCompletionProviderT;
+import gsv.SourceCompletionItem;
+
+import gobject.ObjectG;
+import gobject.Type;
+
+import gtkc.gobject;
+import gtkc.Loader;
+import gtkc.paths;
+
+
+import gsvc.gsv;
+import gdk.Pixbuf;
+
+import glib.ListG;
 
 
 
@@ -143,7 +191,32 @@ class DOCUMENT : SourceView, DOC_IF
 		getBuffer().createTag("HiLiteSearchFore", "foreground", Config.GetValue("document", "hilitesearchfore", "yellow"));
 
 		mUndoManager = getBuffer.getUndoManager();
+
+		//trying this for initial scrolling
+		ScrollWin.getVadjustment.addOnChanged(delegate void(Adjustment)
+		{
+			if (!mIsOpeningScroll)return;
+			mIsOpeningScroll = false;
+			scrollToMark(getBuffer.getInsert, 0.25, false, 0.0, 0.0);
+		});
+
+		//playing with sourcecompletion ... screw all the wrapper stuff
+		//xcomp = getCompletion().getSourceCompletionStruct();
+		//wcomp = gtk_source_completion_words_new(null, null);
+		//gtk_source_completion_words_register(wcomp, getBuffer.getTextBufferStruct());
+		//g_object_set (cast(void*)wcomp, "priority\0".dup.ptr, 10, null);
+		//g_object_set (cast(void*)wcomp, "activation\0".dup.ptr,  GtkSourceCompletionActivation.INTERACTIVE|GtkSourceCompletionActivation.USER_REQUESTED, null);
+        //
+        //
+		//dwrite("------",gtk_source_completion_add_provider(xcomp, cast(GtkSourceCompletionProvider*) wcomp, cast(GError**)null));
+		//gtk_source_completion_words_register(wcomp, gtk_text_view_get_buffer (cast(GtkTextView*)getSourceViewStruct()));
+
+
 	}
+
+	GtkSourceCompletion * xcomp;
+	GtkSourceCompletionWords * wcomp;
+
 
 	void Configure()
 	{
@@ -247,7 +320,7 @@ class DOCUMENT : SourceView, DOC_IF
 		auto tiEnd = tiStart.copy();
 		tiStart.setLineOffset(0);
 		tiEnd.forwardToLineEnd();
-		return tiStart.getText(tiEnd);;
+		return tiStart.getText(tiEnd);
 	}
 
 
@@ -367,7 +440,6 @@ class DOCUMENT : SourceView, DOC_IF
 							ContinueScanning = false;
 							break;
 						}
-						break;
 					}
 					default : //illegit char
 					{
@@ -492,7 +564,7 @@ class DOCUMENT : SourceView, DOC_IF
 							ContinueScanning = false;
 							break;
 						}
-						break;
+						//break;
 					}
 					default :
 					{
@@ -543,31 +615,51 @@ class DOCUMENT : SourceView, DOC_IF
 	{
 		return mLastSelection;
 	}
-	void 	GotoLine(int LineNo)
+	/+void 	GotoLine(int LineNo)
 	{
 		import glib.Timeout;
 
-		//if(LineNo == 0) return;
 		MainWindow.setFocus(this);
 		if(mIsOpeningScroll)
 		{
-			auto scrolltimeout = new Timeout(getBuffer().getLineCount()/3, delegate bool()
+			auto tscroll = cast(ScrolledWindow)mPageWidget;
+			tscroll.getVadjustment.changed();
+			tscroll.getVadjustment.valueChanged();
+
+			auto scrolltimeout = new Timeout(100, delegate bool()
 			{
-				mIsOpeningScroll = false;
+				tscroll.getVadjustment.changed();
+				tscroll.getVadjustment.valueChanged();
 				TextIter IL = new TextIter;
 				getBuffer().getIterAtLine(IL, LineNo);
-				getBuffer().placeCursor(IL);
-				scrollToIter(IL, 0.25, false, 0, 0);
+				scrollToMark(getBuffer.createMark("scrollto", IL, 0), 0.25, false, 0, 0);
+				GotoLine(LineNo);
 				return false;
 			});
+
+			mIsOpeningScroll = false;
 		}
 		else
 		{
 			TextIter IL = new TextIter;
 			getBuffer().getIterAtLine(IL, LineNo);
+			scrollToMark(getBuffer.createMark("scrollto", IL, 0), 0.25, false, 0, 0);
 			getBuffer().placeCursor(IL);
-			scrollToIter(IL, 0.25, false, 0, 0);
 		}
+	}+/
+	void GotoLine(int LineNo)
+	{
+		MainWindow.setFocus(this);
+		auto tiline = new TextIter;
+
+		getVadjustment.changed();
+
+
+		getBuffer.getIterAtLine(tiline, LineNo);
+		getBuffer.placeCursor(tiline);
+		getBuffer.moveMarkByName("insert",tiline);
+		scrollToMark(getBuffer().getInsert(), 0.25, false, 0.0, 0.0);
+		grabFocus();
 	}
 
 	string GetText(){return getBuffer.getText();}
@@ -824,4 +916,91 @@ class DOCUMENT : SourceView, DOC_IF
 		mUndoManager.undo();
 	}
 
+}
+
+private import glib.ConstructionException;
+private import glib.Str;
+
+/**
+ * The GtkSourceCompletionWords is an example of an implementation of
+ * the GtkSourceCompletionProvider interface. The proposals are words
+ * appearing in the registered GtkTextBuffers.
+ */
+public class MyWords : SourceCompletionProvider
+{
+
+	/** the main Gtk struct */
+	protected GtkSourceCompletionWords* gtkSourceCompletionWords;
+
+
+	/** Get the main Gtk struct */
+	public GtkSourceCompletionWords* getSourceCompletionWordsStruct()
+	{
+		return gtkSourceCompletionWords;
+	}
+
+
+	/** the main Gtk struct as a void* */
+	protected override void* getStruct()
+	{
+		return cast(void*)gtkSourceCompletionWords;
+	}
+
+	/**
+	 * Sets our main struct and passes it to the parent class
+	 */
+	public this (GtkSourceCompletionWords* gtkSourceCompletionWords)
+	{
+		super(cast(GtkSourceCompletionProvider*)gtkSourceCompletionWords);
+		this.gtkSourceCompletionWords = gtkSourceCompletionWords;
+	}
+
+	protected override void setStruct(GObject* obj)
+	{
+		super.setStruct(obj);
+		gtkSourceCompletionWords = cast(GtkSourceCompletionWords*)obj;
+	}
+
+	/**
+	 */
+
+	/**
+	 * Params:
+	 * name = The name for the provider. [allow-none]
+	 * icon = A specific icon for the provider. [allow-none]
+	 * Throws: ConstructionException GTK+ fails to create the object.
+	 */
+	public this (string name, Pixbuf icon)
+	{
+		// GtkSourceCompletionWords * gtk_source_completion_words_new  (const gchar *name,  GdkPixbuf *icon);
+		auto p = gtk_source_completion_words_new(Str.toStringz(name), (icon is null) ? null : icon.getPixbufStruct());
+		if(p is null)
+		{
+			throw new ConstructionException("null returned by gtk_source_completion_words_new(Str.toStringz(name), (icon is null) ? null : icon.getPixbufStruct())");
+		}
+		this(cast(GtkSourceCompletionWords*) p);
+	}
+
+	/**
+	 * Registers buffer in the words provider.
+	 * Params:
+	 * buffer = a GtkTextBuffer
+	 */
+	public void register(TextBuffer buffer)
+	{
+		// void gtk_source_completion_words_register  (GtkSourceCompletionWords *words,  GtkTextBuffer *buffer);
+		dwrite("---",gtkSourceCompletionWords);
+		gtk_source_completion_words_register(gtkSourceCompletionWords, (buffer is null) ? null : buffer.getTextBufferStruct());
+	}
+
+	/**
+	 * Unregisters buffer from the words provider.
+	 * Params:
+	 * buffer = a GtkTextBuffer
+	 */
+	public void unregister(TextBuffer buffer)
+	{
+		// void gtk_source_completion_words_unregister  (GtkSourceCompletionWords *words,  GtkTextBuffer *buffer);
+		gtk_source_completion_words_unregister(gtkSourceCompletionWords, (buffer is null) ? null : buffer.getTextBufferStruct());
+	}
 }

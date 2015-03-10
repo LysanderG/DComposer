@@ -20,10 +20,10 @@ import dcore;
  * */
 class LOG
 {
-	private :
-	string[]        mEntries;                       //buffer of log entries not yet saved to file
+    private :
+    string[]        mEntries;                       //buffer of log entries not yet saved to file
 
-	string          mSystemDefaultLogName;          //system log file can be overridden by interimfilename but reverts
+    string          mSystemDefaultLogName;          //system log file can be overridden by interimfilename but reverts
                                                     //if no -l option on command line
     string          mInterimFileName;               //override regular log file name from cmdline for one session
     string          mLogFile;                       //which of the two above is actually being used this session
@@ -31,12 +31,12 @@ class LOG
     int           mMaxLines;                      //flush entries buffer
     int           mMaxFileSize;                   //if log is this size then don't append overwrite
 
-    bool			mLockEntries;					//don't dispose of mEntries if this is true
+    bool            mLockEntries;                   //don't dispose of mEntries if this is true
 
-    bool			mEchoToStdOut;					//whether to write entries to stdout
+    bool            mEchoToStdOut;                  //whether to write entries to stdout
 
 
-	public:
+    public:
 
     this()
     {
@@ -58,7 +58,7 @@ class LOG
 
     void Engage()
     {
-        mSystemDefaultLogName = Config.GetValue("log", "default_log_file", buildPath(config.userDirectory, "dcomposer.log"));
+        mSystemDefaultLogName = Config.GetValue("log", "default_log_file", SystemPath("dcomposer.log"));
         if(Config.HasKey("log", "interim_log_file"))
         {
             mLogFile = Config.GetValue("log", "interim_log_file",buildPath(userDirectory, "error.log"));
@@ -80,65 +80,65 @@ class LOG
         auto logtime = rightnow.toISOExtString();
 
         auto f = File(mLogFile, mode);
-        f.writeln("<<++	LOG BEGINS ++>>");
-		f.writeln(logtime);
-		f.writeln(DCOMPOSER_VERSION);
-		f.writeln(DCOMPOSER_BUILD_DATE);
-		f.writeln(DCOMPOSER_COPYRIGHT);
-		f.writeln(userDirectory);
-		f.writeln(sysDirectory);
-		f.writeln(installDirectories);
-		f.writeln(BUILD_USER);
-		f.writeln(BUILD_MACHINE);
-		f.writeln(BUILD_NUMBER) ;
+        f.writeln("<<++ LOG BEGINS ++>>");
+        f.writeln(logtime);
+        f.writeln(DCOMPOSER_VERSION);
+        f.writeln(DCOMPOSER_BUILD_DATE);
+        f.writeln(DCOMPOSER_COPYRIGHT);
+        f.writeln(userDirectory);
+        f.writeln(sysDirectory);
+        f.writeln(installDirectories);
+        f.writeln(BUILD_USER);
+        f.writeln(BUILD_MACHINE);
+        f.writeln(BUILD_NUMBER) ;
 
         Entry("Engaged");
     }
     void PostEngage()
     {
-		Log.Entry("PostEngaged");
-	}
+        Log.Entry("PostEngaged");
+    }
 
     void Disengage()
-	{
+    {
 
-		auto rightnow = Clock.currTime();
-		auto logtime = rightnow.toISOExtString();
+        auto rightnow = Clock.currTime();
+        auto logtime = rightnow.toISOExtString();
 
-		mLockEntries = false;
+        mLockEntries = false;
 
         Entry("Disengaged");
 
-		mEntries.length += 2;
-		mEntries[$-2] = logtime;
-		mEntries[$-1] = "<<-- LOG ENDS -->>\n";
-		Flush();
-	}
+        mEntries.length += 2;
+        mEntries[$-2] = logtime;
+        mEntries[$-1] = "<<-- LOG ENDS -->>\n";
+        Flush();
+    }
 
 
-	void Entry(string Message, string Level = "Info", string Module = __MODULE__ )
-	{
-		//Level can be any string
-		//but for now "Debug", "Info", and "Error" will be expected (but not required)
+    void Entry(string Message, string Level = "Info", string Module = __MODULE__ )
+    {
+        //Level can be any string
+        //but for now "Debug", "Info", and "Error" will be expected (but not required)
 
-		emit(Message, Level, Module);
+        emit(Message, Level, Module);
 
-		string x = format ("%8s [%20s] : %s", Level, Module,  Message);
-		//if(Module !is null) x = format("%s in %s", x, Module);
-		mEntries ~= x;
-		if(mEntries.length >= mMaxLines) Flush();
-		if(mEchoToStdOut) writeln(x);
-	}
+        string x = format ("%8s [%20s] : %s", Level, Module,  Message);
+        //if(Module !is null) x = format("%s in %s", x, Module);
+        mEntries ~= x;
+        if(mEntries.length >= mMaxLines) Flush();
+        if(mEchoToStdOut) writeln(x);
+    }
 
-	void Flush()
-	{
-		if(mLockEntries)return; //no saving entries while entries are locked
-		auto f = File(mLogFile, "a");
-		foreach (l; mEntries) f.writeln(l);
+    void Flush()
+    {
+        if(mLockEntries)return; //no saving entries while entries are locked
+        auto f = File(mLogFile, "a");
+        foreach (l; mEntries) f.writeln(l);
         f.flush();
         f.close();
-		 mEntries.length = 0;
-	}
+         mEntries.length = 0;
+    }
 
     mixin Signal!(string, string, string);
 
@@ -158,22 +158,22 @@ class LOG
 
 void dwrite(T...) (T args)
 {
-	writeln(args);
+    writeln(args);
 }
 
 
 import std.c.stdlib;
 extern (C) void SegFlush(int SysSig)nothrow @system
 {
-	try
-	{
-		string TheError = format("Caught Signal %s", SysSig);
-		Log.Entry(TheError, "Error");
-	    Log.Flush();
+    try
+    {
+        string TheError = format("Caught Signal %s", SysSig);
+        Log.Entry(TheError, "Error");
+        Log.Flush();
         abort();
     }
     catch(Exception X)
     {
-	    return;
+        return;
     }
 }

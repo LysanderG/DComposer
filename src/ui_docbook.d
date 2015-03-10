@@ -193,16 +193,18 @@ public:
 
 	void PostEngage()
 	{
+		dwrite("whats up");
 		mInstanceAndParamsForSignal = new Value;
 		mInstanceAndParamsForSignal.init(GType.OBJECT);
 		mReturnValueForSignal = new Value;
 		mReturnValueForSignal.init(GType.OBJECT);
 		mUndoSignalID = Signals.lookup("undo", Type.fromName("GtkSourceView"));
 		mRedoSignalID = Signals.lookup("redo", Type.fromName("GtkSourceView"));
+		dwrite("whats up end");
 		mPasteSignalID = Signals.lookup("paste-clipboard", Type.fromName("GtkTextView"));
 		mCutSignalID = Signals.lookup("cut-clipboard", Type.fromName("GtkTextView"));
 		mCopySignalID = Signals.lookup("copy-clipboard", Type.fromName("GtkTextView")) ;
-		Log.Entry("Postengaged");
+		Log.Entry("Post Engaged");
 	}
 
 	void Disengage()

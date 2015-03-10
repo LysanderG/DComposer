@@ -22,10 +22,8 @@ src/ui_docbook.d \
 src/elements.d \
 deps/dson/json.d \
 -odobjdir -J./ \
--L-rpath=/home/anthony/apps/dmd/phobos/generated/linux/release/64/ \
--L-rpath=./elements \
 -L-lvted-2 \
--defaultlib=libphobos2.so \
 -L-lgtkd-2 \
 -L-lgtkdsv-2 \
--L-ldl \
+-defaultlib=libphobos2.so \
+-L-ldl

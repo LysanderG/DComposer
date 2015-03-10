@@ -1,4 +1,4 @@
-#!/usr/local/bin/rdmd
+#!/usr/bin/rdmd
 
 module buildelement;
 

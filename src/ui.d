@@ -83,6 +83,7 @@ public import gio.File;
 public import gio.ContentType;
 
 public import glib.Idle;
+public import glib.ListG;
 
 
 import vte.Terminal;

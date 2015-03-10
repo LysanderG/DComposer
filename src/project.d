@@ -11,6 +11,7 @@ import std.path;
 import std.algorithm;
 import std.traits;
 import std.stdio;
+import std.conv;
 
 import json;
 
@@ -119,6 +120,8 @@ class PROJECT
 			}
 			foreach(item; mData[LIBRARIES])
 			{
+				if(item == "\0")continue;
+				if(item.length < 1)continue;
 				BuildCommand ~= " -L-l" ~ LibName(item);
 			}
 			foreach(item; mData[OTHER])
@@ -129,6 +132,7 @@ class PROJECT
 			{
 				BuildCommand ~= " " ~ item;
 			}
+			dwrite (BuildCommand);
 			return BuildCommand;
 		}
 	}
@@ -304,18 +308,33 @@ class PROJECT
 		if(TargetType == TARGET.EMPTY) return;
 		DocMan.SaveAll();
 		Save();
-		auto cmd = BuildCommand();
-		foreach(script; mData[LIST_NAMES.PREBUILD])executeShell(script);
+
+
+		foreach(script; mData[LIST_NAMES.PREBUILD])
+		{
+			scope(failure)Log.Entry("Error "~script);
+			Log.Entry("Running pre-build script " ~ script);
+			executeShell("./"~script);
+		}
+
+
 		BuildOutput.emit("BEGIN");
-		auto rv = executeShell(cmd);
+		auto rv = executeShell(BuildCommand());
 		foreach(line; rv.output.splitLines)BuildOutput.emit(line);
 		if(rv.status == 0) BuildOutput.emit("Success");
 		BuildOutput.emit("END");
+
 		//remove later
 		if(rv.status)Log.Entry(format("Build failed with status %s", rv.status));
 		else Log.Entry("Build finished");
-		scope(failure){Log.Entry("Build unable to execute a post build script");return;}
-		foreach(script; mData[LIST_NAMES.POSTBUILD]) execute(script);
+
+		foreach(script; mData[LIST_NAMES.POSTBUILD])
+		{
+			scope(failure)Log.Entry("Error "~script);
+			//Log.Entry("Running post-build script " ~ script);
+			auto scriptrv = executeShell("./"~script);
+			Log.Entry("Running post-build script "~script);
+		}
 	}
 
 	/+void Run()
@@ -336,7 +355,7 @@ class PROJECT
 		try
 		{
 			mRunPids ~= spawnProcess(CmdStrings);
-			Log.Entry("running ... " ~ CmdStrings[$]);
+			Log.Entry("running ... " );
 		}
 		catch(Exception E)
 		{
