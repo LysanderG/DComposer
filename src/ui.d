@@ -92,84 +92,84 @@ import vte.Terminal;
 
 void Engage(string[] CmdLineArgs)
 {
-	Main.init(CmdLineArgs);
+    Main.init(CmdLineArgs);
 
-	mAccelGroup = new AccelGroup;
+    mAccelGroup = new AccelGroup;
 
-	mIconFactory = new IconFactory;
-	mIconFactory.addDefault();
+    mIconFactory = new IconFactory;
+    mIconFactory.addDefault();
 
-	mClipBoard = Clipboard.get(gdk.Atoms.atomIntern("CLIPBOARD",true));
+    mClipBoard = Clipboard.get(gdk.Atoms.atomIntern("CLIPBOARD",true));
 
-	mBuilder = new Builder;
-	mBuilder.addFromFile(Config.GetValue("ui", "ui_main_glade", SystemPath("glade/ui_main.glade")));
-	mProjectTitle = cast(Label)mBuilder.getObject("label2");
-	MainWindow = cast(Window)mBuilder.getObject("window1");
-	MainWindow.addOnDelete(delegate bool(Event event, Widget widget){Quit();  return true;});
+    mBuilder = new Builder;
+    mBuilder.addFromFile(Config.GetValue("ui", "ui_main_glade", SystemPath("glade/ui_main.glade")));
+    mProjectTitle = cast(Label)mBuilder.getObject("label2");
+    MainWindow = cast(Window)mBuilder.getObject("window1");
+    MainWindow.addOnDelete(delegate bool(Event event, Widget widget){Quit();  return true;});
 
-	MainWindow.addAccelGroup(mAccelGroup);
+    MainWindow.addAccelGroup(mAccelGroup);
 
-	auto tmp =  cast(Notebook)mBuilder.getObject("centerpane");
+    auto tmp =  cast(Notebook)mBuilder.getObject("centerpane");
 
-	mStatusbar = cast(Statusbar)mBuilder.getObject("statusbar1");
+    mStatusbar = cast(Statusbar)mBuilder.getObject("statusbar1");
 
-	DocBook = new UI_DOCBOOK(tmp);
-	uiProject = new UI_PROJECT;
-	uiSearch = new UI_SEARCH;
-	uiCompletion = new UI_COMPLETION;
-	uiContextMenu = new UI_CONTEXTMENU;
+    DocBook = new UI_DOCBOOK(tmp);
+    uiProject = new UI_PROJECT;
+    uiSearch = new UI_SEARCH;
+    uiCompletion = new UI_COMPLETION;
+    uiContextMenu = new UI_CONTEXTMENU;
 
-	EngageActions();
-	EngageSidePane();
-	EngageExtraPane();
-	DocBook.Engage();
-	uiProject.Engage();
-	uiSearch.Engage();
-	uiCompletion.Engage();
-	ui_elementmanager.Engage();
-	uiContextMenu.Engage();
+    EngageActions();
+    EngageSidePane();
+    EngageExtraPane();
+    DocBook.Engage();
+    uiProject.Engage();
+    uiSearch.Engage();
+    uiCompletion.Engage();
+    ui_elementmanager.Engage();
+    uiContextMenu.Engage();
 
 
-	//AddSidePage(new TextView, "text");
-	//AddSidePage(new SourceView, "src");
-	ui.DocBook.prependPageMenu(uiProject.GetRootWidget(), cast(Widget)new Label("Project Options"), cast(Widget)new Label("Project Options"));
+    //AddSidePage(new TextView, "text");
+    //AddSidePage(new SourceView, "src");
+    ui.DocBook.prependPageMenu(uiProject.GetRootWidget(), cast(Widget)new Label("Project Options"), cast(Widget)new Label("Project Options"));
 
-	MainWindow.setIconFromFile(Config.GetValue("ui", "main_icon", SystemPath("resources/mushroom.png")));
-	Log.Entry("Engaged");
+    MainWindow.setIconFromFile(Config.GetValue("ui", "main_icon", SystemPath("resources/mushroom.png")));
+    Log.Entry("Engaged");
 }
 
 void PostEngage()
 {
-	DocBook.PostEngage();
-	uiProject.PostEngage();
-	uiSearch.PostEngage();
-	uiCompletion.PostEngage();
-	ui_elementmanager.PostEngage();
-	uiContextMenu.PostEngage();
+    DocBook.PostEngage();
+    uiProject.PostEngage();
+    uiSearch.PostEngage();
+    uiCompletion.PostEngage();
+    ui_elementmanager.PostEngage();
+    uiContextMenu.PostEngage();
 
-	RestoreGui();
+    RestoreGui();
 
-	Log.Entry("PostEngaged");
+    Log.Entry("PostEngaged");
 }
 
 void RestoreGui()
 {
-	auto win_x_pos = Config.GetValue!int("ui", "win_x_pos", 1);
-	auto win_y_pos = Config.GetValue!int("ui", "win_y_pos", 1);
-	auto win_x_len = Config.GetValue!int("ui", "win_x_len", 1000);
-	auto win_y_len = Config.GetValue!int("ui", "win_y_len", 750);
+    auto win_x_pos = Config.GetValue!int("ui", "win_x_pos", 1);
+    auto win_y_pos = Config.GetValue!int("ui", "win_y_pos", 1);
+    auto win_x_len = Config.GetValue!int("ui", "win_x_len", 1000);
+    auto win_y_len = Config.GetValue!int("ui", "win_y_len", 750);
 
 
-	MainWindow.move(win_x_pos, win_y_pos);
-	MainWindow.setDefaultSize(win_x_len, win_y_len);
+    MainWindow.move(win_x_pos, win_y_pos);
+    MainWindow.setDefaultSize(win_x_len, win_y_len);
 
 
 
-	RestoreSidePane();
+    RestoreSidePane();
 
-	RestoreExtraPane();
+    RestoreExtraPane();
 
-	RestoreToolbar();
+    RestoreToolbar();
 
 
 }
@@ -178,39 +178,39 @@ void RestoreGui()
 
 void Run()
 {
-	MainWindow.show();
+    MainWindow.show();
 
-	Log.Entry("++++++++++++++ Entering GTK Main Loop");
+    Log.Entry("++++++++++++++ Entering GTK Main Loop");
     Main.run();
     Log.Entry("-------------- Exiting GTK Main Loop");
 
-   	StoreGui();
+    StoreGui();
 }
 
 void Disengage()
 {
-	uiContextMenu.Disengage();
-	ui_elementmanager.Disengage();
-	uiCompletion.Disengage();
-	uiSearch.Disengage();
-	uiProject.Disengage();
-	Log.Entry("Disengaged");
+    uiContextMenu.Disengage();
+    ui_elementmanager.Disengage();
+    uiCompletion.Disengage();
+    uiSearch.Disengage();
+    uiProject.Disengage();
+    Log.Entry("Disengaged");
 }
 
 void StoreGui()
 {
-	int xpos, ypos, xlen, ylen;
-	MainWindow.getPosition(xpos, ypos);
-	MainWindow.getSize(xlen, ylen);
+    int xpos, ypos, xlen, ylen;
+    MainWindow.getPosition(xpos, ypos);
+    MainWindow.getSize(xlen, ylen);
 
-	Config.SetValue("ui", "win_x_pos", xpos);
-	Config.SetValue("ui", "win_y_pos", ypos);
-	Config.SetValue("ui", "win_x_len", xlen);
-	Config.SetValue("ui", "win_y_len", ylen);
+    Config.SetValue("ui", "win_x_pos", xpos);
+    Config.SetValue("ui", "win_y_pos", ypos);
+    Config.SetValue("ui", "win_x_len", xlen);
+    Config.SetValue("ui", "win_y_len", ylen);
 
-	StoreExtraPane();
-	StoreSidePane();
-	StoreActions();
+    StoreExtraPane();
+    StoreSidePane();
+    StoreActions();
 }
 
 
@@ -226,21 +226,21 @@ Toolbar     mToolbar;
 Notebook    mCenterPane;
 Statusbar   mStatusbar;
 IconFactory mIconFactory;
-Paned		mPaneV;
-Paned		mPaneH;
+Paned       mPaneV;
+Paned       mPaneH;
 Clipboard   mClipBoard;
-Label		mProjectTitle;
+Label       mProjectTitle;
 
 
 
 
 public:
-Window 	    MainWindow;
-UI_DOCBOOK	DocBook;
+Window      MainWindow;
+UI_DOCBOOK  DocBook;
 ActionGroup mActions;
-AccelGroup 	mAccelGroup;
-UI_PROJECT	uiProject;
-UI_SEARCH	uiSearch;
+AccelGroup  mAccelGroup;
+UI_PROJECT  uiProject;
+UI_SEARCH   uiSearch;
 UI_COMPLETION uiCompletion;
 Notebook    mExtraPane;
 Notebook    mSidePane;
@@ -256,32 +256,32 @@ string[] ActionsOnToolbar;
 
 void EngageActions()
 {
-	mActions = new ActionGroup("dcomposer");
-	mMenuBar = cast(MenuBar)mBuilder.getObject("menubar1");
-	mToolbar = cast(Toolbar)mBuilder.getObject("toolbar1");
+    mActions = new ActionGroup("dcomposer");
+    mMenuBar = cast(MenuBar)mBuilder.getObject("menubar1");
+    mToolbar = cast(Toolbar)mBuilder.getObject("toolbar1");
 
 
-	AddIcon("dcmp-quit", SystemPath("resources/yin-yang.png"));
-	AddIcon("dcmp-view-toolbar", SystemPath("resources/yin-yang.png"));
-	AddIcon("dcmp-toolbar-separator", SystemPath("resources/ui-separator-vertical.png"));
-	AddIcon("dcmp-toolbar-configure", SystemPath("resources/ui-toolbar-configure.png"));
+    AddIcon("dcmp-quit", SystemPath("resources/yin-yang.png"));
+    AddIcon("dcmp-view-toolbar", SystemPath("resources/yin-yang.png"));
+    AddIcon("dcmp-toolbar-separator", SystemPath("resources/ui-separator-vertical.png"));
+    AddIcon("dcmp-toolbar-configure", SystemPath("resources/ui-toolbar-configure.png"));
 
 
-	AddToggleAction("ActViewToolbar", "viewtoolbar", "show/hide toolbar", "dcmp-view-toolbar", "",
-		delegate void(Action a){auto y = cast(ToggleAction)a;mToolbar.setVisible(y.getActive());});
-	AddAction("ActQuit", "quit", "exit dcomposer", "dcmp-quit", "<Control>q", delegate void(Action a){Quit();});
-	AddAction("ActConfigureToolbar", "Edit Toolbar", "customize toolbar buttons", "dcmp-toolbar-configure", "",
-		delegate void (Action a){ConfigureToolBar();});
-	foreach(name; mRootMenuNames) mRootMenu[name] = mMenuBar.append(name);
+    AddToggleAction("ActViewToolbar", "viewtoolbar", "show/hide toolbar", "dcmp-view-toolbar", "",
+        delegate void(Action a){auto y = cast(ToggleAction)a;mToolbar.setVisible(y.getActive());});
+    AddAction("ActQuit", "quit", "exit dcomposer", "dcmp-quit", "<Control>q", delegate void(Action a){Quit();});
+    AddAction("ActConfigureToolbar", "Edit Toolbar", "customize toolbar buttons", "dcmp-toolbar-configure", "",
+        delegate void (Action a){ConfigureToolBar();});
+    foreach(name; mRootMenuNames) mRootMenu[name] = mMenuBar.append(name);
 
 
-	AddToMenuBar("ActQuit",mRootMenuNames[0]);
-	AddToMenuBar("ActViewToolbar", mRootMenuNames[1]);
-	AddToMenuBar("ActConfigureToolbar", mRootMenuNames[0], 0);
+    AddToMenuBar("ActQuit",mRootMenuNames[0]);
+    AddToMenuBar("ActViewToolbar", mRootMenuNames[1]);
+    AddToMenuBar("ActConfigureToolbar", mRootMenuNames[0], 0);
 
-	//"ActQuit".AddToToolBar();
-	mMenuBar.showAll();
-	mToolbar.showAll();
+    //"ActQuit".AddToToolBar();
+    mMenuBar.showAll();
+    mToolbar.showAll();
 
 }
 
@@ -289,126 +289,126 @@ void RestoreActions()
 {
 
 
-	//ClearToolbar();
-	auto ActionNames = Config.GetArray("toolbar", "actions", ["ActViewToolbar","ActQuit"]);
-	foreach(name; ActionNames) {mToolbar.insert(mActions.getAction(name).createToolItem(),1);}
+    //ClearToolbar();
+    auto ActionNames = Config.GetArray("toolbar", "actions", ["ActViewToolbar","ActQuit"]);
+    foreach(name; ActionNames) {mToolbar.insert(mActions.getAction(name).createToolItem(),1);}
 
-	bool ToolbarVisible = Config.GetValue("ui", "visible_toolbar", true);
-	mToolbar.setVisible(ToolbarVisible);
-	auto tact = cast(ToggleAction)GetAction("ActViewToolbar");
-	tact.setActive(ToolbarVisible);
-	ConfigureToolBar();
+    bool ToolbarVisible = Config.GetValue("ui", "visible_toolbar", true);
+    mToolbar.setVisible(ToolbarVisible);
+    auto tact = cast(ToggleAction)GetAction("ActViewToolbar");
+    tact.setActive(ToolbarVisible);
+    ConfigureToolBar();
 }
 
 void StoreActions()
 {
-	Config.SetValue("ui", "visible_toolbar", mToolbar.getVisible());
+    Config.SetValue("ui", "visible_toolbar", mToolbar.getVisible());
 }
 
 void AddIcon(string name, string icon_file)
 {
-	mIconFactory.add(name, new IconSet(new Pixbuf(icon_file)));
+    mIconFactory.add(name, new IconSet(new Pixbuf(icon_file)));
 }
 
 Action AddAction(string name, string label, string tooltip, string stock_id, string accel, void delegate(Action) dlg)
 {
-		auto NuAction = new Action (name, label, tooltip, stock_id);
-		NuAction.addOnActivate(dlg);
-		NuAction.setAccelGroup(mAccelGroup);
-		if(accel.length == 0) mActions.addAction(NuAction);
-		else mActions.addActionWithAccel(NuAction, accel);
-		return NuAction;
+        auto NuAction = new Action (name, label, tooltip, stock_id);
+        NuAction.addOnActivate(dlg);
+        NuAction.setAccelGroup(mAccelGroup);
+        if(accel.length == 0) mActions.addAction(NuAction);
+        else mActions.addActionWithAccel(NuAction, accel);
+        return NuAction;
 }
 void AddToggleAction(string name, string label, string tooltip, string stock_id, string accel, void delegate(Action) dlg)
 {
-		auto NuAction = new ToggleAction (name, label, tooltip, stock_id);
-		NuAction.addOnActivate(dlg);
-		NuAction.setAccelGroup(mAccelGroup);
-		if(accel.length == 0) mActions.addAction(NuAction);
-		else mActions.addActionWithAccel(NuAction, accel);
+        auto NuAction = new ToggleAction (name, label, tooltip, stock_id);
+        NuAction.addOnActivate(dlg);
+        NuAction.setAccelGroup(mAccelGroup);
+        if(accel.length == 0) mActions.addAction(NuAction);
+        else mActions.addActionWithAccel(NuAction, accel);
 }
 
 
 void AddToMenuBar(string ActionName, string TopMenu, int Position = -1)
 {
-	if(ActionName == "-")
-	{
-		auto sep = new SeparatorMenuItem;
-		sep.show();
-		mRootMenu[TopMenu].append(sep);
-		return;
-	}
-	if(Position == -1)mRootMenu[TopMenu].append(mActions.getAction(ActionName).createMenuItem());
-	else mRootMenu[TopMenu].insert(mActions.getAction(ActionName).createMenuItem(), Position);
+    if(ActionName == "-")
+    {
+        auto sep = new SeparatorMenuItem;
+        sep.show();
+        mRootMenu[TopMenu].append(sep);
+        return;
+    }
+    if(Position == -1)mRootMenu[TopMenu].append(mActions.getAction(ActionName).createMenuItem());
+    else mRootMenu[TopMenu].insert(mActions.getAction(ActionName).createMenuItem(), Position);
 }
 
 Menu AddMenuToMenuBar(string label, string TopMenu)
 {
-	auto t = mRootMenu[TopMenu].appendSubmenu(label);
-	t.showAll();
-	return t;
+    auto t = mRootMenu[TopMenu].appendSubmenu(label);
+    t.showAll();
+    return t;
 }
 void AddItemToMenuBar(MenuItem mi, string TopMenu)
 {
-	mi.show();
-	mRootMenu[TopMenu].append(mi);
+    mi.show();
+    mRootMenu[TopMenu].append(mi);
 }
 
 
 @disable void AddToToolBar(string ActionName, int Position = 0)
 {
-	auto actnames = Config.GetArray!string("toolbar", "actions");
+    auto actnames = Config.GetArray!string("toolbar", "actions");
 
-	if(actnames.canFind(ActionName))return;
+    if(actnames.canFind(ActionName))return;
 
-	if(Position < 1) actnames = ActionName ~ actnames;
-	else if(Position >= actnames.length) actnames ~= ActionName;
-	else actnames = actnames[0..Position] ~ ActionName ~ actnames[Position .. $];
+    if(Position < 1) actnames = ActionName ~ actnames;
+    else if(Position >= actnames.length) actnames ~= ActionName;
+    else actnames = actnames[0..Position] ~ ActionName ~ actnames[Position .. $];
 
-	Config.SetValue("toolbar", "actions", actnames);
+    Config.SetValue("toolbar", "actions", actnames);
 }
 
 @disable void AddItemToToolBar(ToolItem item, int pos = 0)
 {
-	mToolbar.insert(item, pos);
+    mToolbar.insert(item, pos);
 }
 
 
 @disable void RemoveFromToolBar(string ActionName)
 {
-	string[] nunames;
-	auto toolnames = Config.GetArray!string("toolbar","actions");
-	foreach(name; toolnames) if(name != ActionName) nunames ~= name;
-	Config.SetValue("toolbar", "actions", nunames);
-	RestoreActions();
+    string[] nunames;
+    auto toolnames = Config.GetArray!string("toolbar","actions");
+    foreach(name; toolnames) if(name != ActionName) nunames ~= name;
+    Config.SetValue("toolbar", "actions", nunames);
+    RestoreActions();
 }
 
 
 Action GetAction(string name)
 {
-	return mActions.getAction(name);
+    return mActions.getAction(name);
 }
 
 string[] ListActions()
 {
-	string[] rv;
-	auto actnode = mActions.listActions();
-	Action x;
+    string[] rv;
+    auto actnode = mActions.listActions();
+    Action x;
 
-	while(actnode !is null)
-	{
-		x  = new Action(cast(GtkAction*)actnode.data());
-		rv ~= x.getName();
-		actnode = actnode.next();
-	}
-	return rv;
+    while(actnode !is null)
+    {
+        x  = new Action(cast(GtkAction*)actnode.data());
+        rv ~= x.getName();
+        actnode = actnode.next();
+    }
+    return rv;
 }
 
 void AddStatus(string Context, string StatusMessage)
 {
-	if(mStatusbar is null) return;
-	auto tmp = mStatusbar.getContextId(Context);
-	mStatusbar.push(tmp, StatusMessage);
+    if(mStatusbar is null) return;
+    auto tmp = mStatusbar.getContextId(Context);
+    mStatusbar.push(tmp, StatusMessage);
 }
 
 
@@ -419,189 +419,189 @@ void AddStatus(string Context, string StatusMessage)
 
 void EngageSidePane()
 {
-	mPaneH = cast(Paned)mBuilder.getObject("paned2");
-	mSidePane = cast(Notebook)mBuilder.getObject("sidepane");
+    mPaneH = cast(Paned)mBuilder.getObject("paned2");
+    mSidePane = cast(Notebook)mBuilder.getObject("sidepane");
 
-	AddIcon("dcmp_view_side_pane", SystemPath("resources/ui-split-panel-vertical.png"));
-	AddToggleAction("ActViewSidePane","Side Pane","show/hide left side pane","dcmp_view_side_pane","",
-		delegate void (Action x){auto y = cast(ToggleAction)x;mSidePane.setVisible(y.getActive());});
-	"ActViewSidePane".AddToMenuBar("_View");
-	mSidePane.showAll();
+    AddIcon("dcmp_view_side_pane", SystemPath("resources/ui-split-panel-vertical.png"));
+    AddToggleAction("ActViewSidePane","Side Pane","show/hide left side pane","dcmp_view_side_pane","",
+        delegate void (Action x){auto y = cast(ToggleAction)x;mSidePane.setVisible(y.getActive());});
+    "ActViewSidePane".AddToMenuBar("_View");
+    mSidePane.showAll();
 
 }
 
 void AddSidePage(Container page, string tab_text)
 {
-	mSidePane.appendPage(page, tab_text);
-	mSidePane.setTabReorderable(page, 1);
+    mSidePane.appendPage(page, tab_text);
+    mSidePane.setTabReorderable(page, 1);
 
 }
 void RemoveSidePage(Container page)
 {
-	mSidePane.remove(page);
+    mSidePane.remove(page);
 }
 void StoreSidePane()
 {
-	Config.SetValue("ui", "side_pane_position", mPaneH.getPosition());
-	Config.SetValue("ui", "side_pane_visible", mSidePane.getVisible());
-	foreach(int i; 0 .. (mSidePane.getNPages()))
-	{
-		auto pageWidget = mSidePane.getNthPage(i);
-		auto pageTitle = mSidePane.getTabLabelText(pageWidget);
-		if(pageTitle.length > 0) Config.SetValue("ui_side_pane_page_positions", pageTitle, i);
+    Config.SetValue("ui", "side_pane_position", mPaneH.getPosition());
+    Config.SetValue("ui", "side_pane_visible", mSidePane.getVisible());
+    foreach(int i; 0 .. (mSidePane.getNPages()))
+    {
+        auto pageWidget = mSidePane.getNthPage(i);
+        auto pageTitle = mSidePane.getTabLabelText(pageWidget);
+        if(pageTitle.length > 0) Config.SetValue("ui_side_pane_page_positions", pageTitle, i);
 
-	}
+    }
 
 }
 void RestoreSidePane()
 {
-	mPaneH.setPosition(Config.GetValue!int("ui", "side_pane_position", 120));
+    mPaneH.setPosition(Config.GetValue!int("ui", "side_pane_position", 120));
 
-	bool SidePaneVisible = Config.GetValue("ui", "side_pane_visible", true);
-	mSidePane.setVisible(SidePaneVisible);
-	auto tact = cast(ToggleAction)GetAction("ActViewSidePane");
-	tact.setActive(SidePaneVisible);
-	mSidePane.showAll();
+    bool SidePaneVisible = Config.GetValue("ui", "side_pane_visible", true);
+    mSidePane.setVisible(SidePaneVisible);
+    auto tact = cast(ToggleAction)GetAction("ActViewSidePane");
+    tact.setActive(SidePaneVisible);
+    mSidePane.showAll();
 
-	int[Widget] NewPage;
+    int[Widget] NewPage;
 
-	foreach(int i; 0..mSidePane.getNPages())
-	{
-		auto tmpwidget = mSidePane.getNthPage(i);
-		string pageTitle = mSidePane.getTabLabelText(tmpwidget);
-		NewPage[tmpwidget] = Config.GetValue!int("ui_side_pane_page_positions", pageTitle);
-		auto pageWidget = mSidePane.getNthPage(i);
-	}
-	foreach(keywidget, indx; NewPage)
-	{
-		mSidePane.reorderChild(keywidget, indx);
-	}
-	mSidePane.setCurrentPage(0);
+    foreach(int i; 0..mSidePane.getNPages())
+    {
+        auto tmpwidget = mSidePane.getNthPage(i);
+        string pageTitle = mSidePane.getTabLabelText(tmpwidget);
+        NewPage[tmpwidget] = Config.GetValue!int("ui_side_pane_page_positions", pageTitle);
+        auto pageWidget = mSidePane.getNthPage(i);
+    }
+    foreach(keywidget, indx; NewPage)
+    {
+        mSidePane.reorderChild(keywidget, indx);
+    }
+    mSidePane.setCurrentPage(0);
 }
 
 
 void EngageExtraPane()
 {
-	mPaneV = cast(Paned)mBuilder.getObject("paned1");
-	mExtraPane = cast(Notebook)mBuilder.getObject("extrapane");
+    mPaneV = cast(Paned)mBuilder.getObject("paned1");
+    mExtraPane = cast(Notebook)mBuilder.getObject("extrapane");
 
-	AddIcon("dcmp_view_extra_pane", SystemPath("resources/ui-split-panel.png"));
-	AddToggleAction("ActViewExtraPane","Extra Pane","show/hide Extra pane","dcmp_view_extra_pane","",
-		delegate void (Action x){auto y = cast(ToggleAction)x;mExtraPane.setVisible(y.getActive());});
-	"ActViewExtraPane".AddToMenuBar("_View");
-	mExtraPane.setCurrentPage(0);
-	mExtraPane.showAll();
+    AddIcon("dcmp_view_extra_pane", SystemPath("resources/ui-split-panel.png"));
+    AddToggleAction("ActViewExtraPane","Extra Pane","show/hide Extra pane","dcmp_view_extra_pane","",
+        delegate void (Action x){auto y = cast(ToggleAction)x;mExtraPane.getParent.setVisible(y.getActive());});
+    "ActViewExtraPane".AddToMenuBar("_View");
+    mExtraPane.setCurrentPage(0);
+    mExtraPane.showAll();
 }
 void AddExtraPage(Container subject, string tab_text)
 {
-	mExtraPane.appendPage(subject, tab_text);
-	mExtraPane.setTabReorderable(subject, 1);
+    mExtraPane.appendPage(subject, tab_text);
+    mExtraPane.setTabReorderable(subject, 1);
 
 }
 void RemoveExtraPage(Container page)
 {
-	mExtraPane.remove(page);
+    mExtraPane.remove(page);
 }
 void StoreExtraPane()
 {
-	Config.SetValue("ui", "extra_pane_position", mPaneV.getPosition());
-	Config.SetValue("ui", "extra_pane_visible", mExtraPane.getVisible());
+    Config.SetValue("ui", "extra_pane_position", mPaneV.getPosition());
+    Config.SetValue("ui", "extra_pane_visible", mExtraPane.getParent().getVisible());
 
-	foreach(int i; 0 .. (mExtraPane.getNPages()))
-	{
-		auto pageWidget = mExtraPane.getNthPage(i);
-		auto pageTitle = mExtraPane.getTabLabelText(pageWidget);
-		if(pageTitle.length > 0) Config.SetValue("ui_extra_pane_page_positions", pageTitle, i);
+    foreach(int i; 0 .. (mExtraPane.getNPages()))
+    {
+        auto pageWidget = mExtraPane.getNthPage(i);
+        auto pageTitle = mExtraPane.getTabLabelText(pageWidget);
+        if(pageTitle.length > 0) Config.SetValue("ui_extra_pane_page_positions", pageTitle, i);
 
-	}
+    }
 
 }
 void RestoreExtraPane()
 {
-	mPaneV.setPosition(Config.GetValue!int("ui", "extra_pane_position", 120));
+    mPaneV.setPosition(Config.GetValue!int("ui", "extra_pane_position", 120));
 
-	bool ExtraPaneVisible = Config.GetValue("ui", "extra_pane_visible", true);
-	mExtraPane.setVisible(ExtraPaneVisible);
-	auto tact = cast(ToggleAction)GetAction("ActViewExtraPane");
-	tact.setActive(ExtraPaneVisible);
+    bool ExtraPaneVisible = Config.GetValue("ui", "extra_pane_visible", true);
+    mExtraPane.getParent().setVisible(ExtraPaneVisible);
+    auto tact = cast(ToggleAction)GetAction("ActViewExtraPane");
+    tact.setActive(ExtraPaneVisible);
 
-	int[Widget] NewPage;
+    int[Widget] NewPage;
 
-	foreach(int i; 0..mExtraPane.getNPages())
-	{
-		auto tmpwidget = mExtraPane.getNthPage(i);
-		string pageTitle = mExtraPane.getTabLabelText(tmpwidget);
-		NewPage[tmpwidget] = Config.GetValue!int("ui_extra_pane_page_positions", pageTitle);
-		auto pageWidget = mExtraPane.getNthPage(i);
-	}
-	foreach(keywidget, indx; NewPage)
-	{
-		mExtraPane.reorderChild(keywidget, indx);
-	}
-	mExtraPane.setCurrentPage(0);
+    foreach(int i; 0..mExtraPane.getNPages())
+    {
+        auto tmpwidget = mExtraPane.getNthPage(i);
+        string pageTitle = mExtraPane.getTabLabelText(tmpwidget);
+        NewPage[tmpwidget] = Config.GetValue!int("ui_extra_pane_page_positions", pageTitle);
+        auto pageWidget = mExtraPane.getNthPage(i);
+    }
+    foreach(keywidget, indx; NewPage)
+    {
+        mExtraPane.reorderChild(keywidget, indx);
+    }
+    mExtraPane.setCurrentPage(0);
 }
 
 
 //this really needs a button parameter or its useless!
 void ShowMessage(string Title, string Message)
 {
-	auto x = new MessageDialog(MainWindow, DialogFlags.MODAL, MessageType.OTHER, ButtonsType.NONE, "");
-	x.addButtons(["DONE"],[ResponseType.OK]);
-	x.setTitle(Title);
-	x.setMarkup(Message);
-	x.run();
-	x.hide();
-	x.destroy();
+    auto x = new MessageDialog(MainWindow, DialogFlags.MODAL, MessageType.OTHER, ButtonsType.NONE, "");
+    x.addButtons(["DONE"],[ResponseType.OK]);
+    x.setTitle(Title);
+    x.setMarkup(Message);
+    x.run();
+    x.hide();
+    x.destroy();
 }
 
 int ShowMessage(string Title, string Message, string[] Buttons ...)
 {
-	auto dialog = new MessageDialog(MainWindow, DialogFlags.MODAL, MessageType.OTHER, ButtonsType.NONE, "");
-	dialog.setTitle(Title);
-	dialog.setMarkup(Message);
-	foreach(int indx, string btn;Buttons)
-	{
-		dialog.addButton(btn, indx);
-	}
+    auto dialog = new MessageDialog(MainWindow, DialogFlags.MODAL, MessageType.OTHER, ButtonsType.NONE, "");
+    dialog.setTitle(Title);
+    dialog.setMarkup(Message);
+    foreach(int indx, string btn;Buttons)
+    {
+        dialog.addButton(btn, indx);
+    }
 
-	auto response = dialog.run();
-	dialog.destroy();
-	return response;
+    auto response = dialog.run();
+    dialog.destroy();
+    return response;
 }
 
 
 void Quit()
 {
-	auto ModdedDocs = DocMan.Modified();
-	if(ModdedDocs) with (ResponseType)
-	{
-		//confirm quit or return
-		auto ConfQuit = new MessageDialog(MainWindow, DialogFlags.MODAL, MessageType.QUESTION, ButtonsType.NONE, false, "");
-		ConfQuit.setTitle("Quit DComposer?");
-		ConfQuit.setMarkup("Do you really wish to quit with " ~ to!string(ModdedDocs) ~ " modified documents?");
-		ConfQuit.addButtons(["Save all & quit", "Discard all & quit", "Pick & choose", "Oops, don't quit!!"], [YES, NO,OK,CANCEL]);
-		auto response = ConfQuit.run();
-		ConfQuit.destroy();
-		switch (response)
-		{
-			case YES : DocMan.SaveAll();break;
-			case NO  : break;
-			case OK  : DocMan.CloseAll();
-			           if(!DocMan.Empty)return;
-			           break;
-			default  : return;
-		}
+    auto ModdedDocs = DocMan.Modified();
+    if(ModdedDocs) with (ResponseType)
+    {
+        //confirm quit or return
+        auto ConfQuit = new MessageDialog(MainWindow, DialogFlags.MODAL, MessageType.QUESTION, ButtonsType.NONE, false, "");
+        ConfQuit.setTitle("Quit DComposer?");
+        ConfQuit.setMarkup("Do you really wish to quit with " ~ to!string(ModdedDocs) ~ " modified documents?");
+        ConfQuit.addButtons(["Save all & quit", "Discard all & quit", "Pick & choose", "Oops, don't quit!!"], [YES, NO,OK,CANCEL]);
+        auto response = ConfQuit.run();
+        ConfQuit.destroy();
+        switch (response)
+        {
+            case YES : DocMan.SaveAll();break;
+            case NO  : break;
+            case OK  : DocMan.CloseAll();
+                       if(!DocMan.Empty)return;
+                       break;
+            default  : return;
+        }
 
-	}
+    }
 
-	//mWindow.hide();
-	Main.quit();
+    //mWindow.hide();
+    Main.quit();
 }
 
 
 void SetProjectTitle(string nuTitle)
 {
-	mProjectTitle.setText("Project: "~nuTitle);
+    mProjectTitle.setText("Project: "~nuTitle);
 }
 
 //======================================================================================================================
@@ -622,180 +622,180 @@ import gobject.Value;
 
 void ConfigureToolBar()
 {
-	auto tbBuilder = new Builder;
-	tbBuilder.addFromFile(Config.GetValue("toolbar", "toolbar_glade", SystemPath("glade/ui_toolbar.glade")));
-	auto tbWin = cast(Dialog)tbBuilder.getObject("dialog1");
-	auto tbAvailIcons = cast(IconView)tbBuilder.getObject("iconview1");
-	auto tbAvailList = cast(ListStore)tbBuilder.getObject("liststore1");
+    auto tbBuilder = new Builder;
+    tbBuilder.addFromFile(Config.GetValue("toolbar", "toolbar_glade", SystemPath("glade/ui_toolbar.glade")));
+    auto tbWin = cast(Dialog)tbBuilder.getObject("dialog1");
+    auto tbAvailIcons = cast(IconView)tbBuilder.getObject("iconview1");
+    auto tbAvailList = cast(ListStore)tbBuilder.getObject("liststore1");
 
-	auto ti = new TreeIter;
+    auto ti = new TreeIter;
 
-	//first add separator icon which is not an action
-	tbAvailList.append(ti);
-	tbAvailList.setValue(ti, 0, "Separator");
-	tbAvailList.setValue(ti, 1, "Separator");
-	tbAvailList.setValue(ti, 2, "Separator");
-	tbAvailList.setValue(ti, 3, "dcmp-toolbar-separator");
-
-
-
-	foreach(actid; ListActions())
-	{
-		auto workingAction = GetAction(actid);
-
-		Value StockIdValue = new Value;
-		StockIdValue.init(GType.STRING);
-
-		string thelabel;
-		foreach(ch; workingAction.getLabel())if(ch != '_')thelabel ~= ch;
-		workingAction.getProperty("stock-id", StockIdValue);
-		tbAvailList.append(ti);
-		tbAvailList.setValue(ti, 0, workingAction.getName());
-		tbAvailList.setValue(ti, 1, thelabel);
-		tbAvailList.setValue(ti, 2, workingAction.getTooltip());
-		tbAvailList.setValue(ti, 3, StockIdValue.getString());
-	}
-
-	tbAvailList. setSortColumnId (1, SortType.ASCENDING);
+    //first add separator icon which is not an action
+    tbAvailList.append(ti);
+    tbAvailList.setValue(ti, 0, "Separator");
+    tbAvailList.setValue(ti, 1, "Separator");
+    tbAvailList.setValue(ti, 2, "Separator");
+    tbAvailList.setValue(ti, 3, "dcmp-toolbar-separator");
 
 
-	//ok available toolbar actions are loaded
-	//now lets get the current toolbar actions
-	auto tbCurrentIcons = cast(IconView)tbBuilder.getObject("iconview2");
-	auto tbCurrentList = cast(ListStore)tbBuilder.getObject("liststore2");
 
-	string[] currentToolbarActions = Config.GetArray!(string)("toolbar", "configured_actions", ["ActQuit"]);
+    foreach(actid; ListActions())
+    {
+        auto workingAction = GetAction(actid);
 
-	foreach(toolaction; currentToolbarActions)
-	{
-		auto iter = new TreeIter;
-		tbCurrentList.append(iter);
+        Value StockIdValue = new Value;
+        StockIdValue.init(GType.STRING);
 
-		if(toolaction == "Separator")
-		{
-			tbCurrentList.setValue(iter, 0, "Separator");
-			tbCurrentList.setValue(iter, 1, "Separator");
-			tbCurrentList.setValue(iter, 2, "Separator");
-			tbCurrentList.setValue(iter, 3, "dcmp-toolbar-separator");
-		}
-		else
-		{
+        string thelabel;
+        foreach(ch; workingAction.getLabel())if(ch != '_')thelabel ~= ch;
+        workingAction.getProperty("stock-id", StockIdValue);
+        tbAvailList.append(ti);
+        tbAvailList.setValue(ti, 0, workingAction.getName());
+        tbAvailList.setValue(ti, 1, thelabel);
+        tbAvailList.setValue(ti, 2, workingAction.getTooltip());
+        tbAvailList.setValue(ti, 3, StockIdValue.getString());
+    }
 
-			auto workingAction = GetAction(toolaction);
-
-			Value StockIdValue = new Value;
-			StockIdValue.init(GType.STRING);
-
-			string thelabel;
-			foreach(ch; workingAction.getLabel())if(ch != '_')thelabel ~= ch;
-			workingAction.getProperty("stock-id", StockIdValue);
-			tbCurrentList.setValue(iter, 0, workingAction.getName());
-			tbCurrentList.setValue(iter, 1, thelabel);
-			tbCurrentList.setValue(iter, 2, workingAction.getTooltip());
-			tbCurrentList.setValue(iter, 3, StockIdValue.getString());
-		}
-	}
-
-	//manipulate everything
-
-	void AddToolbarAction(TreePath tp, IconView availView)
-	{
-
-		//get the source  iter to add from
-		auto srcTi = new TreeIter;
-		tbAvailList.getIter(srcTi, tp);
-
-		//get the dest iter to add to
-		auto destTi = new TreeIter;
-		tbCurrentList.append(destTi);
-
-		tbCurrentList.setValue(destTi, 0, tbAvailList.getValueString(srcTi, 0));
-		tbCurrentList.setValue(destTi, 1, tbAvailList.getValueString(srcTi, 1));
-		tbCurrentList.setValue(destTi, 2, tbAvailList.getValueString(srcTi, 2));
-		tbCurrentList.setValue(destTi, 3, tbAvailList.getValueString(srcTi, 3));
-	}
-	void RemoveToolbarAction(TreePath tp, IconView currIcons)
-	{
-		auto deleteIter = new TreeIter;
-		tbCurrentList.getIter(deleteIter, tp);
-
-		tbCurrentList.remove(deleteIter);
-	}
-
-	tbAvailIcons.addOnItemActivated (&AddToolbarAction);//void delegate(TreePath, IconView)
-	tbCurrentIcons.addOnItemActivated (&RemoveToolbarAction);//void delegate(TreePath, IconView)
+    tbAvailList. setSortColumnId (1, SortType.ASCENDING);
 
 
-	//show it modal baby
-	auto x = tbWin.run();
-	tbWin.destroy;
-	if(x < 0) //canceled so just bail?
-	{
-		return;
-	}
+    //ok available toolbar actions are loaded
+    //now lets get the current toolbar actions
+    auto tbCurrentIcons = cast(IconView)tbBuilder.getObject("iconview2");
+    auto tbCurrentList = cast(ListStore)tbBuilder.getObject("liststore2");
 
-	//now save actions!!
-	string[] ActsToSave;
-	auto treeiter = new TreeIter;
-	int iterValid = tbCurrentList.getIterFirst(treeiter);
-	while(iterValid)
-	{
-		ActsToSave ~= tbCurrentList.getValueString(treeiter, 0);
-		iterValid = tbCurrentList.iterNext(treeiter);
-	}
+    string[] currentToolbarActions = Config.GetArray!(string)("toolbar", "configured_actions", ["ActQuit"]);
 
-	Config.SetArray("toolbar", "configured_actions", ActsToSave);
-	Config.Save();
-	RestoreToolbar();
+    foreach(toolaction; currentToolbarActions)
+    {
+        auto iter = new TreeIter;
+        tbCurrentList.append(iter);
+
+        if(toolaction == "Separator")
+        {
+            tbCurrentList.setValue(iter, 0, "Separator");
+            tbCurrentList.setValue(iter, 1, "Separator");
+            tbCurrentList.setValue(iter, 2, "Separator");
+            tbCurrentList.setValue(iter, 3, "dcmp-toolbar-separator");
+        }
+        else
+        {
+
+            auto workingAction = GetAction(toolaction);
+
+            Value StockIdValue = new Value;
+            StockIdValue.init(GType.STRING);
+
+            string thelabel;
+            foreach(ch; workingAction.getLabel())if(ch != '_')thelabel ~= ch;
+            workingAction.getProperty("stock-id", StockIdValue);
+            tbCurrentList.setValue(iter, 0, workingAction.getName());
+            tbCurrentList.setValue(iter, 1, thelabel);
+            tbCurrentList.setValue(iter, 2, workingAction.getTooltip());
+            tbCurrentList.setValue(iter, 3, StockIdValue.getString());
+        }
+    }
+
+    //manipulate everything
+
+    void AddToolbarAction(TreePath tp, IconView availView)
+    {
+
+        //get the source  iter to add from
+        auto srcTi = new TreeIter;
+        tbAvailList.getIter(srcTi, tp);
+
+        //get the dest iter to add to
+        auto destTi = new TreeIter;
+        tbCurrentList.append(destTi);
+
+        tbCurrentList.setValue(destTi, 0, tbAvailList.getValueString(srcTi, 0));
+        tbCurrentList.setValue(destTi, 1, tbAvailList.getValueString(srcTi, 1));
+        tbCurrentList.setValue(destTi, 2, tbAvailList.getValueString(srcTi, 2));
+        tbCurrentList.setValue(destTi, 3, tbAvailList.getValueString(srcTi, 3));
+    }
+    void RemoveToolbarAction(TreePath tp, IconView currIcons)
+    {
+        auto deleteIter = new TreeIter;
+        tbCurrentList.getIter(deleteIter, tp);
+
+        tbCurrentList.remove(deleteIter);
+    }
+
+    tbAvailIcons.addOnItemActivated (&AddToolbarAction);//void delegate(TreePath, IconView)
+    tbCurrentIcons.addOnItemActivated (&RemoveToolbarAction);//void delegate(TreePath, IconView)
+
+
+    //show it modal baby
+    auto x = tbWin.run();
+    tbWin.destroy;
+    if(x < 0) //canceled so just bail?
+    {
+        return;
+    }
+
+    //now save actions!!
+    string[] ActsToSave;
+    auto treeiter = new TreeIter;
+    int iterValid = tbCurrentList.getIterFirst(treeiter);
+    while(iterValid)
+    {
+        ActsToSave ~= tbCurrentList.getValueString(treeiter, 0);
+        iterValid = tbCurrentList.iterNext(treeiter);
+    }
+
+    Config.SetArray("toolbar", "configured_actions", ActsToSave);
+    Config.Save();
+    RestoreToolbar();
 }
 
 
 void RestoreToolbar()
 {
-	ClearToolbar();
-	foreach(string toolaction; Config.GetArray!string("toolbar", "configured_actions"))
-	{
-		if(toolaction == "Separator")
-		{
-			auto sep = new SeparatorToolItem();
-			//sep.setDraw(1);
-			sep.showAll();
-			mToolbar.insert(sep);
-		}
-		else mToolbar.insert(GetAction(toolaction).createToolItem());
-	}
-	bool ToolbarVisible = Config.GetValue("ui", "visible_toolbar", true);
-	mToolbar.setVisible(ToolbarVisible);
+    ClearToolbar();
+    foreach(string toolaction; Config.GetArray!string("toolbar", "configured_actions"))
+    {
+        if(toolaction == "Separator")
+        {
+            auto sep = new SeparatorToolItem();
+            //sep.setDraw(1);
+            sep.showAll();
+            mToolbar.insert(sep);
+        }
+        else mToolbar.insert(GetAction(toolaction).createToolItem());
+    }
+    bool ToolbarVisible = Config.GetValue("ui", "visible_toolbar", true);
+    mToolbar.setVisible(ToolbarVisible);
 
-	Action actnott = GetAction("ActViewToolbar");
-	actnott.setProperty("active", ToolbarVisible);
+    Action actnott = GetAction("ActViewToolbar");
+    actnott.setProperty("active", ToolbarVisible);
 
 }
 
 void ClearToolbar()
 {
-	extern (C) void cback(GtkWidget * gtkWidget, void * somedata)
-	{
-		auto oldthingy = new Widget(gtkWidget);
-		mToolbar.remove(oldthingy);
-	}
-	mToolbar.foreac(&cback, cast(void *)null);
+    extern (C) void cback(GtkWidget * gtkWidget, void * somedata)
+    {
+        auto oldthingy = new Widget(gtkWidget);
+        mToolbar.remove(oldthingy);
+    }
+    mToolbar.foreac(&cback, cast(void *)null);
 }
 
 void SetBusyCursor(bool value)
 {
-	if(!MainWindow.isVisible())return;
-	if(value is false)
-	{
-		MainWindow.getWindow().setCursor(null);
-		Display.getDefault.flush();
-	}
-	else
-	{
-		auto busyMouse = new Cursor(GdkCursorType.WATCH);
-		MainWindow.getWindow().setCursor(busyMouse);
-		Display.getDefault.flush();
-		busyMouse.unref();
-	}
+    if(!MainWindow.isVisible())return;
+    if(value is false)
+    {
+        MainWindow.getWindow().setCursor(null);
+        Display.getDefault.flush();
+    }
+    else
+    {
+        auto busyMouse = new Cursor(GdkCursorType.WATCH);
+        MainWindow.getWindow().setCursor(busyMouse);
+        Display.getDefault.flush();
+        busyMouse.unref();
+    }
 }
 
