@@ -92,6 +92,7 @@ class LOG
         f.writeln(BUILD_MACHINE);
         f.writeln(BUILD_NUMBER) ;
 
+        Entry("\tLog file set to : " ~ mLogFile);
         Entry("Engaged");
     }
     void PostEngage()

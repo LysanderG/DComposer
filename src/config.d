@@ -97,7 +97,7 @@ private:
         executeShell(cpCommand);
 
         FirstRun.emit();
-        Log.Entry("Users first run.");
+        Log.Entry("\tUsers first run.");
     }
 
 
@@ -112,7 +112,7 @@ public:
         //4. create one in mRootResource directory
         //5. create one in  current
 
-        scope(success)Log.Entry("Configuration file set to: " ~ mCfgFile);
+        scope(success)Log.Entry("\tConfiguration file set to: " ~ mCfgFile);
         //1
         if(cmdLineCfgName.length > 0)
         {
@@ -220,7 +220,7 @@ public:
             }
         }
         if(mRootResourceDirectory.length == 0) return false;
-        Log.Entry("Resource files found @ " ~ mRootResourceDirectory);
+        Log.Entry("\tResource files found @ " ~ mRootResourceDirectory);
         sysDirectory = mRootResourceDirectory;
         return true;
     }
