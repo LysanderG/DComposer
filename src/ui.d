@@ -421,12 +421,12 @@ void EngageSidePane()
 {
     mPaneH = cast(Paned)mBuilder.getObject("paned2");
     mSidePane = cast(Notebook)mBuilder.getObject("sidepane");
+    mSidePane.showAll();
 
     AddIcon("dcmp_view_side_pane", SystemPath("resources/ui-split-panel-vertical.png"));
     AddToggleAction("ActViewSidePane","Side Pane","show/hide left side pane","dcmp_view_side_pane","",
         delegate void (Action x){auto y = cast(ToggleAction)x;mSidePane.setVisible(y.getActive());});
     "ActViewSidePane".AddToMenuBar("_View");
-    mSidePane.showAll();
 
 }
 
@@ -461,7 +461,6 @@ void RestoreSidePane()
     mSidePane.setVisible(SidePaneVisible);
     auto tact = cast(ToggleAction)GetAction("ActViewSidePane");
     tact.setActive(SidePaneVisible);
-    mSidePane.showAll();
 
     int[Widget] NewPage;
 
