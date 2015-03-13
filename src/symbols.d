@@ -16,29 +16,29 @@
  *  3.  perfect when to (re)build tags keep projects and working documents in sync as much as possible
  *  4.  fix the stupid api so I know what is going on
  *  5.  public calls
- * 		a. DSYMBOL[] Symbols.Find(string symbolname)  //full path (easy) or name or file+line or signature
- * 		b. DSYMBOL[] Symbols.Complete(string partialname) // find anything that starts with partial name
- * 		c. DSYMBOL[] Symbols.CallTip(string symbolname) //look in functions for a whole name -- or path after '('
- * 		d. DSYMBOL[] Symbols.TemplateTips(string templatename) //look in templates for templatename after !
- * 		e. DSYMBOL[] Symbols.UFCSComplete(string paramtype)// how the hell can I do this fast "blahblah ".chomp();
- * 		f. DSYMBOL[] Symbols.Members(string symboltype) // kind of like Complete but after .
+ *      a. DSYMBOL[] Symbols.Find(string symbolname)  //full path (easy) or name or file+line or signature
+ *      b. DSYMBOL[] Symbols.Complete(string partialname) // find anything that starts with partial name
+ *      c. DSYMBOL[] Symbols.CallTip(string symbolname) //look in functions for a whole name -- or path after '('
+ *      d. DSYMBOL[] Symbols.TemplateTips(string templatename) //look in templates for templatename after !
+ *      e. DSYMBOL[] Symbols.UFCSComplete(string paramtype)// how the hell can I do this fast "blahblah ".chomp();
+ *      f. DSYMBOL[] Symbols.Members(string symboltype) // kind of like Complete but after .
  *
  *  Thu Apr 10 00:12:15 EDT 2014
- *  serious issues in this module 
+ *  serious issues in this module
  *  1. loadDtagsfile always returns null but directly adds all modules to mModules
- *	2. calling it supposed to return a dsymbol that is then added to our mModules list
+ *  2. calling it supposed to return a dsymbol that is then added to our mModules list
  *  3. should be
-		loadjsonfile
-		loaddtagsfile
-		add the return value of either to mModules
-		remove tag ??
-		
-		DSYMOBL[] ExactSymbol(symbolName); //array for overloads but must be the fully qualified name (not const/pure ... but a.b.c)
-		DSYMBOL[] Symbol(symbolName); //not a completion but simple name of symbol (ie writeln vs std.stdio.File.writeln)
-		DSYMBOL[] Completions(partialName); //any symbol that completes partial name
-		DSYMBOL[] Calltip(symbolName); // any function with symbolName
-		DSYMOBL[] TemplateTip(symbolName); //just like Calltip but fires on ! not ( and returns templates
-		DSYMBOL[] Members(Parent); all children of symbols matching Parent 
+        loadjsonfile
+        loaddtagsfile
+        add the return value of either to mModules
+        remove tag ??
+
+        DSYMOBL[] ExactSymbol(symbolName); //array for overloads but must be the fully qualified name (not const/pure ... but a.b.c)
+        DSYMBOL[] Symbol(symbolName); //not a completion but simple name of symbol (ie writeln vs std.stdio.File.writeln)
+        DSYMBOL[] Completions(partialName); //any symbol that completes partial name
+        DSYMBOL[] Calltip(symbolName); // any function with symbolName
+        DSYMOBL[] TemplateTip(symbolName); //just like Calltip but fires on ! not ( and returns templates
+        DSYMBOL[] Members(Parent); all children of symbols matching Parent
  *
  */
 
@@ -61,425 +61,425 @@ import std.signals;
 
 enum SYMBOL_KIND
 {
-	ERROR,
-	ALIAS,
-	CLASS,
-	CONSTRUCTOR,
-	DESTRUCTOR,
-	ENUM,
-	ENUM_MEMBER,
-	FUNCTION,
-	IMPORT,
-	INTERFACE,
-	MIXIN,
-	MODULE,
-	PACKAGE,
-	STATIC_IMPORT,
-	STRUCT,
-	TEMPLATE,
-	THIS,
-	TUPLE,
-	TYPE,
-	UNION,
-	VALUE,
-	VARIABLE
+    ERROR,
+    ALIAS,
+    CLASS,
+    CONSTRUCTOR,
+    DESTRUCTOR,
+    ENUM,
+    ENUM_MEMBER,
+    FUNCTION,
+    IMPORT,
+    INTERFACE,
+    MIXIN,
+    MODULE,
+    PACKAGE,
+    STATIC_IMPORT,
+    STRUCT,
+    TEMPLATE,
+    THIS,
+    TUPLE,
+    TYPE,
+    UNION,
+    VALUE,
+    VARIABLE
 }
 
 class DSYMBOL
 {
-	string			Name;			///Symbols name
-	string			Path;			///Full scope/path of symbol id (std.stdio.File.open, std.file.readText, etc)
-	string[]		Scope;			///path as an array of strings (["std", "stdio", "File", "open"] ; [ "std", "file", "readText"])
+    string          Name;           ///Symbols name
+    string          Path;           ///Full scope/path of symbol id (std.stdio.File.open, std.file.readText, etc)
+    string[]        Scope;          ///path as an array of strings (["std", "stdio", "File", "open"] ; [ "std", "file", "readText"])
 
-	SYMBOL_KIND		Kind;			///what kind of symbol
-	//string		FullType;		///fully QUALIFIED type of the symbol
-	string			Type;			///the UNQUALIFIED type of the symbol (drops trusted, safe, const, etc ... not sure about [] yet)
-	string			Signature;		///actual signature as at declaration
-	string			Protection;		///private package protected public export
+    SYMBOL_KIND     Kind;           ///what kind of symbol
+    //string        FullType;       ///fully QUALIFIED type of the symbol
+    string          Type;           ///the UNQUALIFIED type of the symbol (drops trusted, safe, const, etc ... not sure about [] yet)
+    string          Signature;      ///actual signature as at declaration
+    string          Protection;     ///private package protected public export
 
-	string			Comment;		///actual comments from source (if ditto, will be the 'dittoed' comment)
+    string          Comment;        ///actual comments from source (if ditto, will be the 'dittoed' comment)
 
-	string			File;
-	int				Line;
+    string          File;
+    int             Line;
 
-	string			Base;
-	string[]		Interfaces;
-	DSYMBOL[]		Children;
-	string			Icon;
+    string          Base;
+    string[]        Interfaces;
+    DSYMBOL[]       Children;
+    string          Icon;
 }
 
 class SYMBOLS
 {
-	private :
+    private :
 
-	DSYMBOL[string]	mModules;
+    DSYMBOL[string] mModules;
 
-	bool			mAutoLoadPackages;
-	bool			mAutoLoadProject;
+    bool            mAutoLoadPackages;
+    bool            mAutoLoadProject;
 
-	SysTime			mLastLoadTime;
+    SysTime         mLastLoadTime;
 
-	void AutoLoadPackages()
-	{
-		mLastLoadTime  = Clock.currTime();
-		auto PackageKeys = Config.GetKeys("symbol_libs");
-		string jsontext;
+    void AutoLoadPackages()
+    {
+        mLastLoadTime  = Clock.currTime();
+        auto PackageKeys = Config.GetKeys("symbol_libs");
+        string jsontext;
 
-		foreach(jfile; PackageKeys)
-		{
-			auto dtagfile = ConfigPath(Config.GetValue("symbol_libs", jfile, ""));
-			auto NewSymbols = LoadDTagsFile(dtagfile);
-			if(NewSymbols !is null) mModules[jfile] = NewSymbols;
-		}
+        foreach(jfile; PackageKeys)
+        {
+            auto dtagfile = SystemPath(Config.GetValue("symbol_libs", jfile, ""));
+            auto NewSymbols = LoadDTagsFile(dtagfile);
+            if(NewSymbols !is null) mModules[jfile] = NewSymbols;
+        }
 
-	}
-
-
-	@system void BuildSymbol(DSYMBOL CurrSym, JSON SymData)
-	{
-		scope(failure)
-		{
-			Log.Entry("Error loading symbol tag information " ~ CurrSym.Name);
-			CurrSym.Icon = `<span foreground="red">!</span>`;
-			return;
-		}
-
-		void SetType()
-		{
-			int xtra;
-			CurrSym.Type = "";
-			if("deco" in SymData.object)
-			{
-				CurrSym.Type = GetTypeFromDeco(cast(string)SymData.object["deco"], xtra);
-				return;
-			}
-			if("baseDeco" in SymData.object)
-			{
-				CurrSym.Type = GetTypeFromDeco(cast(string)SymData.object["baseDeco"], xtra);
-				return;
-			}
-			if("type" in SymData.object)
-			{
-				auto type = cast(string)SymData.object["type"];
-				xtra = cast(int)type.length;
-				int depth;
-				do
-				{
-					xtra--;
-					if(type[xtra] == ')') depth++;
-					if(type[xtra] == '(') depth--;
-				}while((depth > 0) && (xtra > 0));
-
-				//xtra = cast(int)SymData.object["type"].str.lastIndexOf('(');
-				if(xtra < 1)CurrSym.Type = "";
-
-				else
-				{
-					string tmp1 = cast(string)SymData.object["type"];
-					CurrSym.Type = tmp1[0..xtra];
-				}
-				return;
-			}
-
-		}
-
-		void SetKind()
-		{
-			switch (cast(string)SymData.object["kind"]) with(SYMBOL_KIND)
-			{
-				case "alias"		:CurrSym.Kind= ALIAS		;break;
-				case "class"		:CurrSym.Kind= CLASS		;break;
-				case "constructor"	:CurrSym.Kind= CONSTRUCTOR	;break;
-				case "destructor"	:CurrSym.Kind= DESTRUCTOR	;break;
-				case "enum"			:CurrSym.Kind= ENUM			;break;
-				case "enum member"	:CurrSym.Kind= ENUM_MEMBER	;break;
-				case "function"		:CurrSym.Kind= FUNCTION		;break;
-				case "import" 	    :CurrSym.Kind= IMPORT   	;break;
-				case "interface"	:CurrSym.Kind= INTERFACE	;break;
-				case "module"		:CurrSym.Kind= MODULE		;break;
-				case "mixin"	    :CurrSym.Kind= MIXIN    	;break;
-				case "package"		:CurrSym.Kind= PACKAGE		;break;
-				case "static import":CurrSym.Kind= STATIC_IMPORT;break;
-				case "struct"		:CurrSym.Kind= STRUCT		;break;
-				case "template"		:CurrSym.Kind= TEMPLATE		;break;
-				case "tuple"    	:CurrSym.Kind= TUPLE    	;break;
-				case "type"     	:CurrSym.Kind= TYPE     	;break;
-				case "union"		:CurrSym.Kind= UNION		;break;
-				case "value"    	:CurrSym.Kind= VALUE    	;break;
-				case "variable"		:CurrSym.Kind= VARIABLE		;break;
-
-				default :
-				{	CurrSym.Kind = ERROR;
-					Log.Entry(`Unrecognized symbol kind "` ~ cast(string)SymData.object["kind"],`" Error`);
-				}
-			}
-		}
+    }
 
 
-		void SetSignature()
-		{
-			int unneeded;
-			CurrSym.Signature = "";
-			switch(CurrSym.Kind) with (SYMBOL_KIND)
-			{
-				case ALIAS :
-				{
-					CurrSym.Signature ~= "alias ";
-					if("storageClass" in SymData.object)
-					{
-						foreach(strclass; SymData.object["storageClass"].array) CurrSym.Signature ~= cast(string)strclass ~ " ";
-					}
-					CurrSym.Signature ~= CurrSym.Type ~ " " ~ CurrSym.Name;
-					break;
-				}
+    @system void BuildSymbol(DSYMBOL CurrSym, JSON SymData)
+    {
+        scope(failure)
+        {
+            Log.Entry("Error loading symbol tag information " ~ CurrSym.Name);
+            CurrSym.Icon = `<span foreground="red">!</span>`;
+            return;
+        }
 
-				case CONSTRUCTOR:
-				{
-					if("storageClass" in SymData.object)
-					{
-						foreach(strclass; SymData.object["storageClass"].array) CurrSym.Signature ~= cast(string)strclass ~ " ";
-					}
-					CurrSym.Signature ~= CurrSym.Type ~ "(";
-					if("parameters" in SymData.object)
-					{
-						foreach(i, param; SymData.object["parameters"].array)
-						{
-							if(i > 0) CurrSym.Signature ~= ", ";
-							if("deco" in param.object)
-							{
-								CurrSym.Signature ~= GetTypeFromDeco(cast(string)param.object["deco"], unneeded);
-							}
-							else if("type" in param.object)
-							{
-								CurrSym.Signature ~= cast(string)param.object["type"]; //template member funtion
-							}
-							if("name" in param.object)
-							{
-								CurrSym.Signature ~= " " ~ cast(string)param.object["name"];
-							}
-							if("defaultValue" in param.object)
-							{
-								CurrSym.Signature ~=  "=" ~ cast(string)param.object["defaultValue"];
-								continue;
-							}
-							if("defaultAlias" in param.object)
-							{
-								CurrSym.Signature ~=  "=" ~ cast(string)param.object["defaultAlias"];
-								continue;
-							}
-							if("default" in param.object)CurrSym.Signature ~=  "=" ~ cast(string)param.object["default"];
-						}
-					}
-					CurrSym.Signature ~= ")";
-					break;
-				}
-				case FUNCTION :
-				{
-					if("storageClass" in SymData.object)
-					{
-						foreach(strclass; SymData.object["storageClass"].array) CurrSym.Signature ~= cast(string)strclass ~ " ";
-					}
-					CurrSym.Signature ~= CurrSym.Type ~ " " ~ CurrSym.Name ~ "(";
-					if("parameters" in SymData.object)
-					{
-						foreach(i, param; SymData.object["parameters"].array)
-						{
-							if(i > 0) CurrSym.Signature ~= ", ";
-							if("type" in param.object)CurrSym.Signature ~= cast(string)param.object["type"]; //template member funtion
-							else if("deco" in param.object)CurrSym.Signature ~= GetTypeFromDeco(cast(string)param.object["deco"], unneeded);
-							if("name" in param.object)CurrSym.Signature ~= " " ~ cast(string)param.object["name"];
-							if("default" in param.object)
-							{
-								CurrSym.Signature ~=  "=" ~ cast(string)param.object["default"];
-								continue;
-							}
-							if("defaultValue" in param.object)
-							{
-								CurrSym.Signature ~=  "=" ~ cast(string)param.object["defaultValue"];
-								continue;
-							}
-							if("defaultAlias" in param.object) CurrSym.Signature ~=  "=" ~ cast(string)param.object["defaultAlias"];
-						}
-					}
-					CurrSym.Signature ~= ")";
+        void SetType()
+        {
+            int xtra;
+            CurrSym.Type = "";
+            if("deco" in SymData.object)
+            {
+                CurrSym.Type = GetTypeFromDeco(cast(string)SymData.object["deco"], xtra);
+                return;
+            }
+            if("baseDeco" in SymData.object)
+            {
+                CurrSym.Type = GetTypeFromDeco(cast(string)SymData.object["baseDeco"], xtra);
+                return;
+            }
+            if("type" in SymData.object)
+            {
+                auto type = cast(string)SymData.object["type"];
+                xtra = cast(int)type.length;
+                int depth;
+                do
+                {
+                    xtra--;
+                    if(type[xtra] == ')') depth++;
+                    if(type[xtra] == '(') depth--;
+                }while((depth > 0) && (xtra > 0));
 
-					break;
-				}
-				case VARIABLE :
-				{
-					if("storageClass" in SymData.object)
-					{
-						foreach(strclass; SymData.object["storageClass"].array) CurrSym.Signature ~= cast(string)strclass ~ " ";
-					}
-					CurrSym.Signature = CurrSym.Type ~ " " ~ CurrSym.Name;
-					break;
-				}
+                //xtra = cast(int)SymData.object["type"].str.lastIndexOf('(');
+                if(xtra < 1)CurrSym.Type = "";
 
-				case ENUM :
-				{
-					CurrSym.Signature = "enum " ~ CurrSym.Name;
-					if("baseDeco" in SymData.object) CurrSym.Signature ~= " : " ~ GetTypeFromDeco(cast(string)SymData.object["baseDeco"], unneeded);
-					break;
-				}
-				default: break;
-			}
-		}
+                else
+                {
+                    string tmp1 = cast(string)SymData.object["type"];
+                    CurrSym.Type = tmp1[0..xtra];
+                }
+                return;
+            }
 
-		if(SymData.type == JSON_TYPE.OBJECT)
-		{
-			if("name" !in SymData.object)SymData.object["name"] = "unnamed";
+        }
+
+        void SetKind()
+        {
+            switch (cast(string)SymData.object["kind"]) with(SYMBOL_KIND)
+            {
+                case "alias"        :CurrSym.Kind= ALIAS        ;break;
+                case "class"        :CurrSym.Kind= CLASS        ;break;
+                case "constructor"  :CurrSym.Kind= CONSTRUCTOR  ;break;
+                case "destructor"   :CurrSym.Kind= DESTRUCTOR   ;break;
+                case "enum"         :CurrSym.Kind= ENUM         ;break;
+                case "enum member"  :CurrSym.Kind= ENUM_MEMBER  ;break;
+                case "function"     :CurrSym.Kind= FUNCTION     ;break;
+                case "import"       :CurrSym.Kind= IMPORT       ;break;
+                case "interface"    :CurrSym.Kind= INTERFACE    ;break;
+                case "module"       :CurrSym.Kind= MODULE       ;break;
+                case "mixin"        :CurrSym.Kind= MIXIN        ;break;
+                case "package"      :CurrSym.Kind= PACKAGE      ;break;
+                case "static import":CurrSym.Kind= STATIC_IMPORT;break;
+                case "struct"       :CurrSym.Kind= STRUCT       ;break;
+                case "template"     :CurrSym.Kind= TEMPLATE     ;break;
+                case "tuple"        :CurrSym.Kind= TUPLE        ;break;
+                case "type"         :CurrSym.Kind= TYPE         ;break;
+                case "union"        :CurrSym.Kind= UNION        ;break;
+                case "value"        :CurrSym.Kind= VALUE        ;break;
+                case "variable"     :CurrSym.Kind= VARIABLE     ;break;
+
+                default :
+                {   CurrSym.Kind = ERROR;
+                    Log.Entry(`Unrecognized symbol kind "` ~ cast(string)SymData.object["kind"],`" Error`);
+                }
+            }
+        }
 
 
-			foreach(subname; (cast(string)SymData.object["name"]).splitter('.'))
-			{
-				CurrSym.Scope ~= subname;
-			}
-			CurrSym.Name = CurrSym.Scope[$-1];
+        void SetSignature()
+        {
+            int unneeded;
+            CurrSym.Signature = "";
+            switch(CurrSym.Kind) with (SYMBOL_KIND)
+            {
+                case ALIAS :
+                {
+                    CurrSym.Signature ~= "alias ";
+                    if("storageClass" in SymData.object)
+                    {
+                        foreach(strclass; SymData.object["storageClass"].array) CurrSym.Signature ~= cast(string)strclass ~ " ";
+                    }
+                    CurrSym.Signature ~= CurrSym.Type ~ " " ~ CurrSym.Name;
+                    break;
+                }
 
-			SetKind();
-			SetType();
-			SetSignature();
-			if("protection" in SymData.object)CurrSym.Protection = cast(string)SymData.object["protection"];
-			if("comment" in SymData.object)CurrSym.Comment = cast(string)SymData.object["comment"];
-			if("file" in SymData.object)CurrSym.File = cast(string)SymData.object["file"];
+                case CONSTRUCTOR:
+                {
+                    if("storageClass" in SymData.object)
+                    {
+                        foreach(strclass; SymData.object["storageClass"].array) CurrSym.Signature ~= cast(string)strclass ~ " ";
+                    }
+                    CurrSym.Signature ~= CurrSym.Type ~ "(";
+                    if("parameters" in SymData.object)
+                    {
+                        foreach(i, param; SymData.object["parameters"].array)
+                        {
+                            if(i > 0) CurrSym.Signature ~= ", ";
+                            if("deco" in param.object)
+                            {
+                                CurrSym.Signature ~= GetTypeFromDeco(cast(string)param.object["deco"], unneeded);
+                            }
+                            else if("type" in param.object)
+                            {
+                                CurrSym.Signature ~= cast(string)param.object["type"]; //template member funtion
+                            }
+                            if("name" in param.object)
+                            {
+                                CurrSym.Signature ~= " " ~ cast(string)param.object["name"];
+                            }
+                            if("defaultValue" in param.object)
+                            {
+                                CurrSym.Signature ~=  "=" ~ cast(string)param.object["defaultValue"];
+                                continue;
+                            }
+                            if("defaultAlias" in param.object)
+                            {
+                                CurrSym.Signature ~=  "=" ~ cast(string)param.object["defaultAlias"];
+                                continue;
+                            }
+                            if("default" in param.object)CurrSym.Signature ~=  "=" ~ cast(string)param.object["default"];
+                        }
+                    }
+                    CurrSym.Signature ~= ")";
+                    break;
+                }
+                case FUNCTION :
+                {
+                    if("storageClass" in SymData.object)
+                    {
+                        foreach(strclass; SymData.object["storageClass"].array) CurrSym.Signature ~= cast(string)strclass ~ " ";
+                    }
+                    CurrSym.Signature ~= CurrSym.Type ~ " " ~ CurrSym.Name ~ "(";
+                    if("parameters" in SymData.object)
+                    {
+                        foreach(i, param; SymData.object["parameters"].array)
+                        {
+                            if(i > 0) CurrSym.Signature ~= ", ";
+                            if("type" in param.object)CurrSym.Signature ~= cast(string)param.object["type"]; //template member funtion
+                            else if("deco" in param.object)CurrSym.Signature ~= GetTypeFromDeco(cast(string)param.object["deco"], unneeded);
+                            if("name" in param.object)CurrSym.Signature ~= " " ~ cast(string)param.object["name"];
+                            if("default" in param.object)
+                            {
+                                CurrSym.Signature ~=  "=" ~ cast(string)param.object["default"];
+                                continue;
+                            }
+                            if("defaultValue" in param.object)
+                            {
+                                CurrSym.Signature ~=  "=" ~ cast(string)param.object["defaultValue"];
+                                continue;
+                            }
+                            if("defaultAlias" in param.object) CurrSym.Signature ~=  "=" ~ cast(string)param.object["defaultAlias"];
+                        }
+                    }
+                    CurrSym.Signature ~= ")";
 
-			assert(CurrSym.File != null); // File should be set before entering BuildSymbol(this, ...)
-			if("line" in SymData.object)CurrSym.Line = cast(int)SymData.object["line"];
-			if("base" in SymData.object)CurrSym.Base = cast(string)SymData.object["base"];
+                    break;
+                }
+                case VARIABLE :
+                {
+                    if("storageClass" in SymData.object)
+                    {
+                        foreach(strclass; SymData.object["storageClass"].array) CurrSym.Signature ~= cast(string)strclass ~ " ";
+                    }
+                    CurrSym.Signature = CurrSym.Type ~ " " ~ CurrSym.Name;
+                    break;
+                }
+
+                case ENUM :
+                {
+                    CurrSym.Signature = "enum " ~ CurrSym.Name;
+                    if("baseDeco" in SymData.object) CurrSym.Signature ~= " : " ~ GetTypeFromDeco(cast(string)SymData.object["baseDeco"], unneeded);
+                    break;
+                }
+                default: break;
+            }
+        }
+
+        if(SymData.type == JSON_TYPE.OBJECT)
+        {
+            if("name" !in SymData.object)SymData.object["name"] = "unnamed";
 
 
-			CurrSym.Path = CurrSym.Scope[0];
-			foreach(s; CurrSym.Scope[1..$]) CurrSym.Path ~= '.' ~ s;
-			CurrSym.Icon = GetIcon(CurrSym);
+            foreach(subname; (cast(string)SymData.object["name"]).splitter('.'))
+            {
+                CurrSym.Scope ~= subname;
+            }
+            CurrSym.Name = CurrSym.Scope[$-1];
 
-			if("members" in SymData.object)
-			{
+            SetKind();
+            SetType();
+            SetSignature();
+            if("protection" in SymData.object)CurrSym.Protection = cast(string)SymData.object["protection"];
+            if("comment" in SymData.object)CurrSym.Comment = cast(string)SymData.object["comment"];
+            if("file" in SymData.object)CurrSym.File = cast(string)SymData.object["file"];
 
-				auto apparr = appender!(DSYMBOL[], DSYMBOL)();
-				apparr.reserve(SymData.object["members"].array.length);
-				foreach(obj; SymData.object["members"].array)
-				{
-					if("name" !in obj.object)obj.object["name"] = "unnamed";
-					if((cast(string)obj.object["name"]).startsWith("__unittest"))continue;
-					if((cast(string)obj.object["kind"]).startsWith("import"))continue;
-					auto ChildSym = new DSYMBOL;
-					ChildSym.Path = CurrSym.Path;
-					ChildSym.File = CurrSym.File;
-					ChildSym.Scope = CurrSym.Scope;
-
-					BuildSymbol(ChildSym, obj);
-					if(ChildSym.Kind == SYMBOL_KIND.IMPORT)continue;
-					//CurrSym.Children ~= ChildSym;
-					apparr.put(ChildSym);
-				}
-				CurrSym.Children = apparr.data();
-			}
-			return;
-		}
-
-		if(SymData.type == JSON_TYPE.ARRAY)
-		{
-			DSYMBOL membersym;
-
-			auto apparr = appender!(DSYMBOL[], DSYMBOL)();
-			apparr.reserve(SymData.array.length);
-			foreach(obj; SymData.array)
-			{
-				if("name" !in obj.object)obj.object["name"] = "unnamed";
-				if((cast(string)obj.object["name"]).startsWith("__unittest"))continue;
-				membersym = new DSYMBOL;
-				BuildSymbol(membersym, obj);
-				//CurrSym.Children ~= membersym;
-				apparr.put(membersym);
-			}
-			CurrSym.Children = apparr.data();
-		}
-	}
-
-	DSYMBOL LoadPackage(const string PackageName, const string SymbolJson)
-	{
-		scope(failure)
-		{
-			Log.Entry("LoadPackage : Unable to load Symbol file: " ~ PackageName, "Error");
-			return null;
-		}
-
-		DSYMBOL X = new DSYMBOL;
-
-		X.Name 		= PackageName;
-		X.Path 		= PackageName;
-		X.Scope 	= [PackageName];
-
-		X.Kind		= SYMBOL_KIND.PACKAGE;
-		X.Type		= "package";
-		X.Signature = "package";
-		X.Comment	= "";
-
-		X.File		= "";
-		X.Line		= 0;
-
-		X.Base		= "";
-		X.Children.length = 0;
-		X.Icon		= GetIcon(X);
-
-		BuildSymbol(X, parseJSON(SymbolJson));
-
-		return X;
-	}
+            assert(CurrSym.File != null); // File should be set before entering BuildSymbol(this, ...)
+            if("line" in SymData.object)CurrSym.Line = cast(int)SymData.object["line"];
+            if("base" in SymData.object)CurrSym.Base = cast(string)SymData.object["base"];
 
 
-	public :
+            CurrSym.Path = CurrSym.Scope[0];
+            foreach(s; CurrSym.Scope[1..$]) CurrSym.Path ~= '.' ~ s;
+            CurrSym.Icon = GetIcon(CurrSym);
 
-	void Engage()
-	{
-		mAutoLoadPackages = Config.GetValue("symbols", "auto_load_packages", true);
-		mAutoLoadProject  = Config.GetValue("symbols", "auto_load_project", true);
+            if("members" in SymData.object)
+            {
 
-		if(mAutoLoadPackages)AutoLoadPackages();
+                auto apparr = appender!(DSYMBOL[], DSYMBOL)();
+                apparr.reserve(SymData.object["members"].array.length);
+                foreach(obj; SymData.object["members"].array)
+                {
+                    if("name" !in obj.object)obj.object["name"] = "unnamed";
+                    if((cast(string)obj.object["name"]).startsWith("__unittest"))continue;
+                    if((cast(string)obj.object["kind"]).startsWith("import"))continue;
+                    auto ChildSym = new DSYMBOL;
+                    ChildSym.Path = CurrSym.Path;
+                    ChildSym.File = CurrSym.File;
+                    ChildSym.Scope = CurrSym.Scope;
 
-		string loadedstuff = " [";
-		foreach(index, symkey; mModules.keys)
-		{
-			if(index != 0) loadedstuff ~= ",";
-			loadedstuff ~= `"` ~ symkey ~ `"`;
-		}
-		loadedstuff ~= "]";
+                    BuildSymbol(ChildSym, obj);
+                    if(ChildSym.Kind == SYMBOL_KIND.IMPORT)continue;
+                    //CurrSym.Children ~= ChildSym;
+                    apparr.put(ChildSym);
+                }
+                CurrSym.Children = apparr.data();
+            }
+            return;
+        }
 
-		Log.Entry("Engaged " ~ loadedstuff);
-	}
-	void PostEngage()
-	{
-		Log.Entry("PostEngaged");
-	}
-	void Disengage()
-	{
+        if(SymData.type == JSON_TYPE.ARRAY)
+        {
+            DSYMBOL membersym;
 
-		Log.Entry("Disengaged");
-	}
+            auto apparr = appender!(DSYMBOL[], DSYMBOL)();
+            apparr.reserve(SymData.array.length);
+            foreach(obj; SymData.array)
+            {
+                if("name" !in obj.object)obj.object["name"] = "unnamed";
+                if((cast(string)obj.object["name"]).startsWith("__unittest"))continue;
+                membersym = new DSYMBOL;
+                BuildSymbol(membersym, obj);
+                //CurrSym.Children ~= membersym;
+                apparr.put(membersym);
+            }
+            CurrSym.Children = apparr.data();
+        }
+    }
 
-	mixin Signal!(DSYMBOL[]);
+    DSYMBOL LoadPackage(const string PackageName, const string SymbolJson)
+    {
+        scope(failure)
+        {
+            Log.Entry("LoadPackage : Unable to load Symbol file: " ~ PackageName, "Error");
+            return null;
+        }
+
+        DSYMBOL X = new DSYMBOL;
+
+        X.Name      = PackageName;
+        X.Path      = PackageName;
+        X.Scope     = [PackageName];
+
+        X.Kind      = SYMBOL_KIND.PACKAGE;
+        X.Type      = "package";
+        X.Signature = "package";
+        X.Comment   = "";
+
+        X.File      = "";
+        X.Line      = 0;
+
+        X.Base      = "";
+        X.Children.length = 0;
+        X.Icon      = GetIcon(X);
+
+        BuildSymbol(X, parseJSON(SymbolJson));
+
+        return X;
+    }
+
+
+    public :
+
+    void Engage()
+    {
+        mAutoLoadPackages = Config.GetValue("symbols", "auto_load_packages", true);
+        mAutoLoadProject  = Config.GetValue("symbols", "auto_load_project", true);
+
+        if(mAutoLoadPackages)AutoLoadPackages();
+
+        string loadedstuff = " [";
+        foreach(index, symkey; mModules.keys)
+        {
+            if(index != 0) loadedstuff ~= ",";
+            loadedstuff ~= `"` ~ symkey ~ `"`;
+        }
+        loadedstuff ~= "]";
+
+        Log.Entry("Engaged " ~ loadedstuff);
+    }
+    void PostEngage()
+    {
+        Log.Entry("PostEngaged");
+    }
+    void Disengage()
+    {
+
+        Log.Entry("Disengaged");
+    }
+
+    mixin Signal!(DSYMBOL[]);
 //=====================================================================================================================
 //=====================================================================================================================
-	auto Modules()
-	{
-		return mModules.byValue();
-	}
-	
-	void AddModule(string ModName, DSYMBOL nuSymbol)
-	{
-		if(ModName in mModules) return;
-		mModules[ModName] = nuSymbol;
-		
-		Log.Entry(ModName ~ " added to symbol tables.");
-	}
-	DSYMBOL LoadFile(string FileName)
-	{
-		auto jstring = readText(FileName);
+    auto Modules()
+    {
+        return mModules.byValue();
+    }
 
-		return LoadPackage(FileName.baseName.stripExtension, jstring);
-	}
+    void AddModule(string ModName, DSYMBOL nuSymbol)
+    {
+        if(ModName in mModules) return;
+        mModules[ModName] = nuSymbol;
 
-	DSYMBOL LoadDTagsFile(string FileName)
+        Log.Entry(ModName ~ " added to symbol tables.");
+    }
+    DSYMBOL LoadFile(string FileName)
+    {
+        auto jstring = readText(FileName);
+
+        return LoadPackage(FileName.baseName.stripExtension, jstring);
+    }
+
+    DSYMBOL LoadDTagsFile(string FileName)
     {
         string jtext = readText(FileName);
 
@@ -523,7 +523,7 @@ class SYMBOLS
                 mModules[sym.Name] = sym;
                 emit([mModules[sym.Name]]);
         }
-        
+
         return pkg;
     }
 
@@ -532,117 +532,117 @@ class SYMBOLS
 //=====================================================================================================================
 //=====================================================================================================================
 
-	DSYMBOL[] FindExact(string Candidate)
-	{
-		DSYMBOL[] RV;
-		void CheckKids(DSYMBOL membersym)
-		{
+    DSYMBOL[] FindExact(string Candidate)
+    {
+        DSYMBOL[] RV;
+        void CheckKids(DSYMBOL membersym)
+        {
 
-			if(membersym.Path == Candidate)
-			{
-				RV ~= membersym;
-				//return;
-			}
+            if(membersym.Path == Candidate)
+            {
+                RV ~= membersym;
+                //return;
+            }
 
-			foreach(runt; membersym.Children)
-			{
-				if(runt.Path == Candidate)
-				{
-					RV ~= runt;
-					//return;
-				}
+            foreach(runt; membersym.Children)
+            {
+                if(runt.Path == Candidate)
+                {
+                    RV ~= runt;
+                    //return;
+                }
 
-				CheckKids(runt);
-			}
-		}
-
-
-		foreach(mod; mModules)
-		{
-			if(mod.Path == Candidate) RV ~= mod;
-			foreach(kid; mod.Children)
-			{
-				//if(kid.Path == Candidate)RV ~= kid;
-				CheckKids(kid);
-
-			}
-		}
-		return RV;
-	}
+                CheckKids(runt);
+            }
+        }
 
 
-	DSYMBOL[] GetCompletions(string[] Candidate)
-	{
-		string[] ScopedCandi;
-		if(Candidate.length > 1)ScopedCandi = Candidate[0..$-1];
-		string CandiName = Candidate[$-1];
+        foreach(mod; mModules)
+        {
+            if(mod.Path == Candidate) RV ~= mod;
+            foreach(kid; mod.Children)
+            {
+                //if(kid.Path == Candidate)RV ~= kid;
+                CheckKids(kid);
 
-		DSYMBOL[] rval;
-		DSYMBOL[] pool;
+            }
+        }
+        return RV;
+    }
 
-		void CheckSymbol(DSYMBOL xsym)
-		{
-			foreach(kid; xsym.Children) CheckSymbol(kid);
 
-			if(xsym.Name.startsWith(CandiName)) rval ~= xsym;
-		}
+    DSYMBOL[] GetCompletions(string[] Candidate)
+    {
+        string[] ScopedCandi;
+        if(Candidate.length > 1)ScopedCandi = Candidate[0..$-1];
+        string CandiName = Candidate[$-1];
 
-		if(ScopedCandi.length > 0)pool = GetMembers(ScopedCandi);
-		if(pool.length < 1)pool = mModules.values;
+        DSYMBOL[] rval;
+        DSYMBOL[] pool;
 
-		foreach(sym; pool)CheckSymbol(sym);
-		return rval;
-	}
+        void CheckSymbol(DSYMBOL xsym)
+        {
+            foreach(kid; xsym.Children) CheckSymbol(kid);
 
-	DSYMBOL[] GetMembers(string[] Candidate)
-	{
+            if(xsym.Name.startsWith(CandiName)) rval ~= xsym;
+        }
 
-		DSYMBOL[] rval;
+        if(ScopedCandi.length > 0)pool = GetMembers(ScopedCandi);
+        if(pool.length < 1)pool = mModules.values;
 
-		if(Candidate.length < 1)return rval;
-		void CheckSymbol(DSYMBOL xsym)
-		{
-			//making classname = to module name should be an error!
-			foreach(kid; xsym.Children) CheckSymbol(kid);
+        foreach(sym; pool)CheckSymbol(sym);
+        return rval;
+    }
 
-			if(xsym.Scope.endsWith(Candidate))
-			{
+    DSYMBOL[] GetMembers(string[] Candidate)
+    {
 
-				foreach(kid; xsym.Children)
-				{
-					if(kid.Name != Candidate[$-1]) rval ~= kid;
-				}
-				if(xsym.Base.length > 0)rval ~= GetMembers(ScopeSymbol(xsym.Base));
-				if(xsym.Kind == SYMBOL_KIND.FUNCTION) rval ~= GetMembers(ScopeSymbol(xsym.Type));
-				if(xsym.Kind == SYMBOL_KIND.VARIABLE) rval ~= GetMembers(ScopeSymbol(xsym.Type));
-				return;
-			}
-			if(Candidate[$-1] == xsym.Scope[$-1])
-			{
-				foreach(kid; xsym.Children)
-				{
-					if(kid.Name != Candidate[$-1]) rval ~= kid;
-				}
-				if(xsym.Base.length > 0)rval ~= GetMembers(ScopeSymbol(xsym.Base));
-				rval ~= GetMembers(ScopeSymbol(xsym.Type));
-				return;
-			}
-		}
+        DSYMBOL[] rval;
 
-		foreach(sym; mModules)
-		{
-			CheckSymbol(sym);
-		}
-		return rval;
-	}
+        if(Candidate.length < 1)return rval;
+        void CheckSymbol(DSYMBOL xsym)
+        {
+            //making classname = to module name should be an error!
+            foreach(kid; xsym.Children) CheckSymbol(kid);
+
+            if(xsym.Scope.endsWith(Candidate))
+            {
+
+                foreach(kid; xsym.Children)
+                {
+                    if(kid.Name != Candidate[$-1]) rval ~= kid;
+                }
+                if(xsym.Base.length > 0)rval ~= GetMembers(ScopeSymbol(xsym.Base));
+                if(xsym.Kind == SYMBOL_KIND.FUNCTION) rval ~= GetMembers(ScopeSymbol(xsym.Type));
+                if(xsym.Kind == SYMBOL_KIND.VARIABLE) rval ~= GetMembers(ScopeSymbol(xsym.Type));
+                return;
+            }
+            if(Candidate[$-1] == xsym.Scope[$-1])
+            {
+                foreach(kid; xsym.Children)
+                {
+                    if(kid.Name != Candidate[$-1]) rval ~= kid;
+                }
+                if(xsym.Base.length > 0)rval ~= GetMembers(ScopeSymbol(xsym.Base));
+                rval ~= GetMembers(ScopeSymbol(xsym.Type));
+                return;
+            }
+        }
+
+        foreach(sym; mModules)
+        {
+            CheckSymbol(sym);
+        }
+        return rval;
+    }
 
     DSYMBOL GetModuleFromFileName(string FileName)
     {
 
         foreach(key, pkg; mModules)
         {
-			foreach(mod; pkg.Children) if(mod.File == FileName) return mod;
-		}
+            foreach(mod; pkg.Children) if(mod.File == FileName) return mod;
+        }
         return null;
     }
 
@@ -790,24 +790,24 @@ string GetTypeFromDeco(string deco, ref int mangledlen)
 }
 string[] ScopeSymbol(string preText)
 {
-	import std.string;
-	import std.algorithm;
-	string[] rval;
+    import std.string;
+    import std.algorithm;
+    string[] rval;
 
-	preText = preText.chomp(".");
+    preText = preText.chomp(".");
 
-	long index;
-	foreach(unit; preText.splitter('.'))
-	{
-		index = unit.countUntil('!');
-		if(index >= 0)unit = unit[0..index];
-		index = unit.countUntil('(');
-		if(index >= 0) unit = unit[0..index];
-		index = unit.countUntil('[');
-		if(index >=0)unit = unit[0..index];
-		rval ~= unit;
-	}
-	return rval;
+    long index;
+    foreach(unit; preText.splitter('.'))
+    {
+        index = unit.countUntil('!');
+        if(index >= 0)unit = unit[0..index];
+        index = unit.countUntil('(');
+        if(index >= 0) unit = unit[0..index];
+        index = unit.countUntil('[');
+        if(index >=0)unit = unit[0..index];
+        rval ~= unit;
+    }
+    return rval;
 }
 void SkipFunction(string deco, ref int index)
 {
@@ -815,92 +815,92 @@ void SkipFunction(string deco, ref int index)
      //index++;
      do
      {
-		switch(deco[0])
-		{
-			case 'X' :
-			case 'Y' :
-			case 'Z' : index++;return;
-			default : deco = deco[1..$];
-		}
-		index++;
-	 }while(true);
+        switch(deco[0])
+        {
+            case 'X' :
+            case 'Y' :
+            case 'Z' : index++;return;
+            default : deco = deco[1..$];
+        }
+        index++;
+     }while(true);
 }
 
 string ReadQualifiedName(string Name)
 {
-	string rval;
+    string rval;
 
-	do
-	{
-		scope(failure)break;
-		//if(!Name[0].isNumber)break;
-		if( (Name[0] < '0') || (Name[0] > '9'))break;
-		string NumberString;
+    do
+    {
+        scope(failure)break;
+        //if(!Name[0].isNumber)break;
+        if( (Name[0] < '0') || (Name[0] > '9'))break;
+        string NumberString;
 
-		//get string telling name part length
-		while(Name[0].isNumber)
-		{
-			NumberString ~= Name[0];
-			Name = Name[1..$];
+        //get string telling name part length
+        while(Name[0].isNumber)
+        {
+            NumberString ~= Name[0];
+            Name = Name[1..$];
 
-		}
-		//convert it to a number
-		auto place = NumberString.length - 1;
-		long value = 0;
-		foreach(ch; NumberString)
-		{
-			value += cast(long)(ch-48) * cast(long)(10^^place);
-			place--;
-		}
-
-
-
-		//add name part to output
-		if(rval.length > 0) rval ~= ".";
-		rval ~= Name[0..value];
-
-		//adjust input string again
-		Name = Name[value..$];
-	}while(true);
+        }
+        //convert it to a number
+        auto place = NumberString.length - 1;
+        long value = 0;
+        foreach(ch; NumberString)
+        {
+            value += cast(long)(ch-48) * cast(long)(10^^place);
+            place--;
+        }
 
 
-	return rval;
+
+        //add name part to output
+        if(rval.length > 0) rval ~= ".";
+        rval ~= Name[0..value];
+
+        //adjust input string again
+        Name = Name[value..$];
+    }while(true);
+
+
+    return rval;
 }
 
 
 string GetIcon(DSYMBOL X)
 {
-	string color;
-	string rv;
+    string color;
+    string rv;
 
-	switch(X.Protection)
-	{
-		case "private"      : color = `<span foreground="red">`;break;
-		case "public"       : color = `<span foreground="black">`;break;
-		case "protected"    : color = `<span foreground="cyan">`;break;
-		case "package"      : color = `<span foreground="green">`;break;
-		default : color = `<span foreground="black">`;
-	}
+    switch(X.Protection)
+    {
+        case "private"      : color = `<span foreground="red">`;break;
+        case "public"       : color = `<span foreground="black">`;break;
+        case "protected"    : color = `<span foreground="cyan">`;break;
+        case "package"      : color = `<span foreground="green">`;break;
+        default : color = `<span foreground="black">`;
+    }
 
-	switch(X.Kind) with (SYMBOL_KIND)
-	{
-		case MODULE			:rv = color ~ `Ⓜ</span>`;break;
-		case TEMPLATE       :rv = color ~ `Ⓣ</span>`;break;
-		case FUNCTION       :rv = color ~ `⒡</span>`;break;
-		case STRUCT         :rv = color ~ `Ⓢ</span>`;break;
-		case CLASS          :rv = color ~ `Ⓒ</span>`;break;
-		case INTERFACE      :rv = color ~ `Ⓘ</span>`;break;
-		case VARIABLE       :rv = color ~ `v</span>`;break;
-		case ALIAS          :rv = color ~ `a</span>`;break;
-		case CONSTRUCTOR    :rv = color ~ `⒞</span>`;break;
-		case ENUM           :rv = color ~ `Ⓔ</span>`;break;
-		case ENUM_MEMBER    :rv = color ~ `e</span>`;break;
-		case UNION          :rv = color ~ `Ⓤ</span>`;break;
-		case IMPORT			:rv = color ~ `i</span>`;break;
-		case MIXIN			:rv = color ~ `m</span>`;break;
+    switch(X.Kind) with (SYMBOL_KIND)
+    {
+        case MODULE         :rv = color ~ `Ⓜ</span>`;break;
+        case TEMPLATE       :rv = color ~ `Ⓣ</span>`;break;
+        case FUNCTION       :rv = color ~ `⒡</span>`;break;
+        case STRUCT         :rv = color ~ `Ⓢ</span>`;break;
+        case CLASS          :rv = color ~ `Ⓒ</span>`;break;
+        case INTERFACE      :rv = color ~ `Ⓘ</span>`;break;
+        case VARIABLE       :rv = color ~ `v</span>`;break;
+        case ALIAS          :rv = color ~ `a</span>`;break;
+        case CONSTRUCTOR    :rv = color ~ `⒞</span>`;break;
+        case ENUM           :rv = color ~ `Ⓔ</span>`;break;
+        case ENUM_MEMBER    :rv = color ~ `e</span>`;break;
+        case UNION          :rv = color ~ `Ⓤ</span>`;break;
+        case IMPORT         :rv = color ~ `i</span>`;break;
+        case MIXIN          :rv = color ~ `m</span>`;break;
 
 
-		default : rv = color ~ `P</span>`;
-	}
-	return rv;
+        default : rv = color ~ `P</span>`;
+    }
+    return rv;
 }
