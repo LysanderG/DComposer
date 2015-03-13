@@ -1,6 +1,7 @@
 module config;
 
 import dcore;
+import ui :ShowMessage;
 
 import json;
 
@@ -11,6 +12,7 @@ import std.path;
 import std.process: executeShell;
 import std.stdio;
 import std.signals;
+import std.string;
 
 import std.c.stdlib;
 import core.runtime;
@@ -47,6 +49,16 @@ private:
 
     void FirstUserRun()
     {
+        string WelcomeText = format(
+`Welcome to DComposer (ver %s, %s).
+The naive IDE for the D programming language.
+%s
+
+I really hope it proves useful for you.
+Thanks for trying it out!`,
+DCOMPOSER_VERSION, DCOMPOSER_BUILD_DATE, DCOMPOSER_COPYRIGHT);
+
+
         //copy resources from global (immutable) to user (mutable) space
 
         string src;
@@ -64,7 +76,12 @@ private:
         dest = buildPath(userDirectory, "elements");
         mkdir(dest);
         cpCommand = "cp " ~ src ~ "/elements/*.so " ~ dest;
-        dwrite(executeShell(cpCommand));
+        executeShell(cpCommand);
+        //and element resources
+        dest = buildPath(dest, "resources");
+        mkdir(dest);
+        cpCommand = "cp " ~ src ~ "/elements/resources/* " ~ dest;
+        executeShell(cpCommand);
 
         //flags
         dest = buildPath(userDirectory, "flags");
@@ -97,6 +114,7 @@ private:
         executeShell(cpCommand);
 
         FirstRun.emit();
+        ShowMessage("First Run", WelcomeText, "OK");
         Log.Entry("\tUsers first run.");
     }
 
@@ -474,7 +492,7 @@ public bool CurrentPath(string nuPath)
 
 
 
-public string ConfigPath(string subFolder)
+deprecated public string ConfigPath(string subFolder)
 {
     scope(exit)dwrite(userDirectory, "**",subFolder);
     scope(failure) Log.Entry("Failed to build configuration path", "Error");
