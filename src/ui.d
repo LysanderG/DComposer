@@ -34,6 +34,7 @@ public import gtk.FontButton;
 public import gtk.Grid;
 public import gtk.IconFactory;
 public import gtk.IconSet;
+public import gtk.Image;
 public import gtk.Label;
 public import gtk.Main;
 public import gtk.Menu;
@@ -555,7 +556,7 @@ void ShowMessage(string Title, string Message)
 
 int ShowMessage(string Title, string Message, string[] Buttons ...)
 {
-    auto dialog = new MessageDialog(MainWindow, DialogFlags.MODAL, MessageType.OTHER, ButtonsType.NONE, "");
+    auto dialog = new MessageDialog(MainWindow, DialogFlags.MODAL, MessageType.INFO, ButtonsType.NONE, "");
     dialog.setTitle(Title);
     dialog.setMarkup(Message);
     foreach(int indx, string btn;Buttons)
