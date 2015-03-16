@@ -276,6 +276,7 @@ void EngageActions()
     foreach(name; mRootMenuNames) mRootMenu[name] = mMenuBar.append(name);
 
 
+    AddToMenuBar("-", mRootMenuNames[0]);
     AddToMenuBar("ActQuit",mRootMenuNames[0]);
     AddToMenuBar("ActViewToolbar", mRootMenuNames[1]);
     AddToMenuBar("ActConfigureToolbar", mRootMenuNames[0], 0);

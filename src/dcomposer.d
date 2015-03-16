@@ -9,20 +9,19 @@ import elements;
 int main(string[] args)
 {
 
-	dcore.Engage(args);
-	ui.Engage(args);
-	elements.Engage();
+    dcore.Engage(args);
+    ui.Engage(args);
+    elements.Engage();
 
-	dcore.PostEngage();
-	ui.PostEngage();
-	elements.PostEngage();
+    dcore.PostEngage();
+    ui.PostEngage();
+    elements.PostEngage();
 
-	ui.Run();
+    ui.Run();
 
+    elements.Disengage();
+    ui.Disengage();
+    dcore.Disengage();
 
-	elements.Disengage();
-	ui.Disengage();
-	dcore.Disengage();
-
-	return 0;
+    return 0;
 }
