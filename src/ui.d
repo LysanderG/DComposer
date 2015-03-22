@@ -63,6 +63,8 @@ public import gtk.TreeView;
 public import gtk.TreeViewColumn;
 public import gtk.ListStore;
 public import gtk.TreeModelIF;
+public import gtk.SelectionData;
+public import gtk.TargetEntry;
 
 
 import gsv.SourceView;
@@ -77,6 +79,7 @@ public import gdk.RGBA;
 public import gdk.Pixbuf;
 public import gdk.Cursor;
 public import gdk.Display;
+public import gdk.DragContext;
 
 public import gio.Icon;
 public import gio.FileIcon;
@@ -620,14 +623,28 @@ import gtk.SeparatorToolItem;
 
 import gobject.Value;
 
+struct IconRowData
+{
+    string mName;
+    string mLabel;
+    string mTip;
+    string mID;
+    string mPath;
+}
+
 
 void ConfigureToolBar()
 {
+    //variables
+    static IconRowData mIconRowData;
+
     auto tbBuilder = new Builder;
     tbBuilder.addFromFile(Config.GetValue("toolbar", "toolbar_glade", SystemPath("glade/ui_toolbar.glade")));
     auto tbWin = cast(Dialog)tbBuilder.getObject("dialog1");
     auto tbAvailIcons = cast(IconView)tbBuilder.getObject("iconview1");
     auto tbAvailList = cast(ListStore)tbBuilder.getObject("liststore1");
+    auto tbCurrentIcons = cast(IconView)tbBuilder.getObject("iconview2");
+    auto tbCurrentList = cast(ListStore)tbBuilder.getObject("liststore2");
 
     auto ti = new TreeIter;
 
@@ -639,7 +656,7 @@ void ConfigureToolBar()
     tbAvailList.setValue(ti, 3, "dcmp-toolbar-separator");
 
 
-
+    //fill in all available toolbar actions
     foreach(actid; ListActions())
     {
         auto workingAction = GetAction(actid);
@@ -657,14 +674,7 @@ void ConfigureToolBar()
         tbAvailList.setValue(ti, 3, StockIdValue.getString());
     }
 
-    tbAvailList. setSortColumnId (1, SortType.ASCENDING);
-
-
-    //ok available toolbar actions are loaded
-    //now lets get the current toolbar actions
-    auto tbCurrentIcons = cast(IconView)tbBuilder.getObject("iconview2");
-    auto tbCurrentList = cast(ListStore)tbBuilder.getObject("liststore2");
-
+    //fill in icons on toolbar
     string[] currentToolbarActions = Config.GetArray!(string)("toolbar", "configured_actions", ["ActQuit"]);
 
     foreach(toolaction; currentToolbarActions)
@@ -696,6 +706,106 @@ void ConfigureToolBar()
             tbCurrentList.setValue(iter, 3, StockIdValue.getString());
         }
     }
+
+    //set up both icon views
+    tbAvailList. setSortColumnId (1, SortType.ASCENDING);
+
+    tbCurrentIcons.setReorderable(0);
+
+    GtkTargetEntry targetCopyEntry = GtkTargetEntry("myCopy".dup.ptr, TargetFlags.SAME_APP, 0);
+    GtkTargetEntry targetMoveEntry = GtkTargetEntry("myMove".dup.ptr, TargetFlags.SAME_WIDGET, 1);
+    tbAvailIcons.enableModelDragSource(cast(GdkModifierType)0, [targetCopyEntry], DragAction.ACTION_COPY);
+    tbCurrentIcons.enableModelDragSource(cast(GdkModifierType)0, [targetMoveEntry], DragAction.ACTION_MOVE);
+    tbCurrentIcons.enableModelDragDest([targetMoveEntry, targetCopyEntry], DragAction.ACTION_MOVE | DragAction.ACTION_COPY);
+
+
+    // call back funtions
+    void GetDragData(DragContext dc, SelectionData sd, guint info, guint timestamp, Widget w)
+    {
+        dwrite("here ",&dc, " ", dc.getActions(), " ", timestamp);
+
+        IconView iView = cast(IconView)w;
+        auto ti = new TreeIter;
+
+        auto Selector = iView.getSelectedItems();
+        GtkTreePath * gtp = cast(GtkTreePath *)(Selector.data);
+
+
+        auto tp = new TreePath(gtp);
+
+        iView.getModel().getIter(ti, tp);
+        mIconRowData.mName = ti.getValueString(0);
+        mIconRowData.mLabel = ti.getValueString(1);
+        mIconRowData.mTip = ti.getValueString(2);
+        mIconRowData.mID = ti.getValueString(3);
+        mIconRowData.mPath = tp.toString();
+
+        dwrite("here");
+    }
+    void ReceivedDragData(DragContext dc, gint x, gint y, SelectionData sd, guint info, guint tstamp, Widget w)
+    {
+        //scope(exit)dc.dropFinish(1, tstamp);
+        if(mIconRowData.mName == "nullData")return;
+
+        dwrite("there ", &dc, " ", dc.getActions());
+
+        auto tpx = new TreePath(true);
+
+        tpx = tbCurrentIcons.getPathAtPos(x, y);
+        dwrite("path ",tpx);
+
+        auto tiAtPath = new TreeIter;
+        auto tiInsert = new TreeIter;
+
+        tbCurrentList.getIter(tiAtPath, tpx);
+        dwrite(tiAtPath);
+        if(tbCurrentList.iterIsValid(tiAtPath))tbCurrentList.insertBefore(tiInsert, tiAtPath);
+        else(tbCurrentList.append(tiInsert));
+        dwrite(tiInsert, "inserting");
+        if(!tbCurrentList.iterIsValid(tiInsert))
+        {
+            mIconRowData.mName = "nullData";
+            return;
+        }
+        tbCurrentList.setValue(tiInsert, 0, mIconRowData.mName);
+        tbCurrentList.setValue(tiInsert, 1, mIconRowData.mLabel);
+        tbCurrentList.setValue(tiInsert, 2, mIconRowData.mTip);
+        tbCurrentList.setValue(tiInsert, 3, mIconRowData.mID);
+
+        mIconRowData.mName = "nullData";
+
+        //deleting
+        if(dc.getActions == DragAction.ACTION_MOVE)
+        {
+            auto delTPath = new TreePath(mIconRowData.mPath);
+            if(delTPath.compare(tpx) > 0) delTPath.next();
+            tbCurrentList.dragDataDelete(delTPath);
+        }
+
+        dwrite("there");
+    }
+    bool FailedDrag(DragContext dc, GtkDragResult dr, Widget w)
+    {
+        auto ti = new TreeIter;
+
+        auto Selector = tbCurrentIcons.getSelectedItems();
+        GtkTreePath * gtp = cast(GtkTreePath *)(Selector.data);
+
+        auto tp = new TreePath(gtp);
+
+        tbCurrentList.dragDataDelete(tp);
+
+        return true;
+    }
+
+
+    // connect call back functions
+    tbAvailIcons.addOnDragDataGet(&GetDragData);
+    tbCurrentIcons.addOnDragDataGet(&GetDragData);
+    tbCurrentIcons.addOnDragDataReceived(&ReceivedDragData);
+    tbCurrentIcons.addOnDragFailed(&FailedDrag);
+
+
 
     //manipulate everything
 
@@ -748,6 +858,7 @@ void ConfigureToolBar()
     Config.SetArray("toolbar", "configured_actions", ActsToSave);
     Config.Save();
     RestoreToolbar();
+
 }
 
 
@@ -782,6 +893,12 @@ void ClearToolbar()
     }
     mToolbar.foreac(&cback, cast(void *)null);
 }
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 
 void SetBusyCursor(bool value)
 {
