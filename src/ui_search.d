@@ -40,7 +40,7 @@ class UI_SEARCH
 
     ComboBoxText    mReplaceBox;
     Button          mReplaceButton;
-    Button          mReplaceGoButton;
+    //Button          mReplaceGoButton;
     Button          mReplaceAllButton;
 
     CheckButton     mCaseSensitive;
@@ -226,32 +226,33 @@ class UI_SEARCH
 
         mBuilder.addFromFile( SystemPath( Config.GetValue("ui_search", "glade_file",  "glade/ui_search.glade")));
 
-        mRoot = cast(Box) mBuilder.getObject("box1");
+        mRoot = cast(Box) mBuilder.getObject("box10");
 
-        mSearchBox = cast(ComboBoxText)mBuilder.getObject("comboboxtext1");
-        mSearchButton = cast(Button)mBuilder.getObject("button1");
-        mMarkAllButton = cast(ToggleButton)mBuilder.getObject("togglebutton1");
+        mSearchBox = cast(ComboBoxText)mBuilder.getObject("comboboxtext3");
+        mSearchButton = cast(Button)mBuilder.getObject("button2");
+        mMarkAllButton = cast(ToggleButton)mBuilder.getObject("togglebutton2");
 
-        mReplaceBox = cast (ComboBoxText)mBuilder.getObject("comboboxtext2");
-        mReplaceButton = cast(Button) mBuilder.getObject("button4");
-        mReplaceGoButton = cast (Button)mBuilder.getObject("button5");
-        mReplaceAllButton = cast(Button)mBuilder.getObject("button6");
+        mReplaceBox = cast (ComboBoxText)mBuilder.getObject("comboboxtext4");
+        mReplaceButton = cast(Button) mBuilder.getObject("button8");
+        //mReplaceGoButton = cast (Button)mBuilder.getObject("button5");
+        mReplaceAllButton = cast(Button)mBuilder.getObject("button9");
 
-        mCaseSensitive = cast (CheckButton) mBuilder.getObject("checkbutton1");
-        mRegex = cast (CheckButton) mBuilder.getObject("checkbutton2");
-        mStartsWord = cast (CheckButton) mBuilder.getObject("checkbutton3");
-        mEndsWord = cast (CheckButton) mBuilder.getObject("checkbutton4");
-        mRecursion = cast (CheckButton) mBuilder.getObject("checkbutton5");
+        mCaseSensitive = cast (CheckButton) mBuilder.getObject("checkbutton6");
+        mRegex = cast (CheckButton) mBuilder.getObject("checkbutton7");
+        mStartsWord = cast (CheckButton) mBuilder.getObject("checkbutton9");
+        mEndsWord = cast (CheckButton) mBuilder.getObject("checkbutton10");
+        mRecursion = cast (CheckButton) mBuilder.getObject("checkbutton8");
 
-        mCurrentDocument = cast (RadioButton) mBuilder.getObject("radiobutton1");
-        mOpenDocuments = cast (RadioButton) mBuilder.getObject("radiobutton2");
-        mProjectSourceOnly = cast (RadioButton) mBuilder.getObject("radiobutton3");
-        mProjectAll = cast (RadioButton) mBuilder.getObject("radiobutton4");
-        mFolder = cast (RadioButton) mBuilder.getObject("radiobutton5");
+        mCurrentDocument = cast (RadioButton) mBuilder.getObject("radiobutton6");
+        mOpenDocuments = cast (RadioButton) mBuilder.getObject("radiobutton7");
+        mProjectSourceOnly = cast (RadioButton) mBuilder.getObject("radiobutton8");
+        mProjectAll = cast (RadioButton) mBuilder.getObject("radiobutton9");
+        mFolder = cast (RadioButton) mBuilder.getObject("radiobutton10");
 
-        mTree = cast (TreeView) mBuilder.getObject("treeview1");
+        mTree = cast (TreeView) mBuilder.getObject("treeview2");
         mStore = cast (ListStore) mBuilder.getObject("liststore1");
 
+        dwrite(mTree);
         mTree.setRulesHint(1);
 
         mSearchBox.addOnChanged(delegate void(ComboBoxText cbt){Find();});
@@ -287,7 +288,7 @@ class UI_SEARCH
         });
 
         mReplaceButton.addOnClicked(delegate void(Button){ReplaceText();});
-        mReplaceGoButton.addOnClicked(delegate void (Button){ReplaceText(Advance);});
+        //mReplaceGoButton.addOnClicked(delegate void (Button){ReplaceText(Advance);});
         mReplaceAllButton.addOnClicked(delegate void (Button){ReplaceAll();});
 
         mTree.addOnCursorChanged (delegate void (TreeView)
