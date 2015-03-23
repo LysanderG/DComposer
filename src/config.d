@@ -71,6 +71,8 @@ DCOMPOSER_VERSION, DCOMPOSER_BUILD_DATE, DCOMPOSER_COPYRIGHT);
         mkdir(dest);
         cpCommand = "cp " ~ src ~ "/*.cfg " ~ dest;
         executeShell(cpCommand);
+        mCfgFile = buildPath(dest,"dcomposer.cfg");
+        Save();
 
         //elements
         dest = buildPath(userDirectory, "elements");
@@ -125,7 +127,7 @@ public:
     void SetCfgFile(string cmdLineCfgName)
     {
         //1. use command line given cfg file
-        //2. look at current directory
+        //2. look at current directory  << 2 AND 3 SHOULD BE REVERSED AND HAVE BEEN
         //3. look at mRootResourceDirectory
         //4. create one in mRootResource directory
         //5. create one in  current
@@ -149,13 +151,6 @@ public:
                 return;
             }
         }
-        //2
-        auto tmpdir1 = buildPath(getcwd(), "dcomposer.cfg");
-        if(tmpdir1.exists)
-        {
-            mCfgFile = tmpdir1;
-            return;
-        }
 
         //3
         auto tmpdir2 = buildPath(mRootResourceDirectory, "dcomposer.cfg");
@@ -164,6 +159,14 @@ public:
             mCfgFile = tmpdir2;
             return;
         }
+        //2
+        auto tmpdir1 = buildPath(getcwd(), "dcomposer.cfg");
+        if(tmpdir1.exists)
+        {
+            mCfgFile = tmpdir1;
+            return;
+        }
+
         //4
         {
             scope(failure)
