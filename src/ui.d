@@ -428,7 +428,7 @@ void EngageSidePane()
     mSidePane = cast(Notebook)mBuilder.getObject("sidepane");
     mSidePane.showAll();
 
-    AddIcon("dcmp_view_side_pane", SystemPath("resources/ui-split-panel-vertical.png"));
+    AddIcon("dcmp_view_side_pane", SystemPath("resources/ui-split-panel.png"));
     AddToggleAction("ActViewSidePane","Side Pane","show/hide left side pane","dcmp_view_side_pane","",
         delegate void (Action x){auto y = cast(ToggleAction)x;mSidePane.setVisible(y.getActive());});
     "ActViewSidePane".AddToMenuBar("_View");
@@ -489,7 +489,7 @@ void EngageExtraPane()
     mPaneV = cast(Paned)mBuilder.getObject("paned1");
     mExtraPane = cast(Notebook)mBuilder.getObject("extrapane");
 
-    AddIcon("dcmp_view_extra_pane", SystemPath("resources/ui-split-panel.png"));
+    AddIcon("dcmp_view_extra_pane", SystemPath("resources/ui-split-panel-vertical.png"));
     AddToggleAction("ActViewExtraPane","Extra Pane","show/hide Extra pane","dcmp_view_extra_pane","",
         delegate void (Action x){auto y = cast(ToggleAction)x;mExtraPane.getParent.setVisible(y.getActive());});
     "ActViewExtraPane".AddToMenuBar("_View");
