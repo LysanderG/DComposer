@@ -106,7 +106,7 @@ void Engage(string[] CmdLineArgs)
     mClipBoard = Clipboard.get(gdk.Atoms.atomIntern("CLIPBOARD",true));
 
     mBuilder = new Builder;
-    mBuilder.addFromFile(Config.GetValue("ui", "ui_main_glade", SystemPath("glade/ui_main.glade")));
+    mBuilder.addFromFile( SystemPath( Config.GetValue("ui", "ui_main_glade",  "glade/ui_main.glade")));
     mProjectTitle = cast(Label)mBuilder.getObject("label2");
     MainWindow = cast(Window)mBuilder.getObject("window1");
     MainWindow.addOnDelete(delegate bool(Event event, Widget widget){Quit();  return true;});
@@ -138,7 +138,7 @@ void Engage(string[] CmdLineArgs)
     //AddSidePage(new SourceView, "src");
     ui.DocBook.prependPageMenu(uiProject.GetRootWidget(), cast(Widget)new Label("Project Options"), cast(Widget)new Label("Project Options"));
 
-    MainWindow.setIconFromFile(Config.GetValue("ui", "main_icon", SystemPath("resources/mushroom.png")));
+    MainWindow.setIconFromFile( SystemPath( Config.GetValue("icons", "main_icon", "resources/mushroom.png")));
     Log.Entry("Engaged");
 }
 
@@ -265,10 +265,10 @@ void EngageActions()
     mToolbar = cast(Toolbar)mBuilder.getObject("toolbar1");
 
 
-    AddIcon("dcmp-quit", SystemPath("resources/yin-yang.png"));
-    AddIcon("dcmp-view-toolbar", SystemPath("resources/yin-yang.png"));
-    AddIcon("dcmp-toolbar-separator", SystemPath("resources/ui-separator-vertical.png"));
-    AddIcon("dcmp-toolbar-configure", SystemPath("resources/ui-toolbar-configure.png"));
+    AddIcon("dcmp-quit", SystemPath(Config.GetValue("icons","app-quit","resources/yin-yang.png")));
+    AddIcon("dcmp-view-toolbar", SystemPath(Config.GetValue("icons","toolbar-view","resources/yin-yang.png")));
+    AddIcon("dcmp-toolbar-separator", SystemPath(Config.GetValue("icons", "toolbar-seperator", "resources/ui-separator-vertical.png")));
+    AddIcon("dcmp-toolbar-configure", SystemPath(Config.GetValue("icons", "toolbar-configure", "resources/ui-toolbar-configure.png")));
 
 
     AddToggleAction("ActViewToolbar", "viewtoolbar", "show/hide toolbar", "dcmp-view-toolbar", "",
@@ -428,7 +428,7 @@ void EngageSidePane()
     mSidePane = cast(Notebook)mBuilder.getObject("sidepane");
     mSidePane.showAll();
 
-    AddIcon("dcmp_view_side_pane", SystemPath("resources/ui-split-panel.png"));
+    AddIcon("dcmp_view_side_pane", SystemPath(Config.GetValue("icons","side-pane-view","resources/ui-split-panel.png")));
     AddToggleAction("ActViewSidePane","Side Pane","show/hide left side pane","dcmp_view_side_pane","",
         delegate void (Action x){auto y = cast(ToggleAction)x;mSidePane.setVisible(y.getActive());});
     "ActViewSidePane".AddToMenuBar("_View");
@@ -489,7 +489,7 @@ void EngageExtraPane()
     mPaneV = cast(Paned)mBuilder.getObject("paned1");
     mExtraPane = cast(Notebook)mBuilder.getObject("extrapane");
 
-    AddIcon("dcmp_view_extra_pane", SystemPath("resources/ui-split-panel-vertical.png"));
+    AddIcon("dcmp_view_extra_pane", SystemPath(Config.GetValue("icons", "extra-pane-view", "resources/ui-split-panel-vertical.png")));
     AddToggleAction("ActViewExtraPane","Extra Pane","show/hide Extra pane","dcmp_view_extra_pane","",
         delegate void (Action x){auto y = cast(ToggleAction)x;mExtraPane.getParent.setVisible(y.getActive());});
     "ActViewExtraPane".AddToMenuBar("_View");
@@ -639,7 +639,7 @@ void ConfigureToolBar()
     static IconRowData mIconRowData;
 
     auto tbBuilder = new Builder;
-    tbBuilder.addFromFile(Config.GetValue("toolbar", "toolbar_glade", SystemPath("glade/ui_toolbar.glade")));
+    tbBuilder.addFromFile( SystemPath( Config.GetValue("toolbar", "toolbar_glade", "glade/ui_toolbar.glade")));
     auto tbWin = cast(Dialog)tbBuilder.getObject("dialog1");
     auto tbAvailIcons = cast(IconView)tbBuilder.getObject("iconview1");
     auto tbAvailList = cast(ListStore)tbBuilder.getObject("liststore1");

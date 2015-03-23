@@ -33,355 +33,355 @@ class UI_DOCBOOK :UI_DOCBOOK_IF
 
 private:
 
-	//following 5 lines are for using the same signal as in the sourceview context menu
-	//seems a long way to go ... why textview doesn't make the action public is a mystery to me
-	Value mInstanceAndParamsForSignal;
-	Value mReturnValueForSignal;
-	uint mUndoSignalID;
-	uint mRedoSignalID;
-	uint mCutSignalID;
-	uint mPasteSignalID;
-	uint mCopySignalID;
+    //following 5 lines are for using the same signal as in the sourceview context menu
+    //seems a long way to go ... why textview doesn't make the action public is a mystery to me
+    Value mInstanceAndParamsForSignal;
+    Value mReturnValueForSignal;
+    uint mUndoSignalID;
+    uint mRedoSignalID;
+    uint mCutSignalID;
+    uint mPasteSignalID;
+    uint mCopySignalID;
 
 
 
 public:
 
-	Notebook mNotebook;
-	alias mNotebook this;
-	this(Notebook x)
-	{
-		SourceStyleSchemeManager.getDefault().appendSearchPath(SystemPath("styles"));
-		mNotebook = x;
-	}
+    Notebook mNotebook;
+    alias mNotebook this;
+    this(Notebook x)
+    {
+        SourceStyleSchemeManager.getDefault().appendSearchPath(SystemPath("styles"));
+        mNotebook = x;
+    }
 
-	void Engage()
-	{
+    void Engage()
+    {
 
-		AddIcon("gtk-no", Config.GetValue("icons", "tab-close", SystemPath("resources/cross-button.png")));
-		/////////////////////////////////////////////////////////////////////////actions
-		/////////////////////////////////////////////////////////////////////////
-		//create
-		string[] Filetypes = Config.GetArray("ui_docman", "file_types",["plain text", "D source"]);
+        AddIcon("gtk-no", SystemPath( Config.GetValue("icons", "tab-close", "resources/cross-button.png")));
+        /////////////////////////////////////////////////////////////////////////actions
+        /////////////////////////////////////////////////////////////////////////
+        //create
+        string[] Filetypes = Config.GetArray("ui_docman", "file_types",["plain text", "D source"]);
 
-		Menu SubMenu = new Menu;
-		MenuItem[] menuitems;
-		foreach(ftype; Filetypes)menuitems ~= new MenuItem(delegate void(MenuItem x){DocMan.Create(ftype);}, ftype);
-		foreach(mi; menuitems)SubMenu.append(mi);
+        Menu SubMenu = new Menu;
+        MenuItem[] menuitems;
+        foreach(ftype; Filetypes)menuitems ~= new MenuItem(delegate void(MenuItem x){DocMan.Create(ftype);}, ftype);
+        foreach(mi; menuitems)SubMenu.append(mi);
 
-		Menu ToolSubMenu = new Menu;
-		MenuItem[] Toolmenuitems;
-		foreach(ftype; Filetypes)Toolmenuitems ~= new MenuItem(delegate void(MenuItem x){DocMan.Create(ftype);}, ftype);
-		foreach(mi; Toolmenuitems)ToolSubMenu.insert(mi,0);
-		ToolSubMenu.showAll();
+        Menu ToolSubMenu = new Menu;
+        MenuItem[] Toolmenuitems;
+        foreach(ftype; Filetypes)Toolmenuitems ~= new MenuItem(delegate void(MenuItem x){DocMan.Create(ftype);}, ftype);
+        foreach(mi; Toolmenuitems)ToolSubMenu.insert(mi,0);
+        ToolSubMenu.showAll();
 
-		AddIcon("dcmp-doc-new", Config.GetValue("icons", "doc-create",SystemPath("resources/document-text.png")));
-		auto tmpAct = "ActDocNew".AddAction("_New", "create a new document", "dcmp-doc-new","<Control>n",delegate void(Action a){DocMan.Create();});
+        AddIcon("dcmp-doc-new", SystemPath( Config.GetValue("icons", "doc-create", "resources/document-text.png")));
+        auto tmpAct = "ActDocNew".AddAction("_New", "create a new document", "dcmp-doc-new","<Control>n",delegate void(Action a){DocMan.Create();});
 
-		MenuItem x = new MenuItem("New _Types");//tmpAct.createMenuItem();
-		x.setSubmenu(SubMenu);
+        MenuItem x = new MenuItem("New _Types");//tmpAct.createMenuItem();
+        x.setSubmenu(SubMenu);
 
-		auto toolmenubutton = new MenuToolButton("dcmp-doc-new");
-		toolmenubutton.setSensitive(1);
-		toolmenubutton.addOnClicked(delegate void (ToolButton x){tmpAct.activate();});
-		toolmenubutton.setMenu(ToolSubMenu);
-		toolmenubutton.showAll();
+        auto toolmenubutton = new MenuToolButton("dcmp-doc-new");
+        toolmenubutton.setSensitive(1);
+        toolmenubutton.addOnClicked(delegate void (ToolButton x){tmpAct.activate();});
+        toolmenubutton.setMenu(ToolSubMenu);
+        toolmenubutton.showAll();
 
-		AddToMenuBar("ActDocNew","_Document");
-		AddItemToMenuBar(x, "_Document");
-
-
-		//AddItemToToolBar(toolmenubutton);
-		x.showAll();
-
-		//open
-		AddIcon("dcmp-doc-open", Config.GetValue("icons", "doc-open", SystemPath("resources/folder-open-document-text.png")));
-		auto ActOpen = "ActDocOpen".AddAction("_Open","Open a text document", "dcmp-doc-open","<Control>O",delegate void(Action a){DocMan.Open();});
-		AddToMenuBar("ActDocOpen", "_Document");
-		//AddToToolBar("ActDocOpen");
-
-		//save
-		AddIcon("dcmp-doc-save", Config.GetValue("icons", "doc-save", SystemPath("resources/document-save.png")));
-		auto ActSave = "ActDocSave".AddAction("_Save","Save document", "dcmp-doc-save", "<Control>S", delegate void(Action a){DocMan.Save();});
-		AddToMenuBar("ActDocSave", "_Document");
-		//AddToToolBar("ActDocSave");
-		//saveas
-		AddIcon("dcmp-doc-save-as", Config.GetValue("icons", "doc-save-as", SystemPath("resources/document-save-as.png")));
-		auto ActSaveAs = "ActDocSaveAs".AddAction("Save _As...", "Save document to new file", "dcmp-doc-save-as", "<Control><Shift>S", delegate void (Action a){DocMan.SaveAs();});
-		AddToMenuBar("ActDocSaveAs", "_Document");
-		//AddToToolBar("ActDocSaveAs");
-		//saveall
-		AddIcon("dcmp-doc-save-all", Config.GetValue("icons", "doc-save-all", SystemPath("resources/document-save-all.png")));
-		auto ActSaveAll = "ActDocSaveAll".AddAction("Save A_ll...", "Save all documents", "dcmp-doc-save-all", "", delegate void (Action a){DocMan.SaveAll();});
-		AddToMenuBar("ActDocSaveAll", "_Document");
-		//AddToToolBar("ActDocSaveAll");
-
-		//close
-		AddIcon("dcmp-doc-close", Config.GetValue("icons", "doc-close", SystemPath("resources/document-close.png")));
-		auto ActClose = "ActDocClose".AddAction("_Close", "Close document","dcmp-doc-close","<Control>W",delegate void(Action a){DocMan.Close();});
-		AddToMenuBar("ActDocClose","_Document");
-		uiContextMenu.AddAction("ActDocClose");
-		//AddToToolBar("ActDocClose");
-
-		//closeall
-		AddIcon("dcmp-doc-close-all", Config.GetValue("icons", "doc-close-all", SystemPath("resources/document-close-all.png")));
-		auto ActCloseAll = "ActDocCloseAll".AddAction("Close All", "Close all documents", "dcmp-doc-close-all", "<Shift><Control>W",delegate void(Action a){DocMan.CloseAll();});
-		AddToMenuBar("ActDocCloseAll", "_Document");
-		uiContextMenu.AddAction("ActDocCloseAll");
-		//AddToToolBar("ActDocCloseAll");
-
-		AddToMenuBar("-", "_Document");
-		//compiles w/ no object file output
-		AddIcon("dcmp-doc-compile", Config.GetValue("icons", "doc-compile", SystemPath("resources/document-text-compile.png")));
-		auto ActCompile = "ActDocCompile".AddAction("Com_pile", "Check if document compiles (no object file output)","dcmp-doc-compile", "", delegate void (Action a){DocMan.Compile();});
-		AddToMenuBar("ActDocCompile", "_Document");
-		uiContextMenu.AddAction("ActDocCompile");
-
-		//run with rdmd
-		AddIcon("dcmp-doc-run", Config.GetValue("icons", "doc-run", SystemPath("resources/document--arrow.png")));
-		auto ActRun = "ActDocRun".AddAction("_Run", "Run current document with rdmd", "dcmp-doc-run", "<shift><Control>R", delegate void (Action a){DocMan.Run();});
-		AddToMenuBar("ActDocRun", "_Document");
-		uiContextMenu.AddAction("ActDocRun");
-		//AddToToolBar("ActDocRun");
-
-		//=============================================================================================================
-		//=============================================================================================================
-		//                                                         undo redo
-
-		//undo
-		AddIcon("dcmp-undo", Config.GetValue("icons", "undo", SystemPath("resources/arrow-curve-180-left.png")));
-		auto ActUndo = "ActUndo".AddAction("_Undo", "undo last change", "dcmp-undo", "<Control>U", delegate void(Action a){DocMan.Undo();});
-		AddToMenuBar("ActUndo", "_Edit");
-		//AddToToolBar("ActUndo");
-
-		//redo
-		AddIcon("dcmp-redo", Config.GetValue("icons", "redo", SystemPath("resources/arrow-curve.png")));
-		auto ActRedo = "ActRedo".AddAction("_Redo", "redo last undo", "dcmp-redo", "<Control>R", delegate void(Action a){DocMan.Redo();});
-		AddToMenuBar("ActRedo", "_Edit");
-		//AddToToolBar("ActRedo");
-
-		AddToMenuBar("-", "_Edit");
-
-		//=============================================================================================================
-		//=============================================================================================================
-		//                                                         edit stuff (cut copy paste)
+        AddToMenuBar("ActDocNew","_Document");
+        AddItemToMenuBar(x, "_Document");
 
 
-		//cut
-		AddIcon("dcmp-edit-cut", Config.GetValue("icons", "edit-cut", SystemPath("resources/scissors-blue.png")));
-		auto ActEditCut = "ActEditCut".AddAction("Cu_t", "cut selected text", "dcmp-edit-cut", "<Control>X", delegate void(Action a){DocMan.Cut();});
-		ActEditCut.setSensitive(false);
-		AddToMenuBar("ActEditCut", "_Edit");
-		//AddToToolBar("ActEditCut");
+        //AddItemToToolBar(toolmenubutton);
+        x.showAll();
 
-		//copy
-		AddIcon("dcmp-edit-copy", Config.GetValue("icons", "edit-copy", SystemPath("resources/blue-document-copy.png")));
-		auto ActEditCopy = "ActEditCopy".AddAction("_Copy", "copy selected text", "dcmp-edit-copy", "<Control>C", delegate void(Action a){DocMan.Copy();});
-		ActEditCopy.setSensitive(false);
-		AddToMenuBar("ActEditCopy", "_Edit");
-		//AddToToolBar("ActEditCopy");
+        //open
+        AddIcon("dcmp-doc-open", SystemPath( Config.GetValue("icons", "doc-open", "resources/folder-open-document-text.png")));
+        auto ActOpen = "ActDocOpen".AddAction("_Open","Open a text document", "dcmp-doc-open","<Control>O",delegate void(Action a){DocMan.Open();});
+        AddToMenuBar("ActDocOpen", "_Document");
+        //AddToToolBar("ActDocOpen");
 
-		//paste
-		AddIcon("dcmp-edit-paste", Config.GetValue("icons", "edit-paste", SystemPath("resources/clipboard-paste-document-text.png")));
-		auto ActEditPaste = "ActEditPaste".AddAction("_Paste", "paste clipboard", "dcmp-edit-paste", "<Control>V", delegate void(Action a){DocMan.Paste();});
-		AddToMenuBar("ActEditPaste", "_Edit");
-		//AddToToolBar("ActEditPaste");
+        //save
+        AddIcon("dcmp-doc-save", SystemPath( Config.GetValue("icons", "doc-save", "resources/document-save.png")));
+        auto ActSave = "ActDocSave".AddAction("_Save","Save document", "dcmp-doc-save", "<Control>S", delegate void(Action a){DocMan.Save();});
+        AddToMenuBar("ActDocSave", "_Document");
+        //AddToToolBar("ActDocSave");
+        //saveas
+        AddIcon("dcmp-doc-save-as", SystemPath( Config.GetValue("icons", "doc-save-as", "resources/document-save-as.png")));
+        auto ActSaveAs = "ActDocSaveAs".AddAction("Save _As...", "Save document to new file", "dcmp-doc-save-as", "<Control><Shift>S", delegate void (Action a){DocMan.SaveAs();});
+        AddToMenuBar("ActDocSaveAs", "_Document");
+        //AddToToolBar("ActDocSaveAs");
+        //saveall
+        AddIcon("dcmp-doc-save-all", SystemPath( Config.GetValue("icons", "doc-save-all", "resources/document-save-all.png")));
+        auto ActSaveAll = "ActDocSaveAll".AddAction("Save A_ll...", "Save all documents", "dcmp-doc-save-all", "", delegate void (Action a){DocMan.SaveAll();});
+        AddToMenuBar("ActDocSaveAll", "_Document");
+        //AddToToolBar("ActDocSaveAll");
 
-		Log.Entry("Engaged");
+        //close
+        AddIcon("dcmp-doc-close", SystemPath( Config.GetValue("icons", "doc-close",  "resources/document-close.png")));
+        auto ActClose = "ActDocClose".AddAction("_Close", "Close document","dcmp-doc-close","<Control>W",delegate void(Action a){DocMan.Close();});
+        AddToMenuBar("ActDocClose","_Document");
+        uiContextMenu.AddAction("ActDocClose");
+        //AddToToolBar("ActDocClose");
 
-	}
+        //closeall
+        AddIcon("dcmp-doc-close-all", SystemPath( Config.GetValue("icons", "doc-close-all",  "resources/document-close-all.png")));
+        auto ActCloseAll = "ActDocCloseAll".AddAction("Close All", "Close all documents", "dcmp-doc-close-all", "<Shift><Control>W",delegate void(Action a){DocMan.CloseAll();});
+        AddToMenuBar("ActDocCloseAll", "_Document");
+        uiContextMenu.AddAction("ActDocCloseAll");
+        //AddToToolBar("ActDocCloseAll");
 
-	void PostEngage()
-	{
-		dwrite("whats up");
-		mInstanceAndParamsForSignal = new Value;
-		mInstanceAndParamsForSignal.init(GType.OBJECT);
-		mReturnValueForSignal = new Value;
-		mReturnValueForSignal.init(GType.OBJECT);
-		mUndoSignalID = Signals.lookup("undo", Type.fromName("GtkSourceView"));
-		mRedoSignalID = Signals.lookup("redo", Type.fromName("GtkSourceView"));
-		dwrite("whats up end");
-		mPasteSignalID = Signals.lookup("paste-clipboard", Type.fromName("GtkTextView"));
-		mCutSignalID = Signals.lookup("cut-clipboard", Type.fromName("GtkTextView"));
-		mCopySignalID = Signals.lookup("copy-clipboard", Type.fromName("GtkTextView")) ;
-		Log.Entry("Post Engaged");
-	}
+        AddToMenuBar("-", "_Document");
+        //compiles w/ no object file output
+        AddIcon("dcmp-doc-compile", SystemPath( Config.GetValue("icons", "doc-compile", "resources/document-text-compile.png")));
+        auto ActCompile = "ActDocCompile".AddAction("Com_pile", "Check if document compiles (no object file output)","dcmp-doc-compile", "", delegate void (Action a){DocMan.Compile();});
+        AddToMenuBar("ActDocCompile", "_Document");
+        uiContextMenu.AddAction("ActDocCompile");
 
-	void Disengage()
-	{
-		Log.Entry("Disengaged");
-	}
+        //run with rdmd
+        AddIcon("dcmp-doc-run", SystemPath( Config.GetValue("icons", "doc-run", "resources/document--arrow.png")));
+        auto ActRun = "ActDocRun".AddAction("_Run", "Run current document with rdmd", "dcmp-doc-run", "<shift><Control>R", delegate void (Action a){DocMan.Run();});
+        AddToMenuBar("ActDocRun", "_Document");
+        uiContextMenu.AddAction("ActDocRun");
+        //AddToToolBar("ActDocRun");
 
-	@property DOC_IF Current()
-	{
-		auto indx = getCurrentPage();
-		if(indx < 1) return null;  //would be zero but 0 index is project options page (maybe 1 will be preference page)
-		ScrolledWindow scrwin = cast(ScrolledWindow)getNthPage(indx);
-		auto doc = cast(DOC_IF)scrwin.getChild();
-		return doc;
-	}
-	@property void Current(DOC_IF nuCurrent)
-	{
-		DOCUMENT tmp = cast(DOCUMENT) nuCurrent;
-		if(tmp is null) return;
-		setCurrentPage(tmp.PageWidget());
-	}
+        //=============================================================================================================
+        //=============================================================================================================
+        //                                                         undo redo
 
-	void Append(DOC_IF nuDoc)
-	{
-		auto xDoc = cast(DOCUMENT) nuDoc;
-		auto indx = appendPage(xDoc.PageWidget, xDoc.PageTab);
-		setTabReorderable(xDoc.PageWidget, 1);
-		setCurrentPage(xDoc.PageWidget);// <- this gives wierd and annoying gtk warnings about size allocation so using
-		setFocusChild(xDoc.PageWidget);
-		setMenuLabelText(xDoc.PageWidget,xDoc.TabLabel);
-		xDoc.grabFocus();
-	}
+        //undo
+        AddIcon("dcmp-undo", SystemPath( Config.GetValue("icons", "undo", "resources/arrow-curve-180-left.png")));
+        auto ActUndo = "ActUndo".AddAction("_Undo", "undo last change", "dcmp-undo", "<Control>U", delegate void(Action a){DocMan.Undo();});
+        AddToMenuBar("ActUndo", "_Edit");
+        //AddToToolBar("ActUndo");
 
-	void Create(string somekindatype = "unknown")
-	{
-		DocMan.Create(somekindatype);
-	}
-	void Open()
-	{
-	}
-	void Save()
-	{
-	}
+        //redo
+        AddIcon("dcmp-redo", SystemPath( Config.GetValue("icons", "redo", "resources/arrow-curve.png")));
+        auto ActRedo = "ActRedo".AddAction("_Redo", "redo last undo", "dcmp-redo", "<Control>R", delegate void(Action a){DocMan.Redo();});
+        AddToMenuBar("ActRedo", "_Edit");
+        //AddToToolBar("ActRedo");
+
+        AddToMenuBar("-", "_Edit");
+
+        //=============================================================================================================
+        //=============================================================================================================
+        //                                                         edit stuff (cut copy paste)
 
 
-	bool ConfirmCloseFile(DOC_IF DocToClose)
-	{
-		auto ConfClosing = new MessageDialog(null, DialogFlags.MODAL, MessageType.QUESTION, ButtonsType.NONE, false, "");
-		if(!DocToClose.Modified) return true;
+        //cut
+        AddIcon("dcmp-edit-cut", SystemPath( Config.GetValue("icons", "edit-cut",  "resources/scissors-blue.png")));
+        auto ActEditCut = "ActEditCut".AddAction("Cu_t", "cut selected text", "dcmp-edit-cut", "<Control>X", delegate void(Action a){DocMan.Cut();});
+        ActEditCut.setSensitive(false);
+        AddToMenuBar("ActEditCut", "_Edit");
+        //AddToToolBar("ActEditCut");
 
-		ConfClosing.setTitle("Confirm closing modified document.");
-		ConfClosing.addButtons(["Save and close", "Discard and close", "Do not Close"], [ResponseType.YES, ResponseType.NO, ResponseType.CANCEL]);
-		ConfClosing.setMarkup("There are unsaved changes to\n<b><big>" ~ DocToClose.TabLabel ~ "</big></b>\nHow do you wish to proceed?");
-		auto rv = ConfClosing.run();
-		ConfClosing.destroy();
+        //copy
+        AddIcon("dcmp-edit-copy", SystemPath( Config.GetValue("icons", "edit-copy", "resources/blue-document-copy.png")));
+        auto ActEditCopy = "ActEditCopy".AddAction("_Copy", "copy selected text", "dcmp-edit-copy", "<Control>C", delegate void(Action a){DocMan.Copy();});
+        ActEditCopy.setSensitive(false);
+        AddToMenuBar("ActEditCopy", "_Edit");
+        //AddToToolBar("ActEditCopy");
 
-		if (rv == ResponseType.CANCEL) return false;
-		if (rv == ResponseType.NO) return true;
-		DocMan.Save(DocToClose);
-		return true;
+        //paste
+        AddIcon("dcmp-edit-paste", SystemPath( Config.GetValue("icons", "edit-paste", "resources/clipboard-paste-document-text.png")));
+        auto ActEditPaste = "ActEditPaste".AddAction("_Paste", "paste clipboard", "dcmp-edit-paste", "<Control>V", delegate void(Action a){DocMan.Paste();});
+        AddToMenuBar("ActEditPaste", "_Edit");
+        //AddToToolBar("ActEditPaste");
 
-	}
-	string[] OpenDialog()
-	{
-		string[] rv;
-		auto OD = new  FileChooserDialog("What file(s) do you wish to DCompose", null, FileChooserAction.OPEN);
-		scope(exit)OD.destroy;
-		OD.setSelectMultiple(true);
-		OD.setCurrentFolder(CurrentPath());
-		auto resp = OD.run();
+        Log.Entry("Engaged");
 
-		if(resp == ResponseType.CANCEL)return rv;
+    }
 
-		auto sinlist = OD.getFilenames();
+    void PostEngage()
+    {
+        dwrite("whats up");
+        mInstanceAndParamsForSignal = new Value;
+        mInstanceAndParamsForSignal.init(GType.OBJECT);
+        mReturnValueForSignal = new Value;
+        mReturnValueForSignal.init(GType.OBJECT);
+        mUndoSignalID = Signals.lookup("undo", Type.fromName("GtkSourceView"));
+        mRedoSignalID = Signals.lookup("redo", Type.fromName("GtkSourceView"));
+        dwrite("whats up end");
+        mPasteSignalID = Signals.lookup("paste-clipboard", Type.fromName("GtkTextView"));
+        mCutSignalID = Signals.lookup("cut-clipboard", Type.fromName("GtkTextView"));
+        mCopySignalID = Signals.lookup("copy-clipboard", Type.fromName("GtkTextView")) ;
+        Log.Entry("Post Engaged");
+    }
+
+    void Disengage()
+    {
+        Log.Entry("Disengaged");
+    }
+
+    @property DOC_IF Current()
+    {
+        auto indx = getCurrentPage();
+        if(indx < 1) return null;  //would be zero but 0 index is project options page (maybe 1 will be preference page)
+        ScrolledWindow scrwin = cast(ScrolledWindow)getNthPage(indx);
+        auto doc = cast(DOC_IF)scrwin.getChild();
+        return doc;
+    }
+    @property void Current(DOC_IF nuCurrent)
+    {
+        DOCUMENT tmp = cast(DOCUMENT) nuCurrent;
+        if(tmp is null) return;
+        setCurrentPage(tmp.PageWidget());
+    }
+
+    void Append(DOC_IF nuDoc)
+    {
+        auto xDoc = cast(DOCUMENT) nuDoc;
+        auto indx = appendPage(xDoc.PageWidget, xDoc.PageTab);
+        setTabReorderable(xDoc.PageWidget, 1);
+        setCurrentPage(xDoc.PageWidget);// <- this gives wierd and annoying gtk warnings about size allocation so using
+        setFocusChild(xDoc.PageWidget);
+        setMenuLabelText(xDoc.PageWidget,xDoc.TabLabel);
+        xDoc.grabFocus();
+    }
+
+    void Create(string somekindatype = "unknown")
+    {
+        DocMan.Create(somekindatype);
+    }
+    void Open()
+    {
+    }
+    void Save()
+    {
+    }
 
 
-		while(sinlist)
-		{
-			auto txt = text(cast(char*)sinlist.data());
-			if(txt is null) continue;
-			rv ~= txt;
-			sinlist = sinlist.next();
-		}
-		return rv ;
-	}
-	string SaveAsDialog(string PrevName)
-	{
-		string rv;
-		auto SAD = new FileChooserDialog("Bury the DComposed document as ...", null, FileChooserAction.SAVE);
-		SAD.setCurrentName(baseName(PrevName));
-		SAD.setCurrentFolder(dirName(PrevName));
-		SAD. setDoOverwriteConfirmation(true);
-		auto resp = SAD.run();
+    bool ConfirmCloseFile(DOC_IF DocToClose)
+    {
+        auto ConfClosing = new MessageDialog(null, DialogFlags.MODAL, MessageType.QUESTION, ButtonsType.NONE, false, "");
+        if(!DocToClose.Modified) return true;
 
-		if(resp == ResponseType.CANCEL)
-		{
-			SAD.destroy();
-			return rv;
-		}
+        ConfClosing.setTitle("Confirm closing modified document.");
+        ConfClosing.addButtons(["Save and close", "Discard and close", "Do not Close"], [ResponseType.YES, ResponseType.NO, ResponseType.CANCEL]);
+        ConfClosing.setMarkup("There are unsaved changes to\n<b><big>" ~ DocToClose.TabLabel ~ "</big></b>\nHow do you wish to proceed?");
+        auto rv = ConfClosing.run();
+        ConfClosing.destroy();
 
-		rv = SAD.getFilename();
-		SAD.destroy();
-		return rv;
-	}
+        if (rv == ResponseType.CANCEL) return false;
+        if (rv == ResponseType.NO) return true;
+        DocMan.Save(DocToClose);
+        return true;
+
+    }
+    string[] OpenDialog()
+    {
+        string[] rv;
+        auto OD = new  FileChooserDialog("What file(s) do you wish to DCompose", null, FileChooserAction.OPEN);
+        scope(exit)OD.destroy;
+        OD.setSelectMultiple(true);
+        OD.setCurrentFolder(CurrentPath());
+        auto resp = OD.run();
+
+        if(resp == ResponseType.CANCEL)return rv;
+
+        auto sinlist = OD.getFilenames();
 
 
-	void ClosePage(DOC_IF closeDoc)
-	{
-		auto doc = cast(DOCUMENT) closeDoc;
-		auto page = doc.PageWidget();
-		auto pageindex = pageNum(page);
-		removePage(pageindex);
-	}
+        while(sinlist)
+        {
+            auto txt = text(cast(char*)sinlist.data());
+            if(txt is null) continue;
+            rv ~= txt;
+            sinlist = sinlist.next();
+        }
+        return rv ;
+    }
+    string SaveAsDialog(string PrevName)
+    {
+        string rv;
+        auto SAD = new FileChooserDialog("Bury the DComposed document as ...", null, FileChooserAction.SAVE);
+        SAD.setCurrentName(baseName(PrevName));
+        SAD.setCurrentFolder(dirName(PrevName));
+        SAD. setDoOverwriteConfirmation(true);
+        auto resp = SAD.run();
 
-	void Undo()
-	{
-		auto xdoc = cast (DOCUMENT)Current();
-		if(xdoc is null) return;
-		xdoc.getBuffer.undo();
-		//mInstanceAndParamsForSignal.setObject(xdoc.getSourceViewStruct());
-		//mReturnValueForSignal.setObject(xdoc.getSourceViewStruct());
-		//Signals.emitv(mInstanceAndParamsForSignal,mUndoSignalID, 0u, mReturnValueForSignal);
-	}
-	void Redo()
-	{
-		auto xdoc = cast (DOCUMENT)Current();
-		if(xdoc is null) return;
+        if(resp == ResponseType.CANCEL)
+        {
+            SAD.destroy();
+            return rv;
+        }
 
-		mInstanceAndParamsForSignal.setObject(xdoc.getSourceViewStruct());
-		mReturnValueForSignal.setObject(xdoc.getSourceViewStruct());
-		Signals.emitv(mInstanceAndParamsForSignal,mRedoSignalID, 0u, mReturnValueForSignal);
-	}
+        rv = SAD.getFilename();
+        SAD.destroy();
+        return rv;
+    }
 
-	void Cut()
-	{
-		auto xdoc = cast(DOCUMENT)Current();
-		if(xdoc is null) return;
 
-		mInstanceAndParamsForSignal.setObject(xdoc.getTextViewStruct());
-		mReturnValueForSignal.setObject(xdoc.getTextViewStruct());
-		Signals.emitv(mInstanceAndParamsForSignal,mCutSignalID, 0u, mReturnValueForSignal);
-	}
-	void Copy()
-	{
-		auto xdoc = cast(DOCUMENT)Current();
-		if(xdoc is null) return;
+    void ClosePage(DOC_IF closeDoc)
+    {
+        auto doc = cast(DOCUMENT) closeDoc;
+        auto page = doc.PageWidget();
+        auto pageindex = pageNum(page);
+        removePage(pageindex);
+    }
 
-		mInstanceAndParamsForSignal.setObject(xdoc.getTextViewStruct());
-		mReturnValueForSignal.setObject(xdoc.getTextViewStruct());
-		Signals.emitv(mInstanceAndParamsForSignal,mCopySignalID, 0u, mReturnValueForSignal);
-	}
+    void Undo()
+    {
+        auto xdoc = cast (DOCUMENT)Current();
+        if(xdoc is null) return;
+        xdoc.getBuffer.undo();
+        //mInstanceAndParamsForSignal.setObject(xdoc.getSourceViewStruct());
+        //mReturnValueForSignal.setObject(xdoc.getSourceViewStruct());
+        //Signals.emitv(mInstanceAndParamsForSignal,mUndoSignalID, 0u, mReturnValueForSignal);
+    }
+    void Redo()
+    {
+        auto xdoc = cast (DOCUMENT)Current();
+        if(xdoc is null) return;
 
-	void Paste()
-	{
-		auto xdoc = cast(DOCUMENT)Current();
-		if(xdoc is null)return;
+        mInstanceAndParamsForSignal.setObject(xdoc.getSourceViewStruct());
+        mReturnValueForSignal.setObject(xdoc.getSourceViewStruct());
+        Signals.emitv(mInstanceAndParamsForSignal,mRedoSignalID, 0u, mReturnValueForSignal);
+    }
 
-		mInstanceAndParamsForSignal.setObject(xdoc.getTextViewStruct());
-		mReturnValueForSignal.setObject(xdoc.getTextViewStruct());
-		Signals.emitv(mInstanceAndParamsForSignal,mPasteSignalID, 0u, mReturnValueForSignal);
-	}
+    void Cut()
+    {
+        auto xdoc = cast(DOCUMENT)Current();
+        if(xdoc is null) return;
 
-	void NotifySelection()
-	{
-		auto xcut = mActions.getAction("ActEditCut");
-		auto xcopy = mActions.getAction("ActEditCopy");
-		if(Current.Selection() == "")
-		{
-			xcut.setSensitive(false);
-			xcopy.setSensitive(false);
-		}
-		else
-		{
-			xcut.setSensitive(true);
-			xcopy.setSensitive(true);
-		}
-	}
+        mInstanceAndParamsForSignal.setObject(xdoc.getTextViewStruct());
+        mReturnValueForSignal.setObject(xdoc.getTextViewStruct());
+        Signals.emitv(mInstanceAndParamsForSignal,mCutSignalID, 0u, mReturnValueForSignal);
+    }
+    void Copy()
+    {
+        auto xdoc = cast(DOCUMENT)Current();
+        if(xdoc is null) return;
+
+        mInstanceAndParamsForSignal.setObject(xdoc.getTextViewStruct());
+        mReturnValueForSignal.setObject(xdoc.getTextViewStruct());
+        Signals.emitv(mInstanceAndParamsForSignal,mCopySignalID, 0u, mReturnValueForSignal);
+    }
+
+    void Paste()
+    {
+        auto xdoc = cast(DOCUMENT)Current();
+        if(xdoc is null)return;
+
+        mInstanceAndParamsForSignal.setObject(xdoc.getTextViewStruct());
+        mReturnValueForSignal.setObject(xdoc.getTextViewStruct());
+        Signals.emitv(mInstanceAndParamsForSignal,mPasteSignalID, 0u, mReturnValueForSignal);
+    }
+
+    void NotifySelection()
+    {
+        auto xcut = mActions.getAction("ActEditCut");
+        auto xcopy = mActions.getAction("ActEditCopy");
+        if(Current.Selection() == "")
+        {
+            xcut.setSensitive(false);
+            xcopy.setSensitive(false);
+        }
+        else
+        {
+            xcut.setSensitive(true);
+            xcopy.setSensitive(true);
+        }
+    }
 
 
 }

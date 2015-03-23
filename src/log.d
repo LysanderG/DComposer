@@ -58,7 +58,7 @@ class LOG
 
     void Engage()
     {
-        mSystemDefaultLogName = Config.GetValue("log", "default_log_file", SystemPath("dcomposer.log"));
+        mSystemDefaultLogName = SystemPath( Config.GetValue("log", "default_log_file",  "dcomposer.log"));
         if(Config.HasKey("log", "interim_log_file"))
         {
             mLogFile = Config.GetValue("log", "interim_log_file",buildPath(userDirectory, "error.log"));

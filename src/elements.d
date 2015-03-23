@@ -17,8 +17,8 @@ import core.sys.posix.dlfcn;
 
 
 
-LIBRARY[string]	Libraries;
-string[]	LibsNewlyAdded;		//diff of the above two
+LIBRARY[string] Libraries;
+string[]    LibsNewlyAdded;     //diff of the above two
 
 
 ELEMENT[string] Elements;
@@ -26,113 +26,113 @@ ELEMENT[string] Elements;
 
 void Engage()
 {
-	auto NewLibraries = AcquireLibraries();
+    auto NewLibraries = AcquireLibraries();
 
-	if(NewLibraries.length > 0)
-	{
-		string newElementsString;
-		foreach(elemlib; NewLibraries) newElementsString ~= "\t"~ elemlib.baseName() ~"\n";
+    if(NewLibraries.length > 0)
+    {
+        string newElementsString;
+        foreach(elemlib; NewLibraries) newElementsString ~= "\t"~ elemlib.baseName() ~"\n";
 
-		auto response =ShowMessage("DComposer detected new elements", newElementsString ~ "To enable these elements please run element manager", "Ignore", "Manage Elements");
+        auto response =ShowMessage("DComposer detected new elements", newElementsString ~ "To enable these elements please run element manager", "Ignore", "Manage Elements");
 
-		if(response == 1) ui_elementmanager.Execute();
-	}
-	//ok now lets load the libraries and  engage elements
-	LoadElements();
+        if(response == 1) ui_elementmanager.Execute();
+    }
+    //ok now lets load the libraries and  engage elements
+    LoadElements();
 
 
-	Log.Entry("Engaged");
+    Log.Entry("Engaged");
 }
 
 
 void PostEngage()
 {
 
-	Log.Entry("PostEngaged");
+    Log.Entry("PostEngaged");
 }
 
 void Disengage()
 {
-	RegisterLibraries();
-	foreach(elem; Elements) elem.Disengage();
-	Log.Entry("Disengaged");
+    RegisterLibraries();
+    foreach(elem; Elements) elem.Disengage();
+    Log.Entry("Disengaged");
 }
 
 string[] AcquireLibraries()
 {
-	string[] newLibs;
-	//first lets see what we have in the search paths ---> add a user option for more search paths silly
-	auto available  = filter!`endsWith(a.name, ".so")`(dirEntries(Config.GetValue("elements", "element_path", SystemPath("elements")),SpanMode.shallow));
+    string[] newLibs;
+    //first lets see what we have in the search paths ---> add a user option for more search paths silly
+    auto available  = filter!`endsWith(a.name, ".so")`(dirEntries( SystemPath( Config.GetValue("elements", "element_path", "elements")),SpanMode.shallow));
 
-	//now lets see whats "on record"
-	auto LibsRegistered = Config.GetKeys("element_libraries");
+    //now lets see whats "on record"
+    auto LibsRegistered = Config.GetKeys("element_libraries");
 
-	//check for new elements (libsavailable - libsregistered)
-	foreach (string elemlib; available)
-	{
-		Libraries[elemlib] = LIBRARY(elemlib);
-		if(LibsRegistered.canFind(elemlib))
-		{
-			string[] libStuff = Config.GetArray!string("element_libraries", elemlib);
-			Libraries[elemlib].mFile = libStuff[0];
-			Libraries[elemlib].mClassName = libStuff[1];
-			Libraries[elemlib].mName = libStuff[2];
-			Libraries[elemlib].mInfo = libStuff[3];
-			Libraries[elemlib].mEnabled = (libStuff[4] == "Enabled");
-			Libraries[elemlib].mRegistered = true;
-			continue;
-		}
-		newLibs ~= elemlib;
-	}
-	return newLibs;
+    //check for new elements (libsavailable - libsregistered)
+    foreach (string elemlib; available)
+    {
+        Libraries[elemlib] = LIBRARY(elemlib);
+        if(LibsRegistered.canFind(elemlib))
+        {
+            string[] libStuff = Config.GetArray!string("element_libraries", elemlib);
+            Libraries[elemlib].mFile = libStuff[0];
+            Libraries[elemlib].mClassName = libStuff[1];
+            Libraries[elemlib].mName = libStuff[2];
+            Libraries[elemlib].mInfo = libStuff[3];
+            Libraries[elemlib].mEnabled = (libStuff[4] == "Enabled");
+            Libraries[elemlib].mRegistered = true;
+            continue;
+        }
+        newLibs ~= elemlib;
+    }
+    return newLibs;
 }
 
 void RegisterLibraries()
 {
-	foreach(lib;Libraries)
-	{
-		//if(lib.mRegistered == false) continue;
-		string[5] regval;
-		regval[0] = lib.mFile;
-		regval[1] = lib.mClassName;
-		regval[2] = lib.mName;
-		regval[3] = lib.mInfo;
-		if(lib.mEnabled)regval[4] = "Enabled"; else regval[4] = "Disabled";
-		Config.SetArray("element_libraries", lib.mFile, regval);
-	}
+    foreach(lib;Libraries)
+    {
+        //if(lib.mRegistered == false) continue;
+        string[5] regval;
+        regval[0] = lib.mFile;
+        regval[1] = lib.mClassName;
+        regval[2] = lib.mName;
+        regval[3] = lib.mInfo;
+        if(lib.mEnabled)regval[4] = "Enabled"; else regval[4] = "Disabled";
+        Config.SetArray("element_libraries", lib.mFile, regval);
+    }
 }
 
 
 //for dynamically loading ....only load enabled elements which are not loaded ...?
 void LoadElements()
 {
-	foreach(keyfile, ref lib; Libraries)
-	{
-		if(lib.mEnabled)
-		{
-			if(lib.ptr is null)
-			{
-				lib.ptr = Runtime.loadLibrary(lib.mFile);
-				if(lib.ptr is null)
-				{
-					lib.mEnabled = false;
-					ShowMessage("Error loading dynamic library", "Failed to load " ~ lib.mFile, "Continue");
-					Log.Entry("     Failed to load library: " ~ lib.mFile, "Error");
-					continue;
-				}
-				Log.Entry("     Loaded library: " ~ lib.mFile);
-				auto tmpvar = dlsym(lib.ptr, "GetClassName");
-				string function() GetClassName = cast(string function())tmpvar; //wouldn't work without tmpvar??
-				lib.mClassName = GetClassName();
-				auto  tmp = cast(ELEMENT)Object.factory(lib.mClassName);
-				lib.mName = tmp.Name;
-				lib.mInfo = tmp.Info;
-				lib.mRegistered = true;
-				Elements[lib.mClassName] = tmp;
-				Elements[lib.mClassName].Engage();
-			}
-		}
-	}
+    foreach(keyfile, ref lib; Libraries)
+    {
+        if(lib.mEnabled)
+        {
+            if(lib.ptr is null)
+            {
+                lib.ptr = Runtime.loadLibrary(lib.mFile);
+                if(lib.ptr is null)
+                {
+                    lib.mEnabled = false;
+                    ShowMessage("Error loading dynamic library", "Failed to load " ~ lib.mFile, "Continue");
+                    Log.Entry("     Failed to load library: " ~ lib.mFile, "Error");
+                    continue;
+                }
+                Log.Entry("     Loaded library: " ~ lib.mFile);
+                auto tmpvar = dlsym(lib.ptr, "GetClassName");
+                string function() GetClassName = cast(string function())tmpvar; //wouldn't work without tmpvar??
+                lib.mClassName = GetClassName();
+                auto  tmp = cast(ELEMENT)Object.factory(lib.mClassName);
+                lib.mName = tmp.Name;
+                lib.mInfo = tmp.Info;
+                lib.mRegistered = true;
+                Elements[lib.mClassName] = tmp;
+                Elements[lib.mClassName].Engage();
+            }
+        }
+    }
 }
 
 
@@ -140,53 +140,53 @@ void LoadElements()
  * ALL ELEMENT MODULES MUST HAVE A
  * extern (C) string GetClassName()
  * {
- * 		return fullyQualifiedName!Element;
+ *      return fullyQualifiedName!Element;
  * }
  * */
 
 interface ELEMENT
 {
-	void Engage();
-	void Disengage();
+    void Engage();
+    void Disengage();
 
-	void Configure();
+    void Configure();
 
-	string Name();
-	string Info();
-	string Version();
-	string License();
-	string CopyRight();
-	string[] Authors();
+    string Name();
+    string Info();
+    string Version();
+    string License();
+    string CopyRight();
+    string[] Authors();
 
-	PREFERENCE_PAGE PreferencePage();
+    PREFERENCE_PAGE PreferencePage();
 }
 
 
 struct LIBRARY
 {
-	void * mVptr;
-	string mFile;
-	string mClassName;
-	string mName;
-	string mInfo;
-	bool mEnabled;
-	bool mRegistered;
+    void * mVptr;
+    string mFile;
+    string mClassName;
+    string mName;
+    string mInfo;
+    bool mEnabled;
+    bool mRegistered;
 
 
-	@property void ptr(void * x){mVptr = x;}
-	@property void * ptr(){return mVptr;}
-	this(void * x){ptr = x;}
+    @property void ptr(void * x){mVptr = x;}
+    @property void * ptr(){return mVptr;}
+    this(void * x){ptr = x;}
 
-	this(string xFile)
-	{
-		mVptr = null;
-		mFile = xFile;
-		mClassName = null;
-		mName = "unknown";
-		mInfo = "unknown";
-		mEnabled = false;
-		mRegistered = false;
-	}
+    this(string xFile)
+    {
+        mVptr = null;
+        mFile = xFile;
+        mClassName = null;
+        mName = "unknown";
+        mInfo = "unknown";
+        mEnabled = false;
+        mRegistered = false;
+    }
 }
 
 /*
