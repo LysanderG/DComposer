@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.18.3 -->
 <interface>
-  <!-- interface-requires gtk+ 3.0 -->
+  <requires lib="gtk+" version="3.0"/>
+  <object class="GtkListStore" id="liststore1">
+    <columns>
+      <!-- column-name enabled -->
+      <column type="gboolean"/>
+      <!-- column-name libfilebasename -->
+      <column type="gchararray"/>
+      <!-- column-name element -->
+      <column type="gchararray"/>
+      <!-- column-name elementinfo -->
+      <column type="gchararray"/>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">False</col>
+        <col id="1" translatable="yes">fg</col>
+        <col id="2" translatable="yes">fg</col>
+        <col id="3" translatable="yes">sd</col>
+        <col id="4" translatable="yes"/>
+      </row>
+    </data>
+  </object>
   <object class="GtkDialog" id="dialog1">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -28,7 +52,8 @@
         <child>
           <object class="GtkScrolledWindow" id="scrolledwindow1">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can_focus">True</property>
+            <property name="can_default">True</property>
             <property name="shadow_type">in</property>
             <property name="min_content_width">600</property>
             <property name="min_content_height">400</property>
@@ -41,16 +66,14 @@
                 <property name="model">liststore1</property>
                 <property name="expander_column">treeviewcolumn3</property>
                 <property name="tooltip_column">4</property>
-                <property name="activate_on_single_click">True</property>
                 <child internal-child="selection">
-                  <object class="GtkTreeSelection" id="treeview-selection1">
-                    <property name="mode">browse</property>
-                  </object>
+                  <object class="GtkTreeSelection" id="treeview-selection1"/>
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn1">
                     <property name="sizing">autosize</property>
                     <property name="title" translatable="yes">Available Elements</property>
+                    <property name="sort_column_id">1</property>
                     <child>
                       <object class="GtkCellRendererToggle" id="cellrenderertoggle1"/>
                       <attributes>
@@ -199,19 +222,5 @@ This restriction will removed at a further date.</property>
     <action-widgets>
       <action-widget response="0">button1</action-widget>
     </action-widgets>
-  </object>
-  <object class="GtkListStore" id="liststore1">
-    <columns>
-      <!-- column-name enabled -->
-      <column type="gboolean"/>
-      <!-- column-name libfilebasename -->
-      <column type="gchararray"/>
-      <!-- column-name element -->
-      <column type="gchararray"/>
-      <!-- column-name elementinfo -->
-      <column type="gchararray"/>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
   </object>
 </interface>

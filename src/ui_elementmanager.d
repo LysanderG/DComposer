@@ -16,6 +16,7 @@ import gtk.TreeView;
 import gtk.ListStore;
 import gtk.Button;
 import gtk.TreeViewColumn;
+import gtk.CellRendererToggle;
 
 import gobject.Value;
 
@@ -25,6 +26,7 @@ private Dialog mElementManager;
 private TreeView mView;
 private ListStore mStore;
 private Button  mPreferenceBtn;
+private CellRendererToggle mCellToggle;
 
 
 void Engage()
@@ -40,6 +42,7 @@ void Engage()
     mView = cast(TreeView)builder.getObject("treeview1");
     mStore = cast(ListStore)builder.getObject("liststore1");
     mPreferenceBtn = cast(Button)builder.getObject("button2");
+    mCellToggle = cast(CellRendererToggle)builder.getObject("cellrenderertoggle1");
 
     void RowActivated(TreePath tp, TreeViewColumn tvc, TreeView me)
     {
@@ -79,6 +82,15 @@ void Engage()
         mStore.setValue(ti, 4, Libraries[libraryKey].mFile);
     }
     mView.addOnRowActivated (&RowActivated);
+
+    void RowToggled(string Path, CellRendererToggle crt)
+    {
+        RowActivated(new TreePath(Path), cast(TreeViewColumn)null, mView);
+
+        dwrite("hello");
+    }
+
+    mCellToggle.addOnToggled(&RowToggled);
 
     void CursorChanged(TreeView me)
     {
