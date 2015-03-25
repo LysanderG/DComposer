@@ -86,8 +86,6 @@ void Engage()
     void RowToggled(string Path, CellRendererToggle crt)
     {
         RowActivated(new TreePath(Path), cast(TreeViewColumn)null, mView);
-
-        dwrite("hello");
     }
 
     mCellToggle.addOnToggled(&RowToggled);

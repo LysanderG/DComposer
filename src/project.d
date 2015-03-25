@@ -28,7 +28,7 @@ class PROJECT
     string      mName;
     string      mFolder;
     COMPILER    mCompiler;
-    TARGET      mTargetType;
+    TARGET      mTargetType = TARGET.EMPTY;
 
     bool        mUseCustomBuild;
     string      mCustomBuildCommand;
@@ -132,7 +132,6 @@ class PROJECT
             {
                 BuildCommand ~= " " ~ item;
             }
-            dwrite (BuildCommand);
             return BuildCommand;
         }
     }

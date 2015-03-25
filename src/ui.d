@@ -722,7 +722,6 @@ void ConfigureToolBar()
     // call back funtions
     void GetDragData(DragContext dc, SelectionData sd, guint info, guint timestamp, Widget w)
     {
-        dwrite("here ",&dc, " ", dc.getActions(), " ", timestamp);
 
         IconView iView = cast(IconView)w;
         auto ti = new TreeIter;
@@ -740,28 +739,22 @@ void ConfigureToolBar()
         mIconRowData.mID = ti.getValueString(3);
         mIconRowData.mPath = tp.toString();
 
-        dwrite("here");
     }
     void ReceivedDragData(DragContext dc, gint x, gint y, SelectionData sd, guint info, guint tstamp, Widget w)
     {
         //scope(exit)dc.dropFinish(1, tstamp);
         if(mIconRowData.mName == "nullData")return;
 
-        dwrite("there ", &dc, " ", dc.getActions());
-
         auto tpx = new TreePath(true);
 
         tpx = tbCurrentIcons.getPathAtPos(x, y);
-        dwrite("path ",tpx);
 
         auto tiAtPath = new TreeIter;
         auto tiInsert = new TreeIter;
 
         tbCurrentList.getIter(tiAtPath, tpx);
-        dwrite(tiAtPath);
         if(tbCurrentList.iterIsValid(tiAtPath))tbCurrentList.insertBefore(tiInsert, tiAtPath);
         else(tbCurrentList.append(tiInsert));
-        dwrite(tiInsert, "inserting");
         if(!tbCurrentList.iterIsValid(tiInsert))
         {
             mIconRowData.mName = "nullData";
@@ -781,8 +774,6 @@ void ConfigureToolBar()
             if(delTPath.compare(tpx) > 0) delTPath.next();
             tbCurrentList.dragDataDelete(delTPath);
         }
-
-        dwrite("there");
     }
     bool FailedDrag(DragContext dc, GtkDragResult dr, Widget w)
     {

@@ -252,7 +252,6 @@ class UI_SEARCH
         mTree = cast (TreeView) mBuilder.getObject("treeview2");
         mStore = cast (ListStore) mBuilder.getObject("liststore1");
 
-        dwrite(mTree);
         mTree.setRulesHint(1);
 
         mSearchBox.addOnChanged(delegate void(ComboBoxText cbt){Find();});

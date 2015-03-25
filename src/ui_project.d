@@ -38,6 +38,7 @@ import gtk.CellRendererText;
 import gtk.CellRendererToggle;
 import gtk.FileChooserDialog;
 import gtk.Dialog;
+import gtk.FileFilter;
 
 import gobject.Value;
 
@@ -158,7 +159,7 @@ class UI_PROJECT
                         case "Notes":
                         {
                             if(Project.Lists[key].length > 0)ProjNotes.getBuffer().setText(Project.Lists[key][0]);
-                            ProjNotes.getBuffer().setText("");break;
+                            else ProjNotes.getBuffer().setText("");break;
                         }
                         default: writeln("not here!!");break;
                     }
@@ -268,7 +269,6 @@ class UI_PROJECT
         //------ setup ui_lists
         with(LIST_NAMES)
         {
-            dwrite("locating");
             ProjSrcFiles = new UI_LIST(SRC_FILES, ListType.FILES);
             filesbox.packStart(ProjSrcFiles.GetRootWidget(), 1, 1, 1);
             ProjRelFiles = new UI_LIST(REL_FILES, ListType.FILES);
@@ -297,7 +297,6 @@ class UI_PROJECT
             ProjPostBuildScripts = new UI_LIST(POSTBUILD, ListType.FILES);
             scriptbox.packStart(ProjPreBuildScripts.GetRootWidget(), 1, 1, 0);
             scriptbox.packStart(ProjPostBuildScripts.GetRootWidget(), 1, 1, 0);
-            dwrite("locating");
         }
         LoadFlags();
 
@@ -375,9 +374,7 @@ class UI_PROJECT
 
         ProjLibraries.mStore.addOnRowInserted (delegate void(TreePath, TreeIter, TreeModelIF)
         {
-            dwrite("  ",ProjLibraries.GetItems());
             Project.SetListData(LIST_NAMES.LIBRARIES, ProjLibraries.GetItems());
-
         });
 
 
@@ -440,6 +437,15 @@ class UI_PROJECT
         string rv;
         auto OD = new  FileChooserDialog("What project do you wish to DCompose", null, FileChooserAction.OPEN);
         OD.setSelectMultiple(false);
+        FileFilter ff = new FileFilter;
+        ff.setName("D project");
+        ff.addPattern("*.dpro");
+        auto ff2 = new FileFilter;
+        ff2.setName("All");
+        ff2.addPattern("*");
+        OD.addFilter(ff);
+        OD.addFilter(ff2);
+
         auto resp = OD.run();
         OD.hide();
 

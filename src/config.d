@@ -497,7 +497,7 @@ public bool CurrentPath(string nuPath)
 
 deprecated public string ConfigPath(string subFolder)
 {
-    scope(exit)dwrite(userDirectory, "**",subFolder);
+    scope(exit)Log.Entry("ConfigPath has been deprecated");
     scope(failure) Log.Entry("Failed to build configuration path", "Error");
     return buildPath(userDirectory, subFolder);
 }
@@ -505,7 +505,6 @@ deprecated public string ConfigPath(string subFolder)
 public string SystemPath(string subFolder)
 {
     scope(failure) Log.Entry("Failed to build system path", "Error");
-    dwrite(buildPath(sysDirectory, subFolder));
     return buildPath(sysDirectory, subFolder);
 }
 
