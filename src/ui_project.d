@@ -181,7 +181,7 @@ class UI_PROJECT
         WeAreSettingNameAndFolder = true;
         scope(exit)WeAreSettingNameAndFolder = false;
 
-        ProjAbsPath.setText(buildPath(Project.DefaultProjectRootPath, ProjRelPath.getText(), ProjName.getText().setExtension(".dpro")));
+        ProjAbsPath.setText(buildNormalizedPath(Project.DefaultProjectRootPath, ProjRelPath.getText(), ProjName.getText().setExtension(".dpro")));
         Project.Name = ProjName.getText();
         Project.Folder = buildPath(Project.DefaultProjectRootPath, ProjRelPath.getText());
 
@@ -270,6 +270,7 @@ class UI_PROJECT
         with(LIST_NAMES)
         {
             ProjSrcFiles = new UI_LIST(SRC_FILES, ListType.FILES);
+            dwrite("hi");
             filesbox.packStart(ProjSrcFiles.GetRootWidget(), 1, 1, 1);
             ProjRelFiles = new UI_LIST(REL_FILES, ListType.FILES);
             filesbox.packStart(ProjRelFiles.GetRootWidget(), 1, 1, 1);
@@ -359,8 +360,12 @@ class UI_PROJECT
 
         ProjName.addOnChanged(delegate void (EditableIF e)
         {
+            auto xtext = ProjName.getText().removechars(`\/`);
+            if(xtext.length == 0)xtext = "";
+            ProjName.setText(xtext);
             CalculateFolder();
         });
+
         ProjRelPath.addOnChanged(delegate void (EditableIF)
         {
             CalculateFolder();

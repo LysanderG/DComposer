@@ -54,6 +54,7 @@ class UI_LIST
     {
 
         auto builder = new Builder;
+dwrite("Ignore the following gtk warning :)");
         builder.addFromFile( SystemPath( Config.GetValue("ui_list", "glade_file",  "glade/ui_list.glade")));
 
         mRoot   = cast(Frame)builder.getObject("uilist");
@@ -208,7 +209,8 @@ class UI_LIST
             if(!GetItems.canFind(afile))
             {
                 if(afile.startsWith(Project.Folder))afile = afile.relativePath(Project.Folder);
-                AddString(afile.relativePath(mBasePath));
+                else afile = afile.absolutePath(mBasePath);
+                AddString(afile);
             }
             ChosenFiles = ChosenFiles.next();
         }
@@ -231,7 +233,8 @@ class UI_LIST
             if(!GetItems.canFind(apath))
             {
                 if(apath.startsWith(Project.Folder))apath = apath.relativePath(Project.Folder);
-                AddString(apath.relativePath(mBasePath));
+                else apath = apath.absolutePath(mBasePath);
+                AddString(apath);
             }
             chosenpaths = chosenpaths.next();
         }

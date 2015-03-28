@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.18.3 -->
 <interface>
-  <!-- interface-requires gtk+ 3.0 -->
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkWindow" id="addItem">
     <property name="can_focus">True</property>
     <property name="has_focus">True</property>
@@ -13,8 +14,6 @@
     <property name="type_hint">dialog</property>
     <property name="urgency_hint">True</property>
     <property name="deletable">False</property>
-    <property name="attached_to">uilist</property>
-    <property name="mnemonics_visible">False</property>
     <child>
       <object class="GtkBox" id="box2">
         <property name="visible">True</property>
@@ -46,7 +45,6 @@
                 <property name="invisible_char">•</property>
                 <property name="activates_default">True</property>
                 <property name="caps_lock_warning">False</property>
-                <property name="placeholder_text">hi</property>
               </object>
               <packing>
                 <property name="expand">True</property>
