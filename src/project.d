@@ -311,9 +311,14 @@ class PROJECT
 
         foreach(script; mData[LIST_NAMES.PREBUILD])
         {
-            scope(failure)Log.Entry("Error "~script);
+            scope(failure)
+            {
+                Log.Entry("Error "~script);
+                continue;
+            }
             Log.Entry("Running pre-build script " ~ script);
-            executeShell("./"~script);
+            auto prerv = executeShell(script);
+            Log.Entry("\t" ~ script ~ " exited with a return value of :" ~ to!string(prerv.status));
         }
 
 
@@ -329,10 +334,14 @@ class PROJECT
 
         foreach(script; mData[LIST_NAMES.POSTBUILD])
         {
-            scope(failure)Log.Entry("Error "~script);
-            //Log.Entry("Running post-build script " ~ script);
-            auto scriptrv = executeShell("./"~script);
-            Log.Entry("Running post-build script "~script);
+            scope(failure)
+            {
+                Log.Entry("Error "~script);
+                continue;
+            }
+            Log.Entry("Running post-build script " ~ script);
+            auto postrv = executeShell(script);
+            Log.Entry("\t" ~ script ~ " exited with a return value of :" ~ to!string(postrv.status));
         }
     }
 

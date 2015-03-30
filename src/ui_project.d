@@ -183,7 +183,7 @@ class UI_PROJECT
 
         ProjAbsPath.setText(buildNormalizedPath(Project.DefaultProjectRootPath, ProjRelPath.getText(), ProjName.getText().setExtension(".dpro")));
         Project.Name = ProjName.getText();
-        Project.Folder = buildPath(Project.DefaultProjectRootPath, ProjRelPath.getText());
+        Project.Folder = buildNormalizedPath(Project.DefaultProjectRootPath, ProjRelPath.getText());
 
         //Project.SetNameAndFolder(ProjName.getText(), buildPath(Project.DefaultProjectRootPath, ProjRelPath.getText()));
         ui.SetProjectTitle(Project.Name);

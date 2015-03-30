@@ -54,7 +54,6 @@ class UI_LIST
     {
 
         auto builder = new Builder;
-dwrite("Ignore the following gtk warning :)");
         builder.addFromFile( SystemPath( Config.GetValue("ui_list", "glade_file",  "glade/ui_list.glade")));
 
         mRoot   = cast(Frame)builder.getObject("uilist");
@@ -208,13 +207,14 @@ dwrite("Ignore the following gtk warning :)");
             //don't add duplicates
             if(!GetItems.canFind(afile))
             {
-                if(afile.startsWith(Project.Folder))afile = afile.relativePath(Project.Folder);
-                else afile = afile.absolutePath(mBasePath);
+                auto afileAbsPath = afile.absolutePath();
+                auto projectAbsPath = Project.Folder.absolutePath(); //assume project folder is a normalized path ( no . .. or ~)
+                if(afileAbsPath.startsWith(projectAbsPath))afile = afile.relativePath(projectAbsPath);
+                else afile = afileAbsPath.buildNormalizedPath();
                 AddString(afile);
             }
             ChosenFiles = ChosenFiles.next();
         }
-        //emit(mTitle.getText(), GetItems());
     }
 
     void AddPaths()
@@ -232,13 +232,15 @@ dwrite("Ignore the following gtk warning :)");
             string apath = toImpl!(string, char *)(cast(char *)chosenpaths.data());
             if(!GetItems.canFind(apath))
             {
-                if(apath.startsWith(Project.Folder))apath = apath.relativePath(Project.Folder);
-                else apath = apath.absolutePath(mBasePath);
+                auto apathAbsPath = apath.absolutePath();
+                auto projectAbsPath = Project.Folder.absolutePath();
+
+                if(apathAbsPath.startsWith(projectAbsPath))apath = apath.relativePath(projectAbsPath);
+                else apath = apathAbsPath.buildNormalizedPath();
                 AddString(apath);
             }
             chosenpaths = chosenpaths.next();
         }
-        //emit(mTitle.getText(), GetItems());
     }
 
     Widget GetRootWidget()
