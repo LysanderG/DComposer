@@ -99,7 +99,7 @@ class PROJECT
                 if(flag.mState)
                 {
                     buildCMD ~= " " ~ flag.mSwitch;
-                    if(flag.mArgument) buildCMD ~= "="~flag.mValue;
+                    if(flag.mArgument) buildCMD ~= flag.mValue;
                 }
             }
             if(!GetFlag("-of", "name output file to filename")) buildCMD ~= " -of"~ mName;
@@ -365,7 +365,7 @@ class PROJECT
         try
         {
             mRunPids ~= spawnProcess(CmdStrings);
-            Log.Entry("running ... " );
+            Log.Entry(mName ~ "spawned ... " );
         }
         catch(Exception E)
         {
