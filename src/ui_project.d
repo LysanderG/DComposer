@@ -4,6 +4,7 @@ import dcore;
 import ui;
 import ui_list;
 
+import std.algorithm;
 import std.path;
 import std.file;
 import std.string;
@@ -80,6 +81,7 @@ class UI_PROJECT
     UI_LIST ProjPostBuildScripts;
     CheckButton ProjCustomBuild;
     Entry ProjCustomBuildCommand;
+    TextView ProjGeneratedBuildCommand;
 
     bool mFlagsLoading; //variable to stop emitting signal when initially loading flags (on project open)
 
@@ -161,13 +163,16 @@ class UI_PROJECT
                             if(Project.Lists[key].length > 0)ProjNotes.getBuffer().setText(Project.Lists[key][0]);
                             else ProjNotes.getBuffer().setText("");break;
                         }
-                        default: writeln("not here!!");break;
+                        default: writeln("not here!!", key);break;
                     }
                 }
                 break;
             }
             default :break;
         }
+        ProjGeneratedBuildCommand.getBuffer.setText("");
+        foreach(ln;Project.BuildCommand().splitter(' '))ProjGeneratedBuildCommand.appendText(ln ~ "\n");
+
     }
 
     void WatchLists(string ListName, string[] Values)
@@ -216,9 +221,10 @@ class UI_PROJECT
         {
 
             auto cmdswitch = ProjFlagsStore.getValueString(ti, 1);
+            auto cmdBrief = ProjFlagsStore.getValueString(ti, 3);
             if (cmdswitch.length < 1) return;
-            auto state = cast(int)Project.GetFlag(cmdswitch);
-            auto arg = Project.GetFlagArgument(cmdswitch);
+            auto state = cast(int)Project.GetFlag(cmdswitch, cmdBrief);
+            auto arg = Project.GetFlagArgument(cmdswitch, cmdBrief);
 
             ProjFlagsStore.setValue(ti, 0, state);
             ProjFlagsStore.setValue(ti, 2, arg);
@@ -265,6 +271,8 @@ class UI_PROJECT
         auto scriptbox  = cast(Box)uiBuilder.getObject("box5");
         ProjCustomBuild = cast(CheckButton)uiBuilder.getObject("checkbutton1");
         ProjCustomBuildCommand = cast(Entry)uiBuilder.getObject("entry1");
+        ProjGeneratedBuildCommand = cast(TextView)uiBuilder.getObject("textview2");
+        dwrite(ProjGeneratedBuildCommand);
 
         //------ setup ui_lists
         with(LIST_NAMES)
@@ -363,7 +371,8 @@ class UI_PROJECT
             auto xtext = ProjName.getText().removechars(`\/`);
             if(xtext.length == 0)xtext = "";
             ProjName.setText(xtext);
-            CalculateFolder();
+            ProjRelPath.setText(xtext);
+            //CalculateFolder();
         });
 
         ProjRelPath.addOnChanged(delegate void (EditableIF)
@@ -405,14 +414,14 @@ class UI_PROJECT
             auto oldvalue = ProjFlagsStore.getValue(ti, 0);
             int bvalue = oldvalue.getBoolean();
             oldvalue.setBoolean(!bvalue);
-            Project.SetFlag(ProjFlagsStore.getValueString(ti, 1), cast(bool)oldvalue.getBoolean());
+            Project.SetFlag(ProjFlagsStore.getValueString(ti, 1), ProjFlagsStore.getValueString(ti, 3), cast(bool)oldvalue.getBoolean());
 
         }, cast(GConnectFlags)1);
         ProjCellArgs.addOnEdited(delegate void (string path, string text, CellRendererText crt)
         {
             if(mFlagsLoading == true)return;
             auto ti = new TreeIter(ProjFlagsStore, path);
-            Project.SetFlagArgument(ProjFlagsStore.getValueString(ti, 1), text);
+            Project.SetFlagArgument(ProjFlagsStore.getValueString(ti, 1), ProjFlagsStore.getValueString(ti, 3), text);
         });
 
         bool IsVisible = Config.GetValue("ui_project", "is_visible", true);
