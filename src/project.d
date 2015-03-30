@@ -78,6 +78,11 @@ class PROJECT
 
     }
 
+
+
+
+    public :
+
     string BuildCommand()
     {
 
@@ -85,61 +90,57 @@ class PROJECT
 
         with (LIST_NAMES)
         {
-            string BuildCommand;
+            string buildCMD;
 
-            BuildCommand = Compiler;
+            buildCMD = Compiler;
 
             foreach(flag; mFlags)
             {
                 if(flag.mState)
                 {
-                    BuildCommand ~= " " ~ flag.mSwitch;
-                    if(flag.mArgument) BuildCommand ~= "="~flag.mValue;
+                    buildCMD ~= " " ~ flag.mSwitch;
+                    if(flag.mArgument) buildCMD ~= "="~flag.mValue;
                 }
             }
-            if(!GetFlag("-of")) BuildCommand ~= " -of"~ mName;
+            if(!GetFlag("-of", "name output file to filename")) buildCMD ~= " -of"~ mName;
             foreach(item; mData[VERSIONS])
             {
-                BuildCommand ~= " -version=" ~ item;
+                buildCMD ~= " -version=" ~ item;
             }
             foreach(item; mData[DEBUGS])
             {
-                BuildCommand ~= " -debug=" ~ item;
+                buildCMD ~= " -debug=" ~ item;
             }
             foreach(item; mData[IMPORT])
             {
-                BuildCommand ~= " -I" ~ item;
+                buildCMD ~= " -I" ~ item;
             }
             foreach(item; mData[STRING])
             {
-                BuildCommand ~= " -J" ~ item;
+                buildCMD ~= " -J" ~ item;
             }
             foreach(item; mData[LIBRARY_PATHS])
             {
-                BuildCommand ~= " -L-L" ~ item;
+                buildCMD ~= " -L-L" ~ item;
             }
             foreach(item; mData[LIBRARIES])
             {
                 if(item == "\0")continue;
                 if(item.length < 1)continue;
-                BuildCommand ~= " -L-l" ~ LibName(item);
+                buildCMD ~= " -L-l" ~ LibName(item);
             }
             foreach(item; mData[OTHER])
             {
-                BuildCommand ~= " " ~ item;
+                buildCMD ~= " " ~ item;
             }
             foreach(item; mData[SRC_FILES])
             {
-                BuildCommand ~= " " ~ item;
+                buildCMD ~= " " ~ item;
             }
-            return BuildCommand;
+            return buildCMD;
         }
     }
 
-
-
-
-    public :
 
     mixin Signal!(PROJECT_EVENT)Event;
     mixin Signal!(string)       RunOutput;
@@ -219,8 +220,9 @@ class PROJECT
         foreach(obj; jdata["Flags"])
         {
             string Switch = cast(string)obj["Switch"];
-            SetFlag(Switch, cast(bool)obj["State"]);
-            if(obj["Argument"])SetFlagArgument(Switch, cast(string)obj["Value"]);
+            string Brief = cast(string)obj["Brief"];
+            SetFlag(Switch, Brief, cast(bool)obj["State"]);
+            if(obj["Argument"])SetFlagArgument(Switch, Brief, cast(string)obj["Value"]);
         }
         foreach(string key, obj; jdata["lists"])
         {
@@ -462,19 +464,19 @@ class PROJECT
     }
 
 
-    bool GetFlag(string Switch)
+    bool GetFlag(string Switch, string Brief)
     {
         foreach(flag; mFlags)
         {
-            if(flag.mSwitch == Switch) return flag.mState;
+            if((flag.mSwitch == Switch) && (flag.mBrief == Brief)) return flag.mState;
         }
         return false;
     }
-    void SetFlag(string Switch, bool nuState)
+    void SetFlag(string Switch, string Brief, bool nuState)
     {
         foreach(ref flag; mFlags)
         {
-            if(flag.mSwitch == Switch)
+            if((flag.mSwitch == Switch) && (flag.mBrief == Brief))
             {
                 flag.mState = nuState;
                 Event.emit(PROJECT_EVENT.FLAG);
@@ -482,22 +484,22 @@ class PROJECT
             }
         }
     }
-    string GetFlagArgument(string Switch)
+    string GetFlagArgument(string Switch, string Brief)
     {
         foreach(flag; mFlags)
         {
-            if((flag.mSwitch == Switch) && (flag.mArgument))
+            if((flag.mSwitch == Switch) && (flag.mBrief == Brief) && (flag.mArgument))
             {
                 return flag.mValue;
             }
         }
         return "";
     }
-    void SetFlagArgument(string Switch, string nuArg)
+    void SetFlagArgument(string Switch, string Brief, string nuArg)
     {
         foreach(ref flag; mFlags)
         {
-            if(flag.mSwitch == Switch)
+            if((flag.mSwitch == Switch) && (flag.mBrief == Brief))
             {
                 flag.mValue = nuArg;
                 Event.emit(PROJECT_EVENT.FLAG);
