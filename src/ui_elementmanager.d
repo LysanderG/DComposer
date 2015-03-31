@@ -1,6 +1,7 @@
 module ui_elementmanager;
 
 import std.path;
+import std.string;
 import core.runtime;
 import core.sys.posix.dlfcn;
 
@@ -27,6 +28,7 @@ private TreeView mView;
 private ListStore mStore;
 private Button  mPreferenceBtn;
 private CellRendererToggle mCellToggle;
+private Label mElementInfoLabel;
 
 
 void Engage()
@@ -43,6 +45,7 @@ void Engage()
     mStore = cast(ListStore)builder.getObject("liststore1");
     mPreferenceBtn = cast(Button)builder.getObject("button2");
     mCellToggle = cast(CellRendererToggle)builder.getObject("cellrenderertoggle1");
+    mElementInfoLabel = cast(Label)builder.getObject("label4");
 
     void RowActivated(TreePath tp, TreeViewColumn tvc, TreeView me)
     {
@@ -80,14 +83,28 @@ void Engage()
         mStore.setValue(ti, 2, Libraries[libraryKey].mName);
         mStore.setValue(ti, 3, Libraries[libraryKey].mInfo);
         mStore.setValue(ti, 4, Libraries[libraryKey].mFile);
+
+
+        if(Libraries[libraryKey].mClassName !in Elements)
+        {
+            mElementInfoLabel.setText(format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Libraries[libraryKey].mName, Libraries[libraryKey].mInfo, "unknown", "unknown", "unknown"));
+            return;
+        }
+        with(Elements[Libraries[libraryKey].mClassName])
+        {
+            string labelText = format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Name, Info, CopyRight, License, Authors);
+            mElementInfoLabel.setText(labelText);
+        }
+
+
     }
     mView.addOnRowActivated (&RowActivated);
+
 
     void RowToggled(string Path, CellRendererToggle crt)
     {
         RowActivated(new TreePath(Path), cast(TreeViewColumn)null, mView);
     }
-
     mCellToggle.addOnToggled(&RowToggled);
 
     void CursorChanged(TreeView me)
@@ -98,10 +115,26 @@ void Engage()
         auto val = new Value;
 
         mView.getCursor(tp, tvc);
+        if(tp is null) return;
         mStore.getIter(ti, tp);
         mStore.getValue(ti, 0, val);
 
         mPreferenceBtn.setSensitive(val.getBoolean());
+
+
+        auto libraryKey = mStore.getValueString(ti, 4);
+        dwrite(libraryKey);
+        if(Libraries[libraryKey].mClassName !in Elements)
+        {
+            mElementInfoLabel.setText(format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Libraries[libraryKey].mName, Libraries[libraryKey].mInfo, "unknown", "unknown", "unknown"));
+            return;
+        }
+        with(Elements[Libraries[libraryKey].mClassName])
+        {
+            string labelText = format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Name, Info, CopyRight, License, Authors);
+            mElementInfoLabel.setText(labelText);
+        }
+
     }
     mView.addOnCursorChanged(&CursorChanged);
 

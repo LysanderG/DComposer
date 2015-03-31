@@ -365,7 +365,7 @@ class PROJECT
         try
         {
             mRunPids ~= spawnProcess(CmdStrings);
-            Log.Entry(mName ~ "spawned ... " );
+            Log.Entry(`"` ~ mName ~ `"` ~ " spawned ... " );
         }
         catch(Exception E)
         {
