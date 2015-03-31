@@ -483,6 +483,7 @@ public string CurrentPath()
 public bool CurrentPath(string nuPath)
 {
     scope(failure) return false;
+    if(nuPath == mCurPath) return true;
     if(nuPath.isDir)
     {
         mCurPath = nuPath;

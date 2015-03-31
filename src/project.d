@@ -48,6 +48,7 @@ class PROJECT
         mDcomposerProjectVersion = PROJECT_MODULE_VERSION;
         Name = "\0";
         Folder = mDefaultProjectRootPath;
+        CurrentPath(Folder);
         Compiler = COMPILER.DMD;
         TargetType = TARGET.EMPTY;
         UseCustomBuild = false;
@@ -212,6 +213,7 @@ class PROJECT
         mDcomposerProjectVersion = cast(string)jdata["DcomposerProjectVersion"];
         Name = cast(string)jdata["Name"];
         Folder = cast(string)jdata["Folder"];
+        CurrentPath(Folder);
         Compiler = cast(COMPILER)cast(string)jdata["Compiler"];
         TargetType = cast(TARGET)cast(int)jdata["TargetType"];
         UseCustomBuild = cast(bool)jdata["UseCustomBuild"];
@@ -259,7 +261,7 @@ class PROJECT
             return;
         }
         if(!mFolder.exists())mkdirRecurse(mFolder);
-        mFolder.chdir();
+        CurrentPath(Folder);
 
         auto data = jsonObject();
 
@@ -359,6 +361,7 @@ class PROJECT
     {
         scope(failure){Log.Entry("Failed to Run", "error"); return;}
         if(TargetType == TARGET.EMPTY) return;
+        CurrentPath(Folder);
         auto CmdStrings = Config.GetArray!string("project","run_command", ["xterm", "-hold", "-e"]);
         CmdStrings ~= "./" ~ mName;
         CmdStrings ~= args;
