@@ -745,6 +745,10 @@ void ConfigureToolBar()
         //scope(exit)dc.dropFinish(1, tstamp);
         if(mIconRowData.mName == "nullData")return;
 
+        auto xadjuster = tbCurrentIcons.getHadjustment();
+
+        x += cast(gint)xadjuster.getValue();
+
         auto tpx = new TreePath(true);
 
         tpx = tbCurrentIcons.getPathAtPos(x, y);
