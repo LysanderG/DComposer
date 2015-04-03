@@ -271,8 +271,10 @@ public:
         mJson = parseJSON(readText(mCfgFile));
 
         if(TmpForLog.length)SetValue("log", "interim_log_file", TmpForLog);
+        SetValue("log", "echo_to_std_out", !Quiet);
 
         if(project.length)SetValue("project", "cmd_line_project", project);
+
 
         string[] Cmdfiles;
         foreach(cmd_line_file; CmdArgs[1 .. $])
