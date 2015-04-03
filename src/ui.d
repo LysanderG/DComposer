@@ -175,7 +175,6 @@ void RestoreGui()
 
     RestoreToolbar();
 
-
 }
 
 
@@ -869,7 +868,14 @@ void RestoreToolbar()
             sep.showAll();
             mToolbar.insert(sep);
         }
-        else mToolbar.insert(GetAction(toolaction).createToolItem());
+        else
+        {
+            //important note!!
+            //an action in the cfg file may be missing if its "element"
+            //has been unloaded/disabled.
+            auto theAction = GetAction(toolaction);
+            if(theAction !is null)mToolbar.insert(theAction.createToolItem());
+        }
     }
     bool ToolbarVisible = Config.GetValue("ui", "visible_toolbar", true);
     mToolbar.setVisible(ToolbarVisible);
