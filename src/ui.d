@@ -678,6 +678,8 @@ void ConfigureToolBar()
 
     foreach(toolaction; currentToolbarActions)
     {
+        if(toolaction.length < 1) continue;
+
         auto iter = new TreeIter;
         tbCurrentList.append(iter);
 
@@ -691,7 +693,9 @@ void ConfigureToolBar()
         else
         {
 
+
             auto workingAction = GetAction(toolaction);
+            if(workingAction is null) continue;
 
             Value StockIdValue = new Value;
             StockIdValue.init(GType.STRING);
@@ -848,6 +852,7 @@ void ConfigureToolBar()
         ActsToSave ~= tbCurrentList.getValueString(treeiter, 0);
         iterValid = tbCurrentList.iterNext(treeiter);
     }
+    dwrite(ActsToSave);
 
     Config.SetArray("toolbar", "configured_actions", ActsToSave);
     Config.Save();
@@ -873,6 +878,7 @@ void RestoreToolbar()
             //important note!!
             //an action in the cfg file may be missing if its "element"
             //has been unloaded/disabled.
+            if(toolaction.length < 1)continue;
             auto theAction = GetAction(toolaction);
             if(theAction !is null)mToolbar.insert(theAction.createToolItem());
         }
