@@ -5,16 +5,16 @@ import ui;
 
 import std.path;
 import std.file;
+import std.stdio;
 import std.string;
 import std.signals;
 import std.conv;
 import std.utf;
+import std.encoding;
 
 
 interface DOC_IF
 {
-
-    void SetOpeningScroll();
 
     @property string Language();
     @property void Language(string nulang);
@@ -69,21 +69,27 @@ interface DOC_IF
 
         auto rv = Create(FileName);
 
-        rv.SetOpeningScroll();
         rv.Virgin = false;
 
         scope(failure)
         {
+            dwrite("chunk failed");
             ui.ShowMessage("FILE INPUT ERROR", "Unable to open " ~ FileName ~ " confirm permissions and valid utf format.");
+            SetBusyCursor(false);
             return null;
         }
         if(!exists(FileName))return null;
+        SetBusyCursor(true);
+
         auto txt = ReadUTF8(FileName);
         rv.SetTimeStamp();
         rv.StopUndo();
         rv.SetText(txt);
         rv.RestartUndo();
         rv.GotoLine(LineNo);
+
+        SetBusyCursor(false);
+        dwrite("leaving");
         return rv;
     }
 
@@ -142,7 +148,7 @@ class DOCMAN
         if(UnTitledCount > 99_999) UnTitledCount = 0;//relax this is nothing just change it
         do
         {
-            rv = buildPath(getcwd(), format(Title, UnTitledCount++, Extension));
+            rv = buildPath(CurrentPath(), format(Title, UnTitledCount++, Extension));
             if(UnTitledCount > 100_000) return "dcomposer";
         }while(exists(cast(string)rv));
         return rv;
@@ -172,7 +178,6 @@ class DOCMAN
         Open(cast(string[])CmdLineFiles ~ cast(string[])LastSessionFiles);
 
         Log.Entry("PostEngaged");
-
     }
     void Disengage()
     {
@@ -190,8 +195,7 @@ class DOCMAN
 
     @property DOC_IF Current()
     {
-        auto x = mDocBook.Current();
-        return x;
+        return mDocBook.Current();
     }
 
     @property int Modified()
@@ -217,9 +221,7 @@ class DOCMAN
         mDocBook.Append(tmp);
         mDocuments ~= tmp;
 
-
         Event.emit("Create", Current());
-
 
         Log.Entry("Create document");
     }
@@ -241,7 +243,7 @@ class DOCMAN
         if(doc)
         {
             mDocBook.Current = doc;
-            doc.GotoLine(LineNo);
+            if(LineNo > 0)doc.GotoLine(LineNo);
             return doc;
         }
 
@@ -331,7 +333,6 @@ class DOCMAN
         if(Current.Modified) Current.Save();
         auto CmdString = Config.GetArray!string("docman","run_command", ["xterm", "-hold", "-e"]);
         CmdString ~= "rdmd " ~ Current.Name;
-        //CmdStrings ~= args;
         mRunPids ~= spawnProcess(CmdString);
     }
     bool Compile(DOC_IF xDoc = null, string[] Args = [])
@@ -364,8 +365,6 @@ class DOCMAN
         return (result.status == 0);
     }
 
-
-
     bool IsOpen(string CheckName)
     {
         foreach(doc; mDocuments)
@@ -386,8 +385,7 @@ class DOCMAN
 
     bool Empty()
     {
-        if (mDocuments.length > 0) return false;
-        return true;
+        return (mDocuments.length < 1);
     }
 
     bool GoTo(string DocName, int DocLine)
@@ -396,7 +394,7 @@ class DOCMAN
         if(docCheck is null) return false;
         if(Current is null) return false;
         if(Current.Name != DocName)return false;
-        Current.GotoLine(DocLine);
+        //Current.GotoLine(DocLine);
         return true;
     }
     void Undo()

@@ -27,6 +27,7 @@ import gtkc.glib;
 
 import gdk.Event;
 import gdk.Keysyms;
+import gdk.Rectangle;
 
 import gobject.ObjectG;
 import gobject.ParamSpec;
@@ -57,11 +58,13 @@ import gsv.SourceStyleSchemeManager;
 import gsv.SourceUndoManager;
 import gsv.SourceUndoManagerIF;
 import gsv.SourceView;
+import gsv.SourceMark;
 
 
 import gtk.Widget;
 import gtk.TextIter;
 import gtk.TextBuffer;
+import gtk.TextMark;
 
 import gsv.SourceCompletionProviderIF;
 import gsv.SourceCompletionProvider;
@@ -99,7 +102,7 @@ class DOCUMENT : SourceView, DOC_IF
     Label   mTabLabel;
     SourceUndoManagerIF mUndoManager;
 
-    bool    mIsOpeningScroll;
+    bool    mFirstScroll;
 
 
     SysTime mFileTimeStamp;
@@ -117,14 +120,8 @@ class DOCUMENT : SourceView, DOC_IF
     }
 
 
-
-
     public:
 
-    void SetOpeningScroll()
-    {
-        mIsOpeningScroll = true;
-    }
 
     this()
     {
@@ -192,25 +189,10 @@ class DOCUMENT : SourceView, DOC_IF
 
         mUndoManager = getBuffer.getUndoManager();
 
-        //trying this for initial scrolling
-        ScrollWin.getVadjustment.addOnChanged(delegate void(Adjustment)
-        {
-            if (!mIsOpeningScroll)return;
-            mIsOpeningScroll = false;
-            scrollToMark(getBuffer.getInsert, 0.25, false, 0.0, 0.0);
-        });
-
-        //playing with sourcecompletion ... screw all the wrapper stuff
-        //xcomp = getCompletion().getSourceCompletionStruct();
-        //wcomp = gtk_source_completion_words_new(null, null);
-        //gtk_source_completion_words_register(wcomp, getBuffer.getTextBufferStruct());
-        //g_object_set (cast(void*)wcomp, "priority\0".dup.ptr, 10, null);
-        //g_object_set (cast(void*)wcomp, "activation\0".dup.ptr,  GtkSourceCompletionActivation.INTERACTIVE|GtkSourceCompletionActivation.USER_REQUESTED, null);
-        //
-        //
-        //dwrite("------",gtk_source_completion_add_provider(xcomp, cast(GtkSourceCompletionProvider*) wcomp, cast(GError**)null));
-        //gtk_source_completion_words_register(wcomp, gtk_text_view_get_buffer (cast(GtkTextView*)getSourceViewStruct()));
-
+        mFirstScroll = true;
+        Rectangle xrec;
+        getVisibleRect(xrec);
+        dwrite("initial vis Rec = ", xrec);
 
     }
 
@@ -247,8 +229,6 @@ class DOCUMENT : SourceView, DOC_IF
         setPixelsBelowLines(1);
         modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.GetValue("document", "font", "Inconsolata Bold 12")));
     }
-
-
 
 
     @property string Language()
@@ -615,51 +595,51 @@ class DOCUMENT : SourceView, DOC_IF
     {
         return mLastSelection;
     }
-    /+void  GotoLine(int LineNo)
-    {
-        import glib.Timeout;
 
-        MainWindow.setFocus(this);
-        if(mIsOpeningScroll)
-        {
-            auto tscroll = cast(ScrolledWindow)mPageWidget;
-            tscroll.getVadjustment.changed();
-            tscroll.getVadjustment.valueChanged();
-
-            auto scrolltimeout = new Timeout(100, delegate bool()
-            {
-                tscroll.getVadjustment.changed();
-                tscroll.getVadjustment.valueChanged();
-                TextIter IL = new TextIter;
-                getBuffer().getIterAtLine(IL, LineNo);
-                scrollToMark(getBuffer.createMark("scrollto", IL, 0), 0.25, false, 0, 0);
-                GotoLine(LineNo);
-                return false;
-            });
-
-            mIsOpeningScroll = false;
-        }
-        else
-        {
-            TextIter IL = new TextIter;
-            getBuffer().getIterAtLine(IL, LineNo);
-            scrollToMark(getBuffer.createMark("scrollto", IL, 0), 0.25, false, 0, 0);
-            getBuffer().placeCursor(IL);
-        }
-    }+/
     void GotoLine(int LineNo)
     {
-        MainWindow.setFocus(this);
+
+        scope(exit)
+        {
+            mFirstScroll = false;
+            SetBusyCursor(false);
+            dwrite("done gotoline");
+        }
+
+        if(LineNo < 1) return;
+
+        dwrite("start gotoline ", LineNo);
+
+        TextIter   insIter = new TextIter;
+        Rectangle  insLoc, visLoc, nulLoc;
+
+        int inside;
+
         auto tiline = new TextIter;
+        getBuffer().getIterAtLine(tiline, LineNo);
+        getBuffer().placeCursor(tiline);
 
-        getVadjustment.changed();
+        SetBusyCursor(true);
 
+        do
+        {
+            ui.MainWindow.setSensitive(0);
+            auto insMark = getBuffer().getInsert();
+            getBuffer().getIterAtMark(insIter, insMark);
+            getIterLocation(insIter, insLoc);
+            getVisibleRect(visLoc);
+            if(insLoc.width < 1)insLoc.width = 1;
 
-        getBuffer.getIterAtLine(tiline, LineNo);
-        getBuffer.placeCursor(tiline);
-        getBuffer.moveMarkByName("insert",tiline);
-        scrollToMark(getBuffer().getInsert(), 0.25, false, 0.0, 0.0);
-        grabFocus();
+            inside = gdk.Rectangle.intersect(visLoc, insLoc, nulLoc);
+            scrollToMark(insMark, 0.25, true, 0.50, 0.50);
+            //while(Main.eventsPending())Main.iteration();
+            Main.iteration();
+            dwrite(visLoc,"/", insLoc,"/", inside, "---",visLoc.y);
+            dwrite("realized ? ",getParent().getRealized());
+            if( mFirstScroll && (insLoc.y == 0)) inside = 0;
+        }while(!inside);
+        ui.MainWindow.setSensitive(1);
+
     }
 
     string GetText(){return getBuffer.getText();}
