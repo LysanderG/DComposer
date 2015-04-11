@@ -50,7 +50,7 @@ interface DOC_IF
     void    RestartUndo();
 
     string  Selection();
-    void    GotoLine(int LineNo);
+    void    GotoLine(int LineNo, int LinePos);
     void    Save();
     void    SaveAs(string NuName);
     void    Close();
@@ -64,7 +64,7 @@ interface DOC_IF
         return rv;
     }
 
-    static  DOC_IF Open(string FileName, int LineNo = 0)
+    static  DOC_IF Open(string FileName, int LineNo = 0, int LinePos = 0)
     {
 
         auto rv = Create(FileName);
@@ -86,7 +86,7 @@ interface DOC_IF
         rv.StopUndo();
         rv.SetText(txt);
         rv.RestartUndo();
-        rv.GotoLine(LineNo);
+        rv.GotoLine(LineNo, LinePos);
 
         SetBusyCursor(false);
         dwrite("leaving");
@@ -236,18 +236,18 @@ class DOCMAN
     {
         foreach(doc; Files)Open(doc);
     }
-    DOC_IF Open(string FileName, int LineNo = 0)
+    DOC_IF Open(string FileName, int LineNo = 0, int LinePos = 0)
     {
         //first see if it is already open
         auto doc = GetDoc(FileName);
         if(doc)
         {
             mDocBook.Current = doc;
-            if(LineNo > 0)doc.GotoLine(LineNo);
+            if(LineNo >= 0)doc.GotoLine(LineNo, LinePos);
             return doc;
         }
 
-        auto nudoc = DOC_IF.Open(FileName, LineNo);
+        auto nudoc = DOC_IF.Open(FileName, LineNo, LinePos);
         if(nudoc is null) return null;
         nudoc.Modified = false;
         nudoc.Virgin = false;
@@ -388,9 +388,9 @@ class DOCMAN
         return (mDocuments.length < 1);
     }
 
-    bool GoTo(string DocName, int DocLine)
+    bool GoTo(string DocName, int DocLine = 0 , int DocLinePos = 0)
     {
-        auto docCheck = Open(DocName, DocLine);
+        auto docCheck = Open(DocName, DocLine, DocLinePos);
         if(docCheck is null) return false;
         if(Current is null) return false;
         if(Current.Name != DocName)return false;

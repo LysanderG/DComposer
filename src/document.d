@@ -596,7 +596,7 @@ class DOCUMENT : SourceView, DOC_IF
         return mLastSelection;
     }
 
-    void GotoLine(int LineNo)
+    void GotoLine(int LineNo, int LinePos = 0)
     {
 
         scope(exit)
@@ -606,7 +606,11 @@ class DOCUMENT : SourceView, DOC_IF
             dwrite("done gotoline");
         }
 
-        if(LineNo < 1) return;
+        if((LineNo < 1) && mFirstScroll)
+        {
+            dwrite("what the ... ", LineNo," ", mFirstScroll);
+            return;
+        }
 
         dwrite("start gotoline ", LineNo);
 
@@ -616,7 +620,8 @@ class DOCUMENT : SourceView, DOC_IF
         int inside;
 
         auto tiline = new TextIter;
-        getBuffer().getIterAtLine(tiline, LineNo);
+        //getBuffer().getIterAtLine(tiline, LineNo);
+        getBuffer().getIterAtLineOffset(tiline, LineNo, LinePos);
         getBuffer().placeCursor(tiline);
 
         SetBusyCursor(true);
@@ -631,7 +636,7 @@ class DOCUMENT : SourceView, DOC_IF
             if(insLoc.width < 1)insLoc.width = 1;
 
             inside = gdk.Rectangle.intersect(visLoc, insLoc, nulLoc);
-            scrollToMark(insMark, 0.25, true, 0.50, 0.50);
+            scrollToMark(insMark, 0.0, true, 0.75, 0.25);
             //while(Main.eventsPending())Main.iteration();
             Main.iteration();
             dwrite(visLoc,"/", insLoc,"/", inside, "---",visLoc.y);

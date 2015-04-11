@@ -304,11 +304,11 @@ class UI_SEARCH
 
             mStore.getIter(ti, tp);
 
+            int itemIndex = tp.getIndices()[0];
+
             string file = ti.getValueString(0);
             int line = ti.getValueInt(1);
-            if(DocMan.GoTo(file.absolutePath(), line) == false) return;
-
-            int itemIndex = tp.getIndices()[0];
+            if(DocMan.GoTo(file.absolutePath(), line-1, mSearchResults[itemIndex].OffsetStart) == false) return;
 
             auto tmpdoc = DocMan.GetDoc(mSearchResults[itemIndex].DocFile);
             if(tmpdoc is null) return;
