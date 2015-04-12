@@ -26,6 +26,15 @@ ELEMENT[string] Elements;
 
 void Engage()
 {
+
+    auto ElementsDisabled = Config.GetValue("elements", "disabled", false);
+    if(ElementsDisabled)
+    {
+        Log.Entry("Enaged : Elements disabled by user");
+        return;
+    }
+
+
     auto NewLibraries = AcquireLibraries();
 
     if(NewLibraries.length > 0)

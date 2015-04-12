@@ -250,6 +250,7 @@ public:
     {
         scope(failure) Log.Entry("Failed", "Error");
 
+        bool ElementsDisabled; //dont allow elements to be loaded
         string TmpForCfg;   //user specified cfg file
         string TmpForLog;   //to use a seperate one off log file
         string project;     //start up with this project
@@ -262,7 +263,7 @@ public:
             Log.Entry("Failed to find DComposer resource files!!", "Error");
         }
 
-        CmdArgs.getopt(std.getopt.config.noPassThrough, "c|config", &TmpForCfg, "l|log", &TmpForLog, "v|verbosity", &Verbosity, "q|quiet", &Quiet, "p|project", &project, "h|help", &Help);
+        CmdArgs.getopt(std.getopt.config.noPassThrough, "elements-disabled", &ElementsDisabled, "c|config", &TmpForCfg, "l|log", &TmpForLog, "v|verbosity", &Verbosity, "q|quiet", &Quiet, "p|project", &project, "h|help", &Help);
 
         if(Help) ShowHelp();
 
@@ -285,6 +286,9 @@ public:
             }
         }
         SetValue("docman", "cmd_line_files", Cmdfiles);
+
+        SetValue("elements", "disabled", ElementsDisabled);
+
         Config.Save();
 
         Log.Entry("Engaged");
@@ -461,6 +465,7 @@ void ShowHelp()
     writeln("OPTIONS");
     writeln("  -c, --config=CFG_FILE      specify session configuration file");
     writeln("                             (~/.neontotem/dcomposer/dcomposer.cfg is default)");
+    writeln("      --elements-disabled    disallow loading of elements(plugins) during session");
     writeln("  -l, --log=LOG_FILE         specify session log file");
     writeln("                             (~/.neontotem/dcomposer/dcomposer.log is default)");
     writeln("  -p, --project=PROJECT_FILE specify project to open");

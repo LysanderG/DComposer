@@ -33,9 +33,12 @@ private Label mElementInfoLabel;
 
 void Engage()
 {
+
     AddIcon("ui_element_manager", SystemPath("resources/plug.png"));
     AddAction("ActElementManager", "Manager", "Manage additional elements","ui_element_manager","", delegate void(Action){Execute();LoadElements();});
     AddToMenuBar("ActElementManager", "E_lements");
+
+    "ActElementManager".GetAction().setSensitive(!Config.GetValue!bool("elements", "disabled"));
 
     auto builder = new Builder;
     builder.addFromFile( SystemPath( Config.GetValue("ui_element_manager", "glade_file", "glade/ui_elements.glade")));
