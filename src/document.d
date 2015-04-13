@@ -194,8 +194,6 @@ class DOCUMENT : SourceView, DOC_IF
         mFirstScroll = true;
         Rectangle xrec;
         getVisibleRect(xrec);
-        dwrite("initial vis Rec = ", xrec);
-
     }
 
     GtkSourceCompletion * xcomp;
@@ -605,16 +603,9 @@ class DOCUMENT : SourceView, DOC_IF
         {
             mFirstScroll = false;
             SetBusyCursor(false);
-            dwrite("done gotoline");
         }
 
-        if((LineNo < 1) && mFirstScroll)
-        {
-            dwrite("what the ... ", LineNo," ", mFirstScroll);
-            return;
-        }
-
-        dwrite("start gotoline ", LineNo);
+        if((LineNo < 1) && mFirstScroll)return;
 
         TextIter   insIter = new TextIter;
         Rectangle  insLoc, visLoc, nulLoc;
@@ -641,8 +632,6 @@ class DOCUMENT : SourceView, DOC_IF
             scrollToMark(insMark, 0.0, true, 0.75, 0.25);
             //while(Main.eventsPending())Main.iteration();
             Main.iteration();
-            dwrite(visLoc,"/", insLoc,"/", inside, "---",visLoc.y);
-            dwrite("realized ? ",getParent().getRealized());
             if( mFirstScroll && (insLoc.y == 0)) inside = 0;
         }while(!inside);
         ui.MainWindow.setSensitive(1);
@@ -744,7 +733,6 @@ class DOCUMENT : SourceView, DOC_IF
 
     void HiliteSearchResult(int LineNo, int Start, int End)
     {
-        dwrite(Start, "s e",End);
         auto tiDocStart = new TextIter;
         auto tiDocEnd = new TextIter;
         getBuffer.getStartIter(tiDocStart);
@@ -757,12 +745,7 @@ class DOCUMENT : SourceView, DOC_IF
 
         getBuffer().getIterAtLine(tiStart, LineNo);
         auto BytesInLine = tiStart.getBytesInLine;
-        dwrite(BytesInLine, "<<");
-        if( (BytesInLine <= Start) || (BytesInLine <= End) )
-        {
-            dwrite("hilite out of bounds");
-            return;
-        }
+        if( (BytesInLine <= Start) || (BytesInLine <= End) ) return;
 
         //tiStart.setLineOffset(Start);
         //getBuffer().getIterAtLineOffset(tiEnd, LineNo, End);
@@ -781,11 +764,7 @@ class DOCUMENT : SourceView, DOC_IF
 
         getBuffer.getIterAtLine(tiStart, LineNo);
         auto BytesInLine = tiStart.getBytesInLine();
-        if( (BytesInLine <= Start) || (BytesInLine <=End) )
-        {
-            dwrite("off the end of the line");
-            return;
-        }
+        if( (BytesInLine <= Start) || (BytesInLine <=End) )return;
         getBuffer().getIterAtLineIndex(tiStart, LineNo, Start);
         getBuffer().getIterAtLineIndex(tiEnd, LineNo, End);
 

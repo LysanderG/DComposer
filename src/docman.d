@@ -73,7 +73,6 @@ interface DOC_IF
 
         scope(failure)
         {
-            dwrite("chunk failed");
             ui.ShowMessage("FILE INPUT ERROR", "Unable to open " ~ FileName ~ " confirm permissions and valid utf format.");
             SetBusyCursor(false);
             return null;
@@ -89,7 +88,6 @@ interface DOC_IF
         rv.GotoLine(LineNo, LinePos);
 
         SetBusyCursor(false);
-        dwrite("leaving");
         return rv;
     }
 

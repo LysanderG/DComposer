@@ -852,8 +852,6 @@ void ConfigureToolBar()
         ActsToSave ~= tbCurrentList.getValueString(treeiter, 0);
         iterValid = tbCurrentList.iterNext(treeiter);
     }
-    dwrite(ActsToSave);
-
     Config.SetArray("toolbar", "configured_actions", ActsToSave);
     Config.Save();
     RestoreToolbar();

@@ -126,7 +126,6 @@ void Engage()
 
 
         auto libraryKey = mStore.getValueString(ti, 4);
-        dwrite(libraryKey);
         if(Libraries[libraryKey].mClassName !in Elements)
         {
             mElementInfoLabel.setText(format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Libraries[libraryKey].mName, Libraries[libraryKey].mInfo, "unknown", "unknown", "unknown"));

@@ -272,13 +272,11 @@ class UI_PROJECT
         ProjCustomBuild = cast(CheckButton)uiBuilder.getObject("checkbutton1");
         ProjCustomBuildCommand = cast(Entry)uiBuilder.getObject("entry1");
         ProjGeneratedBuildCommand = cast(TextView)uiBuilder.getObject("textview2");
-        dwrite(ProjGeneratedBuildCommand);
 
         //------ setup ui_lists
         with(LIST_NAMES)
         {
             ProjSrcFiles = new UI_LIST(SRC_FILES, ListType.FILES);
-            dwrite("hi");
             filesbox.packStart(ProjSrcFiles.GetRootWidget(), 1, 1, 1);
             ProjRelFiles = new UI_LIST(REL_FILES, ListType.FILES);
             filesbox.packStart(ProjRelFiles.GetRootWidget(), 1, 1, 1);
