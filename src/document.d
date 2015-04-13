@@ -623,7 +623,7 @@ class DOCUMENT : SourceView, DOC_IF
 
         auto tiline = new TextIter;
         //getBuffer().getIterAtLine(tiline, LineNo);
-        getBuffer().getIterAtLineOffset(tiline, LineNo, LinePos);
+        getBuffer().getIterAtLineIndex(tiline, LineNo, LinePos);
         getBuffer().placeCursor(tiline);
 
         SetBusyCursor(true);
@@ -744,6 +744,7 @@ class DOCUMENT : SourceView, DOC_IF
 
     void HiliteSearchResult(int LineNo, int Start, int End)
     {
+        dwrite(Start, "s e",End);
         auto tiDocStart = new TextIter;
         auto tiDocEnd = new TextIter;
         getBuffer.getStartIter(tiDocStart);
@@ -755,12 +756,19 @@ class DOCUMENT : SourceView, DOC_IF
         auto tiEnd = new TextIter;
 
         getBuffer().getIterAtLine(tiStart, LineNo);
-        if(tiStart.getCharsInLine <= Start) return;
-        tiStart.setLineOffset(Start);
+        auto BytesInLine = tiStart.getBytesInLine;
+        dwrite(BytesInLine, "<<");
+        if( (BytesInLine <= Start) || (BytesInLine <= End) )
+        {
+            dwrite("hilite out of bounds");
+            return;
+        }
 
-        //getBuffer().getIterAtLineOffset(tiStart, LineNo, Start);
-        getBuffer().getIterAtLineOffset(tiEnd, LineNo, End);
+        //tiStart.setLineOffset(Start);
+        //getBuffer().getIterAtLineOffset(tiEnd, LineNo, End);
 
+        tiStart.setLineIndex(Start);
+        getBuffer().getIterAtLineIndex(tiEnd, LineNo, End);
 
         getBuffer().applyTagByName("HiLiteSearchBack", tiStart, tiEnd);
         getBuffer().applyTagByName("HiLiteSearchFore", tiStart, tiEnd);
@@ -771,8 +779,15 @@ class DOCUMENT : SourceView, DOC_IF
         auto tiStart = new TextIter;
         auto tiEnd = new TextIter;
 
-        getBuffer().getIterAtLineOffset(tiStart, LineNo, Start);
-        getBuffer().getIterAtLineOffset(tiEnd, LineNo, End);
+        getBuffer.getIterAtLine(tiStart, LineNo);
+        auto BytesInLine = tiStart.getBytesInLine();
+        if( (BytesInLine <= Start) || (BytesInLine <=End) )
+        {
+            dwrite("off the end of the line");
+            return;
+        }
+        getBuffer().getIterAtLineIndex(tiStart, LineNo, Start);
+        getBuffer().getIterAtLineIndex(tiEnd, LineNo, End);
 
         getBuffer().applyTagByName("HiLiteAllSearchBack", tiStart, tiEnd);
         getBuffer().applyTagByName("HiLiteAllSearchFore", tiStart, tiEnd);
