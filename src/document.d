@@ -165,6 +165,8 @@ class DOCUMENT : SourceView, DOC_IF
 
             auto reAction = GetAction("ActRedo");
             reAction.setSensitive(mUndoManager.canRedo);
+
+            if(Project.TargetType == TARGET.EMPTY)CurrentPath(mFullName.dirName());
             return false;
 
         });
