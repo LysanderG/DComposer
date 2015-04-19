@@ -7,3 +7,4 @@ for xes in $xfiles ;
 	 pwd;
 	 ./utils/buildelement.d $xes;
 done
+cp elements/*.so ~/.config/dcomposer/elements;

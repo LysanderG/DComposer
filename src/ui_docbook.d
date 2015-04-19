@@ -331,9 +331,9 @@ public:
         auto xdoc = cast (DOCUMENT)Current();
         if(xdoc is null) return;
 
-        mInstanceAndParamsForSignal.setObject(xdoc.getSourceViewStruct());
-        mReturnValueForSignal.setObject(xdoc.getSourceViewStruct());
-        Signals.emitv(mInstanceAndParamsForSignal,mRedoSignalID, 0u, mReturnValueForSignal);
+        mInstanceAndParamsForSignal.setObject(xdoc);//.getSourceViewStruct());
+        mReturnValueForSignal.setObject(xdoc);//.getSourceViewStruct());
+        Signals.emitv([mInstanceAndParamsForSignal], mRedoSignalID, 0u, mReturnValueForSignal);
     }
 
     void Cut()
@@ -341,18 +341,18 @@ public:
         auto xdoc = cast(DOCUMENT)Current();
         if(xdoc is null) return;
 
-        mInstanceAndParamsForSignal.setObject(xdoc.getTextViewStruct());
-        mReturnValueForSignal.setObject(xdoc.getTextViewStruct());
-        Signals.emitv(mInstanceAndParamsForSignal,mCutSignalID, 0u, mReturnValueForSignal);
+        mInstanceAndParamsForSignal.setObject(xdoc);//.getTextViewStruct());
+        mReturnValueForSignal.setObject(xdoc);//.getTextViewStruct());
+        Signals.emitv([mInstanceAndParamsForSignal], mCutSignalID, 0u, mReturnValueForSignal);
     }
     void Copy()
     {
         auto xdoc = cast(DOCUMENT)Current();
         if(xdoc is null) return;
 
-        mInstanceAndParamsForSignal.setObject(xdoc.getTextViewStruct());
-        mReturnValueForSignal.setObject(xdoc.getTextViewStruct());
-        Signals.emitv(mInstanceAndParamsForSignal,mCopySignalID, 0u, mReturnValueForSignal);
+        mInstanceAndParamsForSignal.setObject(xdoc);//.getTextViewStruct());
+        mReturnValueForSignal.setObject(xdoc);//.getTextViewStruct());
+        Signals.emitv([mInstanceAndParamsForSignal], mCopySignalID, 0u, mReturnValueForSignal);
     }
 
     void Paste()
@@ -360,9 +360,9 @@ public:
         auto xdoc = cast(DOCUMENT)Current();
         if(xdoc is null)return;
 
-        mInstanceAndParamsForSignal.setObject(xdoc.getTextViewStruct());
-        mReturnValueForSignal.setObject(xdoc.getTextViewStruct());
-        Signals.emitv(mInstanceAndParamsForSignal,mPasteSignalID, 0u, mReturnValueForSignal);
+        mInstanceAndParamsForSignal.setObject(xdoc);//.getTextViewStruct());
+        mReturnValueForSignal.setObject(xdoc);//.getTextViewStruct());
+        Signals.emitv([mInstanceAndParamsForSignal], mPasteSignalID, 0u, mReturnValueForSignal);
     }
 
     void NotifySelection()

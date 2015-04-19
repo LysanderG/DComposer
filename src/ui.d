@@ -71,7 +71,7 @@ import gsv.SourceView;
 
 public import gdk.Event;
 public import gdk.Keysyms;
-public import gdk.Atoms;
+public import gdk.Atom;
 public import gdk.RGBA;
 public import gdk.Event;
 public import gdk.Color;
@@ -103,7 +103,7 @@ void Engage(string[] CmdLineArgs)
     mIconFactory = new IconFactory;
     mIconFactory.addDefault();
 
-    mClipBoard = Clipboard.get(gdk.Atoms.atomIntern("CLIPBOARD",true));
+    mClipBoard = Clipboard.get(intern("CLIPBOARD",true));
 
     mBuilder = new Builder;
     mBuilder.addFromFile( SystemPath( Config.GetValue("ui", "ui_main_glade",  "glade/ui_main.glade")));
@@ -715,15 +715,19 @@ void ConfigureToolBar()
 
     tbCurrentIcons.setReorderable(0);
 
-    GtkTargetEntry targetCopyEntry = GtkTargetEntry("myCopy".dup.ptr, TargetFlags.SAME_APP, 0);
-    GtkTargetEntry targetMoveEntry = GtkTargetEntry("myMove".dup.ptr, TargetFlags.SAME_WIDGET, 1);
-    tbAvailIcons.enableModelDragSource(cast(GdkModifierType)0, [targetCopyEntry], DragAction.ACTION_COPY);
-    tbCurrentIcons.enableModelDragSource(cast(GdkModifierType)0, [targetMoveEntry], DragAction.ACTION_MOVE);
-    tbCurrentIcons.enableModelDragDest([targetMoveEntry, targetCopyEntry], DragAction.ACTION_MOVE | DragAction.ACTION_COPY);
+    GtkTargetEntry tgtCopy = GtkTargetEntry("myCopy".dup.ptr, TargetFlags.SAME_APP, 0);
+    GtkTargetEntry tgtMove = GtkTargetEntry("myMove".dup.ptr, TargetFlags.SAME_WIDGET, 1);
+
+    TargetEntry targetCopyEntry = new TargetEntry(&tgtCopy);
+    TargetEntry targetMoveEntry = new TargetEntry(&tgtMove);
+
+    tbAvailIcons.enableModelDragSource(cast(GdkModifierType)0, [targetCopyEntry], DragAction.COPY);
+    tbCurrentIcons.enableModelDragSource(cast(GdkModifierType)0, [targetMoveEntry], DragAction.MOVE);
+    tbCurrentIcons.enableModelDragDest([targetMoveEntry, targetCopyEntry], DragAction.MOVE | DragAction.COPY);
 
 
     // call back funtions
-    void GetDragData(DragContext dc, SelectionData sd, guint info, guint timestamp, Widget w)
+    void GetDragData(DragContext dc, SelectionData sd, uint info, uint timestamp, Widget w)
     {
 
         IconView iView = cast(IconView)w;
@@ -743,14 +747,14 @@ void ConfigureToolBar()
         mIconRowData.mPath = tp.toString();
 
     }
-    void ReceivedDragData(DragContext dc, gint x, gint y, SelectionData sd, guint info, guint tstamp, Widget w)
+    void ReceivedDragData(DragContext dc, int x, int y, SelectionData sd, uint info, uint tstamp, Widget w)
     {
         //scope(exit)dc.dropFinish(1, tstamp);
         if(mIconRowData.mName == "nullData")return;
 
         auto xadjuster = tbCurrentIcons.getHadjustment();
 
-        x += cast(gint)xadjuster.getValue();
+        x += cast(int)xadjuster.getValue();
 
         auto tpx = new TreePath(true);
 
@@ -775,7 +779,7 @@ void ConfigureToolBar()
         mIconRowData.mName = "nullData";
 
         //deleting
-        if(dc.getActions == DragAction.ACTION_MOVE)
+        if(dc.getActions == DragAction.MOVE)
         {
             auto delTPath = new TreePath(mIconRowData.mPath);
             if(delTPath.compare(tpx) > 0) delTPath.next();

@@ -192,7 +192,7 @@ class DOCUMENT : SourceView, DOC_IF
         mUndoManager = getBuffer.getUndoManager();
 
         mFirstScroll = true;
-        Rectangle xrec;
+        GdkRectangle xrec;
         getVisibleRect(xrec);
     }
 
@@ -215,7 +215,7 @@ class DOCUMENT : SourceView, DOC_IF
         setInsertSpacesInsteadOfTabs(Config.GetValue("document", "spaces_for_tabs", true));
 
         bool SmartHomeEnd = Config.GetValue("document", "smart_home_end", true);
-        setSmartHomeEnd(SmartHomeEnd ? SourceSmartHomeEndType.BEFORE : SourceSmartHomeEndType.DISABLED);
+        setSmartHomeEnd(SmartHomeEnd ? SmartHomeEndType.BEFORE : SmartHomeEndType.DISABLED);
 
         setHighlightCurrentLine(Config.GetValue("document", "hilite_current_line", false));
         setShowLineNumbers(Config.GetValue("document", "show_line_numbers",true));
@@ -596,19 +596,20 @@ class DOCUMENT : SourceView, DOC_IF
         return mLastSelection;
     }
 
-    void GotoLine(int LineNo, int LinePos = 0)
+    void GotoLine(int LineNo, int LinePos = 1)
     {
 
         scope(exit)
         {
             mFirstScroll = false;
             SetBusyCursor(false);
+            grabFocus();
         }
 
         if((LineNo < 1) && mFirstScroll)return;
 
         TextIter   insIter = new TextIter;
-        Rectangle  insLoc, visLoc, nulLoc;
+        GdkRectangle  insLoc, visLoc, nulLoc;
 
         int inside;
 
@@ -628,7 +629,7 @@ class DOCUMENT : SourceView, DOC_IF
             getVisibleRect(visLoc);
             if(insLoc.width < 1)insLoc.width = 1;
 
-            inside = gdk.Rectangle.intersect(visLoc, insLoc, nulLoc);
+            inside = gdk.Rectangle.intersect(&visLoc, &insLoc, nulLoc);
             scrollToMark(insMark, 0.0, true, 0.75, 0.25);
             //while(Main.eventsPending())Main.iteration();
             Main.iteration();
@@ -876,7 +877,7 @@ class DOCUMENT : SourceView, DOC_IF
     {
         int x, y;
         int x2, y2;
-        Rectangle strong, weak;
+        GdkRectangle strong, weak;
 
         getCursorLocations (Cursor(), strong,  weak);
 

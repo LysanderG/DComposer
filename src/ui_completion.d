@@ -60,7 +60,7 @@ class UI_COMPLETION
             //comp.addProvider(provider);
             srcDoc.getCompletion().addProvider(provider);
         }
-        mProviders[provider. gtkSourceCompletionProviderGetName]  = provider;
+        mProviders[provider. getName]  = provider;
     }
 
     void RemoveProvider(string ID)
@@ -81,6 +81,6 @@ class UI_COMPLETION
             auto comp = doc.getCompletion();
             comp.removeProvider(provider);
         }
-        mProviders.remove(provider. gtkSourceCompletionProviderGetName);
+        mProviders.remove(provider. getName);
     }
 }

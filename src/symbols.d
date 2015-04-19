@@ -128,7 +128,9 @@ class SYMBOLS
         foreach(jfile; PackageKeys)
         {
             auto dtagfile = SystemPath(Config.GetValue("symbol_libs", jfile, ""));
+            dwrite(jfile, " ", dtagfile);
             auto NewSymbols = LoadDTagsFile(dtagfile);
+            //auto NewSymbols = LoadFile(dtagfile);
             if(NewSymbols !is null) mModules[jfile] = NewSymbols;
         }
 
@@ -355,7 +357,9 @@ class SYMBOLS
             if("members" in SymData.object)
             {
 
-                auto apparr = appender!(DSYMBOL[], DSYMBOL)();
+                //auto apparr = appender!(DSYMBOL[], DSYMBOL)();
+                DSYMBOL[] tmpD;
+                auto apparr = appender!(DSYMBOL[], DSYMBOL)(tmpD);
                 apparr.reserve(SymData.object["members"].array.length);
                 foreach(obj; SymData.object["members"].array)
                 {
@@ -381,7 +385,8 @@ class SYMBOLS
         {
             DSYMBOL membersym;
 
-            auto apparr = appender!(DSYMBOL[], DSYMBOL)();
+            DSYMBOL[] tmpD;
+            auto apparr = appender!(DSYMBOL[], DSYMBOL)(tmpD);
             apparr.reserve(SymData.array.length);
             foreach(obj; SymData.array)
             {

@@ -1,4 +1,5 @@
 rdmd utils/builddata.d;
+
 dmd -gc -release -I./src -Ideps/dson/ \
 src/dcomposer.d \
 src/dcore.d \
@@ -22,8 +23,8 @@ src/ui_docbook.d \
 src/elements.d \
 deps/dson/json.d \
 -odobjdir -J./ \
--L-lvted-2 \
--L-lgtkd-2 \
--L-lgtkdsv-2 \
+-L-lvted-3 \
+-L-lgtkdsv-3 \
+-L-lgtkd-3 \
 -defaultlib=libphobos2.so \
 -L-ldl

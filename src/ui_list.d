@@ -118,7 +118,7 @@ class UI_LIST
 
                 mItemDialog.setTransientFor(ui.MainWindow);
                 mItemDialog.setModal(true);
-                mItemDialog.setPosition(WindowPosition.POS_MOUSE);
+                mItemDialog.setPosition(WindowPosition.MOUSE);
                 break;
             }
             case ListType.FILES :
