@@ -922,7 +922,5 @@ void SetBusyCursor(bool value)
         auto busyMouse = new Cursor(GdkCursorType.WATCH);
         MainWindow.getWindow().setCursor(busyMouse);
         Display.getDefault.flush();
-        busyMouse.unref();
     }
 }
-

@@ -1,5 +1,7 @@
 module ui_search;
 
+import core.memory;
+
 import std.array;
 import std.xml;
 import std.string;
@@ -258,18 +260,14 @@ class UI_SEARCH
         mSearchBox.addOnChanged(delegate void(ComboBoxText cbt){Find();});
         mSearchBox.addOnKeyRelease(delegate bool(Event ev, Widget wi)
         {
-            dwrite ("here");
             if(ev.key().keyval == GdkKeysyms.GDK_Return) mSearchBox.editingDone();
             return false;
         });
 
         mSearchBox.addOnEditingDone(delegate void (CellEditableIF)
         {
-
-            MyprependOrReplaceText(mSearchBox, mSearchBox.getActiveText());
-            mTree.grabFocus();
-            //if(x >= 0) return;
-            //mSearchBox.prependText(mSearchBox.getActiveText());
+            auto txt = mSearchBox.getActiveText();
+            mSearchBox.prependOrReplaceText(txt);
             return;
         });
 
@@ -283,9 +281,7 @@ class UI_SEARCH
 
         mReplaceBox.addOnEditingDone(delegate void (CellEditableIF)
         {
-            auto x = mReplaceBox.getIndex(mReplaceBox.getActiveText());
-            if(x >= 0) return;
-            mReplaceBox.prependText(mReplaceBox.getActiveText());
+            mReplaceBox.prependOrReplaceText(mReplaceBox.getActiveText());
             return;
         });
 
@@ -403,46 +399,5 @@ class UI_SEARCH
 
 
         Log.Entry("Disengaged");
-    }
-
-    int MyIndex(ComboBoxText cbt, string text)
-    {
-        TreeIter iter = new TreeIter();
-        TreeModelIF model = cbt.getModel();
-        iter.setModel(model);
-        int index = 0;
-        bool found = false;
-        bool end = false;
-        if ( model.getIterFirst(iter) )
-        {
-            while ( !end && iter !is  null && !found )
-            {
-                found = model.getValueString(iter, 0) == text;
-                if ( !found )
-                {
-                    end = !model.iterNext(iter);
-                    ++index;
-                }
-            }
-        }
-        else
-        {
-            end = true;
-        }
-        return end ? -1 : index;
-    }
-
-    void MyprependOrReplaceText(ComboBoxText cbt, string text)
-    {
-        int index = MyIndex(cbt, text);
-        if ( index > 0 )
-        {
-            cbt.remove(index);
-            cbt.prepend("", text);
-        }
-        else if ( index == -1 )
-        {
-            cbt.prepend("", text);
-        }
     }
 }
