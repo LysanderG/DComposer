@@ -464,10 +464,10 @@ void ShowHelp()
     writeln();
     writeln("OPTIONS");
     writeln("  -c, --config=CFG_FILE      specify session configuration file");
-    writeln("                             (~/.neontotem/dcomposer/dcomposer.cfg is default)");
+    writeln("                             (~/.config/dcomposer/dcomposer.cfg is default)");
     writeln("      --elements-disabled    disallow loading of elements(plugins) during session");
     writeln("  -l, --log=LOG_FILE         specify session log file");
-    writeln("                             (~/.neontotem/dcomposer/dcomposer.log is default)");
+    writeln("                             (~/.config/dcomposer/dcomposer.log is default)");
     writeln("  -p, --project=PROJECT_FILE specify project to open");
     writeln("  -v, --verbosity=LEVEL      amount of logging information shown(LEVEL has not been defined yet)");
     writeln("  -q, --quiet                do not echo log messages to std out");

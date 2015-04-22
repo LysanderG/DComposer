@@ -18,6 +18,7 @@ import std.algorithm;
 import std.conv;
 
 
+public import gtk.AboutDialog;
 public import gtk.AccelGroup;
 public import gtk.Action;
 public import gtk.ActionGroup;
@@ -134,8 +135,6 @@ void Engage(string[] CmdLineArgs)
     uiContextMenu.Engage();
 
 
-    //AddSidePage(new TextView, "text");
-    //AddSidePage(new SourceView, "src");
     ui.DocBook.prependPageMenu(uiProject.GetRootWidget(), cast(Widget)new Label("Project Options"), cast(Widget)new Label("Project Options"));
 
     MainWindow.setIconFromFile( SystemPath( Config.GetValue("icons", "main_icon", "resources/mushroom.png")));
@@ -268,6 +267,7 @@ void EngageActions()
     AddIcon("dcmp-view-toolbar", SystemPath(Config.GetValue("icons","toolbar-view","resources/yin-yang.png")));
     AddIcon("dcmp-toolbar-separator", SystemPath(Config.GetValue("icons", "toolbar-seperator", "resources/ui-separator-vertical.png")));
     AddIcon("dcmp-toolbar-configure", SystemPath(Config.GetValue("icons", "toolbar-configure", "resources/ui-toolbar-configure.png")));
+    AddIcon("dcmp-about", SystemPath(Config.GetValue("icons", "about", "resources/information-frame.png")));
 
 
     AddToggleAction("ActViewToolbar", "viewtoolbar", "show/hide toolbar", "dcmp-view-toolbar", "",
@@ -275,6 +275,7 @@ void EngageActions()
     AddAction("ActQuit", "quit", "exit dcomposer", "dcmp-quit", "<Control>q", delegate void(Action a){Quit();});
     AddAction("ActConfigureToolbar", "Edit Toolbar", "customize toolbar buttons", "dcmp-toolbar-configure", "",
         delegate void (Action a){ConfigureToolBar();});
+    AddAction("ActAbout", "about", "dcomposer information", "dcmp-about", "", delegate void(Action a){ShowAboutDialog();});
     foreach(name; mRootMenuNames) mRootMenu[name] = mMenuBar.append(name);
 
 
@@ -282,6 +283,7 @@ void EngageActions()
     AddToMenuBar("ActQuit",mRootMenuNames[0]);
     AddToMenuBar("ActViewToolbar", mRootMenuNames[1]);
     AddToMenuBar("ActConfigureToolbar", mRootMenuNames[0], 0);
+    AddToMenuBar("ActAbout", mRootMenuNames[7], 0);
 
     //"ActQuit".AddToToolBar();
     mMenuBar.showAll();
@@ -429,7 +431,7 @@ void EngageSidePane()
 
     AddIcon("dcmp_view_side_pane", SystemPath(Config.GetValue("icons","side-pane-view","resources/ui-split-panel.png")));
     AddToggleAction("ActViewSidePane","Side Pane","show/hide left side pane","dcmp_view_side_pane","",
-        delegate void (Action x){auto y = cast(ToggleAction)x;mSidePane.setVisible(y.getActive());});
+        delegate void (Action x){auto y = cast(ToggleAction)x;if(mSidePane.getNPages() < 1)y.setActive(false);mSidePane.setVisible(y.getActive());});
     "ActViewSidePane".AddToMenuBar("_View");
 
 }
@@ -438,11 +440,22 @@ void AddSidePage(Container page, string tab_text)
 {
     mSidePane.appendPage(page, tab_text);
     mSidePane.setTabReorderable(page, 1);
-
+    if(mSidePane.getNPages == 1)
+    {
+        auto tmpToggle = cast(ToggleAction)GetAction("ActViewSidePane");
+        tmpToggle.setActive(true);
+        tmpToggle.toggled();
+    }
 }
 void RemoveSidePage(Container page)
 {
     mSidePane.remove(page);
+    if(mSidePane.getNPages() < 1)
+    {
+        auto tmpToggle = cast(ToggleAction)GetAction("ActViewSidePane");
+        tmpToggle.setActive(false);
+        tmpToggle.toggled();
+    }
 }
 void StoreSidePane()
 {
@@ -907,6 +920,25 @@ void ClearToolbar()
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////
+
+void ShowAboutDialog()
+{
+    auto adBuilder = new Builder;
+    adBuilder.addFromFile(SystemPath(Config.GetValue("aboutdialog", "aboutdialog_glade", "glade/ui_about.glade")));
+
+    auto adDialog = cast(AboutDialog)adBuilder.getObject("aboutdialog1");
+    adDialog.setVersion(DCOMPOSER_VERSION ~ " " ~ DCOMPOSER_BUILD_DATE ~ ":" ~ to!string(BUILD_NUMBER));
+    adDialog.setCopyright(DCOMPOSER_COPYRIGHT);
+    adDialog.run();
+    adDialog.destroy();
+
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 void SetBusyCursor(bool value)

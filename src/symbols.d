@@ -128,7 +128,6 @@ class SYMBOLS
         foreach(jfile; PackageKeys)
         {
             auto dtagfile = SystemPath(Config.GetValue("symbol_libs", jfile, ""));
-            dwrite(jfile, " ", dtagfile);
             auto NewSymbols = LoadDTagsFile(dtagfile);
             //auto NewSymbols = LoadFile(dtagfile);
             if(NewSymbols !is null) mModules[jfile] = NewSymbols;
