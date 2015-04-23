@@ -71,11 +71,9 @@ void Engage()
         else
         {
             Libraries[libraryKey].mEnabled = false;
-            if(Libraries[libraryKey].ptr !is null)
+            if(Libraries[libraryKey].Ptr !is null)
             {
-                Elements[Libraries[libraryKey].mClassName].Disengage();
-                Elements.remove(Libraries[libraryKey].mClassName);
-                Libraries[libraryKey].ptr = null;
+                UnloadElement(libraryKey);
             }
             tglValue = 0;
         }
@@ -122,17 +120,19 @@ void Engage()
         mStore.getIter(ti, tp);
         mStore.getValue(ti, 0, val);
 
-        mPreferenceBtn.setSensitive(val.getBoolean());
+
 
 
         auto libraryKey = mStore.getValueString(ti, 4);
         if(Libraries[libraryKey].mClassName !in Elements)
         {
+            mPreferenceBtn.setSensitive(false);
             mElementInfoLabel.setText(format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Libraries[libraryKey].mName, Libraries[libraryKey].mInfo, "unknown", "unknown", "unknown"));
             return;
         }
         with(Elements[Libraries[libraryKey].mClassName])
         {
+            mPreferenceBtn.setSensitive(Libraries[libraryKey].mEnabled);
             string labelText = format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Name, Info, CopyRight, License, Authors);
             mElementInfoLabel.setText(labelText);
         }

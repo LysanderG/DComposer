@@ -109,6 +109,7 @@ void RegisterLibraries()
         if(lib.mEnabled)regval[4] = "Enabled"; else regval[4] = "Disabled";
         Config.SetArray("element_libraries", lib.mFile, regval);
     }
+    Config.Save();
 }
 
 
@@ -119,10 +120,10 @@ void LoadElements()
     {
         if(lib.mEnabled)
         {
-            if(lib.ptr is null)
+            if(lib.Ptr is null)
             {
-                lib.ptr = Runtime.loadLibrary(lib.mFile);
-                if(lib.ptr is null)
+                lib.Ptr = Runtime.loadLibrary(lib.mFile);
+                if(lib.Ptr is null)
                 {
                     lib.mEnabled = false;
                     ShowMessage("Error loading dynamic library", "Failed to load " ~ lib.mFile, "Continue");
@@ -130,18 +131,31 @@ void LoadElements()
                     continue;
                 }
                 Log.Entry("     Loaded library: " ~ lib.mFile);
-                auto tmpvar = dlsym(lib.ptr, "GetClassName");
+                auto tmpvar = dlsym(lib.Ptr, "GetClassName");
                 string function() GetClassName = cast(string function())tmpvar; //wouldn't work without tmpvar??
-                lib.mClassName = GetClassName();
+                lib.mClassName = GetClassName().idup;
                 auto  tmp = cast(ELEMENT)Object.factory(lib.mClassName);
-                lib.mName = tmp.Name;
-                lib.mInfo = tmp.Info;
+                lib.mName = tmp.Name.idup;
+                lib.mInfo = tmp.Info.idup;
                 lib.mRegistered = true;
                 Elements[lib.mClassName] = tmp;
                 Elements[lib.mClassName].Engage();
             }
         }
     }
+}
+
+bool UnloadElement(string Name)
+{
+    bool rv;
+    scope(failure)Log.Entry("Failed to unload " ~ Name, "Error");
+    scope(success)Log.Entry("     Unloaded library: " ~ Libraries[Name].mClassName);
+    Elements[Libraries[Name].mClassName].Disengage();
+    Elements.remove(Libraries[Name].mClassName);
+    rv = Runtime.unloadLibrary(Libraries[Name].Ptr);
+    Libraries[Name].Ptr = null;
+    Libraries[Name].mEnabled = false;
+    return rv;
 }
 
 
@@ -182,9 +196,9 @@ struct LIBRARY
     bool mRegistered;
 
 
-    @property void ptr(void * x){mVptr = x;}
-    @property void * ptr(){return mVptr;}
-    this(void * x){ptr = x;}
+    @property void Ptr(void * x){mVptr = x;}
+    @property void * Ptr(){return mVptr;}
+    this(void * x){Ptr = x;}
 
     this(string xFile)
     {
