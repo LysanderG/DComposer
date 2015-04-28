@@ -28,12 +28,6 @@ void Engage()
 {
 
     auto ElementsDisabled = Config.GetValue("elements", "disabled", false);
-    if(ElementsDisabled)
-    {
-        Log.Entry("Enaged : Elements disabled by user");
-        return;
-    }
-
 
     auto NewLibraries = AcquireLibraries();
 
@@ -46,7 +40,15 @@ void Engage()
 
         if(response == 1) ui_elementmanager.Execute();
     }
+
+    if(ElementsDisabled)
+    {
+        Log.Entry("Enaged : Elements disabled by user");
+        return;
+    }
+
     //ok now lets load the libraries and  engage elements
+
     LoadElements();
 
 
@@ -63,7 +65,8 @@ void PostEngage()
 void Disengage()
 {
     RegisterLibraries();
-    foreach(elem; Elements) elem.Disengage();
+    //foreach(elem; Elements)elem.Disengage();
+    foreach(key, lib; Libraries)UnloadElement(key);
     Log.Entry("Disengaged");
 }
 
@@ -147,6 +150,7 @@ void LoadElements()
 
 bool UnloadElement(string Name)
 {
+    if(Libraries[Name].mClassName !in Elements) return false;
     bool rv;
     scope(failure)Log.Entry("Failed to unload " ~ Name, "Error");
     scope(success)Log.Entry("     Unloaded library: " ~ Libraries[Name].mClassName);

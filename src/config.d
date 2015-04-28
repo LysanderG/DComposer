@@ -287,7 +287,7 @@ public:
         }
         SetValue("docman", "cmd_line_files", Cmdfiles);
 
-        SetValue("elements", "disabled", ElementsDisabled);
+        if(ElementsDisabled)SetValue("elements", "disabled", ElementsDisabled);
 
         Config.Save();
 
@@ -296,7 +296,7 @@ public:
 
     void PostEngage()
     {
-        CurrentPath(getcwd());
+        CurrentPath(Config.GetValue("config","starting_folder", getcwd()));
         if(mIsFirstRun) FirstUserRun();
         Log.Entry("PostEngaged");
     }
