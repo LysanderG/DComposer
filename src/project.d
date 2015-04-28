@@ -347,6 +347,7 @@ class PROJECT
             auto postrv = executeShell(script);
             Log.Entry("\t" ~ script ~ " exited with a return value of :" ~ to!string(postrv.status));
         }
+        dwrite("made it here");
     }
 
     /+void Run()
@@ -362,7 +363,7 @@ class PROJECT
         scope(failure){Log.Entry("Failed to Run", "error"); return;}
         if(TargetType == TARGET.EMPTY) return;
         CurrentPath(Folder);
-        auto CmdStrings = Config.GetArray!string("project","run_command", ["xterm", "-hold", "-e"]);
+        auto CmdStrings = Config.GetArray!string("terminal_cmd","run", ["xterm", "-hold", "-e"]);
         CmdStrings ~= "./" ~ mName;
         CmdStrings ~= args;
         try

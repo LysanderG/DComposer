@@ -329,7 +329,7 @@ class DOCMAN
     {
         if(Current is null) return;
         if(Current.Modified) Current.Save();
-        auto CmdString = Config.GetArray!string("docman","run_command", ["xterm", "-hold", "-e"]);
+        auto CmdString = Config.GetArray!string("terminal_cmd","run", ["xterm", "-hold", "-e"]);
         CmdString ~= "rdmd " ~ Current.Name;
         mRunPids ~= spawnProcess(CmdString);
     }
