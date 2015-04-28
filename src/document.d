@@ -194,11 +194,17 @@ class DOCUMENT : SourceView, DOC_IF
         mFirstScroll = true;
         GdkRectangle xrec;
         getVisibleRect(xrec);
+
+        Config.Changed.connect(&WatchConfigChange);
     }
 
     GtkSourceCompletion * xcomp;
     GtkSourceCompletionWords * wcomp;
 
+    void WatchConfigChange(string Sec, string key)
+    {
+        if (Sec == "document") Configure();
+    }
 
     void Configure()
     {
@@ -225,8 +231,9 @@ class DOCUMENT : SourceView, DOC_IF
         setRightMarginPosition(Config.GetValue("document", "right_margin", 120));
         setIndentWidth(Config.GetValue("document", "indentation_width", 8));
         setTabWidth(Config.GetValue("document", "tab_width", 4));
-        setBorderWindowSize(GtkTextWindowType.BOTTOM, 5);
-        setPixelsBelowLines(1);
+        //setBorderWindowSize(GtkTextWindowType.BOTTOM, 5);
+        setBorderWindowSize(GtkTextWindowType.BOTTOM, Config.GetValue("document", "bottom_border_size", 5));
+        setPixelsBelowLines(Config.GetValue("document", "pixels_below_line", 1));
         modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.GetValue("document", "font", "Inconsolata Bold 12")));
     }
 
