@@ -44,6 +44,7 @@ void Engage()
     builder.addFromFile( SystemPath( Config.GetValue("ui_element_manager", "glade_file", "glade/ui_elements.glade")));
 
     mElementManager = cast(Dialog)builder.getObject("dialog1");
+    mElementManager.setTransientFor(MainWindow);
     mView = cast(TreeView)builder.getObject("treeview1");
     mStore = cast(ListStore)builder.getObject("liststore1");
     mPreferenceBtn = cast(Button)builder.getObject("button2");
@@ -208,6 +209,5 @@ void Execute()
 
     RegisterLibraries();
 }
-
 
 
