@@ -210,7 +210,17 @@ class PROJECT
 
         auto jdata = parseJSON(jsontext);
 
+        if("DcomposerProjectVersion" !in jdata)
+        {
+            ui.ShowMessage("Project Error", "Not a DComposer project file!", "Sorry");
+            return;
+        }
         mDcomposerProjectVersion = cast(string)jdata["DcomposerProjectVersion"];
+        if(mDcomposerProjectVersion != PROJECT_MODULE_VERSION)
+        {
+            ui.ShowMessage("Project Error", "Wrong Project Version!", "Sorry");
+            return;
+        }
         Name = cast(string)jdata["Name"];
         Folder = cast(string)jdata["Folder"];
         CurrentPath(Folder);
