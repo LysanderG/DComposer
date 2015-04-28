@@ -268,24 +268,29 @@ void EngageActions()
     AddIcon("dcmp-toolbar-separator", SystemPath(Config.GetValue("icons", "toolbar-seperator", "resources/ui-separator-vertical.png")));
     AddIcon("dcmp-toolbar-configure", SystemPath(Config.GetValue("icons", "toolbar-configure", "resources/ui-toolbar-configure.png")));
     AddIcon("dcmp-about", SystemPath(Config.GetValue("icons", "about", "resources/information-frame.png")));
+    AddIcon("dcmp-preferences", SystemPath(Config.GetValue("icons", "preferences", "resources/gear.png")));
 
-
-    AddToggleAction("ActViewToolbar", "viewtoolbar", "show/hide toolbar", "dcmp-view-toolbar", "",
+    AddToggleAction("ActViewToolbar", "View Toolbar", "show/hide toolbar", "dcmp-view-toolbar", "",
         delegate void(Action a){auto y = cast(ToggleAction)a;mToolbar.setVisible(y.getActive());});
-    AddAction("ActQuit", "quit", "exit dcomposer", "dcmp-quit", "<Control>q", delegate void(Action a){Quit();});
+    AddAction("ActQuit", "Quit", "exit dcomposer", "dcmp-quit", "<Control>q",
+        delegate void(Action a){Quit();});
     AddAction("ActConfigureToolbar", "Edit Toolbar", "customize toolbar buttons", "dcmp-toolbar-configure", "",
         delegate void (Action a){ConfigureToolBar();});
-    AddAction("ActAbout", "about", "dcomposer information", "dcmp-about", "", delegate void(Action a){ShowAboutDialog();});
-    foreach(name; mRootMenuNames) mRootMenu[name] = mMenuBar.append(name);
+    AddAction("ActAbout", "About", "dcomposer information", "dcmp-about", "",
+        delegate void(Action a){ShowAboutDialog();}); foreach(name; mRootMenuNames) mRootMenu[name] = mMenuBar.append(name);
+    AddAction("ActPreferences", "Preferences", "edit options", "dcmp-preferences", "<Control>p",
+        delegate void(Action a){ShowAppPreferences();});
 
 
+    AddToMenuBar("ActConfigureToolbar", mRootMenuNames[0]);
+    AddToMenuBar("ActPreferences", mRootMenuNames[0]);
     AddToMenuBar("-", mRootMenuNames[0]);
     AddToMenuBar("ActQuit",mRootMenuNames[0]);
+
     AddToMenuBar("ActViewToolbar", mRootMenuNames[1]);
-    AddToMenuBar("ActConfigureToolbar", mRootMenuNames[0], 0);
     AddToMenuBar("ActAbout", mRootMenuNames[7], 0);
 
-    //"ActQuit".AddToToolBar();
+
     mMenuBar.showAll();
     mToolbar.showAll();
 
@@ -313,6 +318,13 @@ void StoreActions()
 
 void AddIcon(string name, string icon_file)
 {
+    scope(failure)
+    {
+        Log.Entry("Failed to add icon :" ~ icon_file, "Error");
+        mIconFactory.add(name, mIconFactory.lookupDefault("missing_image"));
+        return;
+    }
+
     mIconFactory.add(name, new IconSet(new Pixbuf(icon_file)));
 }
 
@@ -653,6 +665,7 @@ void ConfigureToolBar()
     auto tbBuilder = new Builder;
     tbBuilder.addFromFile( SystemPath( Config.GetValue("toolbar", "toolbar_glade", "glade/ui_toolbar.glade")));
     auto tbWin = cast(Dialog)tbBuilder.getObject("dialog1");
+    tbWin.setTransientFor(MainWindow);
     auto tbAvailIcons = cast(IconView)tbBuilder.getObject("iconview1");
     auto tbAvailList = cast(ListStore)tbBuilder.getObject("liststore1");
     auto tbCurrentIcons = cast(IconView)tbBuilder.getObject("iconview2");
@@ -927,7 +940,7 @@ void ShowAboutDialog()
     adBuilder.addFromFile(SystemPath(Config.GetValue("aboutdialog", "aboutdialog_glade", "glade/ui_about.glade")));
 
     auto adDialog = cast(AboutDialog)adBuilder.getObject("aboutdialog1");
-    adDialog.setVersion(DCOMPOSER_VERSION ~ " " ~ DCOMPOSER_BUILD_DATE ~ ":" ~ to!string(BUILD_NUMBER));
+    adDialog.setVersion(DCOMPOSER_VERSION ~ " " ~ DCOMPOSER_BUILD_DATE ~ "\nBuild #" ~ to!string(BUILD_NUMBER));
     adDialog.setCopyright(DCOMPOSER_COPYRIGHT);
     adDialog.run();
     adDialog.destroy();
