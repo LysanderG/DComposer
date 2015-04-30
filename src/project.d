@@ -17,7 +17,7 @@ import json;
 
 import dcore;
 
-enum PROJECT_MODULE_VERSION = "D0.10";
+enum PROJECT_MODULE_VERSION = "A";  //see notes a bottom of this module
 
 /** Testing comment <added> documentation */
 class PROJECT
@@ -216,7 +216,7 @@ class PROJECT
             return;
         }
         mDcomposerProjectVersion = cast(string)jdata["DcomposerProjectVersion"];
-        if(mDcomposerProjectVersion != PROJECT_MODULE_VERSION)
+        if(!PROJECT_MODULE_VERSION.startsWith(mDcomposerProjectVersion))
         {
             ui.ShowMessage("Project Error", "Wrong Project Version!", "Sorry");
             return;
@@ -357,7 +357,6 @@ class PROJECT
             auto postrv = executeShell(script);
             Log.Entry("\t" ~ script ~ " exited with a return value of :" ~ to!string(postrv.status));
         }
-        dwrite("made it here");
     }
 
     /+void Run()
@@ -374,11 +373,15 @@ class PROJECT
         if(TargetType == TARGET.EMPTY) return;
         CurrentPath(Folder);
         auto CmdStrings = Config.GetArray!string("terminal_cmd","run", ["xterm", "-hold", "-e"]);
-        CmdStrings ~= "./" ~ mName;
-        CmdStrings ~= args;
+        //CmdStrings ~= "./" ~ mName;
+        //CmdStrings ~= args ~ ";"  ~ [`echo -e "\n\nPress a key ..."`] ~ [`;`] ~ [`read -rn1`];
+        CmdStrings ~= [`./` ~ mName];
+        foreach(arg; args) CmdStrings[$-1] ~= " " ~ arg;
+        CmdStrings[$-1] ~= `;echo -e "\n\nPress a key...";read -rn1`;
         try
         {
             mRunPids ~= spawnProcess(CmdStrings);
+            dwrite(CmdStrings);
             Log.Entry(`"` ~ mName ~ `"` ~ " spawned ... " );
         }
         catch(Exception E)
@@ -666,3 +669,30 @@ enum LIST_NAMES : string
     POSTBUILD = "Postbuild Scripts",
     OTHER = "Sundry"
 }
+
+
+
+
+//PROJECT VERSIONING
+/*
+ * 1 VERSION STARTS                 -> "A"
+ * 2 none breaking new feature(s)   -> "AA"
+ * 3 feature set 2 implemented      -> "AAA"
+ * 4 break feature set 2            -> "AAB"
+ * 5 add new feature set            -> "AABA"
+ * 6 rework whole project           -> "B"
+ * 7 new features                   -> "BA"
+ * 8 break those last features      -> "BB"
+ *
+ * version test is
+ *
+ * if ( DcomposerProjVersion.startsWith(FileProjVersion) ) good to go
+ * else fail to load
+ *
+ * so a project saved as ver "A"    works with 1-5
+ * project saved as ver "B"         works with 6-8
+ * saved as ver "AAB"               works with 4-5
+ *
+ * I think this is silly
+ *
+ */
