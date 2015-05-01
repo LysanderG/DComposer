@@ -260,6 +260,9 @@ class UI_SEARCH
         mSearchBox.addOnChanged(delegate void(ComboBoxText cbt){Find();});
         mSearchBox.addOnKeyRelease(delegate bool(Event ev, Widget wi)
         {
+            if( (ev.key().keyval == GdkKeysyms.GDK_Tab)) mTree.grabFocus();
+            dwrite (ev.key().keyval);
+
             if(ev.key().keyval == GdkKeysyms.GDK_Return) mSearchBox.editingDone();
             return false;
         });
@@ -268,6 +271,7 @@ class UI_SEARCH
         {
             auto txt = mSearchBox.getActiveText();
             mSearchBox.prependOrReplaceText(txt);
+            mTree.setCursorOnCell(new TreePath("0"), null, null, true);
             return;
         });
 
@@ -308,6 +312,7 @@ class UI_SEARCH
             string file = ti.getValueString(0);
             int line = ti.getValueInt(1);
             if(DocMan.GoTo(file.absolutePath(), line-1, mSearchResults[itemIndex].OffsetStart) == false) return;
+            mTree.grabFocus();
 
             auto tmpdoc = DocMan.GetDoc(mSearchResults[itemIndex].DocFile);
             if(tmpdoc is null) return;
