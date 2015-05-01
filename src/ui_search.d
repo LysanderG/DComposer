@@ -339,8 +339,11 @@ class UI_SEARCH
                     mSearchBox.setActiveText(word);
                 }
             }
+            auto ToggleExtraViewAction = cast (ToggleAction)"ActViewExtraPane".GetAction();
+            ToggleExtraViewAction.setActive(true);
             mExtraPane.setCurrentPage(mRoot);
             mSearchBox.grabFocus();
+
         });
         AddToMenuBar("ActSearch", mRootMenuNames[0], 0);
         //AddToToolBar("ActSearch");
