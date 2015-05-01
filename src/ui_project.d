@@ -94,7 +94,7 @@ class UI_PROJECT
             {
                 ProjRelPath.setText(relativePath(Project.Folder, Project.DefaultProjectRootPath));
                 UpdateFlags();
-                mRootWidget.show();
+                //mRootWidget.show();
                 DocBook.setCurrentPage(mRootWidget);
                 break;
             }
@@ -246,7 +246,7 @@ class UI_PROJECT
 
         mRootWidget     = cast(Frame)uiBuilder.getObject("frame1");
 
-        ProjTitle       = cast(Label)uiBuilder.getObject("label1");
+        ProjTitle       = cast(Label)uiBuilder.getObject("label2");
         ProjHide        = cast(Button)uiBuilder.getObject("hideBtn");
 
         ProjName        = cast(Entry)uiBuilder.getObject("projName");

@@ -630,13 +630,12 @@
         </child>
         <child>
           <object class="GtkButton" id="hideBtn">
+            <property name="label" translatable="yes">X</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="receives_default">True</property>
             <property name="focus_on_click">False</property>
-            <child>
-              <placeholder/>
-            </child>
+            <property name="yalign">0.50999999046325684</property>
           </object>
           <packing>
             <property name="expand">False</property>

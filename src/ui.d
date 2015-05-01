@@ -629,7 +629,8 @@ void Quit()
 
 void SetProjectTitle(string nuTitle)
 {
-    mProjectTitle.setText("Project: "~nuTitle);
+    if(nuTitle.length == 0) nuTitle = "-empty-";
+    mProjectTitle.setText(nuTitle);
 }
 
 //======================================================================================================================
