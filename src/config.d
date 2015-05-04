@@ -269,7 +269,9 @@ public:
 
         SetCfgFile(TmpForCfg);
 
-        mJson = parseJSON(readText(mCfgFile));
+        auto CfgText = readText(mCfgFile);
+        if(CfgText.length < 1)CfgText = "{}";
+        mJson = parseJSON(CfgText);
 
         if(TmpForLog.length)SetValue("log", "interim_log_file", TmpForLog);
         SetValue("log", "echo_to_std_out", !Quiet);
@@ -320,6 +322,8 @@ public:
         Saved.emit();
     }
 
+
+
     void SetValue(T)(string Section, string Name, T value)
     {
         if(Section !in mJson.object)mJson[Section] = jsonObject();
@@ -348,23 +352,6 @@ public:
     }
 
 
-    /+void AppendObject(DocPos)(string Section, string Name, DocPos Value )
-    {
-        if( Section !in mJson.object) mJson[Section] = jsonObject();
-        if( Name !in mJson[Section].object) mJson[Section][Name] = jsonArray();
-        if( !mJson[Section][Name].isArray())return;
-        //foreach(V; Value)
-        //{
-            //writeln(V.expand);
-            auto tmpjson = jsonObject();
-            tmpjson["document"] = convertJSON(Value[0]);
-            tmpjson["line"] = convertJSON(Value[1]);
-            mJson[Section][Name] ~= tmpjson;
-       // }
-        Changed.emit(Section,Name);
-
-    }+/
-
     void AppendObject(string Section, string Name, JSON jobject)
     {
         if( Section !in mJson.object) mJson[Section] = jsonObject();
@@ -390,6 +377,7 @@ public:
         }
         return cast(T)(mJson[Section][Name]);
     }
+
     T[] GetArray(T)(string Section, string Name, T[] Default = T[].init)
     {
         if(Section !in mJson.object)
@@ -450,6 +438,68 @@ public:
     mixin Signal!() Preconfigure;               //about to present option guis to user ... make sure values in guis are accurate/up to date
     mixin Signal!() Reconfigure;                //set variables to cfg values... ie apply all changes
 
+
+    //Having troubles calling templates from loadable elements... when unloaded all the data goes to hell.
+    void SetInteger(string Section, string Name, int Value)
+    {
+        if(Section !in mJson.object)mJson[Section] = jsonObject();
+        mJson[Section][Name] = Value;
+
+        Changed.emit(Section,Name);
+    }
+    void SetBoolean(string Section, string Name, bool Value)
+    {
+        if(Section !in mJson.object)mJson[Section] = jsonObject();
+        mJson[Section][Name] = Value;
+
+        Changed.emit(Section,Name);
+    }
+    void SetString(string Section, string Name, string Value)
+    {
+        if(Section !in mJson.object)mJson[Section] = jsonObject();
+        mJson[Section][Name] = Value.idup;
+
+        Changed.emit(Section,Name);
+    }
+    int GetInteger(string Section, string Name, int DefValue = int.init)
+    {
+        if(Section !in mJson.object)
+        {
+            mJson[Section] = jsonObject();
+
+        }
+        if(Name !in mJson.object[Section].object)
+        {
+            mJson[Section].object[Name] = convertJSON(DefValue);
+        }
+        return cast(int)mJson[Section][Name];
+    }
+    bool GetBoolean(string Section, string Name, bool DefValue = bool.init)
+    {
+        if(Section !in mJson.object)
+        {
+            mJson[Section] = jsonObject();
+
+        }
+        if(Name !in mJson.object[Section].object)
+        {
+            mJson[Section].object[Name] = convertJSON(DefValue);
+        }
+        return cast(bool)mJson[Section][Name];
+    }
+    string GetString(string Section, string Name, string DefValue = string.init)
+    {
+        if(Section !in mJson.object)
+        {
+            mJson[Section] = jsonObject();
+
+        }
+        if(Name !in mJson.object[Section].object)
+        {
+            mJson[Section].object[Name] = convertJSON(DefValue);
+        }
+        return cast(string)mJson[Section][Name];
+    }
 
 }
 
