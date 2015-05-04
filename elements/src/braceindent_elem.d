@@ -155,9 +155,9 @@ class BRACE_INDENT : ELEMENT
     void Configure()
     {
 
-        mIndentationSize = Config.GetInteger("document", "indentation_width");
+        mIndentationSize = Config.GetValue("document", "indentation_width", 4);
 
-        mUseSpaces = Config.GetBoolean("document", "spaces_for_tabs");
+        mUseSpaces = Config.GetValue("document", "spaces_for_tabs", false);
 
         mIndentationSpaces.length = mIndentationSize;
         mIndentationSpaces[] = ' ';
@@ -185,6 +185,7 @@ class BRACE_INDENT : ELEMENT
         mIndentationSize = 0;
         mUseSpaces = false;
         DocMan.Event.disconnect(&WatchForNewDocuments);
+        Config.Changed.disconnect(&ConfigChanged);
         Log.Entry("Disengaged");
     }
 
