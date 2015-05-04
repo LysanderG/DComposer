@@ -124,6 +124,11 @@ DCOMPOSER_VERSION, DCOMPOSER_BUILD_DATE, DCOMPOSER_COPYRIGHT);
 public:
     alias mJson this;
 
+
+    void Reload()
+    {
+        mJson = parseJSON(readText(mCfgFile));
+    }
     void SetCfgFile(string cmdLineCfgName)
     {
         //1. use command line given cfg file
@@ -263,15 +268,26 @@ public:
             Log.Entry("Failed to find DComposer resource files!!", "Error");
         }
 
-        CmdArgs.getopt(std.getopt.config.noPassThrough, "elements-disabled", &ElementsDisabled, "c|config", &TmpForCfg, "l|log", &TmpForLog, "v|verbosity", &Verbosity, "q|quiet", &Quiet, "p|project", &project, "h|help", &Help);
-
+        try
+        {
+            auto cmdResults = CmdArgs.getopt(std.getopt.config.noPassThrough, "elements-disabled", &ElementsDisabled, "c|config", &TmpForCfg, "l|log", &TmpForLog, "v|verbosity", &Verbosity, "q|quiet", &Quiet, "p|project", &project, "h|help", &Help);
+        }
+        catch(GetOptException ohmy)
+        {
+            writeln("dcomposer: ",ohmy.msg, "\nTry 'dcomposer --help' for more information.");
+            exit(0);
+        }
         if(Help) ShowHelp();
 
         SetCfgFile(TmpForCfg);
 
         auto CfgText = readText(mCfgFile);
-        if(CfgText.length < 1)CfgText = "{}";
-        mJson = parseJSON(CfgText);
+        try { mJson = parseJSON(CfgText);}
+        catch (JSONParseException xsepchun)
+        {
+            Log.Entry(xsepchun.msg, "Error");
+            mJson = parseJSON("{}");
+        }
 
         if(TmpForLog.length)SetValue("log", "interim_log_file", TmpForLog);
         SetValue("log", "echo_to_std_out", !Quiet);
@@ -439,67 +455,7 @@ public:
     mixin Signal!() Reconfigure;                //set variables to cfg values... ie apply all changes
 
 
-    //Having troubles calling templates from loadable elements... when unloaded all the data goes to hell.
-    void SetInteger(string Section, string Name, int Value)
-    {
-        if(Section !in mJson.object)mJson[Section] = jsonObject();
-        mJson[Section][Name] = Value;
 
-        Changed.emit(Section,Name);
-    }
-    void SetBoolean(string Section, string Name, bool Value)
-    {
-        if(Section !in mJson.object)mJson[Section] = jsonObject();
-        mJson[Section][Name] = Value;
-
-        Changed.emit(Section,Name);
-    }
-    void SetString(string Section, string Name, string Value)
-    {
-        if(Section !in mJson.object)mJson[Section] = jsonObject();
-        mJson[Section][Name] = Value.idup;
-
-        Changed.emit(Section,Name);
-    }
-    int GetInteger(string Section, string Name, int DefValue = int.init)
-    {
-        if(Section !in mJson.object)
-        {
-            mJson[Section] = jsonObject();
-
-        }
-        if(Name !in mJson.object[Section].object)
-        {
-            mJson[Section].object[Name] = convertJSON(DefValue);
-        }
-        return cast(int)mJson[Section][Name];
-    }
-    bool GetBoolean(string Section, string Name, bool DefValue = bool.init)
-    {
-        if(Section !in mJson.object)
-        {
-            mJson[Section] = jsonObject();
-
-        }
-        if(Name !in mJson.object[Section].object)
-        {
-            mJson[Section].object[Name] = convertJSON(DefValue);
-        }
-        return cast(bool)mJson[Section][Name];
-    }
-    string GetString(string Section, string Name, string DefValue = string.init)
-    {
-        if(Section !in mJson.object)
-        {
-            mJson[Section] = jsonObject();
-
-        }
-        if(Name !in mJson.object[Section].object)
-        {
-            mJson[Section].object[Name] = convertJSON(DefValue);
-        }
-        return cast(string)mJson[Section][Name];
-    }
 
 }
 
@@ -535,6 +491,7 @@ private string mCurPath;
 
 public string CurrentPath()
 {
+    if(mCurPath.length < 1) return getcwd();
     return mCurPath;
 }
 public bool CurrentPath(string nuPath)

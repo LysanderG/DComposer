@@ -155,10 +155,14 @@ bool UnloadElement(string Name)
     scope(failure)Log.Entry("Failed to unload " ~ Name, "Error");
     scope(success)Log.Entry("     Unloaded library: " ~ Libraries[Name].mClassName);
     Elements[Libraries[Name].mClassName].Disengage();
+
+    Config.Save();
     Elements.remove(Libraries[Name].mClassName);
     rv = Runtime.unloadLibrary(Libraries[Name].Ptr);
     Libraries[Name].Ptr = null;
     Libraries[Name].mEnabled = false;
+
+    Config.Reload();
     return rv;
 }
 
