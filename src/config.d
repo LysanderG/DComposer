@@ -453,7 +453,7 @@ public:
     mixin Signal!() Saved;                      //cfg has been saved
     mixin Signal!() Preconfigure;               //about to present option guis to user ... make sure values in guis are accurate/up to date
     mixin Signal!() Reconfigure;                //set variables to cfg values... ie apply all changes
-
+    mixin Signal!(string) WorkingDirectory;     //emitted from CurrentPath
 
 
 
@@ -502,6 +502,7 @@ public bool CurrentPath(string nuPath)
     {
         mCurPath = nuPath;
         chdir(nuPath);
+        Config.WorkingDirectory.emit(mCurPath);
         ui.AddStatus("mCurPath", mCurPath);
         return true;
     }
