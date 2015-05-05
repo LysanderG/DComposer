@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.18.3 -->
 <interface>
-  <!-- interface-requires gtk+ 3.0 -->
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkListStore" id="liststore1">
     <columns>
       <!-- column-name iconName -->
@@ -51,13 +52,16 @@
                     <property name="model">liststore1</property>
                     <property name="expander_column">treeviewcolumn2</property>
                     <property name="rules_hint">True</property>
+                    <property name="search_column">1</property>
                     <property name="show_expanders">False</property>
-                    <property name="enable_grid_lines">vertical</property>
+                    <property name="enable_grid_lines">horizontal</property>
+                    <property name="tooltip_column">1</property>
                     <child internal-child="selection">
                       <object class="GtkTreeSelection" id="treeview-selection1"/>
                     </child>
                     <child>
                       <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                        <property name="sizing">autosize</property>
                         <property name="min_width">1</property>
                         <property name="sort_order">descending</property>
                         <property name="sort_column_id">4</property>
@@ -72,6 +76,7 @@
                     <child>
                       <object class="GtkTreeViewColumn" id="treeviewcolumn2">
                         <property name="resizable">True</property>
+                        <property name="sizing">autosize</property>
                         <property name="min_width">1</property>
                         <property name="title" translatable="yes">File</property>
                         <property name="expand">True</property>
@@ -90,9 +95,10 @@
                     <child>
                       <object class="GtkTreeViewColumn" id="treeviewcolumn3">
                         <property name="resizable">True</property>
+                        <property name="sizing">autosize</property>
                         <property name="min_width">1</property>
                         <property name="title" translatable="yes">Size</property>
-                        <property name="expand">True</property>
+                        <property name="alignment">0.5</property>
                         <property name="sort_column_id">3</property>
                         <child>
                           <object class="GtkCellRendererText" id="cellrenderertext2">
@@ -163,8 +169,6 @@
             <property name="can_focus">False</property>
             <property name="active">0</property>
             <property name="has_entry">True</property>
-            <property name="entry_text_column">0</property>
-            <property name="id_column">1</property>
             <items>
               <item translatable="yes">*</item>
             </items>
