@@ -94,7 +94,7 @@ class UI_PROJECT
             {
                 ProjRelPath.setText(relativePath(Project.Folder, Project.DefaultProjectRootPath));
                 UpdateFlags();
-                //mRootWidget.show();
+                mRootWidget.show();
                 DocBook.setCurrentPage(mRootWidget);
                 break;
             }
@@ -134,9 +134,7 @@ class UI_PROJECT
             }
             case FLAG:
             {
-
                 UpdateFlags();
-
                 break;
             }
 
@@ -158,7 +156,7 @@ class UI_PROJECT
                         case PREBUILD: ProjPreBuildScripts.UpdateItems(lillist); break;
                         case POSTBUILD: ProjPostBuildScripts.UpdateItems(lillist); break;
                         case OTHER: ProjOtherFlags.UpdateItems(lillist);  break;
-                        case "Notes":
+                        case NOTES:
                         {
                             if(Project.Lists[key].length > 0)ProjNotes.getBuffer().setText(Project.Lists[key][0]);
                             else ProjNotes.getBuffer().setText("");break;
@@ -171,8 +169,7 @@ class UI_PROJECT
             default :break;
         }
         ProjGeneratedBuildCommand.getBuffer.setText("");
-        foreach(ln;Project.BuildCommand().splitter(' '))ProjGeneratedBuildCommand.appendText(ln ~ "\n");
-
+        foreach(ln;Project.BuildCommand())ProjGeneratedBuildCommand.appendText(ln ~ "\n");
     }
 
     void WatchLists(string ListName, string[] Values)
@@ -314,49 +311,41 @@ class UI_PROJECT
         AddIcon("dcmp-proj-new", SystemPath( Config.GetValue("icons", "proj-new", "resources/color-new.png")));
         auto ActNew = "ActProjNew".AddAction("_New","Create a project", "dcmp-proj-new","<Control>F5",delegate void(Action a){Project.Create();});
         AddToMenuBar("ActProjNew", "_Project");
-        //AddToToolBar("ActProjNew");
 
         //Open
         AddIcon("dcmp-proj-open", SystemPath( Config.GetValue("icons", "proj-open",  "resources/color-open.png")));
         auto ActOpen = "ActProjOpen".AddAction("_Open","Open a project", "dcmp-proj-open","<Control>F6",delegate void(Action a){Open();});
         AddToMenuBar("ActProjOpen", "_Project");
-        //AddToToolBar("ActProjOpen");
 
         //Save
         AddIcon("dcmp-proj-save", SystemPath( Config.GetValue("icons", "proj-save", "resources/color-save.png")));
         auto ActSave = "ActProjSave".AddAction("_Save","Save project", "dcmp-proj-save","<Control>F7",delegate void(Action a){Project.Save();});
         AddToMenuBar("ActProjSave", "_Project");
-        //AddToToolBar("ActProjSave");
 
         //Edit
         AddIcon("dcmp-proj-edit", SystemPath( Config.GetValue("icons", "proj-edit",  "resources/color-edit.png")));
         auto ActEdit = "ActProjEdit".AddAction("_Edit","Edit project", "dcmp-proj-edit","<Control>F8",delegate void(Action a){Project.Edit();});
         AddToMenuBar("ActProjEdit", "_Project");
-        //AddToToolBar("ActProjEdit");
 
         //Build
         AddIcon("dcmp-proj-build", SystemPath( Config.GetValue("icons", "proj-build",  "resources/color-build.png")));
         auto ActBuild = "ActProjBuild".AddAction("_Build","Build project", "dcmp-proj-build","<Control>F9",delegate void(Action a){SetBusyCursor(true);Project.Build();SetBusyCursor(false);});
         AddToMenuBar("ActProjBuild", "_Project");
-        //AddToToolBar("ActProjBuild");
 
         //run
         AddIcon("dcmp-proj-run", SystemPath( Config.GetValue("icons", "proj-run", "resources/color-arrow.png")));
         auto ActRun = "ActProjRun".AddAction("_Run","Run project", "dcmp-proj-run","<Control>F10",delegate void(Action a){Project.Run();});
         AddToMenuBar("ActProjRun", "_Project");
-        //AddToToolBar("ActProjRun");
 
         //run args
         AddIcon("dcmp-proj-run-args", SystemPath( Config.GetValue("icons", "proj-run-args",  "resources/color-run-args.png")));
         auto ActRunArgs = "ActProjRunArgs".AddAction("Run with _Args","Run project with arguments", "dcmp-proj-run-args","<Control><Shift>F10",delegate void(Action a){auto args = GetArgs(); Project.Run(args);});
         AddToMenuBar("ActProjRunArgs", "_Project");
-        //AddToToolBar("ActProjRunArgs");
 
         //Close
         AddIcon("dcmp-proj-close", SystemPath( Config.GetValue("icons", "proj-close",  "resources/color-close.png")));
         auto ActClose = "ActProjClose".AddAction("_Close","Close project", "dcmp-proj-close","<Control><Shift>F5",delegate void(Action a){Project.Close();mRootWidget.hide();});
         AddToMenuBar("ActProjClose", "_Project");
-        //AddToToolBar("ActProjClose");
 
         //=============================================================================================================
         //=============================================================================================================
@@ -447,12 +436,13 @@ class UI_PROJECT
     void Open()
     {
         string rv;
-        auto OD = new  FileChooserDialog("What project do you wish to DCompose", null, FileChooserAction.OPEN);
+        FileChooserDialog OD = new  FileChooserDialog("What project do you wish to DCompose", MainWindow, FileChooserAction.OPEN);
+        OD.setCurrentFolder(Project.DefaultProjectRootPath);
         OD.setSelectMultiple(false);
         FileFilter ff = new FileFilter;
         ff.setName("D project");
         ff.addPattern("*.dpro");
-        auto ff2 = new FileFilter;
+        FileFilter ff2 = new FileFilter;
         ff2.setName("All");
         ff2.addPattern("*");
         OD.addFilter(ff);
@@ -464,6 +454,7 @@ class UI_PROJECT
         if(resp == ResponseType.CANCEL) return ;
 
         rv = OD.getFilename();
+        OD.destroy();
 
         if(rv is null)return;
         Project.Open(rv) ;

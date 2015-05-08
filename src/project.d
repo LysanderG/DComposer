@@ -4,7 +4,7 @@ module project;
 
 import std.file;
 import std.path;
-import std.process : Pid, spawnProcess, execute, wait, kill;
+import std.process : Pid, spawnProcess, executeShell, execute, wait, kill;
 import std.signals;
 import std.string;
 import std.path;
@@ -79,64 +79,62 @@ class PROJECT
 
     }
 
-
-
-
     public :
 
-    string BuildCommand()
+    string[] BuildCommand()
     {
 
-        if(mUseCustomBuild) return mCustomBuildCommand;
+        if(mUseCustomBuild) return [mCustomBuildCommand];
 
         with (LIST_NAMES)
         {
-            string buildCMD;
+            string[] buildCMD;
 
-            buildCMD = Compiler;
+            buildCMD ~= Compiler;
 
             foreach(flag; mFlags)
             {
                 if(flag.mState)
                 {
-                    buildCMD ~= " " ~ flag.mSwitch;
-                    if(flag.mArgument) buildCMD ~= flag.mValue;
+                    //buildCMD ~= flag.mSwitch;
+                    if(flag.mArgument) buildCMD ~= (flag.mSwitch~flag.mValue);
+                    else buildCMD ~= flag.mSwitch;
                 }
             }
-            if(!GetFlag("-of", "name output file to filename")) buildCMD ~= " -of"~ mName;
+            if(!GetFlag("-of", "name output file to filename")) buildCMD ~= ("-of" ~ mName);
             foreach(item; mData[VERSIONS])
             {
-                buildCMD ~= " -version=" ~ item;
+                buildCMD ~= ["-version=" ~ item];
             }
             foreach(item; mData[DEBUGS])
             {
-                buildCMD ~= " -debug=" ~ item;
+                buildCMD ~= ("-debug=" ~ item);
             }
             foreach(item; mData[IMPORT])
             {
-                buildCMD ~= " -I" ~ item;
+                buildCMD ~= ("-I" ~ item);
             }
             foreach(item; mData[STRING])
             {
-                buildCMD ~= " -J" ~ item;
+                buildCMD ~= ("-J" ~ item);
             }
             foreach(item; mData[LIBRARY_PATHS])
             {
-                buildCMD ~= " -L-L" ~ item;
+                buildCMD ~= ("-L-L" ~ item);
             }
             foreach(item; mData[LIBRARIES])
             {
                 if(item == "\0")continue;
                 if(item.length < 1)continue;
-                buildCMD ~= " -L-l" ~ LibName(item);
+                buildCMD ~= ("-L-l" ~ LibName(item));
             }
             foreach(item; mData[OTHER])
             {
-                buildCMD ~= " " ~ item;
+               buildCMD ~= " " ~ item;
             }
             foreach(item; mData[SRC_FILES])
             {
-                buildCMD ~= " " ~ item;
+                buildCMD ~= item;
             }
             return buildCMD;
         }
@@ -318,10 +316,10 @@ class PROJECT
 
     void Build()
     {
+
         if(TargetType == TARGET.EMPTY) return;
         DocMan.SaveAll();
         Save();
-
 
         foreach(script; mData[LIST_NAMES.PREBUILD])
         {
@@ -337,7 +335,9 @@ class PROJECT
 
 
         BuildOutput.emit("BEGIN");
-        auto rv = executeShell(BuildCommand());
+
+        //auto rv = executeShell(BuildCommand());
+        auto rv = execute(BuildCommand());
         foreach(line; rv.output.splitLines)BuildOutput.emit(line);
         if(rv.status == 0) BuildOutput.emit("Success");
         BuildOutput.emit("END");
@@ -359,37 +359,46 @@ class PROJECT
         }
     }
 
-    /+void Run()
-    {
-        //mRunPids~= spawnProcess(["xterm", "-hold", "-e", "./"~mName]);
-        auto CmdStrings = Config.GetArray!string("projects","run_command", ["xterm", "-hold", "-e"]);
-        CmdStrings ~= "./" ~ mName;
-        mRunPids ~= spawnProcess(CmdStrings);
-    }+/
-
     void Run(string[] args = null)
     {
         scope(failure){Log.Entry("Failed to Run", "error"); return;}
         if(TargetType == TARGET.EMPTY) return;
         CurrentPath(Folder);
         auto CmdStrings = Config.GetArray!string("terminal_cmd","run", ["xterm", "-hold", "-e"]);
-        //CmdStrings ~= "./" ~ mName;
-        //CmdStrings ~= args ~ ";"  ~ [`echo -e "\n\nPress a key ..."`] ~ [`;`] ~ [`read -rn1`];
         CmdStrings ~= [`./` ~ mName];
         foreach(arg; args) CmdStrings[$-1] ~= " " ~ arg;
-        CmdStrings[$-1] ~= `;echo -e "\n\nPress a key...";read -rn1`;
+        CmdStrings[$-1] ~= `;echo -e "\n\nProgram has terminated.\nPress a key to close terminal...";read -rn1`;
         try
         {
             mRunPids ~= spawnProcess(CmdStrings);
-            dwrite(CmdStrings);
             Log.Entry(`"` ~ mName ~ `"` ~ " spawned ... " );
         }
         catch(Exception E)
         {
-
-            writeln(E);
+            writeln(E.msg);
             return;
         }
+
+    }
+
+
+    //==================================================================================================================
+    //List
+    void DeleteListItem(string Key, int Index)
+    {
+        mData.RemoveData(Key, Index);
+        Event.emit(PROJECT_EVENT.LISTS);
+    }
+    void DeleteListItem(string Key, string Item)
+    {
+        mData.RemoveData(Key, Item);
+        Event.emit(PROJECT_EVENT.LISTS);
+    }
+    void AddListItem(string Key, string Item)
+    {
+        //need serious checks here (should i allow new keys?)
+        mData[Key] ~= Item;
+        Event.emit(PROJECT_EVENT.LISTS);
 
     }
 
@@ -547,7 +556,7 @@ struct LISTS
             if(item == data)
             {
                  RemoveData(Key, index);
-                 //break;
+                 break;
             }
         }
     }
@@ -667,7 +676,8 @@ enum LIST_NAMES : string
     LIBRARY_PATHS = "Library Paths",
     PREBUILD = "Prebuild Scripts",
     POSTBUILD = "Postbuild Scripts",
-    OTHER = "Sundry"
+    OTHER = "Sundry",
+    NOTES = "Notes"
 }
 
 
