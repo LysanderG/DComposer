@@ -66,6 +66,10 @@ public import gtk.ListStore;
 public import gtk.TreeModelIF;
 public import gtk.SelectionData;
 public import gtk.TargetEntry;
+public import gtk.CellRendererText;
+public import gtk.ToolButton;
+public import gtk.CellEditableIF;
+public import gtk.FileChooserDialog;
 
 
 import gsv.SourceView;

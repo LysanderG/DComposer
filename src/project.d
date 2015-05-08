@@ -362,10 +362,17 @@ class PROJECT
     void Run(string[] args = null)
     {
         scope(failure){Log.Entry("Failed to Run", "error"); return;}
-        if(TargetType == TARGET.EMPTY) return;
+        //if(TargetType == TARGET.EMPTY) return;
+        if(TargetType != TARGET.APPLICATION) return;
+
         CurrentPath(Folder);
-        auto CmdStrings = Config.GetArray!string("terminal_cmd","run", ["xterm", "-hold", "-e"]);
-        CmdStrings ~= [`./` ~ mName];
+
+         string ExecName = (GetFlag("-of", "name output file to filename")) ? GetFlagArgument("-of", "name output file to filename") : mName;
+
+        auto CmdStrings = Config.GetArray!string("terminal_cmd","run", ["xterm", "-T","dcomposer running project","-e"]);
+
+        CmdStrings ~= [`./` ~ ExecName];
+
         foreach(arg; args) CmdStrings[$-1] ~= " " ~ arg;
         CmdStrings[$-1] ~= `;echo -e "\n\nProgram has terminated.\nPress a key to close terminal...";read -rn1`;
         try
