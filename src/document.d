@@ -711,7 +711,17 @@ class DOCUMENT : SourceView, DOC_IF
     void CheckExternalModification()
     {
         if(Virgin) return;
-        auto currentTimeStamp = timeLastModified(Name);
+        SysTime currentTimeStamp;
+        try
+        {
+            currentTimeStamp = timeLastModified(Name);
+        }
+        catch(FileException fe)
+        {
+            ShowMessage("Warning","File is no longer on disk!\nSave document to prevent data loss.", "Continue");
+            mVirgin = true;
+            return;
+        }
 
         if(mFileTimeStamp >= currentTimeStamp) return;
         auto msg = new MessageDialog(null, DialogFlags.MODAL, MessageType.QUESTION, ButtonsType.NONE, true,null);
