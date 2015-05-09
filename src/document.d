@@ -96,6 +96,7 @@ class DOCUMENT : SourceView, DOC_IF
 
 
     bool    mVirgin;
+    bool    mDeletedFile;
 
     Widget  mPageWidget;
     Box     mTabWidget;
@@ -125,6 +126,9 @@ class DOCUMENT : SourceView, DOC_IF
 
     this()
     {
+
+        mDeletedFile = false; //if there was a file but now its gone. no file yet though so false
+
         ScrolledWindow ScrollWin = new ScrolledWindow(null, null);
         ScrollWin.setSizeRequest(-1,-1);
 
@@ -665,6 +669,7 @@ class DOCUMENT : SourceView, DOC_IF
             Modified = false;
             mFileTimeStamp = timeLastModified(Name);
             mVirgin = false;
+            mDeletedFile = false;
         }
         catch(FileException fe)
         {
@@ -711,17 +716,33 @@ class DOCUMENT : SourceView, DOC_IF
     void CheckExternalModification()
     {
         if(Virgin) return;
+        if(mDeletedFile) return;
         SysTime currentTimeStamp;
-        try
+
+        if(!Name.exists())
         {
-            currentTimeStamp = timeLastModified(Name);
+            mDeletedFile = true;
+            getBuffer.setModified(true);
+            auto userChoice = ShowMessage("Warning", Name ~ "\nCan not be found on disk.\nYou are in danger of losing data.\nHow do you wish to proceed?",["Save", "Ignore", "Close"]);
+            if(userChoice == 0)
+            {
+                Save();
+                return;
+            }
+            if(userChoice == 1)
+            {
+                return;
+            }
+            if(userChoice == 2)
+            {
+                DocMan.Close(this);
+                return;
+            }
         }
-        catch(FileException fe)
-        {
-            ShowMessage("Warning","File is no longer on disk!\nSave document to prevent data loss.", "Continue");
-            mVirgin = true;
-            return;
-        }
+
+
+
+        currentTimeStamp = timeLastModified(Name);
 
         if(mFileTimeStamp >= currentTimeStamp) return;
         auto msg = new MessageDialog(null, DialogFlags.MODAL, MessageType.QUESTION, ButtonsType.NONE, true,null);
