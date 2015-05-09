@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.18.3 -->
+<interface>
+  <requires lib="gtk+" version="3.0"/>
+  <object class="GtkListStore" id="liststore1">
+    <columns>
+      <!-- column-name key -->
+      <column type="gchararray"/>
+      <!-- column-name display -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">Source Files</col>
+        <col id="1" translatable="yes">D Source Files</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Related Files</col>
+        <col id="1" translatable="yes">Related Files</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Libraries</col>
+        <col id="1" translatable="yes">Libraries</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Import Paths</col>
+        <col id="1" translatable="yes">Import Paths</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Library Paths</col>
+        <col id="1" translatable="yes">Library Search Paths</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">String Imports</col>
+        <col id="1" translatable="yes">String Expression Search Paths</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Versions</col>
+        <col id="1" translatable="yes">Version Identifiers</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Debugs</col>
+        <col id="1" translatable="yes">Debug Identifiers</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Notes</col>
+        <col id="1" translatable="yes">Description</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Sundry</col>
+        <col id="1" translatable="yes">Other options</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="liststore2">
+    <columns>
+      <!-- column-name item -->
+      <column type="gchararray"/>
+      <!-- column-name fullname -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkBox" id="box1">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="GtkLabel" id="label1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="xalign">1</property>
+        <property name="label" translatable="yes">PROJECT TITLE</property>
+        <property name="justify">center</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkToolbar" id="toolbar2">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="icon_size">1</property>
+        <child>
+          <object class="GtkToolButton" id="toolbutton4">
+            <property name="use_action_appearance">False</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">toolbutton1</property>
+            <property name="use_underline">True</property>
+            <property name="stock_id">gtk-add</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="homogeneous">True</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkToolButton" id="toolbutton5">
+            <property name="use_action_appearance">False</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">toolbutton2</property>
+            <property name="use_underline">True</property>
+            <property name="stock_id">gtk-remove</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="homogeneous">True</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkSeparatorToolItem" id="toolbutton6">
+            <property name="use_action_appearance">False</property>
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="homogeneous">True</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkComboBox" id="combobox2">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="model">liststore1</property>
+        <property name="active">0</property>
+        <child>
+          <object class="GtkCellRendererText" id="cellrenderertext3"/>
+          <attributes>
+            <attribute name="text">1</attribute>
+          </attributes>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkSeparator" id="separator1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="padding">2</property>
+        <property name="position">3</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkScrolledWindow" id="scrolledwindow2">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <child>
+          <object class="GtkViewport" id="viewport1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkTreeView" id="treeview2">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="model">liststore2</property>
+                <property name="headers_clickable">False</property>
+                <property name="reorderable">True</property>
+                <property name="rules_hint">True</property>
+                <property name="enable_search">False</property>
+                <property name="search_column">0</property>
+                <property name="tooltip_column">1</property>
+                <child internal-child="selection">
+                  <object class="GtkTreeSelection" id="treeview-selection3"/>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+                    <property name="title" translatable="yes">Item</property>
+                    <property name="clickable">True</property>
+                    <property name="sort_indicator">True</property>
+                    <property name="sort_column_id">0</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cellrenderertext4"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">True</property>
+        <property name="fill">True</property>
+        <property name="position">4</property>
+      </packing>
+    </child>
+  </object>
+</interface>
