@@ -130,7 +130,7 @@ class PROJECT
             }
             foreach(item; mData[OTHER])
             {
-               buildCMD ~= " " ~ item;
+               buildCMD ~= item;
             }
             foreach(item; mData[SRC_FILES])
             {
