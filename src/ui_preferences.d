@@ -15,6 +15,8 @@ import gtk.Frame;
 import gtk.Container;
 import gtk.Switch;
 import gtk.FileChooserDialog;
+import gsv.SourceStyleSchemeManager;
+
 
 import gobject.ParamSpec;
 import gobject.ObjectG;
@@ -236,13 +238,12 @@ Widget BuildDocPrefPage()
 
     //style
     auto SyntaxStyle = cast(ComboBoxText)docBuilder.getObject("syntax_style");
-    foreach(string Name; dirEntries(SystemPath("styles"), SpanMode.shallow))
+
+    foreach(string SchemeID ; SourceStyleSchemeManager.getDefault().getSchemeIds())
     {
-        if(Name.extension() == ".xml")
-        {
-            SyntaxStyle.appendText(Name.baseName(".xml"));
-        }
+        SyntaxStyle.appendText(SchemeID);
     }
+
     SyntaxStyle.setActiveText(Config.GetValue!string("document","style_scheme"));
     SyntaxStyle.addOnChanged(delegate void(ComboBoxText ss)
     {
