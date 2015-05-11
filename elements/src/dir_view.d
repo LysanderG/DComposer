@@ -97,7 +97,11 @@ class DIR_VIEW : ELEMENT
             string sortname;
             string simplename = entry.name.baseName();
             ulong filesize = entry.size;
-            string stringsize = format("% 18s ", filesize);
+            string stringsize;
+            if(filesize > 1_024) stringsize = format("% 12sKiB ", filesize/1024);
+            else stringsize = format("% 12sB ", filesize);
+            if(filesize > 1_048_576)stringsize = format("% 12sMiB ", filesize/1_048_576);
+            //string stringsize = format("% 18s ", filesize);
             string iconname = "gtk-missing-image";
 
             if( (simplename.startsWith(".")) && (mViewHidden) ) continue;

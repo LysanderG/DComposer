@@ -50,6 +50,14 @@
         <col id="0" translatable="yes">Sundry</col>
         <col id="1" translatable="yes">Other options</col>
       </row>
+      <row>
+        <col id="0" translatable="yes">Prebuild Scripts</col>
+        <col id="1" translatable="yes">Pre-Build Scripts</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">Postbuild Scripts</col>
+        <col id="1" translatable="yes">Post-Build Scripts</col>
+      </row>
     </data>
   </object>
   <object class="GtkListStore" id="liststore2">
