@@ -49,6 +49,7 @@ public import gtk.SeparatorMenuItem;
 public import gtk.SpinButton;
 public import gtk.Statusbar;
 public import gtk.TextView;
+public import gtk.TextIter;
 public import gtk.ToggleAction;
 public import gtk.ToggleToolButton;
 public import gtk.ToolItem;

@@ -261,7 +261,6 @@ class UI_SEARCH
         mSearchBox.addOnKeyRelease(delegate bool(Event ev, Widget wi)
         {
             if( (ev.key().keyval == GdkKeysyms.GDK_Tab)) mTree.grabFocus();
-            dwrite (ev.key().keyval);
 
             if(ev.key().keyval == GdkKeysyms.GDK_Return) mSearchBox.editingDone();
             return false;

@@ -138,7 +138,6 @@ Widget BuildGenPrefPage()
     });
     BaseFolder.addOnIconPress(delegate void(GtkEntryIconPosition pos, Event e, Entry me)
     {
-        dwrite(pos);
         auto FolderSelected = SelectFolder(BaseFolder.getText());
         BaseFolder.setText(FolderSelected);
     });

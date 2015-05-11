@@ -205,6 +205,11 @@ class DIR_VIEW : ELEMENT
         //setup the comboboxtext stuff
         auto savedfilters = Config.GetArray("dir_view", "saved_filters", ["*.d", "*.di", "*.dpro"]);
         foreach(filter; uniq(sort(savedfilters)))mComboText.appendText(filter);
+        mComboText.prependOrReplaceText("*.dpro");
+        mComboText.prependOrReplaceText("*.di");
+        mComboText.prependOrReplaceText("*.d");
+        mComboText.prependOrReplaceText("*");
+
         mText.addOnActivate(delegate void(Entry){mComboText.prependOrReplaceText(mText.getText());Refresh();});
         mText.addOnIconRelease(delegate void (GtkEntryIconPosition pos, Event evnt , Entry ntry){mText.setText("");Refresh();});
         mComboText.addOnChanged(delegate void(ComboBoxText x){Refresh();});
@@ -258,7 +263,6 @@ class DIR_VIEW : ELEMENT
         hiddenButton.addOnToggled(delegate void(ToggleToolButton ttb){ToggleViewHidden(ttb);});
 
         //lock and load the tree and its model
-        dwrite("{",CurrentPath(),"}");
         Folder = CurrentPath();
 
 

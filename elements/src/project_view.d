@@ -82,7 +82,6 @@ class PROJECT_VIEW : ELEMENT
         Value x = new Value(GType.INT);
         mCellText.getProperty("mode", x);
 
-        dwrite(key);
         auto values = Project.Lists[key];
 
         mViewStore.clear();
@@ -124,7 +123,6 @@ class PROJECT_VIEW : ELEMENT
                 mViewStore.clear();
                 foreach(item; Values)
                 {
-                    dwrite(item);
                     mViewStore.append(ti);
                     mViewStore.setValue(ti, 0, baseName(item));
                     mViewStore.setValue(ti, 1, item);
@@ -148,7 +146,6 @@ class PROJECT_VIEW : ELEMENT
 
             auto ti = tv.getSelectedIter();
             string Filename = ti.getValueString(1);
-            dwrite(buildPath(Project.Folder, Filename));
             DocMan.Open([buildPath(Project.Folder, Filename)]);
         }
     }
@@ -291,7 +288,6 @@ class PROJECT_VIEW : ELEMENT
             if(afileAbsPath.startsWith(projectAbsPath))afile = afile.relativePath(projectAbsPath);
             //else afile = afileAbsPath.buildNormalizedPath();
 
-            dwrite(afile, "+++", Project.Lists[CurrentKey]);
             if(!Project.Lists[CurrentKey].canFind(afile))//Project.AddItem(CurrentKey, afile); //AddUniqueItem
             {
 
@@ -425,7 +421,6 @@ class PROJECT_VIEW : ELEMENT
 
     void Configure(string key = "", string name = "")
     {
-        dwrite("here");
     }
 
     void Configure()
