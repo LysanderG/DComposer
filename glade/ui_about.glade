@@ -21,7 +21,7 @@
     <property name="website">https://github.com/LysanderG/DComposer</property>
     <property name="website_label" translatable="yes">https://github.com/LysanderG/DComposer</property>
     <property name="authors">Anthony Goins (neontotem@gmail.com)</property>
-    <property name="logo">../resources/neontotemc3a.png</property>
+    <property name="logo">../resources/neontotemz2.png</property>
     <property name="license_type">lgpl-3-0</property>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox1">
