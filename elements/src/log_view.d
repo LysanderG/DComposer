@@ -1,4 +1,4 @@
-module log_phase;
+module log_view;
 
 import std.string;
 
@@ -7,27 +7,18 @@ import ui;
 import elements;
 import ui_preferences;
 
-import gtk.TreeView;
-import gtk.ListStore;
-import gtk.TreeViewColumn;
-import gtk.TreeIter;
-import gtk.CellRendererText;
-import gtk.Container;
-import gtk.ScrolledWindow;
-import gtk.Box;
-import gtk.Label;
-import gtk.FontButton;
+
 
 import pango.PgFontDescription;
 
 
 extern (C) string GetClassName()
 {
-    return "log_phase.LOG_PHASE";
+    return "log_view.LOG_VIEW";
 }
 
 
-class LOG_PHASE :ELEMENT
+class LOG_VIEW :ELEMENT
 {
     private:
 
@@ -72,7 +63,7 @@ class LOG_PHASE :ELEMENT
         });
     }
 
-    string Name() {return "Log View";}
+    string Name() {return "Log Viewer";}
     string Info() {return "Display log messages in a pretty window.";}
     string Version() {return "00.01";}
     string CopyRight() {return "Anthony Goins © 2014";}
