@@ -1,10 +1,18 @@
 cd elements/src;
-export xfiles=`ls -1 *.d`;
+
+if [ "$#" -eq 0 ]; then
+    export xfiles=`ls -1 *.d`;
+else
+    export xfiles=$@;
+fi
+
 echo $xfiles;
+echo
 cd ../../ ;
 for xes in $xfiles ;
-	do echo $xes;
-	 pwd;
-	 ./utils/buildelement.d $xes;
+    do echo -n $xes;
+     ./utils/buildelement.d $xes;
+     echo "$? <<<<<<";
+     echo
 done
 cp elements/*.so ~/.config/dcomposer/elements;
