@@ -154,6 +154,18 @@ class DOCUMENT : SourceView, DOC_IF
 
         mPageWidget = ScrollWin;
 
+
+        getBuffer().addOnInsertText(delegate void(TextIter ti, string text, int len, TextBuffer tb)
+        {
+            if(tb.getMark("dcomposer_saveMark") !is null){dwrite(ti, text, len, tb); return;}
+
+            auto saveMark = new TextMark("dcomposer_saveMark", 0);
+            tb.addMark(saveMark, ti);
+            DocMan.Insertion.emit(cast(void* )ti, text, len, cast(void*)tb);
+            tb.getIterAtMark(ti, saveMark);
+            tb.deleteMark(saveMark);
+
+        }, cast(ConnectFlags)1);
         getBuffer().addOnModifiedChanged(delegate void (TextBuffer Buf){UpdateTabWidget();});
         getBuffer().addOnNotify(delegate void(ParamSpec ps, ObjectG objg){DocMan.NotifySelection();},"has-selection");
         addOnFocus(delegate bool(GtkDirectionType direction, Widget w) {DocMan.NotifySelection(); return false;});
@@ -934,6 +946,14 @@ class DOCUMENT : SourceView, DOC_IF
     void Undo()
     {
         mUndoManager.undo();
+    }
+
+    int GetCursorByteIndex()
+    {
+        auto tiOffset = Cursor();
+        int offsetnotbytes = tiOffset.getLineIndex();
+        while(tiOffset.backwardLine())offsetnotbytes += tiOffset.getBytesInLine();
+        return offsetnotbytes;
     }
 
 }

@@ -95,6 +95,7 @@ interface DOC_IF
     void HiliteAllSearchResults(int LineNo, int Start, int End);
     void ClearHiliteAllSearchResults();
     void ReplaceText(string NewText, int Line, int StartOffset, int EndOffset);
+    int GetCursorByteIndex();
     RECTANGLE GetCursorRectangle();
 
 }
@@ -138,18 +139,19 @@ class DOCMAN
     UI_DOCBOOK_IF mDocBook;
 
 
-    string NextTitle(string Extension = "")
+    string NextTitle(string Extension = ".d")
     {
         static int UnTitledCount = 0;
-        immutable string Title = "dcomposer%s%s";
+        immutable string Title = "dcomposer%s";
         string rv;
         if(UnTitledCount > 99_999) UnTitledCount = 0;//relax this is nothing just change it
         do
         {
-            rv = buildPath(CurrentPath(), format(Title, UnTitledCount++, Extension));
-            if(UnTitledCount > 100_000) return "dcomposer";
-        }while(exists(cast(string)rv));
-        return rv;
+            rv = buildPath(CurrentPath(), format(Title, UnTitledCount));
+            dwrite(rv.setExtension(Extension));
+            if(UnTitledCount++ > 100_000) return "dcomposer";
+        }while(exists(rv.setExtension(Extension)));
+        return rv.setExtension(Extension);
     }
 
     Pid[] mRunPids;
@@ -205,12 +207,12 @@ class DOCMAN
 
     void Create(string DocType = "D source")
     {
-        string nameindex = NextTitle();
+        string nameindex;
         string ClassType;
         switch (DocType)
         {
-            case "plain text" : ClassType = "document.DOCUMENT";break;
-            case "D source" : nameindex ~= ".d"; ClassType = "document.DOCUMENT";break;
+            case "plain text" : nameindex = NextTitle(".txt"); ClassType = "document.DOCUMENT";break;
+            case "D source" : nameindex = NextTitle(".d"); ClassType = "document.DOCUMENT";break;
             default : ClassType = "document.DOCUMENT";break;
         }
         auto tmp = DOC_IF.Create(nameindex, ClassType);
@@ -428,6 +430,7 @@ class DOCMAN
 
     mixin Signal!(string, DOC_IF) Event;
     mixin Signal!(string) Message;
+    mixin Signal!(void*, string, int, void*) Insertion;
 }
 
 
