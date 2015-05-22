@@ -39,6 +39,7 @@ interface DOC_IF
     string  FullSymbol();
     string  Word();
     string  WordUnderPointer();
+    int     WordLength(int Partial = -1);
 
     string  GetText();
     void    SetText(string txt);
@@ -46,6 +47,7 @@ interface DOC_IF
     void    ReplaceWord(string txt);
     void    ReplaceLine(string txt);
     void    ReplaceSelection(string txt);
+    void    CompleteSymbol(string txt);
     void    StopUndo();
     void    RestartUndo();
 
@@ -138,6 +140,8 @@ class DOCMAN
     DOC_IF[] mDocuments;
     UI_DOCBOOK_IF mDocBook;
 
+    bool mBlockDocumentKeyPress;
+
 
     string NextTitle(string Extension = ".d")
     {
@@ -148,7 +152,6 @@ class DOCMAN
         do
         {
             rv = buildPath(CurrentPath(), format(Title, UnTitledCount));
-            dwrite(rv.setExtension(Extension));
             if(UnTitledCount++ > 100_000) return "dcomposer";
         }while(exists(rv.setExtension(Extension)));
         return rv.setExtension(Extension);
@@ -428,9 +431,24 @@ class DOCMAN
         return mDocuments;
     }
 
+    void SetBlockDocumentKeyPress(bool setting = true)
+    {
+        mBlockDocumentKeyPress = setting;
+    }
+    bool BlockDocumentKeyPress()
+    {
+        auto rv = mBlockDocumentKeyPress;
+        mBlockDocumentKeyPress = false;
+        return rv;
+    }
+
+
+
     mixin Signal!(string, DOC_IF) Event;
     mixin Signal!(string) Message;
     mixin Signal!(void*, string, int, void*) Insertion;
+    mixin Signal!() PageFocusOut;
+    mixin Signal!(uint) DocumentKeyDown;
 }
 
 

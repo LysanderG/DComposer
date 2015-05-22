@@ -51,6 +51,7 @@ public import gtk.Statusbar;
 public import gtk.TextView;
 public import gtk.TextBuffer;
 public import gtk.TextIter;
+public import gtk.TextMark;
 public import gtk.ToggleAction;
 public import gtk.ToggleToolButton;
 public import gtk.ToolItem;

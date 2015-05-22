@@ -42,23 +42,23 @@ import gtkc.gobject;
 import gtkc.Loader;
 import gtkc.paths;
 
-import gsv.SourceBuffer;
-import gsv.SourceCompletion;
-import gsv.SourceCompletionContext;
-import gsv.SourceCompletionInfo;
-import gsv.SourceCompletionItem;
-import gsv.SourceCompletionProposalIF;
-import gsv.SourceCompletionProvider;
-import gsv.SourceCompletionProviderIF;
-import gsv.SourceCompletionProviderT;
-import gsv.SourceCompletionWords;
-import gsv.SourceLanguage;
-import gsv.SourceLanguageManager;
-import gsv.SourceStyleSchemeManager;
-import gsv.SourceUndoManager;
-import gsv.SourceUndoManagerIF;
-import gsv.SourceView;
-import gsv.SourceMark;
+public import gsv.SourceBuffer;
+public import gsv.SourceCompletion;
+public import gsv.SourceCompletionContext;
+public import gsv.SourceCompletionInfo;
+public import gsv.SourceCompletionItem;
+public import gsv.SourceCompletionProposalIF;
+public import gsv.SourceCompletionProvider;
+public import gsv.SourceCompletionProviderIF;
+public import gsv.SourceCompletionProviderT;
+public import gsv.SourceCompletionWords;
+public import gsv.SourceLanguage;
+public import gsv.SourceLanguageManager;
+public import gsv.SourceStyleSchemeManager;
+public import gsv.SourceUndoManager;
+public import gsv.SourceUndoManagerIF;
+public import gsv.SourceView;
+public import gsv.SourceMark;
 
 
 import gtk.Widget;
@@ -154,17 +154,29 @@ class DOCUMENT : SourceView, DOC_IF
 
         mPageWidget = ScrollWin;
 
+        addOnFocusOut(delegate bool(Event e, Widget me){DocMan.PageFocusOut.emit();return false;});
+
+        addOnKeyPress(delegate bool(Event e, Widget me)
+        {
+            uint keyval;
+            int rv;
+            e.getKeyval(keyval);
+            DocMan.DocumentKeyDown.emit(keyval);
+            //dwrite(DocMan.BlockDocumentKeyPress());
+            return DocMan.BlockDocumentKeyPress();
+
+        },cast(GConnectFlags)0);
+
 
         getBuffer().addOnInsertText(delegate void(TextIter ti, string text, int len, TextBuffer tb)
         {
-            if(tb.getMark("dcomposer_saveMark") !is null){dwrite(ti, text, len, tb); return;}
+            if(tb.getMark("dcomposer_saveMark") !is null){return;}
 
             auto saveMark = new TextMark("dcomposer_saveMark", 0);
             tb.addMark(saveMark, ti);
             DocMan.Insertion.emit(cast(void* )ti, text, len, cast(void*)tb);
             tb.getIterAtMark(ti, saveMark);
             tb.deleteMark(saveMark);
-
         }, cast(ConnectFlags)1);
         getBuffer().addOnModifiedChanged(delegate void (TextBuffer Buf){UpdateTabWidget();});
         getBuffer().addOnNotify(delegate void(ParamSpec ps, ObjectG objg){DocMan.NotifySelection();},"has-selection");
@@ -595,11 +607,31 @@ class DOCUMENT : SourceView, DOC_IF
         if(ti.insideWord())
         {
             auto tiEnd = ti.copy();
+            TextIter tiCheckUnderScore;
             tiEnd.forwardWordEnds(1);
             ti.backwardWordStarts(1);
             rv = ti.getText(tiEnd);
         }
         return rv;
+    }
+
+    int WordLength(int Partial)
+    {
+        int ctr;
+        auto ti = Cursor;
+        while(ti.backwardChar())
+        {
+            switch(ti.getChar())
+            {
+                case 'A' : .. case 'Z' :
+                case 'a' : .. case 'z' :
+                case '0' : .. case '9' :
+                case '_' :
+                case '.' : ctr++; break;
+                default  : return ctr;
+            }
+        }
+        return ctr;
     }
     string WordUnderPointer()
     {
@@ -837,6 +869,15 @@ class DOCUMENT : SourceView, DOC_IF
     void ReplaceWord(string newText)
     {
         auto tiStart = Cursor();
+        if(tiStart.endsWord())
+        {
+            auto tiEnd = tiStart.copy();
+            tiStart.backwardWordStarts(1);getBuffer().beginUserAction();
+            getBuffer().delet(tiStart, tiEnd);
+            getBuffer().insert(tiStart, newText);
+            getBuffer().endUserAction();
+            return;
+        }
         if(!tiStart.insideWord())
         {
             InsertText(newText);
@@ -956,90 +997,4 @@ class DOCUMENT : SourceView, DOC_IF
         return offsetnotbytes;
     }
 
-}
-
-private import glib.ConstructionException;
-private import glib.Str;
-
-/**
- * The GtkSourceCompletionWords is an example of an implementation of
- * the GtkSourceCompletionProvider interface. The proposals are words
- * appearing in the registered GtkTextBuffers.
- */
-public class MyWords : SourceCompletionProvider
-{
-
-    /** the main Gtk struct */
-    protected GtkSourceCompletionWords* gtkSourceCompletionWords;
-
-
-    /** Get the main Gtk struct */
-    public GtkSourceCompletionWords* getSourceCompletionWordsStruct()
-    {
-        return gtkSourceCompletionWords;
-    }
-
-
-    /** the main Gtk struct as a void* */
-    protected override void* getStruct()
-    {
-        return cast(void*)gtkSourceCompletionWords;
-    }
-
-    /**
-     * Sets our main struct and passes it to the parent class
-     */
-    public this (GtkSourceCompletionWords* gtkSourceCompletionWords)
-    {
-        super(cast(GtkSourceCompletionProvider*)gtkSourceCompletionWords);
-        this.gtkSourceCompletionWords = gtkSourceCompletionWords;
-    }
-
-    protected override void setStruct(GObject* obj)
-    {
-        super.setStruct(obj);
-        gtkSourceCompletionWords = cast(GtkSourceCompletionWords*)obj;
-    }
-
-    /**
-     */
-
-    /**
-     * Params:
-     * name = The name for the provider. [allow-none]
-     * icon = A specific icon for the provider. [allow-none]
-     * Throws: ConstructionException GTK+ fails to create the object.
-     */
-    public this (string name, Pixbuf icon)
-    {
-        // GtkSourceCompletionWords * gtk_source_completion_words_new  (const gchar *name,  GdkPixbuf *icon);
-        auto p = gtk_source_completion_words_new(Str.toStringz(name), (icon is null) ? null : icon.getPixbufStruct());
-        if(p is null)
-        {
-            throw new ConstructionException("null returned by gtk_source_completion_words_new(Str.toStringz(name), (icon is null) ? null : icon.getPixbufStruct())");
-        }
-        this(cast(GtkSourceCompletionWords*) p);
-    }
-
-    /**
-     * Registers buffer in the words provider.
-     * Params:
-     * buffer = a GtkTextBuffer
-     */
-    public void register(TextBuffer buffer)
-    {
-        // void gtk_source_completion_words_register  (GtkSourceCompletionWords *words,  GtkTextBuffer *buffer);
-        gtk_source_completion_words_register(gtkSourceCompletionWords, (buffer is null) ? null : buffer.getTextBufferStruct());
-    }
-
-    /**
-     * Unregisters buffer from the words provider.
-     * Params:
-     * buffer = a GtkTextBuffer
-     */
-    public void unregister(TextBuffer buffer)
-    {
-        // void gtk_source_completion_words_unregister  (GtkSourceCompletionWords *words,  GtkTextBuffer *buffer);
-        gtk_source_completion_words_unregister(gtkSourceCompletionWords, (buffer is null) ? null : buffer.getTextBufferStruct());
-    }
 }

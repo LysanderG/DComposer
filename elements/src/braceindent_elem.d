@@ -256,12 +256,9 @@ class BRACE_INDENT : ELEMENT
             self.delet(tiCloneForStarting, ti);
 
             tiCloneForStarting = new TextIter;
-            //self.getIterAtMark(ti, self.getInsert());
             self.getIterAtMark(tiCloneForStarting, tmpMark);
             if(OpenLineTextIndentChars.length > 0)self.insert(tiCloneForStarting, OpenLineTextIndentChars);
 
-            //self.getIterAtMark(tiCloneForStarting, self.getInsert());
-            //dwrite(tmpMark.getBuffer());
             self.deleteMark(tmpMark);
             return;
         }
