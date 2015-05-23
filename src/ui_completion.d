@@ -43,6 +43,8 @@ class UI_COMPLETION
 
     SList!(CALLTIP) mAnchor;
 
+    bool mBlockWatchForLostFocus;
+
 
 
     void MapCallTipWindow()
@@ -67,7 +69,7 @@ class UI_COMPLETION
         doc.bufferToWindowCoords(TextWindowType.WIDGET, position.x, position.y-ylen, winx, winy);
         doc.getWindow(TextWindowType.WIDGET).getOrigin(x2, y2);
 
-        mTipWindow.move(winx+x2,winy+y2);
+        mTipWindow.move(winx+x2,winy+y2-10);
     }
 
 
@@ -86,6 +88,17 @@ class UI_COMPLETION
         DOCUMENT doc = cast(DOCUMENT)DocMan.Current;
         RECTANGLE Crect = doc.GetCursorRectangle();
         mCompWindow.move(Crect.x, Crect.y + Crect.yl);
+    }
+
+    void WatchForLostFocus()
+    {
+        if(mBlockWatchForLostFocus)
+        {
+            mBlockWatchForLostFocus = false;
+            return;
+        }
+        KillCallTips();
+        KillCompletionWindow();
     }
 
 
@@ -159,6 +172,7 @@ class UI_COMPLETION
 
     void ShowCallTip()
     {
+        mBlockWatchForLostFocus = true;
         mTipWindow.hide();
 
         if(mAnchor.empty())return;
@@ -177,7 +191,7 @@ class UI_COMPLETION
         }
         mTipWindow.map();
         mTipWindow.showAll();
-        ui.MainWindow.present();
+        ui.MainWindow.presentWithTime( 0L);
     }
 
     void CallTipSelectionDown()
@@ -290,6 +304,12 @@ class UI_COMPLETION
         ShowCallTip();
     }
 
+    void KillCallTips()
+    {
+        if(!mAnchor.empty())mAnchor.clear();
+        mTipWindow.hide();
+    }
+
     void CompleteSymbol()
     {
         TreeIter ti = mCompTree.getSelectedIter();
@@ -397,6 +417,7 @@ class UI_COMPLETION
 
 
         DocMan.DocumentKeyDown.connect(&WatchForKeys);
+        DocMan.PageFocusOut.connect(&WatchForLostFocus);
 
 
 
@@ -422,10 +443,9 @@ class UI_COMPLETION
     }
     body
     {
+        mBlockWatchForLostFocus = true;
         mCompWindow.hide();
         mTipWindow.hide();
-
-
 
         auto ti = new TreeIter;
 
@@ -442,7 +462,7 @@ class UI_COMPLETION
         mCompTree.setCursor(new TreePath("0"), null, false);
 
         mCompWindow.showAll();
-        MainWindow.present();
+        MainWindow.presentWithTime(0L);
     }
 
     void PushCallTip(string[] Candidates)
@@ -465,18 +485,7 @@ class UI_COMPLETION
         auto txtIter = doc.Cursor();
         buf.createMark(unique_name, txtIter, true);
 
-        mTipStore.clear();
-        auto treeIter = new TreeIter;
-        foreach(candi; Candidates)
-        {
-            mTipStore.append(treeIter);
-            mTipStore.setValue(treeIter, 0, candi);
-        }
-        mTipWindow.hide();
-        mTipWindow.map();
-        mTipWindow.showAll();
-        ui.MainWindow.present();
-
+        ShowCallTip();
     }
 
     void PopCallTip()
