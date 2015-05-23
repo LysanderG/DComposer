@@ -24,7 +24,8 @@ class DCD_ELEM : ELEMENT
     string mServerCommand;
     string mClientCommand;
     string[] mImportPaths;
-    Pid mServerPID;
+    static Pid mServerPID;
+    static ushort mPort;
 
     string TypeName[string];
 
@@ -54,11 +55,6 @@ class DCD_ELEM : ELEMENT
         TypeName["T"] = "Mixin Template";
     }
 
-
-
-
-
-
     void WatchForText(void* void_ti, string text, int len, void* void_self)
     {
         if(text.length != 1)
@@ -84,8 +80,9 @@ class DCD_ELEM : ELEMENT
         int CursorOffset = DocMan.Current.GetCursorByteIndex();
 
         string arg = format("-c%s",CursorOffset);
+        string port = format("-p%s", mPort);
 
-        auto pipes = std.process.pipeProcess([mClientCommand, arg]);
+        auto pipes = std.process.pipeProcess([mClientCommand, port, arg]);
 
         pipes.stdin.write(DocMan.Current.GetText());
         pipes.stdin.flush();
@@ -136,6 +133,9 @@ class DCD_ELEM : ELEMENT
     string[] Authors(){return ["Anthony Goins <neontotem@gmail.com>"];}
 
 
+
+
+
     void Engage()
     {
         SetupTypeNames();
@@ -143,18 +143,23 @@ class DCD_ELEM : ELEMENT
         mServerCommand = SystemPath(Config.GetValue("dcd_elem", "server_command", "deps/DCD/bin/dcd-server"));
         mClientCommand = SystemPath(Config.GetValue("dcd_elem", "client_command", "deps/DCD/bin/dcd-client"));
         mImportPaths = Config.GetArray("dcd_elem", "import_paths", ["/usr/include/dmd/phobos", "/usr/include/dmd/druntime"]);
+        mPort = Config.GetValue!ushort("dcd_elem", "port_number", 9166);
         mMinChars = Config.GetValue("dcd_elem", "min_char_lookup", 3);
 
         //are we running
         string[] cmd = [mClientCommand];
         cmd ~= "-q";
+        cmd ~= format("-p%s", mPort);
         auto queryServer = execute(cmd);
         if(queryServer.status ==1) //nope start it up
         {
             mShutServerDown = true;
             try
             {
-                mServerPID = spawnProcess([mServerCommand] ~ mImportPaths);
+                string switchPort = format("-p%s",mPort);
+                string[] switchImports;
+                foreach(I; mImportPaths) switchImports ~= ["-I" ~ I];
+                mServerPID = spawnProcess([mServerCommand] ~ [switchPort] ~  switchImports);
             }
             catch(Exception x)
             {
@@ -165,7 +170,7 @@ class DCD_ELEM : ELEMENT
             //Log.Entry("DCD server started.");
         }
         string eyeports = format("%s", mImportPaths);
-        Log.Entry("DCD server running :" ~ eyeports);
+        Log.Entry("DCD server running :" ~ format(" @%s ", mPort) ~ eyeports);
 
         DocMan.Insertion.connect(&WatchForText);
 
@@ -179,7 +184,8 @@ class DCD_ELEM : ELEMENT
 
         if(mShutServerDown)
         {
-            auto stopServer = execute([mClientCommand] ~ ["--shutdown"]);
+            string port = format("-p%s", mPort);
+            auto stopServer = execute([mClientCommand] ~ [port] ~ ["--shutdown"]);
             wait(mServerPID);
             if(stopServer.status == 0)Log.Entry("DCD server shut down.");
             else Log.Entry("Failed to shut down DCD server.");
@@ -197,7 +203,160 @@ class DCD_ELEM : ELEMENT
 
     PREFERENCE_PAGE PreferencePage()
     {
-        return null;
+        return new DCD_ELEM_PREFERENCE_PAGE;
     }
 
+    static void SetServerPid(Pid RestartedPid)
+    {
+        mServerPID = RestartedPid;
+    }
+    static Pid ServerPid()
+    {
+        return mServerPID;
+    }
+
+    static void SetPort( ushort newPort)
+    {
+        mPort = newPort;
+    }
+
+    static ushort GetPort()
+    {
+        return mPort;
+    }
+
+
 }
+
+
+class DCD_ELEM_PREFERENCE_PAGE : PREFERENCE_PAGE
+{
+    private:
+    FileChooserButton   mServerFile;
+    FileChooserButton   mClientFile;
+    SpinButton          mMinLookupChars;
+    SpinButton          mPort;
+    UI_LIST             mDcdImportPaths;
+    Button              mRestart;
+
+
+    void watchList(string title, string[] items)
+    {
+        Config.SetArray("dcd_elem", "import_paths", items);
+    }
+
+    void RestartServer(Button x)
+    {
+
+        //collect and create all the damn variables!
+        string ServerFile = SystemPath(Config.GetValue!string("dcd_elem", "server_command"));
+        string ClientFile = SystemPath(Config.GetValue!string("dcd_elem", "client_command"));
+        ushort Port = Config.GetValue!ushort("dcd_elem", "port_number");
+        string[] Imports = Config.GetArray!string("dcd_elem", "import_paths");
+
+        string switchPort = format("-p%s", Port);
+        string switchOldPort = format("-p%s", DCD_ELEM.GetPort());
+        string[] switchImports;
+        foreach(I; Imports) switchImports ~= format("-I%s", I);
+
+        Pid newPID;
+
+        //stop the server -- if we didnt start it ...
+        try
+        {
+            auto stopServer = execute([ClientFile, switchOldPort ,"--shutdown"]);
+            wait(DCD_ELEM.ServerPid());
+            if(stopServer.status == 0) Log.Entry("DCD server shutdown");
+            else Log.Entry("DCD server shutdown failed");
+        }
+        catch(Exception x)
+        {
+            Log.Entry(x.msg);
+        }
+
+
+        //now start it
+
+        try
+        {
+            newPID = spawnProcess([ServerFile] ~ [switchPort] ~ switchImports);
+
+        }
+        catch(Exception x)
+        {
+            ui.ShowMessage("Error", x.msg);
+            Log.Entry("Failed to restart DCD server", "Error");
+            return;
+        }
+        DCD_ELEM.SetServerPid(newPID);
+        DCD_ELEM.SetPort(Port);
+        Log.Entry("DCD server restarted " ~ format("(listening at port %s)", Port));
+    }
+
+
+
+
+
+
+
+    public:
+
+    this()
+    {
+        Title = "DCD Element Preferences";
+
+        auto dcdBuilder = new Builder;
+
+        dcdBuilder.addFromFile(SystemPath(Config.GetValue("dcd_elem", "glade_file", "elements/resources/dcd_elem_pref.glade")));
+
+        auto tmp = cast(Grid)dcdBuilder.getObject("grid1");
+        mServerFile = cast(FileChooserButton)dcdBuilder.getObject("filechooserbutton1");
+        mClientFile = cast(FileChooserButton)dcdBuilder.getObject("filechooserbutton2");
+        mMinLookupChars = cast(SpinButton)dcdBuilder.getObject("spinbutton1");
+        mPort = cast(SpinButton)dcdBuilder.getObject("spinbutton2");
+        mRestart = cast(Button)dcdBuilder.getObject("button1");
+
+        mDcdImportPaths = new UI_LIST("DCD Import Paths", ListType.PATHS);
+
+        mDcdImportPaths.GetRootWidget().setVexpand(true);
+        mDcdImportPaths.GetRootWidget().setValign(GtkAlign.FILL);
+
+        tmp.attach(mDcdImportPaths.GetRootWidget(), 0, 4, 2, 2);
+        ContentWidget = tmp;
+
+        mServerFile.setFilename(SystemPath(Config.GetValue("dcd_elem", "server_command", "deps/DCD/bin/dcd-server")));
+        mClientFile.setFilename(SystemPath(Config.GetValue("dcd_elem", "client_command", "deps/DCD/bin/dcd-client")));
+        mMinLookupChars.setValue(Config.GetValue("dcd_elem", "min_char_lookup", 3));
+        mPort.setValue(Config.GetValue!ushort("dcd_elem", "port_number", 9166));
+        mDcdImportPaths.SetItems(Config.GetArray("dcd_elem", "import_paths", ["/usr/include/dmd/phobos", "/usr/include/dmd/druntime"]));
+
+
+        mServerFile.addOnFileSet(delegate void(FileChooserButton fcb)
+        {
+            Config.SetValue("dcd_elem", "server_command", fcb.getFilename());
+        });
+        mClientFile.addOnFileSet(delegate void(FileChooserButton fcb)
+        {
+            Config.SetValue("dcd_elem", "client_command", fcb.getFilename());
+        });
+        mMinLookupChars.addOnValueChanged(delegate void(SpinButton sb)
+        {
+            Config.SetValue("dcd_elem", "min_char_lookup", sb.getValueAsInt());
+        });
+        mPort.addOnValueChanged(delegate void(SpinButton sb)
+        {
+            Config.SetValue("dcd_elem", "port_number", sb.getValueAsInt());
+        });
+
+        mDcdImportPaths.connect(&watchList);
+
+        mRestart.addOnClicked(&RestartServer);
+
+
+
+    }
+}
+
+
+
+
