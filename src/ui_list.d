@@ -234,6 +234,8 @@ class UI_LIST
             {
                 auto apathAbsPath = apath.absolutePath();
                 auto projectAbsPath = Project.Folder.absolutePath();
+                if(Project.TargetType() == TARGET.EMPTY) projectAbsPath = "<";
+
 
                 if(apathAbsPath.startsWith(projectAbsPath))apath = apath.relativePath(projectAbsPath);
                 else apath = apathAbsPath.buildNormalizedPath();

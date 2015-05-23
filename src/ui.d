@@ -31,6 +31,7 @@ public import gtk.Clipboard;
 public import gtk.ColorButton;
 public import gtk.Container;
 public import gtk.Entry;
+public import gtk.FileChooserButton;
 public import gtk.FontButton;
 public import gtk.Grid;
 public import gtk.IconFactory;
