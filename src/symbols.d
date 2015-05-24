@@ -46,6 +46,7 @@
 module symbols;
 
 import dcore;
+
 import json;
 
 import std.string;
@@ -57,6 +58,7 @@ import std.uni;
 import std.array;
 import std.path;
 import std.signals;
+import std.encoding;
 
 
 enum SYMBOL_KIND
@@ -476,11 +478,19 @@ class SYMBOLS
 
         Log.Entry(ModName ~ " added to symbol tables.");
     }
-    DSYMBOL LoadFile(string FileName)
+    deprecated DSYMBOL LoadFile(string FileName)
     {
         auto jstring = readText(FileName);
 
         return LoadPackage(FileName.baseName.stripExtension, jstring);
+    }
+    DSYMBOL LoadFile(string pkg, string FileName)
+    {
+        auto jstring = readText(FileName);
+        //writeln(jstring);
+        mModules[pkg] = LoadPackage(pkg, jstring);
+
+        return mModules[pkg];
     }
 
     DSYMBOL LoadDTagsFile(string FileName)
@@ -649,6 +659,69 @@ class SYMBOLS
         }
         return null;
     }
+
+    void SaveSymFile(string SaveToFile)
+    {
+
+        auto jdata = jsonArray();
+
+        JSON SaveKid(DSYMBOL dsym)
+        {
+                auto kidjson = jsonObject();
+
+                //kidjson["name"] = dsym.Name;
+                kidjson["path"] = dsym.Path;
+                //kidjson["scope"] = jsonArray();
+                //foreach(scp; dsym.Scope) kidjson["scope"] ~= JSON(scp);
+                kidjson["kind"] = convertJSON(dsym.Kind);//cast(int) dsym.Kind;
+                kidjson["type"] = dsym.Type;
+                kidjson["signature"] = dsym.Signature;
+                kidjson["protection"] = dsym.Protection;
+                kidjson["comment"] = dsym.Comment;
+                kidjson["file"] = dsym.File;
+                kidjson["line"] = convertJSON(dsym.Line);
+                kidjson["base"] = dsym.Base;
+                kidjson["interfaces"] = jsonArray();
+                foreach(IF; dsym.Interfaces) kidjson["interaces"] ~= IF;
+                //kidjson["icon"] = dsym.Icon;
+
+                kidjson["children"] = jsonArray();
+                foreach(kid; dsym.Children) kidjson["children"] ~= SaveKid(kid);
+                return kidjson;
+        }
+
+        foreach(mod; mModules)
+        {
+                auto symjson = jsonObject();
+
+                //symjson["name"] = mod.Name;
+                symjson["path"] = mod.Path;
+                //symjson["scope"] = jsonArray();
+                //foreach(scp; mod.Scope) symjson["scope"] ~= JSON(scp);
+                symjson["kind"] =convertJSON(mod.Kind);//cast(int) mod.Kind;
+                symjson["type"] = mod.Type;
+                symjson["signature"] = mod.Signature;
+                symjson["protection"] = mod.Protection;
+                symjson["comment"] = mod.Comment;
+                symjson["file"] = mod.File;
+                symjson["line"] = convertJSON(mod.Line);
+                symjson["base"] = mod.Base;
+                symjson["interfaces"] = jsonArray();
+                foreach(IF; mod.Interfaces) symjson["interaces"] ~= IF;
+                //symjson["icon"] = mod.Icon;
+
+                symjson["children"] = jsonArray();
+                foreach(kid; mod.Children) symjson["children"] ~= SaveKid(kid);
+                jdata ~= symjson;
+        }
+
+        string x = jdata.toJSON!2();
+        auto e = EncodingScheme.create("utf-8");
+        x = cast(string)e.sanitize(cast(immutable(ubyte)[])x);
+        std.file.write(SaveToFile, x);
+
+    }
+
 
 }
 
