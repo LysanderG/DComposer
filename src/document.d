@@ -662,6 +662,7 @@ class DOCUMENT : SourceView, DOC_IF
         }
 
         if((LineNo < 1) && mFirstScroll)return;
+        if(LinePos < 0) LinePos = 0;
 
         TextIter   insIter = new TextIter;
         GdkRectangle  insLoc, visLoc, nulLoc;
@@ -669,7 +670,8 @@ class DOCUMENT : SourceView, DOC_IF
         int inside;
 
         auto tiline = new TextIter;
-        //getBuffer().getIterAtLine(tiline, LineNo);
+        getBuffer().getIterAtLine(tiline, LineNo);
+        if(LinePos > tiline.getCharsInLine())LinePos = 0;
         getBuffer().getIterAtLineIndex(tiline, LineNo, LinePos);
         getBuffer().placeCursor(tiline);
 
