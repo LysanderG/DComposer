@@ -3,6 +3,7 @@ bindir
 .build.data
 .build.info
 *.cfg
+utils/buildtags
 dcomposer
 dcomposerA
 dcomposer_filter
