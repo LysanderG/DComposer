@@ -25,3 +25,6 @@ systemdir
 tags/dallegro5.json
 tmp
 tmpdocs/*
+trace.def
+*.old
+
