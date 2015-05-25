@@ -35,7 +35,7 @@ void Engage()
 {
 
     AddIcon("ui_element_manager", SystemPath("resources/plug.png"));
-    AddAction("ActElementManager", "Manager", "Manage additional elements","ui_element_manager","", delegate void(Action){Execute();LoadElements();});
+    AddAction("ActElementManager", "Element Manager ...", "Manage additional elements","ui_element_manager","", delegate void(Action){Execute();LoadElements();});
     AddToMenuBar("ActElementManager", "E_lements");
 
     "ActElementManager".GetAction().setSensitive(!Config.GetValue!bool("elements", "disabled"));
