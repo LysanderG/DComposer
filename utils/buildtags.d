@@ -1,5 +1,3 @@
-#!/usr/local/bin/rdmd
-
 module buildtags;
 
 import std.process;
@@ -18,7 +16,7 @@ import std.string;
 /*
 input should be..
 
-dmd path_to_package/package/*.d [-I] 
+dmd path_to_package/package/*.d [-I]
 
 */
 
@@ -28,53 +26,52 @@ int main (string[] args)
 
         scope(failure)
         {
-	        writeln("USAGE :");
-	        writeln("buildtags path_to_package  package   [-Iimport_paths] [-Jstring_import_paths]\n");
-	        writeln("EXAMPLE :");
-	        writeln("buildtags /usr/include/dmd/drunttime/import core");
+            writeln("USAGE :");
+            writeln("buildtags path_to_package  package   [-Iimport_paths] [-Jstring_import_paths]\n");
+            writeln("EXAMPLE :");
+            writeln("buildtags /usr/include/dmd/drunttime/import core");
         }
 
         string PathToPackage = args[1];
         string Package = args[2];
-        
+
         string Ipaths;
         if(args.length > 3)foreach(Path; args[3 .. $])if(Path.startsWith("-I"))Ipaths ~= " " ~ Path;
-        
+
         string Jpaths;
         if(args.length > 3)foreach(Path; args[3 .. $])if(Path.startsWith("-J"))Jpaths ~= " " ~ Path;
-         
-        
+
+
         string docfile = buildPath(tempDir(), Package.setExtension(".html"));
         string tagfile = Package.setExtension(".json");
-        
+
         string Command = "dmd ";
         Command ~= buildPath(PathToPackage, Package, "*.d") ~ " ";
         Command ~= Ipaths;
         Command ~= Jpaths;
         Command ~= " -c -o- -D -X -release ";
         Command ~= " -Df" ~ docfile;
-        Command ~= " -Xf" ~ tagfile; 
-        Command ~= " -v";
+        Command ~= " -Xf" ~ tagfile;
         writeln("EXECUTING : ", Command);
-        
+
         auto shellout = executeShell(Command);
         writeln("------");
         writeln(shellout.output);
         writeln("------");
         writeln(shellout.status);
-  
-        
+
+
         auto packagesymbols = new SYMBOLS;
 
 
         packagesymbols.LoadFile(Package, tagfile);
-        
+
         packagesymbols.SaveSymFile(buildPath("../tags",setExtension(Package, ".dtags")));
-       
+
         //if(tagfile.exists())remove(tagfile);
         if(docfile.exists())remove(docfile);
 
-        return shellout.status;      
+        return shellout.status;
 }
 
 
@@ -494,7 +491,6 @@ class SYMBOLS
              writeln("failed ", PackageName, "/",SymbolJson);
             return null;
         }
-        writeln(PackageName, "/",SymbolJson);
 
         DSYMBOL X = new DSYMBOL;
 
@@ -571,20 +567,18 @@ class SYMBOLS
         return LoadPackage(FileName.baseName.stripExtension, jstring);
     }
     DSYMBOL LoadFile(string pkg, string FileName)
-	{
-		auto jstring = readText(FileName);
-		//writeln(jstring);
-		mModules[pkg] = LoadPackage(pkg, jstring);
+    {
+        auto jstring = readText(FileName);
+        mModules[pkg] = LoadPackage(pkg, jstring);
 
-		return mModules[pkg];
-	}
+        return mModules[pkg];
+    }
 
     DSYMBOL LoadDTagsFile(string FileName)
     {
         string jtext = readText(FileName);
 
         auto jval = jtext.parseJSON();
-		writeln("--",jval);
 
         DSYMBOL LoadKids(JSON child)
         {
@@ -619,7 +613,6 @@ class SYMBOLS
 
         foreach(mod; jval.array)
         {
-	    		writeln("mod = ",mod);
                 auto sym = LoadKids(mod);
                 mModules[sym.Name] = sym;
                 emit([mModules[sym.Name]]);
@@ -776,11 +769,9 @@ class SYMBOLS
                 foreach(kid; dsym.Children) kidjson["children"] ~= SaveKid(kid);
                 return kidjson;
         }
-        writeln(mModules);
 
         foreach(mod; mModules)
         {
-	    		writeln("here");
                 auto symjson = jsonObject();
 
                 //symjson["name"] = mod.Name;
@@ -805,7 +796,6 @@ class SYMBOLS
         }
 
         string x = jdata.toJSON!2();
-        writeln(x);
         auto e = EncodingScheme.create("utf-8");
         x = cast(string)e.sanitize(cast(immutable(ubyte)[])x);
         std.file.write(SaveToFile, x);
