@@ -191,6 +191,7 @@ Widget BuildGenPrefPage()
     }, "active");
     auto libs_list = new UI_LIST("Library Symbols", ListType.FILES);
     libs_list.GetRootWidget().setVexpand(true);
+    libs_list.GetRootWidget().setTooltipText("Warning!! Tags are slow to load increasing startup time significantly.");
     grid.attach(libs_list.GetRootWidget(), 0, 9, 3, 3);
     auto Package_Names = Config.GetKeys("symbol_libs");
     foreach(pkgName; Package_Names)libs_list.AddString(Config.GetValue!string("symbol_libs",pkgName));

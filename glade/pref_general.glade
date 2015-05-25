@@ -171,6 +171,7 @@
           <object class="GtkLabel" id="label6">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="tooltip_text" translatable="yes">Warning!! Tags are slow to load increasing startup time significantly.</property>
             <property name="xalign">1</property>
             <property name="label" translatable="yes">Auto Load Library Symbols :</property>
           </object>
@@ -183,6 +184,7 @@
           <object class="GtkSwitch" id="switch2">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="tooltip_text" translatable="yes">Warning!! Tags are slow to load increasing startup time significantly.</property>
           </object>
           <packing>
             <property name="left_attach">1</property>
@@ -283,6 +285,30 @@
             <property name="top_attach">16</property>
             <property name="width">2</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
         </child>
         <child>
           <placeholder/>
