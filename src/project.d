@@ -359,7 +359,7 @@ class PROJECT
         }
     }
 
-    void Run(string[] args = null)
+/*    void Run(string[] args = null)
     {
         scope(failure){Log.Entry("Failed to Run", "error"); return;}
         //if(TargetType == TARGET.EMPTY) return;
@@ -374,9 +374,10 @@ class PROJECT
         CmdStrings ~= [`./` ~ ExecName];
 
         foreach(arg; args) CmdStrings[$-1] ~= " " ~ arg;
-        CmdStrings[$-1] ~= `;echo -e "\n\nProgram has terminated.\nPress a key to close terminal...";read -rn1`;
+        CmdStrings[$-1] = `bash -c '` ~ CmdStrings[$-1] ~ ` ; echo -e "\n\nProgram has terminated.\nPress a key to close terminal..." ; read -rn1'`;
         try
         {
+            dwrite(CmdStrings);
             mRunPids ~= spawnProcess(CmdStrings);
             Log.Entry(`"` ~ mName ~ `"` ~ " spawned ... " );
         }
@@ -385,6 +386,58 @@ class PROJECT
             writeln(E.msg);
             return;
         }
+
+    }*/
+
+    //try run with a script
+    void Run(string[] args = null)
+    {
+        enum tmpfilename = "tmp_run_script";
+        scope(failure)
+        {
+
+            if( tmpfilename.exists())std.file.remove(tmpfilename);
+            ShowMessage("Error", "Failed to run " ~ mName);
+            Log.Entry("Failed to run " ~ mName);
+        }
+        if(TargetType != TARGET.APPLICATION) return;
+
+        CurrentPath(Folder);
+
+        string ExecName = (GetFlag("-of", "name output file to filename")) ? GetFlagArgument("-of", "name output file to filename") : mName;
+
+        auto TerminalCommand = Config.GetArray!string("terminal_cmd","run", ["xterm", "-T","dcomposer running project","-e"]);
+
+        auto tFile = File(tmpfilename, "w");
+
+        tFile.writeln("#!/bin/bash");
+        tFile.write("./", ExecName,);
+        foreach(arg; args)tFile.write(" ",arg);
+        tFile.writeln();
+        tFile.writeln(`echo -e "\n\nProgram Terminated.\nPress a key to close terminal..."`);
+        tFile.writeln(`read -sn1`);
+        tFile.flush();
+        tFile.close();
+        setAttributes("tmpRunScript", 509);
+
+
+        string[] CmdStrings;
+
+        CmdStrings = TerminalCommand;
+        CmdStrings ~= ["./tmpRunScript"];
+
+        try
+        {
+            mRunPids ~= spawnProcess(CmdStrings);
+            Log.Entry(`"` ~ mName ~ `"` ~ " spawned ... " );
+        }
+        catch(Exception E)
+        {
+            Log.Entry(E.msg);
+            return;
+        }
+
+
 
     }
 
