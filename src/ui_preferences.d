@@ -95,6 +95,8 @@ void ShowAppPreferences()
 
     dialog.getContentArea.add(theNoteBook);
     theNoteBook.setTabPos(PositionType.LEFT);
+    theNoteBook.setHexpand(true);
+    theNoteBook.setVexpand(true);
 
 
     //fill it with components from each module
@@ -116,6 +118,7 @@ void ShowAppPreferences()
     dialog.showAll();
     dialog.run();
 
+
     //dispose of it
     dialog.destroy();
 }
@@ -127,6 +130,7 @@ Widget BuildGenPrefPage()
     genBuilder.addFromFile(SystemPath("glade/pref_general.glade"));
 
     auto root = cast(Frame)genBuilder.getObject("frame1");
+    auto grid = cast(Grid)genBuilder.getObject("grid1");
 
 
     //basefolder
@@ -185,6 +189,22 @@ Widget BuildGenPrefPage()
     {
         Config.SetValue!bool("symbols", "auto_load_packages", AutoLoadSymbols.getActive());
     }, "active");
+    auto libs_list = new UI_LIST("Library Symbols", ListType.FILES);
+    libs_list.GetRootWidget().setVexpand(true);
+    grid.attach(libs_list.GetRootWidget(), 0, 9, 3, 3);
+    auto Package_Names = Config.GetKeys("symbol_libs");
+    foreach(pkgName; Package_Names)libs_list.AddString(Config.GetValue!string("symbol_libs",pkgName));
+    //UI_LIST signals need a class member delegate ... so we'll catch the destroy event
+    libs_list.GetRootWidget().addOnDestroy(delegate void(Widget w)
+    {
+        Config.Remove("symbol_libs");
+        foreach(libFile; libs_list.GetItems())
+        {
+            auto key = libFile.baseName(".dtags");
+            Config.SetValue("symbol_libs", key, libFile);
+        }
+    });
+
 
     //configure toolbar
     auto ConfigToolbar = cast(Button)genBuilder.getObject("button2");
