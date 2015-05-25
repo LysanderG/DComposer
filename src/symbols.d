@@ -125,16 +125,14 @@ class SYMBOLS
     {
         mLastLoadTime  = Clock.currTime();
         auto PackageKeys = Config.GetKeys("symbol_libs");
-        string jsontext;
 
         foreach(jfile; PackageKeys)
         {
             auto dtagfile = SystemPath(Config.GetValue("symbol_libs", jfile, ""));
-            auto NewSymbols = LoadDTagsFile(dtagfile);
+            LoadDTagsFile(dtagfile);
             //auto NewSymbols = LoadFile(dtagfile);
-            if(NewSymbols !is null) mModules[jfile] = NewSymbols;
+            //if(NewSymbols !is null) mModules[jfile] = NewSymbols;
         }
-
     }
 
 
@@ -493,10 +491,10 @@ class SYMBOLS
         return mModules[pkg];
     }
 
-    DSYMBOL LoadDTagsFile(string FileName)
+    void LoadDTagsFile(string FileName)
     {
-        string jtext = readText(FileName);
-
+        //string jtext = readText(FileName);
+        auto jtext = cast(char[])read(FileName);
         auto jval = jtext.parseJSON();
 
 
@@ -529,8 +527,6 @@ class SYMBOLS
         }
 
 
-        DSYMBOL pkg;
-
         foreach(mod; jval.array)
         {
                 auto sym = LoadKids(mod);
@@ -538,7 +534,6 @@ class SYMBOLS
                 emit([mModules[sym.Name]]);
         }
 
-        return pkg;
     }
 
 
@@ -981,3 +976,4 @@ string GetIcon(DSYMBOL X)
     }
     return rv;
 }
+
