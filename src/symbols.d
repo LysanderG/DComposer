@@ -1,48 +1,3 @@
-/*
- * left this module in a state of undocumented chaos
- * there are two types of symbol files that can be loaded
- * json files --> loaded straight from dmd output made to fit in a DSYMBOL
- * dtags files -->  modified json for faster loading into DSYMBOLS larger but faster to load
- *
- * dtags are for "stable" libraries that rarely change such as phobos or gtk
- * json files can be used for individual files and projects that are being hacked on
- * combined with DCD I should be able to make something work
- * DCD is not without its issues ... uses lotso memory and bogs down at times ... very slow to startup with many import paths (over a minute)
- * my more simple minded way is even more lacking... not dynamic ... no local symbols
- *
- * fix
- *  1.  startup load dtags fall back to json (for packages set up for autoinstall)
- *  2.  clearify and separate dtags from json
- *  3.  perfect when to (re)build tags keep projects and working documents in sync as much as possible
- *  4.  fix the stupid api so I know what is going on
- *  5.  public calls
- *      a. DSYMBOL[] Symbols.Find(string symbolname)  //full path (easy) or name or file+line or signature
- *      b. DSYMBOL[] Symbols.Complete(string partialname) // find anything that starts with partial name
- *      c. DSYMBOL[] Symbols.CallTip(string symbolname) //look in functions for a whole name -- or path after '('
- *      d. DSYMBOL[] Symbols.TemplateTips(string templatename) //look in templates for templatename after !
- *      e. DSYMBOL[] Symbols.UFCSComplete(string paramtype)// how the hell can I do this fast "blahblah ".chomp();
- *      f. DSYMBOL[] Symbols.Members(string symboltype) // kind of like Complete but after .
- *
- *  Thu Apr 10 00:12:15 EDT 2014
- *  serious issues in this module
- *  1. loadDtagsfile always returns null but directly adds all modules to mModules
- *  2. calling it supposed to return a dsymbol that is then added to our mModules list
- *  3. should be
-        loadjsonfile
-        loaddtagsfile
-        add the return value of either to mModules
-        remove tag ??
-
-        DSYMOBL[] ExactSymbol(symbolName); //array for overloads but must be the fully qualified name (not const/pure ... but a.b.c)
-        DSYMBOL[] Symbol(symbolName); //not a completion but simple name of symbol (ie writeln vs std.stdio.File.writeln)
-        DSYMBOL[] Completions(partialName); //any symbol that completes partial name
-        DSYMBOL[] Calltip(symbolName); // any function with symbolName
-        DSYMOBL[] TemplateTip(symbolName); //just like Calltip but fires on ! not ( and returns templates
-        DSYMBOL[] Members(Parent); all children of symbols matching Parent
- *
- */
-
-
 module symbols;
 
 import dcore;
@@ -130,8 +85,6 @@ class SYMBOLS
         {
             auto dtagfile = SystemPath(Config.GetValue("symbol_libs", jfile, ""));
             LoadDTagsFile(dtagfile);
-            //auto NewSymbols = LoadFile(dtagfile);
-            //if(NewSymbols !is null) mModules[jfile] = NewSymbols;
         }
     }
 
@@ -144,6 +97,8 @@ class SYMBOLS
             CurrSym.Icon = `<span foreground="red">!</span>`;
             return;
         }
+
+        static string LastCommentForDitto;
 
         void SetType()
         {
@@ -341,7 +296,12 @@ class SYMBOLS
             SetType();
             SetSignature();
             if("protection" in SymData.object)CurrSym.Protection = cast(string)SymData.object["protection"];
-            if("comment" in SymData.object)CurrSym.Comment = cast(string)SymData.object["comment"];
+            if("comment" in SymData.object)
+            {
+                CurrSym.Comment = cast(string)SymData.object["comment"];
+                if(CurrSym.Comment.toUpper() == "DITTO") CurrSym.Comment = LastCommentForDitto;
+                else LastCommentForDitto = CurrSym.Comment;
+            }
             if("file" in SymData.object)CurrSym.File = cast(string)SymData.object["file"];
 
             assert(CurrSym.File != null); // File should be set before entering BuildSymbol(this, ...)
@@ -393,7 +353,6 @@ class SYMBOLS
                 if((cast(string)obj.object["name"]).startsWith("__unittest"))continue;
                 membersym = new DSYMBOL;
                 BuildSymbol(membersym, obj);
-                //CurrSym.Children ~= membersym;
                 apparr.put(membersym);
             }
             CurrSym.Children = apparr.data();
@@ -507,6 +466,11 @@ class SYMBOLS
 
             rv.Scope = rv.Path.split(".");
 
+            if(rv.Scope.length < 1)
+            {
+                dwrite(child);
+                assert(0,"no name?");
+            }
             rv.Name = rv.Scope[$-1];
 
             rv.Kind = cast(SYMBOL_KIND)child["kind"];
@@ -664,10 +628,7 @@ class SYMBOLS
         {
                 auto kidjson = jsonObject();
 
-                //kidjson["name"] = dsym.Name;
                 kidjson["path"] = dsym.Path;
-                //kidjson["scope"] = jsonArray();
-                //foreach(scp; dsym.Scope) kidjson["scope"] ~= JSON(scp);
                 kidjson["kind"] = convertJSON(dsym.Kind);//cast(int) dsym.Kind;
                 kidjson["type"] = dsym.Type;
                 kidjson["signature"] = dsym.Signature;
@@ -678,7 +639,7 @@ class SYMBOLS
                 kidjson["base"] = dsym.Base;
                 kidjson["interfaces"] = jsonArray();
                 foreach(IF; dsym.Interfaces) kidjson["interaces"] ~= IF;
-                //kidjson["icon"] = dsym.Icon;
+                kidjson["icon"] = dsym.Icon;
 
                 kidjson["children"] = jsonArray();
                 foreach(kid; dsym.Children) kidjson["children"] ~= SaveKid(kid);
@@ -689,10 +650,7 @@ class SYMBOLS
         {
                 auto symjson = jsonObject();
 
-                //symjson["name"] = mod.Name;
                 symjson["path"] = mod.Path;
-                //symjson["scope"] = jsonArray();
-                //foreach(scp; mod.Scope) symjson["scope"] ~= JSON(scp);
                 symjson["kind"] =convertJSON(mod.Kind);//cast(int) mod.Kind;
                 symjson["type"] = mod.Type;
                 symjson["signature"] = mod.Signature;
@@ -703,7 +661,7 @@ class SYMBOLS
                 symjson["base"] = mod.Base;
                 symjson["interfaces"] = jsonArray();
                 foreach(IF; mod.Interfaces) symjson["interaces"] ~= IF;
-                //symjson["icon"] = mod.Icon;
+                symjson["icon"] = mod.Icon;
 
                 symjson["children"] = jsonArray();
                 foreach(kid; mod.Children) symjson["children"] ~= SaveKid(kid);

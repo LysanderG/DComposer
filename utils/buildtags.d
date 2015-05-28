@@ -21,7 +21,7 @@ dmd path_to_package/package/*.d [-I]
 */
 
 
-int main (string[] args)
+int mainold (string[] args)
 {
 
         scope(failure)
@@ -75,53 +75,84 @@ int main (string[] args)
 }
 
 
+int main(string [] args)
+{
+    scope(failure)
+    {
+        writeln("USAGE :");
+        writeln("buildtags path_to_package  package   [-Iimport_paths] [-Jstring_import_paths]\n");
+        writeln("EXAMPLE :");
+        writeln("buildtags /usr/include/dmd/drunttime/import core");
+        return 1;
+    }
+
+    assert(args.length >= 3);
+
+    string path = buildPath(args[1], args[2]);
+    string pkgName = args[2];
+
+    string[] Ipaths;
+    if(args.length > 3)foreach(Path; args[3 .. $])if(Path.startsWith("-I"))Ipaths ~= Path;
+
+    string[] Jpaths;
+    if(args.length > 3)foreach(Path; args[3 .. $])if(Path.startsWith("-J"))Jpaths ~= Path;
+
+    string docfile = pkgName.setExtension(".html");
+    string tagfile = pkgName.setExtension(".json");
+
+    string[] cmdline = ["dmd", "-c", "-o-", "-D", "-X", "-release"];
+    cmdline ~= Ipaths;
+    cmdline ~= Jpaths;
+    cmdline ~= ["-Df" ~ docfile];
+    cmdline ~= ["-Xf" ~ tagfile];
+
+    foreach(string fileItem; dirEntries(path, SpanMode.depth))
+    {
+        if((fileItem.extension == ".d") || (fileItem.extension == ".di"))
+        {
+            cmdline ~= fileItem;
+        }
+    }
+
+    execute(cmdline);
+
+    remove(docfile);
+
+    auto MainPackage = new SYMBOLS;
+
+    MainPackage.LoadFile(pkgName, tagfile);
+
+
+    MainPackage.SaveSymFile(buildPath("../tags",setExtension(pkgName, ".dtags")));
+    return 1;
+}
+
+void CreatePackage(string path, string pkgName, string iSwitches, string jSwitches)
+{
+    string docfile = pkgName.setExtension(".html");
+    string tagfile = pkgName.setExtension(".json");
+
+    string[] cmdline = ["dmd", "-c", "-o-", "-D", "-X", "-release"];
+    cmdline ~= iSwitches;
+    cmdline ~= jSwitches;
+    cmdline ~= ["-Df" ~ docfile];
+    cmdline ~= ["-Xf" ~ tagfile];
+
+    foreach(DirEntry fileItem; dirEntries(path, SpanMode.shallow))
+    {
+        if(fileItem.isDir()) CreatePackage(fileItem.name(), baseName(fileItem.name).stripExtension(), iSwitches, jSwitches);
+        else if((fileItem.name().extension == ".d") || (fileItem.name().extension() == ".di")) cmdline ~= fileItem.name();
+    }
+
+    execute(cmdline);
+
+    remove(docfile);
+}
+
 
 
 
 //below this line is copy and pasted symbols.d --->> stupid me got it too entwined with dcomposer to remove -- search for ((MOD)) to find any changes
-/*
- * left this module in a state of undocumented chaos
- * there are two types of symbol files that can be loaded
- * json files --> loaded straight from dmd output made to fit in a DSYMBOL
- * dtags files -->  modified json for faster loading into DSYMBOLS larger but faster to load
- *
- * dtags are for "stable" libraries that rarely change such as phobos or gtk
- * json files can be used for individual files and projects that are being hacked on
- * combined with DCD I should be able to make something work
- * DCD is not without its issues ... uses lotso memory and bogs down at times ... very slow to startup with many import paths (over a minute)
- * my more simple minded way is even more lacking... not dynamic ... no local symbols
- *
- * fix
- *  1.  startup load dtags fall back to json (for packages set up for autoinstall)
- *  2.  clearify and separate dtags from json
- *  3.  perfect when to (re)build tags keep projects and working documents in sync as much as possible
- *  4.  fix the stupid api so I know what is going on
- *  5.  public calls
- *      a. DSYMBOL[] Symbols.Find(string symbolname)  //full path (easy) or name or file+line or signature
- *      b. DSYMBOL[] Symbols.Complete(string partialname) // find anything that starts with partial name
- *      c. DSYMBOL[] Symbols.CallTip(string symbolname) //look in functions for a whole name -- or path after '('
- *      d. DSYMBOL[] Symbols.TemplateTips(string templatename) //look in templates for templatename after !
- *      e. DSYMBOL[] Symbols.UFCSComplete(string paramtype)// how the hell can I do this fast "blahblah ".chomp();
- *      f. DSYMBOL[] Symbols.Members(string symboltype) // kind of like Complete but after .
- *
- *  Thu Apr 10 00:12:15 EDT 2014
- *  serious issues in this module
- *  1. loadDtagsfile always returns null but directly adds all modules to mModules
- *  2. calling it supposed to return a dsymbol that is then added to our mModules list
- *  3. should be
-        loadjsonfile
-        loaddtagsfile
-        add the return value of either to mModules
-        remove tag ??
-
-        DSYMOBL[] ExactSymbol(symbolName); //array for overloads but must be the fully qualified name (not const/pure ... but a.b.c)
-        DSYMBOL[] Symbol(symbolName); //not a completion but simple name of symbol (ie writeln vs std.stdio.File.writeln)
-        DSYMBOL[] Completions(partialName); //any symbol that completes partial name
-        DSYMBOL[] Calltip(symbolName); // any function with symbolName
-        DSYMOBL[] TemplateTip(symbolName); //just like Calltip but fires on ! not ( and returns templates
-        DSYMBOL[] Members(Parent); all children of symbols matching Parent
- *
- */
 
 
 //module symbols;   ((MOD)
@@ -227,6 +258,8 @@ class SYMBOLS
             CurrSym.Icon = `<span foreground="red">!</span>`;
             return;
         }
+
+        static string LastCommentForDitto = "xxx";
 
         void SetType()
         {
@@ -424,7 +457,7 @@ class SYMBOLS
             SetType();
             SetSignature();
             if("protection" in SymData.object)CurrSym.Protection = cast(string)SymData.object["protection"];
-            if("comment" in SymData.object)CurrSym.Comment = cast(string)SymData.object["comment"];
+            
             if("file" in SymData.object)CurrSym.File = cast(string)SymData.object["file"];
 
             assert(CurrSym.File != null); // File should be set before entering BuildSymbol(this, ...)
@@ -459,6 +492,12 @@ class SYMBOLS
                     apparr.put(ChildSym);
                 }
                 CurrSym.Children = apparr.data();
+            }
+            if("comment" in SymData.object)
+            {
+                CurrSym.Comment = (cast(string)SymData.object["comment"]).idup;
+                if(CurrSym.Comment.strip().toUpper() == "DITTO") CurrSym.Comment = LastCommentForDitto.idup;
+                else LastCommentForDitto = CurrSym.Comment.idup;
             }
             return;
         }
