@@ -95,7 +95,7 @@ class UI_PROJECT
                 ProjRelPath.setText(relativePath(Project.Folder, Project.DefaultProjectRootPath));
                 UpdateFlags();
                 mRootWidget.show();
-                DocBook.setCurrentPage(mRootWidget);
+                //DocBook.setCurrentPage(mRootWidget);
                 break;
             }
             case EDIT:

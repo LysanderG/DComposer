@@ -418,13 +418,13 @@ class PROJECT
         tFile.writeln(`read -sn1`);
         tFile.flush();
         tFile.close();
-        setAttributes("tmpRunScript", 509);
+        setAttributes(tmpfilename, 509);
 
 
         string[] CmdStrings;
 
         CmdStrings = TerminalCommand;
-        CmdStrings ~= ["./tmpRunScript"];
+        CmdStrings ~= ["./"~tmpfilename];
 
         try
         {
