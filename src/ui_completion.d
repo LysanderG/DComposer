@@ -385,7 +385,7 @@ class UI_COMPLETION
         mCompWindow.setKeepAbove(true);
         mCompWindow.setSkipTaskbarHint(true);
         mCompWindow.setSkipPagerHint(true);
-        //mCompWindow.setCanFocus(false);
+        mCompWindow.setCanFocus(false);
         mCompTree.setHeadersVisible(false);
         mCompTree.setEnableSearch(false);
         mCompTree.setCanFocus(false);
@@ -412,7 +412,8 @@ class UI_COMPLETION
 
         //----------------
 
-        mCompWindow.addOnMap(delegate void(Widget x){MapCompletionWindow();});
+        //mCompWindow.addOnMap(delegate void(Widget x){MapCompletionWindow();});
+        mCompWindow.addOnShow(delegate void(Widget x){MapCompletionWindow();});
         mTipWindow.addOnMap(delegate void (Widget x){MapCallTipWindow();});
 
 
