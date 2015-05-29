@@ -2,6 +2,7 @@ module ui_completion;
 
 import std.container;
 import std.string;
+import std.datetime;
 
 import dcore;
 import ui;
@@ -31,6 +32,7 @@ class UI_COMPLETION
     ListStore           mCompStore;
     TreeViewColumn      mCompCol1;
     TreeViewColumn      mCompCol2;
+    SysTime             mCompWinLastShownTime;
     int mCompRows;
 
 
@@ -76,6 +78,7 @@ class UI_COMPLETION
 
     void MapCompletionWindow()
     {
+
         int rows = mCompRows;
         if(rows > 8)rows = 8;
         int xoff, yoff, cellwidth, cellheight;
@@ -88,6 +91,7 @@ class UI_COMPLETION
         DOCUMENT doc = cast(DOCUMENT)DocMan.Current;
         RECTANGLE Crect = doc.GetCursorRectangle();
         mCompWindow.move(Crect.x, Crect.y + Crect.yl);
+        mCompWinLastShownTime = Clock.currTime();
     }
 
     void WatchForLostFocus()
@@ -448,6 +452,9 @@ class UI_COMPLETION
         mCompWindow.hide();
         mTipWindow.hide();
 
+        auto timediff = Clock.currTime() - mCompWinLastShownTime;
+        if(timediff < msecs(250))return;
+
         auto ti = new TreeIter;
 
         mCompRows = cast(int)Candidates.length;
@@ -462,6 +469,7 @@ class UI_COMPLETION
 
         mCompTree.setCursor(new TreePath("0"), null, false);
 
+        mCompTree.showAll();
         mCompWindow.showAll();
         MainWindow.presentWithTime(0L);
     }
