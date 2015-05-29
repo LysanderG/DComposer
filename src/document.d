@@ -167,6 +167,15 @@ class DOCUMENT : SourceView, DOC_IF
 
         },cast(GConnectFlags)0);
 
+        bool MouseButtonCallBack(Event ev, Widget wgdt)
+        {
+            DocMan.MouseButton.emit(cast (void*)ev, this);
+            return false;
+        }
+
+        addOnButtonPress(&MouseButtonCallBack);
+        addOnButtonRelease(&MouseButtonCallBack);
+
 
         getBuffer().addOnInsertText(delegate void(TextIter ti, string text, int len, TextBuffer tb)
         {

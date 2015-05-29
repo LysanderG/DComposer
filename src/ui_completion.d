@@ -113,6 +113,12 @@ class UI_COMPLETION
         else if(mTipWindow.isVisible)ProcessCallTipKey(key);
     }
 
+    void WatchForMouseButton(void * Event, DOC_IF doc)
+    {
+        KillCallTips();
+        KillCompletionWindow();
+    }
+
     void ProcessCallTipKey(uint key)
     {
         DocMan.SetBlockDocumentKeyPress(false);
@@ -387,12 +393,12 @@ class UI_COMPLETION
 
         mCompWindow.setDecorated(false);
         mCompWindow.setKeepAbove(true);
-        mCompWindow.setSkipTaskbarHint(true);
-        mCompWindow.setSkipPagerHint(true);
-        mCompWindow.setCanFocus(false);
+        //mCompWindow.setSkipTaskbarHint(true);
+        //mCompWindow.setSkipPagerHint(true);
+        //mCompWindow.setCanFocus(false);
         mCompTree.setHeadersVisible(false);
-        mCompTree.setEnableSearch(false);
-        mCompTree.setCanFocus(false);
+        //mCompTree.setEnableSearch(false);
+        //mCompTree.setCanFocus(false);
 
 
         //------
@@ -423,6 +429,7 @@ class UI_COMPLETION
 
         DocMan.DocumentKeyDown.connect(&WatchForKeys);
         DocMan.PageFocusOut.connect(&WatchForLostFocus);
+        DocMan.MouseButton.connect(&WatchForMouseButton);
 
 
 
@@ -436,17 +443,19 @@ class UI_COMPLETION
 
     void Disengage()
     {
-        DocMan.disconnect(&WatchForKeys);
+        DocMan.MouseButton.disconnect(&WatchForMouseButton);
+        DocMan.PageFocusOut.disconnect(&WatchForLostFocus);
+        DocMan.DocumentKeyDown.disconnect(&WatchForKeys);
         Log.Entry("Disengaged");
     }
 
 
     void ShowCompletion(string[] Candidates, string[] Info)
-    in
-    {
-        assert(Candidates.length == Info.length);
-    }
-    body
+    //in
+    //{
+    //    assert(Candidates.length == Info.length);
+    //}
+    //body
     {
         mBlockWatchForLostFocus = true;
         mCompWindow.hide();

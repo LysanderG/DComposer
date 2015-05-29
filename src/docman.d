@@ -449,6 +449,7 @@ class DOCMAN
     mixin Signal!(void*, string, int, void*) Insertion;
     mixin Signal!() PageFocusOut;
     mixin Signal!(uint) DocumentKeyDown;
+    mixin Signal!(void *, DOC_IF) MouseButton;
 }
 
 
