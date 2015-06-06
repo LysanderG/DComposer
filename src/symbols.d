@@ -83,6 +83,7 @@ class SYMBOLS
 
         foreach(jfile; PackageKeys)
         {
+            scope(failure)continue;
             auto dtagfile = SystemPath(Config.GetValue("symbol_libs", jfile, ""));
             LoadDTagsFile(dtagfile);
         }
@@ -483,7 +484,8 @@ class SYMBOLS
             rv.Line = cast(int)child["line"];
 
             rv.Base = cast(string)child["base"];
-            rv.Interfaces = cast(string[])child["interfaces"].array;
+            //rv.Interfaces = cast(string[])child["interfaces"].array;
+            foreach(iface; child["interfaces"].array)rv.Interfaces ~= cast(string)iface;
             rv.Icon = GetIcon(rv);
 
             foreach(kid; child["children"].array)rv.Children ~= LoadKids(kid);
@@ -504,6 +506,54 @@ class SYMBOLS
 
 //=====================================================================================================================
 //=====================================================================================================================
+
+    DSYMBOL[] FindAncestors(string CandidatePath)
+    {
+        DSYMBOL[] rv;
+
+        bool CheckKid(DSYMBOL thisun)
+        {
+            if(thisun.Path == CandidatePath)
+            {
+                rv ~= thisun;
+                rv ~= FindAncestors(thisun.Base);
+                return true;
+            }
+            foreach(kid; thisun.Children)if(CheckKid(kid))return true;
+            return false;
+        }
+
+        foreach(mod; mModules)
+        {
+            if(mod.Path == CandidatePath)
+            {
+                rv ~= mod;
+                rv ~= FindAncestors(mod.Base);
+                return rv;
+            }
+
+            foreach(kid; mod.Children) if(CheckKid(kid))break;
+        }
+        return rv;
+    }
+
+    DSYMBOL[] FindDescendants(string CandidatePath)
+    {
+        DSYMBOL[] rv;
+        void CheckKid(DSYMBOL thisun)
+        {
+            if(thisun.Base == CandidatePath)rv ~= thisun;
+            foreach(kid; thisun.Children)CheckKid(kid);
+        }
+
+        foreach(mod; mModules)
+        {
+            if(mod.Base == CandidatePath) rv ~= mod;
+            foreach(kid; mod.Children)CheckKid(kid);
+        }
+        return rv;
+    }
+
 
     DSYMBOL[] FindExact(string Candidate)
     {
