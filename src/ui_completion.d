@@ -199,7 +199,7 @@ class UI_COMPLETION
             mTipStore.append(treeIter);
             mTipStore.setValue(treeIter, 0, candi);
         }
-        mTipWindow.map();
+        //mTipWindow.map();
         mTipWindow.showAll();
         ui.MainWindow.presentWithTime( 0L);
     }
@@ -229,7 +229,7 @@ class UI_COMPLETION
         if(ti is null) return;
         if(!mTipStore.iterPrevious(ti))
         {
-            CompletionSelectionEnd();
+            CallTipSelectionEnd();
             return;
         }
         mTipTree.getSelection().selectIter(ti);
@@ -451,18 +451,16 @@ class UI_COMPLETION
 
 
     void ShowCompletion(string[] Candidates, string[] Info)
-    //in
-    //{
-    //    assert(Candidates.length == Info.length);
-    //}
-    //body
     {
         mBlockWatchForLostFocus = true;
-        mCompWindow.hide();
-        mTipWindow.hide();
 
         auto timediff = Clock.currTime() - mCompWinLastShownTime;
         if(timediff < msecs(250))return;
+
+        mCompWindow.hide();
+        mTipWindow.hide();
+
+
 
         auto ti = new TreeIter;
 
@@ -478,7 +476,7 @@ class UI_COMPLETION
 
         mCompTree.setCursor(new TreePath("0"), null, false);
 
-        mCompTree.showAll();
+        //mCompTree.showAll();
         mCompWindow.showAll();
         MainWindow.presentWithTime(0L);
     }
