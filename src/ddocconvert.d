@@ -34,7 +34,7 @@ string ProcessSections(string inputText)
     LoadMacros();
 
 
-    foreach(ndx, line; splitLines(inputText))
+    foreach(ndx, line; splitLines(inputText, KeepTerminator.yes))
     {
         if(ndx == 0)line = StartSection(key, line);
         if((line.length == 0) && (ndx > 0) && (key == "DDOC_SUMMARY"))
@@ -70,12 +70,14 @@ string ProcessSections(string inputText)
                 case "EXAMPLES"             :key = "DDOC_EXAMPLES";
                                              line = StartSection(key, line[colonIndex .. $]);
                                              break;
+                case "SINCE"                :
                 case "HISTORY"              :key = "DDOC_HISTORY";
                                              line = StartSection(key, line[colonIndex .. $]);
                                              break;
                 case "LICENSE"              :key = "DDOC_LICENSE";
                                              line = StartSection(key, line[colonIndex .. $]);
                                              break;
+                case "RETURN"               :
                 case "RETURNS"              :key = "DDOC_RETURNS";
                                              line = StartSection(key, line[colonIndex .. $]);
                                              break;
@@ -106,7 +108,7 @@ string ProcessSections(string inputText)
 
         }
 
-        Section[key] ~= line ~ "\n";
+        Section[key] ~= line;// ~ "\n";
     }
 
     string rv;
