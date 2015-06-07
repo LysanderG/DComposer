@@ -1,6 +1,6 @@
 rdmd utils/builddata.d;
 
-dmd -gc -debug -profile -I./src -Ideps/dson/ \
+dmd -gc -debug -I./src -Ideps/dson/ \
 src/dcomposer.d \
 src/dcore.d \
 src/config.d \
