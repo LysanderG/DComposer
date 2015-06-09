@@ -69,6 +69,8 @@ class SYMBOL_VIEW :ELEMENT
         });
 
         AddSidePage(mRoot, Name);
+
+        Log.Entry("Engaged");
     }
 
     void Disengage()

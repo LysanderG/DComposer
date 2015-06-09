@@ -83,7 +83,11 @@ class SYMBOLS
 
         foreach(jfile; PackageKeys)
         {
-            scope(failure)continue;
+            scope(failure)
+            {
+                Log.Entry("Autoload " ~ jfile ~ " failed", "Error");
+                continue;
+            }
             auto dtagfile = SystemPath(Config.GetValue("symbol_libs", jfile, ""));
             LoadDTagsFile(dtagfile);
         }
