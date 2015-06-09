@@ -189,6 +189,7 @@ class UI_PROJECT
 
         //Project.SetNameAndFolder(ProjName.getText(), buildPath(Project.DefaultProjectRootPath, ProjRelPath.getText()));
         ui.SetProjectTitle(Project.Name);
+        SetRootPath(Project.Folder);
     }
 
 
@@ -373,10 +374,10 @@ class UI_PROJECT
         ProjCustomBuildCommand.addOnChanged(delegate void (EditableIF e){Project.CustomBuildCommand = ProjCustomBuildCommand.getText();});
 
 
-        ProjLibraries.mStore.addOnRowInserted (delegate void(TreePath, TreeIter, TreeModelIF)
-        {
-            Project.SetListData(LIST_NAMES.LIBRARIES, ProjLibraries.GetItems());
-        });
+        //ProjLibraries.mStore.addOnRowInserted (delegate void(TreePath, TreeIter, TreeModelIF)
+        //{
+        //    Project.SetListData(LIST_NAMES.LIBRARIES, ProjLibraries.GetItems());
+        //});
 
 
         ProjSrcFiles.connect(&WatchLists);

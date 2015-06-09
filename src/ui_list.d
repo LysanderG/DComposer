@@ -73,7 +73,7 @@ class UI_LIST
         mType = Type;
         mTitle.setText(Title);
 
-        mBasePath = "/";
+        mBasePath = "/naziHell";
 
         mClearBtn.addOnClicked(delegate void(Button b){mStore.clear();emit(mTitle.getText(), GetItems());});
         mRemoveBtn.addOnClicked(delegate void(Button b){RemoveString();});
@@ -208,8 +208,8 @@ class UI_LIST
             if(!GetItems.canFind(afile))
             {
                 auto afileAbsPath = afile.absolutePath();
-                auto projectAbsPath = Project.Folder.absolutePath(); //assume project folder is a normalized path ( no . .. or ~)
-                if(afileAbsPath.startsWith(projectAbsPath))afile = afile.relativePath(projectAbsPath);
+                //auto projectAbsPath = Project.Folder.absolutePath(); //assume project folder is a normalized path ( no . .. or ~)
+                if(afileAbsPath.startsWith(mBasePath))afile = afile.relativePath(mBasePath);
                 else afile = afileAbsPath.buildNormalizedPath();
                 AddString(afile);
             }
@@ -233,11 +233,8 @@ class UI_LIST
             if(!GetItems.canFind(apath))
             {
                 auto apathAbsPath = apath.absolutePath();
-                auto projectAbsPath = Project.Folder.absolutePath();
-                if(Project.TargetType() == TARGET.EMPTY) projectAbsPath = "<";
 
-
-                if(apathAbsPath.startsWith(projectAbsPath))apath = apath.relativePath(projectAbsPath);
+                if(apathAbsPath.startsWith(mBasePath))apath = apath.relativePath(mBasePath);
                 else apath = apathAbsPath.buildNormalizedPath();
                 AddString(apath);
             }
