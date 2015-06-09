@@ -155,6 +155,7 @@ class DOCUMENT : SourceView, DOC_IF
         mPageWidget = ScrollWin;
 
         addOnFocusOut(delegate bool(Event e, Widget me){DocMan.PageFocusOut.emit();return false;});
+        addOnFocusIn(delegate bool(Event e, Widget me){DocMan.PageFocusIn.emit();return false;});
 
         addOnKeyPress(delegate bool(Event e, Widget me)
         {

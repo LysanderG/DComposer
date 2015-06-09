@@ -21,6 +21,7 @@ docs/*.html
 *.so
 sysdir
 systemdir
+*.dtags
 *.tag
 *.tags
 tags/dallegro5.json
