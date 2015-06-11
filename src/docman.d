@@ -140,6 +140,9 @@ class DOCMAN
     DOC_IF[] mDocuments;
     UI_DOCBOOK_IF mDocBook;
 
+
+    Pid[] mRunPids;
+    enum tmpfilename = "document_run_script";
     bool mBlockDocumentKeyPress;
 
 
@@ -157,7 +160,6 @@ class DOCMAN
         return rv.setExtension(Extension);
     }
 
-    Pid[] mRunPids;
 
     public:
 
@@ -189,6 +191,7 @@ class DOCMAN
         foreach(xdoc; mDocuments)if(exists(xdoc.Name)) names ~= xdoc.Name;
         Config.SetArray("docman","last_session_files", names);
 
+        if( tmpfilename.exists())std.file.remove(tmpfilename);
         foreach(pid; mRunPids)kill(pid);
         foreach(pid; mRunPids)wait(pid);
 
@@ -330,14 +333,55 @@ class DOCMAN
         foreach(doc; mDocuments)Close(doc);
     }
 
-    void Run()
+    //try run with a script
+    void Run(string[] args = null)
     {
         if(Current is null) return;
-        if(Current.Modified) Current.Save();
-        auto CmdString = Config.GetArray!string("terminal_cmd","run", ["xterm", "-hold", "-e"]);
-        CmdString ~= ["rdmd " ~ Current.Name ~ `;echo -e "\n\nPress a key...";read -rn1`];
-        mRunPids ~= spawnProcess(CmdString);
+        if(Current.Modified)Current.Save();
+
+        scope(failure)
+        {
+            ShowMessage("Error", "Failed to run " ~ Current.TabLabel);
+            Log.Entry("Failed to run " ~ Current.TabLabel);
+        }
+        CurrentPath(Current.Name.baseName());
+
+        string ExecName = Current.Name();
+
+        auto TerminalCommand = Config.GetArray!string("terminal_cmd","run", ["xterm", "-T","dcomposer running project","-e"]);
+
+        auto tFile = std.stdio.File(tmpfilename, "w");
+
+        tFile.writeln("#!/bin/bash");
+        tFile.write("rdmd ", ExecName,);
+        //foreach(arg; args)tFile.write(" ",arg);
+        tFile.writeln();
+        tFile.writeln(`echo -e "\n\nProgram Terminated.\nPress a key to close terminal..."`);
+        tFile.writeln(`read -sn1`);
+        tFile.flush();
+        tFile.close();
+        setAttributes(tmpfilename, 509);
+
+
+        string[] CmdStrings;
+
+        CmdStrings = TerminalCommand;
+        CmdStrings ~= ["./"~tmpfilename];
+
+        try
+        {
+            dwrite(CmdStrings);
+            mRunPids ~= spawnProcess(CmdStrings);
+            Log.Entry(`"` ~ Current.TabLabel ~ `"` ~ " spawned ... " );
+        }
+        catch(Exception E)
+        {
+            Log.Entry(E.msg);
+            return;
+        }
     }
+
+
     bool Compile(DOC_IF xDoc = null, string[] Args = [])
     {
         scope(exit)SetBusyCursor(false);
