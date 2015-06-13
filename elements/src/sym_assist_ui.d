@@ -97,6 +97,8 @@ class SYM_ASSIST_UI :ELEMENT
 
         AddExtraPage(mRootBox, "Symbol Assist");
 
+        Log.Entry("Engaged");
+
 
     }
 
@@ -106,6 +108,7 @@ class SYM_ASSIST_UI :ELEMENT
         Symbols.disconnect(&CatchSymbols);
         RemoveExtraPage(mRootBox);
         mRootBox.destroy();
+        Log.Entry("Disengaged");
 
     }
 

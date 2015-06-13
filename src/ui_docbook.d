@@ -202,7 +202,7 @@ public:
         mPasteSignalID = Signals.lookup("paste-clipboard", Type.fromName("GtkTextView"));
         mCutSignalID = Signals.lookup("cut-clipboard", Type.fromName("GtkTextView"));
         mCopySignalID = Signals.lookup("copy-clipboard", Type.fromName("GtkTextView")) ;
-        Log.Entry("Post Engaged");
+        Log.Entry("PostEngaged");
     }
 
     void Disengage()

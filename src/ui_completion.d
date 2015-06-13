@@ -438,7 +438,7 @@ class UI_COMPLETION
 
     void PostEngage()
     {
-        Log.Entry("Post Engaged");
+        Log.Entry("PostEngaged");
     }
 
     void Disengage()
