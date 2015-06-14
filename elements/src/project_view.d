@@ -141,7 +141,7 @@ class PROJECT_VIEW : ELEMENT
     {
         int CurKey = mKeyBox.getActive();
 
-        if((CurKey == 0) || (CurKey == 1))
+        if((CurKey == 0) || (CurKey == 1) || (CurKey == 10) || (CurKey == 11) )
         {
 
             auto ti = tv.getSelectedIter();

@@ -141,6 +141,11 @@ class UI_LIST
         return mTitle.getText();
     }
 
+    ListType GetType()
+    {
+        return mType;
+    }
+
     string[] GetItems()
     {
         string[] rv;
