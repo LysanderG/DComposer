@@ -105,7 +105,7 @@ ITEM[] Search( SCOPE Scope, string Needle, SEARCH_OPTIONS Opts)
             {
                 if(Project.Lists[LIST_NAMES.REL_FILES] != [""])
                 foreach(item; Project.Lists[LIST_NAMES.SRC_FILES] ~ Project.Lists[LIST_NAMES.REL_FILES]) rv ~= FindInFile(item, rgx);
-                goto case;
+                break;
             }
 
             case PROJ_SOURCE :
