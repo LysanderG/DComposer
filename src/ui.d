@@ -74,9 +74,12 @@ public import gtk.CellRendererText;
 public import gtk.ToolButton;
 public import gtk.CellEditableIF;
 public import gtk.FileChooserDialog;
+public import gtk.PrintOperation;
+public import gtk.PrintContext;
 
 
-import gsv.SourceView;
+public import gsv.SourceView;
+public import gsv.SourcePrintCompositor;
 
 public import gdk.Event;
 public import gdk.Keysyms;
@@ -99,7 +102,10 @@ public import glib.Idle;
 public import glib.ListG;
 
 
-import vte.Terminal;
+
+public import gobject.ObjectG;
+
+public import vte.Terminal;
 
 
 
