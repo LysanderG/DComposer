@@ -87,6 +87,7 @@ class UI_COMPLETION
         mCompCol2.cellGetSize(null, xoff2, yoff2, cellwidth2, cellheight2);
         mCompWindow.resize(cellwidth + cellwidth2 + 4, rows * cellheight);
 
+
         //position
         DOCUMENT doc = cast(DOCUMENT)DocMan.Current;
         RECTANGLE Crect = doc.GetCursorRectangle();
@@ -200,6 +201,7 @@ class UI_COMPLETION
             mTipStore.setValue(treeIter, 0, candi);
         }
         //mTipWindow.map();
+        MapCallTipWindow();
         mTipWindow.showAll();
         ui.MainWindow.presentWithTime( 0L);
     }
@@ -423,9 +425,9 @@ class UI_COMPLETION
         //----------------
 
         //mCompWindow.addOnMap(delegate void(Widget x){MapCompletionWindow();});
-        mCompWindow.addOnShow(delegate void(Widget x){MapCompletionWindow();});
-        mTipWindow.addOnMap(delegate void (Widget x){MapCallTipWindow();});
-
+        //mCompWindow.addOnShow(delegate void(Widget x){MapCompletionWindow();});
+        //mTipWindow.addOnMap(delegate void (Widget x){MapCallTipWindow();});
+        //mTipWindow.addOnShow(delegate void (Widget x){MapCallTipWindow();});
 
         DocMan.DocumentKeyDown.connect(&WatchForKeys);
         DocMan.PageFocusOut.connect(&WatchForLostFocus);
@@ -455,7 +457,7 @@ class UI_COMPLETION
         mBlockWatchForLostFocus = true;
 
         auto timediff = Clock.currTime() - mCompWinLastShownTime;
-        if(timediff < msecs(250))return;
+        //if(timediff < msecs(250))return;
 
         mCompWindow.hide();
         mTipWindow.hide();
@@ -477,8 +479,10 @@ class UI_COMPLETION
         mCompTree.setCursor(new TreePath("0"), null, false);
 
         //mCompTree.showAll();
+        MapCompletionWindow();
         mCompWindow.showAll();
-        MainWindow.presentWithTime(0L);
+        //MainWindow.presentWithTime(0L);
+        MainWindow.present();
     }
 
     void PushCallTip(string[] Candidates)
