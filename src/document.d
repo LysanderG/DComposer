@@ -59,6 +59,7 @@ public import gsv.SourceUndoManager;
 public import gsv.SourceUndoManagerIF;
 public import gsv.SourceView;
 public import gsv.SourceMark;
+public import gsv.SourceMarkAttributes;
 
 
 import gtk.Widget;
@@ -163,7 +164,6 @@ class DOCUMENT : SourceView, DOC_IF
             int rv;
             e.getKeyval(keyval);
             DocMan.DocumentKeyDown.emit(keyval);
-            //dwrite(DocMan.BlockDocumentKeyPress());
             return DocMan.BlockDocumentKeyPress();
 
         },cast(GConnectFlags)0);
@@ -232,6 +232,14 @@ class DOCUMENT : SourceView, DOC_IF
         mFirstScroll = true;
         GdkRectangle xrec;
         getVisibleRect(xrec);
+
+
+        setShowLineMarks(true);
+        auto SrcMrkAttribs = new SourceMarkAttributes;
+        //SrcMrkAttribs.setIconName("nav_point_icon");
+        SrcMrkAttribs.setPixbuf(new Pixbuf(SystemPath(Config.GetValue("docman", "nav_point_icon", "resources/pin-small.png"))));
+        setMarkAttributes("NavPoints", SrcMrkAttribs, 1);
+
 
         Config.Changed.connect(&WatchConfigChange);
     }
@@ -663,7 +671,6 @@ class DOCUMENT : SourceView, DOC_IF
 
     void GotoLine(int LineNo, int LinePos = 1)
     {
-
         scope(exit)
         {
             mFirstScroll = false;
@@ -673,6 +680,9 @@ class DOCUMENT : SourceView, DOC_IF
 
         if((LineNo < 1) && mFirstScroll)return;
         if(LinePos < 0) LinePos = 0;
+
+
+        DocMan.PreCursorJump.emit(this, Line, Column);
 
         TextIter   insIter = new TextIter;
         GdkRectangle  insLoc, visLoc, nulLoc;
@@ -703,6 +713,8 @@ class DOCUMENT : SourceView, DOC_IF
             if( mFirstScroll && (insLoc.y == 0)) inside = 0;
         }while(!inside);
         ui.MainWindow.setSensitive(1);
+
+        DocMan.CursorJump.emit(this, LineNo, Column);
 
     }
 

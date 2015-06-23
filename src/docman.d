@@ -87,7 +87,7 @@ interface DOC_IF
         rv.StopUndo();
         rv.SetText(txt);
         rv.RestartUndo();
-        rv.GotoLine(LineNo, LinePos);
+        if( (LineNo) || (LinePos)) rv.GotoLine(LineNo, LinePos);
 
         SetBusyCursor(false);
         return rv;
@@ -176,6 +176,8 @@ class DOCMAN
 
     void PostEngage()
     {
+        //AddIcon("nav_point_icon", SystemPath(Config.GetValue("docman", "nav_point_icon", "resources/pin-small.png")));
+
         mDocBook = GetDocBook();
         //Reload files opened last session and any cmdline files
         auto CmdLineFiles = Config.GetArray!string("docman", "cmd_line_files");
@@ -495,6 +497,8 @@ class DOCMAN
     mixin Signal!() PageFocusIn;
     mixin Signal!(uint) DocumentKeyDown;
     mixin Signal!(void *, DOC_IF) MouseButton;
+    mixin Signal!(DOC_IF, int, int) PreCursorJump;
+    mixin Signal!(DOC_IF, int, int) CursorJump;
 }
 
 
