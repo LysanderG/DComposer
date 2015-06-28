@@ -957,6 +957,7 @@ void ShowAboutDialog()
     auto adDialog = cast(AboutDialog)adBuilder.getObject("aboutdialog1");
     adDialog.setVersion(DCOMPOSER_VERSION ~ " " ~ DCOMPOSER_BUILD_DATE ~ "\nBuild #" ~ to!string(BUILD_NUMBER));
     adDialog.setCopyright(DCOMPOSER_COPYRIGHT);
+    adDialog.setTransientFor(MainWindow);
     adDialog.run();
     adDialog.destroy();
 
