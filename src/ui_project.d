@@ -158,8 +158,13 @@ class UI_PROJECT
                         case OTHER: ProjOtherFlags.UpdateItems(lillist);  break;
                         case NOTES:
                         {
-                            if(Project.Lists[key].length > 0)ProjNotes.getBuffer().setText(Project.Lists[key][0]);
-                            else ProjNotes.getBuffer().setText("");break;
+                            if(Project.Lists[key].length > 0)
+                            {
+                                string tmp_notes = (Project.Lists[key][0].length)? Project.Lists[key][0] : " ";
+                                ProjNotes.getBuffer().setText(tmp_notes);
+                            }
+                            else ProjNotes.getBuffer().setText("x");
+                            break;
                         }
                         default: writeln("not here!!", key);break;
                     }
@@ -168,7 +173,7 @@ class UI_PROJECT
             }
             default :break;
         }
-        ProjGeneratedBuildCommand.getBuffer.setText("");
+        ProjGeneratedBuildCommand.getBuffer.setText(" ");
         foreach(ln;Project.BuildCommand())ProjGeneratedBuildCommand.appendText(ln ~ "\n");
     }
 

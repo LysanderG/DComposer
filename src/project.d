@@ -46,8 +46,9 @@ class PROJECT
     void Clear()
     {
         mDcomposerProjectVersion = PROJECT_MODULE_VERSION;
-        Name = "\0";
-        Folder = mDefaultProjectRootPath;
+        //Name = "\0";
+        //Folder = mDefaultProjectRootPath;
+        SetNameAndFolder("\0", mDefaultProjectRootPath);
         CurrentPath(Folder);
         Compiler = COMPILER.DMD;
         TargetType = TARGET.EMPTY;
@@ -498,6 +499,7 @@ class PROJECT
     }
     @property void Compiler(COMPILER x)
     {
+        if(x == mCompiler)return;
         mCompiler = x;
         Event.emit(PROJECT_EVENT.COMPILER);
     }
@@ -507,6 +509,7 @@ class PROJECT
     }
     @property void TargetType(TARGET nuType)
     {
+        if(nuType == mTargetType) return;
         mTargetType = nuType;
         Event.emit(PROJECT_EVENT.TARGET_TYPE);
     }
@@ -516,6 +519,7 @@ class PROJECT
     }
     @property void UseCustomBuild(bool nuUse)
     {
+        if(nuUse == mUseCustomBuild)return;
         mUseCustomBuild = nuUse;
         Event.emit(PROJECT_EVENT.USE_CUSTOM_BUILD);
     }
@@ -525,6 +529,7 @@ class PROJECT
     }
     @property void CustomBuildCommand(string nuCommand)
     {
+        if(nuCommand == mCustomBuildCommand) return;
         mCustomBuildCommand = nuCommand;
         Event.emit(PROJECT_EVENT.CUSTOM_BUILD_COMMAND);
     }
@@ -540,11 +545,13 @@ class PROJECT
 
     void SetListData(string key, string[] Data)
     {
+        if(Data == mData[key])return;
         mData[key] = Data;
         Event.emit(PROJECT_EVENT.LISTS);
     }
     void SetListData(string key, string Data)
     {
+        if(mData[key] == [Data])return;
         mData[key] = [Data];
         Event.emit(PROJECT_EVENT.LISTS);
     }
@@ -579,7 +586,7 @@ class PROJECT
                 return flag.mValue;
             }
         }
-        return "";
+        return "\0";
     }
     void SetFlagArgument(string Switch, string Brief, string nuArg)
     {
