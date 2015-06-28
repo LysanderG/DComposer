@@ -134,6 +134,7 @@ class UI_LIST
                 break;
             }
         }
+        mRoot.unparent();
     }
 
     string GetTitle()
