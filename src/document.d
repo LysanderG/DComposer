@@ -213,7 +213,7 @@ class DOCUMENT : SourceView, DOC_IF
             auto unAction = GetAction("ActUndo");
             unAction.setSensitive(manager.canUndo);
         });
-        getBuffer.getUndoManager.addOnCanUndoChanged(delegate void (SourceUndoManagerIF manager)
+        getBuffer.getUndoManager.addOnCanRedoChanged(delegate void (SourceUndoManagerIF manager)
         {
             auto reAction = GetAction("ActRedo");
             reAction.setSensitive(manager.canRedo);

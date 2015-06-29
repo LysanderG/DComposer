@@ -22,6 +22,7 @@ import gtk. FileChooserDialog;
 import gtk.Container;
 
 import gsv.SourceStyleSchemeManager;
+import gsv.SourceView;
 
 import gobject.Signals;
 import gobject.Value;
@@ -193,12 +194,17 @@ public:
 
     void PostEngage()
     {
+        //GTK complains (and craps out) if DOCUMENT not loaded so force it
+        //probably a better way but I'm a dumby
+        auto x = new DOCUMENT;
+
         mInstanceAndParamsForSignal = new Value;
         mInstanceAndParamsForSignal.init(GType.OBJECT);
         mReturnValueForSignal = new Value;
         mReturnValueForSignal.init(GType.OBJECT);
-        mUndoSignalID = Signals.lookup("undo", Type.fromName("GtkSourceView"));
-        mRedoSignalID = Signals.lookup("redo", Type.fromName("GtkSourceView"));
+        mRedoSignalID = Signals.lookup("redo", DOCUMENT.getType());
+        mUndoSignalID = Signals.lookup("undo", DOCUMENT.getType());
+        dwrite(mRedoSignalID, "--", mUndoSignalID);
         mPasteSignalID = Signals.lookup("paste-clipboard", Type.fromName("GtkTextView"));
         mCutSignalID = Signals.lookup("cut-clipboard", Type.fromName("GtkTextView"));
         mCopySignalID = Signals.lookup("copy-clipboard", Type.fromName("GtkTextView")) ;
@@ -321,15 +327,16 @@ public:
     {
         auto xdoc = cast (DOCUMENT)Current();
         if(xdoc is null) return;
-        xdoc.getBuffer.undo();
-        //mInstanceAndParamsForSignal.setObject(xdoc.getSourceViewStruct());
-        //mReturnValueForSignal.setObject(xdoc.getSourceViewStruct());
-        //Signals.emitv(mInstanceAndParamsForSignal,mUndoSignalID, 0u, mReturnValueForSignal);
+        //xdoc.getBuffer.undo();
+        mInstanceAndParamsForSignal.setObject(xdoc);
+        mReturnValueForSignal.setObject(xdoc);
+        Signals.emitv([mInstanceAndParamsForSignal],mUndoSignalID, 0u, mReturnValueForSignal);
     }
     void Redo()
     {
         auto xdoc = cast (DOCUMENT)Current();
         if(xdoc is null) return;
+        //xdoc.getBuffer.redo();
 
         mInstanceAndParamsForSignal.setObject(xdoc);//.getSourceViewStruct());
         mReturnValueForSignal.setObject(xdoc);//.getSourceViewStruct());
