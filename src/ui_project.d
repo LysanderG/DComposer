@@ -160,10 +160,10 @@ class UI_PROJECT
                         {
                             if(Project.Lists[key].length > 0)
                             {
-                                string tmp_notes = (Project.Lists[key][0].length)? Project.Lists[key][0] : " ";
+                                string tmp_notes = (Project.Lists[key][0].length)? Project.Lists[key][0] : "";
                                 ProjNotes.getBuffer().setText(tmp_notes);
                             }
-                            else ProjNotes.getBuffer().setText("x");
+                            else ProjNotes.getBuffer().setText("");
                             break;
                         }
                         default: writeln("not here!!", key);break;
@@ -208,7 +208,7 @@ class UI_PROJECT
             ProjFlagsStore.append(ti);
             ProjFlagsStore.setValue(ti, 0, false);
             ProjFlagsStore.setValue(ti, 1, obj.mSwitch);
-            ProjFlagsStore.setValue(ti, 2, " ");
+            ProjFlagsStore.setValue(ti, 2, "");
             ProjFlagsStore.setValue(ti, 3, obj.mBrief);
             ProjFlagsStore.setValue(ti, 4, obj.mArgument);
         }

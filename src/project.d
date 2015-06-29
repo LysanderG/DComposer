@@ -48,12 +48,12 @@ class PROJECT
         mDcomposerProjectVersion = PROJECT_MODULE_VERSION;
         //Name = "\0";
         //Folder = mDefaultProjectRootPath;
-        SetNameAndFolder("\0", mDefaultProjectRootPath);
+        SetNameAndFolder("", mDefaultProjectRootPath);
         CurrentPath(Folder);
         Compiler = COMPILER.DMD;
         TargetType = TARGET.EMPTY;
         UseCustomBuild = false;
-        CustomBuildCommand = "\0";
+        CustomBuildCommand = "";
         foreach(ref flag; mFlags) flag.Reset();
         mData.Zero();
         Event.emit(PROJECT_EVENT.LISTS);
@@ -674,7 +674,7 @@ struct FLAG
     void Reset()
     {
         mState = false;
-        mValue = "\0";
+        mValue = "";
     }
 
 }
