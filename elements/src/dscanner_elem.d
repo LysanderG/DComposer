@@ -169,14 +169,18 @@ class DSCANNER_ELEM : ELEMENT
         if(mBadDscannerBinary)return;
         mBlockCursorChangeOnUpdate = true;
         scope(exit)mBlockCursorChangeOnUpdate = false;
+
         auto ctp = new TreePath;
         auto ctvc = new TreeViewColumn;
-        scope(exit)mOutlineTree.setCursor(ctp, cast(TreeViewColumn)null, false);
-        mOutlineTree.getCursor(ctp, ctvc);
+
+        scope(exit) if (ctp !is null) mOutlineTree.setCursor(ctp, cast(TreeViewColumn)null, false);
+        //mOutlineTree.getCursor(ctp, ctvc);
 
         mOutlineStore.clear();
 
-        if(DocMan.Current() is null) return;
+        if(DocMan.Current() is null)return;
+
+        //dummy scope
         {
             scope(failure)
             {
