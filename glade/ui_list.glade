@@ -155,8 +155,6 @@
                             <child>
                               <object class="GtkCellRendererText" id="cellrenderertext1"/>
                               <attributes>
-                                <attribute name="xalign">0</attribute>
-                                <attribute name="yalign">1</attribute>
                                 <attribute name="text">0</attribute>
                               </attributes>
                             </child>
