@@ -10,7 +10,9 @@ import std.string;
 import std.signals;
 import std.conv;
 import std.utf;
+import std.uni;
 import std.encoding;
+import std.algorithm;
 
 
 interface DOC_IF
@@ -37,7 +39,7 @@ interface DOC_IF
     string  LineText();
     string  Symbol();
     string  FullSymbol();
-    string  Word();
+    string  Word(string AtMarkName = "insert");
     string  WordUnderPointer();
     int     WordLength(int Partial = -1);
 
@@ -99,6 +101,41 @@ interface DOC_IF
     void ReplaceText(string NewText, int Line, int StartOffset, int EndOffset);
     int GetCursorByteIndex();
     RECTANGLE GetCursorRectangle();
+
+    bool IndentLines(int Reps);
+    bool UnIndentLines(int Reps);
+
+
+
+    //MOVMENTS
+    bool MoveLeft(int Reps, bool selection_bound);
+    bool MoveUp(int Reps, bool selection_bound);
+    bool MoveDown(int Reps, bool selection_bound);
+    bool MoveRight(int Reps, bool selection_bound);
+    bool MoveLineStart(int Reps, bool selection_bound);
+    bool MoveLineEnd(int Reps, bool selection_bound);
+    bool MovePageUp(int Reps, bool selection_bound);
+    bool MovePageDown(int Reps, bool selection_bound);
+    bool MoveStart(int Reps, bool selection_bound);
+    bool MoveEnd(int Reps, bool selection_bound);
+    bool MoveNextWordStart(int Reps, bool selection_bound);
+    bool MovePrevWordStart(int Reps, bool selection_bound);
+    bool MoveNextWordEnd(int Reps, bool selection_bound);
+    bool MovePrevWordEnd(int Reps, bool selection_bound);
+    bool MovePrevScope(int Reps, bool selection_bound);
+    bool MoveNextScope(int Reps, bool selection_bound);
+    bool MoveUpperScope(int Reps, bool selection_bount);
+    bool MoveLowerScope(int Reps, bool selection_bound);
+    bool MovePrevStatement(int Reps, bool selection_bound);
+    bool MoveNextStatement(int Reps, bool selection_bound);
+    bool MovePrevCurrentChar(int Reps, bool selection_bound);
+    bool MoveNextCurrentChar(int Reps, bool selection_bound);
+    bool MoveBracketMatch(bool selection_bound);
+    bool MovePrevSymbol(int Reps, bool selection_bound);
+    bool MoveNextSymbol(int Reps, bool selection_bound);
+    bool MovePrevParameterStart(int Reps, bool selection_bound);
+    bool MoveNextParameterEnd(int Reps, bool selection_bound);
+
 
 }
 struct RECTANGLE
@@ -372,7 +409,6 @@ class DOCMAN
 
         try
         {
-            dwrite(CmdStrings);
             mRunPids ~= spawnProcess(CmdStrings);
             Log.Entry(`"` ~ Current.TabLabel ~ `"` ~ " spawned ... " );
         }
@@ -495,7 +531,7 @@ class DOCMAN
     mixin Signal!(void*, string, int, void*) Insertion;
     mixin Signal!() PageFocusOut;
     mixin Signal!() PageFocusIn;
-    mixin Signal!(uint) DocumentKeyDown;
+    mixin Signal!(uint, uint) DocumentKeyDown;
     mixin Signal!(void *, DOC_IF) MouseButton;
     mixin Signal!(DOC_IF, int, int) PreCursorJump;
     mixin Signal!(DOC_IF, int, int) CursorJump;
@@ -555,4 +591,14 @@ bool try32(const ubyte[] data)
     scope(failure) return false;
     validate!(dchar[])(cast(dchar[])data);
     return true;
+}
+
+bool isWordStartChar(dchar x)
+{
+    return ((x.isAlpha()) || (x == '_'));
+}
+
+bool isWordChar(dchar x)
+{
+    return ( (x.isAlpha()) || (x == '_') || (x.isNumber()));
 }

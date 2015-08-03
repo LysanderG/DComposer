@@ -9,6 +9,7 @@ import std.path;
 import std.algorithm;
 import std.string;
 import std.uni;
+import std.utf;
 import std.conv;
 static import std.process ;
 
@@ -93,18 +94,21 @@ import glib.ListG;
 class DOCUMENT : SourceView, DOC_IF
 {
     private:
-    string  mFullName;
+    string              mFullName;
 
 
-    bool    mVirgin;
-    bool    mDeletedFile;
+    bool                mVirgin;
+    bool                mDeletedFile;
 
-    Widget  mPageWidget;
-    Box     mTabWidget;
-    Label   mTabLabel;
+    Widget              mPageWidget;
+    Box                 mTabWidget;
+    Label               mTabLabel;
     SourceUndoManagerIF mUndoManager;
 
-    bool    mFirstScroll;
+    bool                mFirstScroll;
+
+    int                 mStaticHorizontalCursorPosition = -1;
+
 
 
     SysTime mFileTimeStamp;
@@ -120,6 +124,37 @@ class DOCUMENT : SourceView, DOC_IF
         else mTabLabel.setText(TabLabel());
         mTabWidget.setTooltipText(Name);
     }
+
+    TextIter GetMovementIter(bool selection_bound)
+    {
+        auto buff = getBuffer();
+        TextIter ti;
+        if(selection_bound)
+        {
+            ti = new TextIter;
+            buff.getIterAtMark(ti, buff.getMark("selection_bound"));
+        }
+        else
+        {
+            ti = Cursor();
+        }
+        return ti;
+    }
+    void SetMoveIter(TextIter ti, bool selection_bound)
+    {
+
+        if(selection_bound)
+        {
+            getBuffer().moveMarkByName("selection_bound", ti);
+            scrollMarkOnscreen(getBuffer().getMark("selection_bound"));
+        }
+        else
+        {
+            getBuffer().placeCursor(ti);
+            scrollMarkOnscreen(getBuffer().getMark("insert"));
+        }
+    }
+
 
 
     public:
@@ -163,7 +198,9 @@ class DOCUMENT : SourceView, DOC_IF
             uint keyval;
             int rv;
             e.getKeyval(keyval);
-            DocMan.DocumentKeyDown.emit(keyval);
+            GdkModifierType state;
+            e.getState(state);
+            DocMan.DocumentKeyDown.emit(keyval, cast(uint)state);
             return DocMan.BlockDocumentKeyPress();
 
         },cast(GConnectFlags)0);
@@ -244,8 +281,8 @@ class DOCUMENT : SourceView, DOC_IF
         Config.Changed.connect(&WatchConfigChange);
     }
 
-    GtkSourceCompletion * xcomp;
-    GtkSourceCompletionWords * wcomp;
+    //GtkSourceCompletion * xcomp;
+    //GtkSourceCompletionWords * wcomp;
 
     void WatchConfigChange(string Sec, string key)
     {
@@ -281,6 +318,7 @@ class DOCUMENT : SourceView, DOC_IF
         setBorderWindowSize(GtkTextWindowType.BOTTOM, Config.GetValue("document", "bottom_border_size", 5));
         setPixelsBelowLines(Config.GetValue("document", "pixels_below_line", 1));
         modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.GetValue("document", "font", "Inconsolata Bold 12")));
+
     }
 
 
@@ -617,7 +655,7 @@ class DOCUMENT : SourceView, DOC_IF
     }
 
 
-    string Word()
+    /*string Word()
     {
         string rv;
         auto ti = Cursor();
@@ -631,8 +669,45 @@ class DOCUMENT : SourceView, DOC_IF
             rv = ti.getText(tiEnd);
         }
         return rv;
+    }*/
+
+    string Word(string AtMarkName )
+    {
+        string rv;
+        bool foundStart;
+        auto buff = getBuffer();
+
+        auto ti = new TextIter;
+        buff.getIterAtMark(ti, buff.getMark(AtMarkName));
+
+        if(!(ti.insideWord() || ti.endsWord())) return rv;
+
+        dchar lastChar = ti.getChar();
+        dchar thisChar;
+
+        //go to start
+        while(ti.backwardChar())
+        {
+            thisChar = ti.getChar();
+
+            if(lastChar.isWordStartChar() && !thisChar.isWordChar())
+            {
+                ti.forwardChar();
+                foundStart = true;
+                break;
+            }
+            if(!thisChar.isWordChar()) break;
+            lastChar = thisChar;
+        }
+        if(foundStart == false) return rv;
+        auto tiEnd = ti.copy();
+        while(tiEnd.getChar().isWordChar())tiEnd.forwardChar();
+        rv = ti.getText(tiEnd);
+        return rv;
+
     }
 
+    //fix this for unicode. D 'words' can take "universal alphas"
     int WordLength(int Partial)
     {
         int ctr;
@@ -671,6 +746,7 @@ class DOCUMENT : SourceView, DOC_IF
 
     void GotoLine(int LineNo, int LinePos = 1)
     {
+        mStaticHorizontalCursorPosition = -1;
         scope(exit)
         {
             mFirstScroll = false;
@@ -807,8 +883,6 @@ class DOCUMENT : SourceView, DOC_IF
                 return;
             }
         }
-
-
 
         currentTimeStamp = timeLastModified(Name);
 
@@ -1019,6 +1093,1062 @@ class DOCUMENT : SourceView, DOC_IF
         int offsetnotbytes = tiOffset.getLineIndex();
         while(tiOffset.backwardLine())offsetnotbytes += tiOffset.getBytesInLine();
         return offsetnotbytes;
+    }
+
+
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    //movement
+
+
+    bool MoveLeft(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto ti = GetMovementIter(selection_bound);
+
+        ti.backwardChars(Reps);
+
+        SetMoveIter(ti, selection_bound);
+
+        return true;
+    }
+
+    bool MoveRight(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto ti = GetMovementIter(selection_bound);
+
+        ti.forwardChars(Reps);
+
+        SetMoveIter(ti, selection_bound);
+
+        return true;
+    }
+
+    bool MoveUp(int Reps, bool selection_bound)
+    {
+        auto ti = GetMovementIter(selection_bound);
+
+        int charOffset;
+        if(mStaticHorizontalCursorPosition < 0)
+        {
+            mStaticHorizontalCursorPosition  = ti.getLineOffset();
+        }
+
+        charOffset = mStaticHorizontalCursorPosition;
+
+        ti.backwardLines(Reps);
+
+        auto linelength = ti.getCharsInLine();
+        if(charOffset >= linelength) charOffset = linelength-1;
+        if(charOffset < 1)charOffset = 0;
+        ti.setLineOffset(charOffset);
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MoveDown(int Reps, bool selection_bound)
+    {
+        int charOffset;
+        auto ti = GetMovementIter(selection_bound);
+
+        if(mStaticHorizontalCursorPosition < 0)
+        {
+            mStaticHorizontalCursorPosition = ti.getLineOffset();
+        }
+        charOffset = mStaticHorizontalCursorPosition;
+
+        ti.forwardLines(Reps);
+
+        auto linelength = ti.getCharsInLine();
+        if(charOffset >= linelength) charOffset = linelength-1;
+        if(charOffset < 1)charOffset = 0;
+        ti.setLineOffset(charOffset);
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MoveLineStart(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto ti = GetMovementIter(selection_bound);
+
+        if( (Reps == 1) && (ti.getLineOffset() ==0) )
+        {
+            do
+            {
+                auto tichar = ti.getChar();
+                if(tichar == '\n')break;
+                if(tichar.isWhite()) continue;
+                break;
+            }while(ti.forwardChar());
+        }
+        else
+        {
+            ti.setLineOffset(0);
+            if(Reps > 1) ti.backwardLines(Reps-1);
+        }
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MoveLineEnd(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        auto ti = GetMovementIter(selection_bound);
+
+
+        if( (Reps == 1) && (ti.getChar() == '\n')) return false;
+        foreach(ctr;0..Reps)ti.forwardToLineEnd();
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+    bool MoveStart(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto buff = getBuffer();
+
+        auto ti = new TextIter;
+        getBuffer.getStartIter(ti);
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MoveEnd(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto buff = getBuffer();
+        auto ti = new TextIter;
+        getBuffer.getEndIter(ti);
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MovePageUp(int Reps, bool selection_bound)
+    {
+        GdkRectangle rect;
+
+        auto ti = GetMovementIter(selection_bound);
+
+        getIterLocation(ti, rect);
+
+
+
+        auto vadj = getVadjustment();
+        double currentYpos = vadj.getValue();
+        auto Pages = cast(int) (vadj.getPageIncrement() * Reps);
+        vadj.setValue(currentYpos - Pages);
+
+        auto ti_out = new TextIter;
+        getIterAtLocation( ti_out, rect.x, rect.y - Pages);
+
+        SetMoveIter(ti_out, selection_bound);
+        return true;
+    }
+
+    bool MovePageDown(int Reps, bool selection_bound)
+    {
+        GdkRectangle rect;
+
+        auto ti = GetMovementIter(selection_bound);
+
+        getIterLocation(ti, rect);
+
+        auto vadj = getVadjustment();
+        double currentYpos = vadj.getValue();
+        auto Pages = cast(int) (vadj.getPageIncrement() * Reps);
+        vadj.setValue(currentYpos + Pages);
+
+        auto ti_out = new TextIter;
+        getIterAtLocation( ti_out, rect.x, rect.y + Pages);
+
+        SetMoveIter(ti_out, selection_bound);
+        return true;
+    }
+
+    bool MoveNextWordStart(int Reps, bool  selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        dchar ch;
+        bool lastCharWasNotAWordChar;
+        bool foundstart;
+
+        auto ti = GetMovementIter(selection_bound);
+
+
+        foreach(ctr;0..Reps)
+        {
+            ch = ti.getChar();
+            lastCharWasNotAWordChar = !ch.isWordChar();
+            while(ti.forwardChar())
+            {
+                ch = ti.getChar();
+                if(ch.isWordStartChar() && lastCharWasNotAWordChar)
+                {
+                    foundstart = true;
+                    break;
+                }
+
+                lastCharWasNotAWordChar = !ch.isWordChar();
+            }
+        }
+
+        if(!foundstart) return false;
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MovePrevWordStart(int Reps, bool  selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        dchar lastChar;
+        dchar thisChar;
+        bool foundstart;
+
+        auto ti = GetMovementIter(selection_bound);
+
+        foreach(x;0..Reps)
+        {
+            lastChar = '0';
+            while(ti.backwardChar())
+            {
+                thisChar = ti.getChar();
+
+                if(lastChar.isWordStartChar() && !thisChar.isWordChar())
+                {
+                    ti.forwardChar();
+                    foundstart = true;
+                    break;
+                }
+                lastChar = thisChar;
+            }
+        }
+
+        if(!foundstart) return false;
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MoveNextWordEnd(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        dchar lastChar;
+        dchar thisChar;
+        bool foundend;
+
+        auto ti = GetMovementIter(selection_bound);
+
+        foreach(ctr; 0..Reps)
+        {
+            lastChar = ti.getChar();
+
+            while(ti.forwardChar())
+            {
+                thisChar = ti.getChar();
+
+                if(!thisChar.isWordChar() && lastChar.isWordChar())
+                {
+                    foundend = true;
+                    break;
+                }
+                lastChar = thisChar;
+            }
+        }
+
+        if(!foundend) return false;
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MovePrevWordEnd(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        dchar lastChar;
+        dchar thisChar;
+        bool foundend;
+
+        auto ti = GetMovementIter(selection_bound);
+
+        foreach(x;0..Reps)
+        {
+            lastChar = 'a';
+            while(ti.backwardChar())
+            {
+                thisChar = ti.getChar();
+                if(thisChar.isWordChar() && !lastChar.isWordChar())
+                {
+                    ti.forwardChar();
+                    foundend = true;
+                    break;
+                }
+                lastChar = thisChar;
+            }
+
+        }
+        if(!foundend) return false;
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MoveNextStatement(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        int scCtr;
+        string ltext;
+        dchar tichar;
+        dchar lastchar;
+
+        auto ti = GetMovementIter(selection_bound);
+
+        foreach(ctr; 0..Reps)
+        {
+
+            while(ti.forwardChar())
+            {
+                auto context_classes = getBuffer().getContextClassesAtIter(ti);
+                if(context_classes.canFind("string")) continue;
+                if(context_classes.canFind("comment")) continue;
+
+                tichar = ti.getChar();
+
+                if((tichar == ';') || (tichar == '{'))
+                {
+                    while(true)
+                    {
+                        context_classes = getBuffer().getContextClassesAtIter(ti);
+                        if( (tichar == ';') || (tichar == '{') || (tichar == '}') || context_classes.canFind("comment") || tichar.isWhite() )
+                        {
+                            ti.forwardChar();
+                            tichar = ti.getChar();
+                            continue;
+                        }
+                        break;
+                    }
+                    break;
+                }
+            }
+        }
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+
+    }
+
+    bool MovePrevStatement(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        int scCtr;
+        string ltext;
+        dchar tichar;
+        dchar prevchar;
+        bool foundPrevStatement;
+
+        auto ti = GetMovementIter(selection_bound);
+
+        foreach(ctr; 0..Reps)
+        {
+            foundPrevStatement = false;
+
+            test_label:
+            while(ti.backwardChar())
+            {
+
+                auto context_classes = getBuffer().getContextClassesAtIter(ti);
+                if(context_classes.canFind("string")) continue;
+                if(context_classes.canFind("comment")) continue;
+                //if(IterInParens(ti))continue;
+
+                tichar = ti.getChar();
+                if((tichar == ';') || (tichar == '{'))
+                {
+                    if(foundPrevStatement)
+                    {
+                        ti.forwardChar();
+                        tichar = ti.getChar();
+                        while(true)
+                        {
+                            auto contextSub = getBuffer.getContextClassesAtIter(ti);
+
+                            if( (tichar == ';') || (tichar == '{') || (tichar == '}') || (contextSub.canFind("comment")) || (tichar.isWhite()))
+                            {
+                                ti.forwardChar();
+                                tichar = ti.getChar();
+                                continue;
+                            }
+                            break test_label;
+                        }
+                        break;
+                    }
+                    foundPrevStatement = true;
+                }
+            }
+
+        }
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+
+    }
+
+    bool MovePrevScope(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        bool rv;
+
+        auto ti = GetMovementIter(selection_bound);
+
+        while(ti.backwardChar())
+        {
+            if(ti.getChar() == '{')
+            {
+                rv = true;
+                break;
+            }
+
+        }
+
+        if(rv == false) return rv;
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+    bool MoveNextScope(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        bool rv;
+
+        auto ti = GetMovementIter(selection_bound);
+
+
+        if(ti.getChar() == '{') ti.forwardChar();
+        do
+        {
+            if(ti.getChar() == '{')
+            {
+                rv = true;
+                break;
+            }
+
+        }while(ti.forwardChar());
+
+        if(rv == false) return rv;
+
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MoveUpperScope(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto ti = GetMovementIter(selection_bound);
+
+        bool foundScope;
+        dchar tichar;
+        long ctr_scope;
+        foreach(ctr_reps; 0..Reps)
+        {
+            foundScope = false;
+            while (ti.backwardChar())
+            {
+                dwrite(ctr_scope);
+                tichar = ti.getChar();
+                if(tichar == '{')
+                {
+                    if(++ctr_scope > 0)
+                    {
+                        foundScope = true;
+                        break;
+                    }
+                }
+                if(tichar == '}') ctr_scope--;
+            }
+            if(!foundScope) return false;
+        }
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+    bool MoveLowerScope(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto ti = GetMovementIter(selection_bound);
+
+        bool foundScope;
+        dchar tichar;
+        long ctr_scope;
+        foreach(ctr_reps; 0..Reps)
+        {
+            foundScope = false;
+            while (ti.forwardChar())
+            {
+                tichar = ti.getChar();
+                if(tichar == '{')
+                {
+                    if(++ctr_scope > 0)
+                    {
+                        foundScope = true;
+                        break;
+                    }
+                }
+                if(tichar == '}')break;
+            }
+            if(!foundScope) return false;
+        }
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+
+    bool MovePrevCurrentChar(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto ti = GetMovementIter(selection_bound);
+
+        auto theChar = ti.getChar();
+        int Ctr;
+
+        while(ti.backwardChar())
+        {
+            if(theChar == ti.getChar()) Ctr++;
+            if(Ctr >= Reps)break;
+        }
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MoveNextCurrentChar(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto ti = GetMovementIter(selection_bound);
+
+        int Ctr;
+        auto theChar = ti.getChar();
+
+        while(ti.forwardChar())
+        {
+            if(theChar == ti.getChar())Ctr++;
+            if(Ctr >= Reps)break;
+        }
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+
+    bool IterInCommentBlock(TextIter ti)
+    {
+        if(ti is null) return false;
+
+        auto buff = getBuffer();
+        auto startti = new TextIter;
+        buff.getStartIter(startti);
+        auto preText = buff.getText(startti, ti, true);
+
+        bool CheckBalance(string OpenLeft, string CloseRight)
+        {
+            long balanced;
+            for(ulong ctr; ctr < preText.length -2; ctr++)
+            {
+                if(preText.length < 3) break;
+                if(preText[ctr .. ctr+2] == OpenLeft) balanced++;
+                if(preText[ctr .. ctr+2] == CloseRight) balanced--;
+            }
+            if(balanced == 0) return true;
+            return false;
+        }
+
+        if(!CheckBalance("/+","+/")) return true;
+        if(!CheckBalance("/*","*/")) return true;
+        return false;
+
+    }
+    bool IterInQuote(TextIter ti)
+    {
+        if(ti is null) return false;
+
+        auto buff = getBuffer();
+        auto startti = new TextIter;
+        buff.getStartIter(startti);
+        auto preText = buff.getText(startti, ti, true);
+
+        bool CheckQuote(dchar Quote)
+        {
+            bool toggle;
+
+            for(ulong ctr; ctr < preText.length; ctr++)
+            {
+                if(preText[ctr] == Quote) toggle = !toggle;
+            }
+            return toggle;
+        }
+
+        if(CheckQuote('`')) return true;
+        if(CheckQuote('"')) return true;
+        return false;
+    }
+
+    bool IterInParens(TextIter ti)
+    {
+        if(ti is null) return false;
+
+        auto buff = getBuffer();
+        auto startti = new TextIter;
+        buff.getStartIter(startti);
+
+
+        bool CheckInside(immutable dchar OpenLeft, immutable dchar CloseRight)
+        {
+            long balanced;
+            while (startti.forwardChar())
+            {
+                if(startti.equal(ti))break;
+
+                auto context_classes = buff.getContextClassesAtIter(startti);
+                if(context_classes.canFind("string")) continue;
+                if(context_classes.canFind("comment")) continue;
+
+                if(startti.getChar() == OpenLeft) balanced++;
+                if(startti.getChar() == CloseRight) balanced--;
+
+            }
+            if(balanced > 0) return true;
+            return false;
+        }
+
+        if(CheckInside('(',')')) return true;
+        return false;
+
+    }
+
+    bool IterInBlock(TextIter ti, immutable dchar OpenBlock = '{', immutable dchar CloseBlock = '}')
+    {
+        if(ti is null) return false;
+
+        auto buff = getBuffer();
+        auto startti = new TextIter;
+        buff.getStartIter(startti);
+
+
+        bool CheckInside(immutable dchar OpenLeft, immutable dchar CloseRight)
+        {
+            long balanced;
+            while (startti.forwardChar())
+            {
+                if(startti.equal(ti))break;
+
+                auto context_classes = buff.getContextClassesAtIter(startti);
+                if(context_classes.canFind("string")) continue;
+                if(context_classes.canFind("comment")) continue;
+
+                if(startti.getChar() == OpenLeft) balanced++;
+                if(startti.getChar() == CloseRight) balanced--;
+
+            }
+            if(balanced > 0) return true;
+            return false;
+        }
+
+        if(CheckInside(OpenBlock,CloseBlock)) return true;
+        return false;
+
+    }
+
+    bool IndentLines(int Reps)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto startTi = new TextIter;
+        auto endTi = new TextIter;
+        auto buff = getBuffer();
+
+        buff.beginUserAction();
+        scope(exit)buff.endUserAction();
+        string indentSpaces;
+
+        auto x = getIndentWidth() * Reps;
+
+        foreach(ctr;0..x)indentSpaces ~= " ";
+
+        buff.getSelectionBounds(startTi, endTi);
+        startTi.setLineOffset(0);
+        endTi.forwardLine();
+
+        auto endMark = buff.createMark("endmark", endTi, true);
+        auto startMark = buff.createMark("currentmark", startTi, true);
+
+        //setmarks on each line
+        do
+        {
+            buff.moveMark(endMark, endTi);
+            buff.moveMark(startMark, startTi);
+
+            buff.insert(startTi, indentSpaces);
+
+            buff.getIterAtMark(startTi, startMark);
+            buff.getIterAtMark(endTi, endMark);
+
+            startTi.forwardLine();
+        }while(startTi.compare(endTi) != 0);
+
+        buff.deleteMarkByName("currentmark");
+        buff.deleteMarkByName("endmark");
+        return true;
+    }
+
+    bool UnIndentLines(int Reps)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto startTi = new TextIter;
+        auto endTi = new TextIter;
+        auto buff = getBuffer();
+
+        buff.beginUserAction();
+        scope(exit)buff.endUserAction();
+
+        string indentSpaces;
+
+
+        buff.getSelectionBounds(startTi, endTi);
+        startTi.setLineOffset(0);
+        endTi.forwardLine();
+
+        auto endMark = buff.createMark("endmark", endTi, true);
+        auto startMark = buff.createMark("currentmark", startTi, true);
+
+        //setmarks on each line
+        do
+        {
+            buff.moveMark(endMark, endTi);
+            buff.moveMark(startMark, startTi);
+
+            //get indent (not line) text and find current indent 'size'
+            auto currIndTi = startTi.copy();
+            do
+            {
+                auto tmpChar = currIndTi.getChar();
+                if(tmpChar == '\n')break;
+                if(tmpChar.isWhite())continue;
+                if(tmpChar.isSpace())continue;
+                //currIndTi.backwardChar();
+                break;
+            } while(currIndTi.forwardChar());
+            auto text = buff.getSlice(startTi, currIndTi, true);
+            long col = cast(long)text.column(getTabWidth);
+            //if(col == 0) return false;
+
+            col = col - (getTabWidth() * Reps);
+            if(col < 1) col = 0;
+            //silly way to create new indentation
+            indentSpaces.length = 0;
+            foreach(ctr; 0 .. col)indentSpaces ~= " ";
+
+
+            //chop off current indents
+            buff.delet(startTi, currIndTi);
+
+            //insert new indents ... startTi is still valid as per gtk docs
+            buff.insert(startTi, indentSpaces);
+
+            buff.getIterAtMark(startTi, startMark);
+            buff.getIterAtMark(endTi, endMark);
+
+            startTi.forwardLine();
+        }while(startTi.compare(endTi) != 0);
+
+        buff.deleteMarkByName("currentmark");
+        buff.deleteMarkByName("endmark");
+        return true;
+    }
+
+
+    bool MoveBracketMatch(bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        dstring openMatches = "({[<";
+        dstring closeMatches =")}]>";
+        auto ti = GetMovementIter(selection_bound);
+
+        dchar toMatch = ti.getChar();
+        bool inclusive;
+        int ctr;
+
+        long indx = openMatches.indexOf(toMatch);
+        if(indx < 0)
+        {
+            ti.backwardChar();
+            toMatch = ti.getChar();
+            ti.forwardChar();
+            indx = openMatches.indexOf(toMatch);
+            inclusive = false;
+        }
+        else inclusive = true;
+        if(indx > -1)
+        {
+            //search forward
+            while(ti.forwardChar())
+            {
+                auto context_classes = getBuffer().getContextClassesAtIter(ti);
+                if(context_classes.canFind("string"))continue;
+                if(context_classes.canFind("comment"))continue;
+                if(ti.getChar() == openMatches[indx]) ctr++;
+                if(ti.getChar() == closeMatches[indx]) ctr--;
+
+                if(ctr < 0)
+                {
+                    if(inclusive)ti.forwardChar();
+                    SetMoveIter(ti, selection_bound);
+                    return true;
+                }
+            }
+            return false;
+        }
+        toMatch = ti.getChar();
+        indx = closeMatches.indexOf(toMatch);
+        if(indx < 0)
+        {
+            ti.backwardChar();
+            toMatch = ti.getChar();
+            indx = closeMatches.indexOf(toMatch);
+            inclusive = true;
+        }
+        else inclusive = false;
+        if(indx > -1)
+        {
+            //search backward
+            while(ti.backwardChar())
+            {
+                auto context_classes = getBuffer().getContextClassesAtIter(ti);
+                if(context_classes.canFind("string"))continue;
+                if(context_classes.canFind("comment"))continue;
+                if(ti.getChar() == openMatches[indx])ctr--;
+                if(ti.getChar() == closeMatches[indx])ctr++;
+
+                if(ctr < 0)
+                {
+                    if(!inclusive)ti.forwardChar();
+                    SetMoveIter(ti, selection_bound);
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+
+
+    bool MovePrevSymbol(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        bool foundSymbol;
+        auto buff = getBuffer();
+        TextIter ti;
+        TextIter tiOrig;
+
+        tiOrig = Cursor();
+
+        ti = new TextIter;
+        buff.getIterAtMark(ti, buff.getMark("selection_bound"));
+
+
+        auto text = Word("selection_bound");
+        if(text.length == 0) return false;
+
+
+        while(MovePrevWordStart(1, selection_bound))
+        {
+            buff.getIterAtMark(ti, buff.getMark("selection_bound"));
+            if(text == Word("selection_bound"))
+            {
+                foundSymbol = true;
+                break;
+            }
+        }
+        if(foundSymbol == false)
+        {
+            buff.placeCursor(tiOrig);
+            scrollMarkOnscreen(buff.getMark("insert"));
+            return false;
+        }
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MoveNextSymbol(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        bool foundSymbol;
+        auto buff = getBuffer();
+        TextIter ti;
+        TextIter tiOrig;
+
+        tiOrig = Cursor();
+
+        ti = new TextIter;
+        buff.getIterAtMark(ti, buff.getMark("selection_bound"));
+
+
+        auto text = Word("selection_bound");
+        if(text.length == 0) return false;
+
+
+        while(MoveNextWordStart(1, selection_bound))
+        {
+            buff.getIterAtMark(ti, buff.getMark("selection_bound"));
+            if(text == Word("selection_bound"))
+            {
+                foundSymbol = true;
+                break;
+            }
+        }
+        if(!foundSymbol)
+        {
+            buff.placeCursor(tiOrig);
+            scrollMarkOnscreen(buff.getMark("insert"));
+            return false;
+        }
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MovePrevParameterStart(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto ti = GetMovementIter(selection_bound);
+
+        if(!IterInParens(ti)) return false;
+
+        auto tiOpen = ti.copy();
+        bool IsIterAtParameterStart = true;
+
+        SkipToOpenParen(tiOpen);
+        auto tichar = ti.getChar();
+
+        if(tichar == ',')tichar = '\0';
+
+        while(tichar != ',')
+        {
+            ti.backwardChar();
+            if(ti.equal(tiOpen))break;
+            auto context_classes = getBuffer().getContextClassesAtIter(ti);
+            if(context_classes.canFind("string"))continue;
+            if(context_classes.canFind("comment"))continue;
+
+            tichar = ti.getChar();
+            if(tichar == ')')
+            {
+                SkipToOpenParen(ti);
+                tichar = ti.getChar();
+            }
+            if((IsIterAtParameterStart) && (tichar == ',')) tichar = '\0';
+            IsIterAtParameterStart = false;
+        }
+        ti.forwardChar();
+
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+
+    }
+
+    bool MoveNextParameterEnd(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        auto ti = GetMovementIter(selection_bound);
+
+        if(!IterInParens(ti)) return false;
+
+        auto tiClose = ti.copy();
+
+        SkipToCloseParen(tiClose);
+        dwrite("to closing ) == ",ti.getText(tiClose));
+        auto tichar = ti.getChar();
+        if(tichar == ',') tichar = '_';
+
+        while(!tiClose.equal(ti))
+        {
+            if(ti.forwardChar() == 0)break;
+            tichar = ti.getChar();
+            dwrite(tichar);
+            auto context_classes = getBuffer().getContextClassesAtIter(ti);
+            if(context_classes.canFind("string"))
+            {
+                tichar = '_';
+                continue;
+            }
+            if(context_classes.canFind("comment"))
+            {
+                tichar = '_';
+                continue;
+            }
+
+            if(tichar == ','){dwrite("wtf:",tichar);break;}
+
+            if(tichar == '(')
+            {
+                SkipToCloseParen(ti);
+                dwrite("??",ti.getChar());
+                continue;
+            }
+
+        }
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+
+    }
+
+    void SkipToOpenParen(ref TextIter ti)
+    {
+        auto buff = getBuffer();
+        int ctr;
+        if(ti.getChar() == ')')ctr = 1;
+        if(ti.getChar() == '(')ctr = -1;
+
+        do
+        {
+            auto context_classes = buff.getContextClassesAtIter(ti);
+            if(context_classes.canFind("string"))continue;
+            if(context_classes.canFind("comment"))continue;
+            if(ti.getChar() == '(')ctr++;
+            if(ti.getChar() == ')')ctr--;
+            if(ctr > 0) break;
+        }while(ti.backwardChar());
+    }
+
+    void SkipToCloseParen(ref TextIter ti)
+    {
+        auto buff = getBuffer();
+        int ctr;
+        if(ti.getChar() == '(') ctr = -1;
+        do
+        {
+            auto context_classes = buff.getContextClassesAtIter(ti);
+            if(context_classes.canFind("string"))continue;
+            if(context_classes.canFind("comment"))continue;
+            if(ti.getChar() == '(')ctr++;
+            if(ti.getChar() == ')')ctr--;
+            if( (ctr < 0) && (ti.getChar() == ')')) break;
+        }while(ti.forwardChar());
     }
 
 }
