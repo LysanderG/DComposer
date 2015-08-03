@@ -13,6 +13,9 @@ import std.process: executeShell;
 import std.stdio;
 import std.signals;
 import std.string;
+import std.utf;
+import std.uni;
+import std.encoding;
 
 import std.c.stdlib;
 import core.runtime;
@@ -127,7 +130,13 @@ public:
 
     void Reload()
     {
-        mJson = parseJSON(readText(mCfgFile));
+
+        string CfgText = readText(mCfgFile);
+        dstring FinalText;
+        char[] copy = CfgText.dup;
+        size_t i;
+        while(i < CfgText.length)FinalText ~= copy.decode!(char[])(i);
+        mJson = parseJSON(FinalText);
     }
     void SetCfgFile(string cmdLineCfgName)
     {
@@ -144,9 +153,7 @@ public:
             if(!cmdLineCfgName.exists())
             {
                 scope(failure)Log.Entry("Failed: Unable to create configuration file: " ~ cmdLineCfgName, "Error");
-                File tmp;
-                tmp.open(cmdLineCfgName, "w");
-                tmp.write(`{"config": { "this_file": "` ~ cmdLineCfgName ~ `"}}`);
+                std.file.write(cmdLineCfgName,`{"config": { "this_file": "` ~ cmdLineCfgName ~ `"}}`);
                 mCfgFile = cmdLineCfgName;
                 return;
             }
@@ -177,14 +184,10 @@ public:
             scope(failure)
             {
                 scope(failure)Log.Entry("Failed: Unable to create configuration file.", "Error");
-                File tmpF2;
-                tmpF2.open(tmpdir1, "w");
-                tmpF2.write(`{"config": { "this_file": "` ~ tmpdir1 ~ `"}}`);
+                std.file.write(tmpdir1,`{"config": { "this_file": "` ~ tmpdir1 ~ `"}}`);
                 return;
             }
-            File tmpF;
-            tmpF.open(tmpdir2, "w");
-            tmpF.write(`{"config": { "this_file": "` ~ tmpdir2 ~ `"}}`);
+            std.file.write(tmpdir2,`{"config": { "this_file": "` ~ tmpdir2 ~ `"}}`);
             mCfgFile = tmpdir2;
         }
     }
@@ -281,9 +284,16 @@ public:
 
         SetCfgFile(TmpForCfg);
 
-        auto CfgText = readText(mCfgFile);
-        try { mJson = parseJSON(CfgText);}
-        catch (JSONParseException xsepchun)
+        try
+        {
+            string CfgText = readText(mCfgFile);
+            dstring FinalText;
+            char[] copy = CfgText.dup;
+            size_t i;
+            while(i < CfgText.length)FinalText ~= copy.decode!(char[])(i);
+            mJson = parseJSON(FinalText);
+        }
+        catch (Exception xsepchun)
         {
             Log.Entry(xsepchun.msg, "Error");
             mJson = parseJSON("{}");
@@ -328,13 +338,19 @@ public:
 
     void Save()
     {
-        scope(failure)
+        scope(exit) dwrite("exit config save");
+
+        try
+        {
+            string jstring = toJSON!3(mJson);
+            std.file.write(mCfgFile, jstring.sanitize());
+        }
+        catch(Exception x)
         {
             Log.Entry("Unable to save configuration file " ~ mCfgFile, "Error");
+            Log.Entry(x.msg, "Error");
             return;
         }
-
-        mJson.writeJSON!(3)(File(mCfgFile,"w"));
         Saved.emit();
     }
 
