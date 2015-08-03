@@ -83,6 +83,7 @@ public import gsv.SourcePrintCompositor;
 
 public import gdk.Event;
 public import gdk.Keysyms;
+public import gdk.Keymap;
 public import gdk.Atom;
 public import gdk.RGBA;
 public import gdk.Event;
@@ -104,6 +105,7 @@ public import glib.ListG;
 
 
 public import gobject.ObjectG;
+public import gobject.Signals;
 
 public import vte.Terminal;
 
