@@ -188,7 +188,6 @@ class SYM_ASSIST_UI :ELEMENT
         }
 
         mInterfaceStore.clear();
-        dwrite(candi.Interfaces);
         foreach(iface; candi.Interfaces)
         {
             mInterfaceStore.append(ti);
@@ -199,7 +198,6 @@ class SYM_ASSIST_UI :ELEMENT
         string type;
         if(candi.Type.length > 0)type = candi.Type;
         else type = to!string(candi.Kind);
-        dwrite("type ", candi.Kind);
         mTypeLabel.setText(type);
 
         string file;

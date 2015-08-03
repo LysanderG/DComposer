@@ -15,8 +15,6 @@ extern (C) string GetClassName()
     return "navigation_elem.NAVIGATION_ELEM";
 }
 
-
-
 class NAVIGATION_ELEM : ELEMENT
 {
     public:
@@ -79,7 +77,6 @@ class NAVIGATION_ELEM : ELEMENT
     NAV_POINT[] NavPoints;
     ulong       NavIndex;
 
-
     void PushNavPoint(DOC_IF docIF, int line, int column)
     {
 
@@ -115,13 +112,10 @@ class NAVIGATION_ELEM : ELEMENT
         NavPoints = NavPoints[0 .. NavIndex+1] ~ newPoint;
         NavIndex = NavPoints.length - 1;
 
-
     }
 
     void BackNavPoint()
     {
-        scope(exit)debugInfo();
-
         if(NavPoints.length < 1) return;
         if(NavIndex > 0) NavIndex--;
 
@@ -130,14 +124,12 @@ class NAVIGATION_ELEM : ELEMENT
 
     void ForwardNavPoint()
     {
-        scope(exit)debugInfo();
         if(NavIndex+1 >= NavPoints.length) return;
         NavIndex++;
         //DocMan.Open(NavPoints[NavIndex].DocName, NavPoints[NavIndex].Line);
         //Go(cast(DOCUMENT)DocMan.Open(NavPoints[NavIndex].DocName), NavPoints[NavIndex].Line);
         Go(NavPoints[NavIndex]);
     }
-
 
     void Go(NAV_POINT np)
     {
@@ -155,9 +147,7 @@ class NAVIGATION_ELEM : ELEMENT
         Doc.getBuffer().getIterAtLineIndex(tiline, np.Line, np.Col);
         Doc.getBuffer().placeCursor(tiline);
         Doc.scrollToIter(tiline, 0.25, false, 0, 0);
-
     }
-
 
     void AddNavPoint()
     {
@@ -171,31 +161,7 @@ class NAVIGATION_ELEM : ELEMENT
         NavIndex = 0;
     }
 
-
-
-
-    void debugInfo()
-    {
-        dwrite("--------------");
-        foreach(n; NavPoints)dwrite(n.DocName, "/", n.Line, ":",n.Col);
-        if(NavPoints.length < 1)
-        {
-            dwrite("index = ", NavIndex, " :: null/null");
-            return;
-        }
-        if(NavIndex >= NavPoints.length)
-        {
-            dwrite("index = ",NavIndex, " which is greater than NavPoints length (",NavPoints.length,")");
-            return;
-        }
-        dwrite("index = ", NavIndex, " :: ", NavPoints[NavIndex].DocName, "/",NavPoints[NavIndex].Line);
-        dwrite("^^^^^^^^^^^^^^");
-    }
-
 }
-
-
-
 
 private :
 

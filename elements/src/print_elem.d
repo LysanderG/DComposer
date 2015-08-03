@@ -79,29 +79,23 @@ class PRINT_ELEM : ELEMENT
         auto FocusedDocument = cast(SourceView)DocMan.Current();
         if (FocusedDocument is null) return;
         auto SvCompositor = new SourcePrintCompositor(FocusedDocument);
-        dwrite(SvCompositor);
 
         auto PrintOp = new PrintOperation();
-        dwrite(PrintOp);
-
 
         void BeginPrint(PrintContext pc, PrintOperation po)
         {
-            dwrite("in begin print!");
             while(!SvCompositor.paginate(pc)){}
             PrintOp.setNPages(SvCompositor.getNPages());
         }
 
         void DrawPage(PrintContext pc, int page, PrintOperation po)
         {
-            dwrite("in DrawPage");
             SvCompositor.drawPage(pc, page);
 
         }
 
         ObjectG AddCustomTab(PrintOperation po)
         {
-            dwrite("zpre");
             Builder xBuilder = new Builder;
             xBuilder.addFromFile(SystemPath(Config.GetValue("print_elem", "glade_file", "elements/resources/print_elem.glade")));
 
@@ -135,7 +129,6 @@ class PRINT_ELEM : ELEMENT
             mCFEntry        .setText    (Config.GetValue("print_elem", "center_footer_text", ""));
             mRFEntry        .setText    (Config.GetValue("print_elem", "right_footer_text", ""));
 
-            dwrite("z");
             return mCustomPage;
         }
 
@@ -175,13 +168,10 @@ class PRINT_ELEM : ELEMENT
                 if(r[1].length > 0) s = r[0] ~ DocMan.Current.Name() ~ r[2];
             }
 
-            dwrite("a");
-
             SvCompositor.setHighlightSyntax(cast(bool)PrintHighLighting);
             SvCompositor.setWrapMode( (PrintWrapText)?(GtkWrapMode.WORD):(GtkWrapMode.NONE));
             SvCompositor.setPrintLineNumbers(PrintLineNumbers);
 
-            dwrite("b");
             SvCompositor.setPrintHeader(cast(bool)PrintHeaders);
             SvCompositor.setPrintFooter(cast(bool)PrintFooters);
             SvCompositor.setHeaderFormat(1, formatstr[0], formatstr[1], formatstr[2]);
@@ -189,23 +179,17 @@ class PRINT_ELEM : ELEMENT
 
         }
 
-
-        dwrite("c");
-
         PrintOp.addOnCreateCustomWidget (&AddCustomTab);
         PrintOp.addOnCustomWidgetApply(&ApplyCustomTab);
         PrintOp.addOnBeginPrint (&BeginPrint);
         PrintOp.addOnDrawPage(&DrawPage);
 
-        dwrite("d");
 
         PrintOp.setCustomTabLabel("Source Code");
 
-        dwrite("e");
 
         auto PrintReturn = PrintOp.run( PrintOperationAction.PRINT_DIALOG, ui.MainWindow);
 
-        dwrite("Print operation returned ", PrintReturn, ", which is a ", typeid(PrintReturn));
     }
 
 

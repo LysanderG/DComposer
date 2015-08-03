@@ -52,7 +52,6 @@ class UI_COMPLETION
     void MapCallTipWindow()
     {
 
-        dwrite("mapping to ", mAnchor.front().mLocationName);
         //size
         int xoff, yoff, xlen, ylen;
         mTipCol.cellGetSize(null, xoff, yoff, xlen, ylen);
@@ -107,7 +106,7 @@ class UI_COMPLETION
     }
 
 
-    void WatchForKeys(uint key)
+    void WatchForKeys(uint key, uint state)
     {
 
         if(mCompWindow.isVisible)ProcessCompletionKey(key);
@@ -187,8 +186,6 @@ class UI_COMPLETION
         mTipWindow.hide();
 
         if(mAnchor.empty())return;
-
-        dwrite("showing ", mAnchor.front().mLocationName);
 
         auto doc = cast(DOCUMENT)DocMan.Current();
         auto buf = doc.getBuffer();
@@ -493,12 +490,8 @@ class UI_COMPLETION
 
         CALLTIP pushtip;
 
-        dwrite("inserted ", mAnchor.insert(pushtip));
         mAnchor.front.mCandidates = Candidates;
         mAnchor.front.mLocationName = unique_name;
-
-        dwrite("pushing ", mAnchor.front.mLocationName);
-
 
         auto doc = cast(DOCUMENT)DocMan.Current();
         auto buf = doc.getBuffer();
@@ -511,7 +504,6 @@ class UI_COMPLETION
     void PopCallTip()
     {
         if(mAnchor.empty)return;
-        dwrite("popping ", mAnchor.front.mLocationName);
         auto doc = cast(DOCUMENT)DocMan.Current();
         auto buf = doc.getBuffer();
         buf.deleteMarkByName(mAnchor.front.mLocationName);

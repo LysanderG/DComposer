@@ -473,7 +473,6 @@ class SYMBOLS
 
             if(rv.Scope.length < 1)
             {
-                dwrite(child);
                 assert(0,"no name?");
             }
             rv.Name = rv.Scope[$-1];

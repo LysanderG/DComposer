@@ -204,7 +204,6 @@ public:
         mReturnValueForSignal.init(GType.OBJECT);
         mRedoSignalID = Signals.lookup("redo", DOCUMENT.getType());
         mUndoSignalID = Signals.lookup("undo", DOCUMENT.getType());
-        dwrite(mRedoSignalID, "--", mUndoSignalID);
         mPasteSignalID = Signals.lookup("paste-clipboard", Type.fromName("GtkTextView"));
         mCutSignalID = Signals.lookup("cut-clipboard", Type.fromName("GtkTextView"));
         mCopySignalID = Signals.lookup("copy-clipboard", Type.fromName("GtkTextView")) ;
