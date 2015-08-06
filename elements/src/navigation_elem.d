@@ -80,8 +80,6 @@ class NAVIGATION_ELEM : ELEMENT
     void PushNavPoint(DOC_IF docIF, int line, int column)
     {
 
-        scope(exit)debugInfo();
-
         auto Doc = cast(DOCUMENT) docIF;
         if(Doc is null) return;
         if(Doc.Cursor.isEnd()) return;
