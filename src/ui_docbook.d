@@ -92,44 +92,41 @@ public:
         AddItemToMenuBar(x, "_Document");
 
 
-        //AddItemToToolBar(toolmenubutton);
+
         x.showAll();
 
         //open
         AddIcon("dcmp-doc-open", SystemPath( Config.GetValue("icons", "doc-open", "resources/folder-open-document-text.png")));
         auto ActOpen = "ActDocOpen".AddAction("_Open","Open a text document", "dcmp-doc-open","<Control>O",delegate void(Action a){DocMan.Open();});
         AddToMenuBar("ActDocOpen", "_Document");
-        //AddToToolBar("ActDocOpen");
+
 
         //save
         AddIcon("dcmp-doc-save", SystemPath( Config.GetValue("icons", "doc-save", "resources/document-save.png")));
         auto ActSave = "ActDocSave".AddAction("_Save","Save document", "dcmp-doc-save", "<Control>S", delegate void(Action a){DocMan.Save();});
         AddToMenuBar("ActDocSave", "_Document");
-        //AddToToolBar("ActDocSave");
+
         //saveas
         AddIcon("dcmp-doc-save-as", SystemPath( Config.GetValue("icons", "doc-save-as", "resources/document-save-as.png")));
         auto ActSaveAs = "ActDocSaveAs".AddAction("Save _As...", "Save document to new file", "dcmp-doc-save-as", "<Control><Shift>S", delegate void (Action a){DocMan.SaveAs();});
         AddToMenuBar("ActDocSaveAs", "_Document");
-        //AddToToolBar("ActDocSaveAs");
+
         //saveall
         AddIcon("dcmp-doc-save-all", SystemPath( Config.GetValue("icons", "doc-save-all", "resources/document-save-all.png")));
         auto ActSaveAll = "ActDocSaveAll".AddAction("Save A_ll...", "Save all documents", "dcmp-doc-save-all", "", delegate void (Action a){DocMan.SaveAll();});
         AddToMenuBar("ActDocSaveAll", "_Document");
-        //AddToToolBar("ActDocSaveAll");
 
         //close
         AddIcon("dcmp-doc-close", SystemPath( Config.GetValue("icons", "doc-close",  "resources/document-close.png")));
         auto ActClose = "ActDocClose".AddAction("_Close", "Close document","dcmp-doc-close","<Control>W",delegate void(Action a){DocMan.Close();});
         AddToMenuBar("ActDocClose","_Document");
         uiContextMenu.AddAction("ActDocClose");
-        //AddToToolBar("ActDocClose");
 
         //closeall
         AddIcon("dcmp-doc-close-all", SystemPath( Config.GetValue("icons", "doc-close-all",  "resources/document-close-all.png")));
         auto ActCloseAll = "ActDocCloseAll".AddAction("Close All", "Close all documents", "dcmp-doc-close-all", "<Shift><Control>W",delegate void(Action a){DocMan.CloseAll();});
         AddToMenuBar("ActDocCloseAll", "_Document");
         uiContextMenu.AddAction("ActDocCloseAll");
-        //AddToToolBar("ActDocCloseAll");
 
         AddToMenuBar("-", "_Document");
         //compiles w/ no object file output
@@ -143,7 +140,6 @@ public:
         auto ActRun = "ActDocRun".AddAction("_Run", "Run current document with rdmd", "dcmp-doc-run", "<shift><Control>R", delegate void (Action a){DocMan.Run();});
         AddToMenuBar("ActDocRun", "_Document");
         uiContextMenu.AddAction("ActDocRun");
-        //AddToToolBar("ActDocRun");
 
         //=============================================================================================================
         //=============================================================================================================
@@ -153,13 +149,13 @@ public:
         AddIcon("dcmp-undo", SystemPath( Config.GetValue("icons", "undo", "resources/arrow-curve-180-left.png")));
         auto ActUndo = "ActUndo".AddAction("_Undo", "undo last change", "dcmp-undo", "<Control>U", delegate void(Action a){DocMan.Undo();});
         AddToMenuBar("ActUndo", "_Edit");
-        //AddToToolBar("ActUndo");
+
 
         //redo
         AddIcon("dcmp-redo", SystemPath( Config.GetValue("icons", "redo", "resources/arrow-curve.png")));
         auto ActRedo = "ActRedo".AddAction("_Redo", "redo last undo", "dcmp-redo", "<Control>R", delegate void(Action a){DocMan.Redo();});
         AddToMenuBar("ActRedo", "_Edit");
-        //AddToToolBar("ActRedo");
+
 
         AddToMenuBar("-", "_Edit");
 
@@ -173,21 +169,29 @@ public:
         auto ActEditCut = "ActEditCut".AddAction("Cu_t", "cut selected text", "dcmp-edit-cut", "<Control>X", delegate void(Action a){DocMan.Cut();});
         ActEditCut.setSensitive(false);
         AddToMenuBar("ActEditCut", "_Edit");
-        //AddToToolBar("ActEditCut");
+
 
         //copy
         AddIcon("dcmp-edit-copy", SystemPath( Config.GetValue("icons", "edit-copy", "resources/blue-document-copy.png")));
         auto ActEditCopy = "ActEditCopy".AddAction("_Copy", "copy selected text", "dcmp-edit-copy", "<Control>C", delegate void(Action a){DocMan.Copy();});
         ActEditCopy.setSensitive(false);
         AddToMenuBar("ActEditCopy", "_Edit");
-        //AddToToolBar("ActEditCopy");
+
 
         //paste
         AddIcon("dcmp-edit-paste", SystemPath( Config.GetValue("icons", "edit-paste", "resources/clipboard-paste-document-text.png")));
         auto ActEditPaste = "ActEditPaste".AddAction("_Paste", "paste clipboard", "dcmp-edit-paste", "<Control>V", delegate void(Action a){DocMan.Paste();});
         AddToMenuBar("ActEditPaste", "_Edit");
-        //AddToToolBar("ActEditPaste");
 
+        //prevPage
+        auto ActPrevDoc = "ActPrevDoc".AddAction("prev Doc", "Switch document", "", "<Control>bracketleft",delegate void(Action a){mNotebook.prevPage();});
+        AddToMenuBar("ActPrevDoc", "_Edit");
+        ActPrevDoc.setVisible(false);
+
+        //nextPage
+        auto ActNextDoc = "ActNextDoc".AddAction("next Doc", "Switch document", "", "<Control>bracketright",delegate void(Action a){mNotebook.nextPage();});
+        AddToMenuBar("ActNextDoc", "_Edit");
+        ActNextDoc.setVisible(false);
         Log.Entry("Engaged");
 
     }
@@ -386,6 +390,9 @@ public:
             xcopy.setSensitive(true);
         }
     }
+
+    void NextPage() { mNotebook.nextPage();}
+    void PrevPage() { mNotebook.prevPage();}
 
 
 }
