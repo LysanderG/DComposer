@@ -318,6 +318,14 @@ class UI_SEARCH
             tmpdoc.HiliteSearchResult(mSearchResults[itemIndex].Line, mSearchResults[itemIndex].OffsetStart, mSearchResults[itemIndex].OffsetEnd);
         });
 
+        mTree.addOnRowActivated(delegate void(TreePath tp, TreeViewColumn tvc, TreeView self)
+        {
+            dwrite("hello");
+            auto page = cast(Widget)DocMan.Current();
+            page.grabFocus();
+
+        });
+
         mCaseSensitive.addOnToggled(&Find);
         mRegex.addOnToggled(&Find);
         mStartsWord.addOnToggled(&Find);
