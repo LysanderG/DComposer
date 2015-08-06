@@ -42,6 +42,7 @@ interface DOC_IF
     string  Word(string AtMarkName = "insert");
     string  WordUnderPointer();
     int     WordLength(int Partial = -1);
+    dchar   GetChar();
 
     string  GetText();
     void    SetText(string txt);
@@ -124,10 +125,16 @@ interface DOC_IF
     bool MovePrevWordEnd(int Reps, bool selection_bound);
     bool MovePrevScope(int Reps, bool selection_bound);
     bool MoveNextScope(int Reps, bool selection_bound);
+    bool MovePrevBlockStart(int Reps, bool selection_bound);
+    bool MoveNextBlockStart(int Reps, bool selection_bound);
+    bool MovePrevBlockEnd(int Reps, bool selection_bound);
+    bool MoveNextBlockEnd(int Reps, bool selection_bound);
     bool MoveUpperScope(int Reps, bool selection_bount);
     bool MoveLowerScope(int Reps, bool selection_bound);
-    bool MovePrevStatement(int Reps, bool selection_bound);
-    bool MoveNextStatement(int Reps, bool selection_bound);
+    bool MovePrevStatementStart(int Reps, bool selection_bound);
+    bool MovePrevStatementEnd(int Reps, bool selection_bound);
+    bool MoveNextStatementStart(int Reps, bool selection_bound);
+    bool MoveNextStatementEnd(int Reps, bool selection_bound);
     bool MovePrevCurrentChar(int Reps, bool selection_bound);
     bool MoveNextCurrentChar(int Reps, bool selection_bound);
     bool MoveBracketMatch(bool selection_bound);
@@ -135,8 +142,12 @@ interface DOC_IF
     bool MoveNextSymbol(int Reps, bool selection_bound);
     bool MovePrevParameterStart(int Reps, bool selection_bound);
     bool MoveNextParameterEnd(int Reps, bool selection_bound);
-
-
+    bool MovePrevParameterEnd(int Reps, bool selection_bound);
+    bool MoveNextParameterStart(int Reps, bool selection_bound);
+    bool MoveNextStringBoundary(int Reps, bool selection_bound);
+    bool MovePrevStringBoundary(int Reps, bool selection_bound);
+    bool MoveNextCommentBoundary(int Reps, bool selection_bound);
+    bool MovePrevCommentBoundary(int Reps, bool selection_bound);
 }
 struct RECTANGLE
 {
@@ -163,6 +174,8 @@ interface UI_DOCBOOK_IF
     void Copy();
     void Paste();
     void NotifySelection();
+    void NextPage();
+    void PrevPage();
 }
 
 UI_DOCBOOK_IF GetDocBook(){return ui.DocBook;}

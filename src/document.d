@@ -744,6 +744,11 @@ class DOCUMENT : SourceView, DOC_IF
         return mLastSelection;
     }
 
+    dchar GetChar()
+    {
+        return Cursor().getChar();
+    }
+
     void GotoLine(int LineNo, int LinePos = 1)
     {
         mStaticHorizontalCursorPosition = -1;
@@ -1402,14 +1407,10 @@ class DOCUMENT : SourceView, DOC_IF
         return true;
     }
 
-    bool MoveNextStatement(int Reps, bool selection_bound)
+    bool MoveNextStatementStart(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
-
-        int scCtr;
-        string ltext;
         dchar tichar;
-        dchar lastchar;
 
         auto ti = GetMovementIter(selection_bound);
 
@@ -1424,7 +1425,7 @@ class DOCUMENT : SourceView, DOC_IF
 
                 tichar = ti.getChar();
 
-                if((tichar == ';') || (tichar == '{'))
+                if((tichar == ';') || (tichar == '{') || (tichar == '}'))
                 {
                     while(true)
                     {
@@ -1441,67 +1442,92 @@ class DOCUMENT : SourceView, DOC_IF
                 }
             }
         }
-
         SetMoveIter(ti, selection_bound);
         return true;
-
     }
 
-    bool MovePrevStatement(int Reps, bool selection_bound)
+    bool MoveNextStatementEnd(int Reps, bool selection_bound)
     {
-        mStaticHorizontalCursorPosition = -1;
-
-        int scCtr;
-        string ltext;
-        dchar tichar;
-        dchar prevchar;
-        bool foundPrevStatement;
-
         auto ti = GetMovementIter(selection_bound);
 
-        foreach(ctr; 0..Reps)
+
+        TextIter Endti;
+
+        foreach(i; 0.. Reps)
         {
-            foundPrevStatement = false;
+            auto originalti = ti.copy();
+            NextEnd:
+            auto tichar = ti.getChar();
 
-            test_label:
-            while(ti.backwardChar())
+            while( !((tichar == ';') || (tichar == '{') || (tichar == '}')))
             {
-
-                auto context_classes = getBuffer().getContextClassesAtIter(ti);
-                if(context_classes.canFind("string")) continue;
-                if(context_classes.canFind("comment")) continue;
-                //if(IterInParens(ti))continue;
-
+                if(!ti.forwardChar()) return false;
+                if(IterInCommentBlock(ti) || IterInQuote(ti)) continue;
                 tichar = ti.getChar();
-                if((tichar == ';') || (tichar == '{'))
-                {
-                    if(foundPrevStatement)
-                    {
-                        ti.forwardChar();
-                        tichar = ti.getChar();
-                        while(true)
-                        {
-                            auto contextSub = getBuffer.getContextClassesAtIter(ti);
-
-                            if( (tichar == ';') || (tichar == '{') || (tichar == '}') || (contextSub.canFind("comment")) || (tichar.isWhite()))
-                            {
-                                ti.forwardChar();
-                                tichar = ti.getChar();
-                                continue;
-                            }
-                            break test_label;
-                        }
-                        break;
-                    }
-                    foundPrevStatement = true;
-                }
+            }
+            Endti = ti.copy();
+            Endti.forwardChar();
+            //tichar == ; or { or }
+            if( (tichar == ';') || (tichar == '}'))ti.forwardChar();
+            if(tichar == '{')
+            {
+                do { ti.backwardChar(); }while(ti.getChar().isWhite());
+                ti.forwardChar();
+            }
+            if(ti.compare(originalti) <= 0)
+            {
+                ti = Endti.copy();
+                goto NextEnd;
             }
 
         }
-
         SetMoveIter(ti, selection_bound);
         return true;
+    }
+    bool MovePrevStatementEnd(int Reps, bool selection_bound)
+    {
+        return false;
+    }
 
+    bool MovePrevStatementStart(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        dchar tichar;
+        auto ti = GetMovementIter(selection_bound);
+
+        TextIter Endti;
+
+        foreach(ctr; 0..Reps)
+        {
+            auto originalti = ti.copy();
+            dwrite(ctr,"/",Reps, "ti = ", ti.getChar());
+            ExtraRun:
+            while(ti.backwardChar())
+            {
+                auto context_classes = getBuffer().getContextClassesAtIter(ti);
+                if(context_classes.canFind("string")) continue;
+                if(context_classes.canFind("comment")) continue;
+
+                tichar = ti.getChar();
+                if( (tichar == ';') || (tichar == '{') || (tichar == '}'))
+                {
+                    Endti = ti.copy();
+                    do
+                    {
+                        ti.forwardChar();
+                    }while( (ti.getChar().isWhite()) || (ti.getChar() == '}') || (IterInCommentBlock(ti)) || (IterInQuote(ti)));
+                    break;
+                }
+            }
+
+            if(ti.compare(originalti) >= 0)
+            {
+                ti = Endti.copy();
+                goto ExtraRun;
+            }
+        }
+        SetMoveIter(ti, selection_bound);
+        return true;
     }
 
     bool MovePrevScope(int Reps, bool selection_bound)
@@ -1554,6 +1580,107 @@ class DOCUMENT : SourceView, DOC_IF
         return true;
     }
 
+    bool MovePrevBlockStart(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        bool rv;
+        dstring openBlock = "({[<`'\"";
+
+        auto ti = GetMovementIter(selection_bound);
+
+        while(ti.backwardChar())
+        {
+            if(openBlock.canFind(ti.getChar()))
+            {
+                rv = true;
+                break;
+            }
+
+        }
+
+        if(rv == false) return rv;
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MoveNextBlockStart(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        bool rv;
+        dstring openBlock = "({[<`'\"";
+
+        auto ti = GetMovementIter(selection_bound);
+
+        if(openBlock.canFind(ti.getChar())) ti.forwardChar();
+        do
+        {
+            if(openBlock.canFind(ti.getChar()))
+            {
+                rv = true;
+                break;
+            }
+
+        }while(ti.forwardChar());
+
+        if(rv == false) return rv;
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MovePrevBlockEnd(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        bool rv;
+        dstring closeBlock = ")}]>`'\"";
+
+        auto ti = GetMovementIter(selection_bound);
+
+        while(ti.backwardChar())
+        {
+            if(closeBlock.canFind(ti.getChar()))
+            {
+                rv = true;
+                break;
+            }
+
+        }
+
+        if(rv == false) return rv;
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MoveNextBlockEnd(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        bool rv;
+        dstring openBlock = "({[<`'\"";
+        dstring closeBlock = ")}]>`'\"";
+
+        auto ti = GetMovementIter(selection_bound);
+
+        if(closeBlock.canFind(ti.getChar())) ti.forwardChar();
+        do
+        {
+            if(closeBlock.canFind(ti.getChar()))
+            {
+                rv = true;
+                break;
+            }
+
+        }while(ti.forwardChar());
+
+        if(rv == false) return rv;
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
     bool MoveUpperScope(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
@@ -1567,7 +1694,6 @@ class DOCUMENT : SourceView, DOC_IF
             foundScope = false;
             while (ti.backwardChar())
             {
-                dwrite(ctr_scope);
                 tichar = ti.getChar();
                 if(tichar == '{')
                 {
@@ -1652,56 +1778,123 @@ class DOCUMENT : SourceView, DOC_IF
         return true;
     }
 
+    bool MoveNextStringBoundary(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto ti = GetMovementIter(selection_bound);
+
+        bool origOnString = getBuffer().iterHasContextClass(ti, "string");
+        bool foundBoundary;
+
+        foreach(i; 0 .. Reps)
+        {
+            while(ti.forwardChar())
+            {
+                if(getBuffer().iterHasContextClass(ti,"string") != origOnString)
+                {
+                    foundBoundary = true;
+                    break;
+                }
+            }
+        }
+        if(!foundBoundary)return false;
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MovePrevStringBoundary(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto ti = GetMovementIter(selection_bound);
+
+        bool origOnString = getBuffer().iterHasContextClass(ti, "string");
+        bool foundBoundary;
+
+        foreach(i; 0 .. Reps)
+        {
+            while(ti.backwardChar())
+            {
+                if(getBuffer().iterHasContextClass(ti,"string") != origOnString)
+                {
+                    ti.forwardChar();
+                    foundBoundary = true;
+                    break;
+                }
+            }
+        }
+        if(!foundBoundary)return false;
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+
+    bool MoveNextCommentBoundary(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto ti = GetMovementIter(selection_bound);
+
+        bool origOnString = getBuffer().iterHasContextClass(ti, "comment");
+        bool foundBoundary;
+
+        foreach(i; 0 .. Reps)
+        {
+            while(ti.forwardChar())
+            {
+                if(getBuffer().iterHasContextClass(ti,"comment") != origOnString)
+                {
+                    foundBoundary = true;
+                    break;
+                }
+            }
+        }
+        if(!foundBoundary)return false;
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
+    bool MovePrevCommentBoundary(int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto ti = GetMovementIter(selection_bound);
+
+        bool origOnString = getBuffer().iterHasContextClass(ti, "comment");
+        bool foundBoundary;
+
+        foreach(i; 0 .. Reps)
+        {
+            while(ti.backwardChar())
+            {
+                if(getBuffer().iterHasContextClass(ti,"comment") != origOnString)
+                {
+                    ti.forwardChar();
+                    foundBoundary = true;
+                    break;
+                }
+            }
+        }
+        if(!foundBoundary)return false;
+
+        SetMoveIter(ti, selection_bound);
+        return true;
+    }
+
 
     bool IterInCommentBlock(TextIter ti)
     {
         if(ti is null) return false;
 
-        auto buff = getBuffer();
-        auto startti = new TextIter;
-        buff.getStartIter(startti);
-        auto preText = buff.getText(startti, ti, true);
-
-        bool CheckBalance(string OpenLeft, string CloseRight)
-        {
-            long balanced;
-            for(ulong ctr; ctr < preText.length -2; ctr++)
-            {
-                if(preText.length < 3) break;
-                if(preText[ctr .. ctr+2] == OpenLeft) balanced++;
-                if(preText[ctr .. ctr+2] == CloseRight) balanced--;
-            }
-            if(balanced == 0) return true;
-            return false;
-        }
-
-        if(!CheckBalance("/+","+/")) return true;
-        if(!CheckBalance("/*","*/")) return true;
+        auto context_classes = getBuffer().getContextClassesAtIter(ti);
+        if(context_classes.canFind("comment"))return true;
         return false;
-
     }
     bool IterInQuote(TextIter ti)
     {
         if(ti is null) return false;
-
-        auto buff = getBuffer();
-        auto startti = new TextIter;
-        buff.getStartIter(startti);
-        auto preText = buff.getText(startti, ti, true);
-
-        bool CheckQuote(dchar Quote)
-        {
-            bool toggle;
-
-            for(ulong ctr; ctr < preText.length; ctr++)
-            {
-                if(preText[ctr] == Quote) toggle = !toggle;
-            }
-            return toggle;
-        }
-
-        if(CheckQuote('`')) return true;
-        if(CheckQuote('"')) return true;
+        auto context_classes = getBuffer().getContextClassesAtIter(ti);
+        if(context_classes.canFind("string"))return true;
         return false;
     }
 
@@ -2042,33 +2235,41 @@ class DOCUMENT : SourceView, DOC_IF
         SkipToOpenParen(tiOpen);
         auto tichar = ti.getChar();
 
-        if(tichar == ',')tichar = '\0';
-
-        while(tichar != ',')
+        foreach(i; 0..Reps)
         {
-            ti.backwardChar();
-            if(ti.equal(tiOpen))break;
-            auto context_classes = getBuffer().getContextClassesAtIter(ti);
-            if(context_classes.canFind("string"))continue;
-            if(context_classes.canFind("comment"))continue;
-
-            tichar = ti.getChar();
-            if(tichar == ')')
+            if(tichar == ',')tichar = '\0';
+            while(tichar != ',')
             {
-                SkipToOpenParen(ti);
+                ti.backwardChar();
+                if(ti.equal(tiOpen))break;
+                auto context_classes = getBuffer().getContextClassesAtIter(ti);
+                if(context_classes.canFind("string"))continue;
+                if(context_classes.canFind("comment"))continue;
+
                 tichar = ti.getChar();
+                if(tichar == ')')
+                {
+                    SkipToOpenParen(ti);
+                    tichar = ti.getChar();
+                }
+                if((IsIterAtParameterStart) && (tichar == ',')) tichar = '\0';
+                IsIterAtParameterStart = false;
             }
-            if((IsIterAtParameterStart) && (tichar == ',')) tichar = '\0';
-            IsIterAtParameterStart = false;
+            ti.forwardChar();
         }
-        ti.forwardChar();
-
-
         SetMoveIter(ti, selection_bound);
         return true;
 
     }
-
+    bool MovePrevParameterEnd(int Reps, bool selection_bound)
+    {
+        foreach(i; 0..Reps)
+        {
+            MoveNextParameterEnd(2, selection_bound);
+            MovePrevParameterStart(1, selection_bound);
+        }
+        return true;
+    }
     bool MoveNextParameterEnd(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
@@ -2080,41 +2281,46 @@ class DOCUMENT : SourceView, DOC_IF
         auto tiClose = ti.copy();
 
         SkipToCloseParen(tiClose);
-        dwrite("to closing ) == ",ti.getText(tiClose));
         auto tichar = ti.getChar();
-        if(tichar == ',') tichar = '_';
-
-        while(!tiClose.equal(ti))
+        foreach(i; 0..Reps)
         {
-            if(ti.forwardChar() == 0)break;
-            tichar = ti.getChar();
-            dwrite(tichar);
-            auto context_classes = getBuffer().getContextClassesAtIter(ti);
-            if(context_classes.canFind("string"))
+            if(tichar == ',') tichar = '_';
+            while(!tiClose.equal(ti))
             {
-                tichar = '_';
-                continue;
-            }
-            if(context_classes.canFind("comment"))
-            {
-                tichar = '_';
-                continue;
-            }
+                if(ti.forwardChar() == 0)break;
+                tichar = ti.getChar();
+                auto context_classes = getBuffer().getContextClassesAtIter(ti);
+                if(context_classes.canFind("string"))
+                {
+                    tichar = '_';
+                    continue;
+                }
+                if(context_classes.canFind("comment"))
+                {
+                    tichar = '_';
+                    continue;
+                }
 
-            if(tichar == ','){dwrite("wtf:",tichar);break;}
+                if(tichar == '(')
+                {
+                    SkipToCloseParen(ti);
+                    continue;
+                }
 
-            if(tichar == '(')
-            {
-                SkipToCloseParen(ti);
-                dwrite("??",ti.getChar());
-                continue;
             }
-
         }
 
         SetMoveIter(ti, selection_bound);
         return true;
-
+    }
+    bool MoveNextParameterStart(int Reps, bool selection_bound)
+    {
+        foreach(i; 0..Reps)
+        {
+            MoveNextParameterEnd(2, selection_bound);
+            MovePrevParameterStart(1,selection_bound);
+        }
+        return true;
     }
 
     void SkipToOpenParen(ref TextIter ti)
