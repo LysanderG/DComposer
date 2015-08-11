@@ -58,19 +58,9 @@ class UI_COMPLETION
         ylen = cast(int)mAnchor.opSlice().front.mCandidates.length * ylen;
         mTipWindow.resize(xlen, ylen );
 
-        auto doc = cast(DOCUMENT)DocMan.Current();
-        auto buffer = doc.getBuffer();
-        auto ti = new TextIter;
-        buffer.getIterAtMark(ti, buffer.getMark(mAnchor.front.mLocationName));
-        GdkRectangle position;
-        doc.getIterLocation(ti, position);
-        int winx, winy, x2, y2;
-        //doc.bufferToWindowCoords(TextWindowType.WIDGET, position.x, position.y+position.height, winx, winy);
-        //doc.getWindow(TextWindowType.WIDGET).getOrigin(x2, y2);
-        doc.bufferToWindowCoords(TextWindowType.WIDGET, position.x, position.y-ylen, winx, winy);
-        doc.getWindow(TextWindowType.WIDGET).getOrigin(x2, y2);
-
-        mTipWindow.move(winx+x2,winy+y2-10);
+        auto doc = DocMan.Current();
+        RECTANGLE Crect = doc.GetMarkRectangle(mAnchor.front.mLocationName);
+        mTipWindow.move(Crect.x, Crect.y + Crect.yl);
     }
 
 
@@ -94,7 +84,7 @@ class UI_COMPLETION
         mCompWinLastShownTime = Clock.currTime();
     }
 
-    void WatchForLostFocus()
+    void WatchForLostFocus(DOC_IF doc)
     {
         if(mBlockWatchForLostFocus)
         {
@@ -490,6 +480,7 @@ class UI_COMPLETION
 
         CALLTIP pushtip;
 
+        mAnchor.insert(pushtip);
         mAnchor.front.mCandidates = Candidates;
         mAnchor.front.mLocationName = unique_name;
 
