@@ -161,6 +161,8 @@ class DSCANNER_ELEM : ELEMENT
     {
         DocMan.PageFocusIn.disconnect(&WatchForPageFocus);
         DocMan.Insertion.disconnect(&WatchForInsertion);
+        RemoveSidePage(mOutlineRoot);
+        mOutlineRoot.destroy();
 
     }
 
@@ -283,8 +285,11 @@ class DSCANNER_ELEM : ELEMENT
         UpdateOutline();
     }
 
-    void WatchForPageFocus()
+    void WatchForPageFocus(DOC_IF doc)
     {
+        static string DocName = "";
+        if(DocName == doc.Name) return;
+        DocName = doc.Name;
         UpdateOutline();
     }
 

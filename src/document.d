@@ -190,8 +190,8 @@ class DOCUMENT : SourceView, DOC_IF
 
         mPageWidget = ScrollWin;
 
-        addOnFocusOut(delegate bool(Event e, Widget me){DocMan.PageFocusOut.emit();return false;});
-        addOnFocusIn(delegate bool(Event e, Widget me){DocMan.PageFocusIn.emit();return false;});
+        addOnFocusOut(delegate bool(Event e, Widget me){DocMan.PageFocusOut.emit(this);return false;});
+        addOnFocusIn(delegate bool(Event e, Widget me){DocMan.PageFocusIn.emit(this);return false;});
 
         addOnKeyPress(delegate bool(Event e, Widget me)
         {
@@ -1087,6 +1087,32 @@ class DOCUMENT : SourceView, DOC_IF
         return RV;
     }
 
+    RECTANGLE GetMarkRectangle(string MarkName)
+    {
+        RECTANGLE RV;
+        auto mark = getBuffer().getMark(MarkName);
+        if(mark is null) return RV;
+
+        auto ti = new TextIter;
+
+        getBuffer().getIterAtMark(ti, mark);
+
+        int x, y;
+        int x2, y2;
+        GdkRectangle strong, weak;
+
+        getCursorLocations (ti, strong,  weak);
+        bufferToWindowCoords (TextWindowType.WIDGET, strong.x, strong.y, x, y);
+        getWindow(TextWindowType.WIDGET).getOrigin(x2, y2);
+        RV.x = x+x2;
+        RV.y = y+y2;
+        RV.xl = strong.width;
+        RV.yl = strong.height;
+
+        return RV;
+    }
+
+
     void Undo()
     {
         mUndoManager.undo();
@@ -1425,12 +1451,12 @@ class DOCUMENT : SourceView, DOC_IF
 
                 tichar = ti.getChar();
 
-                if((tichar == ';') || (tichar == '{') || (tichar == '}'))
+                if((tichar == ';') || (tichar == '{') || (tichar == '}') || (tichar == ':'))
                 {
                     while(true)
                     {
                         context_classes = getBuffer().getContextClassesAtIter(ti);
-                        if( (tichar == ';') || (tichar == '{') || (tichar == '}') || context_classes.canFind("comment") || tichar.isWhite() )
+                        if( (tichar == ';') || (tichar == '{') || (tichar == '}') || context_classes.canFind("comment") || tichar.isWhite()  || (tichar == ':'))
                         {
                             ti.forwardChar();
                             tichar = ti.getChar();
@@ -1459,7 +1485,7 @@ class DOCUMENT : SourceView, DOC_IF
             NextEnd:
             auto tichar = ti.getChar();
 
-            while( !((tichar == ';') || (tichar == '{') || (tichar == '}')))
+            while( !((tichar == ';') || (tichar == '{') || (tichar == '}') || (tichar == ':')))
             {
                 if(!ti.forwardChar()) return false;
                 if(IterInCommentBlock(ti) || IterInQuote(ti)) continue;
@@ -1468,7 +1494,7 @@ class DOCUMENT : SourceView, DOC_IF
             Endti = ti.copy();
             Endti.forwardChar();
             //tichar == ; or { or }
-            if( (tichar == ';') || (tichar == '}'))ti.forwardChar();
+            if( (tichar == ';') || (tichar == '}') || (tichar == ':'))ti.forwardChar();
             if(tichar == '{')
             {
                 do { ti.backwardChar(); }while(ti.getChar().isWhite());
@@ -1486,7 +1512,9 @@ class DOCUMENT : SourceView, DOC_IF
     }
     bool MovePrevStatementEnd(int Reps, bool selection_bound)
     {
-        return false;
+        MovePrevStatementStart(2, selection_bound);
+        MoveNextStatementEnd(1, selection_bound);
+        return true;
     }
 
     bool MovePrevStatementStart(int Reps, bool selection_bound)
@@ -1509,7 +1537,7 @@ class DOCUMENT : SourceView, DOC_IF
                 if(context_classes.canFind("comment")) continue;
 
                 tichar = ti.getChar();
-                if( (tichar == ';') || (tichar == '{') || (tichar == '}'))
+                if( (tichar == ';') || (tichar == '{') || (tichar == '}') || (tichar == ':'))
                 {
                     Endti = ti.copy();
                     do
@@ -2306,6 +2334,7 @@ class DOCUMENT : SourceView, DOC_IF
                     SkipToCloseParen(ti);
                     continue;
                 }
+                if(tichar == ',')break;
 
             }
         }

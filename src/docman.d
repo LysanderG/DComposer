@@ -102,6 +102,7 @@ interface DOC_IF
     void ReplaceText(string NewText, int Line, int StartOffset, int EndOffset);
     int GetCursorByteIndex();
     RECTANGLE GetCursorRectangle();
+    RECTANGLE GetMarkRectangle(string MarkName);
 
     bool IndentLines(int Reps);
     bool UnIndentLines(int Reps);
@@ -542,8 +543,8 @@ class DOCMAN
     mixin Signal!(string, DOC_IF) Event;
     mixin Signal!(string) Message;
     mixin Signal!(void*, string, int, void*) Insertion;
-    mixin Signal!() PageFocusOut;
-    mixin Signal!() PageFocusIn;
+    mixin Signal!(DOC_IF) PageFocusOut;
+    mixin Signal!(DOC_IF) PageFocusIn;
     mixin Signal!(uint, uint) DocumentKeyDown;
     mixin Signal!(void *, DOC_IF) MouseButton;
     mixin Signal!(DOC_IF, int, int) PreCursorJump;
