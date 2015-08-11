@@ -363,17 +363,24 @@ void AddToggleAction(string name, string label, string tooltip, string stock_id,
 }
 
 
-void AddToMenuBar(string ActionName, string TopMenu, int Position = -1)
+MenuItem AddToMenuBar(string ActionName, string TopMenu, int Position = -1)
 {
     if(ActionName == "-")
     {
         auto sep = new SeparatorMenuItem;
         sep.show();
         mRootMenu[TopMenu].append(sep);
-        return;
+        return sep;
     }
-    if(Position == -1)mRootMenu[TopMenu].append(mActions.getAction(ActionName).createMenuItem());
-    else mRootMenu[TopMenu].insert(mActions.getAction(ActionName).createMenuItem(), Position);
+    auto nuItem = mActions.getAction(ActionName).createMenuItem();
+    if(Position == -1)mRootMenu[TopMenu].append(nuItem);
+    else mRootMenu[TopMenu].insert(nuItem, Position);
+    return nuItem;
+}
+
+void RemoveFromMenuBar(MenuItem toDelete, string TopMenu)
+{
+    mRootMenu[TopMenu].remove(toDelete);
 }
 
 Menu AddMenuToMenuBar(string label, string TopMenu)
@@ -445,6 +452,16 @@ void AddStatus(string Context, string StatusMessage)
     mStatusbar.push(tmp, StatusMessage);
 }
 
+
+void RemoveAction(string ActionName)
+{
+    auto goodBye = ActionName.GetAction();
+    if (goodBye is null) return;
+    uiContextMenu.RemoveAction(ActionName);
+    goodBye.disconnectAccelerator();
+    mActions.removeAction(goodBye);
+    RestoreToolbar();
+}
 
 
 

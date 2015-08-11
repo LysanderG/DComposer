@@ -86,7 +86,7 @@ class SYM_ASSIST_UI :ELEMENT
 
         AddIcon("dcmp-sym-assist", SystemPath(Config.GetValue("icons", "sym-assist-ui", "elements/resources/question-frame.png")));
         auto ActSymAssistUi = "ActSymAssistUI".AddAction("Symbol Assist", "See documentation for symbol", "dcmp-sym-assist", "F1",delegate void (Action){ActionAssist();});
-        AddToMenuBar("ActSymAssistUI", "E_lements");
+        mActionMenuItem = AddToMenuBar("ActSymAssistUI", "E_lements");
         uiContextMenu.AddAction("ActSymAssistUI");
 
 
@@ -104,6 +104,8 @@ class SYM_ASSIST_UI :ELEMENT
 
     void Disengage()
     {
+        RemoveFromMenuBar(mActionMenuItem, "E_lements");
+        "ActSymAssistUI".RemoveAction();
         Config.SetValue("sym_assist_ui", "pane_pos", mPane.getPosition());
         Symbols.disconnect(&CatchSymbols);
         RemoveExtraPage(mRootBox);
@@ -136,6 +138,8 @@ class SYM_ASSIST_UI :ELEMENT
     ListStore       mInterfaceStore;
     ListStore       mAliasThisStore;
     ListStore       mMembersStore;
+
+    MenuItem        mActionMenuItem;
 
     DSYMBOL[]         mCandidates;
 

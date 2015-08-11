@@ -37,6 +37,17 @@ class UI_CONTEXTMENU //class just so I can use signals!
         ContextMenuItems ~= ActionName;
 
     }
+    void RemoveAction(string ActionName)
+    {
+        if(GetAction(ActionName) is null) return;
+        string[] nuContextMenuItems;
+        foreach (item; ContextMenuItems)
+        {
+            if(item != ActionName) nuContextMenuItems ~= item;
+        }
+        ContextMenuItems = nuContextMenuItems;
+    }
+
     void AddSubMenu(string Title, string[] ActionNames)
     {}
 
@@ -53,11 +64,11 @@ class UI_CONTEXTMENU //class just so I can use signals!
                 auto xptr = BasicWidget.getWidgetStruct();
                 Menu x2 = new Menu(cast(GtkMenu*)xptr);
                 auto sep1 = new SeparatorMenuItem;
-                //sep1.setLabel("");
                 x2.append(sep1);
 
                 foreach(item; ContextMenuItems)
                 {
+                    if(GetAction(item) is null) continue;
                     x2.append(GetAction(item).createMenuItem);
                 }
                 x2.append(new SeparatorMenuItem);

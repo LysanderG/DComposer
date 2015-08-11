@@ -33,7 +33,7 @@ class PRINT_ELEM : ELEMENT
         AddAction("ActPrint", "Print", "Print current document", "print-element", "<Control><Shift>P",
             delegate void (Action a){ PrintDoc();});
 
-        AddToMenuBar("ActPrint", "_System", 0);
+        mMenuItem = AddToMenuBar("ActPrint", "_System", 0);
         uiContextMenu.AddAction("ActPrint");
 
         Log.Entry("Engaged");
@@ -42,6 +42,9 @@ class PRINT_ELEM : ELEMENT
 
     void Disengage()
     {
+        uiContextMenu.RemoveAction("ActPrint");
+        RemoveFromMenuBar(mMenuItem, "_System");
+        RemoveAction("ActPrint");
         Log.Entry("Disengaged");
     }
 
@@ -72,6 +75,8 @@ class PRINT_ELEM : ELEMENT
     Entry       mLFEntry;
     Entry       mCFEntry;
     Entry       mRFEntry;
+
+    MenuItem    mMenuItem;
 
 
     void PrintDoc()

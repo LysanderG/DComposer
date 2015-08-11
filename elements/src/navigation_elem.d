@@ -35,22 +35,22 @@ class NAVIGATION_ELEM : ELEMENT
         AddIcon("nav-back", SystemPath(Config.GetValue("navigation_elem", "nav_back", "elements/resources/document-page-previous.png")));
         AddAction("NavBack", "Back", "Go back to last cursor location", "nav-back", "<Control>comma",
             delegate void(Action a){BackNavPoint();});
-        AddToMenuBar("NavBack", mRootMenuNames[6], 0);
+        mActionMenuItems ~= AddToMenuBar("NavBack", mRootMenuNames[6], 0);
 
         AddIcon("nav-forward", SystemPath(Config.GetValue("navigation_elem", "nav_forward", "elements/resources/document-page-next.png")));
         AddAction("NavForward", "Forward", "Go forward to previous cursor location", "nav-forward", "<Control>period",
             delegate void(Action a){ForwardNavPoint();});
-        AddToMenuBar("NavForward", mRootMenuNames[6], 0);
+        mActionMenuItems ~= AddToMenuBar("NavForward", mRootMenuNames[6], 0);
 
         AddIcon("nav-add", SystemPath(Config.GetValue("navigation_elem", "nav_add", "elements/resources/pin-small.png")));
         AddAction("NavAdd", "Add Nav Point", "Insert a navigation mark", "nav-add", "<Control>M",
             delegate void(Action a){AddNavPoint();});
-        AddToMenuBar("NavAdd", mRootMenuNames[6], 0);
+        mActionMenuItems ~= AddToMenuBar("NavAdd", mRootMenuNames[6], 0);
 
         AddIcon("nav-clear", SystemPath(Config.GetValue("navigation_elem", "nav_clear", "elements/resources/minus-small-circle.png")));
         AddAction("NavClear", "Clear Nav Points", "Clear all navigation marks", "nav-clear", "<Control><Shift>M",
             delegate void(Action a){ClearNavPoints();});
-        AddToMenuBar("NavClear", mRootMenuNames[6], 0);
+        mActionMenuItems ~= AddToMenuBar("NavClear", mRootMenuNames[6], 0);
 
 
         Log.Entry("Engaged");
@@ -58,6 +58,13 @@ class NAVIGATION_ELEM : ELEMENT
 
     void Disengage()
     {
+
+        foreach(item; mActionMenuItems)RemoveFromMenuBar(item, mRootMenuNames[6]);
+        RemoveAction("NavBack");
+        RemoveAction("NavForward");
+        RemoveAction("NavClear");
+        RemoveAction("NavAdd");
+
         DocMan.CursorJump.disconnect(&PushNavPoint);
         DocMan.PreCursorJump.disconnect(&PushNavPoint);
         Log.Entry("Disengaged");
@@ -76,6 +83,9 @@ class NAVIGATION_ELEM : ELEMENT
 
     NAV_POINT[] NavPoints;
     ulong       NavIndex;
+
+    MenuItem[]  mActionMenuItems;   //save these to remove them on disengage with out crashing
+
 
     void PushNavPoint(DOC_IF docIF, int line, int column)
     {
