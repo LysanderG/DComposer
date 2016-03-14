@@ -135,7 +135,9 @@ public:
         dstring FinalText;
         char[] copy = CfgText.dup;
         size_t i;
-        while(i < CfgText.length)FinalText ~= copy.decode!(char[])(i);
+        while(i < CfgText.length)FinalText ~= copy.decode!(Flag!"useReplacementDchar".no, char[])(i);
+        //while(i < CfgText.length)FinalText ~= std.utf.decode!(Flag!"useReplacementDchar".no,char[])(copy, i);
+
         mJson = parseJSON(FinalText);
     }
     void SetCfgFile(string cmdLineCfgName)
@@ -290,7 +292,7 @@ public:
             dstring FinalText;
             char[] copy = CfgText.dup;
             size_t i;
-            while(i < CfgText.length)FinalText ~= copy.decode!(char[])(i);
+            while(i < CfgText.length)FinalText ~= copy.decode!(Flag!"useReplacementDchar".no, char[])(i);
             mJson = parseJSON(FinalText);
         }
         catch (Exception xsepchun)
@@ -338,8 +340,6 @@ public:
 
     void Save()
     {
-        scope(exit) dwrite("exit config save");
-
         try
         {
             string jstring = toJSON!3(mJson);
