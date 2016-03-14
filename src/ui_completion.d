@@ -98,7 +98,6 @@ class UI_COMPLETION
 
     void WatchForKeys(uint key, uint state)
     {
-
         if(mCompWindow.isVisible)ProcessCompletionKey(key);
         else if(mTipWindow.isVisible)ProcessCallTipKey(key);
     }
@@ -111,7 +110,7 @@ class UI_COMPLETION
 
     void ProcessCallTipKey(uint key)
     {
-        DocMan.SetBlockDocumentKeyPress(false);
+        //DocMan.SetBlockDocumentKeyPress(false);
         GdkKeysyms keysym = cast(GdkKeysyms)key;
         switch(keysym) with (GdkKeysyms)
         {
@@ -156,7 +155,7 @@ class UI_COMPLETION
             case    GDK_Shift_R     :
             case    GDK_Shift_L     :
             {
-                DocMan.SetBlockDocumentKeyPress(false);
+               // DocMan.SetBlockDocumentKeyPress(false);
                 return;
             }
 
@@ -197,7 +196,10 @@ class UI_COMPLETION
     {
         TreeIter ti = mTipTree.getSelectedIter();
         if(ti is null) return;
-        if(!mTipStore.iterNext(ti))mTipStore.getIterFirst(ti);
+        //if(!mTipStore.iterNext(ti))mTipStore.getIterFirst(ti); getIterFirst fails!!
+        //if(!mTipStore.iterNext(ti))mTipStore.getIterFirst(ti); 
+        if(!mTipStore.iterNext(ti)) mTipStore.getIter(ti, new TreePath("0"));
+        
         mTipTree.getSelection().selectIter(ti);
         mTipTree.scrollToCell(ti.getTreePath(), null, false, 0, 0);
     }
@@ -235,6 +237,7 @@ class UI_COMPLETION
 
     void ProcessCompletionKey(uint key)
     {
+        dwrite("i am here .............................");
         DocMan.SetBlockDocumentKeyPress(false);
         GdkKeysyms keysym = cast(GdkKeysyms)key;
         switch(keysym) with (GdkKeysyms)
@@ -323,8 +326,10 @@ class UI_COMPLETION
     {
         TreeIter ti = mCompTree.getSelectedIter();
         if(ti is null) return;
-        if(!mCompStore.iterNext(ti))mCompStore.getIterFirst(ti);
+        if(!mCompStore.iterNext(ti)) //getIterFirst fails here ??
+            mCompStore.getIter(ti, new TreePath("0"));
         mCompTree.getSelection().selectIter(ti);
+
         mCompTree.scrollToCell(ti.getTreePath(), null, false, 0, 0);
     }
 
@@ -386,7 +391,7 @@ class UI_COMPLETION
         //mCompWindow.setSkipPagerHint(true);
         //mCompWindow.setCanFocus(false);
         mCompTree.setHeadersVisible(false);
-        //mCompTree.setEnableSearch(false);
+        mCompTree.setEnableSearch(false);
         //mCompTree.setCanFocus(false);
 
 
@@ -443,7 +448,7 @@ class UI_COMPLETION
     {
         mBlockWatchForLostFocus = true;
 
-        auto timediff = Clock.currTime() - mCompWinLastShownTime;
+       // auto timediff = Clock.currTime() - mCompWinLastShownTime;
         //if(timediff < msecs(250))return;
 
         mCompWindow.hide();
@@ -463,13 +468,27 @@ class UI_COMPLETION
             mCompStore.setValue(ti, 1, Info[idx]);
         }
 
-        mCompTree.setCursor(new TreePath("0"), null, false);
-
-        //mCompTree.showAll();
+        mCompTree.setModel(mCompStore);
+       // mCompTree.showAll();
         MapCompletionWindow();
         mCompWindow.showAll();
+        
         //MainWindow.presentWithTime(0L);
         MainWindow.present();
+        
+        mCompTree.setCursor(new TreePath("0"), null, false);
+        //DocBook.grabFocus();
+        auto ok = new TreeIter;
+        if(mCompStore.getIterFirst(ok))
+        {
+            dwrite(mCompStore.getValueString(ok,0), " / ", mCompStore.getValueString(ok,1));
+            while(mCompStore.iterNext(ok))dwrite(mCompStore.getValueString(ok,0), " / ", mCompStore.getValueString(ok,1));
+        }
+        else
+        {
+            dwrite("nothing");
+        }
+            
     }
 
     void PushCallTip(string[] Candidates)
