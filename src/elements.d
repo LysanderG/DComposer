@@ -66,7 +66,7 @@ void Disengage()
 {
     RegisterLibraries();
     //foreach(elem; Elements)elem.Disengage();
-    foreach(key, lib; Libraries)UnloadElement(key);
+    foreach(key; Libraries.keys)UnloadElement(key);
     Log.Entry("Disengaged");
 }
 
@@ -152,17 +152,22 @@ bool UnloadElement(string Name)
 {
     if(Libraries[Name].mClassName !in Elements) return false;
     bool rv;
+
     scope(failure)Log.Entry("Failed to unload " ~ Name, "Error");
     scope(success)Log.Entry("     Unloaded library: " ~ Libraries[Name].mClassName);
-    Elements[Libraries[Name].mClassName].Disengage();
 
+    Elements[Libraries[Name].mClassName].Disengage();
     Config.Save();
+
+    destroy(Elements[Libraries[Name].mClassName]);
     Elements.remove(Libraries[Name].mClassName);
+
     rv = Runtime.unloadLibrary(Libraries[Name].Ptr);
     Libraries[Name].Ptr = null;
     Libraries[Name].mEnabled = false;
 
     Config.Reload();
+
     return rv;
 }
 
