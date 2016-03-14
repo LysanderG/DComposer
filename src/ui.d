@@ -55,6 +55,7 @@ public import gtk.TextIter;
 public import gtk.TextMark;
 public import gtk.ToggleAction;
 public import gtk.ToggleToolButton;
+public import gtk.ToggleButton;
 public import gtk.ToolItem;
 public import gtk.Toolbar;
 public import gtk.Widget;
@@ -341,7 +342,7 @@ void AddIcon(string name, string icon_file)
         return;
     }
 
-    mIconFactory.add(name, new IconSet(new Pixbuf(icon_file)));
+    mIconFactory.add(name.idup, new IconSet(new Pixbuf(icon_file.idup)));
 }
 
 Action AddAction(string name, string label, string tooltip, string stock_id, string accel, void delegate(Action) dlg)
@@ -634,6 +635,7 @@ int ShowMessage(string Title, string Message, string[] Buttons ...)
 void Quit()
 {
     auto ModdedDocs = DocMan.Modified();
+    DocMan.SaveSessionDocuments();
     if(ModdedDocs) with (ResponseType)
     {
         //confirm quit or return

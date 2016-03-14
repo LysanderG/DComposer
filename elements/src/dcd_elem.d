@@ -9,7 +9,7 @@ import std.array;
 import dcore;
 import ui;
 import elements;
-//import document;
+
 
 
 extern (C) string GetClassName()
@@ -53,6 +53,7 @@ class DCD_ELEM : ELEMENT
         TypeName["l"] = "Alias";
         TypeName["t"] = "Template";
         TypeName["T"] = "Mixin Template";
+        TypeName["*"] = "WTF?";
     }
 
     void WatchForText(void* void_ti, string text, int len, void* void_self)
@@ -74,32 +75,44 @@ class DCD_ELEM : ELEMENT
             default  : return;
         }
     }
+    void WatchImportPaths(PROJECT_EVENT proEvent)
+    {
+        if(proEvent != PROJECT_EVENT.LISTS) return;
+
+        foreach(path; Project.Lists[LIST_NAMES.IMPORT])
+        {
+            execute([mClientCommand, "-I" ~ path]);
+        }
+    }
 
     void PresentCandidates()
     {
+        string[] Candidates;
+        string[] Types;
+        string[] Output;
+        
         int CursorOffset = DocMan.Current.GetCursorByteIndex();
-
         string arg = format("-c%s",CursorOffset);
         string port = format("-p%s", mPort);
 
         auto pipes = std.process.pipeProcess([mClientCommand, port, arg]);
+        //scope(exit)wait(pipes.pid());
 
-        pipes.stdin.write(DocMan.Current.GetText());
+        pipes.stdin.writeln(DocMan.Current.GetText());
         pipes.stdin.flush();
         pipes.stdin.close();
-
-
-        string[] Candidates;
-        string[] Types;
-        string[] Output;
-
+        
         wait(pipes.pid());
-
+        
         foreach(line; pipes.stdout.byLine)
         {
+            dwrite(line);
             Output ~= line.idup;
         }
         pipes.stdout.close();
+        
+        //kill(pipes.pid());
+        
         if(Output.length < 2) return;
 
         if(Output[0] == "identifiers")
@@ -108,9 +121,12 @@ class DCD_ELEM : ELEMENT
             {
                 auto i = line.indexOf('\t');
                 Candidates ~= line[0..i];
+                
                 //Types ~= line[i+1..$];
+                //dwrite(line, line[i+1 .. $]);
                 Types  ~= TypeName[line[i+1..$]];
             }
+            dwrite(Candidates, " .. ", Types);
             uiCompletion.ShowCompletion(Candidates, Types);
         }
 
@@ -119,7 +135,7 @@ class DCD_ELEM : ELEMENT
             Candidates = Output[1..$];
             uiCompletion.PushCallTip(Candidates);
         }
-
+        
     }
 
 
@@ -150,7 +166,18 @@ class DCD_ELEM : ELEMENT
         string[] cmd = [mClientCommand];
         cmd ~= "-q";
         cmd ~= format("-p%s", mPort);
-        auto queryServer = execute(cmd);
+        dwrite(cmd);
+        std.typecons.Tuple!(int, "status", string, "output") queryServer;
+        try
+        {
+            queryServer = execute(cmd);
+        }
+        catch(Exception x)
+        {
+            ShowMessage("DCD SERVER ERROR", x.msg);
+            queryServer.status = 1;
+        }
+        
         if(queryServer.status ==1) //nope start it up
         {
             mShutServerDown = true;
@@ -173,6 +200,7 @@ class DCD_ELEM : ELEMENT
         Log.Entry("DCD server running :" ~ format(" @%s ", mPort) ~ eyeports);
 
         DocMan.Insertion.connect(&WatchForText);
+        Project.Event.connect(&WatchImportPaths);
 
         Log.Entry("Engaged :) Are you happy? ");
     }
