@@ -149,6 +149,20 @@ interface DOC_IF
     bool MovePrevStringBoundary(int Reps, bool selection_bound);
     bool MoveNextCommentBoundary(int Reps, bool selection_bound);
     bool MovePrevCommentBoundary(int Reps, bool selection_bound);
+
+    /+//search test -- remove
+    void SearchTest(); +/
+
+    //object movement -- should deprecate all (most) movements above
+    void MoveObjectNext(TEXT_OBJECT Object, int reps, bool selection_bound);
+    void MoveObjectPrev(TEXT_OBJECT Object, int reps, bool selection_bound);
+
+    //void MoveObject(TEXT_OBJECT Object, TEXT_OBJECT_DIRECTION Direction, TEXT_OBJECT_MARK Mark);
+
+    void ScrollUp(int Steps);
+    void ScrollDown(int Steps);
+    void ScrollCenterCursor();
+
 }
 struct RECTANGLE
 {
@@ -239,10 +253,10 @@ class DOCMAN
     }
     void Disengage()
     {
-        //save open files for next session
-        string[] names;
-        foreach(xdoc; mDocuments)if(exists(xdoc.Name)) names ~= xdoc.Name;
-        Config.SetArray("docman","last_session_files", names);
+        //save open files for next session .. reimplemented to fix moved pages and save/discard on exit
+        //string[] names;
+        //foreach(xdoc; mDocuments)if(exists(xdoc.Name)) names ~= xdoc.Name;
+        //Config.SetArray("docman","last_session_files", names);
 
         if( tmpfilename.exists())std.file.remove(tmpfilename);
         foreach(pid; mRunPids)kill(pid);
@@ -250,6 +264,23 @@ class DOCMAN
 
         Log.Entry("Disengaged");
     }
+
+    void SaveSessionDocuments()
+    {
+        string[] sessionDocs;
+
+        auto pageCount = DocBook.getNPages();
+        foreach(indx; 0 .. pageCount)
+        {
+            auto page = cast(ScrolledWindow)DocBook.getNthPage(indx);
+            if(page is null)continue;
+            auto doc = cast(DOC_IF)page.getChild();
+            if(doc is null) continue;
+            sessionDocs ~= doc.Name();
+        }
+        Config.SetArray("docman","last_session_files", sessionDocs);
+    }
+
 
 
     @property DOC_IF Current()
@@ -552,6 +583,73 @@ class DOCMAN
 }
 
 
+/+
+enum OBJECT_POSITION
+{
+    START,
+    WHOLE,
+    END
+}
+
+enum OBJECT_DEFINED_BY
+{
+    REGEX,
+    FUNCTION
+}
+
+
+
+struct TEXT_OBJECT
+{
+    private:
+    string mID;
+    OBJECT_DEFINED_BY mDefinedBy;
+    string mRegexDef; //regular expression for the object
+    void  function() mFunctionDef;
+
+    public:
+    this(string ID, string Definition, OBJECT_DEFINED_BY DefinedBy = OBJECT_DEFINED_BY.REGEX)
+    {
+        mID = ID; mRegexDef = Definition; mDefinedBy = DefinedBy;
+    }
+
+    void SetFunction(void function() FunctionDefinition) { mFunctionDef = FunctionDefinition;}
+
+    bool IsRegex(){ return (mDefinedBy == OBJECT_DEFINED_BY.REGEX);} //DON'T ASK ME! like some kind of sad UNION
+    bool IsFunction(){return (mDefinedBy == OBJECT_DEFINED_BY.FUNCTION);}
+    string GetRegex(){ return (mDefinedBy == OBJECT_DEFINED_BY.REGEX) ? mRegexDef : "";}
+    void CallObject(){if(mFunctionDef)mFunctionDef();}
+    string ID() { return mID;}
+}+/
+
+
+struct TEXT_OBJECT
+{
+    string mId;
+    char mKey;
+    string mRegex;
+
+    this(string Name, char key, string Regex)
+    {
+        mId = Name;
+        mKey = key;
+        mRegex = Regex;
+        dwrite(mId, mKey, mRegex);
+    }
+}
+
+enum TEXT_OBJECT_DIRECTION
+{
+    PREV,
+    NEXT
+}
+
+enum TEXT_OBJECT_MARK
+{
+    CURSOR,
+    START,
+    END
+}
 
 //====================================================================================================================
 //====================================================================================================================
