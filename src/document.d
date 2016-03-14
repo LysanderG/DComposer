@@ -61,6 +61,10 @@ public import gsv.SourceUndoManagerIF;
 public import gsv.SourceView;
 public import gsv.SourceMark;
 public import gsv.SourceMarkAttributes;
+public import gsv.SourceSearchContext;
+public import gsv.SourceSearchSettings;
+public import gsv.Utils;
+
 
 
 import gtk.Widget;
@@ -115,6 +119,9 @@ class DOCUMENT : SourceView, DOC_IF
 
     string  mLastSelection;
 
+
+    enum DIRECTION { UNKOWN, BACKWARD, FORWARD}
+
     void UpdateTabWidget()
     {
         if(Modified)
@@ -125,10 +132,20 @@ class DOCUMENT : SourceView, DOC_IF
         mTabWidget.setTooltipText(Name);
     }
 
-    TextIter GetMovementIter(bool selection_bound)
+    TextIter GetMovementIter(bool selection_bound, DIRECTION Direction)
     {
         auto buff = getBuffer();
-        TextIter ti;
+        //TextIter ti;
+        auto Lti = new TextIter;
+        auto Rti = new TextIter;
+
+        if(getBuffer().getSelectionBounds(Lti, Rti))
+        {
+            if(Direction == DIRECTION.BACKWARD) return Lti;
+            if(Direction == DIRECTION.FORWARD ) return Rti;
+        }
+        return Cursor();
+        /*
         if(selection_bound)
         {
             ti = new TextIter;
@@ -138,15 +155,23 @@ class DOCUMENT : SourceView, DOC_IF
         {
             ti = Cursor();
         }
-        return ti;
+        return ti;*/
     }
     void SetMoveIter(TextIter ti, bool selection_bound)
     {
+        string markname;
+        auto Lti = new TextIter;
+        auto Rti = new TextIter;
+
 
         if(selection_bound)
         {
-            getBuffer().moveMarkByName("selection_bound", ti);
-            scrollMarkOnscreen(getBuffer().getMark("selection_bound"));
+
+            getBuffer().getSelectionBounds(Lti, Rti);
+            if(ti.compare(Lti) < 0) markname = "insert";
+            if(ti.compare(Rti) > 0) markname = "selection_bound";
+            getBuffer().moveMarkByName(markname, ti);
+            scrollMarkOnscreen(getBuffer().getMark(markname));
         }
         else
         {
@@ -200,7 +225,9 @@ class DOCUMENT : SourceView, DOC_IF
             e.getKeyval(keyval);
             GdkModifierType state;
             e.getState(state);
+            //DocMan.SetBlockDocumentKeyPress(false);
             DocMan.DocumentKeyDown.emit(keyval, cast(uint)state);
+            
             return DocMan.BlockDocumentKeyPress();
 
         },cast(GConnectFlags)0);
@@ -286,7 +313,16 @@ class DOCUMENT : SourceView, DOC_IF
 
     void WatchConfigChange(string Sec, string key)
     {
-        if (Sec == "document") Configure();
+        if (Sec != "document") return;
+
+        switch (key)
+        {
+            case "style_scheme" :
+                string StyleID = Config.GetValue("document", "style_scheme", "mnml");
+                getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleID));
+                return;
+            default : Configure();
+        }
     }
 
     void Configure()
@@ -382,7 +418,8 @@ class DOCUMENT : SourceView, DOC_IF
         auto ti = Cursor();
         //TextIter ti = new TextIter;
         //getBuffer.getIterAtMark(ti, getBuffer().getInsert());
-        return ti.getLineOffset();
+        //return ti.getLineOffset();
+        return ti.getLineIndex();
         //return getBuffer().getInsert().getLineOffset();
     }
     string LineText()
@@ -1126,6 +1163,24 @@ class DOCUMENT : SourceView, DOC_IF
         return offsetnotbytes;
     }
 
+    void ScrollUp(int Steps)
+    {
+        auto ScrAdj = getVadjustment();
+        ScrAdj.setValue(ScrAdj.getValue() - ScrAdj.getMinimumIncrement());
+
+    }
+
+    void ScrollDown(int Steps)
+    {
+        auto ScrAdj = getVadjustment();
+        ScrAdj.setValue(ScrAdj.getValue() + ScrAdj.getMinimumIncrement());
+    }
+
+    void ScrollCenterCursor()
+    {
+        scrollToMark(getBuffer().getMark("insert"), 0.0, true, .80, 0.5);
+    }
+
 
     //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -1135,7 +1190,7 @@ class DOCUMENT : SourceView, DOC_IF
     bool MoveLeft(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
         ti.backwardChars(Reps);
 
@@ -1147,7 +1202,7 @@ class DOCUMENT : SourceView, DOC_IF
     bool MoveRight(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
         ti.forwardChars(Reps);
 
@@ -1158,7 +1213,7 @@ class DOCUMENT : SourceView, DOC_IF
 
     bool MoveUp(int Reps, bool selection_bound)
     {
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
         int charOffset;
         if(mStaticHorizontalCursorPosition < 0)
@@ -1182,7 +1237,7 @@ class DOCUMENT : SourceView, DOC_IF
     bool MoveDown(int Reps, bool selection_bound)
     {
         int charOffset;
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
         if(mStaticHorizontalCursorPosition < 0)
         {
@@ -1204,7 +1259,7 @@ class DOCUMENT : SourceView, DOC_IF
     bool MoveLineStart(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
         if( (Reps == 1) && (ti.getLineOffset() ==0) )
         {
@@ -1230,7 +1285,7 @@ class DOCUMENT : SourceView, DOC_IF
     {
         mStaticHorizontalCursorPosition = -1;
 
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
 
         if( (Reps == 1) && (ti.getChar() == '\n')) return false;
@@ -1264,7 +1319,7 @@ class DOCUMENT : SourceView, DOC_IF
     {
         GdkRectangle rect;
 
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
         getIterLocation(ti, rect);
 
@@ -1286,7 +1341,7 @@ class DOCUMENT : SourceView, DOC_IF
     {
         GdkRectangle rect;
 
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
         getIterLocation(ti, rect);
 
@@ -1310,7 +1365,7 @@ class DOCUMENT : SourceView, DOC_IF
         bool lastCharWasNotAWordChar;
         bool foundstart;
 
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
 
         foreach(ctr;0..Reps)
@@ -1344,7 +1399,7 @@ class DOCUMENT : SourceView, DOC_IF
         dchar thisChar;
         bool foundstart;
 
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
         foreach(x;0..Reps)
         {
@@ -1376,7 +1431,7 @@ class DOCUMENT : SourceView, DOC_IF
         dchar thisChar;
         bool foundend;
 
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
         foreach(ctr; 0..Reps)
         {
@@ -1409,7 +1464,7 @@ class DOCUMENT : SourceView, DOC_IF
         dchar thisChar;
         bool foundend;
 
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
         foreach(x;0..Reps)
         {
@@ -1438,7 +1493,7 @@ class DOCUMENT : SourceView, DOC_IF
         mStaticHorizontalCursorPosition = -1;
         dchar tichar;
 
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
         foreach(ctr; 0..Reps)
         {
@@ -1474,7 +1529,7 @@ class DOCUMENT : SourceView, DOC_IF
 
     bool MoveNextStatementEnd(int Reps, bool selection_bound)
     {
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
 
         TextIter Endti;
@@ -1521,14 +1576,13 @@ class DOCUMENT : SourceView, DOC_IF
     {
         mStaticHorizontalCursorPosition = -1;
         dchar tichar;
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
         TextIter Endti;
 
         foreach(ctr; 0..Reps)
         {
             auto originalti = ti.copy();
-            dwrite(ctr,"/",Reps, "ti = ", ti.getChar());
             ExtraRun:
             while(ti.backwardChar())
             {
@@ -1550,6 +1604,7 @@ class DOCUMENT : SourceView, DOC_IF
 
             if(ti.compare(originalti) >= 0)
             {
+                if(Endti is null)return false;
                 ti = Endti.copy();
                 goto ExtraRun;
             }
@@ -1564,7 +1619,7 @@ class DOCUMENT : SourceView, DOC_IF
 
         bool rv;
 
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
         while(ti.backwardChar())
         {
@@ -1587,7 +1642,7 @@ class DOCUMENT : SourceView, DOC_IF
 
         bool rv;
 
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
 
         if(ti.getChar() == '{') ti.forwardChar();
@@ -1613,9 +1668,9 @@ class DOCUMENT : SourceView, DOC_IF
         mStaticHorizontalCursorPosition = -1;
 
         bool rv;
-        dstring openBlock = "({[<`'\"";
+        dstring openBlock = "({[";
 
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
         while(ti.backwardChar())
         {
@@ -1637,9 +1692,9 @@ class DOCUMENT : SourceView, DOC_IF
     {
         mStaticHorizontalCursorPosition = -1;
         bool rv;
-        dstring openBlock = "({[<`'\"";
+        dstring openBlock = "({[";
 
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
         if(openBlock.canFind(ti.getChar())) ti.forwardChar();
         do
@@ -1663,9 +1718,9 @@ class DOCUMENT : SourceView, DOC_IF
         mStaticHorizontalCursorPosition = -1;
 
         bool rv;
-        dstring closeBlock = ")}]>`'\"";
+        dstring closeBlock = ")}]";
 
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
         while(ti.backwardChar())
         {
@@ -1687,10 +1742,10 @@ class DOCUMENT : SourceView, DOC_IF
     {
         mStaticHorizontalCursorPosition = -1;
         bool rv;
-        dstring openBlock = "({[<`'\"";
-        dstring closeBlock = ")}]>`'\"";
+        dstring openBlock = "({[";
+        dstring closeBlock = ")}]";
 
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
         if(closeBlock.canFind(ti.getChar())) ti.forwardChar();
         do
@@ -1712,7 +1767,7 @@ class DOCUMENT : SourceView, DOC_IF
     bool MoveUpperScope(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
         bool foundScope;
         dchar tichar;
@@ -1742,7 +1797,7 @@ class DOCUMENT : SourceView, DOC_IF
     bool MoveLowerScope(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
         bool foundScope;
         dchar tichar;
@@ -1773,7 +1828,7 @@ class DOCUMENT : SourceView, DOC_IF
     bool MovePrevCurrentChar(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
         auto theChar = ti.getChar();
         int Ctr;
@@ -1791,7 +1846,7 @@ class DOCUMENT : SourceView, DOC_IF
     bool MoveNextCurrentChar(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
         int Ctr;
         auto theChar = ti.getChar();
@@ -1809,7 +1864,7 @@ class DOCUMENT : SourceView, DOC_IF
     bool MoveNextStringBoundary(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
         bool origOnString = getBuffer().iterHasContextClass(ti, "string");
         bool foundBoundary;
@@ -1834,7 +1889,7 @@ class DOCUMENT : SourceView, DOC_IF
     bool MovePrevStringBoundary(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
         bool origOnString = getBuffer().iterHasContextClass(ti, "string");
         bool foundBoundary;
@@ -1861,7 +1916,7 @@ class DOCUMENT : SourceView, DOC_IF
     bool MoveNextCommentBoundary(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
         bool origOnString = getBuffer().iterHasContextClass(ti, "comment");
         bool foundBoundary;
@@ -1886,7 +1941,7 @@ class DOCUMENT : SourceView, DOC_IF
     bool MovePrevCommentBoundary(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
         bool origOnString = getBuffer().iterHasContextClass(ti, "comment");
         bool foundBoundary;
@@ -2104,7 +2159,7 @@ class DOCUMENT : SourceView, DOC_IF
         mStaticHorizontalCursorPosition = -1;
         dstring openMatches = "({[<";
         dstring closeMatches =")}]>";
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.UNKOWN);
 
         dchar toMatch = ti.getChar();
         bool inclusive;
@@ -2253,7 +2308,7 @@ class DOCUMENT : SourceView, DOC_IF
     bool MovePrevParameterStart(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
         if(!IterInParens(ti)) return false;
 
@@ -2293,8 +2348,8 @@ class DOCUMENT : SourceView, DOC_IF
     {
         foreach(i; 0..Reps)
         {
-            MoveNextParameterEnd(2, selection_bound);
-            MovePrevParameterStart(1, selection_bound);
+            MovePrevParameterStart(2, selection_bound);
+            MoveNextParameterEnd(1, selection_bound);
         }
         return true;
     }
@@ -2302,7 +2357,7 @@ class DOCUMENT : SourceView, DOC_IF
     {
         mStaticHorizontalCursorPosition = -1;
 
-        auto ti = GetMovementIter(selection_bound);
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
         if(!IterInParens(ti)) return false;
 
@@ -2386,4 +2441,166 @@ class DOCUMENT : SourceView, DOC_IF
         }while(ti.forwardChar());
     }
 
+
+    /+void SearchTest()
+    {
+        import gsv.SourceSearchContext;
+
+        auto searchContext = new SourceSearchContext(getBuffer, null);
+        auto searchSettings = searchContext.getSettings();
+
+        searchContext.setHighlight(false);
+
+        searchSettings.setCaseSensitive(true);
+        //searchSettings.setSearchText(`\b[_\p{L}][\w]*\b`); //word
+        //searchSettings.setSearchText(`(\/\*(.*?|\n)*\*\/)|(\/\/[^\n]*\n)|\b[^\{\}\:;]*([\)\}\:;])|(?!{)`); //statement
+        //searchSettings.setSearchText(`^.*$`); //line
+        //searchSettings.setSearchText(`(?<=\[)([^\]]*)`); //array
+        searchSettings.setSearchText(q"[(`|"|'|q\{)(.|\n)*?(?<!\\)\1]");
+        //searchSettings.setSearchText(`((\b0[xX][a-fA-F0-9][a-fA-F0-9_]*)|\b[0-9][0-9_]*(\.[0-9][0-9_]*)?(e[0-9][0-9_]*)?)`);
+        dwrite(searchSettings.getSearchText());
+        //searchSettings.setSearchText(`(?<;[\s]*)\b[_\w][.]*;`);
+
+        searchSettings.setRegexEnabled(true);
+        searchSettings.setWrapAround(false);
+
+        auto StartTi = new TextIter;
+        auto EndTi = new TextIter;
+
+        if(!searchContext.backward(Cursor(), StartTi, EndTi))return;
+        if(Cursor().equal(StartTi))
+        {
+            MoveLeft(1, false);
+            searchContext.backward(Cursor(), StartTi, EndTi);
+        }
+        SetMoveIter(StartTi, false);
+        SetMoveIter(EndTi, true);
+        auto error = searchContext.getRegexError();
+        if(error)dwrite(error.getErrorGStruct().message);
+    }+/
+
+    /+
+    //not object but regex ... object will be for selecting whole object
+    void MoveObjectPrev(TEXT_OBJECT Object, TEXT_OBJECT_MARK Mark, int Reps)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        bool selection_bound = true;
+        if(Mark == TEXT_OBJECT_MARK.CURSOR) selection_bound = false;
+
+        TextIter ti;
+
+        if(Direction == TEXT_OBJECT_DIRECTION.PREV)
+            ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
+        else
+            ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
+
+        searchContext.setHighlight(false);
+        searchSettings.setCaseSensitive(true);
+        searchSettings.setRegexEnabled(true);
+        searchSettings.setWrapAround(false);
+        searchSettings.setSearchText(Object.GetRegex());
+
+
+        auto StartTi = new TextIter;
+        auto EndTi = new TextIter;
+        bool result_forward;
+
+        result_forward = searchContext.forward(ti, StartTi, EndTi);
+
+    }+/
+
+
+    void MoveObjectNext(TEXT_OBJECT Object, int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
+
+
+        auto searchSettings = new SourceSearchSettings();
+        auto searchContext = new SourceSearchContext(getBuffer, searchSettings);
+        //auto searchSettings = searchContext.getSettings();
+
+        searchContext.setHighlight(false);
+        searchSettings.setCaseSensitive(true);
+        searchSettings.setRegexEnabled(true);
+        searchSettings.setWrapAround(false);
+        searchSettings.setSearchText(Object.mRegex);
+
+        auto StartTi = new TextIter;
+        auto EndTi = new TextIter;
+        bool result_forward;
+
+        foreach(ctr; 0..Reps)
+        {
+            if(searchContext.forward(ti, StartTi, EndTi))
+            {
+                dwrite("FOUND");
+                if(ti.equal(StartTi))
+                {
+                    ti.forwardChar();
+                    searchContext.forward(ti, StartTi, EndTi);
+                }
+                result_forward = true;
+                ti = StartTi.copy();
+            }
+        }
+        if(!result_forward) return; //otherwise StartTi and/or EndTi will be "bad" and cause a seg fault in SetMoveIter.
+            
+        SetMoveIter(ti, selection_bound);
+        
+        //if(Place == TEXT_OBJECT_MARK.START)SetMoveIter(StartTi, selection_bound);
+        //if(Place == TEXT_OBJECT_MARK.END) SetMoveIter(EndTi,selection_bound);
+        //if(Place == TEXT_OBJECT_MARK.CURSOR) SetMoveIter(StartTi, false);
+
+    }
+    void MoveObjectPrev(TEXT_OBJECT Object, int Reps, bool selection_bound)
+    {
+
+        mStaticHorizontalCursorPosition = -1;
+
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
+
+
+        auto searchContext = new SourceSearchContext(getBuffer, null);
+
+        auto searchSettings = searchContext.getSettings();
+        searchContext.setHighlight(false);
+        searchSettings.setCaseSensitive(true);
+        searchSettings.setRegexEnabled(true);
+        searchSettings.setWrapAround(false);
+
+        searchSettings.setSearchText(Object.mRegex);
+        //if(Place == TEXT_OBJECT_MARK.START) searchSettings.setSearchText(Object.mRegexStart);
+        //if(Place == TEXT_OBJECT_MARK.END) searchSettings.setSearchText(Object.mRegexEnd);
+
+        auto StartTi = new TextIter;
+        auto EndTi = new TextIter;
+        bool result_backward;
+
+        result_backward = searchContext.backward(ti, StartTi, EndTi);
+        dwrite("result = ",result_backward);
+        if(ti.equal(EndTi))
+        {
+            ti.backwardChar();
+            result_backward = searchContext.backward(ti, StartTi, EndTi);
+        }
+        if(!result_backward) return; //otherwise StartTi and/or EndTi will be "bad" and cause a seg fault in SetMoveIter.
+        SetMoveIter(StartTi, selection_bound);
+        //if(Place == TEXT_OBJECT_MARK.START)SetMoveIter(StartTi, selection_bound);
+        //if(Place == TEXT_OBJECT_MARK.END) SetMoveIter(EndTi,selection_bound);
+        //if(Place == TEXT_OBJECT_MARK.CURSOR) SetMoveIter(StartTi, false);
+
+    }
+
+
 }
+
+
+
+
+
+
+
+
