@@ -3,6 +3,7 @@ module ui_completion;
 import std.container;
 import std.string;
 import std.datetime;
+import std.algorithm.searching;
 
 import dcore;
 import ui;
@@ -45,8 +46,6 @@ class UI_COMPLETION
 
     SList!(CALLTIP) mAnchor;
 
-    bool mBlockWatchForLostFocus;
-
 
 
     void MapCallTipWindow()
@@ -58,6 +57,7 @@ class UI_COMPLETION
         ylen = cast(int)mAnchor.opSlice().front.mCandidates.length * ylen;
         mTipWindow.resize(xlen, ylen );
 
+        //location
         auto doc = DocMan.Current();
         RECTANGLE Crect = doc.GetMarkRectangle(mAnchor.front.mLocationName);
         mTipWindow.move(Crect.x, Crect.y + Crect.yl);
@@ -68,6 +68,7 @@ class UI_COMPLETION
     void MapCompletionWindow()
     {
 
+        //size
         int rows = mCompRows;
         if(rows > 8)rows = 8;
         int xoff, yoff, cellwidth, cellheight;
@@ -86,11 +87,6 @@ class UI_COMPLETION
 
     void WatchForLostFocus(DOC_IF doc)
     {
-        if(mBlockWatchForLostFocus)
-        {
-            mBlockWatchForLostFocus = false;
-            return;
-        }
         KillCallTips();
         KillCompletionWindow();
     }
@@ -110,7 +106,7 @@ class UI_COMPLETION
 
     void ProcessCallTipKey(uint key)
     {
-        //DocMan.SetBlockDocumentKeyPress(false);
+
         GdkKeysyms keysym = cast(GdkKeysyms)key;
         switch(keysym) with (GdkKeysyms)
         {
@@ -158,8 +154,23 @@ class UI_COMPLETION
                // DocMan.SetBlockDocumentKeyPress(false);
                 return;
             }
-
-
+            
+            case    GDK_parenright  :
+            {
+                dwrite(")");
+                auto doc = cast(DOCUMENT)DocMan.Current();
+                auto buff = doc.getBuffer();
+                auto tiStart = new TextIter;
+                auto markStart = buff.getMark(mAnchor.front.mLocationName);
+                buff.getIterAtMark(tiStart, markStart);
+                
+                string tipstring = buff.getText(tiStart, doc.Cursor(), false);
+                if(tipstring.balancedParens('(', ')')) 
+                {
+                    PopCallTip();
+                    return;
+                }
+            }
             default                 :
             {
                 return;
@@ -171,7 +182,6 @@ class UI_COMPLETION
 
     void ShowCallTip()
     {
-        mBlockWatchForLostFocus = true;
         mTipWindow.hide();
 
         if(mAnchor.empty())return;
@@ -186,10 +196,8 @@ class UI_COMPLETION
             mTipStore.append(treeIter);
             mTipStore.setValue(treeIter, 0, candi);
         }
-        //mTipWindow.map();
-        MapCallTipWindow();
         mTipWindow.showAll();
-        ui.MainWindow.presentWithTime( 0L);
+        MapCallTipWindow();
     }
 
     void CallTipSelectionDown()
@@ -237,7 +245,6 @@ class UI_COMPLETION
 
     void ProcessCompletionKey(uint key)
     {
-        dwrite("i am here .............................");
         DocMan.SetBlockDocumentKeyPress(false);
         GdkKeysyms keysym = cast(GdkKeysyms)key;
         switch(keysym) with (GdkKeysyms)
@@ -361,7 +368,8 @@ class UI_COMPLETION
         TreeIter ti = new TreeIter;
         mCompStore.getIterFirst(ti);
         mCompTree.getSelection().selectIter(ti);
-        mCompTree.scrollToCell(ti.getTreePath(), null, false, 0, 0);
+        //interesting .. not using "0" in constructor will not scroll correctly
+        mCompTree.scrollToCell(new TreePath("0"), null, false, 0,0);
     }
 
 
@@ -376,7 +384,7 @@ class UI_COMPLETION
         mCompCol2 = new TreeViewColumn("Info", new CellRendererText,  "text",1);
         mCompTree = new TreeView(mCompStore);
         mCompScroll = new ScrolledWindow;
-        mCompWindow = new Window(GtkWindowType.TOPLEVEL);
+        mCompWindow = new Window(GtkWindowType.POPUP);
 
         mCompTree.appendColumn(mCompCol1);
         mCompTree.appendColumn(mCompCol2);
@@ -385,15 +393,9 @@ class UI_COMPLETION
 
         mCompWindow.add(mCompScroll);
 
-        mCompWindow.setDecorated(false);
         mCompWindow.setKeepAbove(true);
-        //mCompWindow.setSkipTaskbarHint(true);
-        //mCompWindow.setSkipPagerHint(true);
-        //mCompWindow.setCanFocus(false);
         mCompTree.setHeadersVisible(false);
         mCompTree.setEnableSearch(false);
-        //mCompTree.setCanFocus(false);
-
 
         //------
 
@@ -401,31 +403,23 @@ class UI_COMPLETION
         mTipCol = new TreeViewColumn("Candidate", new CellRendererText,  "text",0);
         mTipTree = new TreeView(mTipStore);
         mTipScroll = new ScrolledWindow;
-        mTipWindow = new Window(GtkWindowType.TOPLEVEL);
+        mTipWindow = new Window(GtkWindowType.POPUP);
 
         mTipTree.appendColumn(mTipCol);
 
         mTipScroll.add(mTipTree);
         mTipWindow.add(mTipScroll);
 
-        mTipWindow.setDecorated(false);
         mTipWindow.setKeepAbove(true);
         mTipTree.setHeadersVisible(false);
-        //mTipTree.setCanFocus(false);
+
 
 
         //----------------
 
-        //mCompWindow.addOnMap(delegate void(Widget x){MapCompletionWindow();});
-        //mCompWindow.addOnShow(delegate void(Widget x){MapCompletionWindow();});
-        //mTipWindow.addOnMap(delegate void (Widget x){MapCallTipWindow();});
-        //mTipWindow.addOnShow(delegate void (Widget x){MapCallTipWindow();});
-
         DocMan.DocumentKeyDown.connect(&WatchForKeys);
         DocMan.PageFocusOut.connect(&WatchForLostFocus);
         DocMan.MouseButton.connect(&WatchForMouseButton);
-
-
 
         Log.Entry("Engaged");
     }
@@ -446,15 +440,9 @@ class UI_COMPLETION
 
     void ShowCompletion(string[] Candidates, string[] Info)
     {
-        mBlockWatchForLostFocus = true;
-
-       // auto timediff = Clock.currTime() - mCompWinLastShownTime;
-        //if(timediff < msecs(250))return;
 
         mCompWindow.hide();
         mTipWindow.hide();
-
-
 
         auto ti = new TreeIter;
 
@@ -469,25 +457,10 @@ class UI_COMPLETION
         }
 
         mCompTree.setModel(mCompStore);
-       // mCompTree.showAll();
-        MapCompletionWindow();
         mCompWindow.showAll();
-        
-        //MainWindow.presentWithTime(0L);
-        MainWindow.present();
+        MapCompletionWindow();
         
         mCompTree.setCursor(new TreePath("0"), null, false);
-        //DocBook.grabFocus();
-        auto ok = new TreeIter;
-        if(mCompStore.getIterFirst(ok))
-        {
-            dwrite(mCompStore.getValueString(ok,0), " / ", mCompStore.getValueString(ok,1));
-            while(mCompStore.iterNext(ok))dwrite(mCompStore.getValueString(ok,0), " / ", mCompStore.getValueString(ok,1));
-        }
-        else
-        {
-            dwrite("nothing");
-        }
             
     }
 

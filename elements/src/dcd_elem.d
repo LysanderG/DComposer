@@ -71,7 +71,7 @@ class DCD_ELEM : ELEMENT
             case '_' :
             case '.' :
             case '(' : PresentCandidates(); break;
-            case ')' : uiCompletion.PopCallTip(); break;
+            //case ')' : uiCompletion.PopCallTip(); break;
             default  : return;
         }
     }
