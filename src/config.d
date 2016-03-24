@@ -540,6 +540,16 @@ public string SystemPath(string subFolder)
     return buildPath(sysDirectory, subFolder);
 }
 
+public string RelativeSystemPath(string Folder)
+{
+    scope(failure)
+    {
+        Log.Entry("Error determining relative path", "Error");
+        return Folder;
+    }
+    return relativePath(Folder, sysDirectory);
+}
+
 
 /*
  * Ok, some notes about paths after hitting a few stone walls.
