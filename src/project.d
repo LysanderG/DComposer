@@ -91,7 +91,7 @@ class PROJECT
         {
             string[] buildCMD;
 
-            buildCMD ~= Compiler;
+            buildCMD ~= strip(cast(string)Compiler);
 
             foreach(flag; mFlags)
             {
@@ -336,16 +336,26 @@ class PROJECT
 
 
         BuildOutput.emit("BEGIN");
+        
+        scope(failure)
+        {
+            BuildOutput.emit("END");
+            Log.Entry("DComposer error, Build failed", "Error");
+            return;
+        }
 
         //auto rv = executeShell(BuildCommand());
+        dwrite(BuildCommand());
         auto rv = execute(BuildCommand());
         foreach(line; rv.output.splitLines)BuildOutput.emit(line);
         if(rv.status == 0) BuildOutput.emit("Success");
+        if(rv.status)Log.Entry(format("Build failed with status %s", rv.status));
+
         BuildOutput.emit("END");
 
         //remove later
-        if(rv.status)Log.Entry(format("Build failed with status %s", rv.status));
-        else Log.Entry("Build finished");
+        
+        Log.Entry("Build finished");
 
         foreach(script; mData[LIST_NAMES.POSTBUILD])
         {
@@ -401,7 +411,11 @@ class PROJECT
             ShowMessage("Error", "Failed to run " ~ mName);
             Log.Entry("Failed to run " ~ mName);
         }
-        if(TargetType != TARGET.APPLICATION) return;
+        if(TargetType != TARGET.APPLICATION) 
+        {
+            Log.Entry("Failed to run " ~ mName ~ ", project is not an application");
+            return;
+        }
 
         CurrentPath(Folder);
 
