@@ -191,7 +191,7 @@ class DIR_VIEW : ELEMENT
         mViewHidden = true;
 
         auto builder = new Builder;
-        builder.addFromFile(Config.GetValue("dir_view", "glade_file", SystemPath("elements/resources/dir_view.glade")));
+        builder.addFromFile(SystemPath(Config.GetValue("dir_view", "glade_file", "elements/resources/dir_view.glade")));
 
         //stuff we need to manipulate or just look at
         mRoot = cast(Box)builder.getObject("root");
