@@ -16,16 +16,24 @@ string Filter(string InputText, string CmdLine)
 {
 	//adding an end o line to prevent freezing on commands that wait for stdin
 	//now removing it because cat nulltextfile | echo //;date   causes error
-	if(InputText.length < 1) InputText = "\0";
-	auto txtbytes = InputText.representation();
-	auto IFile = new MmFile(mmFileName,  MmFile.Mode.readWriteNew, txtbytes.length, cast(void*)null);
+    
+	string FullCommand;  
+      
+	if(InputText.length < 1)
+    {
+        FullCommand = "echo | " ~ CmdLine;
+    }
+    else
+    {
+        
+        auto txtbytes = InputText.representation();
+        auto IFile = new MmFile(mmFileName,  MmFile.Mode.readWriteNew, txtbytes.length, cast(void*)null);
 
-	foreach(i, ch; txtbytes)IFile[i] = ch;
+        foreach(i, ch; txtbytes)IFile[i] = ch;
+        FullCommand = escapeShellCommand("cat", mmFileName) ~ " | ";// ~ escapeShellCommand(CmdLine) ~ " 2> " ~ mmErrorFile;
 
-	string FullCommand;
-	if(InputText.length > 0)FullCommand = escapeShellCommand("cat", mmFileName) ~ " | ";// ~ escapeShellCommand(CmdLine) ~ " 2> " ~ mmErrorFile;
-
-	FullCommand ~= " " ~ CmdLine;
+        FullCommand ~= " " ~ CmdLine;
+    }
 
 	auto rv = executeShell(FullCommand);
 
