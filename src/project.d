@@ -173,7 +173,8 @@ class PROJECT
         Save();
         Config.Remove("project", "cmd_line_project");
         Config.Remove("project", "last_session_project");
-        if(mTargetType != TARGET.EMPTY) Config.SetValue("project", "last_session_project", buildNormalizedPath(mFolder,mName.setExtension(".dpro")));
+        //if(mTargetType != TARGET.EMPTY) Config.SetValue("project", "last_session_project", buildNormalizedPath(mFolder,mName.setExtension(".dpro")));
+        if(mName.length > 0) Config.SetValue("project", "last_session_project", buildNormalizedPath(mFolder,mName.setExtension(".dpro")));
         foreach(pid; mRunPids)kill(pid);
         foreach(pid; mRunPids)wait(pid);
         Log.Entry("Disengaged");
@@ -193,6 +194,8 @@ class PROJECT
     {
         Save();
         Clear();
+        Event.emit(PROJECT_EVENT.NAME);
+        Event.emit(PROJECT_EVENT.FOLDER);
         Log.Entry("Closed");
     }
 
