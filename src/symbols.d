@@ -105,7 +105,7 @@ class SYMBOLS
 
         static string LastCommentForDitto;
 
-        void SetType()
+        void SetType() 
         {
             int xtra;
             CurrSym.Type = "";
@@ -475,9 +475,12 @@ class SYMBOLS
             {
                 assert(0,"no name?");
             }
-            rv.Name = rv.Scope[$-1];
-
+            
             rv.Kind = cast(SYMBOL_KIND)child["kind"];
+            if(rv.Kind == SYMBOL_KIND.MODULE) rv.Name = rv.Scope.join(".");
+            else rv.Name = rv.Scope[$-1];
+
+            
             rv.Type = cast(string)child["type"];
             rv.Signature = cast(string)child["signature"];
             rv.Protection = cast(string)child["protection"];
