@@ -175,6 +175,12 @@ class DOCUMENT : SourceView, DOC_IF
         }
         else
         {
+            auto xtmp = new TextIter;
+            getBuffer().getEndIter(xtmp);
+            //dwrite(xtmp.isEnd());
+            //dwrite(xtmp.compare(ti));
+            //dwrite(ti, " <<<<.>>> ", ti.getChar());
+            //dwrite("is ti the end? ",ti.isEnd());
             getBuffer().placeCursor(ti);
             scrollMarkOnscreen(getBuffer().getMark("insert"));
         }
@@ -2517,10 +2523,8 @@ class DOCUMENT : SourceView, DOC_IF
 
         auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
-
         auto searchSettings = new SourceSearchSettings();
         auto searchContext = new SourceSearchContext(getBuffer, searchSettings);
-        //auto searchSettings = searchContext.getSettings();
 
         searchContext.setHighlight(false);
         searchSettings.setCaseSensitive(true);
@@ -2528,25 +2532,32 @@ class DOCUMENT : SourceView, DOC_IF
         searchSettings.setWrapAround(false);
         searchSettings.setSearchText(Object.mRegex);
 
-        auto StartTi = new TextIter;
-        auto EndTi = new TextIter;
+        //auto StartTi = new TextIter;
+        //auto EndTi = new TextIter;
+        TextIter StartTi, EndTi;
         bool result_forward;
 
         foreach(ctr; 0..Reps)
         {
             if(searchContext.forward(ti, StartTi, EndTi))
             {
-                dwrite("FOUND");
                 if(ti.equal(StartTi))
                 {
-                    ti.forwardChar();
-                    searchContext.forward(ti, StartTi, EndTi);
+                    if(ti.forwardChar())
+                    {
+                         if(searchContext.forward(ti, StartTi, EndTi))
+                        {
+                            ti = StartTi.copy();
+                        }
+                    }
                 }
-                result_forward = true;
-                ti = StartTi.copy();
+                else
+                {
+                    ti = StartTi.copy();
+                }
             }
         }
-        if(!result_forward) return; //otherwise StartTi and/or EndTi will be "bad" and cause a seg fault in SetMoveIter.
+        //if(!result_forward) return; //otherwise StartTi and/or EndTi will be "bad" and cause a seg fault in SetMoveIter.
             
         SetMoveIter(ti, selection_bound);
         
@@ -2572,25 +2583,31 @@ class DOCUMENT : SourceView, DOC_IF
         searchSettings.setWrapAround(false);
 
         searchSettings.setSearchText(Object.mRegex);
-        //if(Place == TEXT_OBJECT_MARK.START) searchSettings.setSearchText(Object.mRegexStart);
-        //if(Place == TEXT_OBJECT_MARK.END) searchSettings.setSearchText(Object.mRegexEnd);
+        
+        TextIter StartTi, EndTi;
+        bool result_forward;
 
-        auto StartTi = new TextIter;
-        auto EndTi = new TextIter;
-        bool result_backward;
-
-        result_backward = searchContext.backward(ti, StartTi, EndTi);
-        dwrite("result = ",result_backward);
-        if(ti.equal(EndTi))
+        foreach(ctr; 0..Reps)
         {
-            ti.backwardChar();
-            result_backward = searchContext.backward(ti, StartTi, EndTi);
-        }
-        if(!result_backward) return; //otherwise StartTi and/or EndTi will be "bad" and cause a seg fault in SetMoveIter.
-        SetMoveIter(StartTi, selection_bound);
-        //if(Place == TEXT_OBJECT_MARK.START)SetMoveIter(StartTi, selection_bound);
-        //if(Place == TEXT_OBJECT_MARK.END) SetMoveIter(EndTi,selection_bound);
-        //if(Place == TEXT_OBJECT_MARK.CURSOR) SetMoveIter(StartTi, false);
+            if(searchContext.backward(ti, StartTi, EndTi))
+            {
+                if(ti.equal(StartTi))
+                {
+                    if(ti.backwardChar())
+                    {
+                         if(searchContext.backward(ti, StartTi, EndTi))
+                        {
+                            ti = StartTi.copy();
+                        }
+                    }
+                }
+                else
+                {
+                    ti = StartTi.copy();
+                }
+            }
+        }            
+        SetMoveIter(ti, selection_bound);
 
     }
 
