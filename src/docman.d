@@ -183,6 +183,7 @@ interface UI_DOCBOOK_IF
     string[] OpenDialog();
     string SaveAsDialog(string prevName);
     void ClosePage(DOC_IF);
+    void Revert();
     void Undo();
     void Redo();
     void Cut();
@@ -534,6 +535,10 @@ class DOCMAN
     void Redo()
     {
         mDocBook.Redo();
+    }
+    void Revert()
+    {
+        mDocBook.Revert();
     }
     void Cut()
     {

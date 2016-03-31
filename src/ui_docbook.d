@@ -325,7 +325,11 @@ public:
         auto pageindex = pageNum(page);
         removePage(pageindex);
     }
-
+    void Revert()
+    {
+        auto xdoc = cast(DOCUMENT)Current();
+        while(xdoc.getBuffer().getUndoManager().canUndo()) Undo();
+    }
     void Undo()
     {
         auto xdoc = cast (DOCUMENT)Current();
