@@ -202,6 +202,8 @@ class SYM_ASSIST_UI :ELEMENT
         string type;
         if(candi.Type.length > 0)type = candi.Type;
         else type = to!string(candi.Kind);
+        
+        if(candi.Protection.length > 0) type = candi.Protection ~ " " ~ type;
         mTypeLabel.setText(type);
 
         string file;
