@@ -345,52 +345,52 @@ class FILTER : ELEMENT
 
 
 		//actions
-		AddIcon("dcmp-doc-filter-user-1", Config.GetValue("icons", "filter-act-1", SystemPath("resources/notification-counter.png")));
+		AddIcon("dcmp-doc-filter-user-1",  SystemPath(Config.GetValue("filter_elem", "filter-act-1","resources/notification-counter.png")));
 		auto ActUserOne = "ActUserOne".AddAction("User 1", "Saved user text filter", "dcmp-doc-filter-user-1", "<Control><Shift>exclam",delegate void(Action a){UserAction(1);});
 		AddToMenuBar("ActUserOne", "E_lements");
 		uiContextMenu.AddAction("ActUserOne");
 
-		AddIcon("dcmp-doc-filter-user-2", Config.GetValue("icons", "filter-act-2", SystemPath("resources/notification-counter-02.png")));
+		AddIcon("dcmp-doc-filter-user-2",  SystemPath(Config.GetValue("filter_elem", "filter-act-2", "resources/notification-counter-02.png")));
 		auto ActUserTwo = "ActUserTwo".AddAction("User 2", "Saved user text filter", "dcmp-doc-filter-user-2", "<Shift><Control>at",delegate void(Action a){UserAction(2);});
 		AddToMenuBar("ActUserTwo", "E_lements");
 		uiContextMenu.AddAction("ActUserTwo");
 
-		AddIcon("dcmp-doc-filter-user-3", Config.GetValue("icons", "filter-act-3", SystemPath("resources/notification-counter-03.png")));
+		AddIcon("dcmp-doc-filter-user-3",  SystemPath(Config.GetValue("filter_elem", "filter-act-3", "resources/notification-counter-03.png")));
 		auto ActUserThree = "ActUserThree".AddAction("User 3", "Saved user text filter", "dcmp-doc-filter-user-3", "<Shift><Control>numbersign",delegate void(Action a){UserAction(3);});
 		AddToMenuBar("ActUserThree", "E_lements");
 		uiContextMenu.AddAction("ActUserThree");
 
-		AddIcon("dcmp-doc-filter-user-4", Config.GetValue("icons", "filter-act-4", SystemPath("resources/notification-counter-04.png")));
+		AddIcon("dcmp-doc-filter-user-4",  SystemPath(Config.GetValue("filter_elem", "filter-act-4", "resources/notification-counter-04.png")));
 		auto ActUserFour = "ActUserFour".AddAction("User 4", "Saved user text filter", "dcmp-doc-filter-user-4", "<Shift><Control>dollar",delegate void(Action a){UserAction(4);});
 		AddToMenuBar("ActUserFour", "E_lements");
 		//uiContextMenu.AddAction("ActUserFour");
 
-		AddIcon("dcmp-doc-filter-user-5", Config.GetValue("icons", "filter-act-5", SystemPath("resources/notification-counter-05.png")));
+		AddIcon("dcmp-doc-filter-user-5",  SystemPath(Config.GetValue("filter_elem", "filter-act-5", "resources/notification-counter-05.png")));
 		auto ActUserFive = "ActUserFive".AddAction("User 5", "Saved user text filter", "dcmp-doc-filter-user-5", "<Shift><Control>percent",delegate void(Action a){UserAction(5);});
 		AddToMenuBar("ActUserFive", "E_lements");
 		//uiContextMenu.AddAction("ActUserFive");
 
-		AddIcon("dcmp-doc-filter-user-6", Config.GetValue("icons", "filter-act-6", SystemPath("resources/notification-counter-06.png")));
+		AddIcon("dcmp-doc-filter-user-6",  SystemPath(Config.GetValue("filter_elem", "filter-act-6", "resources/notification-counter-06.png")));
 		auto ActUserSix = "ActUserSix".AddAction("User 6", "Saved user text filter", "dcmp-doc-filter-user-6", "<Shift><Control>asciicircum",delegate void(Action a){UserAction(6);});
 		AddToMenuBar("ActUserSix", "E_lements");
 		//uiContextMenu.AddAction("ActUserSix");
 
-		AddIcon("dcmp-doc-filter-user-7", Config.GetValue("icons", "filter-act-7", SystemPath("resources/notification-counter-07.png")));
+		AddIcon("dcmp-doc-filter-user-7",  SystemPath(Config.GetValue("filter_elem", "filter-act-7", "resources/notification-counter-07.png")));
 		auto ActUserSeven = "ActUserSeven".AddAction("User 7", "Saved user text filter", "dcmp-doc-filter-user-7", "<Shift><Control>ampersand",delegate void(Action a){UserAction(7);});
 		AddToMenuBar("ActUserSeven", "E_lements");
 		//uiContextMenu.AddAction("ActUserSeven");
 
-		AddIcon("dcmp-doc-filter-user-8", Config.GetValue("icons", "filter-act-8", SystemPath("resources/notification-counter-08.png")));
+		AddIcon("dcmp-doc-filter-user-8",  SystemPath(Config.GetValue("filter_elem", "filter-act-8", ("resources/notification-counter-08.png")));
 		auto ActUserEight = "ActUserEight".AddAction("User 8", "Saved user text filter", "dcmp-doc-filter-user-8", "<Shift><Control>asterisk",delegate void(Action a){UserAction(8);});
 		AddToMenuBar("ActUserEight", "E_lements");
 		//uiContextMenu.AddAction("ActUserEight");
 
-		AddIcon("dcmp-doc-filter-user-9", Config.GetValue("icons", "filter-act-9", SystemPath("resources/notification-counter-09.png")));
+		AddIcon("dcmp-doc-filter-user-9",  SystemPath(Config.GetValue("filter_elem", "filter-act-9", "resources/notification-counter-09.png")));
 		auto ActUserNine = "ActUserNine".AddAction("User 9", "Saved user text filter", "dcmp-doc-filter-user-9", "<Shift><Control>parenleft",delegate void(Action a){UserAction(9);});
 		AddToMenuBar("ActUserNine", "E_lements");
 		//uiContextMenu.AddAction("ActUserNine");
 
-		AddIcon("dcmp-doc-filter-user-0", Config.GetValue("icons", "filter-act-0", SystemPath("resources/notification-counter-10.png")));
+		AddIcon("dcmp-doc-filter-user-0",  SystemPath(Config.GetValue("filter_elem", "filter-act-0", "resources/notification-counter-10.png")));
 		auto ActUserTen = "ActUserTen".AddAction("User 10", "Saved user text filter", "dcmp-doc-filter-user-0", "<Shift><Control>parenright",delegate void(Action a){UserAction(10);});
 		AddToMenuBar("ActUserTen", "E_lements");
 		//uiContextMenu.AddAction("ActUserTen");
@@ -402,14 +402,14 @@ class FILTER : ELEMENT
 	{
         import std.typecons;
 		alias Tuple!(int, string, int ,string, string, string) savedtuple;
-		Config.Remove("shellfilter", "saved");
+		Config.Remove("filter_elem", "saved");
 		foreach(filter;mSavedFilters)
 		{
 			auto jobject = jsonObject();
 			jobject["input"] = cast(int)filter.In;
 			jobject["command"] = JSON(filter.Command);
 			jobject["output"] = cast(int)filter.Out;
-			Config.AppendObject("shellfilter","saved", jobject);
+			Config.AppendObject("filter_elem","saved", jobject);
 		}
 
 

@@ -174,10 +174,10 @@ void PostEngage()
 
 void RestoreGui()
 {
-    auto win_x_pos = Config.GetValue!int("ui", "win_x_pos", 1);
-    auto win_y_pos = Config.GetValue!int("ui", "win_y_pos", 1);
-    auto win_x_len = Config.GetValue!int("ui", "win_x_len", 1000);
-    auto win_y_len = Config.GetValue!int("ui", "win_y_len", 750);
+    auto win_x_pos = Config.GetValue!int("ui", "win_x_pos", 10);
+    auto win_y_pos = Config.GetValue!int("ui", "win_y_pos", 10);
+    auto win_x_len = Config.GetValue!int("ui", "win_x_len", 1200);
+    auto win_y_len = Config.GetValue!int("ui", "win_y_len", 900);
 
 
     MainWindow.move(win_x_pos, win_y_pos);
@@ -313,7 +313,7 @@ void EngageActions()
 
 }
 
-void RestoreActions()
+@disable void RestoreActions()
 {
 
 
@@ -580,7 +580,7 @@ void StoreExtraPane()
 }
 void RestoreExtraPane()
 {
-    mPaneV.setPosition(Config.GetValue!int("ui", "extra_pane_position", 120));
+    mPaneV.setPosition(Config.GetValue!int("ui", "extra_pane_position", 681));
 
     bool ExtraPaneVisible = Config.GetValue("ui", "extra_pane_visible", true);
     mExtraPane.getParent().setVisible(ExtraPaneVisible);
@@ -736,7 +736,37 @@ void ConfigureToolBar()
     }
 
     //fill in icons on toolbar
-    string[] currentToolbarActions = Config.GetArray!(string)("toolbar", "configured_actions", ["ActQuit"]);
+    string[] currentToolbarActions = Config.GetArray!(string)("toolbar", "configured_actions",
+    [
+         "ActDocNew",
+         "ActDocOpen",
+         "ActDocSave",
+         "ActDocSaveAll",
+         "ActDocClose",
+         "ActDocCloseAll",
+         "Separator",
+         "ActEditCut",
+         "ActEditCopy",
+         "ActEditPaste",
+         "ActUndo",
+         "ActRedo",
+         "ActSearch",
+         "Separator",
+         "ActDocRun",
+         "ActDocCompile",
+         "Separator",
+         "ActProjNew",
+         "ActProjOpen",
+         "ActProjSave",
+         "ActProjClose",
+         "ActProjBuild",
+         "ActProjRun",
+         "ActProjRunArgs",
+         "Separator",
+         "ActPreferences",
+         "ActAbout",
+         "ActQuit"
+      ]);
 
     foreach(toolaction; currentToolbarActions)
     {
@@ -928,7 +958,37 @@ void ConfigureToolBar()
 void RestoreToolbar()
 {
     ClearToolbar();
-    foreach(string toolaction; Config.GetArray!string("toolbar", "configured_actions"))
+    foreach(string toolaction; Config.GetArray!string("toolbar", "configured_actions",
+    [
+         "ActDocNew",
+         "ActDocOpen",
+         "ActDocSave",
+         "ActDocSaveAll",
+         "ActDocClose",
+         "ActDocCloseAll",
+         "Separator",
+         "ActEditCut",
+         "ActEditCopy",
+         "ActEditPaste",
+         "ActUndo",
+         "ActRedo",
+         "ActSearch",
+         "Separator",
+         "ActDocRun",
+         "ActDocCompile",
+         "Separator",
+         "ActProjNew",
+         "ActProjOpen",
+         "ActProjSave",
+         "ActProjClose",
+         "ActProjBuild",
+         "ActProjRun",
+         "ActProjRunArgs",
+         "Separator",
+         "ActPreferences",
+         "ActAbout",
+         "ActQuit"
+      ]))
     {
         if(toolaction == "Separator")
         {

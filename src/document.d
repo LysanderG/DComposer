@@ -291,8 +291,8 @@ class DOCUMENT : SourceView, DOC_IF
 
 
 
-        getBuffer().createTag("HiLiteAllSearchBack", "background", Config.GetValue("document", "hiliteallsearchback", "white"));
-        getBuffer().createTag("HiLiteAllSearchFore", "foreground", Config.GetValue("document", "hiliteallsearchfore", "black"));
+        //getBuffer().createTag("HiLiteAllSearchBack", "background", Config.GetValue("document", "hiliteallsearchback", "white"));
+        //getBuffer().createTag("HiLiteAllSearchFore", "foreground", Config.GetValue("document", "hiliteallsearchfore", "black"));
 
         getBuffer().createTag("HiLiteSearchBack", "background", Config.GetValue("document", "hilitesearchback", "darkgreen"));
         getBuffer().createTag("HiLiteSearchFore", "foreground", Config.GetValue("document", "hilitesearchfore", "yellow"));
@@ -354,12 +354,12 @@ class DOCUMENT : SourceView, DOC_IF
         getBuffer.setHighlightSyntax(Config.GetValue("document", "hilite_syntax", true));
         getBuffer.setHighlightMatchingBrackets(Config.GetValue("document", "match_brackets", true));
         setRightMarginPosition(Config.GetValue("document", "right_margin", 120));
-        setIndentWidth(Config.GetValue("document", "indentation_width", 8));
+        setIndentWidth(Config.GetValue("document", "indentation_width", 4));
         setTabWidth(Config.GetValue("document", "tab_width", 4));
         //setBorderWindowSize(GtkTextWindowType.BOTTOM, 5);
         setBorderWindowSize(GtkTextWindowType.BOTTOM, Config.GetValue("document", "bottom_border_size", 5));
         setPixelsBelowLines(Config.GetValue("document", "pixels_below_line", 1));
-        modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.GetValue("document", "font", "Inconsolata Bold 12")));
+        modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.GetValue("document", "font", "Monospace 13")));
 
     }
 
