@@ -1896,8 +1896,17 @@ class DOCUMENT : SourceView, DOC_IF
     {
         mStaticHorizontalCursorPosition = -1;
         auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
+        auto tistart = ti.copy();
 
         bool origOnString = getBuffer().iterHasContextClass(ti, "string");
+        if(tistart.backwardChar())
+        {
+            if(getBuffer().iterHasContextClass(tistart, "string") != origOnString)
+            {
+                origOnString = !origOnString;
+            }
+        }
+            
         bool foundBoundary;
 
         foreach(i; 0 .. Reps)
@@ -1905,7 +1914,7 @@ class DOCUMENT : SourceView, DOC_IF
             while(ti.backwardChar())
             {
                 if(getBuffer().iterHasContextClass(ti,"string") != origOnString)
-                {
+                {   
                     ti.forwardChar();
                     foundBoundary = true;
                     break;
@@ -1948,15 +1957,25 @@ class DOCUMENT : SourceView, DOC_IF
     {
         mStaticHorizontalCursorPosition = -1;
         auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
+        auto tistart = ti.copy();
 
-        bool origOnString = getBuffer().iterHasContextClass(ti, "comment");
+        bool origOnComment = getBuffer().iterHasContextClass(ti, "comment");
         bool foundBoundary;
+        
+        if(tistart.backwardChar())
+        {
+            if(getBuffer().iterHasContextClass(tistart, "comment") != origOnComment)
+            {
+                origOnComment = !origOnComment;
+            }
+        }
+                
 
         foreach(i; 0 .. Reps)
         {
             while(ti.backwardChar())
             {
-                if(getBuffer().iterHasContextClass(ti,"comment") != origOnString)
+                if(getBuffer().iterHasContextClass(ti,"comment") != origOnComment)
                 {
                     ti.forwardChar();
                     foundBoundary = true;
