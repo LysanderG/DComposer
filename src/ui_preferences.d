@@ -148,7 +148,7 @@ Widget BuildGenPrefPage()
 
     //start up folder
     auto StartUpFolder = cast(Entry)genBuilder.getObject("entry2");
-    StartUpFolder.setText(Config.GetValue!string("config", "starting_folder"));
+    StartUpFolder.setText(Config.GetValue!string("config", "starting_folder","./"));
     StartUpFolder.addOnActivate(delegate void(Entry)
     {
         Config.SetValue("config", "starting_folder", StartUpFolder.getText());
@@ -162,7 +162,7 @@ Widget BuildGenPrefPage()
 
     //log file size
     auto MaxLogFileSize = cast(SpinButton)genBuilder.getObject("spinbutton1");
-    MaxLogFileSize.setValue(Config.GetValue!int("log", "max_file_size"));
+    MaxLogFileSize.setValue(Config.GetValue!int("log", "max_file_size", 60_000));
     MaxLogFileSize.addOnValueChanged(delegate void(SpinButton sp)
     {
         Config.SetValue("log", "max_file_size", to!int(MaxLogFileSize.getValue()));
@@ -170,11 +170,11 @@ Widget BuildGenPrefPage()
 
     //elements enabled
     auto AllowElements = cast(Switch)genBuilder.getObject("switch1");
-    AllowElements.setActive(!Config.GetValue!bool("elements", "disabled"));
+    AllowElements.setActive(!Config.GetValue!bool("elements", "disabled" , false));
     AllowElements.addOnNotify(delegate void(ParamSpec spec, ObjectG  sw)
     {
         Config.SetValue!bool("elements", "disabled", !AllowElements.getActive());
-        "ActElementManager".GetAction().setSensitive(!Config.GetValue!bool("elements", "disabled"));
+        "ActElementManager".GetAction().setSensitive(!Config.GetValue!bool("elements", "disabled" , false));
         if(!AllowElements.getActive())elements.Disengage();
     }, "active");
 
@@ -184,7 +184,7 @@ Widget BuildGenPrefPage()
 
     //auto load library symbols
     auto AutoLoadSymbols = cast(Switch)genBuilder.getObject("switch2");
-    AutoLoadSymbols.setActive(Config.GetValue!bool("symbols", "auto_load_packages"));
+    AutoLoadSymbols.setActive(Config.GetValue!bool("symbols", "auto_load_packages", true));
     AutoLoadSymbols.addOnNotify(delegate void(ParamSpec spec, ObjectG  sw)
     {
         Config.SetValue!bool("symbols", "auto_load_packages", AutoLoadSymbols.getActive());
@@ -213,7 +213,7 @@ Widget BuildGenPrefPage()
 
     //project base folder
     auto ProjBaseFolder = cast(Entry)genBuilder.getObject("entry3");
-    ProjBaseFolder.setText(Config.GetValue!string("project","project_root_path"));
+    ProjBaseFolder.setText(Config.GetValue!string("project","project_root_path", "./projects"));
     ProjBaseFolder.addOnActivate(delegate void(Entry)
     {
         Config.SetValue("project","project_root_path", ProjBaseFolder.getText());
@@ -264,7 +264,7 @@ Widget BuildDocPrefPage()
         SyntaxStyle.appendText(SchemeID);
     }
 
-    SyntaxStyle.setActiveText(Config.GetValue!string("document","style_scheme"));
+    SyntaxStyle.setActiveText(Config.GetValue!string("document","style_scheme", "cobalt"));
     SyntaxStyle.addOnChanged(delegate void(ComboBoxText ss)
     {
         Config.SetValue("document", "style_scheme", SyntaxStyle.getActiveText());
@@ -326,7 +326,7 @@ Widget BuildDocPrefPage()
 
     //right margin position
     auto RightMarginPos = cast(SpinButton)docBuilder.getObject("right_margin_pos");
-    RightMarginPos.setValue(Config.GetValue!int("document", "right_margin"));
+    RightMarginPos.setValue(Config.GetValue!int("document", "right_margin", 120));
     RightMarginPos.addOnValueChanged(delegate void(SpinButton sp)
     {
         Config.SetValue("document", "right_margin", to!int(RightMarginPos.getValue()));
@@ -352,7 +352,7 @@ Widget BuildDocPrefPage()
 
     //indent width
     auto IndentWidth = cast(SpinButton)docBuilder.getObject("indent_width");
-    IndentWidth.setValue(Config.GetValue!int("document", "indentation_width"));
+    IndentWidth.setValue(Config.GetValue!int("document", "indentation_width", 4));
     IndentWidth.addOnValueChanged(delegate void(SpinButton sp)
     {
         Config.SetValue("document", "indentation_width", to!int(IndentWidth.getValue()));
@@ -360,7 +360,7 @@ Widget BuildDocPrefPage()
 
     //tab width
     auto TabWidth = cast(SpinButton)docBuilder.getObject("tab_width");
-    TabWidth.setValue(Config.GetValue!int("document", "tab_width"));
+    TabWidth.setValue(Config.GetValue!int("document", "tab_width", 4));
     TabWidth.addOnValueChanged(delegate void(SpinButton sp)
     {
         Config.SetValue("document", "tab_width", to!int(TabWidth.getValue()));
@@ -368,7 +368,7 @@ Widget BuildDocPrefPage()
 
     //Bottom border size
     auto BorderSize = cast(SpinButton)docBuilder.getObject("border_size");
-    BorderSize.setValue(Config.GetValue!int("document", "bottom_border_size"));
+    BorderSize.setValue(Config.GetValue!int("document", "bottom_border_size", 8));
     BorderSize.addOnValueChanged(delegate void(SpinButton sp)
     {
         Config.SetValue("document", "bottom_border_size", to!int(BorderSize.getValue()));
@@ -376,7 +376,7 @@ Widget BuildDocPrefPage()
 
     //pixels under line
     auto Pixels = cast(SpinButton)docBuilder.getObject("pixels_below_line");
-    Pixels.setValue(Config.GetValue!int("document", "pixels_below_line"));
+    Pixels.setValue(Config.GetValue!int("document", "pixels_below_line", 2));
     Pixels.addOnValueChanged(delegate void(SpinButton sp)
     {
         Config.SetValue("document", "pixels_below_line", to!int(Pixels.getValue()));
@@ -384,7 +384,7 @@ Widget BuildDocPrefPage()
 
     //font
     auto Fonts = cast(FontButton)docBuilder.getObject("fontbutton");
-    Fonts.setFontName(Config.GetValue!string("document", "font"));
+    Fonts.setFontName(Config.GetValue!string("document", "font", "DejaVu Sans Mono Bold 14"));
     Fonts.addOnFontSet(delegate void(FontButton fb)
     {
         Config.SetValue("document", "font", Fonts.getFontName());
