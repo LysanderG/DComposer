@@ -227,7 +227,8 @@ Widget BuildGenPrefPage()
 
     //terminal command
     auto TerminalCommand = cast(Entry)genBuilder.getObject("entry4");
-    string cmdstring = Config.GetArray("terminal_cmd", "run",["xterm","-e","-hold"]).join(" ");
+    string cmdstring = Config.GetArray!string("terminal_cmd","run", ["xterm", "-T","dcomposer running project","-e"]).join(" ");
+
     TerminalCommand.setText(cmdstring);
     TerminalCommand.addOnActivate(delegate void(Entry)
     {

@@ -380,7 +380,7 @@ class FILTER : ELEMENT
 		AddToMenuBar("ActUserSeven", "E_lements");
 		//uiContextMenu.AddAction("ActUserSeven");
 
-		AddIcon("dcmp-doc-filter-user-8",  SystemPath(Config.GetValue("filter_elem", "filter-act-8", ("resources/notification-counter-08.png")));
+		AddIcon("dcmp-doc-filter-user-8",  SystemPath(Config.GetValue("filter_elem", "filter-act-8", "resources/notification-counter-08.png")));
 		auto ActUserEight = "ActUserEight".AddAction("User 8", "Saved user text filter", "dcmp-doc-filter-user-8", "<Shift><Control>asterisk",delegate void(Action a){UserAction(8);});
 		AddToMenuBar("ActUserEight", "E_lements");
 		//uiContextMenu.AddAction("ActUserEight");
