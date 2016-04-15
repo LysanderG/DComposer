@@ -142,7 +142,7 @@ public:
         uiContextMenu.AddAction("ActDocRun");
         
         //run unit tests
-        AddIcon("dcmp-doc-unit-tests", SystemPath( Config.GetValue("icons", "doc-unit-tests", "resources/document-blocks")));
+        AddIcon("dcmp-doc-unit-tests", SystemPath( Config.GetValue("icons", "doc-unit-tests", "resources/document-block.png")));
         auto ActUnitTests = "ActDocUnitTests".AddAction("_Unit Tests", "Run current documents unit tests", "dcmp-doc-unit-tests", "<shift><control>U", delegate void (Action a){DocMan.UnitTests();});
         AddToMenuBar("ActDocUnitTests","_Document");
         uiContextMenu.AddAction("ActDocUnitTests");

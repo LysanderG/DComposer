@@ -11,6 +11,7 @@ import std.string;
 import std.uni;
 import std.utf;
 import std.conv;
+import std.format;
 static import std.process ;
 
 import gtk.TextIter;
@@ -63,6 +64,9 @@ public import gsv.SourceMark;
 public import gsv.SourceMarkAttributes;
 public import gsv.SourceSearchContext;
 public import gsv.SourceSearchSettings;
+public import gsv.SourceGutter;
+public import gsv.SourceGutterRendererText;
+public import gsv.SourceGutterRenderer;
 public import gsv.Utils;
 
 
@@ -112,8 +116,9 @@ class DOCUMENT : SourceView, DOC_IF
     bool                mFirstScroll;
 
     int                 mStaticHorizontalCursorPosition = -1;
-
-
+    
+    string[string]      mCodeCoverage;
+    SourceGutterRendererText mGutterRendererText;
 
     SysTime mFileTimeStamp;
 
@@ -177,15 +182,10 @@ class DOCUMENT : SourceView, DOC_IF
         {
             auto xtmp = new TextIter;
             getBuffer().getEndIter(xtmp);
-            //dwrite(xtmp.isEnd());
-            //dwrite(xtmp.compare(ti));
-            //dwrite(ti, " <<<<.>>> ", ti.getChar());
-            //dwrite("is ti the end? ",ti.isEnd());
             getBuffer().placeCursor(ti);
             scrollMarkOnscreen(getBuffer().getMark("insert"));
         }
     }
-
 
 
     public:
@@ -206,15 +206,11 @@ class DOCUMENT : SourceView, DOC_IF
 
         auto tabXButton = new Button(StockID.NO, true);
 
-        //tabXButton.setRelief(ReliefStyle.HALF);
         tabXButton.setSizeRequest(8, 8);
         tabXButton.addOnClicked(delegate void (Button x){DocMan.Close(this);});
 
         mTabWidget = new Box(Orientation.HORIZONTAL, 0);
-        //mTabWidget.setSizeRequest(-1, -1);
         mTabLabel = new Label(TabLabel);
-        //mTabWidget.add(mTabLabel);
-        //mTabWidget.add(tabXButton);
         mTabWidget.packStart(mTabLabel,1, 1, 0);
         mTabWidget.packStart(tabXButton, 0, 0,2);
         mTabWidget.showAll();
@@ -231,7 +227,6 @@ class DOCUMENT : SourceView, DOC_IF
             e.getKeyval(keyval);
             GdkModifierType state;
             e.getState(state);
-            //DocMan.SetBlockDocumentKeyPress(false);
             DocMan.DocumentKeyDown.emit(keyval, cast(uint)state);
             
             return DocMan.BlockDocumentKeyPress();
@@ -291,8 +286,8 @@ class DOCUMENT : SourceView, DOC_IF
 
 
 
-        //getBuffer().createTag("HiLiteAllSearchBack", "background", Config.GetValue("document", "hiliteallsearchback", "white"));
-        //getBuffer().createTag("HiLiteAllSearchFore", "foreground", Config.GetValue("document", "hiliteallsearchfore", "black"));
+        getBuffer().createTag("HiLiteAllSearchBack", "background", Config.GetValue("document", "hiliteallsearchback", "white"));
+        getBuffer().createTag("HiLiteAllSearchFore", "foreground", Config.GetValue("document", "hiliteallsearchfore", "black"));
 
         getBuffer().createTag("HiLiteSearchBack", "background", Config.GetValue("document", "hilitesearchback", "darkgreen"));
         getBuffer().createTag("HiLiteSearchFore", "foreground", Config.GetValue("document", "hilitesearchfore", "yellow"));
@@ -304,18 +299,13 @@ class DOCUMENT : SourceView, DOC_IF
         getVisibleRect(xrec);
 
 
-        setShowLineMarks(true);
         auto SrcMrkAttribs = new SourceMarkAttributes;
-        //SrcMrkAttribs.setIconName("nav_point_icon");
         SrcMrkAttribs.setPixbuf(new Pixbuf(SystemPath(Config.GetValue("docman", "nav_point_icon", "resources/pin-small.png"))));
         setMarkAttributes("NavPoints", SrcMrkAttribs, 1);
 
 
         Config.Changed.connect(&WatchConfigChange);
     }
-
-    //GtkSourceCompletion * xcomp;
-    //GtkSourceCompletionWords * wcomp;
 
     void WatchConfigChange(string Sec, string key)
     {
@@ -361,8 +351,46 @@ class DOCUMENT : SourceView, DOC_IF
         setPixelsBelowLines(Config.GetValue("document", "pixels_below_line", 1));
         modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.GetValue("document", "font", "Monospace 13")));
 
-    }
+        //adding gutter stuff for code coverage 
+        auto gutter = getGutter(TextWindowType.LEFT);
+        mGutterRendererText = new SourceGutterRendererText();
 
+        
+        mGutterRendererText.addOnQueryData(delegate void(TextIter tiStart, TextIter tiEnd, GtkSourceGutterRendererState state, SourceGutterRenderer sgr)
+        {   
+            //sourcemarks lead to infinite loop ... trying textmarks
+            mGutterRendererText.setText("", "".length);
+            auto listmarks = tiStart.getMarks();            
+            if(listmarks is null) return;
+            auto marks = listmarks.toArray!TextMark;
+            if(marks.length < 1) return;
+            string txtName;
+            foreach(mark; marks)
+            {
+                txtName = mark.getName();
+                if(txtName.startsWith("cov-"))break;
+                txtName = "";
+            }
+            if(txtName.strip().length == 0) return;
+            sgr.setVisible(true);
+            
+            int xlen, ylen;        
+            string thefinalstring;
+            auto sgrt = cast(SourceGutterRendererText)sgr;
+            
+            
+            thefinalstring = "[" ~mCodeCoverage[txtName] ~ "]";
+            sgrt.measure(thefinalstring, xlen, ylen);
+            if(xlen > sgrt.getSize()) sgrt.setSize(xlen);
+            sgrt.setText(thefinalstring, cast(int)thefinalstring.length);
+        
+            return;
+        });
+        mGutterRendererText.setVisible(false);
+        mGutterRendererText.setAlignment(1.0, -1);
+        gutter.insert(mGutterRendererText, 1);
+        
+    }
 
     @property string Language()
     {
@@ -413,20 +441,13 @@ class DOCUMENT : SourceView, DOC_IF
     int     Line()
     {
         auto ti = Cursor();
-        //TextIter ti = new TextIter;
-        //tBuffer.getIterAtMark(ti, getBuffer().getInsert());
         return ti.getLine();
-        //return getBuffer().getInsert().getLine();
     }
 
     int     Column()
     {
         auto ti = Cursor();
-        //TextIter ti = new TextIter;
-        //getBuffer.getIterAtMark(ti, getBuffer().getInsert());
-        //return ti.getLineOffset();
         return ti.getLineIndex();
-        //return getBuffer().getInsert().getLineOffset();
     }
     string LineText()
     {
@@ -436,6 +457,34 @@ class DOCUMENT : SourceView, DOC_IF
         tiEnd.forwardToLineEnd();
         return tiStart.getText(tiEnd);
     }
+
+    bool RefreshCoverage()
+    {
+        scope(failure) return false;
+        
+        auto covFileName =  mFullName.tr("/", "-").setExtension("lst");
+        if(!covFileName.exists())return false;
+        auto covFile = std.stdio.File(covFileName);
+        int idx;
+        foreach(xline; covFile.byLineCopy())
+        {
+            if(xline.canFind("|"))
+            {
+                TextIter ti;
+                TextMark sm;
+                string covstr, waste;                
+                getBuffer().getIterAtLine(ti, idx);                
+                sm = getBuffer().createMark("cov-"~idx.to!string, ti, false);
+                auto rv = formattedRead(xline, "%s| %s", &covstr, &waste);
+                mCodeCoverage[sm.getName()] = covstr.strip();
+            }
+            idx++;
+        }
+        mGutterRendererText.setVisible(true);
+        return true;
+    }
+        
+
 
 
     /**
@@ -832,7 +881,6 @@ class DOCUMENT : SourceView, DOC_IF
 
             inside = gdk.Rectangle.intersect(&visLoc, &insLoc, nulLoc);
             scrollToMark(insMark, 0.0, true, 0.75, 0.25);
-            //while(Main.eventsPending())Main.iteration();
             Main.iteration();
             if( mFirstScroll && (insLoc.y == 0)) inside = 0;
         }while(!inside);
@@ -2467,75 +2515,6 @@ class DOCUMENT : SourceView, DOC_IF
     }
 
 
-    /+void SearchTest()
-    {
-        import gsv.SourceSearchContext;
-
-        auto searchContext = new SourceSearchContext(getBuffer, null);
-        auto searchSettings = searchContext.getSettings();
-
-        searchContext.setHighlight(false);
-
-        searchSettings.setCaseSensitive(true);
-        //searchSettings.setSearchText(`\b[_\p{L}][\w]*\b`); //word
-        //searchSettings.setSearchText(`(\/\*(.*?|\n)*\*\/)|(\/\/[^\n]*\n)|\b[^\{\}\:;]*([\)\}\:;])|(?!{)`); //statement
-        //searchSettings.setSearchText(`^.*$`); //line
-        //searchSettings.setSearchText(`(?<=\[)([^\]]*)`); //array
-        searchSettings.setSearchText(q"[(`|"|'|q\{)(.|\n)*?(?<!\\)\1]");
-        //searchSettings.setSearchText(`((\b0[xX][a-fA-F0-9][a-fA-F0-9_]*)|\b[0-9][0-9_]*(\.[0-9][0-9_]*)?(e[0-9][0-9_]*)?)`);
-        dwrite(searchSettings.getSearchText());
-        //searchSettings.setSearchText(`(?<;[\s]*)\b[_\w][.]*;`);
-
-        searchSettings.setRegexEnabled(true);
-        searchSettings.setWrapAround(false);
-
-        auto StartTi = new TextIter;
-        auto EndTi = new TextIter;
-
-        if(!searchContext.backward(Cursor(), StartTi, EndTi))return;
-        if(Cursor().equal(StartTi))
-        {
-            MoveLeft(1, false);
-            searchContext.backward(Cursor(), StartTi, EndTi);
-        }
-        SetMoveIter(StartTi, false);
-        SetMoveIter(EndTi, true);
-        auto error = searchContext.getRegexError();
-        if(error)dwrite(error.getErrorGStruct().message);
-    }+/
-
-    /+
-    //not object but regex ... object will be for selecting whole object
-    void MoveObjectPrev(TEXT_OBJECT Object, TEXT_OBJECT_MARK Mark, int Reps)
-    {
-        mStaticHorizontalCursorPosition = -1;
-
-        bool selection_bound = true;
-        if(Mark == TEXT_OBJECT_MARK.CURSOR) selection_bound = false;
-
-        TextIter ti;
-
-        if(Direction == TEXT_OBJECT_DIRECTION.PREV)
-            ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
-        else
-            ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
-
-        searchContext.setHighlight(false);
-        searchSettings.setCaseSensitive(true);
-        searchSettings.setRegexEnabled(true);
-        searchSettings.setWrapAround(false);
-        searchSettings.setSearchText(Object.GetRegex());
-
-
-        auto StartTi = new TextIter;
-        auto EndTi = new TextIter;
-        bool result_forward;
-
-        result_forward = searchContext.forward(ti, StartTi, EndTi);
-
-    }+/
-
-
     void MoveObjectNext(TEXT_OBJECT Object, int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
@@ -2551,8 +2530,6 @@ class DOCUMENT : SourceView, DOC_IF
         searchSettings.setWrapAround(false);
         searchSettings.setSearchText(Object.mRegex);
 
-        //auto StartTi = new TextIter;
-        //auto EndTi = new TextIter;
         TextIter StartTi, EndTi;
         bool result_forward;
 

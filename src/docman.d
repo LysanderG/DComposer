@@ -13,6 +13,7 @@ import std.utf;
 import std.uni;
 import std.encoding;
 import std.algorithm;
+import std.range;
 
 
 interface DOC_IF
@@ -43,6 +44,7 @@ interface DOC_IF
     string  WordUnderPointer();
     int     WordLength(int Partial = -1);
     dchar   GetChar();
+    bool    RefreshCoverage();
 
     string  GetText();
     void    SetText(string txt);
@@ -498,50 +500,66 @@ class DOCMAN
     
     void UnitTests()
     {
+        
+        
         if(Current is null) return;
-        if(Current.Modified)Current.Save();
-
+        scope(success) 
+        {
+            Current.RefreshCoverage();
+        }
         scope(failure)
         {
             ShowMessage("Error", "Failed to execute unit tests " ~ Current.TabLabel);
             Log.Entry("Failed to execute unit tests for " ~ Current.TabLabel);
+            return;
         }
+        
+        if(Current.Modified)Current.Save();
+
         CurrentPath(Current.Name.baseName());
 
         string ExecName = Current.Name();
 
         auto TerminalCommand = Config.GetArray!string("terminal_cmd","run", ["xterm", "-T","dcomposer running project","-e"]);
-
-        auto tFile = std.stdio.File(tmpfilename, "w");
-
-        tFile.writeln("#!/bin/bash");
-        tFile.writeln("rdmd -unittest -cov --main ", ExecName );
-        tFile.writeln("if [ $? = 0 ]; then");
-        tFile.writeln(" echo UNIT TESTS SUCCEEDED");
-        tFile.writeln("fi");
-        tFile.writeln();
-        tFile.writeln(`echo -e "\n\nProgram Terminated.\nPress a key to close terminal..."`);
-        tFile.writeln(`read -sn1`);
-        tFile.flush();
-        tFile.close();
-        setAttributes(tmpfilename, 509);
-
-
-        string[] CmdStrings;
-
-        CmdStrings = TerminalCommand;
-        CmdStrings ~= ["./"~tmpfilename];
-
         try
         {
-            mRunPids ~= spawnProcess(CmdStrings);
-            Log.Entry(`"` ~ Current.TabLabel ~ `"` ~ " spawned ... " );
+            auto tFile = std.stdio.File(tmpfilename, "w");
+    
+            tFile.writeln("#!/bin/bash");
+            tFile.writeln("rdmd -unittest -cov --main ", ExecName );
+            tFile.writeln("if [ $? = 0 ]; then");
+            tFile.writeln(" echo UNIT TESTS SUCCEEDED");
+            tFile.writeln("fi");
+            tFile.writeln();
+            tFile.writeln(`echo -e "\n\nProgram Terminated.\nPress a key to close terminal..."`);
+            tFile.writeln(`read -sn1`);
+            tFile.flush();
+            tFile.close();
+            setAttributes(tmpfilename, 509);
+    
+    
+            string[] CmdStrings;
+    
+            CmdStrings = TerminalCommand;
+            CmdStrings ~= ["./"~tmpfilename];
+
+
+            auto xpid = spawnProcess(CmdStrings);
+            wait(xpid);
+            Log.Entry(`"` ~ Current.TabLabel ~ `"` ~ " unittests ran and finished" );
+            auto covfile = readText(Current.Name.tr("/", "-").setExtension("lst"));
+            string finalmsg = covfile
+                              .lineSplitter
+                              .array[$-1];
+                              
+            ShowMessage("Code coverage", finalmsg);            
         }
         catch(Exception E)
         {
             Log.Entry(E.msg);
             return;
-        }
+        }       
+        
     }
 
     bool IsOpen(string CheckName)
