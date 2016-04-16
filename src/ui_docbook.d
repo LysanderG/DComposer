@@ -131,7 +131,7 @@ public:
         AddToMenuBar("-", "_Document");
         //compiles w/ no object file output
         AddIcon("dcmp-doc-compile", SystemPath( Config.GetValue("icons", "doc-compile", "resources/document-text-compile.png")));
-        auto ActCompile = "ActDocCompile".AddAction("Com_pile", "Check if document compiles (no object file output)","dcmp-doc-compile", "", delegate void (Action a){DocMan.Compile();});
+        auto ActCompile = "ActDocCompile".AddAction("Com_pile", "Check if document compiles (no object file output)","dcmp-doc-compile", "<shift><control>C", delegate void (Action a){DocMan.Compile();});
         AddToMenuBar("ActDocCompile", "_Document");
         uiContextMenu.AddAction("ActDocCompile");
 
@@ -146,6 +146,11 @@ public:
         auto ActUnitTests = "ActDocUnitTests".AddAction("_Unit Tests", "Run current documents unit tests", "dcmp-doc-unit-tests", "<shift><control>U", delegate void (Action a){DocMan.UnitTests();});
         AddToMenuBar("ActDocUnitTests","_Document");
         uiContextMenu.AddAction("ActDocUnitTests");
+        
+        //toggle coverage
+        AddIcon("dcmp-doc-hide-coverage", SystemPath( Config.GetValue("icons", "doc-hide-coverage", "resources/switch.png")));
+        auto ActDocHideCoverage = "ActDocHideCoverage".AddAction("Toggle _coverage", "Show/Hide code coverage in gutter", "dcmp-doc-hide-coverage", "<control><shift>H", delegate void (Action a){DocMan.HideGutterCoverage();});
+        uiContextMenu.AddAction("ActDocHideCoverage");
 
         //=============================================================================================================
         //=============================================================================================================

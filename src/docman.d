@@ -45,6 +45,7 @@ interface DOC_IF
     int     WordLength(int Partial = -1);
     dchar   GetChar();
     bool    RefreshCoverage();
+    void    HideGutterCoverage();
 
     string  GetText();
     void    SetText(string txt);
@@ -560,6 +561,12 @@ class DOCMAN
             return;
         }       
         
+    }
+    
+    void HideGutterCoverage()
+    {
+        auto doc = Current();
+        if(doc) doc.HideGutterCoverage();
     }
 
     bool IsOpen(string CheckName)

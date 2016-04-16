@@ -358,6 +358,8 @@ class DOCUMENT : SourceView, DOC_IF
         
         mGutterRendererText.addOnQueryData(delegate void(TextIter tiStart, TextIter tiEnd, GtkSourceGutterRendererState state, SourceGutterRenderer sgr)
         {   
+            
+            //if(!mGutterRendererText.getVisible()) return;
             //sourcemarks lead to infinite loop ... trying textmarks
             mGutterRendererText.setText("", "".length);
             auto listmarks = tiStart.getMarks();            
@@ -372,7 +374,7 @@ class DOCUMENT : SourceView, DOC_IF
                 txtName = "";
             }
             if(txtName.strip().length == 0) return;
-            sgr.setVisible(true);
+            //sgr.setVisible(true);
             
             int xlen, ylen;        
             string thefinalstring;
@@ -391,6 +393,9 @@ class DOCUMENT : SourceView, DOC_IF
         gutter.insert(mGutterRendererText, 1);
         
     }
+    
+   
+        
 
     @property string Language()
     {
@@ -482,6 +487,18 @@ class DOCUMENT : SourceView, DOC_IF
         }
         mGutterRendererText.setVisible(true);
         return true;
+    }
+    
+     void HideGutterCoverage()
+    {
+        if(mGutterRendererText.getVisible())
+        {
+            mGutterRendererText.setVisible(false);
+        }
+        else
+        {
+            mGutterRendererText.setVisible(true);
+        }
     }
         
 
