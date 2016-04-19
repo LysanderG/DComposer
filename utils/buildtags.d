@@ -1,4 +1,4 @@
-#!/usr/local/bin/rdmd
+#!/usr/bin/rdmd -I../deps/dson
 
 module buildtags;
 
@@ -61,10 +61,11 @@ int main(string [] args)
             cmdline ~= fileItem;
         }
     }
+    writeln(cmdline);
+    auto res = execute(cmdline);
+    writeln(res.output);
 
-    execute(cmdline);
-
-    remove(docfile);
+    if(docfile.exists())remove(docfile);
 
     auto MainPackage = new SYMBOLS;
 

@@ -29,3 +29,6 @@ deps/dson/json.d \
 -L-lgtkd-3 \
 -defaultlib=libphobos2.so \
 -L-ldl
+#if [ $? -eq 0 ]; then 
+#    bash elementbuilder.sh
+#fi
