@@ -411,12 +411,21 @@ class FILTER : ELEMENT
 			jobject["output"] = cast(int)filter.Out;
 			Config.AppendObject("filter_elem","saved", jobject);
 		}
-
+        
+        RemoveAction("ActUserTen");
+        RemoveAction("ActUserNine");
+        RemoveAction("ActUserEight");
+        RemoveAction("ActUserSeven");
+        RemoveAction("ActUserSix");
+        RemoveAction("ActUserFive");
+        RemoveAction("ActUserFour");
+        RemoveAction("ActUserThree");
+        RemoveAction("ActUserTwo");
+        RemoveAction("ActUserOne");        
 
 		RemoveExtraPage(mRoot);
         mRoot.destroy();
-        //mUpdateOnIdle.stop();
-        //mUpdateOnIdle.destroy();
+ 
 		Log.Entry("Disengaged");
 	}
 
