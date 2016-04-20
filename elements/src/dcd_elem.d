@@ -71,10 +71,10 @@ class DCD_ELEM : ELEMENT
             case '_' :
             case '.' :
             case '(' : PresentCandidates(); break;
-            //case ')' : uiCompletion.PopCallTip(); break;
             default  : return;
         }
     }
+    
     void WatchImportPaths(PROJECT_EVENT proEvent)
     {
         if(proEvent != PROJECT_EVENT.LISTS) return;
@@ -96,7 +96,6 @@ class DCD_ELEM : ELEMENT
         string port = format("-p%s", mPort);
 
         auto pipes = std.process.pipeProcess([mClientCommand, port, arg]);
-        //scope(exit)wait(pipes.pid());
 
         pipes.stdin.writeln(DocMan.Current.GetText());
         pipes.stdin.flush();
@@ -106,12 +105,10 @@ class DCD_ELEM : ELEMENT
         
         foreach(line; pipes.stdout.byLine)
         {
-            dwrite(line);
             Output ~= line.idup;
         }
         pipes.stdout.close();
         
-        //kill(pipes.pid());
         
         if(Output.length < 2) return;
 
@@ -120,13 +117,9 @@ class DCD_ELEM : ELEMENT
             foreach(index, line; Output[1 .. $])
             {
                 auto i = line.indexOf('\t');
-                Candidates ~= line[0..i];
-                
-                //Types ~= line[i+1..$];
-                //dwrite(line, line[i+1 .. $]);
+                Candidates ~= line[0..i];                
                 Types  ~= TypeName[line[i+1..$]];
             }
-            dwrite(Candidates, " .. ", Types);
             uiCompletion.ShowCompletion(Candidates, Types);
         }
 
@@ -147,26 +140,25 @@ class DCD_ELEM : ELEMENT
     string License(){return "New BSD license";}
     string CopyRight(){return "Anthony Goins © 2015";}
     string[] Authors(){return ["Anthony Goins <neontotem@gmail.com>"];}
-
-
-
-
+    
 
     void Engage()
     {
         SetupTypeNames();
 
-        mServerCommand = SystemPath(Config.GetValue("dcd_elem", "server_command", "deps/DCD/bin/dcd-server"));
-        mClientCommand = SystemPath(Config.GetValue("dcd_elem", "client_command", "deps/DCD/bin/dcd-client"));
+        mServerCommand = SystemPath(Config.GetValue("dcd_elem", "server_command", "dcd-server"));
+        mClientCommand = SystemPath(Config.GetValue("dcd_elem", "client_command", "dcd-client"));
         mImportPaths = Config.GetArray("dcd_elem", "import_paths", ["/usr/include/dmd/phobos", "/usr/include/dmd/druntime"]);
         mPort = Config.GetValue!ushort("dcd_elem", "port_number", 9166);
         mMinChars = Config.GetValue("dcd_elem", "min_char_lookup", 3);
+        
+        DocMan.Insertion.connect(&WatchForText);
+        Project.Event.connect(&WatchImportPaths);
 
         //are we running
         string[] cmd = [mClientCommand];
         cmd ~= "-q";
         cmd ~= format("-p%s", mPort);
-        dwrite(cmd);
         std.typecons.Tuple!(int, "status", string, "output") queryServer;
         try
         {
@@ -190,17 +182,15 @@ class DCD_ELEM : ELEMENT
             }
             catch(Exception x)
             {
+                mShutServerDown = false;
                 ShowMessage("DCD SERVER FAILED TO START", x.msg);
                 Log.Entry("Failed to start DCD server.");
                 return;
             }
-            //Log.Entry("DCD server started.");
         }
         string eyeports = format("%s", mImportPaths);
         Log.Entry("DCD server running :" ~ format(" @%s ", mPort) ~ eyeports);
 
-        DocMan.Insertion.connect(&WatchForText);
-        Project.Event.connect(&WatchImportPaths);
 
         Log.Entry("Engaged :) Are you happy? ");
     }
@@ -209,9 +199,16 @@ class DCD_ELEM : ELEMENT
     void Disengage()
     {
         DocMan.Insertion.disconnect(&WatchForText);
+        Project.Event.disconnect(&WatchImportPaths);
 
         if(mShutServerDown)
         {
+            scope(failure)
+            {
+                Log.Entry("Error Shutting down DCD server", "Error");
+                Log.Entry("\tCheck for correct client/server settings in DCD preferences", "Error");
+                return;
+            }
             string port = format("-p%s", mPort);
             auto stopServer = execute([mClientCommand] ~ [port] ~ ["--shutdown"]);
             wait(mServerPID);
@@ -225,9 +222,14 @@ class DCD_ELEM : ELEMENT
         Log.Entry("Disengaged");
     }
 
-    void Configure(){}
-
-
+    void Configure()
+    {
+        mServerCommand = SystemPath(Config.GetValue("dcd_elem", "server_command", "deps/DCD/bin/dcd-server"));
+        mClientCommand = SystemPath(Config.GetValue("dcd_elem", "client_command", "deps/DCD/bin/dcd-client"));
+        mImportPaths = Config.GetArray("dcd_elem", "import_paths", ["/usr/include/dmd/druntime", "/usr/include/dmd/phobos"]);
+        mPort = Config.GetValue!ushort("dcd_elem", "port_number", 9166);
+        mMinChars = Config.GetValue("dcd_elem", "min_char_lookup", 3);
+    }
 
     PREFERENCE_PAGE PreferencePage()
     {
@@ -252,8 +254,7 @@ class DCD_ELEM : ELEMENT
     {
         return mPort;
     }
-
-
+    
 }
 
 
@@ -293,7 +294,7 @@ class DCD_ELEM_PREFERENCE_PAGE : PREFERENCE_PAGE
         try
         {
             auto stopServer = execute([ClientFile, switchOldPort ,"--shutdown"]);
-            wait(DCD_ELEM.ServerPid());
+            if(DCD_ELEM.ServerPid() !is null) wait(DCD_ELEM.ServerPid());
             if(stopServer.status == 0) Log.Entry("DCD server shutdown");
             else Log.Entry("DCD server shutdown failed");
         }
@@ -320,12 +321,6 @@ class DCD_ELEM_PREFERENCE_PAGE : PREFERENCE_PAGE
         DCD_ELEM.SetPort(Port);
         Log.Entry("DCD server restarted " ~ format("(listening at port %s)", Port));
     }
-
-
-
-
-
-
 
     public:
 
@@ -379,8 +374,6 @@ class DCD_ELEM_PREFERENCE_PAGE : PREFERENCE_PAGE
         mDcdImportPaths.connect(&watchList);
 
         mRestart.addOnClicked(&RestartServer);
-
-
 
     }
 }
