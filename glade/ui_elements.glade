@@ -35,6 +35,31 @@
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="dialog-action_area1">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="button1">
+                <property name="label" translatable="yes">Close</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
         <child>
           <object class="GtkLabel" id="label1">
             <property name="visible">True</property>
@@ -122,31 +147,6 @@
             <property name="position">1</property>
           </packing>
         </child>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area1">
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="button1">
-                <property name="label" translatable="yes">Close</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack_type">end</property>
-            <property name="position">2</property>
-          </packing>
-        </child>
         <child>
           <object class="GtkFrame" id="frame1">
             <property name="visible">True</property>
@@ -162,13 +162,15 @@
                   <object class="GtkLabel" id="label4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="xalign">0</property>
-                    <property name="label" translatable="yes">&lt;span weight="ultralight"&gt;Name :             &lt;/span&gt; &lt;b&gt;blah&lt;/b&gt;
+                    <property name="label" translatable="yes">&lt;span font="mono 16"&gt;
+&lt;span weight="ultralight"&gt;Name       : &lt;/span&gt; &lt;b&gt;blah&lt;/b&gt;
 &lt;span weight="ultralight"&gt;Description: &lt;/span&gt; &lt;b&gt;blah blah blah&lt;/b&gt;
-&lt;span weight="ultralight"&gt;Copyright:     &lt;/span&gt; &lt;b&gt;Anthony Goins  ©  2014&lt;/b&gt;
-&lt;span weight="ultralight"&gt;License:          &lt;/span&gt; &lt;b&gt;New BSD&lt;/b&gt;
-&lt;span weight="ultralight"&gt;Authors:         &lt;/span&gt; &lt;b&gt;Anthony Goins "neontotem@gmail.com"&lt;/b&gt;</property>
+&lt;span weight="ultralight"&gt;Copyright  : &lt;/span&gt; &lt;b&gt;Anthony Goins  ©  2014&lt;/b&gt;
+&lt;span weight="ultralight"&gt;License    : &lt;/span&gt; &lt;b&gt;New BSD&lt;/b&gt;
+&lt;span weight="ultralight"&gt;Authors    : &lt;/span&gt; &lt;b&gt;Anthony Goins "neontotem@gmail.com"&lt;/b&gt;
+&lt;/span&gt;</property>
                     <property name="use_markup">True</property>
+                    <property name="xalign">0</property>
                   </object>
                 </child>
               </object>

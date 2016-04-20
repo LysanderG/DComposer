@@ -2,6 +2,7 @@ module ui_elementmanager;
 
 import std.path;
 import std.string;
+import std.xml;
 import core.runtime;
 import core.sys.posix.dlfcn;
 
@@ -29,6 +30,13 @@ private ListStore mStore;
 private Button  mPreferenceBtn;
 private CellRendererToggle mCellToggle;
 private Label mElementInfoLabel;
+
+auto muText = `<span font="monospace 16"><span weight="ultralight">Name        :</span><b>%s</b>
+<span weight="ultralight">Description :</span><b>%s</b>
+<span weight="ultralight">Copyright   :</span><b>%s</b>
+<span weight="ultralight">License     :</span><b>%s</b>
+<span weight="ultralight">Authors     :</span><b>%s</b></span>`;
+
 
 
 void Engage()
@@ -85,17 +93,22 @@ void Engage()
         mStore.setValue(ti, 2, Libraries[libraryKey].mName);
         mStore.setValue(ti, 3, Libraries[libraryKey].mInfo);
         mStore.setValue(ti, 4, Libraries[libraryKey].mFile);
-
+        
+        
 
         if(Libraries[libraryKey].mClassName !in Elements)
         {
-            mElementInfoLabel.setText(format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Libraries[libraryKey].mName, Libraries[libraryKey].mInfo, "unknown", "unknown", "unknown"));
+
+            mElementInfoLabel.setMarkup(format(muText, Libraries[libraryKey].mName, Libraries[libraryKey].mInfo, "unknown", "unknown", "unknown"));
+            //mElementInfoLabel.setText(format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Libraries[libraryKey].mName, Libraries[libraryKey].mInfo, "unknown", "unknown", "unknown"));
             return;
         }
         with(Elements[Libraries[libraryKey].mClassName])
         {
-            string labelText = format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Name, Info, CopyRight, License, Authors);
-            mElementInfoLabel.setText(labelText);
+            string labelText = format(muText, Name, Info, CopyRight, License, Authors.join(", ").encode());
+            //string labelText = format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Name, Info, CopyRight, License, Authors);
+            mElementInfoLabel.setMarkup(labelText);
+            
         }
 
 
@@ -128,14 +141,19 @@ void Engage()
         if(Libraries[libraryKey].mClassName !in Elements)
         {
             mPreferenceBtn.setSensitive(false);
-            mElementInfoLabel.setText(format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Libraries[libraryKey].mName, Libraries[libraryKey].mInfo, "unknown", "unknown", "unknown"));
+            //mElementInfoLabel.setText(format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Libraries[libraryKey].mName, Libraries[libraryKey].mInfo, "unknown", "unknown", "unknown"));
+            mElementInfoLabel.setMarkup(format(muText, Libraries[libraryKey].mName, Libraries[libraryKey].mInfo, "unknown", "unknown", "unknown"));
             return;
         }
         with(Elements[Libraries[libraryKey].mClassName])
         {
             mPreferenceBtn.setSensitive(Libraries[libraryKey].mEnabled);
-            string labelText = format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Name, Info, CopyRight, License, Authors);
-            mElementInfoLabel.setText(labelText);
+
+            string labelText = format(muText, Name, Info, CopyRight, License, Authors.join(", ").encode());
+            mElementInfoLabel.setMarkup(labelText);           
+            
+            //string labelText = format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Name, Info, CopyRight, License, Authors);
+            //mElementInfoLabel.setText(labelText);
         }
 
     }

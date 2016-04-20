@@ -72,6 +72,11 @@ bool ShowPreferencePageDialog(PREFERENCE_PAGE Page)
     else
     {
         auto tmpcon = cast(Container)(Page.ContentWidget);
+        if(tmpcon is null)
+        {
+            Log.Entry("Unable to Show preference dialog for " ~ Page.Title, "Error");
+            return false;
+        }
         tmpcon.setBorderWidth(10);
         auto pageFrame = new Frame(Page.ContentWidget, Page.Title);
         contentArea.packStart(pageFrame, 1, 1, 5);
