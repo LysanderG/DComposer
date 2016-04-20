@@ -60,7 +60,7 @@ void Engage()
 
         mStore.getIter(ti, tp);
 
-        auto libraryKey = mStore.getValueString(ti, 4);
+        auto libraryKey = mStore.getValueString(ti, 1);
         mStore.getValue(ti, 0, val);
         auto tglValue = val.getBoolean();
         if(tglValue == 0)
@@ -124,7 +124,7 @@ void Engage()
 
 
 
-        auto libraryKey = mStore.getValueString(ti, 4);
+        auto libraryKey = mStore.getValueString(ti, 1);
         if(Libraries[libraryKey].mClassName !in Elements)
         {
             mPreferenceBtn.setSensitive(false);
@@ -155,7 +155,7 @@ void Engage()
             return;
         }
         mStore.getIter(ti, tp);
-        string libKey = mStore.getValueString(ti, 4);
+        string libKey = mStore.getValueString(ti, 1);
         //scope(failure)
 
         auto prefPage = Elements[Libraries[libKey].mClassName].PreferencePage();

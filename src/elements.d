@@ -66,7 +66,11 @@ void Disengage()
 {
     RegisterLibraries();
     //foreach(elem; Elements)elem.Disengage();
-    foreach(key; Libraries.keys)UnloadElement(key);
+    foreach(key; Libraries.keys)
+    {
+        Log.Entry("Unloading Element " ~ key);
+        UnloadElement(key);
+    }
     Log.Entry("Disengaged");
 }
 
@@ -82,16 +86,17 @@ string[] AcquireLibraries()
     //check for new elements (libsavailable - libsregistered)
     foreach (string elemlib; available)
     {
-        Libraries[elemlib] = LIBRARY(elemlib);
-        if(LibsRegistered.canFind(elemlib))
+        auto elemkey = elemlib.baseName();
+        Libraries[elemkey] = LIBRARY(elemlib);
+        if(LibsRegistered.canFind(elemkey))
         {
-            string[] libStuff = Config.GetArray!string("element_libraries", elemlib);
-            Libraries[elemlib].mFile = libStuff[0];
-            Libraries[elemlib].mClassName = libStuff[1];
-            Libraries[elemlib].mName = libStuff[2];
-            Libraries[elemlib].mInfo = libStuff[3];
-            Libraries[elemlib].mEnabled = (libStuff[4] == "Enabled");
-            Libraries[elemlib].mRegistered = true;
+            string[] libStuff = Config.GetArray!string("element_libraries", elemkey);
+            Libraries[elemkey].mFile = libStuff[0];
+            Libraries[elemkey].mClassName = libStuff[1];
+            Libraries[elemkey].mName = libStuff[2];
+            Libraries[elemkey].mInfo = libStuff[3];
+            Libraries[elemkey].mEnabled = (libStuff[4] == "Enabled");
+            Libraries[elemkey].mRegistered = true;
             continue;
         }
         newLibs ~= elemlib;
@@ -110,7 +115,7 @@ void RegisterLibraries()
         regval[2] = lib.mName;
         regval[3] = lib.mInfo;
         if(lib.mEnabled)regval[4] = "Enabled"; else regval[4] = "Disabled";
-        Config.SetArray("element_libraries", lib.mFile, regval);
+        Config.SetArray("element_libraries", lib.mFile.baseName(), regval);
     }
     Config.Save();
 }
