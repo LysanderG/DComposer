@@ -36,7 +36,7 @@ class DSCANNER_ELEM : ELEMENT
         //-report               ?????
         //-outline              stdin
 
-        mDScannerCommand = Config.GetValue("dscanner_elem", "dscanner_command", "/home/anthony/apps/dscanner/dscanner");
+        mDScannerCommand = Config.GetValue("dscanner_elem", "dscanner_command", "dscanner");
         TestDScannerCommand();
 
         EngageOutline();
@@ -61,7 +61,7 @@ class DSCANNER_ELEM : ELEMENT
 
     PREFERENCE_PAGE PreferencePage()
     {
-        return null;
+        return new DSCANNER_ELEM_PREF_PAGE;
     }
 
     private:
@@ -301,4 +301,29 @@ class DSCANNER_ELEM : ELEMENT
         return rv[ndx+1..$];
     }
 
+}
+
+
+class DSCANNER_ELEM_PREF_PAGE :PREFERENCE_PAGE
+{
+    this()
+    {
+        Title = "DScanner Preferences";
+        
+        auto tmpBuilder = new Builder;
+        tmpBuilder.addFromFile(SystemPath(Config.GetValue("dscanner_elem", "glade_file", "elements/resources/dscanner_elem_pref.glade")));
+        
+        
+        
+        auto filechoice = cast(FileChooserButton)tmpBuilder.getObject("filechooserbutton1");
+        
+        filechoice.setFilename(Config.GetValue("dscanner_elem", "dscanner_command", "dscanner"));
+        
+        ContentWidget = cast(Box)tmpBuilder.getObject("box1");
+        
+        filechoice.addOnFileSet(delegate void(FileChooserButton fcb)
+        {
+            Config.SetValue("dscanner_elem", "dscanner_command", fcb.getFilename());
+        });
+    }
 }
