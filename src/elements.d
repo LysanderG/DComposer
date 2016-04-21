@@ -130,7 +130,7 @@ void LoadElements()
         {
             if(lib.Ptr is null)
             {
-                lib.Ptr = Runtime.loadLibrary(lib.mFile);
+                lib.Ptr = Runtime.loadLibrary(lib.mFile.SystemPath());
                 if(lib.Ptr is null)
                 {
                     lib.mEnabled = false;
