@@ -96,6 +96,18 @@ class UI_LIST
             }
             return false;
         });
+        mStore.addOnRowChanged(delegate void(TreePath tp, TreeIter ti, TreeModelIF tmif)
+        {
+            //if(tmif.getValueString(ti,0).length == 0)return;
+            dwrite(GetItems);
+            emit(mTitle.getText(), GetItems());
+        });
+        mStore.addOnRowDeleted(delegate void(TreePath tp, TreeModelIF tmif)
+        {
+            //if(tmif.getValueString(ti,0).length == 0)return;
+            dwrite(GetItems);
+            emit(mTitle.getText(), GetItems());
+        });
 
         mCell.addOnEdited(delegate void (string path, string text, CellRendererText c)
         {
@@ -158,7 +170,7 @@ class UI_LIST
             rv ~= mStore.getValueString(ti, 1);
             while(mStore.iterNext(ti)) rv ~= mStore.getValueString(ti, 1);
         }
-        return rv;
+        return rv.dup;
     }
 
     void SetItems(string[] items)
