@@ -374,6 +374,10 @@ class DCD_ELEM_PREFERENCE_PAGE : PREFERENCE_PAGE
         mDcdImportPaths.connect(&watchList);
 
         mRestart.addOnClicked(&RestartServer);
+        
+        
+        Label splash = new Label("Thanks HackerPilot!!");
+        SplashWidget = splash;
 
     }
 }
