@@ -157,7 +157,6 @@ class UI_COMPLETION
             
             case    GDK_parenright  :
             {
-                dwrite(")");
                 auto doc = cast(DOCUMENT)DocMan.Current();
                 auto buff = doc.getBuffer();
                 auto tiStart = new TextIter;

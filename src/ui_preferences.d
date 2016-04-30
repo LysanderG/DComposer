@@ -141,10 +141,6 @@ Widget BuildGenPrefPage()
     //basefolder
     auto BaseFolder = cast(Entry)genBuilder.getObject("entry1");
     BaseFolder.setText(sysDirectory);
-    BaseFolder.addOnActivate(delegate void(Entry)
-    {
-        dwrite("place holder BaseFolder ", BaseFolder.getText());
-    });
     BaseFolder.addOnIconPress(delegate void(GtkEntryIconPosition pos, Event e, Entry me)
     {
         auto FolderSelected = SelectFolder(BaseFolder.getText());

@@ -320,7 +320,6 @@ class UI_SEARCH
 
         mTree.addOnRowActivated(delegate void(TreePath tp, TreeViewColumn tvc, TreeView self)
         {
-            dwrite("hello");
             auto page = cast(Widget)DocMan.Current();
             page.grabFocus();
 

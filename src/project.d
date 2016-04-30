@@ -348,7 +348,6 @@ class PROJECT
         }
 
         //auto rv = executeShell(BuildCommand());
-        dwrite(BuildCommand());
         auto rv = execute(BuildCommand());
         foreach(line; rv.output.splitLines)BuildOutput.emit(line);
         if(rv.status == 0) BuildOutput.emit("Success");

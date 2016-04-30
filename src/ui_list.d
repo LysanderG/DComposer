@@ -99,13 +99,11 @@ class UI_LIST
         mStore.addOnRowChanged(delegate void(TreePath tp, TreeIter ti, TreeModelIF tmif)
         {
             //if(tmif.getValueString(ti,0).length == 0)return;
-            dwrite(GetItems);
             emit(mTitle.getText(), GetItems());
         });
         mStore.addOnRowDeleted(delegate void(TreePath tp, TreeModelIF tmif)
         {
             //if(tmif.getValueString(ti,0).length == 0)return;
-            dwrite(GetItems);
             emit(mTitle.getText(), GetItems());
         });
 

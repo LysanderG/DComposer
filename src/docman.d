@@ -712,7 +712,6 @@ struct TEXT_OBJECT
         mId = Name;
         mKey = key;
         mRegex = Regex;
-        dwrite(mId, mKey, mRegex);
     }
 }
 
