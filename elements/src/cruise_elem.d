@@ -44,10 +44,6 @@ class CRUISE_ELEM : ELEMENT
 
         DocMan.DocumentKeyDown.connect(&ProcessKeys);
 
-
-        AddToggleAction("ActCruiseMode","Cruise Mode", "Text cruising mode", "", "<Control>J",&ToggleCruiseMode);
-        mActionMenuItem = AddToMenuBar("ActCruiseMode", mRootMenuNames[6], 0);
-
         Log.Entry("Engaged");
     }
 
@@ -127,7 +123,6 @@ class CRUISE_ELEM : ELEMENT
             DocMan.SetBlockDocumentKeyPress();
             mCatchLastInput = true;
         }
-        dwrite("block=",mCruiseActive," catchlast=",mCatchLastInput);
         string statestring = "Cruise mode is "  ~ ( (mCruiseActive)? "on":"off");
         ResetCommand();
         //uiSwitch.setActive(mCruiseActive);
@@ -149,6 +144,12 @@ class CRUISE_ELEM : ELEMENT
         uiRegisterText = cast(TextView)builder.getObject("textview1");
         uiKeyTree = cast(TreeView)builder.getObject("treeview1");
         uiKeyStore = cast(ListStore)builder.getObject("liststore1");
+
+        AddToggleAction("ActCruiseMode","Cruise Mode", "Text cruising mode", "", "<Control>J",&ToggleCruiseMode);
+        mActionMenuItem = AddToMenuBar("ActCruiseMode", mRootMenuNames[6], 0);
+        
+        uiSwitch.setRelatedAction(GetAction("ActCruiseMode"));
+        
         
         
         AddExtraPage(uiRoot, "Cruise");
@@ -212,8 +213,6 @@ class CRUISE_ELEM : ELEMENT
             uiKeyStore.setValue(ti, 2, "Command");
             uiKeyStore.setValue(ti, 3, help);
         }
-        dwrite("past prime");
-
 //motion
         string[] defmotionkeys = [
             "h MOVE_LEFT --> Move Left",
@@ -255,8 +254,6 @@ class CRUISE_ELEM : ELEMENT
             uiKeyStore.setValue(ti, 2, "Motion");
             uiKeyStore.setValue(ti, 3, help);            
         }
-        dwrite("past motions");
-
 //object
         string[] defobjectkeys = [
             //key, object BEG start END end
@@ -291,8 +288,6 @@ class CRUISE_ELEM : ELEMENT
             uiKeyStore.setValue(ti, 3, help);
             
         }
-        dwrite("past objects");
-
 //selection objects        
         string[] defobjSelKeys = [
             //key, obj start, obj end
@@ -317,7 +312,6 @@ class CRUISE_ELEM : ELEMENT
             uiKeyStore.setValue(ti, 3, help);
  
         }
-        dwrite("past objsel");
 
 //filters
         string[] deffilterkeys = [
@@ -339,9 +333,7 @@ class CRUISE_ELEM : ELEMENT
             uiKeyStore.setValue(ti, 2, "Shell Command");
             uiKeyStore.setValue(ti, 3, help);
 
-        }
-        dwrite("past filter");
-        
+        }        
 //alias        
         string[] defaliaskeys = [
             "w:ow-->Move to next word start",
@@ -356,7 +348,6 @@ class CRUISE_ELEM : ELEMENT
         
         foreach(line; aliaskeys)
         {
-            dwrite(line);
             string keys, originalkeys;
             formattedRead(line, " %s:%s-->%s", &keys, &originalkeys, &help);
             mAliasKeys[keys] = originalkeys.split('|');
@@ -413,7 +404,6 @@ class CRUISE_ELEM : ELEMENT
 
         //stuff we may need
         auto uniKey = cast(char)Keymap.keyvalToUnicode(keyValue);
-        dwrite(cast(uint)uniKey, "<<<<< ",keyValue);
         bool ctrlKey = cast(bool)modKeyFlag & GdkModifierType.CONTROL_MASK;
         bool shiftKey = modKeyFlag & GdkModifierType.SHIFT_MASK;
 
@@ -463,9 +453,7 @@ class CRUISE_ELEM : ELEMENT
         //now process the key
         mInputString ~= uniKey;
 
-        //dwrite(">",mInputString, ": x",mCount,"(",mCountString,")","/",mSelection );
         RunCommand();
-        //dwrite("<",mInputString, ": x",mCount,"(",mCountString,")","/",mSelection );
 
 
     }
@@ -518,7 +506,6 @@ class CRUISE_ELEM : ELEMENT
 
     void SaveAsLastCommand(string curCmd)
     {
-        //dwrite("'",curCmd,"'");
         if(curCmd[0] in mCommands)
             if(mCommands[curCmd[0]] == PRIME_COMMANDS.REPEAT) return;
         mLastCommand = curCmd;
@@ -693,15 +680,12 @@ class CRUISE_ELEM : ELEMENT
                 doc.MovePrevSymbol(mCount, selection);
                 return STATUS.SUCCESS;            
             case OBJECT_PREV    :
-                //dwrite(MotionCommand);
                 if(MotionCommand.length < 2) return STATUS.INCOMPLETE;
-                //dwrite("?");
                 char objkey = MotionCommand[1];
                 if(objkey !in mTextObjects)return STATUS.FAILURE;
                 doc.MoveObjectPrev(mTextObjects[objkey], mCount, selection);
                 return STATUS.SUCCESS;
             case OBJECT_NEXT    :
-                //dwrite(MotionCommand);
                 if(MotionCommand.length < 2) return STATUS.INCOMPLETE;
                 char objkey = MotionCommand[1];
                 if(objkey !in mTextObjects)return STATUS.FAILURE;
