@@ -520,14 +520,22 @@ class DOCMAN
         CurrentPath(Current.Name.baseName());
 
         string ExecName = Current.Name();
-
+        string projOpts;
+        if(Project.TargetType != TARGET.EMPTY)
+        {
+            if(Project.Lists[LIST_NAMES.IMPORT].length)
+                projOpts = " -I" ~ Project.Lists[LIST_NAMES.IMPORT].join(" -I") ~" ";
+            if(Project.Lists[LIST_NAMES.STRING].length)
+                projOpts ~= " -J" ~ Project.Lists[LIST_NAMES.STRING].join(" -J") ~" ";
+        }
+       
         auto TerminalCommand = Config.GetArray!string("terminal_cmd","run", ["xterm", "-T","dcomposer running project","-e"]);
         try
         {
             auto tFile = std.stdio.File(tmpfilename, "w");
     
             tFile.writeln("#!/bin/bash");
-            tFile.writeln("rdmd -unittest -cov --main ", ExecName );
+            tFile.writeln("rdmd -unittest -cov --main ", projOpts, ExecName );
             tFile.writeln("if [ $? = 0 ]; then");
             tFile.writeln(" echo UNIT TESTS SUCCEEDED");
             tFile.writeln("fi");
