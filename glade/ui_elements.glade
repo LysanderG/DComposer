@@ -151,28 +151,16 @@
           <object class="GtkFrame" id="frame1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="vexpand">True</property>
             <property name="label_xalign">0</property>
             <property name="shadow_type">out</property>
             <child>
-              <object class="GtkAlignment" id="alignment1">
+              <object class="GtkLabel" id="label4">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="left_padding">12</property>
-                <child>
-                  <object class="GtkLabel" id="label4">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">&lt;span font="mono 16"&gt;
-&lt;span weight="ultralight"&gt;Name       : &lt;/span&gt; &lt;b&gt;blah&lt;/b&gt;
-&lt;span weight="ultralight"&gt;Description: &lt;/span&gt; &lt;b&gt;blah blah blah&lt;/b&gt;
-&lt;span weight="ultralight"&gt;Copyright  : &lt;/span&gt; &lt;b&gt;Anthony Goins  ©  2014&lt;/b&gt;
-&lt;span weight="ultralight"&gt;License    : &lt;/span&gt; &lt;b&gt;New BSD&lt;/b&gt;
-&lt;span weight="ultralight"&gt;Authors    : &lt;/span&gt; &lt;b&gt;Anthony Goins "neontotem@gmail.com"&lt;/b&gt;
-&lt;/span&gt;</property>
-                    <property name="use_markup">True</property>
-                    <property name="xalign">0</property>
-                  </object>
-                </child>
+                <property name="label" translatable="yes">label</property>
+                <property name="wrap">True</property>
+                <property name="xalign">0</property>
               </object>
             </child>
             <child type="label">
@@ -186,7 +174,7 @@
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="fill">True</property>
+            <property name="fill">False</property>
             <property name="position">3</property>
           </packing>
         </child>
@@ -206,7 +194,6 @@
         </child>
         <child>
           <object class="GtkLabel" id="label2">
-            <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="label" translatable="yes">&lt;b&gt;*** NOTICE ***&lt;/b&gt;
 Disabling elements will not fully take effect until DComposer is restarted.
