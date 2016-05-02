@@ -167,8 +167,8 @@ class UI_COMPLETION
                 if(tipstring.balancedParens('(', ')')) 
                 {
                     PopCallTip();
-                    return;
                 }
+                return;
             }
             default                 :
             {

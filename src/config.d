@@ -218,7 +218,6 @@ public:
                     case "/opt" :
                         mRootResourceDirectory = "/opt/dcomposer";
                         return true;
-                        break;
                     case "/usr/bin" :
                         mRootResourceDirectory = "/usr/share/dcomposer";
                         break;

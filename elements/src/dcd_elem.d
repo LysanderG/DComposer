@@ -27,7 +27,7 @@ class DCD_ELEM : ELEMENT
     static Pid mServerPID;
     static ushort mPort;
 
-    string TypeName[string];
+    string[string] TypeName;
 
     uint mMinChars;
 

@@ -295,7 +295,7 @@ class FILTER : ELEMENT
 
 		//LOAD SAVED FILTERS
 		foreach(obj; Config.GetArray!JSON("shellfilter", "saved"))
-		{;
+		{
 			SAVED_FILTER xfilter;
 
 			xfilter.In = cast(FILTER_INPUT)obj["input"];
