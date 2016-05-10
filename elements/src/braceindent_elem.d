@@ -14,6 +14,7 @@ import gtk.TextBuffer;
 import std.string;
 import std.range;
 import std.uni;
+import std.algorithm:canFind;
 
 
 extern (C) string GetClassName()
@@ -144,7 +145,7 @@ class BRACE_INDENT : ELEMENT
     void WatchForTextInsertion(void* void_ti, string text, int len, void* void_self)
     {
         auto ti = cast(TextIter)void_ti;
-        auto self = cast(TextBuffer)void_self;
+        auto self = cast(SourceBuffer)void_self;
 
         //auto doc = cast(DOCUMENT)doc_if;
         //auto self = doc.getBuffer();
@@ -226,6 +227,7 @@ class BRACE_INDENT : ELEMENT
             {
                 auto moved = tiMatchOpenBrace.backwardChar();
                 if(moved == 0) return; //aint no match ... unbalanced braces (at least up to our }) so bail
+                if(self.getContextClassesAtIter(tiMatchOpenBrace).canFind("string","comment")) continue;
                 if(tiMatchOpenBrace.getChar == '}') braceCtr++;
                 if(tiMatchOpenBrace.getChar == '{') braceCtr--;
             }while(braceCtr > 0);
@@ -240,7 +242,9 @@ class BRACE_INDENT : ELEMENT
 
             //here is the indentation (aka starting whitespace right?)
             string OpenLineTextIndentChars;
-            foreach(ch; OpenLineText) if (ch.isWhite ||  ch.isSpace) OpenLineTextIndentChars ~= ch;
+            foreach(ch; OpenLineText) 
+                if (ch.isWhite ||  ch.isSpace) OpenLineTextIndentChars ~= ch;
+                else break;
             auto IndentedColOpen = OpenLineTextIndentChars.column(mIndentationSize); //should not this be tab_width ??
 
             string CloseLineTextIndentChars;
