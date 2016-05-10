@@ -264,6 +264,7 @@ class DIR_VIEW : ELEMENT
 
         //lock and load the tree and its model
         Folder = CurrentPath();
+        mStore.setSortColumnId(4, GtkSortType.ASCENDING);
 
 
         //what to do when treeview row is activated
