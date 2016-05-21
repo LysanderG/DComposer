@@ -77,7 +77,8 @@ class DSCANNER_ELEM : ELEMENT
     TreeStore           mOutlineStore;
     bool                mBlockCursorChangeOnUpdate;
     bool                mBadDscannerBinary;
-
+    TreePath[string]    mSavedPath;
+   
 
 
     void TestDScannerCommand()
@@ -114,6 +115,7 @@ class DSCANNER_ELEM : ELEMENT
         mOutlineScroll.setVexpand(true);
         mOutlineTree.setEnableTreeLines(true);
         mOutlineTree.setLevelIndentation(5);
+        mOutlineTree.setProperty("activate-on-single-click", 1);
 
         mOutlineTree.addOnRowActivated(delegate void(TreePath tp, TreeViewColumn tvc, TreeView tv)
         {
@@ -142,23 +144,23 @@ class DSCANNER_ELEM : ELEMENT
             }
             Symbols.emit(results);
         });
+        
+        mOutlineTree.getSelection().setMode(SelectionMode.BROWSE);
+        mOutlineTree.getColumn(0).setSizing(TreeViewColumnSizing.AUTOSIZE);
 
         DocMan.Insertion.connect(&WatchForInsertion);
         DocMan.PageFocusIn.connect(&WatchForPageFocus);
-
-
-
+        DocMan.PageFocusOut.connect(&WatchForLostFocus);
 
         mOutlineScroll.add(mOutlineTree);
         mOutlineRoot.add(mOutlineScroll);
         mOutlineRoot.showAll();
         AddSidePage(mOutlineRoot, "Module");
-
-        //UpdateOutline();
     }
 
     void DisengageOutline()
     {
+        DocMan.PageFocusOut.disconnect(&WatchForLostFocus);
         DocMan.PageFocusIn.disconnect(&WatchForPageFocus);
         DocMan.Insertion.disconnect(&WatchForInsertion);
         RemoveSidePage(mOutlineRoot);
@@ -168,19 +170,17 @@ class DSCANNER_ELEM : ELEMENT
 
     void UpdateOutline()
     {
+        if(DocMan.Current() is null)return;
         if(mBadDscannerBinary)return;
         mBlockCursorChangeOnUpdate = true;
-        scope(exit)mBlockCursorChangeOnUpdate = false;
+        scope(exit)mBlockCursorChangeOnUpdate = false;        
 
         auto ctp = new TreePath;
         auto ctvc = new TreeViewColumn;
 
         scope(exit) if (ctp !is null) mOutlineTree.setCursor(ctp, cast(TreeViewColumn)null, false);
-        //mOutlineTree.getCursor(ctp, ctvc);
 
         mOutlineStore.clear();
-
-        if(DocMan.Current() is null)return;
 
         //dummy scope
         {
@@ -277,12 +277,18 @@ class DSCANNER_ELEM : ELEMENT
         }
 
         mOutlineTree.expandAll();
-
     }
 
     void WatchForInsertion(void* iter, string text, int len, void* buffer)
     {
+        auto doc = DocMan.Current();
+        if(!doc) return; //impossible ?? 
+        
+        TreePath tmpStart, tmpEnd;
+        mOutlineTree.getVisibleRange(tmpStart, tmpEnd);
+        mSavedPath[doc.Name] = tmpStart;
         UpdateOutline();
+        mOutlineTree.scrollToCell(mSavedPath[doc.Name], null, false, 0.0, 0.0);
     }
 
     void WatchForPageFocus(DOC_IF doc)
@@ -291,6 +297,24 @@ class DSCANNER_ELEM : ELEMENT
         if(DocName == doc.Name) return;
         DocName = doc.Name;
         UpdateOutline();
+        TreePath tmpPath;
+        if(doc.Name in mSavedPath)
+            tmpPath = mSavedPath[doc.Name];
+        else
+            tmpPath = new TreePath("0");
+        mOutlineTree.scrollToCell(tmpPath, null, false, 0.0, 0.0);
+
+    }
+    
+    void WatchForLostFocus(DOC_IF doc)
+    {
+        
+
+        TreePath tmpStart, tmpEnd;
+        auto rv = mOutlineTree.getVisibleRange(tmpStart, tmpEnd);
+        dwrite(rv);
+        mSavedPath[doc.Name] = tmpStart;
+        dwrite(mSavedPath[doc.Name]);
     }
 
     string GetSymName(string longName)
