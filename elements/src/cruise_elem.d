@@ -158,7 +158,7 @@ class CRUISE_ELEM : ELEMENT
     void UpdateUI()
     {
         uiSwitch.setActive(mCruiseActive);
-        uiCurrentCommand.setText(mInputString);
+        uiCurrentCommand.setText(" " ~ mInputString);
         uiRepeatCount.setText(" " ~ mCount.to!string);
         uiLastCommand.setText(" " ~ mLastCommand);
         uiRegister.setText(" " ~ mRegisterKey);
