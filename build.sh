@@ -12,6 +12,7 @@ src/project.d \
 src/search.d \
 src/shellfilter.d \
 src/ddocconvert.d \
+src/debugger.d \
 src/ui.d \
 src/ui_search.d \
 src/ui_completion.d \
