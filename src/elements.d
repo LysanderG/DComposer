@@ -68,7 +68,8 @@ void Disengage()
     //foreach(elem; Elements)elem.Disengage();
     foreach(key; Libraries.keys)
     {
-        Log.Entry("Unloading Element " ~ key);
+        if(Libraries[key].mEnabled) Log.Entry("Unloading Element " ~ key);
+
         UnloadElement(key);
     }
     Log.Entry("Disengaged");
@@ -135,10 +136,10 @@ void LoadElements()
                 {
                     lib.mEnabled = false;
                     ShowMessage("Error loading dynamic library", "Failed to load " ~ lib.mFile, "Continue");
-                    Log.Entry("     Failed to load library: " ~ lib.mFile, "Error");
+                    Log.Entry("Failed to load library: " ~ lib.mFile, "Error");
                     continue;
                 }
-                Log.Entry("     Loaded library: " ~ lib.mFile);
+                Log.Entry("Loaded library: " ~ lib.mFile);
                 auto tmpvar = dlsym(lib.Ptr, "GetClassName");
                 string function() GetClassName = cast(string function())tmpvar; //wouldn't work without tmpvar??
                 lib.mClassName = GetClassName().idup;
@@ -159,7 +160,7 @@ bool UnloadElement(string Name)
     bool rv;
 
     scope(failure)Log.Entry("Failed to unload " ~ Name, "Error");
-    scope(success)Log.Entry("     Unloaded library: " ~ Libraries[Name].mClassName);
+    scope(success)Log.Entry("Unloaded library: " ~ Libraries[Name].mClassName);
 
     Elements[Libraries[Name].mClassName].Disengage();
     Config.Save();
