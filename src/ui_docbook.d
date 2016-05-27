@@ -6,6 +6,7 @@ import document;
 
 import std.conv;
 import std.path;
+import std.string;
 
 import gtk.Action;
 import gtk.Notebook;
@@ -204,6 +205,19 @@ public:
         AddToMenuBar("ActNextDoc", "_Edit");
         ActNextDoc.setVisible(false);
         Log.Entry("Engaged");
+        
+        //receive drag and drop files
+        dragDestSet(DestDefaults.ALL, null, DragAction.COPY);
+        dragDestAddTextTargets();            
+        addOnDragDataReceived(delegate void(DragContext dc, int i1, int i2, SelectionData sd, uint u1, uint u2, Widget w)
+        {
+            dwrite(sd.getText(), sd.getUris());
+            foreach(line; sd.getText().lineSplitter())
+            {
+                if(!line.startsWith("file://"))continue;
+                DocMan.Open(line[6..$]);
+            }
+        });
 
     }
 
