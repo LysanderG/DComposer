@@ -84,9 +84,9 @@ class NTDB
 		{
 			try
 			{
-				mGdbProcess = pipeShell("gdb --interpreter=mi " ~ TargetName);
+				mGdbProcess = pipeShell("gdb --interpreter=mi " ~ TargetName ~ "\n");
 				SetupGdbWatcher();
-				mGdbProcess.stdin.writeln("-enable-pretty-printing");
+				mGdbProcess.stdin.writeln("-enable-pretty-printing\n");
 				return true;
 			}
 			catch(Exception x)
@@ -99,6 +99,7 @@ class NTDB
 	
 	void StopGdb()
 	{
+        if(mGdbProcess.pid.processID< 0) return; //not running
 		mGdbProcess.stdin.writeln("-gdb-exit\n");
 		mGdbProcess.stdin.flush();
 		mTargetId = 0;
@@ -139,10 +140,11 @@ class NTDB
 	}
 	void ToCursor(string location)
 	{
-		mGdbProcess.stdin.writeln("-break-insert " ~ location);
+		mGdbProcess.stdin.writeln("-break-insert -t " ~ location);
 		mGdbProcess.stdin.flush();
 		mGdbProcess.stdin.writeln("-exec-continue --all\n");
 		mGdbProcess.stdin.flush();		
+        GetBreakPoints();
 	}
 	void Interrupt()
 	{
@@ -239,13 +241,14 @@ class NTDB
 		auto v_value = var_created.Get("value");
 		auto v_type = var_created.Get("type");
 		
-		mVariables[v_name] = new VARIABLE(v_name,v_exp,v_value,v_type);
+        if(v_name !in mVariables)
+            mVariables[v_name] = new VARIABLE(v_name,v_exp,v_value,v_type);
 		
 		mGdbProcess.stdin.writeln("-var-list-children 2 ", v_name, "\n");
 		mGdbProcess.stdin.flush();
 		
 		
-		string tmpStr = `^done,create_variable="true",okay=[]`;
+		string tmpStr = `$updatevariables`;
 		emit(RECORD(tmpStr));
 	}
 	
@@ -291,6 +294,8 @@ class NTDB
 	
 	void ChangeVariables(RECORD deltas)
 	{
+        string tmp = "$updatevariables";
+        scope(exit)emit(RECORD(tmp));
 		
 		foreach(xvar; mVariables)
 		{
@@ -309,6 +314,7 @@ class NTDB
 		
 		VARIABLE WalkTree(string[] names)
 		{
+            mVariables[names[0]]._color = "red";
 			if(names.length == 1)return mVariables[names[0]];
 			
 			if(names.length == 2)return mVariables[names[0]]._children[names[1]];
@@ -318,7 +324,9 @@ class NTDB
 			tmpVar = mVariables[names[0]];
 			foreach(name; names[1..$])
 			{
+                if(tmpVar._children is null)break;
 				tmpVar = tmpVar._children[name];
+                tmpVar._color = "red";
 			}
 			return tmpVar;
 		}
@@ -326,10 +334,14 @@ class NTDB
 		{
 			if(!delta)return; 
 			auto Current = WalkTree(delta.GetString("name").split("."));
+            Current._color = "red";
 			Current._value = delta.GetString("value");
 			Current._in_scope = delta.GetString("in_scope");
-			if(delta.GetString("type_changed") == "true") Current._type = delta.GetString("new_type");
-			Current._color = "red";
+			if(delta.GetString("type_changed") == "true") 
+            {
+                Current._type = delta.GetString("new_type");
+                Current._children.Clear();
+            }			
 			if(delta.GetString("new_num_children").length)
 			{
 				mGdbProcess.stdin.writeln("-var-list-children 2 ",delta.GetString("name"), "\n");
@@ -590,6 +602,7 @@ struct  RECORD
 			case '*':
 			case '=':
 			case '+':
+            case '$': //my own communication stuff
 				auto classIndex = inStr.indexOf(',');
 				if(classIndex < 0)
 				{
@@ -692,22 +705,8 @@ class VARIABLE
 		
 	
 }
-	
-unittest
+
+void Clear(T)(ref T aa)
 {
-	string test = `*~test,something={sometingelse="1",this=["okay"],that=["four","five"]},body=["hmm"],headher=["ok"],tail=["blah"]`;
-	string test2 = `*=blah,one="1",two="2",three="3",four={1="one",2="two",3="three"},five=["five"]\n`;
-	string test3 = `^done,BreakpointTable={nr_rows="0",nr_cols="6",hdr=[{width="30",blah="34"},{width="40",alignment="2",col_name="what",colhdr="What"}],body=[]}`;
-	string test4 = `^done,one="one",two="two",three={a="a",b=["c","d","e",f=["g","h",i=[]]],j="j"},four=""`;
-	auto x = RECORD(test4);
-	writeln(x._values.keys);
-	writeln(x._values);
-	
-	writeln("...",x.Get("three", "b", 3,0));
-	VALUE R = x.GetValue("three","b",3,0);
-	writeln("---",R);
-	auto bpt = RECORD(test3);
-	foreach(hiya; bpt.GetResult("BreakpointTable")) writeln("hi ya: ", hiya);
-	bpt = RECORD(test);
-	foreach(y; bpt.GetResult("something"))writeln("tuple? ",y);
+    foreach(key; aa.keys)aa.remove(key);
 }

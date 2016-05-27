@@ -9,7 +9,7 @@ public import symbols;
 public import search;
 public import shellfilter;
 public import ddocconvert;
-//import debugger;
+public import debugger;
 
 CONFIG      Config;
 LOG         Log;

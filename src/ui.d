@@ -25,6 +25,7 @@ public import gtk.ActionGroup;
 public import gtk.Box;
 public import gtk.Builder;
 public import gtk.Builder;
+public import gtk.CellRendererToggle;
 public import gtk.CheckButton;
 public import gtk.CheckMenuItem;
 public import gtk.Clipboard;

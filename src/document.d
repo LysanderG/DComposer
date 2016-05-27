@@ -1219,6 +1219,15 @@ class DOCUMENT : SourceView, DOC_IF
 
         return RV;
     }
+    
+    string GetLocation(out string name, out int line, out int col)
+    {
+        name = Name;
+        line = Line();
+        col = Column();
+        
+        return format("%s:%s",name, line);
+    }
 
 
     void Undo()

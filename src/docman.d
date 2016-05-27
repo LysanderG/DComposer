@@ -106,6 +106,8 @@ interface DOC_IF
     int GetCursorByteIndex();
     RECTANGLE GetCursorRectangle();
     RECTANGLE GetMarkRectangle(string MarkName);
+    
+    string GetLocation(out string name, out int line, out int col);
 
     bool IndentLines(int Reps);
     bool UnIndentLines(int Reps);
