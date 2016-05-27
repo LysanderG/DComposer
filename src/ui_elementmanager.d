@@ -58,8 +58,7 @@ void Engage()
     mPreferenceBtn = cast(Button)builder.getObject("button2");
     mCellToggle = cast(CellRendererToggle)builder.getObject("cellrenderertoggle1");
     mElementInfoLabel = cast(Label)builder.getObject("label4");
-    dwrite(mElementInfoLabel);
-
+    
     void RowActivated(TreePath tp, TreeViewColumn tvc, TreeView me)
     {
         auto ti = new TreeIter;

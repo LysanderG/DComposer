@@ -64,7 +64,6 @@ class NTDB
         //gdb exited
 		if(x._class == "^exit")
 		{
-			writeln(x._class);
             self.emit(x);
 			return false;
 		}
@@ -91,7 +90,7 @@ class NTDB
 			}
 			catch(Exception x)
 			{
-				writeln(x);
+				dwrite(x);
 			}
 		}
 		return false;
@@ -115,7 +114,7 @@ class NTDB
 		}
 		catch(Exception x)
 		{
-			writeln(x);
+			dwrite(x);
 		}
 	}
 	void ContinueTarget()
@@ -231,7 +230,6 @@ class NTDB
 			mGdbProcess.stdin.writeln("-var-create ", var_name, " @ ", var_name, "\n");
 			mGdbProcess.stdin.flush();			
 		}
-		writeln(mVariableNames);
 	}
 	
 	void CollectVariables(RECORD var_created)
@@ -261,7 +259,6 @@ class NTDB
 		auto ancestors = kids.Get("children",0,"name").split(".");
 		if(ancestors.length >= maxDepth)
 		{
-			writeln("too many sub levels");
 			return;
 		}
 		ancestors.length = ancestors.length - 1;
@@ -371,7 +368,6 @@ class NTDB
 		}
 		auto tmpstr = `^done,create_variable="nothing"`;
 		emit(RECORD(tmpstr));
-		writeln("reset ends with, ", mVariables.length, " variables left");
 	}
 	mixin Signal!RECORD;
 	

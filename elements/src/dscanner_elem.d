@@ -308,13 +308,9 @@ class DSCANNER_ELEM : ELEMENT
     
     void WatchForLostFocus(DOC_IF doc)
     {
-        
-
         TreePath tmpStart, tmpEnd;
         auto rv = mOutlineTree.getVisibleRange(tmpStart, tmpEnd);
-        dwrite(rv);
         mSavedPath[doc.Name] = tmpStart;
-        dwrite(mSavedPath[doc.Name]);
     }
 
     string GetSymName(string longName)

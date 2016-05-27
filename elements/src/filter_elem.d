@@ -75,7 +75,6 @@ class FILTER : ELEMENT
 
 	void UpdateSavedView()
 	{
-        dwrite("update saved view");
 		mSavedStore.clear();
 
 		auto ti = new TreeIter;
@@ -94,7 +93,6 @@ class FILTER : ELEMENT
 
 	void UpdateSaveFilters()
 	{
-        dwrite("update saved filters");
 		//mFiltersModified = true;
 		auto ti = new TreeIter;
 
@@ -122,7 +120,6 @@ class FILTER : ELEMENT
 
 	void SaveFilter()
 	{
-        dwrite("SaveFilter");
 		SAVED_FILTER NewFilter;
 
 		NewFilter.In = cast(FILTER_INPUT)mInputBox.getActive();
