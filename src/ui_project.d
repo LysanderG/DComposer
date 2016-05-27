@@ -270,7 +270,7 @@ class UI_PROJECT
 
         auto linkerbox  = cast(Box)uiBuilder.getObject("box3");
 
-        auto flagsbox   = cast(Box)uiBuilder.getObject("box4");
+        auto flagsbox   = cast(Box)uiBuilder.getObject("box7");
         auto scriptbox  = cast(Box)uiBuilder.getObject("box5");
         ProjCustomBuild = cast(CheckButton)uiBuilder.getObject("checkbutton1");
         ProjCustomBuildCommand = cast(Entry)uiBuilder.getObject("entry1");
