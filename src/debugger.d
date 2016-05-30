@@ -8,8 +8,10 @@ import std.signals;
 import std.stdio;
 import std.string;
 
-
 import glib.IOChannel;
+
+
+import dcore;
 
 class NTDB
 {
@@ -38,12 +40,19 @@ class NTDB
 		channel.readLine(response, position);
 		response = response.strip();
 		if(response.length < 1) return true;
+        
+        if(response.startsWith("411"))
+        {
+            dwrite(response);
+            response = response[3..$];
+        }
 		auto x = RECORD(response);
         
 		//get inferior/target/child ... whatever pid
 		if(x._class == "=thread-group-started")
 		{
 			self.mTargetId = to!int(x.Get("pid"));
+            self.mGdbProcess.stdin.flush();
 		}
 		//variables stuff
 		if(x._class == "^done")
@@ -71,22 +80,35 @@ class NTDB
 		self.emit(x);
 		return true;
 	}
-
+    
+    
+    void IssueCommand(string Cmd)
+    {
+        auto gdb = tryWait(mGdbProcess.pid);
+        if(gdb.terminated) return;
+        mGdbProcess.stdin.writeln(Cmd);
+        mGdbProcess.stdin.flush();
+    }
+        
 
 
 	
 	public:
 	
-	bool StartGdb(string TargetName)
+	bool StartGdb(string TargetName, string pts)
 	{
 		if(TargetName.exists())
 		{
 			try
 			{
-				mGdbProcess = pipeShell("gdb --interpreter=mi " ~ TargetName ~ "\n");
+				mGdbProcess = pipeShell("gdb --interpreter=mi " ~ TargetName  ~ " --tty=" ~ pts);
 				SetupGdbWatcher();
-				mGdbProcess.stdin.writeln("-enable-pretty-printing\n");
-				return true;
+                
+                mGdbProcess.stdin.writeln("set print pretty on");
+                mGdbProcess.stdin.writeln("set print array on");
+                mGdbProcess.stdin.flush();
+                
+                return true;
 			}
 			catch(Exception x)
 			{
@@ -98,6 +120,8 @@ class NTDB
 	
 	void StopGdb()
 	{
+        dwrite(mGdbProcess);
+        if(mGdbProcess.pid is null) return; //never ran
         if(mGdbProcess.pid.processID< 0) return; //not running
 		mGdbProcess.stdin.writeln("-gdb-exit\n");
 		mGdbProcess.stdin.flush();
@@ -350,17 +374,18 @@ class NTDB
 	VARIABLE[string] GetVariables()
 	{
 		return mVariables;
-	}
-	
-	
-	
-	
-	
+	}	
+    
+    void EvaluateData(string expression)
+    {
+        IssueCommand("411-data-evaluate-expression " ~ expression ~ "\n");
+    }
+    
 	void Reset()
 	{
 		mTargetId = 0;
 		mVariableNames.length = 0;
-		foreach(key; mVariables.byKey)
+		foreach(key; mVariables.keys)
 		{
 			mGdbProcess.stdin.writeln("-var-delete ",key,"\n");
 			mGdbProcess.stdin.flush();
@@ -369,6 +394,8 @@ class NTDB
 		auto tmpstr = `^done,create_variable="nothing"`;
 		emit(RECORD(tmpstr));
 	}
+    
+    @property int TargetId(){return mTargetId;}
 	mixin Signal!RECORD;
 	
 }
@@ -670,6 +697,7 @@ class VARIABLE
 	string _type;
 	string _in_scope;
 	string _color;
+    string _data;
 	
 	VARIABLE[string] _children;
 	this(string name, string exp, string value, string type)
