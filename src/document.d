@@ -303,6 +303,10 @@ class DOCUMENT : SourceView, DOC_IF
         SrcMrkAttribs.setPixbuf(new Pixbuf(SystemPath(Config.GetValue("docman", "nav_point_icon", "resources/pin-small.png"))));
         setMarkAttributes("NavPoints", SrcMrkAttribs, 1);
 
+        //this shows where execution point is while debugging
+        auto SrcMrkExecPt = new SourceMarkAttributes;
+        SrcMrkExecPt.setPixbuf(new Pixbuf(SystemPath(Config.GetValue("docman", "execution_point", "resources/yin-yang.png"))));
+        setMarkAttributes("ExecPoint", SrcMrkExecPt, 100);
 
         Config.Changed.connect(&WatchConfigChange);
     }
@@ -340,6 +344,7 @@ class DOCUMENT : SourceView, DOC_IF
 
         setHighlightCurrentLine(Config.GetValue("document", "hilite_current_line", false));
         setShowLineNumbers(Config.GetValue("document", "show_line_numbers",true));
+        setShowLineMarks(Config.GetValue("document", "show_line_marks", true));
         setShowRightMargin(Config.GetValue("document", "show_right_margin", true));
         getBuffer.setHighlightSyntax(Config.GetValue("document", "hilite_syntax", true));
         getBuffer.setHighlightMatchingBrackets(Config.GetValue("document", "match_brackets", true));
