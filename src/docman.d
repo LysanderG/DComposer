@@ -334,6 +334,7 @@ class DOCMAN
     }
     DOC_IF Open(string FileName, int LineNo = 0, int LinePos = 0)
     {
+        FileName = FileName.absolutePath();
         //first see if it is already open
         auto doc = GetDoc(FileName);
         if(doc)
