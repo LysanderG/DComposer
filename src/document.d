@@ -307,7 +307,52 @@ class DOCUMENT : SourceView, DOC_IF
         auto SrcMrkExecPt = new SourceMarkAttributes;
         SrcMrkExecPt.setPixbuf(new Pixbuf(SystemPath(Config.GetValue("docman", "execution_point", "resources/yin-yang.png"))));
         setMarkAttributes("ExecPoint", SrcMrkExecPt, 100);
+        //breakpoints source mark category
+        auto SrcMrkBreakPt = new SourceMarkAttributes;
+        SrcMrkBreakPt.setPixbuf(new Pixbuf(SystemPath(Config.GetValue("docman", "break_point", "resources/target.png"))));
+        setMarkAttributes("Breakpoint", SrcMrkBreakPt, 50);
+        
+        //adding gutter stuff for code coverage 
+        auto gutter = getGutter(TextWindowType.LEFT);
+        mGutterRendererText = new SourceGutterRendererText();
 
+        
+        mGutterRendererText.addOnQueryData(delegate void(TextIter tiStart, TextIter tiEnd, GtkSourceGutterRendererState state, SourceGutterRenderer sgr)
+        {   
+            
+            //if(!mGutterRendererText.getVisible()) return;
+            //sourcemarks lead to infinite loop ... trying textmarks
+            mGutterRendererText.setText("", "".length);
+            auto listmarks = tiStart.getMarks();            
+            if(listmarks is null) return;
+            auto marks = listmarks.toArray!TextMark;
+            if(marks.length < 1) return;
+            string txtName;
+            foreach(mark; marks)
+            {
+                txtName = mark.getName();
+                if(txtName.startsWith("cov-"))break;
+                txtName = "";
+            }
+            if(txtName.strip().length == 0) return;
+            //sgr.setVisible(true);
+            
+            int xlen, ylen;        
+            string thefinalstring;
+            auto sgrt = cast(SourceGutterRendererText)sgr;
+            
+            
+            thefinalstring = "[" ~mCodeCoverage[txtName] ~ "]";
+            sgrt.measure(thefinalstring, xlen, ylen);
+            if(xlen > sgrt.getSize()) sgrt.setSize(xlen);
+            sgrt.setText(thefinalstring, cast(int)thefinalstring.length);
+        
+            return;
+        });
+        mGutterRendererText.setVisible(false);
+        mGutterRendererText.setAlignment(1.0, -1);
+        gutter.insert(mGutterRendererText, 1);
+        
         Config.Changed.connect(&WatchConfigChange);
     }
 
@@ -356,46 +401,7 @@ class DOCUMENT : SourceView, DOC_IF
         setPixelsBelowLines(Config.GetValue("document", "pixels_below_line", 1));
         modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.GetValue("document", "font", "Monospace 13")));
 
-        //adding gutter stuff for code coverage 
-        auto gutter = getGutter(TextWindowType.LEFT);
-        mGutterRendererText = new SourceGutterRendererText();
 
-        
-        mGutterRendererText.addOnQueryData(delegate void(TextIter tiStart, TextIter tiEnd, GtkSourceGutterRendererState state, SourceGutterRenderer sgr)
-        {   
-            
-            //if(!mGutterRendererText.getVisible()) return;
-            //sourcemarks lead to infinite loop ... trying textmarks
-            mGutterRendererText.setText("", "".length);
-            auto listmarks = tiStart.getMarks();            
-            if(listmarks is null) return;
-            auto marks = listmarks.toArray!TextMark;
-            if(marks.length < 1) return;
-            string txtName;
-            foreach(mark; marks)
-            {
-                txtName = mark.getName();
-                if(txtName.startsWith("cov-"))break;
-                txtName = "";
-            }
-            if(txtName.strip().length == 0) return;
-            //sgr.setVisible(true);
-            
-            int xlen, ylen;        
-            string thefinalstring;
-            auto sgrt = cast(SourceGutterRendererText)sgr;
-            
-            
-            thefinalstring = "[" ~mCodeCoverage[txtName] ~ "]";
-            sgrt.measure(thefinalstring, xlen, ylen);
-            if(xlen > sgrt.getSize()) sgrt.setSize(xlen);
-            sgrt.setText(thefinalstring, cast(int)thefinalstring.length);
-        
-            return;
-        });
-        mGutterRendererText.setVisible(false);
-        mGutterRendererText.setAlignment(1.0, -1);
-        gutter.insert(mGutterRendererText, 1);
         
     }
     
