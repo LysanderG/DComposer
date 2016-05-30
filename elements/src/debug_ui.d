@@ -1,13 +1,21 @@
 module debug_ui;
 
 import std.traits;
+import std.conv;
 import std.file;
 import std.string;
 import core.demangle;
+import std.stdio;
+
+
+import gtk.Tooltip;
+import gio.Cancellable;
+import vte.Pty;
 
 import dcore;
 import ui;
 import elements;
+import document;
 
 extern (C) string GetClassName()
 {
@@ -57,9 +65,14 @@ class DEBUG_UI : ELEMENT
         
         mTextView       = cast(TextView)builder.getObject("textview1");
         
+        mTerminalWindow = cast(Window)builder.getObject("window1");
+        mTerminal       = new Terminal;
+        
+        EngageTerminal();
+        
         mBtn_SwitchGdb.addOnToggled(&ToggleGdb);
         
-		mBtn_Start.addOnClicked(delegate void(ToolButton tb){mNtdb.StartTarget();});
+		mBtn_Start.addOnClicked(delegate void(ToolButton tb){ResetTerminal();mNtdb.StartTarget();});
 		mBtn_Continue.addOnClicked(delegate void(ToolButton tb){mNtdb.ContinueTarget();});
 		mBtn_Step_Over.addOnClicked(delegate void(ToolButton tb){mNtdb.StepOver();});
 		mBtn_Step_In.addOnClicked(delegate void(ToolButton tb){mNtdb.StepIn();});
@@ -117,7 +130,14 @@ class DEBUG_UI : ELEMENT
             mFramesStore.getIter(ti, tp);
             if(ti is null) return;
             mNtdb.CreateVariables(ti.getValueString(0)); 
+            if(ti.getValueString(2) == "-") return;
+            dwrite(ti.getValueString(2),":" , ti.getValueString(3).to!int -1 );
+            GotoExecPoint(ti.getValueString(2), ti.getValueString(3).to!int -1 );
         });
+        
+        mInScopeView.addOnQueryTooltip(&QueryTip);
+        
+        
         
         AddSidePage(mSideRoot, "Variables");
         AddExtraPage(mExtraRoot, "Debugger");
@@ -134,6 +154,7 @@ class DEBUG_UI : ELEMENT
         
         RemoveSidePage(mSideRoot);
         RemoveExtraPage(mExtraRoot);
+        destroy(mTerminalWindow);
         destroy(mNtdb);
     }
     void Configure()
@@ -191,6 +212,85 @@ class DEBUG_UI : ELEMENT
     
     TextView            mTextView;
     
+    Window              mTerminalWindow;
+    Terminal            mTerminal;
+    
+    string              mPts;
+    int                 mFd;
+    
+    SourceMark          mExecPoint;
+    
+    
+    void GotoExecPoint(string source_file, int line)
+    {
+        dwrite(source_file, " ", line);
+        if(mExecPoint !is null)
+        {
+            auto buff = mExecPoint.getBuffer();
+            if(buff !is null)buff.deleteMarkByName("ExecPt");
+        }
+        if(DocMan.GoTo(source_file, line))
+        {
+            auto ti = new TextIter;
+            auto doc = cast(DOCUMENT)DocMan.Current();
+            if(doc is null) return;
+            doc.getBuffer().getIterAtLine(ti,line);
+            mExecPoint = doc.getBuffer().createSourceMark("ExecPt", "ExecPoint", ti);
+        }
+    }
+        
+    
+    void ResetUI()
+    {
+        mFramesStore.clear();
+        mInScopeStore.clear();
+        mOutScopeStore.clear();
+        mTextView.getBuffer().setText("\0");
+    }
+    void EngageTerminal()
+    {
+        mTerminalWindow.add(mTerminal);
+        mTerminalWindow.setVisible(false);
+        mTerminalWindow.addOnDelete(delegate bool(Event e, Widget w)
+        {
+            return mTerminalWindow.hideOnDelete();
+        });
+        
+        mTerminal.setInputEnabled(true);
+        mTerminal.setVisible(true);
+        mTerminal.setPty(mTerminal.ptyNewSync(VtePtyFlags.DEFAULT, null));
+        dwrite(mTerminal.getPty());
+        mFd = mTerminal.getPty().getFd();
+        dwrite(mTerminal.getPty().getFd());
+        
+        import core.sys.posix.stdlib;
+        mPts = ptsname(mTerminal.getPty().getFd()).to!string;
+        dwrite(mPts);
+        mTerminal.addOnEof(delegate void(Terminal){
+            dwrite(mTerminal.getPty());
+            dwrite("XXXXXXXXXXXXXXXXXXXXXXXXXXX");
+        });
+    }
+        
+    
+    void ResetTerminal()
+    {
+        
+        auto pty = new Pty(mFd, null);
+        mTerminal.setPty(pty);
+                
+        bool rewrap = Config.GetValue("debug_ui", "rewrap", true);
+        long xlen = Config.GetValue("debug_ui","x_len", 80);
+        long ylen = Config.GetValue("debug_ui","y_len", 30);
+        
+        mTerminal.setRewrapOnResize(rewrap);
+        mTerminal.setSize(xlen, ylen);
+        mTerminal.reset(true, true);
+
+    }
+        
+    
+    
     void ToggleGdb(ToggleToolButton tb)
     {
         auto starting = mBtn_SwitchGdb.getActive();
@@ -216,7 +316,7 @@ class DEBUG_UI : ELEMENT
                 Log.Entry("Failed to Start Debugger... " ~ TargetFile ~ " does not exist");
                 return;
             }                                    
-            if(!mNtdb.StartGdb(TargetFile))
+            if(!mNtdb.StartGdb(TargetFile, mPts))
             {
                 mBtn_SwitchGdb.setActive(false);
                 Log.Entry("Failed to Start Debugger","Error");
@@ -240,26 +340,41 @@ class DEBUG_UI : ELEMENT
         mBtn_Remove_Break.setSensitive(mBtn_SwitchGdb.getActive());
         mFramesView.setSensitive(mBtn_SwitchGdb.getActive());
         if(!mBtn_SwitchGdb.getActive())mFramesStore.clear();
+        mTerminalWindow.setVisible(mBtn_SwitchGdb.getActive());
+       
     }
 
     void DebugWatcher(RECORD rec)
     {
         auto tmpstring = Cooked(rec._rawString);
-        if(tmpstring.length)mTextView.appendText(tmpstring);
+        //if(tmpstring.length > 1)mTextView.appendText(tmpstring);
         //UpdateVariables(); // this is called way too often!! prune it down
         
         switch(rec._class)
         {
             case "*stopped":
+                mTextView.appendText(tmpstring);
                 mNtdb.GetStackList();
                 AddStatus("Debugger", "Debug target stopped");
-                if(rec.Get("reason").startsWith("exited"))AddStatus("Debugger", "Debut target exited");
+                if(rec.Get("reason").startsWith("exited"))
+                {
+                    AddStatus("Debugger", "Debut target exited");
+                }
+                if(rec.GetResult("frame"))
+                {
+                    scope(failure)goto case;
+                    string file = rec.Get("frame", "fullname");
+                    int line = rec.Get("frame", "line").to!int;
+                    GotoExecPoint(file, line-1);
+                }
                 break;
             case "^done":
                 if(rec.GetResult("stack"))UpdateFramesView(rec);
                 if(rec.GetResult("BreakpointTable"))UpdateBreakView(rec);
+                if(rec.GetResult("value"))UpdateTooltip(rec);
                 break;
             case "^running":
+                mTextView.appendText(tmpstring);
                 AddStatus("Debugger", "Debug target running");
                 break;
             case "$updatevariables":
@@ -387,7 +502,34 @@ class DEBUG_UI : ELEMENT
 			mBreaksStore.setValue(ti, 8, what);
 		}
 	}
+    
+    void UpdateTooltip(RECORD val)
+    {
+        auto tip = val.Get("value");
+        mInScopeView.setTooltipText(tip.Cooked());
+        //mOutScopeView.setTooltipText(tip);
+        //mInScopeView.triggerTooltipQuery();
+        //mOutScopeView.triggerTooltipQuery();
         
+    }
+    
+    bool QueryTip(int x, int y, bool keys, Tooltip tooltip, Widget w)
+    {
+        auto tvc = new TreeViewColumn;
+        auto tp = new TreePath;
+        auto ti = new TreeIter;
+        int tvx, tvy, cx, cy;
+        auto tv = cast(TreeView)w;
+        tv.convertWidgetToBinWindowCoords(x, y, tvx, tvy);
+        if(tv.getPathAtPos(tvx,tvy,tp, tvc, cx, cy))
+        {
+            tv.getModel().getIter(ti, tp);
+            auto exp = ti.getValueString(0);
+            mNtdb.EvaluateData(exp);
+            dwrite(exp);
+        }
+        return false;
+    }
     
 }
 
@@ -395,11 +537,14 @@ class DEBUG_UI : ELEMENT
 string Cooked(string raw)
 {
 	import std.string;
-	string rv = "\0";
+    import std.utf;
+    
+	string rv = "";
 	if(raw.startsWith("(gdb)")) return rv;
 	if(raw == `&"\n"`) return rv;
 	rv = raw.replace(`\n`, "");
+    rv = rv.replace(`\\`, `\`);
 	rv = rv.replace(`\"`, `"`) ~ "\n";
 	
-	return rv;
+	return rv.toUTF8;
 }

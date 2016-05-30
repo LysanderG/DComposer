@@ -566,6 +566,8 @@
       <column type="gchararray"/>
       <!-- column-name color -->
       <column type="gchararray"/>
+      <!-- column-name evaltip -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkBox" id="sideroot">
@@ -594,7 +596,6 @@
                     <property name="model">treestore1</property>
                     <property name="search_column">0</property>
                     <property name="level_indentation">2</property>
-                    <property name="tooltip_column">5</property>
                     <property name="activate_on_single_click">True</property>
                     <child internal-child="selection">
                       <object class="GtkTreeSelection" id="treeview-selection12">
@@ -786,6 +787,18 @@
         <property name="fill">True</property>
         <property name="position">1</property>
       </packing>
+    </child>
+  </object>
+  <object class="GtkWindow" id="window1">
+    <property name="visible">True</property>
+    <property name="can_focus">True</property>
+    <property name="title" translatable="yes">DEBUG</property>
+    <property name="resizable">False</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="skip_taskbar_hint">True</property>
+    <property name="deletable">False</property>
+    <child>
+      <placeholder/>
     </child>
   </object>
 </interface>
