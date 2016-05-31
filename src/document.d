@@ -216,6 +216,12 @@ class DOCUMENT : SourceView, DOC_IF
         mTabWidget.showAll();
 
         mPageWidget = ScrollWin;
+        
+        addOnLineMarkActivated(delegate void(TextIter ti, Event e, SourceView sv)
+        {
+            DocMan.GutterActivated.emit(this, ti.getLine());
+        });
+            
 
         addOnFocusOut(delegate bool(Event e, Widget me){DocMan.PageFocusOut.emit(this);return false;});
         addOnFocusIn(delegate bool(Event e, Widget me){DocMan.PageFocusIn.emit(this);return false;});

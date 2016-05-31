@@ -669,6 +669,7 @@ class DOCMAN
     mixin Signal!(void *, DOC_IF) MouseButton;
     mixin Signal!(DOC_IF, int, int) PreCursorJump;
     mixin Signal!(DOC_IF, int, int) CursorJump;
+    mixin Signal!(DOC_IF, int) GutterActivated;
 }
 
 
