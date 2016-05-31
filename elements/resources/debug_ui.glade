@@ -2,6 +2,41 @@
 <!-- Generated with glade 3.18.3 -->
 <interface>
   <requires lib="gtk+" version="3.12"/>
+  <object class="GtkDialog" id="dialog1">
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Breakpoint Editor</property>
+    <property name="type_hint">dialog</property>
+    <child internal-child="vbox">
+      <object class="GtkBox" id="dialog-vbox1">
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkButtonBox" id="dialog-action_area1">
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkListStore" id="liststore1">
     <columns>
       <!-- column-name level -->
@@ -27,7 +62,7 @@
       <column type="gchararray"/>
       <!-- column-name enabled -->
       <column type="gboolean"/>
-      <!-- column-name location -->
+      <!-- column-name source -->
       <column type="gchararray"/>
       <!-- column-name condition -->
       <column type="gchararray"/>
@@ -39,6 +74,12 @@
       <column type="gchararray"/>
       <!-- column-name gint1 -->
       <column type="gint"/>
+      <!-- column-name func -->
+      <column type="gchararray"/>
+      <!-- column-name line -->
+      <column type="gchararray"/>
+      <!-- column-name fullname -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkBox" id="extraroot">
@@ -204,6 +245,7 @@
             <child>
               <object class="GtkBox" id="box5">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
                 <property name="orientation">vertical</property>
                 <child>
@@ -249,7 +291,7 @@
                             <child>
                               <object class="GtkCellRendererText" id="cellrenderertext8"/>
                               <attributes>
-                                <attribute name="text">1</attribute>
+                                <attribute name="text">2</attribute>
                               </attributes>
                             </child>
                           </object>
@@ -266,12 +308,34 @@
                           </object>
                         </child>
                         <child>
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn24">
+                            <property name="title" translatable="yes">Function</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cellrenderertext22"/>
+                              <attributes>
+                                <attribute name="text">10</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn10">
-                            <property name="title" translatable="yes">Location</property>
+                            <property name="title" translatable="yes">Source</property>
                             <child>
                               <object class="GtkCellRendererText" id="cellrenderertext9"/>
                               <attributes>
                                 <attribute name="text">4</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn25">
+                            <property name="title" translatable="yes">Line</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cellrenderertext23"/>
+                              <attributes>
+                                <attribute name="text">11</attribute>
                               </attributes>
                             </child>
                           </object>
@@ -337,7 +401,6 @@
                     <child>
                       <object class="GtkToolButton" id="toolbutton9">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Add</property>
                         <property name="use_underline">True</property>
@@ -350,9 +413,32 @@
                     <child>
                       <object class="GtkToolButton" id="toolbutton10">
                         <property name="visible">True</property>
-                        <property name="sensitive">False</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Remove</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="toolbutton11">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Edit</property>
+                        <property name="use_underline">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="toolbutton12">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Clear</property>
                         <property name="use_underline">True</property>
                       </object>
                       <packing>

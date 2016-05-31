@@ -6,6 +6,7 @@ import std.file;
 import std.string;
 import core.demangle;
 import std.stdio;
+import std.path;
 
 
 import gtk.Tooltip;
@@ -55,6 +56,7 @@ class DEBUG_UI : ELEMENT
         mFramesView     = cast(TreeView)builder.getObject("treeview2");
         mFramesStore    = cast(ListStore)builder.getObject("liststore1");
         
+        mBreakBox       = cast(Box)builder.getObject("box5");
         mBreaksView     = cast(TreeView)builder.getObject("treeview4");
         mBreaksStore    = cast(ListStore)builder.getObject("liststore3");
                 
@@ -80,9 +82,9 @@ class DEBUG_UI : ELEMENT
 		mBtn_To_Cursor.addOnClicked(delegate void(ToolButton tb)
         {
             string name;
-            int line,col;
+            int oline,ocol;
             if(DocMan.Current is null) return;
-            mNtdb.ToCursor(DocMan.Current.GetLocation(name, line, col));
+            mNtdb.ToCursor(DocMan.Current.GetLocation(name, oline, ocol));
         });        
 		mBtn_Interrupt.addOnClicked(delegate void(ToolButton tb){mNtdb.Interrupt();});
         
@@ -99,7 +101,10 @@ class DEBUG_UI : ELEMENT
 		{
 			auto ti = mBreaksView.getSelectedIter();
 			if(ti is null) return;
-			mNtdb.RemoveBreak(ti.getValueString(0));
+            auto doc = DocMan.GetDoc(ti.getValueString(12));
+            if(doc !is null)ToggleBreakPoint(doc, ti.getValueString(11).to!int-1);
+            
+			//mNtdb.RemoveBreak(ti.getValueString(0));
 		});
         
         mTglBreakEnabled.addOnToggled(delegate void(string path, CellRendererToggle crt)
@@ -138,6 +143,17 @@ class DEBUG_UI : ELEMENT
         mInScopeView.addOnQueryTooltip(&QueryTip);
         
         
+        /+//set breakpoint action
+        AddIcon("breakpoint",SystemPath(Config.GetValue("debug_ui", "icon_breakpoint_action", "elements/resources/target.png")));
+        AddAction("ActBreakpoint",
+                  "Toggle Breakpoint",
+                  "Set/Unset breakpoint at current location",
+                  "breakpoint",
+                  "<Control>B",
+                  &ToggleBreakPointActionCB);
+        uiContextMenu.AddAction("ActBreakpoint");
+        +/
+        DocMan.GutterActivated.connect(&ToggleBreakPoint);
         
         AddSidePage(mSideRoot, "Variables");
         AddExtraPage(mExtraRoot, "Debugger");
@@ -149,13 +165,20 @@ class DEBUG_UI : ELEMENT
     
     void Disengage()
     {
+        
+        uiContextMenu.RemoveAction("ActBreakpoint");
+        RemoveAction("ActBreakpoint");
+        
         mNtdb.StopGdb();
         mNtdb.disconnect(&DebugWatcher);
+        
+        DocMan.GutterActivated.disconnect(&ToggleBreakPoint);
         
         RemoveSidePage(mSideRoot);
         RemoveExtraPage(mExtraRoot);
         destroy(mTerminalWindow);
         destroy(mNtdb);
+        Log.Entry("Disengaged");
     }
     void Configure()
     {
@@ -207,6 +230,7 @@ class DEBUG_UI : ELEMENT
     TreeView            mFramesView;
     ListStore           mFramesStore;
     
+    Box                 mBreakBox;
     TreeView            mBreaksView;
     ListStore           mBreaksStore;
     
@@ -216,29 +240,60 @@ class DEBUG_UI : ELEMENT
     Terminal            mTerminal;
     
     string              mPts;
-    int                 mFd;
+    int                 mTerminalFd;
     
     SourceMark          mExecPoint;
     
+    string              mNextUniqName = "0";
     
-    void GotoExecPoint(string source_file, int line)
+    string srcUniqName()
     {
-        dwrite(source_file, " ", line);
+        auto rv = mNextUniqName;
+        mNextUniqName = rv.succ;
+        return rv;
+    }
+        
+    
+    void GotoExecPoint(string source_file, int zline)
+    {
+        dwrite(source_file, " ", zline);
         if(mExecPoint !is null)
         {
             auto buff = mExecPoint.getBuffer();
             if(buff !is null)buff.deleteMarkByName("ExecPt");
         }
-        if(DocMan.GoTo(source_file, line))
+        if(DocMan.GoTo(source_file, zline))
         {
             auto ti = new TextIter;
             auto doc = cast(DOCUMENT)DocMan.Current();
             if(doc is null) return;
-            doc.getBuffer().getIterAtLine(ti,line);
+            doc.getBuffer().getIterAtLine(ti,zline);
             mExecPoint = doc.getBuffer().createSourceMark("ExecPt", "ExecPoint", ti);
         }
     }
-        
+    
+
+    void ToggleBreakPoint(DOC_IF doc, int zline)
+    {
+        if(!mBtn_SwitchGdb.getActive()) return;
+        dwrite(doc, "--",zline);
+        auto DOC = cast(DOCUMENT) doc;
+        auto buff = DOC.getBuffer();
+        auto marklist =  buff.getSourceMarksAtLine(zline, "Breakpoint");
+        if(marklist)
+        {
+            DOC.getBuffer().deleteMark(marklist.toArray!SourceMark[0]);
+            auto id = FindBreakID(doc.Name.baseName(), (1+zline).to!string);
+            mNtdb.RemoveBreak(id);
+        }
+        else
+        {
+            auto ti = new TextIter;
+            DOC.getBuffer().getIterAtLine(ti, zline);
+            DOC.getBuffer().createSourceMark(srcUniqName, "Breakpoint", ti);
+            mNtdb.InsertBreak(DOC.Name ~ ":" ~ (zline+1).to!string);
+        }
+    }
     
     void ResetUI()
     {
@@ -260,7 +315,7 @@ class DEBUG_UI : ELEMENT
         mTerminal.setVisible(true);
         mTerminal.setPty(mTerminal.ptyNewSync(VtePtyFlags.DEFAULT, null));
         dwrite(mTerminal.getPty());
-        mFd = mTerminal.getPty().getFd();
+        mTerminalFd = mTerminal.getPty().getFd();
         dwrite(mTerminal.getPty().getFd());
         
         import core.sys.posix.stdlib;
@@ -276,7 +331,7 @@ class DEBUG_UI : ELEMENT
     void ResetTerminal()
     {
         
-        auto pty = new Pty(mFd, null);
+        auto pty = new Pty(mTerminalFd, null);
         mTerminal.setPty(pty);
                 
         bool rewrap = Config.GetValue("debug_ui", "rewrap", true);
@@ -307,7 +362,7 @@ class DEBUG_UI : ELEMENT
             else
             {
                 auto doc = DocMan.Current();
-                if(doc !is null) TargetFile = doc.Name;
+                if(doc !is null) TargetFile = doc.Name.stripExtension();
             }
             if (!TargetFile.exists())
             {
@@ -336,8 +391,7 @@ class DEBUG_UI : ELEMENT
         mBtn_Step_Out.setSensitive(mBtn_SwitchGdb.getActive());
         mBtn_To_Cursor.setSensitive(mBtn_SwitchGdb.getActive());
         mBtn_Interrupt.setSensitive(mBtn_SwitchGdb.getActive());
-        mBtn_Ins_Break.setSensitive(mBtn_SwitchGdb.getActive());
-        mBtn_Remove_Break.setSensitive(mBtn_SwitchGdb.getActive());
+        mBreakBox.setSensitive(mBtn_SwitchGdb.getActive());
         mFramesView.setSensitive(mBtn_SwitchGdb.getActive());
         if(!mBtn_SwitchGdb.getActive())mFramesStore.clear();
         mTerminalWindow.setVisible(mBtn_SwitchGdb.getActive());
@@ -364,8 +418,12 @@ class DEBUG_UI : ELEMENT
                 {
                     scope(failure)goto case;
                     string file = rec.Get("frame", "fullname");
-                    int line = rec.Get("frame", "line").to!int;
-                    GotoExecPoint(file, line-1);
+                    int zline = rec.Get("frame", "line").to!int-1;
+                    GotoExecPoint(file, zline);
+                }
+                if(rec.Get("reason") == "breakpoint-hit")
+                {
+                    mNtdb.GetBreakPoints();
                 }
                 break;
             case "^done":
@@ -474,18 +532,16 @@ class DEBUG_UI : ELEMENT
 			auto type = ("type" in breakpt._tuple) ? breakpt.GetString("type") : "-";
 			auto disp = ("disp" in breakpt._tuple) ? breakpt.GetString("disp") : "-";
 			auto enabled = ("enabled" in breakpt._tuple) ? (breakpt.GetString("enabled") == "y") : false;
+            auto source = ("file" in breakpt._tuple) ? breakpt.GetString("file") : "-";
 			auto cond = ("cond" in breakpt._tuple) ? breakpt.GetString("cond") : "?";
 			auto ignore = ("ignore" in breakpt._tuple) ? breakpt.GetString("ignore") : "-";
 			auto times = ("times" in breakpt._tuple) ? breakpt.GetString("times") : "?";
 			auto what = ("what" in breakpt._tuple) ? breakpt.GetString("what") : "-";
-			//auto location = ("location" in breakpt._tuple) ? breakpt._tuple["id"]._const : "-";
-			string location;
-			if("pending" in breakpt._tuple) location = breakpt._tuple["pending"]._const;
-			if("func" in breakpt._tuple) location ~= breakpt._tuple["func"]._const.demangle() ~ " ";
-			if("filename" in breakpt._tuple) location ~= breakpt._tuple["filename"]._const;
-			if("line" in breakpt._tuple) location ~= ":" ~ breakpt._tuple["line"]._const;
-			
-			
+            auto funct = ("func" in breakpt._tuple) ? breakpt.GetString("func").demangle().to!string : "-";
+            auto line = ("line" in breakpt._tuple) ? breakpt.GetString("line") : "-" ;
+            auto fullname = ("fullname" in breakpt._tuple) ? breakpt.GetString("fullname") : "-";
+			if("pending" in breakpt._tuple) funct = breakpt.GetString("pending");
+            
 			Value enabledbool = new Value;
 			enabledbool.init(GType.BOOLEAN);
 			enabledbool.setBoolean(enabled);
@@ -495,11 +551,14 @@ class DEBUG_UI : ELEMENT
 			mBreaksStore.setValue(ti, 1, type);
 			mBreaksStore.setValue(ti, 2, disp);
 			mBreaksStore.setValue(ti, 3, enabledbool);
-			mBreaksStore.setValue(ti, 4, location);
+			mBreaksStore.setValue(ti, 4, source);
 			mBreaksStore.setValue(ti, 5, cond);
 			mBreaksStore.setValue(ti, 6, ignore);
 			mBreaksStore.setValue(ti, 7, times);
 			mBreaksStore.setValue(ti, 8, what);
+            mBreaksStore.setValue(ti, 10,funct);
+            mBreaksStore.setValue(ti, 11,line);
+            mBreaksStore.setValue(ti, 12,fullname);
 		}
 	}
     
@@ -530,6 +589,24 @@ class DEBUG_UI : ELEMENT
         }
         return false;
     }
+    
+    string FindBreakID(string name, string line)
+    {
+        auto ti = new TreeIter;
+        if(!mBreaksStore.getIterFirst(ti))return "-";
+        do
+        {
+            if((name == mBreaksStore.getValueString(ti, 4)) 
+                &&
+               (line == mBreaksStore.getValueString(ti,11)))
+            {
+                return mBreaksStore.getValueString(ti, 0);
+            }
+        }while (mBreaksStore.iterNext(ti));
+        return "-";
+    }
+    
+    
     
 }
 
