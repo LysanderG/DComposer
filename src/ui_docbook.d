@@ -308,7 +308,7 @@ public:
         OD.setCurrentFolder(CurrentPath());
         auto resp = OD.run();
 
-        if(resp == ResponseType.CANCEL)return rv;
+        if(resp != ResponseType.OK)return rv;
 
         auto sinlist = OD.getFilenames();
 
@@ -331,7 +331,7 @@ public:
         SAD. setDoOverwriteConfirmation(true);
         auto resp = SAD.run();
 
-        if(resp == ResponseType.CANCEL)
+        if(resp != ResponseType.OK)
         {
             SAD.destroy();
             return rv;
