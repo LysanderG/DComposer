@@ -23,6 +23,7 @@ import gtk.Button;
 import gtk.TextBuffer;
 import gtk.MessageDialog;
 import gtk.Adjustment;
+import gtk.Tooltip;
 import gtkc.gtk;
 import gtkc.glib;
 
@@ -358,6 +359,15 @@ class DOCUMENT : SourceView, DOC_IF
         mGutterRendererText.setVisible(false);
         mGutterRendererText.setAlignment(1.0, -1);
         gutter.insert(mGutterRendererText, 1);
+        
+        setHasTooltip(true);
+        addOnQueryTooltip(delegate bool(int wx, int wy, bool keymode, Tooltip tp, Widget me)
+        {
+            int bx, by;
+            windowToBufferCoords(TextWindowType.WIDGET, wx, wy, bx, by);
+            DocMan.Tooltip.emit(this, WordUnderPointer(bx, by));
+            return false;
+        });
         
         Config.Changed.connect(&WatchConfigChange);
     }
@@ -852,9 +862,14 @@ class DOCUMENT : SourceView, DOC_IF
         }
         return ctr;
     }
-    string WordUnderPointer()
+    string WordUnderPointer(int x, int y)
     {
-        return "";
+        auto ti_out = new TextIter;
+        getIterAtLocation(ti_out, x, y);
+        getBuffer().createMark("tmpMark", ti_out, true);
+        auto rv = Word("tmpMark");
+        getBuffer().deleteMarkByName("tmpMark");
+        return rv;
     }
     string Selection()
     {

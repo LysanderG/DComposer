@@ -41,7 +41,7 @@ interface DOC_IF
     string  Symbol();
     string  FullSymbol();
     string  Word(string AtMarkName = "insert");
-    string  WordUnderPointer();
+    string  WordUnderPointer(int x, int y);
     int     WordLength(int Partial = -1);
     dchar   GetChar();
     bool    RefreshCoverage();
@@ -670,6 +670,7 @@ class DOCMAN
     mixin Signal!(DOC_IF, int, int) PreCursorJump;
     mixin Signal!(DOC_IF, int, int) CursorJump;
     mixin Signal!(DOC_IF, int) GutterActivated;
+    mixin Signal!(DOC_IF, string) Tooltip;
 }
 
 
