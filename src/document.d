@@ -806,6 +806,54 @@ class DOCUMENT : SourceView, DOC_IF
         }
         return rv;
     }*/
+    
+    string QualifiedWord(string AtMarkName)
+    {
+        string rv;
+        bool foundWordStart, foundStart;
+        auto buff = getBuffer();
+        
+        auto ti = new TextIter;
+        buff.getIterAtMark(ti, buff.getMark(AtMarkName));
+        
+        if(!(ti.insideWord()) || ti.endsWord()) return rv;
+        
+        dchar nextChar, thisChar, lastChar;
+        lastChar = ti.getChar();
+        
+        //goback
+        while(ti.backwardChar())
+        {
+            thisChar = ti.getChar();
+            if(thisChar == '.')continue;
+            if(!thisChar.isWordChar() && lastChar.isWordStartChar())
+            {
+                foundStart = true;
+                ti.forwardChar();
+                if(ti.getChar() == '.')ti.forwardChar();
+                break;
+            }
+            if(!thisChar.isWordChar())break;
+            lastChar = thisChar;
+        }
+        if(foundStart == false) return rv;
+        
+        //go forward
+        auto tiEnd = ti.copy();
+        while (tiEnd.forwardChar())
+        {
+            if(tiEnd.getChar() == '.')
+            {
+                tiEnd.forwardChar();
+                if(!tiEnd.getChar().isWordStartChar())tiEnd.backwardChar();
+            }
+            if(!tiEnd.getChar().isWordChar())break;
+        }
+        //gotta backup
+        //tiEnd.backwardChar();
+        return ti.getText(tiEnd);
+    }
+    
 
     string Word(string AtMarkName )
     {
@@ -867,7 +915,8 @@ class DOCUMENT : SourceView, DOC_IF
         auto ti_out = new TextIter;
         getIterAtLocation(ti_out, x, y);
         getBuffer().createMark("tmpMark", ti_out, true);
-        auto rv = Word("tmpMark");
+        auto rv = QualifiedWord("tmpMark");
+        //auto rv = Word("tmpMark");
         getBuffer().deleteMarkByName("tmpMark");
         return rv;
     }

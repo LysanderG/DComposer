@@ -40,6 +40,7 @@ interface DOC_IF
     string  LineText();
     string  Symbol();
     string  FullSymbol();
+    string  QualifiedWord(string AtMarkName = "insert");
     string  Word(string AtMarkName = "insert");
     string  WordUnderPointer(int x, int y);
     int     WordLength(int Partial = -1);
