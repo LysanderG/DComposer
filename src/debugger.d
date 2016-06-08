@@ -1,12 +1,14 @@
 module debugger;
 
 import std.array;
+import std.algorithm;
 import std.conv;
 import std.file;
 import std.process;
 import std.signals;
 import std.stdio;
 import std.string;
+import std.typecons;
 
 import glib.IOChannel;
 
@@ -23,7 +25,13 @@ class NTDB
 	string[]			mVariableNames;
 	VARIABLE[string]	mVariables;
 	immutable int		mDefaultDepth = 10;
-	
+    
+    string[]            mModules;           //all the modules in the target program
+    bool                mModuleInit;        //we are starting and in the process of gathering modules until ^done
+    string              mEvalExpression;    //stored last expression given to look up
+	bool                mDataSearchInProgress;
+    
+    
 	void SetupGdbWatcher()
 	{
 		mGdbChannelOut = new IOChannel(mGdbProcess.stdout.fileno);
@@ -37,14 +45,33 @@ class NTDB
 		size_t position;
         
 		auto channel = new IOChannel(source);
-		channel.readLine(response, position);
+        try
+        {
+            channel.readLine(response, position);
+        }
+        catch(Exception X)
+        {
+            ui.ShowMessage("IOChannel error", X.msg);
+        }
 		response = response.strip();
 		if(response.length < 1) return true;
         
+        //init modules
+        if(response.startsWith("1")) self.mModuleInit = !self.mModuleInit;
+        if(self.mModuleInit)
+        {
+            auto rv = response.findSplitAfter("ModuleInfo for ");
+            if(rv[0].length > 0)
+            {
+                if(rv[1].length > 4) self.mModules ~= rv[1][0..$-3];
+            }
+        } 
+        
+        //evaluate data
         if(response.startsWith("411"))
         {
-            dwrite(response);
-            response = response[3..$];
+            self.CollectData(response);
+            return true;            
         }
 		auto x = RECORD(response);
         
@@ -52,7 +79,7 @@ class NTDB
 		if(x._class == "=thread-group-started")
 		{
 			self.mTargetId = to!int(x.Get("pid"));
-            self.mGdbProcess.stdin.flush();
+            //self.mGdbProcess.stdin.flush();
 		}
 		//variables stuff
 		if(x._class == "^done")
@@ -66,7 +93,7 @@ class NTDB
         //target exited
 		if(x._class == "*stopped")
 		{
-			if(x.Get("reason").startsWith("exited")) self.Reset();
+			//if(x.Get("reason").startsWith("exit")) self.Reset();
 			self.UpdateVariables();
 			
 		}
@@ -84,150 +111,19 @@ class NTDB
     
     void IssueCommand(string Cmd)
     {
-        auto gdb = tryWait(mGdbProcess.pid);
-        if(gdb.terminated) return;
-        mGdbProcess.stdin.writeln(Cmd);
-        mGdbProcess.stdin.flush();
+        //auto gdb = tryWait(mGdbProcess.pid);
+        //if(gdb.terminated) return;
+        try
+        {
+            mGdbProcess.stdin.writeln(Cmd);
+            mGdbProcess.stdin.flush();
+            
+        }
+        catch(Exception x)
+        {
+            dwrite(x);
+        }
     }
-        
-
-
-	
-	public:
-	
-	bool StartGdb(string TargetName, string pts)
-	{
-		if(TargetName.exists())
-		{
-			try
-			{
-				mGdbProcess = pipeShell("gdb --interpreter=mi " ~ TargetName  ~ " --tty=" ~ pts);
-				SetupGdbWatcher();
-                
-                mGdbProcess.stdin.writeln("set print pretty on");
-                mGdbProcess.stdin.writeln("set print array on");
-                mGdbProcess.stdin.flush();
-                
-                return true;
-			}
-			catch(Exception x)
-			{
-				dwrite(x);
-			}
-		}
-		return false;
-	}
-	
-	void StopGdb()
-	{
-        dwrite(mGdbProcess);
-        if(mGdbProcess.pid is null) return; //never ran
-        if(mGdbProcess.pid.processID< 0) return; //not running
-		mGdbProcess.stdin.writeln("-gdb-exit\n");
-		mGdbProcess.stdin.flush();
-		mTargetId = 0;
-		kill(mGdbProcess.pid, 9);
-		wait(mGdbProcess.pid);
-	}
-	
-	void StartTarget()
-	{
-		try {
-		mGdbProcess.stdin.writeln("-exec-run --start\n");
-		mGdbProcess.stdin.flush();
-		}
-		catch(Exception x)
-		{
-			dwrite(x);
-		}
-	}
-	void ContinueTarget()
-	{
-		mGdbProcess.stdin.writeln("-exec-continue --all\n");
-		mGdbProcess.stdin.flush();
-	}	
-	void StepOver()
-	{
-		mGdbProcess.stdin.writeln("-exec-next\n");
-		mGdbProcess.stdin.flush();
-	}
-	void StepIn()
-	{
-		mGdbProcess.stdin.writeln("-exec-step\n");
-		mGdbProcess.stdin.flush();
-	}
-	void StepOut()
-	{
-		mGdbProcess.stdin.writeln("-exec-finish\n");
-		mGdbProcess.stdin.flush();
-	}
-	void ToCursor(string location)
-	{
-		mGdbProcess.stdin.writeln("-break-insert -t " ~ location);
-		mGdbProcess.stdin.flush();
-		mGdbProcess.stdin.writeln("-exec-continue --all\n");
-		mGdbProcess.stdin.flush();		
-        GetBreakPoints();
-	}
-	void Interrupt()
-	{
-		import core.sys.posix.signal;
-		kill(mTargetId, 2);
-	}
-	
-	void GetStackList()
-	{
-		mGdbProcess.stdin.writeln("-stack-list-frames\n");
-		mGdbProcess.stdin.flush();
-	}
-	
-	void GetBreakPoints()
-	{
-		mGdbProcess.stdin.writeln("-break-list\n");
-		mGdbProcess.stdin.flush();
-	}
-	
-	void InsertBreak(string location)
-	{
-		mGdbProcess.stdin.writeln("-break-insert " ~ location ~ "\n");
-		mGdbProcess.stdin.flush();
-		GetBreakPoints();
-	}
-	void RemoveBreak(string Id)
-	{
-		mGdbProcess.stdin.writeln("-break-delete ",Id);
-		mGdbProcess.stdin.flush();
-		GetBreakPoints();
-	}
-	void EnableBreak(string Id)
-	{
-		mGdbProcess.stdin.writeln("-break-enable " ~ Id);
-		mGdbProcess.stdin.flush();
-		GetBreakPoints();
-	}
-	void DisableBreak(string Id)
-	{
-		mGdbProcess.stdin.writeln("-break-disable " ~ Id);
-		mGdbProcess.stdin.flush();
-		GetBreakPoints();
-	}
-	void InsertWatch(string newWatch)
-	{
-		mGdbProcess.stdin.writeln("-break-watch " ~ newWatch ~ "\n");
-		mGdbProcess.stdin.flush();
-		GetBreakPoints();
-	}
-	
-	
-	void CreateVariables(string frameId)
-	{
-		mVariableNames.length = 0;
-		mGdbProcess.stdin.writeln("-stack-select-frame " ~ frameId ~ "\n");
-		mGdbProcess.stdin.flush();
-		mGdbProcess.stdin.writeln("-stack-list-arguments 0\n");
-		mGdbProcess.stdin.flush();
-		
-	}
 	
 	void CollectArguments(RECORD args)
 	{
@@ -236,42 +132,7 @@ class NTDB
 			if(name.Get() == "") continue;
 			mVariableNames ~= name.Get();
 		}
-		mGdbProcess.stdin.writeln("-stack-list-locals 0\n");
-		mGdbProcess.stdin.flush();
-	}
-	
-	void CollectLocals(RECORD locals)
-	{
-		foreach(val; locals.GetValue("locals"))
-		{
-			if(val.Get() == "") continue;
-			mVariableNames ~= val.Get();
-		}
-		//send variablenames through var-create
-		foreach(var_name; mVariableNames)
-		{
-			if(var_name.startsWith("__"))continue;
-			mGdbProcess.stdin.writeln("-var-create ", var_name, " @ ", var_name, "\n");
-			mGdbProcess.stdin.flush();			
-		}
-	}
-	
-	void CollectVariables(RECORD var_created)
-	{
-		auto v_name = var_created.Get("name");
-		auto v_exp = var_created.Get("exp");
-		auto v_value = var_created.Get("value");
-		auto v_type = var_created.Get("type");
-		
-        if(v_name !in mVariables)
-            mVariables[v_name] = new VARIABLE(v_name,v_exp,v_value,v_type);
-		
-		mGdbProcess.stdin.writeln("-var-list-children 2 ", v_name, "\n");
-		mGdbProcess.stdin.flush();
-		
-		
-		string tmpStr = `$updatevariables`;
-		emit(RECORD(tmpStr));
+        IssueCommand("-stack-list-locals 0 \n\0");
 	}
 	
 	void CollectChildren(RECORD kids,int maxDepth = mDefaultDepth)
@@ -302,16 +163,98 @@ class NTDB
 				kid.GetString("type")
 			);			
 			if(kid.GetString("numchild") == "0")continue;
-			mGdbProcess.stdin.writeln("-var-list-children 2 ", kid.GetString("name"), "\n");
-			mGdbProcess.stdin.flush();
+            
+            IssueCommand("-var-list-children 2 " ~ kid.GetString("name") ~ " \n\0");
+		}
+	}
+    
+    void CollectData(string gdb_resp)
+    {
+        auto response = gdb_resp[3..$];
+        
+        if(response.startsWith("^done"))
+        {
+            emit(RECORD(response));
+            return;
+        }
+        
+        if(response[0] == '1') 
+        {
+            auto fakeresponse = `^done,noevaldata="true"`;
+            emit(RECORD(fakeresponse));
+            return;//we're done no match found
+        }
+        
+        if(response[0] == '0')
+        {
+            response = response[1..$];
+            if(response.startsWith("^done")) //done match found
+            {
+                mDataSearchInProgress = false;
+                emit(RECORD(response));
+                return;
+            }
+            CheckModulesForData(No.FirstModule);
+            return;
+        }
+        //starts with error
+        CheckModulesForData(Yes.FirstModule);
+    }
+	
+    
+    void CheckModulesForData(Flag!"FirstModule" FirstModule)
+    {
+        static int _ModCtr;
+        if(FirstModule) _ModCtr = 0;
+        mDataSearchInProgress = true;
+        if(_ModCtr >= mModules.length)
+        {
+            _ModCtr = 0;
+            mDataSearchInProgress = false;
+            IssueCommand("4111-command-bogus \n\0");
+            return;
+        }
+        //if(mModules[_ModCtr] == "dcore"){_ModCtr++;}
+        IssueCommand("4110-data-evaluate-expression '" ~ mModules[_ModCtr] ~ "." ~ mEvalExpression ~ "'");
+        _ModCtr++;
+    }
+
+	void CollectLocals(RECORD locals)
+	{
+		foreach(val; locals.GetValue("locals"))
+		{
+			if(val.Get() == "") continue;
+			mVariableNames ~= val.Get();
+		}
+		//send variablenames through var-create
+		foreach(var_name; mVariableNames)
+		{
+			if(var_name.startsWith("__"))continue;
+            IssueCommand("-var-create " ~ var_name ~ " @ " ~ var_name ~ " \n\0");		
 		}
 	}
 	
-	void UpdateVariables()
+	void CollectVariables(RECORD var_created)
 	{
-		mGdbProcess.stdin.writeln("-var-update --all-values *\n");
-		mGdbProcess.stdin.flush();
+		auto v_name = var_created.Get("name");
+		auto v_exp = var_created.Get("exp");
+		auto v_value = var_created.Get("value");
+		auto v_type = var_created.Get("type");
+		
+        if(v_name !in mVariables)
+            mVariables[v_name] = new VARIABLE(v_name,v_exp,v_value,v_type);
+		
+		IssueCommand("-var-list-children 2 " ~ v_name ~ " \n\0");
+		
+		string tmpStr = `$updatevariables`;
+		emit(RECORD(tmpStr));
 	}
+    
+    void InitModules()
+    {
+        mModuleInit = true;
+        IssueCommand("1 info variables ModuleInfo for \n\0");
+    }
 	
 	void ChangeVariables(RECORD deltas)
 	{
@@ -365,11 +308,152 @@ class NTDB
             }			
 			if(delta.GetString("new_num_children").length)
 			{
-				mGdbProcess.stdin.writeln("-var-list-children 2 ",delta.GetString("name"), "\n");
-				mGdbProcess.stdin.flush();				
+                IssueCommand("-var-list-children 2 " ~ delta.GetString("name") ~ " \n\0");				
 			}
 		}
 	}	
+    
+	void Reset()
+	{
+		mTargetId = 0;
+		mVariableNames.length = 0;
+		foreach(key; mVariables.keys)
+		{
+            IssueCommand("-var-delete " ~ key ~ " \n\0");
+			mVariables.remove(key);
+		}
+		auto tmpstr = `^done,create_variable="nothing"`;
+		emit(RECORD(tmpstr));
+	}
+        
+
+//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx	
+	public:
+	
+	bool StartGdb(string TargetName, string pts)
+	{
+		if(TargetName.exists())
+		{
+			try
+			{
+				mGdbProcess = pipeShell("gdb --interpreter=mi " ~ TargetName  ~ " --tty=" ~ pts);
+				SetupGdbWatcher();
+                
+                IssueCommand("set print pretty on");
+                IssueCommand("set print array on");
+                IssueCommand("set unwindonsignal on");
+                InitModules();
+                
+                return true;
+			}
+			catch(Exception x)
+			{
+				dwrite(x);
+			}
+		}
+		return false;
+	}
+	
+	void StopGdb()
+	{
+        if(mGdbProcess.pid is null) return; //never ran
+        if(mGdbProcess.pid.processID< 0) return; //not running
+		IssueCommand("-gdb-exit");
+		mTargetId = 0;
+		kill(mGdbProcess.pid, 9);
+		wait(mGdbProcess.pid);
+        //if(mGdbChannelOut)mGdbChannelOut.shutdown(false);
+	}
+	
+	void StartTarget()
+	{
+		try {
+		IssueCommand("-exec-run --start \n\0");
+		}
+		catch(Exception x)
+		{
+			dwrite(x);
+		}
+	}
+	void ContinueTarget()
+	{
+		IssueCommand("-exec-continue --all \n\0");
+	}	
+	void StepOver()
+	{
+		IssueCommand("-exec-next \n\0");
+	}
+	void StepIn()
+	{
+		IssueCommand("-exec-step \n\0");
+	}
+	void StepOut()
+	{
+		IssueCommand("-exec-finish \n");
+	}
+	void ToCursor(string location)
+	{
+		IssueCommand("-break-insert -t " ~ location ~ " \n\0");
+		IssueCommand("-exec-continue --all \n\0");
+        GetBreakPoints();
+	}
+	void Interrupt()
+	{
+		import core.sys.posix.signal;
+		kill(mTargetId, 2);
+	}
+	
+	void GetStackList()
+	{
+		IssueCommand("-stack-list-frames \n\0");
+	}
+	
+	void GetBreakPoints()
+	{
+		IssueCommand("-break-list \n\0");		
+	}
+	
+	void InsertBreak(string location)
+	{
+		IssueCommand("-break-insert " ~ location ~ " \n\0");
+		GetBreakPoints();
+	}
+	void RemoveBreak(string Id)
+	{
+		IssueCommand("-break-delete " ~ Id ~ " \n\0");
+		GetBreakPoints();
+	}
+	void EnableBreak(string Id)
+	{
+		IssueCommand("-break-enable " ~ Id ~ " \n\0");
+		GetBreakPoints();
+	}
+	void DisableBreak(string Id)
+	{
+		IssueCommand("-break-disable " ~ Id ~ " \n\0");
+		GetBreakPoints();
+	}
+	void InsertWatch(string newWatch)
+	{
+		IssueCommand("-break-watch " ~ newWatch ~ " \n\0");
+		GetBreakPoints();
+	}
+	
+    void SetTty(string tty)
+    {
+        IssueCommand("set inferior-tty " ~ tty);
+    }
+	void CreateVariables(string frameId)
+	{
+		mVariableNames.length = 0;
+		IssueCommand("-stack-select-frame " ~ frameId ~ " \n\0");
+		IssueCommand("-stack-list-arguments 0 \n\0");		
+	}
+	void UpdateVariables()
+	{
+		IssueCommand("-var-update --all-values * \n\0");
+	}
 	
 	VARIABLE[string] GetVariables()
 	{
@@ -378,22 +462,11 @@ class NTDB
     
     void EvaluateData(string expression)
     {
-        IssueCommand("411-data-evaluate-expression " ~ expression ~ "\n");
+        if(mDataSearchInProgress)return;
+        if(expression == mEvalExpression)return;
+        mEvalExpression = expression;
+        IssueCommand("411-data-evaluate-expression '" ~ expression ~ "' \n\0");
     }
-    
-	void Reset()
-	{
-		mTargetId = 0;
-		mVariableNames.length = 0;
-		foreach(key; mVariables.keys)
-		{
-			mGdbProcess.stdin.writeln("-var-delete ",key,"\n");
-			mGdbProcess.stdin.flush();
-			mVariables.remove(key);
-		}
-		auto tmpstr = `^done,create_variable="nothing"`;
-		emit(RECORD(tmpstr));
-	}
     
     @property int TargetId(){return mTargetId;}
 	mixin Signal!RECORD;
@@ -575,6 +648,7 @@ struct  LIST
 		{
 			switch(inpStr[0])
 			{
+                case ']': break;
 				case '[': assert(false);
 				case '"':
 				case '{':

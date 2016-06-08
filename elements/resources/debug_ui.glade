@@ -101,6 +101,7 @@
               <object class="GtkTextView" id="textview1">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="monospace">True</property>
               </object>
             </child>
           </object>
@@ -879,10 +880,7 @@
     <property name="visible">True</property>
     <property name="can_focus">True</property>
     <property name="title" translatable="yes">DEBUG</property>
-    <property name="resizable">False</property>
     <property name="destroy_with_parent">True</property>
-    <property name="skip_taskbar_hint">True</property>
-    <property name="deletable">False</property>
     <child>
       <placeholder/>
     </child>

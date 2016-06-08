@@ -30,7 +30,7 @@ class DEBUG_UI : ELEMENT
     
     void Engage()
     {
-        mNtdb = new NTDB;
+        
         
         auto builder = new Builder(SystemPath(Config.GetValue("debug_ui", "glade_file", "elements/resources/debug_ui.glade")));
         
@@ -68,13 +68,18 @@ class DEBUG_UI : ELEMENT
         mTextView       = cast(TextView)builder.getObject("textview1");
         
         mTerminalWindow = cast(Window)builder.getObject("window1");
-        mTerminal       = new Terminal;
+
         
-        EngageTerminal();
+        mExtraPane.setPosition(Config.GetValue("debug_ui", "extra_pane_pos", 100));
+        mSidePane.setPosition(Config.GetValue("debug_ui", "side_pane_pos", 100));
         
         mBtn_SwitchGdb.addOnToggled(&ToggleGdb);
         
-		mBtn_Start.addOnClicked(delegate void(ToolButton tb){ResetTerminal();mNtdb.StartTarget();});
+		mBtn_Start.addOnClicked(delegate void(ToolButton tb)
+        {
+            ResetPty();
+            mNtdb.StartTarget();
+        });
 		mBtn_Continue.addOnClicked(delegate void(ToolButton tb){mNtdb.ContinueTarget();});
 		mBtn_Step_Over.addOnClicked(delegate void(ToolButton tb){mNtdb.StepOver();});
 		mBtn_Step_In.addOnClicked(delegate void(ToolButton tb){mNtdb.StepIn();});
@@ -136,47 +141,57 @@ class DEBUG_UI : ELEMENT
             if(ti is null) return;
             mNtdb.CreateVariables(ti.getValueString(0)); 
             if(ti.getValueString(2) == "-") return;
-            dwrite(ti.getValueString(2),":" , ti.getValueString(3).to!int -1 );
             GotoExecPoint(ti.getValueString(2), ti.getValueString(3).to!int -1 );
         });
         
         mInScopeView.addOnQueryTooltip(&QueryTip);
         
+        mTerminalWindow.addOnDelete(delegate bool(Event e, Widget w)
+        {
+            return true;
+        });
+        mTerminalWindow.setVisible(false);
         
-        /+//set breakpoint action
-        AddIcon("breakpoint",SystemPath(Config.GetValue("debug_ui", "icon_breakpoint_action", "elements/resources/target.png")));
-        AddAction("ActBreakpoint",
-                  "Toggle Breakpoint",
-                  "Set/Unset breakpoint at current location",
-                  "breakpoint",
+        //set watchpoint action
+        AddIcon("watchpoint_icon",SystemPath(Config.GetValue("debug_ui", "watchpoint-icon", "elements/resources/target.png")));
+        AddAction("ActWatchpoint",
+                  "Add Watchpoint",
+                  "Set a watchpoint on a variable",
+                  "watchpoint_icon",
                   "<Control>B",
-                  &ToggleBreakPointActionCB);
-        uiContextMenu.AddAction("ActBreakpoint");
-        +/
+                  &AddWatchpointCB);
+        uiContextMenu.AddAction("ActWatchpoint");
+        
         DocMan.GutterActivated.connect(&ToggleBreakPoint);
+        
+        DocMan.Tooltip.connect(&DocTooltip);
         
         AddSidePage(mSideRoot, "Variables");
         AddExtraPage(mExtraRoot, "Debugger");
-        
-        mNtdb.connect(&DebugWatcher);
         
         Log.Entry("Engaged");
     }
     
     void Disengage()
     {
+        Config.SetValue("debug_ui", "extra_pane_pos", mExtraPane.getPosition());
+        Config.SetValue("debug_ui", "side_pane_pos", mSidePane.getPosition());
         
-        uiContextMenu.RemoveAction("ActBreakpoint");
-        RemoveAction("ActBreakpoint");
+        int xlen, ylen;
+        mTerminalWindow.getSize(xlen, ylen);
+        Config.SetValue("debug_ui", "x_len", xlen);
+        Config.SetValue("debug_ui", "y_len", ylen);
         
-        mNtdb.StopGdb();
-        mNtdb.disconnect(&DebugWatcher);
-        
+        uiContextMenu.RemoveAction("ActWatchpoint");
+        RemoveAction("ActWatchpoint");
+                
+        DocMan.Tooltip.disconnect(&DocTooltip);
         DocMan.GutterActivated.disconnect(&ToggleBreakPoint);
         
         RemoveSidePage(mSideRoot);
         RemoveExtraPage(mExtraRoot);
         destroy(mTerminalWindow);
+        destroy(mTerminal);
         destroy(mNtdb);
         Log.Entry("Disengaged");
     }
@@ -246,6 +261,9 @@ class DEBUG_UI : ELEMENT
     
     string              mNextUniqName = "0";
     
+    DOC_IF              mTooltipDoc;
+    string              mTooltipExpr;
+    
     string srcUniqName()
     {
         auto rv = mNextUniqName;
@@ -254,9 +272,56 @@ class DEBUG_UI : ELEMENT
     }
         
     
+    bool StartNtdb(string Target)
+    {
+        mNtdb = new NTDB;
+        mNtdb.connect(&DebugWatcher);
+        
+        mTerminal = new Terminal;
+        mTerminal.setInputEnabled(true);
+        mTerminal.setVisible(true);
+        mTerminal.setPty(mTerminal.ptyNewSync(VtePtyFlags.DEFAULT, null));
+        mTerminalFd = mTerminal.getPty().getFd();
+        
+        import core.sys.posix.stdlib;
+        mPts = ptsname(mTerminal.getPty().getFd()).to!string;
+        
+        mTerminalWindow.add(mTerminal);
+        
+                
+        bool rewrap = Config.GetValue("debug_ui", "rewrap", true);
+        int xlen = Config.GetValue("debug_ui","x_len", 180);
+        int ylen = Config.GetValue("debug_ui","y_len", 130);
+        
+        mTerminal.setRewrapOnResize(rewrap);
+        mTerminalWindow.resize(xlen, ylen);
+        
+        mTerminalWindow.setVisible(true);
+        
+        return mNtdb.StartGdb(Target, mPts);
+    }
+    
+    void ResetPty()
+    {
+        mTerminal.setPty(mTerminal.ptyNewSync(VtePtyFlags.DEFAULT, null));
+        mTerminalFd = mTerminal.getPty().getFd();
+        import core.sys.posix.stdlib;
+        mPts = ptsname(mTerminal.getPty().getFd()).to!string;
+        mNtdb.SetTty(mPts);
+    }
+    
+    
+    void StopNtdb()
+    {
+        mNtdb.StopGdb();
+        mTerminalWindow.remove(mTerminal);
+        mTerminal.destroy();
+        mNtdb.disconnect(&DebugWatcher);
+        mNtdb = null;
+    }
+    
     void GotoExecPoint(string source_file, int zline)
     {
-        dwrite(source_file, " ", zline);
         if(mExecPoint !is null)
         {
             auto buff = mExecPoint.getBuffer();
@@ -276,7 +341,6 @@ class DEBUG_UI : ELEMENT
     void ToggleBreakPoint(DOC_IF doc, int zline)
     {
         if(!mBtn_SwitchGdb.getActive()) return;
-        dwrite(doc, "--",zline);
         auto DOC = cast(DOCUMENT) doc;
         auto buff = DOC.getBuffer();
         auto marklist =  buff.getSourceMarksAtLine(zline, "Breakpoint");
@@ -295,6 +359,14 @@ class DEBUG_UI : ELEMENT
         }
     }
     
+    void AddWatchpointCB(Action a)
+    {
+        auto doc = DocMan.Current();
+        if(doc is null) return;
+        auto symbol = doc.Word();
+        mNtdb.InsertWatch(symbol);
+    }
+    
     void ResetUI()
     {
         mFramesStore.clear();
@@ -302,50 +374,7 @@ class DEBUG_UI : ELEMENT
         mOutScopeStore.clear();
         mTextView.getBuffer().setText("\0");
     }
-    void EngageTerminal()
-    {
-        mTerminalWindow.add(mTerminal);
-        mTerminalWindow.setVisible(false);
-        mTerminalWindow.addOnDelete(delegate bool(Event e, Widget w)
-        {
-            return mTerminalWindow.hideOnDelete();
-        });
-        
-        mTerminal.setInputEnabled(true);
-        mTerminal.setVisible(true);
-        mTerminal.setPty(mTerminal.ptyNewSync(VtePtyFlags.DEFAULT, null));
-        dwrite(mTerminal.getPty());
-        mTerminalFd = mTerminal.getPty().getFd();
-        dwrite(mTerminal.getPty().getFd());
-        
-        import core.sys.posix.stdlib;
-        mPts = ptsname(mTerminal.getPty().getFd()).to!string;
-        dwrite(mPts);
-        mTerminal.addOnEof(delegate void(Terminal){
-            dwrite(mTerminal.getPty());
-            dwrite("XXXXXXXXXXXXXXXXXXXXXXXXXXX");
-        });
-    }
-        
-    
-    void ResetTerminal()
-    {
-        
-        auto pty = new Pty(mTerminalFd, null);
-        mTerminal.setPty(pty);
-                
-        bool rewrap = Config.GetValue("debug_ui", "rewrap", true);
-        long xlen = Config.GetValue("debug_ui","x_len", 80);
-        long ylen = Config.GetValue("debug_ui","y_len", 30);
-        
-        mTerminal.setRewrapOnResize(rewrap);
-        mTerminal.setSize(xlen, ylen);
-        mTerminal.reset(true, true);
 
-    }
-        
-    
-    
     void ToggleGdb(ToggleToolButton tb)
     {
         auto starting = mBtn_SwitchGdb.getActive();
@@ -371,7 +400,7 @@ class DEBUG_UI : ELEMENT
                 Log.Entry("Failed to Start Debugger... " ~ TargetFile ~ " does not exist");
                 return;
             }                                    
-            if(!mNtdb.StartGdb(TargetFile, mPts))
+            if(!StartNtdb(TargetFile))
             {
                 mBtn_SwitchGdb.setActive(false);
                 Log.Entry("Failed to Start Debugger","Error");
@@ -381,7 +410,7 @@ class DEBUG_UI : ELEMENT
         }
         else
         {
-            mNtdb.StopGdb();
+            StopNtdb();
             AddStatus("debugger", "Debug session ended.");
         }						
         mBtn_Start.setSensitive(mBtn_SwitchGdb.getActive());
@@ -401,38 +430,64 @@ class DEBUG_UI : ELEMENT
     void DebugWatcher(RECORD rec)
     {
         auto tmpstring = Cooked(rec._rawString);
-        //if(tmpstring.length > 1)mTextView.appendText(tmpstring);
-        //UpdateVariables(); // this is called way too often!! prune it down
+
         
         switch(rec._class)
         {
             case "*stopped":
-                mTextView.appendText(tmpstring);
+                mTextView.appendText("\n" ~ tmpstring);
                 mNtdb.GetStackList();
-                AddStatus("Debugger", "Debug target stopped");
-                if(rec.Get("reason").startsWith("exited"))
+                AddStatus("Debugger", "Debug target stopped " ~ rec.Get("reason"));
+                if(rec.Get("reason").startsWith("exit"))
                 {
-                    AddStatus("Debugger", "Debut target exited");
+                    string statusStr = "Debug target exited : " ~ rec.Get("exit-code");
+                    AddStatus("Debugger", statusStr);
+                }
+                if((rec.Get("reason") == "breakpoint-hit") || (rec.Get("reason") == "watchpoint-trigger"))
+                {
+                    mNtdb.GetBreakPoints();
                 }
                 if(rec.GetResult("frame"))
                 {
-                    scope(failure)goto case;
+                    scope(failure)
+                    {
+                        goto case;
+                    }                    
                     string file = rec.Get("frame", "fullname");
-                    int zline = rec.Get("frame", "line").to!int-1;
+                    int zline = (rec.Get("frame", "line").to!int)-1;
                     GotoExecPoint(file, zline);
-                }
-                if(rec.Get("reason") == "breakpoint-hit")
-                {
-                    mNtdb.GetBreakPoints();
                 }
                 break;
             case "^done":
                 if(rec.GetResult("stack"))UpdateFramesView(rec);
                 if(rec.GetResult("BreakpointTable"))UpdateBreakView(rec);
-                if(rec.GetResult("value"))UpdateTooltip(rec);
+                if(rec.GetResult("noevaldata"))
+                {
+                    if(mTooltipDoc)
+                    {
+                        auto doc = cast(Widget)mTooltipDoc;
+                        doc.setTooltipText(mTooltipExpr ~ " : no data");
+                        mTooltipDoc = null;
+                        break;
+                    }
+                    UpdateTooltip(rec);
+                    break;
+                }
+                if(rec.GetResult("value"))
+                {                    
+                    if(mTooltipDoc)
+                    {
+                        auto doc = cast(Widget)mTooltipDoc;
+                        doc.setTooltipText(mTooltipExpr ~ " : " ~ rec.Get("value").Cooked);
+                        mTooltipDoc = null;
+                        break;
+                    }
+                    UpdateTooltip(rec);
+                    break;
+                }
                 break;
             case "^running":
-                mTextView.appendText(tmpstring);
+                mTextView.appendText("\n"~tmpstring);
                 AddStatus("Debugger", "Debug target running");
                 break;
             case "$updatevariables":
@@ -565,11 +620,7 @@ class DEBUG_UI : ELEMENT
     void UpdateTooltip(RECORD val)
     {
         auto tip = val.Get("value");
-        mInScopeView.setTooltipText(tip.Cooked());
-        //mOutScopeView.setTooltipText(tip);
-        //mInScopeView.triggerTooltipQuery();
-        //mOutScopeView.triggerTooltipQuery();
-        
+        mInScopeView.setTooltipText(tip.Cooked());       
     }
     
     bool QueryTip(int x, int y, bool keys, Tooltip tooltip, Widget w)
@@ -585,7 +636,6 @@ class DEBUG_UI : ELEMENT
             tv.getModel().getIter(ti, tp);
             auto exp = ti.getValueString(0);
             mNtdb.EvaluateData(exp);
-            dwrite(exp);
         }
         return false;
     }
@@ -607,6 +657,21 @@ class DEBUG_UI : ELEMENT
     }
     
     
+    void DocTooltip(DOC_IF doc, string word)
+    {
+        if(mBtn_SwitchGdb.getActive() == false)return;
+        if(word.length < 1)
+        {
+            mTooltipDoc = null;
+            (cast(Widget)(doc)).setTooltipText(null);
+            (cast(Widget)(doc)).setHasTooltip(true);
+            return;
+        }
+        mTooltipDoc = doc;
+        mTooltipExpr = word;
+        mNtdb.EvaluateData(word);
+    }
+    
     
 }
 
@@ -621,7 +686,7 @@ string Cooked(string raw)
 	if(raw == `&"\n"`) return rv;
 	rv = raw.replace(`\n`, "");
     rv = rv.replace(`\\`, `\`);
-	rv = rv.replace(`\"`, `"`) ~ "\n";
+	rv = rv.replace(`\"`, `"`);
 	
 	return rv.toUTF8;
 }
