@@ -55,6 +55,7 @@ class PROJECT_VIEW : ELEMENT
     ListStore           mViewStore;
     ListStore           mComboStore;
 
+    ToolButton          mCreate;
     ToolButton          mAdd;
     ToolButton          mRemove;
 
@@ -67,6 +68,9 @@ class PROJECT_VIEW : ELEMENT
         if (!X.getActiveIter(ti)) return;
 
         string key = mComboStore.getValueString(ti, 0);
+        
+        if(key == LIST_NAMES.SRC_FILES)mCreate.setSensitive(true);
+        else mCreate.setSensitive(false);
 
         if( (key == LIST_NAMES.VERSIONS ) || (key == LIST_NAMES.DEBUGS)  || (key == "DESCRIPTION") || (key == LIST_NAMES.OTHER))
         {
@@ -99,7 +103,6 @@ class PROJECT_VIEW : ELEMENT
 
     void UpdateList(string key, string[] Values)
     {
-
         if( (key == LIST_NAMES.VERSIONS ) || (key == LIST_NAMES.DEBUGS) || (key == LIST_NAMES.NOTES) || (key == LIST_NAMES.OTHER) )
         {
             mCellText.setProperty("mode", CellRendererMode.EDITABLE);
@@ -356,6 +359,13 @@ class PROJECT_VIEW : ELEMENT
         auto newValue = ti.getValueString(1);
         Project.AddListItem(key, newValue);
     }
+    
+    void Create(ToolButton x)
+    {
+        DocMan.Create();
+        DocMan.SaveAs();
+        Project.AddListItem(LIST_NAMES.SRC_FILES, DocMan.Current().Name);
+    }
 
 
     public:
@@ -381,6 +391,7 @@ class PROJECT_VIEW : ELEMENT
         mKeyBox     = cast(ComboBox)            mBuilding.getObject("combobox2");
         mViewStore  = cast(ListStore)           mBuilding.getObject("liststore2");
         mComboStore = cast(ListStore)           mBuilding.getObject("liststore1");
+        mCreate     = cast(ToolButton)          mBuilding.getObject("toolbutton1");
         mAdd        = cast(ToolButton)          mBuilding.getObject("toolbutton4");
         mRemove     = cast(ToolButton)          mBuilding.getObject("toolbutton5");
         mCellText   = cast(CellRendererText)    mBuilding.getObject("cellrenderertext4");
@@ -392,6 +403,7 @@ class PROJECT_VIEW : ELEMENT
 
         mRemove.addOnClicked(&Remove);
         mAdd.addOnClicked(&Add);
+        mCreate.addOnClicked(&Create);
 
         mKeyBox.setActive(0);
 

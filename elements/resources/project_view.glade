@@ -76,9 +76,9 @@
       <object class="GtkLabel" id="label1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="xalign">1</property>
         <property name="label" translatable="yes">PROJECT TITLE</property>
         <property name="justify">center</property>
+        <property name="xalign">1</property>
       </object>
       <packing>
         <property name="expand">False</property>
@@ -92,10 +92,26 @@
         <property name="can_focus">False</property>
         <property name="icon_size">1</property>
         <child>
+          <object class="GtkToolButton" id="toolbutton1">
+            <property name="visible">True</property>
+            <property name="sensitive">False</property>
+            <property name="can_focus">False</property>
+            <property name="tooltip_text" translatable="yes">Create source file</property>
+            <property name="label" translatable="yes">toolbutton1</property>
+            <property name="use_underline">True</property>
+            <property name="stock_id">gtk-about</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="homogeneous">True</property>
+          </packing>
+        </child>
+        <child>
           <object class="GtkToolButton" id="toolbutton4">
             <property name="use_action_appearance">False</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="tooltip_text" translatable="yes">Add</property>
             <property name="label" translatable="yes">toolbutton1</property>
             <property name="use_underline">True</property>
             <property name="stock_id">gtk-add</property>
@@ -110,6 +126,7 @@
             <property name="use_action_appearance">False</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="tooltip_text" translatable="yes">Remove</property>
             <property name="label" translatable="yes">toolbutton2</property>
             <property name="use_underline">True</property>
             <property name="stock_id">gtk-remove</property>
