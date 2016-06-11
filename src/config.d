@@ -341,16 +341,15 @@ public:
         }
         if(Help) ShowHelp();
         
-        if(dtagBuild)
-        {
-            dwrite (dtagPackagePath);
-            BuildTagFile(dtagPackagePath, dtagPackageName, dtagImports, dtagJpaths);
-            exit(0);
-        }
-        
         if(Quiet)Log.QuietStandardOut();
+        
+        if(!FindRootResourceDirectory(CmdArgs[0]))
+        {
+            Log.Entry("Failed to find DComposer resource files!!", "Error");
+        }
         SetCfgFile(TmpForCfg);
-
+        
+        
         try
         {
             string CfgText = readText(mCfgFile);
@@ -366,6 +365,12 @@ public:
             mJson = parseJSON("{}");
         }
         
+        if(dtagBuild)
+        {
+            dwrite (dtagPackagePath);
+            BuildTagFile(dtagPackagePath, dtagPackageName, dtagImports, dtagJpaths);
+            exit(0);
+        }
         if(TmpForLog.length)SetValue("log", "interim_log_file", TmpForLog);
         SetValue("log", "echo_to_std_out", !Quiet);
 
@@ -388,10 +393,7 @@ public:
 
         Config.Save();
 
-        if(!FindRootResourceDirectory(CmdArgs[0]))
-        {
-            Log.Entry("Failed to find DComposer resource files!!", "Error");
-        }
+
 
         Log.Entry("Engaged");
     }
