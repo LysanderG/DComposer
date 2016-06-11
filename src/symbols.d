@@ -98,14 +98,12 @@ class SYMBOLS
     {
         scope(failure)
         {
-            Log.Entry("Error loading symbol tag information " ~ CurrSym.Name);
+            //((MOD)) Log.Entry("Error loading symbol tag information " ~ CurrSym.Name);
             CurrSym.Icon = `<span foreground="red">!</span>`;
             return;
         }
 
-        static string LastCommentForDitto;
-
-        void SetType() 
+        void SetType()
         {
             int xtra;
             CurrSym.Type = "";
@@ -171,7 +169,7 @@ class SYMBOLS
 
                 default :
                 {   CurrSym.Kind = ERROR;
-                    Log.Entry(`Unrecognized symbol kind "` ~ cast(string)SymData.object["kind"],`" Error`);
+                     //((MOD))Log.Entry(`Unrecognized symbol kind "` ~ cast(string)SymData.object["kind"],`" Error`);
                 }
             }
         }
@@ -301,19 +299,18 @@ class SYMBOLS
             SetType();
             SetSignature();
             if("protection" in SymData.object)CurrSym.Protection = cast(string)SymData.object["protection"];
-            if("comment" in SymData.object)
-            {
-                CurrSym.Comment = cast(string)SymData.object["comment"];
-                if(CurrSym.Comment.toUpper() == "DITTO") CurrSym.Comment = LastCommentForDitto;
-                else LastCommentForDitto = CurrSym.Comment;
-            }
+            if("comment" in SymData.object)CurrSym.Comment = cast(string)SymData.object["comment"];
             if("file" in SymData.object)CurrSym.File = cast(string)SymData.object["file"];
 
             assert(CurrSym.File != null); // File should be set before entering BuildSymbol(this, ...)
             if("line" in SymData.object)CurrSym.Line = cast(int)SymData.object["line"];
             if("base" in SymData.object)CurrSym.Base = cast(string)SymData.object["base"];
-
-
+            
+            if("interfaces" in SymData.object)foreach(x; SymData.object["interfaces"])
+            {
+	            CurrSym.Interfaces ~= cast(string)x;
+            }
+			
             CurrSym.Path = CurrSym.Scope[0];
             foreach(s; CurrSym.Scope[1..$]) CurrSym.Path ~= '.' ~ s;
             CurrSym.Icon = GetIcon(CurrSym);
@@ -342,6 +339,7 @@ class SYMBOLS
                 }
                 CurrSym.Children = apparr.data();
             }
+
             return;
         }
 
@@ -358,6 +356,7 @@ class SYMBOLS
                 if((cast(string)obj.object["name"]).startsWith("__unittest"))continue;
                 membersym = new DSYMBOL;
                 BuildSymbol(membersym, obj);
+                //CurrSym.Children ~= membersym;
                 apparr.put(membersym);
             }
             CurrSym.Children = apparr.data();
@@ -447,18 +446,17 @@ class SYMBOLS
         return LoadPackage(FileName.baseName.stripExtension, jstring);
     }
     DSYMBOL LoadFile(string pkg, string FileName)
-    {
-        auto jstring = readText(FileName);
-        //writeln(jstring);
-        mModules[pkg] = LoadPackage(pkg, jstring);
+	{
+		auto jstring = readText(FileName);
+		mModules[pkg] = LoadPackage(pkg, jstring);
 
-        return mModules[pkg];
-    }
+		return mModules[pkg];
+	}
 
-    void LoadDTagsFile(string FileName)
+    DSYMBOL LoadDTagsFile(string FileName)
     {
-        //string jtext = readText(FileName);
-        auto jtext = cast(char[])read(FileName);
+        string jtext = readText(FileName);
+
         auto jval = jtext.parseJSON();
 
 
@@ -471,16 +469,9 @@ class SYMBOLS
 
             rv.Scope = rv.Path.split(".");
 
-            if(rv.Scope.length < 1)
-            {
-                assert(0,"no name?");
-            }
-            
-            rv.Kind = cast(SYMBOL_KIND)child["kind"];
-            if(rv.Kind == SYMBOL_KIND.MODULE) rv.Name = rv.Scope.join(".");
-            else rv.Name = rv.Scope[$-1];
+            rv.Name = rv.Scope[$-1];
 
-            
+            rv.Kind = cast(SYMBOL_KIND)child["kind"];
             rv.Type = cast(string)child["type"];
             rv.Signature = cast(string)child["signature"];
             rv.Protection = cast(string)child["protection"];
@@ -490,14 +481,15 @@ class SYMBOLS
             rv.Line = cast(int)child["line"];
 
             rv.Base = cast(string)child["base"];
-            //rv.Interfaces = cast(string[])child["interfaces"].array;
-            foreach(iface; child["interfaces"].array)rv.Interfaces ~= cast(string)iface;
+            rv.Interfaces = cast(string[])child["interfaces"].array;
             rv.Icon = GetIcon(rv);
 
             foreach(kid; child["children"].array)rv.Children ~= LoadKids(kid);
             return rv;
         }
 
+
+        DSYMBOL pkg;
 
         foreach(mod; jval.array)
         {
@@ -506,6 +498,7 @@ class SYMBOLS
                 emit([mModules[sym.Name]]);
         }
 
+        return pkg;
     }
 
 
@@ -684,7 +677,10 @@ class SYMBOLS
         {
                 auto kidjson = jsonObject();
 
+                //kidjson["name"] = dsym.Name;
                 kidjson["path"] = dsym.Path;
+                //kidjson["scope"] = jsonArray();
+                //foreach(scp; dsym.Scope) kidjson["scope"] ~= JSON(scp);
                 kidjson["kind"] = convertJSON(dsym.Kind);//cast(int) dsym.Kind;
                 kidjson["type"] = dsym.Type;
                 kidjson["signature"] = dsym.Signature;
@@ -694,8 +690,8 @@ class SYMBOLS
                 kidjson["line"] = convertJSON(dsym.Line);
                 kidjson["base"] = dsym.Base;
                 kidjson["interfaces"] = jsonArray();
-                foreach(IF; dsym.Interfaces) kidjson["interaces"] ~= IF;
-                kidjson["icon"] = dsym.Icon;
+                foreach(IF; dsym.Interfaces) kidjson["interfaces"] ~= JSON(IF);
+                //kidjson["icon"] = dsym.Icon;
 
                 kidjson["children"] = jsonArray();
                 foreach(kid; dsym.Children) kidjson["children"] ~= SaveKid(kid);
@@ -706,7 +702,10 @@ class SYMBOLS
         {
                 auto symjson = jsonObject();
 
+                //symjson["name"] = mod.Name;
                 symjson["path"] = mod.Path;
+                //symjson["scope"] = jsonArray();
+                //foreach(scp; mod.Scope) symjson["scope"] ~= JSON(scp);
                 symjson["kind"] =convertJSON(mod.Kind);//cast(int) mod.Kind;
                 symjson["type"] = mod.Type;
                 symjson["signature"] = mod.Signature;
@@ -716,8 +715,8 @@ class SYMBOLS
                 symjson["line"] = convertJSON(mod.Line);
                 symjson["base"] = mod.Base;
                 symjson["interfaces"] = jsonArray();
-                foreach(IF; mod.Interfaces) symjson["interaces"] ~= IF;
-                symjson["icon"] = mod.Icon;
+                foreach(IF; mod.Interfaces) symjson["interaces"] ~= JSON(IF);
+                //symjson["icon"] = mod.Icon;
 
                 symjson["children"] = jsonArray();
                 foreach(kid; mod.Children) symjson["children"] ~= SaveKid(kid);
@@ -991,3 +990,35 @@ string GetIcon(DSYMBOL X)
     return rv;
 }
 
+
+int BuildTagFile(string PkgPath, string PkgName, string[] Ipaths, string[] Jpaths)
+{
+    scope(failure)return 1;
+    string docfile = PkgName.setExtension(".html");
+    string jsonfile = PkgName.setExtension(".json");
+    
+    string[] CmdLine = [ "dmd", "-c", "-o-", "-D", "-X", "-release", "-v"];
+    CmdLine ~= Ipaths ~ Jpaths;
+    CmdLine ~= ["-Df" ~ docfile];
+    CmdLine ~= ["-Xf" ~ jsonfile];
+    
+    dwrite (CmdLine);
+    dwrite (PkgPath);
+    
+    foreach(string srcFile; dirEntries(PkgPath, SpanMode.depth))
+    {
+        dwrite(srcFile);
+        if((srcFile.extension == ".d") || (srcFile.extension == ".di"))
+        {
+            CmdLine ~= srcFile;
+        }
+    }
+    
+    auto res = execute(CmdLine);
+    if(docfile.exists())docfile.remove();
+    
+    auto MainPackage = new SYMBOLS;
+    MainPackage.LoadFile(PkgName, jsonfile);
+    MainPackage.SaveSymFile(buildPath(SystemPath("tags"),setExtension(PkgName,".dtags")));
+    return 0;
+}

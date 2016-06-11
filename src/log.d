@@ -153,6 +153,11 @@ class LOG
     string[] GetEntries(){return mEntries.dup;}
 
     void SetLockEntries(bool Lock){ mLockEntries = Lock;}
+    
+    void QuietStandardOut()
+    {
+        mEchoToStdOut = false;
+    }
 }
 
 

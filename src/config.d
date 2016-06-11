@@ -266,15 +266,73 @@ public:
         long Verbosity;     //how much stuff to log
         bool Quiet;         //show log stuff to std out
         bool Help;          //show a help screen
-
-        if(!FindRootResourceDirectory(CmdArgs[0]))
-        {
-            Log.Entry("Failed to find DComposer resource files!!", "Error");
-        }
+        
+        bool dtagBuild;
+        string dtagPackagePath;
+        string dtagPackageName;
+        string[] dtagImports;
+        string[] dtagJpaths;
+        
 
         try
         {
-            auto cmdResults = CmdArgs.getopt(std.getopt.config.noPassThrough, "elements-disabled", &ElementsDisabled, "c|config", &TmpForCfg, "l|log", &TmpForLog, "v|verbosity", &Verbosity, "q|quiet", &Quiet, "p|project", &project, "h|help", &Help);
+            auto cmdResults = CmdArgs.getopt
+            (
+                std.getopt.config.noPassThrough, std.getopt.config.caseSensitive,
+                "x|disableElements",
+                "Do not allow plugins for the session.",
+                &ElementsDisabled,
+                "c|configFile",
+                "Specify a configuration file.",
+                &TmpForCfg,
+                "l|logFile",
+                "Specify a log file.",
+                &TmpForLog,
+                "v|verbose",
+                "Not implemented.",
+                &Verbosity,
+                "q|quiet",
+                "Do not send log messages to stdout.",
+                &Quiet,
+                "p|project",
+                "Specify a project to load.",
+                &project,
+                //"h|help",
+                //&Help,
+                "t|dtag",
+                "Create a dtag file from a package.",
+                &dtagBuild,
+                "P|dtagPackage",
+                "Full path to package for building dtag file.",
+                &dtagPackagePath,
+                "N|dtagName",
+                "Name of dtag package.",
+                &dtagPackageName,
+                "I|dtagImports",
+                "Additional import paths for building dtag file.",
+                &dtagImports,
+                "J|dtagStringImport",
+                "Additional string import paths for building dtag file.",
+                &dtagJpaths
+            );
+            
+            if(cmdResults.helpWanted)
+            {
+                defaultGetoptPrinter(
+                    "DComposer a Naive IDE for the D programming Language\n" ~
+                    "Version :" ~ DCOMPOSER_VERSION ~ "\n" ~
+                    DCOMPOSER_COPYRIGHT ~ "\n\n" ~
+                    "Usage:\n" ~
+                    "  dcomposer [OPTION...] [FILES...]\n" ~
+                    
+                    "OPTIONS",
+    
+                    cmdResults.options);
+                writeln("\nFILES");
+                writeln("Any text files to open for editing.  Must be valid utf8 encoded files for this version");
+                writeln("DComposer has been brought to you by the letter 'D'");
+                    exit(0);
+            }
         }
         catch(GetOptException ohmy)
         {
@@ -282,7 +340,15 @@ public:
             exit(0);
         }
         if(Help) ShowHelp();
-
+        
+        if(dtagBuild)
+        {
+            dwrite (dtagPackagePath);
+            BuildTagFile(dtagPackagePath, dtagPackageName, dtagImports, dtagJpaths);
+            exit(0);
+        }
+        
+        if(Quiet)Log.QuietStandardOut();
         SetCfgFile(TmpForCfg);
 
         try
@@ -299,9 +365,11 @@ public:
             Log.Entry(xsepchun.msg, "Error");
             mJson = parseJSON("{}");
         }
-
+        
         if(TmpForLog.length)SetValue("log", "interim_log_file", TmpForLog);
         SetValue("log", "echo_to_std_out", !Quiet);
+
+
 
         if(project.length)SetValue("project", "cmd_line_project", project);
 
@@ -319,6 +387,11 @@ public:
         if(ElementsDisabled)SetValue("elements", "disabled", ElementsDisabled);
 
         Config.Save();
+
+        if(!FindRootResourceDirectory(CmdArgs[0]))
+        {
+            Log.Entry("Failed to find DComposer resource files!!", "Error");
+        }
 
         Log.Entry("Engaged");
     }
