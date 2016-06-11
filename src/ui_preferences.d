@@ -259,6 +259,7 @@ Widget BuildDocPrefPage()
     }, "active");
 
     //style
+    SourceStyleSchemeManager.getDefault().forceRescan();
     auto SyntaxStyle = cast(ComboBoxText)docBuilder.getObject("syntax_style");
 
     foreach(string SchemeID ; SourceStyleSchemeManager.getDefault().getSchemeIds())
