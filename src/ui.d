@@ -103,7 +103,7 @@ public import gio.ContentType;
 
 public import glib.Idle;
 public import glib.ListG;
-
+public import glib.MessageLog;
 
 
 public import gobject.ObjectG;
@@ -116,7 +116,10 @@ public import vte.Terminal;
 void Engage(string[] CmdLineArgs)
 {
     Main.init(CmdLineArgs);
-
+    
+    MessageLog.logSetDefaultHandler(&defLogHandler, null);
+    
+    
     mAccelGroup = new AccelGroup;
 
     mIconFactory = new IconFactory;
@@ -1066,4 +1069,14 @@ void SetBusyCursor(bool value)
         MainWindow.getWindow().setCursor(busyMouse);
         Display.getDefault.flush();
     }
+}
+
+extern(C)void  SuppressGtkWarningCrap(const(char)* str)
+{
+    writeln("__wtf___",str);
+    return;
+}
+extern(C) void defLogHandler(const(char)* logDomain, GLogLevelFlags logLevel, const(char)* message, void * userData)
+{
+    return;
 }
