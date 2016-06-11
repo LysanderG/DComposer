@@ -167,6 +167,7 @@ class DCD_ELEM : ELEMENT
         catch(Exception x)
         {
             ShowMessage("DCD SERVER ERROR", x.msg);
+            Log.Entry("DCD server query failed (check preferences for correct binaries)","Error");
             queryServer.status = 1;
         }
         
