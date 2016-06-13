@@ -161,7 +161,10 @@
         <property name="model">liststore1</property>
         <property name="active">0</property>
         <child>
-          <object class="GtkCellRendererText" id="cellrenderertext3"/>
+          <object class="GtkCellRendererText" id="cellrenderertext3">
+            <property name="ellipsize">end</property>
+            <property name="wrap_mode">word</property>
+          </object>
           <attributes>
             <attribute name="text">1</attribute>
           </attributes>

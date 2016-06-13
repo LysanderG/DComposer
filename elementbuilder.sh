@@ -19,6 +19,7 @@ for xes in $xfiles ;
      echo "$rv <<<<<<";
      echo ;
 done
+rm -rf ~/.config/dcomposer/elements/*.so;
 cp elements/*.so ~/.config/dcomposer/elements;
 
 echo $error_arg

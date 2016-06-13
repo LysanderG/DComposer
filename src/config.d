@@ -115,7 +115,7 @@ DCOMPOSER_VERSION, DCOMPOSER_BUILD_DATE, DCOMPOSER_COPYRIGHT);
         //tags
         dest = buildPath(userDirectory, "tags");
         mkdir(dest);
-        cpCommand = "cp " ~ src ~ "/tags/*.json " ~ dest;
+        cpCommand = "cp " ~ src ~ "/tags/*.dtags " ~ dest;
         executeShell(cpCommand);
 
         FirstRun.emit();
