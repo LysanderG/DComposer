@@ -50,6 +50,8 @@ class DSCANNER_ELEM : ELEMENT
 
     void Configure()
     {
+        mDScannerCommand = Config.GetValue("dscanner_elem", "dscanner_command", "dscanner");
+        TestDScannerCommand();
     }
 
     string Name(){return "dscanner element";}
