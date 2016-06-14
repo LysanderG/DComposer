@@ -374,12 +374,15 @@ class DCD_ELEM_PREFERENCE_PAGE : PREFERENCE_PAGE
 
         mDcdImportPaths.connect(&watchList);
 
-        mRestart.addOnClicked(&RestartServer);
+        mRestart.addOnClicked(&RestartServer);    
         
-        
-        Label splash = new Label("Thanks HackerPilot!!");
-        SplashWidget = splash;
-
+        auto label = new Label("Thanks to  Brian 'Hackerpilot' Schott\nfor all his wonderful d tools.");  
+        label.setJustify(GtkJustification.CENTER);
+        SplashWidget = label;
+    }
+    ~this()
+    {
+        mDcdImportPaths.disconnect(&watchList);
     }
 }
 

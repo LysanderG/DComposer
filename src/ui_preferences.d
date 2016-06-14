@@ -80,7 +80,7 @@ bool ShowPreferencePageDialog(PREFERENCE_PAGE Page)
         tmpcon.setBorderWidth(10);
         auto pageFrame = new Frame(Page.ContentWidget, Page.Title);
         contentArea.packStart(pageFrame, 1, 1, 5);
-        if(Page.SplashWidget !is null)contentArea.packStart(Page.SplashWidget, 1, 1, 0);
+        if(Page.SplashWidget !is null)contentArea.packStart(Page.SplashWidget, 0, 1, 0);
     }
 
     contentArea.showAll();

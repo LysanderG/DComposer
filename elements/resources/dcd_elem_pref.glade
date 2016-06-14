@@ -19,13 +19,12 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="row_spacing">5</property>
-    <property name="column_homogeneous">True</property>
     <child>
       <object class="GtkLabel" id="label1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="halign">end</property>
-        <property name="label" translatable="yes">dcd-server binary :</property>
+        <property name="label" translatable="yes">dcd-server binary : </property>
         <property name="ellipsize">start</property>
       </object>
       <packing>
@@ -50,7 +49,7 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="halign">end</property>
-        <property name="label" translatable="yes">Minimum word length for look up :</property>
+        <property name="label" translatable="yes">Minimum word length for look up : </property>
       </object>
       <packing>
         <property name="left_attach">0</property>
@@ -97,11 +96,14 @@
     </child>
     <child>
       <object class="GtkButton" id="button1">
-        <property name="label" translatable="yes">Restart DCD server (required to apply changes)
-</property>
+        <property name="label" translatable="yes">Restart DCD server (required to apply changes)</property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="receives_default">True</property>
+        <property name="margin_left">2</property>
+        <property name="margin_right">2</property>
+        <property name="margin_top">2</property>
+        <property name="margin_bottom">2</property>
       </object>
       <packing>
         <property name="left_attach">0</property>
@@ -113,7 +115,8 @@
       <object class="GtkLabel" id="label4">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="label" translatable="yes">Port number (default 9166)</property>
+        <property name="halign">end</property>
+        <property name="label" translatable="yes">Port number (default 9166) : </property>
       </object>
       <packing>
         <property name="left_attach">0</property>
