@@ -1,0 +1,305 @@
+{
+    "dmdversion": "DMD64 D Compiler v2.068.2",
+    "flags": [
+        {
+            "brief": "generate code for all template instantiations",
+            "cmdstring": "-allinst",
+            "hasargument": false
+        },
+        {
+            "brief": "do not link",
+            "cmdstring": "-c",
+            "hasargument": false
+        },
+        {
+            "brief": "force colored console on or off",
+            "cmdstring": "-color=",
+            "hasargument": true
+        },
+        {
+            "brief": "use config file at path",
+            "cmdstring": "-conf=",
+            "hasargument": true
+        },
+        {
+            "brief": "do code coverage analysis",
+            "cmdstring": "-cov",
+            "hasargument": false
+        },
+        {
+            "brief": "require at least nnn% code coverage",
+            "cmdstring": "-cov=",
+            "hasargument": true
+        },
+        {
+            "brief": "generate documentation",
+            "cmdstring": "-D",
+            "hasargument": false
+        },
+        {
+            "brief": "write documentation file to docdir directory",
+            "cmdstring": "-Dd",
+            "hasargument": true
+        },
+        {
+            "brief": "write documentation file to filename",
+            "cmdstring": "-Df",
+            "hasargument": true
+        },
+        {
+            "brief": "silently allow deprecated features",
+            "cmdstring": "-d",
+            "hasargument": false
+        },
+        {
+            "brief": "show use of deprecated features as warnings (default)",
+            "cmdstring": "-dw",
+            "hasargument": false
+        },
+        {
+            "brief": "show use of deprecated features as errors (halt compilation)",
+            "cmdstring": "-de",
+            "hasargument": false
+        },
+        {
+            "brief": "compile in debug code",
+            "cmdstring": "-debug",
+            "hasargument": false
+        },
+        {
+            "brief": "compile in debug code &lt;= level",
+            "cmdstring": "-debug=",
+            "hasargument": true
+        },
+        {
+            "brief": "set symbolic debug library to name",
+            "cmdstring": "-debuglib=",
+            "hasargument": true
+        },
+        {
+            "brief": "set default library to name",
+            "cmdstring": "-defaultlib=",
+            "hasargument": true
+        },
+        {
+            "brief": "print module dependencies (imports\/file\/version\/debug\/lib)",
+            "cmdstring": "-deps",
+            "hasargument": false
+        },
+        {
+            "brief": "write module dependencies to filename (only imports)",
+            "cmdstring": "-deps=",
+            "hasargument": true
+        },
+        {
+            "brief": "generate position independent code",
+            "cmdstring": "-fPIC",
+            "hasargument": false
+        },
+        {
+            "brief": "implement http://wiki.dlang.org/DIP25 (experimental)",
+            "cmdstring": "-dip25",
+            "hasargument": false
+        },
+        {
+            "brief": "add symbolic debug info",
+            "cmdstring": "-g",
+            "hasargument": false
+        },
+        {
+            "brief": "add symbolic debug info, pretend to be C",
+            "cmdstring": "-gc",
+            "hasargument": false
+        },
+        {
+            "brief": "always emit stack frame",
+            "cmdstring": "-gs",
+            "hasargument": false
+        },
+        {
+            "brief": "add stack stomp code",
+            "cmdstring": "-gx",
+            "hasargument": false
+        },
+        {
+            "brief": "generate &apos;header&apos; file",
+            "cmdstring": "-H",
+            "hasargument": false
+        },
+        {
+            "brief": "write &apos;header&apos; file to directory",
+            "cmdstring": "-Hd",
+            "hasargument": true
+        },
+        {
+            "brief": "write &apos;header&apos; file to filename",
+            "cmdstring": "-Hf",
+            "hasargument": true
+        },
+        {
+            "brief": "ignore unsupported pragmas",
+            "cmdstring": "-ignore",
+            "hasargument": false
+        },
+        {
+            "brief": "do function inlining",
+            "cmdstring": "-inline",
+            "hasargument": false
+        },
+        {
+            "brief": "generate library rather than object files",
+            "cmdstring": "-lib",
+            "hasargument": false
+        },
+        {
+            "brief": "generate 32 bit code",
+            "cmdstring": "-m32",
+            "hasargument": false
+        },
+        {
+            "brief": "generate 64 bit code",
+            "cmdstring": "-m64",
+            "hasargument": false
+        },
+        {
+            "brief": "add default main() (e.g. for unittesting)",
+            "cmdstring": "-main",
+            "hasargument": false
+        },
+        {
+            "brief": "open web browser on manual page",
+            "cmdstring": "-man",
+            "hasargument": false
+        },
+        {
+            "brief": "generate linker .map file",
+            "cmdstring": "-map",
+            "hasargument": false
+        },
+        {
+            "brief": "turns off array bounds checking for all functions",
+            "cmdstring": "-noboundscheck",
+            "hasargument": false
+        },
+        {
+            "brief": "optimize",
+            "cmdstring": "-O",
+            "hasargument": false
+        },
+        {
+            "brief": "do not write object file",
+            "cmdstring": "-o-",
+            "hasargument": false
+        },
+        {
+            "brief": "write object &amp; library files to directory objdir",
+            "cmdstring": "-od",
+            "hasargument": true
+        },
+        {
+            "brief": "name output file to filename",
+            "cmdstring": "-of",
+            "hasargument": true
+        },
+        {
+            "brief": "preserve source path for output files",
+            "cmdstring": "-op",
+            "hasargument": false
+        },
+        {
+            "brief": "profile runtime performance of generated code",
+            "cmdstring": "-profile",
+            "hasargument": false
+        },
+        {
+            "brief": "profile runtime allocations",
+            "cmdstring": "-profile=gc",
+            "hasargument": false
+        },
+        {
+            "brief": "enforce property syntax",
+            "cmdstring": "-property",
+            "hasargument": false
+        },
+        {
+            "brief": "compile release version",
+            "cmdstring": "-release",
+            "hasargument": false
+        },
+        {
+            "brief": "srcfile args...   run resulting program, passing args",
+            "cmdstring": "-run",
+            "hasargument": false
+        },
+        {
+            "brief": "generate shared library (DLL)",
+            "cmdstring": "-shared",
+            "hasargument": false
+        },
+        {
+            "brief": "show additional info about language change identified by &apos;id&apos;",
+            "cmdstring": "-transition=",
+            "hasargument": true
+        },
+        {
+            "brief": "list all language changes",
+            "cmdstring": "-transition=?",
+            "hasargument": true
+        },
+        {
+            "brief": "compile in unit tests",
+            "cmdstring": "-unittest",
+            "hasargument": false
+        },
+        {
+            "brief": "verbose",
+            "cmdstring": "-v",
+            "hasargument": false
+        },
+        {
+            "brief": "print character (column) numbers in diagnostics",
+            "cmdstring": "-vcolumns",
+            "hasargument": false
+        },
+        {
+            "brief": "limit the number of error messages (0 means unlimited)",
+            "cmdstring": "-verrors=",
+            "hasargument": true
+        },
+        {
+            "brief": "list all gc allocations including hidden ones",
+            "cmdstring": "-vgc",
+            "hasargument": false
+        },
+        {
+            "brief": "list all variables going into thread local storage",
+            "cmdstring": "-vtls",
+            "hasargument": false
+        },
+        {
+            "brief": "compile in version code &gt;= level",
+            "cmdstring": "-version=",
+            "hasargument": true
+        },
+        {
+            "brief": "warnings as errors (compilation will halt)",
+            "cmdstring": "-w",
+            "hasargument": false
+        },
+        {
+            "brief": "warnings as messages (compilation will continue)",
+            "cmdstring": "-wi",
+            "hasargument": false
+        },
+        {
+            "brief": "generate JSON file",
+            "cmdstring": "-X",
+            "hasargument": false
+        },
+        {
+            "brief": "write JSON file to filename",
+            "cmdstring": "-Xf",
+            "hasargument": true
+        }
+    ]
+}

@@ -13,7 +13,7 @@ int main(string[] args)
     chdir("./elements");
 
     string[] options = ["dmd",
-                        "-gc",
+                        "-g",
                         "-debug",
                         "-I../src/",
                         "-I../deps/dson",
