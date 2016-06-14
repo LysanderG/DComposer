@@ -26,8 +26,8 @@
           <object class="GtkLabel" id="label2">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="label" translatable="yes">System Resource Folder :</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -38,8 +38,8 @@
           <object class="GtkLabel" id="label3">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="label" translatable="yes">Start Up Working Folder :</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -63,8 +63,8 @@
           <object class="GtkLabel" id="label4">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="label" translatable="yes">Maximum Log File Size :</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -79,7 +79,7 @@
           <packing>
             <property name="left_attach">0</property>
             <property name="top_attach">4</property>
-            <property name="width">2</property>
+            <property name="width">3</property>
           </packing>
         </child>
         <child>
@@ -123,8 +123,8 @@
           <object class="GtkLabel" id="label5">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="label" translatable="yes">Allow Element Loading :</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -172,12 +172,12 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="tooltip_text" translatable="yes">Warning!! Tags are slow to load increasing startup time significantly.</property>
-            <property name="xalign">1</property>
             <property name="label" translatable="yes">Auto Load Library Symbols :</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
-            <property name="top_attach">8</property>
+            <property name="top_attach">13</property>
           </packing>
         </child>
         <child>
@@ -188,7 +188,7 @@
           </object>
           <packing>
             <property name="left_attach">1</property>
-            <property name="top_attach">8</property>
+            <property name="top_attach">13</property>
             <property name="width">2</property>
           </packing>
         </child>
@@ -199,20 +199,8 @@
           </object>
           <packing>
             <property name="left_attach">0</property>
-            <property name="top_attach">12</property>
+            <property name="top_attach">10</property>
             <property name="width">3</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="label7">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="xalign">1</property>
-            <property name="label" translatable="yes">Toolbar :</property>
-          </object>
-          <packing>
-            <property name="left_attach">0</property>
-            <property name="top_attach">13</property>
           </packing>
         </child>
         <child>
@@ -223,9 +211,9 @@
             <property name="receives_default">True</property>
           </object>
           <packing>
-            <property name="left_attach">1</property>
-            <property name="top_attach">13</property>
-            <property name="width">2</property>
+            <property name="left_attach">0</property>
+            <property name="top_attach">11</property>
+            <property name="width">3</property>
           </packing>
         </child>
         <child>
@@ -235,7 +223,7 @@
           </object>
           <packing>
             <property name="left_attach">0</property>
-            <property name="top_attach">14</property>
+            <property name="top_attach">12</property>
             <property name="width">3</property>
           </packing>
         </child>
@@ -243,12 +231,12 @@
           <object class="GtkLabel" id="label8">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="label" translatable="yes">Project Base Folder :</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
-            <property name="top_attach">15</property>
+            <property name="top_attach">8</property>
           </packing>
         </child>
         <child>
@@ -259,7 +247,7 @@
           </object>
           <packing>
             <property name="left_attach">1</property>
-            <property name="top_attach">15</property>
+            <property name="top_attach">8</property>
             <property name="width">2</property>
           </packing>
         </child>
@@ -267,12 +255,12 @@
           <object class="GtkLabel" id="label10">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="label" translatable="yes">Terminal Command :</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
-            <property name="top_attach">16</property>
+            <property name="top_attach">9</property>
           </packing>
         </child>
         <child>
@@ -282,12 +270,9 @@
           </object>
           <packing>
             <property name="left_attach">1</property>
-            <property name="top_attach">16</property>
+            <property name="top_attach">9</property>
             <property name="width">2</property>
           </packing>
-        </child>
-        <child>
-          <placeholder/>
         </child>
         <child>
           <placeholder/>

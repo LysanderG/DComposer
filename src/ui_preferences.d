@@ -193,7 +193,7 @@ Widget BuildGenPrefPage()
     auto libs_list = new UI_LIST("Library Symbols", ListType.FILES);
     libs_list.GetRootWidget().setVexpand(true);
     libs_list.GetRootWidget().setTooltipText("Warning!! Tags are slow to load increasing startup time significantly.");
-    grid.attach(libs_list.GetRootWidget(), 0, 9, 3, 3);
+    grid.attach(libs_list.GetRootWidget(), 0, 14, 3, 3);
     auto Package_Names = Config.GetKeys("symbol_libs");
     foreach(pkgName; Package_Names)libs_list.AddString(Config.GetValue!string("symbol_libs",pkgName));
     //UI_LIST signals need a class member delegate ... so we'll catch the destroy event
@@ -231,7 +231,12 @@ Widget BuildGenPrefPage()
     string cmdstring = Config.GetArray!string("terminal_cmd","run", ["xterm", "-T","dcomposer running project","-e"]).join(" ");
 
     TerminalCommand.setText(cmdstring);
-    TerminalCommand.addOnActivate(delegate void(Entry)
+    /*TerminalCommand.addOnActivate(delegate void(Entry)
+    {
+        string[] cmdarray = TerminalCommand.getText().split();
+        Config.SetArray("terminal_cmd", "run", cmdarray);
+    });*/
+    TerminalCommand.addOnChanged(delegate void(EditableIF)
     {
         string[] cmdarray = TerminalCommand.getText().split();
         Config.SetArray("terminal_cmd", "run", cmdarray);
