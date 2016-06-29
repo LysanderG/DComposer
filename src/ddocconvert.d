@@ -6,18 +6,19 @@ import std.array;
 import std.algorithm.searching;
 import std.algorithm;
 import std.regex;
+import std.utf;
 
-
+import dcore;
 
 
 
 string Ddoc2Pango(string Input)
 {
     string rvText;
-    string macroText;
-
+    
+    
+    Input = ProcessEmbeddedCode(Input);
     Input = ProcessSections(Input);
-
     rvText = ProcessMacros(Input);
 
     return rvText;
@@ -52,6 +53,9 @@ string ProcessSections(string inputText)
             {
 
                 case "AUTHORS"              :key = "DDOC_AUTHORS";
+                                             line = StartSection(key, line[colonIndex .. $]);
+                                             break;
+                case "SOURCE"               :key = "DDOC_SOURCE";
                                              line = StartSection(key, line[colonIndex .. $]);
                                              break;
                 case "BUGS"                 :key = "DDOC_BUGS";
@@ -102,8 +106,7 @@ string ProcessSections(string inputText)
                 case "MACROS"               :key = "MACROS";
                                              line = StartSection(key, line[colonIndex .. $]);
                                              break;
-
-                default : break;
+               default : break;
             }
 
         }
@@ -117,12 +120,16 @@ string ProcessSections(string inputText)
     {
         if(secKey in Section)
         {
-            if(secKey == "MACROS")AddMacros(Section[secKey]);
-
-            rv ~= Section[secKey] ~ ")\n";
+            if(secKey == "MACROS")
+            {
+                AddMacros(Section[secKey]);
+                continue;
+            }
+            if(secKey == "DDOC_PARAMS") rv ~= FormatParams(Section[secKey]);
+            else rv ~= Section[secKey] ~ ")\n";
         }
     }
-
+    
     return rv;
 }
 
@@ -205,12 +212,20 @@ string MacroReplace(string Text)
         if(ch.isSymbolCharacter) macName ~= ch;
         else break;
     }
+    
     if (macName == Text) //no arguments like $(TITLE)
     {
 
         return GetMacro(macName);
     }
     Text = Text[macName.length+1.. $]; //$(D someSymbolName)
+    
+    //IF its d_code
+    if(macName == "D_CODE")
+    {
+        Text = FormatDCodeLines(Text);
+    }
+    
     //get arguments ... arg zero
     Arguments = Text;
 
@@ -269,6 +284,142 @@ string GetMacro(string MacroName)
 }
 
 
+string FormatDCodeLines(string codeInput)
+{
+    string rv;
+    ulong longestLine;
+
+    foreach(line; codeInput.splitLines(KeepTerminator.yes))
+    {
+        if(std.utf.count(line) > longestLine)longestLine = std.utf.count(line);
+    }
+    foreach(line; codeInput.splitLines(KeepTerminator.no))
+    {
+        auto decodelen = std.xml.decode(line).length;
+        auto diff = line.length - decodelen;
+        rv ~= line.leftJustify(longestLine + diff) ~ '\n';
+
+    }
+    return rv;
+}
+
+string FormatParams(string paramInput)
+{
+    string procInput;
+    foreach(line; paramInput.splitLines())
+    {
+        if(line.startsWith("$(DDOC_PARAM"))continue;
+        if(line.indexOf("=")>0) procInput ~= " |" ~ line;
+        else procInput ~= line;
+    }
+    procInput ~= " |";
+    procInput = procInput.tr("\n", " ");
+    dwrite(procInput);
+    
+    string[string] Parameters;
+    string Identifier;
+    
+    ulong pipeindex = 1;
+    auto indx = procInput.indexOf("=");
+    while(indx > 0)
+    {
+        Identifier = procInput[pipeindex+1..indx].strip();
+        pipeindex = procInput.indexOf("|", indx);
+        Parameters[Identifier] = procInput[indx + 1..pipeindex].strip();
+        indx = procInput.indexOf("=", pipeindex);
+    }
+    foreach(p;Parameters)dwrite("->",p);
+    
+    int col1end   = 31; //30
+    int sep       = 32; //1
+    int col2start = 33;
+    int col2end   = 93; //60
+    int end       = 94; //1
+    
+    string output = "╔";
+    foreach(i; 1..col1end) output ~= "═";
+    output ~= "╦";
+    foreach(i; col2start..col2end) output ~= "═";
+    output ~= " \n";
+    
+    bool xguard;
+    foreach(key, param; Parameters)
+    {
+        if(xguard)
+        {
+            output ~= "╠";
+            foreach(i; 1..col1end) output ~= "═";
+            output ~= "╬";
+            foreach(i; col2start..col2end) output ~= "═";
+            output ~= " \n";
+        }
+        xguard=true;
+        
+        string col1 = key.center(col1end - 1);
+        string col2;
+        ulong height;
+        if(param.length >= (col2end - col2start))
+        {
+            col2 = param.wrap((col2end - col2start));
+            height = col2.countchars("\n");
+        }
+        else
+        {
+            col2 = param.leftJustify((col2end - col2start));
+            height = 1;
+        }
+        foreach(h; 0..height)
+        {
+            output ~= "║";
+            if(height == 1) output ~= col1 ~ "║" ~ col2 ~ " \n";
+            else
+            {
+                if(h == 0) output ~= col1 ;
+                else output ~= " ".center(col1end - 1);
+                output ~= "║";
+                output ~= col2.splitLines()[h].leftJustify(col2end-col2start) ~ " \n";
+            }
+        }
+
+    }
+    
+        output ~= "╚";
+        foreach(i; 1..col1end) output ~= "═";
+        output ~= "╩";
+        foreach(i; col2start..col2end) output ~= "═";
+        output ~= " \n";
+    
+    dwrite(output);
+    return "$(DDOC_PARAMS " ~ output ~ ")\n";
+}
+            
+        
+
+string ProcessEmbeddedCode(string inputText)
+{
+    string rv;
+    bool endParen;
+    
+    foreach(line; inputText.splitLines(KeepTerminator.yes))
+    {
+        if(line.stripLeft().startsWith("---"))
+        {
+            if(endParen)
+            {
+                line = ")\n";
+                endParen = false;
+            }
+            else
+            {
+                line = "$(D_CODE \n";
+                endParen = true;
+            }
+        }
+        rv ~= line;
+    }
+    return rv;
+}
+        
 
 
 string StartSection(string key, string line)
@@ -297,9 +448,9 @@ void LoadMacros()
     Macro["DT"] = "$0 :$(BR)";
     Macro["DD"] = "\t$(I $0)$(BR)";
     Macro["TABLE"] = "===============$(BR)$0$(BR)===============$(BR)";
-    Macro["TR"] = "$0$(BR)";
-    Macro["TH"] = "\t$(U $0)\t";
-    Macro["TD"] = "$0\t\t\t";
+    Macro["TR"] = `$0$(BR)`;
+    Macro["TH"] = "<span background=\"#AAAAAA\">\t$(U $0)\t</span>";
+    Macro["TD"] = "$0";
     Macro["OL"] = "$0$(BR)";
     Macro["UL"] = "$0$(BR)";
     Macro["LI"] = "\t* $0$(BR)";
@@ -307,7 +458,7 @@ void LoadMacros()
     Macro["SMALL"] = "<small>$0</small>";
     Macro["BR"] = "\n";
     Macro["LINK"] = "$(BLUE $0)";
-    Macro["LINK2"] = "$(BLUE $2) $(GRAY [$1])";
+    Macro["LINK2"] = "$(BLUE $2)$(SMALL $(GRAY [$1]))";
     Macro["GRAY"] = `<span foreground="#777777">$0</span>`;
     Macro["BLUE"] = `<span foreground="blue">$0</span>`;
     Macro["RED"] = `<span foreground="red">$0</span>`;
@@ -316,7 +467,7 @@ void LoadMacros()
     Macro["WHITE"] = `<span foreground="white">$0</span>`;
 
     //Macro["D_CODE"] = `$(BR)----$(BR)<span background="#777777">$0</span>$(BR)----$(BR)`;
-    Macro["D_CODE"] = `$(BR)----$(BR)<span font="monospace 8">$0</span>$(BR)----$(BR)`;
+    Macro["D_CODE"] = `$(BR)<span foreground="yellow" background="black" font="monospace">$0</span>$(BR)`;
     Macro["D_COMMENT"] = "$(GREEN $0)";
     Macro["D_STRING"] = "$(RED $0)";
     Macro["D_KEYWORD"] = "$(BLUE $0)";
@@ -329,23 +480,26 @@ void LoadMacros()
     Macro["DDOC_DECL_DD"] = "$(DD $0)";
     Macro["DDOC_DITTO"] = "$(BR)$0";
     Macro["DDOC_SECTIONS"] = "$0";
-    Macro["DDOC_SUMMARY"] = "$0$(BR)$(BR)";
-    Macro["DDOC_DESCRIPTION"] = "$0$(BR)$(BR)";
-    Macro["DDOC_AUTHORS"] = "$(B Authors:)$(BR)$0$(BR)$(BR)";
-    Macro["DDOC_BUGS"] = "$(RED BUGS:)$(BR)$0$(BR)$(BR)";
-    Macro["DDOC_COPYRIGHT"] = "$(B Copyright:)$(BR)$0($(BR)$(BR)";
-    Macro["DDOC_DATE"] = "$(B Date:)$(BR)$0$(BR)$(BR)";
-    Macro["DDOC_DEPRECATED"] = "$(B $(RED Deprecated:))$(BR)$0($BR)$(BR)";
-    Macro["DDOC_EXAMPLES"] = "$(B Examples:)$(BR)$(D_CODE $0)$(BR)$(BR)";
-    Macro["DDOC_EXAMPLE"] = "$(B Examples:)$(BR)$(D_CODE $0)$(BR)$(BR)";
-    Macro["DDOC_HISTORY"] = "$(B History:)$(BR)$0$(BR)$(BR)";
-    Macro["DDOC_LICENSE"] = "$(B License:)$(BR)$0$(BR)$(BR)";
-    Macro["DDOC_RETURNS"] = "$(B Returns:)$(BR)$0$(BR)$(BR)";
-    Macro["DDOC_SEE_ALSO"] = "$(B See Also:)$(BR)$0$(BR)$(BR)";
-    Macro["DDOC_HISTORY"] = "$(B History:)$(BR)$0$(BR)$(BR)";
-    Macro["DDOC_STANDARDS"] = "$(B Sandards:)$(BR)$0$(BR)$(BR)";
-    Macro["DDOC_THROWS"] = "$(B Throws:)$(BR)$0$(BR)$(BR)";
-    Macro["DDOC_VERSION"] = "$(B Version:)$(BR)$0$(BR)$(BR)";
+    Macro["DDOC_SUMMARY"] = "$0$(BR)";
+    Macro["DDOC_DESCRIPTION"] = "$0$(BR)";
+    Macro["DDOC_AUTHORS"] = "$(B Authors:)$(BR)$0$(BR)";
+    Macro["DDOC_SOURCE"] = "$(B Source:)$(BR)$0$(BR)";
+    Macro["DDOC_BUGS"] = "$(RED BUGS:)$(BR)$0$(BR)";
+    Macro["DDOC_COPYRIGHT"] = "$(B Copyright:)$(BR)$0$(BR)";
+    Macro["DDOC_DATE"] = "$(B Date:)$(BR)$0$(BR)";
+    Macro["DDOC_DEPRECATED"] = "$(B $(RED Deprecated:))$(BR)$0($BR)";
+    //Macro["DDOC_EXAMPLES"] = "$(B Examples:)$(BR)$(D_CODE $0)$(BR)$(BR)";
+    //Macro["DDOC_EXAMPLE"] = "$(B Examples:)$(BR)$(D_CODE $0)$(BR)$(BR)";
+    Macro["DDOC_EXAMPLES"] = "$(B Examples:)$(BR)$0$(BR)";
+    Macro["DDOC_EXAMPLE"] = "$(B Examples:)$(BR)$0$(BR)";
+    Macro["DDOC_HISTORY"] = "$(B History:)$(BR)$0$(BR)";
+    Macro["DDOC_LICENSE"] = "$(B License:)$(BR)$0$(BR)";
+    Macro["DDOC_RETURNS"] = "$(B Returns:)$(BR)$0$(BR)";
+    Macro["DDOC_SEE_ALSO"] = "$(B See Also:)$(BR)$0$(BR)";
+    Macro["DDOC_HISTORY"] = "$(B History:)$(BR)$0$(BR)";
+    Macro["DDOC_STANDARDS"] = "$(B Sandards:)$(BR)$0$(BR)";
+    Macro["DDOC_THROWS"] = "$(B Throws:)$(BR)$0$(BR)";
+    Macro["DDOC_VERSION"] = "$(B Version:)$(BR)$0$(BR)";
     Macro["DDOC_SECTION_H"] = "$(B $0)$(BR)$(BR)";
     Macro["DDOC_SECTION"] = "$0$(BR)$(BR)";
     Macro["DDOC_MEMBERS"] = "$(DL $0)";
@@ -355,7 +509,8 @@ void LoadMacros()
     Macro["DDOC_ENUM_MEMBERS"] = "$(DDOC_MEMBERS $0)";
     Macro["DDOC_TEMPLATE_MEMBERS"] = "$(DDOC_MEMBERS $0)";
     Macro["DDOC_ENUM_BASETYPE"] = "$0";
-    Macro["DDOC_PARAMS"] = "$(B PARAMETERS:)$(BR)\n$(TABLE $0)$(BR)";
+    //Macro["DDOC_PARAMS"] = "$(B PARAMETERS:)$(BR)\n$(TABLE $0)$(BR)";
+    Macro["DDOC_PARAMS"] = "$(B PARAMETERS:)$(BR)$0$(BR)";
     Macro["DDOC_PARAM_ROW"] = "$(TR $0)";
     Macro["DDOC_PARAM_ID"] = "$(TD $0)";
     Macro["DDOC_PARAM_DESC"] = "$(TD $0)";
@@ -381,7 +536,6 @@ void LoadMacros()
     Macro["LESS"] = "&lt;";
     Macro["GREATER"] = "&gt;";
     Macro["HREF"] = "$(LINK2 $0)";
-
 
 }
 
@@ -416,6 +570,7 @@ string[] OrderedKeys =
     "DDOC_DATE",
     "DDOC_LICENSE",
     "DDOC_COPYRIGHT",
+    "DDOC_SOURCE",      //NOT A STANDARD SECTION, do not see anything about non standard sections in docs
     "MACROS",
     "ESCAPES"
 ];
