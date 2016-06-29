@@ -224,10 +224,11 @@ class SYM_ASSIST_UI :ELEMENT
 
         mDocCommentsLabel.setMarkup(comments);
 
-        if(candi.Signature.length > 0)comments = "<big><u>" ~ candi.Signature ~ "</u></big>\n";
+        if(candi.Signature.length > 0)
+            comments = "<big><u>" ~ candi.Signature ~ "</u></big>\n";
         else comments = "<big><u>" ~ to!string(candi.Kind) ~ " " ~ candi.Name ~ "</u></big>\n";
 
-        comments ~= Ddoc2Pango(candi.Comment.encode());
+        comments = comments ~ `<span font="monospace 14" >` ~ Ddoc2Pango(candi.Comment.encode()) ~ "</span>";
         mDocCommentsLabel.setMarkup(comments);
         if(initialisedComment == mDocCommentsLabel.getText())
         {
