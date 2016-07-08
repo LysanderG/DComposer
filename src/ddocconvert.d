@@ -303,6 +303,14 @@ string FormatDCodeLines(string codeInput)
     return rv;
 }
 
+
+/*
+ * Of course this does not work correctly because of 
+ * ddoc macro expansion and pango markup tags.
+ * The visual length is rarely equal to the 'physical'
+ * length of the strings (not to mention I'm really ignoring 
+ * unicode stuff)
+ * */
 string FormatParams(string paramInput)
 {
     string procInput;

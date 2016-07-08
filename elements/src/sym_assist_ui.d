@@ -68,7 +68,19 @@ class SYM_ASSIST_UI :ELEMENT
 
         mHierarchyView.addOnRowActivated(&SelectSymbol);
         mInterfaceView.addOnRowActivated(&SelectSymbol);
-        mMembersView.addOnRowActivated(&SelectSymbol);
+        //mMembersView.addOnRowActivated(&SelectSymbol);
+        mMembersView.addOnRowActivated(delegate void(TreePath tp, TreeViewColumn tvc, TreeView tv)
+        {
+            auto ti = new TreeIter;
+            if(tv.getModel().getIter(ti, tp))
+            {
+                int idx = tv.getModel().getValueInt(ti, 2);
+
+                mCandidates = [mCandidates[mCandidatesComboBox.getActive()].Children[idx]];
+                UpdateUI();
+            }
+        });
+            
         mLocationButton.addOnClicked(delegate void(Button me)
         {
 
@@ -212,11 +224,12 @@ class SYM_ASSIST_UI :ELEMENT
         mLocationButton.setLabel(file);
 
         mMembersStore.clear();
-        foreach(member; candi.Children)
+        foreach(int index, member; candi.Children)
         {
             mMembersStore.append(ti);
             mMembersStore.setValue(ti, 0, member.Name);
             mMembersStore.setValue(ti, 1, member.Path);
+            mMembersStore.setValue(ti, 2, index);
         }
 
         string initialisedComment = "<span foreground=\"red\">Failed to parse markup text</span>";
@@ -277,10 +290,13 @@ class SYM_ASSIST_UI :ELEMENT
     {
         if(DocMan.Current is null)return;
         auto symCandidate = DocMan.Current.FullSymbol();
+        dwrite(symCandidate);
 
         if(symCandidate.length < 1) return;
 
-        auto dsyms = Symbols.GetCompletions(symCandidate.split('.'));
+        foreach(s; Symbols.FindExact(symCandidate))dwrite(s.Name);
+        //auto dsyms = Symbols.GetCompletions(symCandidate.split('.'));
+        auto dsyms = Symbols.FindExact(symCandidate);
         if(dsyms.length < 1) return;
 
         Symbols.emit(dsyms);

@@ -16,6 +16,8 @@
       <column type="gchararray"/>
       <!-- column-name gchararray2 -->
       <column type="gchararray"/>
+      <!-- column-name index -->
+      <column type="gint"/>
     </columns>
   </object>
   <object class="GtkTreeStore" id="treestore1">

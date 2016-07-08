@@ -217,6 +217,13 @@ class DSCANNER_ELEM : ELEMENT
                 {
                     continue; //??
                 }
+                
+                //work around bug
+                if(nest == 1) //one white space character
+                {
+                    nest = 0;
+                    sym = "auto" ~ sym;
+                }
                 nest = nest / 4;
 
                 if(nest == 0) //root
