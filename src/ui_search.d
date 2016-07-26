@@ -350,25 +350,19 @@ class UI_SEARCH
                     TheInstance.setObject(wi);
                     auto TheStep = new Value(GtkMovementStep.DISPLAY_LINES);
                     auto TheDirection = new Value(direction);
-                    auto TheUserData = new Value(1);
+                    auto TheRepetions = new Value(1);
                     auto TheReturnValue = new Value;
                     TheReturnValue.init(GType.OBJECT);
                     TheReturnValue.setObject(wi);
                     auto id = Signals.lookup("move-cursor", Type.fromName("GtkTreeView"));
                     //dwrite("\t",TheInstance,"\t",TheStep,"\t",TheDirection,"\t",TheUserData, "::", id,"::",TheReturnValue);
-                    Signals.emitv([TheInstance, TheStep, TheDirection, TheUserData], id, 0u, TheReturnValue);
+                    Signals.emitv([TheInstance, TheStep, TheDirection, TheRepetions], id, 0u, TheReturnValue);
                     break;
                 default:
                     break;
             }
             return false;
         });
-        /*mTree.addOnMoveCursor(delegate bool(GtkMovementStep ms, int i, TreeView tv)
-        {
-            dwrite(ms,"  ",i,"  ",tv);
-            return  true ;
-        }, cast(ConnectFlags)1);
-        */
         mCaseSensitive.addOnToggled(&Find);
         mRegex.addOnToggled(&Find);
         mStartsWord.addOnToggled(&Find);
