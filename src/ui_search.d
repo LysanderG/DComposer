@@ -31,6 +31,8 @@ import gtk.Entry;
 import gdk.Event;
 import gdk.Keysyms;
 
+import gobject.Type;
+
 class UI_SEARCH
 {
     private:
@@ -260,6 +262,11 @@ class UI_SEARCH
         mSearchBox.addOnChanged(delegate void(ComboBoxText cbt){Find();});
         mSearchBox.addOnKeyRelease(delegate bool(Event ev, Widget wi)
         {
+            if( (ev.key().keyval == GdkKeysyms.GDK_Escape))
+            {
+                auto page = cast(Widget)DocMan.Current();
+                page.grabFocus();
+            }
             if( (ev.key().keyval == GdkKeysyms.GDK_Tab)) mTree.grabFocus();
 
             if(ev.key().keyval == GdkKeysyms.GDK_Return) mSearchBox.editingDone();
@@ -278,6 +285,11 @@ class UI_SEARCH
 
         mReplaceBox.addOnKeyRelease(delegate bool(Event ev, Widget wi)
         {
+            if( (ev.key().keyval == GdkKeysyms.GDK_Escape))
+            {
+                auto page = cast(Widget)DocMan.Current();
+                page.grabFocus();
+            }
             if(ev.key().keyval == GdkKeysyms.GDK_Return) mReplaceBox.editingDone();
             return true;
         });
@@ -324,7 +336,39 @@ class UI_SEARCH
             page.grabFocus();
 
         });
-
+        mTree.addOnKeyRelease(delegate bool(Event ev, Widget wi)
+        {
+            int direction = 1;
+            switch(ev.key().keyval)
+            {
+                case GdkKeysyms.GDK_k:
+                    direction = -1;
+                    goto case;                
+                case GdkKeysyms.GDK_j:
+                    auto TheInstance = new Value;
+                    TheInstance.init(GType.OBJECT);
+                    TheInstance.setObject(wi);
+                    auto TheStep = new Value(GtkMovementStep.DISPLAY_LINES);
+                    auto TheDirection = new Value(direction);
+                    auto TheUserData = new Value(1);
+                    auto TheReturnValue = new Value;
+                    TheReturnValue.init(GType.OBJECT);
+                    TheReturnValue.setObject(wi);
+                    auto id = Signals.lookup("move-cursor", Type.fromName("GtkTreeView"));
+                    //dwrite("\t",TheInstance,"\t",TheStep,"\t",TheDirection,"\t",TheUserData, "::", id,"::",TheReturnValue);
+                    Signals.emitv([TheInstance, TheStep, TheDirection, TheUserData], id, 0u, TheReturnValue);
+                    break;
+                default:
+                    break;
+            }
+            return false;
+        });
+        /*mTree.addOnMoveCursor(delegate bool(GtkMovementStep ms, int i, TreeView tv)
+        {
+            dwrite(ms,"  ",i,"  ",tv);
+            return  true ;
+        }, cast(ConnectFlags)1);
+        */
         mCaseSensitive.addOnToggled(&Find);
         mRegex.addOnToggled(&Find);
         mStartsWord.addOnToggled(&Find);
