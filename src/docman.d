@@ -14,7 +14,7 @@ import std.uni;
 import std.encoding;
 import std.algorithm;
 import std.range;
-
+import std.process :spawnProcess, execute, kill, wait;
 
 interface DOC_IF
 {
@@ -657,6 +657,10 @@ class DOCMAN
         auto rv = mBlockDocumentKeyPress;
         mBlockDocumentKeyPress = false;
         return rv;
+    }
+    bool IsDocumentKeyPressBlocked()
+    {
+        return mBlockDocumentKeyPress;
     }
 
 

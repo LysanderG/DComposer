@@ -1,7 +1,7 @@
 module config;
 
 import dcore;
-import ui :ShowMessage;
+import ui;
 
 import json;
 
@@ -16,8 +16,9 @@ import std.string;
 import std.utf;
 import std.uni;
 import std.encoding;
+import std.typecons;
 
-import std.c.stdlib;
+import core.stdc.stdlib;
 import core.runtime;
 
 bool isDcomposerInstalled;

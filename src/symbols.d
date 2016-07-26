@@ -14,7 +14,7 @@ import std.array;
 import std.path;
 import std.signals;
 import std.encoding;
-
+import std.process :spawnProcess, execute, kill, wait;
 
 enum SYMBOL_KIND
 {

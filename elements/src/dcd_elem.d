@@ -24,7 +24,7 @@ class DCD_ELEM : ELEMENT
     string mServerCommand;
     string mClientCommand;
     string[] mImportPaths;
-    static Pid mServerPID;
+    static std.process.Pid mServerPID;
     static ushort mPort;
 
     string[string] TypeName;
@@ -81,7 +81,7 @@ class DCD_ELEM : ELEMENT
 
         foreach(path; Project.Lists[LIST_NAMES.IMPORT])
         {
-            execute([mClientCommand, "-I" ~ path]);
+            std.process.execute([mClientCommand, "-I" ~ path]);
         }
     }
 
@@ -101,7 +101,7 @@ class DCD_ELEM : ELEMENT
         pipes.stdin.flush();
         pipes.stdin.close();
         
-        wait(pipes.pid());
+        std.process.wait(pipes.pid());
         
         foreach(line; pipes.stdout.byLine)
         {
@@ -162,7 +162,7 @@ class DCD_ELEM : ELEMENT
         std.typecons.Tuple!(int, "status", string, "output") queryServer;
         try
         {
-            queryServer = execute(cmd);
+            queryServer = std.process.execute(cmd);
         }
         catch(Exception x)
         {
@@ -179,7 +179,7 @@ class DCD_ELEM : ELEMENT
                 string switchPort = format("-p%s",mPort);
                 string[] switchImports;
                 foreach(I; mImportPaths) switchImports ~= ["-I" ~ I];
-                mServerPID = spawnProcess([mServerCommand] ~ [switchPort] ~  switchImports);
+                mServerPID = std.process.spawnProcess([mServerCommand] ~ [switchPort] ~  switchImports);
             }
             catch(Exception x)
             {
@@ -211,8 +211,8 @@ class DCD_ELEM : ELEMENT
                 return;
             }
             string port = format("-p%s", mPort);
-            auto stopServer = execute([mClientCommand] ~ [port] ~ ["--shutdown"]);
-            wait(mServerPID);
+            auto stopServer = std.process.execute([mClientCommand] ~ [port] ~ ["--shutdown"]);
+            std.process.wait(mServerPID);
             if(stopServer.status == 0)Log.Entry("DCD server shut down.");
             else Log.Entry("Failed to shut down DCD server.");
         }
@@ -237,11 +237,11 @@ class DCD_ELEM : ELEMENT
         return new DCD_ELEM_PREFERENCE_PAGE;
     }
 
-    static void SetServerPid(Pid RestartedPid)
+    static void SetServerPid(std.process.Pid RestartedPid)
     {
         mServerPID = RestartedPid;
     }
-    static Pid ServerPid()
+    static std.process.Pid ServerPid()
     {
         return mServerPID;
     }
@@ -289,13 +289,13 @@ class DCD_ELEM_PREFERENCE_PAGE : PREFERENCE_PAGE
         string[] switchImports;
         foreach(I; Imports) switchImports ~= format("-I%s", I);
 
-        Pid newPID;
+        std.process.Pid newPID;
 
         //stop the server -- if we didnt start it ...
         try
         {
-            auto stopServer = execute([ClientFile, switchOldPort ,"--shutdown"]);
-            if(DCD_ELEM.ServerPid() !is null) wait(DCD_ELEM.ServerPid());
+            auto stopServer = std.process.execute([ClientFile, switchOldPort ,"--shutdown"]);
+            if(DCD_ELEM.ServerPid() !is null) std.process.wait(DCD_ELEM.ServerPid());
             if(stopServer.status == 0) Log.Entry("DCD server shutdown");
             else Log.Entry("DCD server shutdown failed");
         }
@@ -309,7 +309,7 @@ class DCD_ELEM_PREFERENCE_PAGE : PREFERENCE_PAGE
 
         try
         {
-            newPID = spawnProcess([ServerFile] ~ [switchPort] ~ switchImports);
+            newPID = std.process.spawnProcess([ServerFile] ~ [switchPort] ~ switchImports);
 
         }
         catch(Exception x)

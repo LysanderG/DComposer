@@ -261,6 +261,7 @@ class UI_COMPLETION
             {
                 DocMan.SetBlockDocumentKeyPress();
                 CompleteSymbol();
+                mCompStore.clear();
                 KillCompletionWindow();
                 return;
             }
@@ -499,17 +500,17 @@ class UI_COMPLETION
     }
 
 
-    COMPLETION_STATUS GetState()
+     COMPLETION_STATUS GetState()
     {
-        COMPLETION_STATUS rv = COMPLETION_STATUS.INERT;
+        auto dummy = new TreeIter;
         with(COMPLETION_STATUS)
         {
 
-            if(!mAnchor.empty()) rv = rv & CALLTIP & ACTIVE;
-            if(mCompWindow.isVisible()) rv = rv & COMPLETION & ACTIVE;
+            if(!mAnchor.empty()) return  ACTIVE;
+            if(mCompStore.getIterFirst(dummy)) return ACTIVE;
+        
+            return INERT;
         }
-        return rv;
-
 
     }
 }
@@ -517,8 +518,9 @@ class UI_COMPLETION
 
 enum COMPLETION_STATUS
 {
-    INERT     ,
-    ACTIVE    ,
-    COMPLETION,
-    CALLTIP   ,
+    INERT  ,
+    COMPLETING,
+    ACTIVE ,
+    //COMPLETION = 4,
+    //CALLTIP    = 6,
 }

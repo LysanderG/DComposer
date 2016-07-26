@@ -5,6 +5,7 @@ import std.conv;
 import std.format;
 import std.algorithm;
 import std.string;
+import std.utf;
 
 import gtk.Switch;
 
@@ -811,12 +812,18 @@ class CRUISE_ELEM : ELEMENT
 
     void DoReplace(char inputChar)
     {
+        dwrite(uiCompletion.GetState());
         static int insStart;
-
-
         auto doc = DocMan.Current();
 
-        if(inputChar == 0)
+        /+if(inputChar == 0)
+        {
+            dwrite(inputChar);
+            insStart = doc.Column();
+            mReplacing = true;
+            return;
+        }+/
+        if(mReplacing == false)
         {
             insStart = doc.Column();
             mReplacing = true;
@@ -825,6 +832,7 @@ class CRUISE_ELEM : ELEMENT
 
         if( (inputChar == '\r') || (inputChar == '\n'))
         {
+            if(uiCompletion.GetState() == COMPLETION_STATUS.ACTIVE)return;
             doc.ClearHiliteAllSearchResults();
             insStart = 0;
             mReplacing = false;
@@ -839,9 +847,11 @@ class CRUISE_ELEM : ELEMENT
         }
         else
         {
+            if((inputChar == '\t') && (uiCompletion.GetState() != COMPLETION_STATUS.INERT)) return;
             if((inputChar != '\t') && (inputChar.isControl()))return;
             doc.ReplaceSelection([inputChar]);
         }
+        
         doc.HiliteAllSearchResults(doc.Line(),insStart, doc.Column());
 
     }

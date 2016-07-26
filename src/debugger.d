@@ -14,6 +14,7 @@ import glib.IOChannel;
 
 
 import dcore;
+import ui;
 
 class NTDB
 {

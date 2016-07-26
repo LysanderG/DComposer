@@ -16,6 +16,7 @@ import std.conv;
 import json;
 
 import dcore;
+import ui;
 
 enum PROJECT_MODULE_VERSION = "A";  //see notes a bottom of this module
 
@@ -405,6 +406,7 @@ class PROJECT
     //try run with a script
     void Run(string[] args = null)
     {
+        import std.stdio;
         enum tmpfilename = "tmp_run_script";
         scope(failure)
         {

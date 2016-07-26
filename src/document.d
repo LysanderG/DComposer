@@ -12,6 +12,7 @@ import std.uni;
 import std.utf;
 import std.conv;
 import std.format;
+import std.stdio;
 static import std.process ;
 
 import gtk.TextIter;
@@ -98,7 +99,7 @@ import gdk.Pixbuf;
 
 import glib.ListG;
 
-
+import pango.PgFontDescription;
 
 class DOCUMENT : SourceView, DOC_IF
 {

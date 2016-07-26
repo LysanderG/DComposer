@@ -168,7 +168,7 @@ void dwrite(T...) (T args)
 }
 
 
-import std.c.stdlib;
+import core.stdc.stdlib;
 extern (C) void SegFlush(int SysSig)nothrow @system
 {
     try

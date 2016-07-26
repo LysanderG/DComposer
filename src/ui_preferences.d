@@ -7,6 +7,7 @@ import std.array;
 
 import dcore;
 import ui;
+import elements;
 
 import gtk.Label;
 import gtk.Dialog;

@@ -3,7 +3,7 @@ module dscanner_elem;
 
 import std.algorithm;
 import std.conv;
-import std.process : pipeProcess, wait;
+import std.process : execute, pipeProcess, wait;
 import std.string;
 
 import dcore;

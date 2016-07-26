@@ -286,6 +286,7 @@ string GetMacro(string MacroName)
 
 string FormatDCodeLines(string codeInput)
 {
+    import std.xml;
     string rv;
     ulong longestLine;
 
