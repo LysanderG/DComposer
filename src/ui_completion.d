@@ -87,6 +87,7 @@ class UI_COMPLETION
 
     void WatchForLostFocus(DOC_IF doc)
     {
+        mStateCompleting = false;
         KillCallTips();
         KillCompletionWindow();
     }
@@ -94,12 +95,14 @@ class UI_COMPLETION
 
     void WatchForKeys(uint key, uint state)
     {
+        mStateCompleting = false;
         if(mCompWindow.isVisible)ProcessCompletionKey(key);
         else if(mTipWindow.isVisible)ProcessCallTipKey(key);
     }
 
     void WatchForMouseButton(void * Event, DOC_IF doc)
     {
+        mStateCompleting = false;
         KillCallTips();
         KillCompletionWindow();
     }
@@ -262,6 +265,7 @@ class UI_COMPLETION
                 DocMan.SetBlockDocumentKeyPress();
                 CompleteSymbol();
                 mCompStore.clear();
+                mStateCompleting = true;
                 KillCompletionWindow();
                 return;
             }
@@ -500,7 +504,8 @@ class UI_COMPLETION
     }
 
 
-     COMPLETION_STATUS GetState()
+    bool mStateCompleting;
+    COMPLETION_STATUS GetState()
     {
         auto dummy = new TreeIter;
         with(COMPLETION_STATUS)
@@ -508,6 +513,11 @@ class UI_COMPLETION
 
             if(!mAnchor.empty()) return  ACTIVE;
             if(mCompStore.getIterFirst(dummy)) return ACTIVE;
+            if(mStateCompleting)
+            {
+                //mStateCompleting = false;
+                return ACTIVE;
+            }
         
             return INERT;
         }
@@ -519,7 +529,6 @@ class UI_COMPLETION
 enum COMPLETION_STATUS
 {
     INERT  ,
-    COMPLETING,
     ACTIVE ,
     //COMPLETION = 4,
     //CALLTIP    = 6,
