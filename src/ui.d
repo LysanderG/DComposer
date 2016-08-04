@@ -78,6 +78,7 @@ public import gtk.CellEditableIF;
 public import gtk.FileChooserDialog;
 public import gtk.PrintOperation;
 public import gtk.PrintContext;
+public import gtk.Frame;
 
 
 public import gsv.SourceView;
@@ -457,6 +458,14 @@ void AddStatus(string Context, string StatusMessage)
     mStatusbar.push(tmp, StatusMessage);
 }
 
+void AddStatusBox(Widget StatusWidget, bool expand, bool fill, uint padding)
+{
+    mStatusbar.getMessageArea().packEnd(StatusWidget, expand, fill, padding);
+}
+void RemoveStatusBox(Widget StatusWidget)
+{
+    mStatusbar.getMessageArea().remove(StatusWidget);
+}
 
 void RemoveAction(string ActionName)
 {
