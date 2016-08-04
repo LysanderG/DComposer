@@ -6,6 +6,7 @@ import std.format;
 import std.algorithm;
 import std.string;
 import std.utf;
+import std.typecons;
 
 import gtk.Switch;
 
@@ -42,6 +43,17 @@ class CRUISE_ELEM : ELEMENT
         LoadUI();
         LoadBindings();
         mRegisterKey = 0;
+        
+        
+        mIndicatorLabel = new Label("hi");
+        mIndicatorLabel.setMarkup(mIndicatorTextOFF);
+        //mIndicatorFrame = new Frame(mIndicatorLabel, "");
+        //AddStatusBox(mIndicatorFrame,false, false, 0);
+        AddStatusBox(mIndicatorLabel,false, true, 0);
+
+        mIndicatorLabel.showAll();
+        
+        
 
         DocMan.DocumentKeyDown.connect(&ProcessKeys);
 
@@ -58,7 +70,11 @@ class CRUISE_ELEM : ELEMENT
         DocMan.DocumentKeyDown.disconnect(&ProcessKeys);
         RemoveFromMenuBar(mActionMenuItem, mRootMenuNames[6]);
         RemoveAction("ActCruiseMode");
-
+                
+        //mIndicatorFrame.remove(mIndicatorLabel);
+        RemoveStatusBox(mIndicatorLabel);
+        //mIndicatorLabel.destroy();
+        //mIndicatorFrame.destroy();
         Log.Entry("Disengaged");
     }
 
@@ -86,7 +102,7 @@ class CRUISE_ELEM : ELEMENT
     string[][string]          mAliasKeys;
 
     TEXT_OBJECT[char]       mTextObjects;
-    SEL_OBJECT[char]        mSelObjects;
+    TEXT_OBJECT[char]        mSelObjects;
 
     bool                    mSettingRegisterKey;
     char                    mRegisterKey;
@@ -112,7 +128,11 @@ class CRUISE_ELEM : ELEMENT
     TextView                uiRegisterText;
     TreeView                uiKeyTree;
     ListStore               uiKeyStore;
-
+    
+    Frame                   mIndicatorFrame;
+    Label                   mIndicatorLabel;
+    string                  mIndicatorTextOn = `<span background="dark gray">Cruise Mode :<span color="white"> ON</span>/OFF</span> `;
+    string                  mIndicatorTextOFF =`<span background="dark gray">Cruise Mode : ON/<span color="white">OFF</span></span> `;
 
 //-----------------------------------------------------------------------------------------------------------
     void ToggleCruiseMode(Action a)
@@ -127,6 +147,7 @@ class CRUISE_ELEM : ELEMENT
         string statestring = "Cruise mode is "  ~ ( (mCruiseActive)? "on":"off");
         ResetCommand();
         //uiSwitch.setActive(mCruiseActive);
+        mIndicatorLabel.setMarkup(mCruiseActive?mIndicatorTextOn:mIndicatorTextOFF);
 
         Log.Entry(statestring);
     }
@@ -158,6 +179,7 @@ class CRUISE_ELEM : ELEMENT
     
     void UpdateUI()
     {
+        
         uiSwitch.setActive(mCruiseActive);
         uiCurrentCommand.setText(" " ~ mInputString);
         uiRepeatCount.setText(" " ~ mCount.to!string);
@@ -240,7 +262,9 @@ class CRUISE_ELEM : ELEMENT
             "q STRING_NEXT --> Move next quote boundary",
             "Q STRING_PREV --> Move previous quote boundary",
             "a DOC_NEXT --> Move next comment boundary",
-            "A DOC_PREV --> Move previous comment boundary"
+            "A DOC_PREV --> Move previous comment boundary",
+            "n MOVE_CHAR_NEXT --> Move to next character (argument)",
+            "N MOVE_CHAR_PREV --> Move to previous character(argument)"
         ];
         
         auto motionkeys = Config.GetArray("cruise", "motion_commands", defmotionkeys);
@@ -257,29 +281,29 @@ class CRUISE_ELEM : ELEMENT
         }
 //object
         string[] defobjectkeys = [
-            //key, object BEG start END end
-            r"w OBJECT_WORD_START (?<=[^\p{L}_])([\p{L}_])-->Word start object",
-            //r"e OBJECT_WORD_END (?<=[\p{L}_\d])[\n\p{Zs}\p{P}\p{Zl}\p{S}]",
-            r"e OBJECT_WORD_END [^_\p{L}\p{N}]*-->Word end object",
-            //`; OBJECT_STATEMENT_END (^|[;{}:])[^{};:]*`
-            //r"s OBJECT_STATEMENT_START (^|[;{}:])[^{};:]*",
-            r"s OBJECT_STATEMENT_START (?!\s)([^;\}\{]*)\s*-->Statement start object",
-            r"; OBJECT_STATEMENT_END ((((?<=[;}])|(?<=\)\n))\n*[\s ]*)|(\n[\s]*{))-->Statement end object",
-            r"( OBJECT_PARAMETER_START (?<!foreach)(?<!while)(\(|\[)-->List start  object",
-            r") OBJECT_PARAMETER_END \)-->List end object",
-            r"I OBJECT_ITEM_START (?<=[\(\[,])[^\)\],]*-->List Item start",
-            r"i OBJECT_ITEM_END (?<=[^\(\[])[,\]\)]-->List Item start",
-            r"f OBJECT_FUNCTION_START ((?<=[^\p{L}_\{N}])[\p{L}_][\p{L}_\p{N}]*)(?<!else|return)[\s]+[\p{L}_][\p{L}_\p{N}]*[\s]*\(-->Function"
-            //r", doc.MoveNextParameterStart(mCount, selection) --> Next Item (??)"
+        //key object location regex 
+        r"w OBJECT_WORD START (?<=^|[^_\p{L}\p{N}])([_\p{L}][_\p{L}\p{N}]*)#-->Word start",
+        r"e OBJECT_WORD END (?<=^|[^_\p{L}\p{N}])([_\p{L}][_\p{L}\p{N}]*)#-->Word end",
+        r"( OBJECT_LIST START [\(\[](?>[^\(\)\]\[]|(?R))*[\)\]]#-->Array/Arguments start",
+        r") OBJECT_LIST END [\(\[](?>[^\(\)\]\[]|(?R))*[\)\]]#-->Array/Arguments end",
+        r"i OBJECT_ITEM START (?<=[\[\(,])[^,\)\]]+(?=[\)\],])#-->Element/Parameter start",
+        r"I OBJECT_ITEM END (?<=[\[\(,])[^,\)\]]+(?=[\)\],])#-->Element/Parameter end",
+        r"n OBJECT_INT START \b((0[Xx][0-9a-fA-F][0-9a-fA-F_]+)|(0[BbB][01][01_]+)|([0-9][0-9_]+[uU]?L?))#-->Integer start",
+        r"N OBJECT_INT END \b((0[Xx][0-9a-fA-F][0-9a-fA-F_]+)|(0[BbB][01][01_]+)|([0-9][0-9_]+[uU]?L?))#-->Integer end",   
+        r"f OBJECT_FLOAT START \b(([-+]?[0-9][0-9_]*\.[0-9_]+([eEPp][-+]?[0-9][0-9_]+)?[fF]?L?i?)|(0[xX][0-9a-fA-F][0-9a-fA-F_]+\.[0-9a-fA-F_]+[Pp][+-]?[0-9][0-9_]+[fFL]?))#-->Decimal start",
+        r"F OBJECT_FLOAT END \b(([-+]?[0-9][0-9_]*\.[0-9_]+([eEPp][-+]?[0-9][0-9_]+)?[fF]?L?i?)|(0[xX][0-9a-fA-F][0-9a-fA-F_]+\.[0-9a-fA-F_]+[Pp][+-]?[0-9][0-9_]+[fFL]?))#-->Decimal end",
+        r"c OBJECT_CAMEL_CASE START _?[\p{Ll}\p{Lu}][\p{Ll}\p{N}_]+#-->camelCase start",
+        r"C OBJECT_CAMEL_CASE END _?[\p{Ll}\p{Lu}][\p{Ll}\p{N}_]+#-->camelCase end"
         ];
         
         auto objectkeys = Config.GetArray("cruise", "object_keys", defobjectkeys);
 
         foreach(line; objectkeys)
         {
-            string object, regex;
-            formattedRead(line, " %s %s %s-->%s", &key, &object, &regex, &help);
-            mTextObjects[key] = TEXT_OBJECT(object, key, regex);
+            dwrite(line);
+            string object, location, regex;
+            formattedRead(line, " %s %s %s %s#-->%s", &key, &object, &location, &regex, &help);
+            mTextObjects[key] = TEXT_OBJECT(object, key, cast(TEXT_OBJECT_CURSOR)location, regex);
             tmpobjs[object] = mTextObjects[key];
             
             uiKeyStore.append(ti);
@@ -292,10 +316,12 @@ class CRUISE_ELEM : ELEMENT
 //selection objects        
         string[] defobjSelKeys = [
             //key, obj start, obj end
-            "w OBJECT_WORD_START OBJECT_WORD_END --> Word",
-            "s OBJECT_STATEMENT_START OBJECT_STATEMENT_END --> Statement",
-            "p OBJECT_PARAMETER_START OBJECT_PARAMETER_END --> List",
-            "i OBJECT_ITEM_START OBJECT_ITEM_END --> List Item"
+            "w OBJECT_WORD--> Word",
+            "p OBJECT_LIST--> List",
+            "i OBJECT_ITEM--> List Item",
+            "n OBJECT_INT--> Integer",
+            "f OBJECT_FLOAT--> Float",
+            "c OBJECT_CAMEL_CASE-->CamelCase"
         ];
         
         auto objSelKeys = Config.GetArray("cruise", "selection_keys", defobjSelKeys);
@@ -303,12 +329,12 @@ class CRUISE_ELEM : ELEMENT
         foreach(line; objSelKeys)
         {
             string obj1, obj2;
-            formattedRead(line, "%s %s %s --> %s", &key, &obj1, &obj2, &help);
-            mSelObjects[key] = SEL_OBJECT(tmpobjs[obj1], tmpobjs[obj2]);
+            formattedRead(line, "%s %s--> %s", &key, &obj1, &help);
+            mSelObjects[key] = tmpobjs[obj1];
             
             uiKeyStore.append(ti);
             uiKeyStore.setValue(ti, 0, "g|G" ~ key);
-            uiKeyStore.setValue(ti, 1, obj1 ~ " " ~ obj2);
+            uiKeyStore.setValue(ti, 1, obj1);
             uiKeyStore.setValue(ti, 2, "Selection Object");
             uiKeyStore.setValue(ti, 3, help);
  
@@ -342,7 +368,9 @@ class CRUISE_ELEM : ELEMENT
             "e:oe-->Move to next word end",
             "E:Oe-->Move to previous word end",
             "gb:{|M|s|m-->Select outer block",
-            "zb:[|M|s|m-->Select \"previous\" block"
+            "Gb:[|M|s|m-->Select \"previous\" block",
+            "gl:L|s|H-->Select line",
+            "Gl:H|s|L-->Select line"
         ];
         
         auto aliaskeys = Config.GetArray("cruise", "alias_keys", defaliaskeys);
@@ -453,7 +481,7 @@ class CRUISE_ELEM : ELEMENT
 
         //now process the key
         mInputString ~= uniKey;
-
+        
         RunCommand();
 
 
@@ -558,7 +586,9 @@ class CRUISE_ELEM : ELEMENT
                     DocMan.Current().MoveLineStart(1,true);
                     auto whitespace = DocMan.Current().Selection();
                     DocMan.Current().MoveLineEnd(1, false);
-                    DocMan.Current().InsertText("\n" ~ whitespace);
+                    string newlines;
+                    foreach(i; 0..mCount)newlines ~= "\n";
+                    DocMan.Current().InsertText(newlines ~ whitespace);
                     //pass through
                 case INSERT         :
                     auto CruiseAction = cast(ToggleAction)GetAction("ActCruiseMode");
@@ -599,7 +629,8 @@ class CRUISE_ELEM : ELEMENT
         }
         else
             Status = DoMotion(mInputString, (mSelection != SELECTION.OFF));
-
+        
+        if(Status == STATUS.FAILURE)Status = DoAlias(mInputString);
 
         final switch(Status)
         {
@@ -610,20 +641,7 @@ class CRUISE_ELEM : ELEMENT
                 if(mSelection == SELECTION.ON) mSelection = SELECTION.OFF;
                 return;
             case STATUS.FAILURE :
-                if(mInputString in mAliasKeys)
-                {
-                    auto shortcut = mInputString;
-                    foreach(cmdstep; mAliasKeys[shortcut])
-                    {
-                        mInputString = cmdstep;
-                        RunCommand();
-                    }
-                    mLastCommand = shortcut; //not the plan... should be in SaveLastCommand
-                }
-                else
-                {
-                    if(mInputString.length < 2) return; //??incomplete try with another keystroke added
-                }
+                dwrite("run command failure ",mInputString);
                 mInputString.length = 0;
                 mCount =1;
                 if(mSelection == SELECTION.ON) mSelection = SELECTION.OFF;
@@ -676,6 +694,7 @@ class CRUISE_ELEM : ELEMENT
                 return STATUS.SUCCESS;
             case MOVE_CURRENT_NEXT :
                 doc.MoveNextSymbol(mCount, selection);
+                //doc.MoveNextWordStart(mCount, selection);
                 return STATUS.SUCCESS;
             case MOVE_CURRENT_PREV :
                 doc.MovePrevSymbol(mCount, selection);
@@ -689,27 +708,21 @@ class CRUISE_ELEM : ELEMENT
             case OBJECT_NEXT    :
                 if(MotionCommand.length < 2) return STATUS.INCOMPLETE;
                 char objkey = MotionCommand[1];
-                if(objkey !in mTextObjects)return STATUS.FAILURE;
-                if(mTextObjects[objkey].mId.startsWith("doc"))
-                {
-                    mixin("doc.MoveNextParameterStart(mCount,selection);");
-                    return STATUS.SUCCESS;
-                }
-                doc.MoveObjectNext(mTextObjects[objkey], mCount, selection);
+                if(objkey !in mTextObjects)return STATUS.FAILURE;   
+                dwrite(mTextObjects[objkey]);             
+                doc.MoveObjectNext(mTextObjects[objkey],mTextObjects[objkey].mCursor, mCount, selection);
                 return STATUS.SUCCESS;
             case SELECT_OBJ_NEXT    :
                 if(MotionCommand.length < 2) return STATUS.INCOMPLETE;
                 char sel_obj_key = MotionCommand[1];
                 if(sel_obj_key !in mSelObjects)return STATUS.FAILURE;
-                doc.MoveObjectNext(mSelObjects[sel_obj_key].End, mCount, false);
-                doc.MoveObjectPrev(mSelObjects[sel_obj_key].Start, 1, true);
+                doc.MoveObjectNext(mSelObjects[sel_obj_key], TEXT_OBJECT_CURSOR.RANGE, mCount, false);
                 return STATUS.SUCCESS;
             case SELECT_OBJ_PREV    :
                 if(MotionCommand.length <2) return STATUS.INCOMPLETE;
                 char sel_obj_key = MotionCommand[1];
                 if(sel_obj_key !in mSelObjects)return STATUS.FAILURE;
-                doc.MoveObjectPrev(mSelObjects[sel_obj_key].Start, mCount, false);
-                doc.MoveObjectNext(mSelObjects[sel_obj_key].End, 1, true);
+                doc.MoveObjectPrev(mSelObjects[sel_obj_key],TEXT_OBJECT_CURSOR.RANGE, mCount, false);
                 return STATUS.SUCCESS;
             case MATCH_BRACKET      :
                 doc.MoveBracketMatch(selection);
@@ -738,6 +751,14 @@ class CRUISE_ELEM : ELEMENT
             case DOC_PREV           :
                 doc.MovePrevCommentBoundary(mCount, selection);
                 return STATUS.SUCCESS;
+            case MOVE_CHAR_NEXT     :
+                if(MotionCommand.length != 2) return STATUS.INCOMPLETE;
+                doc.MoveNextCharArg(MotionCommand[1], mCount, selection);
+                return STATUS.SUCCESS;
+            case MOVE_CHAR_PREV     :
+                if(MotionCommand.length != 2) return STATUS.INCOMPLETE;
+                doc.MovePrevCharArg(MotionCommand[1], mCount, selection);
+                return STATUS.SUCCESS;
         }
 
     }
@@ -754,6 +775,12 @@ class CRUISE_ELEM : ELEMENT
 
         if(CpyCmd.length < 2) return STATUS.INCOMPLETE;
         auto motionStatus = DoMotion(CpyCmd[1..$], SELECTION.ON);
+        if(motionStatus == STATUS.FAILURE) 
+        {   
+            dwrite("hi");
+            mSelection = SELECTION.ON;
+            motionStatus = DoAlias(CpyCmd[1..$]);
+        }
         if(motionStatus == STATUS.SUCCESS)
         {
             SetRegister(doc.Selection());
@@ -771,6 +798,12 @@ class CRUISE_ELEM : ELEMENT
         }
         if(DelCmd.length < 2) return STATUS.INCOMPLETE;
         auto motionStatus = DoMotion(DelCmd[1..$], SELECTION.ON);
+        if(motionStatus == STATUS.FAILURE) 
+        {   
+            dwrite("hi");
+            mSelection = SELECTION.ON;
+            motionStatus = DoAlias(DelCmd[1..$]);
+        }
         if(motionStatus == STATUS.SUCCESS)
         {
             doc.ReplaceSelection("");
@@ -812,7 +845,7 @@ class CRUISE_ELEM : ELEMENT
 
     void DoReplace(char inputChar)
     {
-        dwrite(uiCompletion.GetState());
+
         static int insStart;
         auto doc = DocMan.Current();
 
@@ -832,10 +865,15 @@ class CRUISE_ELEM : ELEMENT
 
         if( (inputChar == '\r') || (inputChar == '\n'))
         {
-            if(uiCompletion.GetState() == COMPLETION_STATUS.ACTIVE)return;
-            doc.ClearHiliteAllSearchResults();
-            insStart = 0;
-            mReplacing = false;
+            if(uiCompletion.GetState() != COMPLETION_STATUS.ACTIVE)
+            {
+                doc.ClearHiliteAllSearchResults();
+                insStart = 0;
+                mReplacing = false;
+                return;
+            }
+            
+            doc.HiliteAllSearchResults(doc.Line(),insStart, doc.Column());
             return;
         }
         if((inputChar == '\b'))
@@ -901,16 +939,42 @@ class CRUISE_ELEM : ELEMENT
 
         return STATUS.SUCCESS;
     }
-
+    
+    STATUS DoAlias(string cmdAlias)
+    {
+        string savedInput = mInputString;
+        scope(exit)mInputString = savedInput;
+        
+        if(cmdAlias in mAliasKeys)
+        {
+            foreach(cmdStep; mAliasKeys[cmdAlias])
+            {
+                dwrite(cmdStep);
+                mInputString = cmdStep;
+                RunCommand();
+            }
+            return STATUS.SUCCESS;
+        }
+        foreach(key; mAliasKeys.byKey())
+        {
+            if(key.startsWith(cmdAlias)) return STATUS.INCOMPLETE;
+        }
+        
+        return STATUS.FAILURE;
+    }
+        
+    
 }
 
 
-struct SEL_OBJECT
+
+
+/*struct SEL_OBJECT
 {
     TEXT_OBJECT Start;
     TEXT_OBJECT End;
 }
-
+*/
 
 enum SELECTION
 {
@@ -963,6 +1027,8 @@ enum MOTIONS :string
     MOVE_EOF        = "MOVE_EOF",
     MOVE_CURRENT_NEXT = "MOVE_CURRENT_NEXT",
     MOVE_CURRENT_PREV = "MOVE_CURRENT_PREV",
+    MOVE_CHAR_NEXT  = "MOVE_CHAR_NEXT",
+    MOVE_CHAR_PREV  = "MOVE_CHAR_PREV",
     OBJECT_PREV     = "MOVE_OBJECT_PREV",
     OBJECT_NEXT     = "MOVE_OBJECT_NEXT",
     SELECT_OBJ_NEXT = "SELECT_OBJ_NEXT",

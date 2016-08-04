@@ -14,6 +14,7 @@ import std.conv;
 import std.format;
 import std.stdio;
 static import std.process ;
+import std.typecons;
 
 import gtk.TextIter;
 import gtk.Widget;
@@ -164,7 +165,7 @@ class DOCUMENT : SourceView, DOC_IF
         }
         return ti;*/
     }
-    void SetMoveIter(TextIter ti, bool selection_bound)
+     void SetMoveIter(TextIter ti, bool selection_bound)
     {
         string markname;
         auto Lti = new TextIter;
@@ -1529,7 +1530,6 @@ class DOCUMENT : SourceView, DOC_IF
 
         auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
 
-
         foreach(ctr;0..Reps)
         {
             ch = ti.getChar();
@@ -1539,14 +1539,15 @@ class DOCUMENT : SourceView, DOC_IF
                 ch = ti.getChar();
                 if(ch.isWordStartChar() && lastCharWasNotAWordChar)
                 {
+                    dwrite(ch);
                     foundstart = true;
                     break;
-                }
-
+                }                 
                 lastCharWasNotAWordChar = !ch.isWordChar();
             }
         }
-
+        dwrite("true >>",ti.getLine());
+        if(ti.isEnd()) return false;
         if(!foundstart) return false;
 
         SetMoveIter(ti, selection_bound);
@@ -2448,7 +2449,7 @@ class DOCUMENT : SourceView, DOC_IF
         return true;
     }
 
-    bool MoveNextSymbol(int Reps, bool selection_bound)
+    /*bool MoveNextSymbol(int Reps, bool selection_bound)
     {
         mStaticHorizontalCursorPosition = -1;
         bool foundSymbol;
@@ -2475,16 +2476,48 @@ class DOCUMENT : SourceView, DOC_IF
                 break;
             }
         }
-        if(!foundSymbol)
-        {
-            buff.placeCursor(tiOrig);
-            scrollMarkOnscreen(buff.getMark("insert"));
+        //if(!foundSymbol)
+        //{
+            //buff.placeCursor(tiOrig);
+            //scrollMarkOnscreen(buff.getMark("insert"));
             return false;
-        }
+        //}
 
         SetMoveIter(ti, selection_bound);
         return true;
+    }*/
+    
+    bool MoveNextSymbol(int Reps, bool selection_bound)
+    {
+        
+        auto ti = Cursor().copy();
+        auto buff = getBuffer();
+        
+        auto searchText = Word("insert");
+        int ctr;
+        auto wordstepping = MoveNextWordStart(1, selection_bound);
+        while (wordstepping)
+        {
+            if(searchText == Word("insert"))
+            {
+                buff.getIterAtMark(ti, buff.getMark("insert"));
+                ctr++;
+                dwrite(ti.getLine(),"  <<<<<<<<<<<<<<<<<<<<<<<");
+                if(ctr >= Reps)break;
+            }
+            wordstepping = MoveNextWordStart(1, selection_bound);
+        }
+        dwrite(wordstepping,">",ti.getLine());
+        if(!wordstepping)
+        {
+            while(Main.eventsPending()){dwrite("hi");Main.iteration();}
+            buff.placeCursor(ti);
+            scrollMarkOnscreen(buff.getMark("insert"));
+        }
+        return(ctr>0);
     }
+        
+            
 
     bool MovePrevParameterStart(int Reps, bool selection_bound)
     {
@@ -2639,6 +2672,7 @@ class DOCUMENT : SourceView, DOC_IF
         searchSettings.setSearchText(Object.mRegex);
 
         TextIter StartTi, EndTi;
+        TextIter TempTi;
         bool result_forward;
 
         foreach(ctr; 0..Reps)
@@ -2647,9 +2681,10 @@ class DOCUMENT : SourceView, DOC_IF
             {
                 if(ti.equal(StartTi))
                 {
-                    if(ti.forwardChar())
+                    TempTi = ti.copy();
+                    if(TempTi.forwardChar())
                     {
-                         if(searchContext.forward(ti, StartTi, EndTi))
+                         if(searchContext.forward(TempTi, StartTi, EndTi))
                         {
                             ti = StartTi.copy();
                         }
@@ -2670,6 +2705,74 @@ class DOCUMENT : SourceView, DOC_IF
         //if(Place == TEXT_OBJECT_MARK.CURSOR) SetMoveIter(StartTi, false);
 
     }
+    void MoveObjectNext(TEXT_OBJECT Object, TEXT_OBJECT_CURSOR cursor, int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
+
+        auto searchSettings = new SourceSearchSettings();
+        auto searchContext = new SourceSearchContext(getBuffer, searchSettings);
+
+        searchContext.setHighlight(false);
+        searchSettings.setCaseSensitive(true);
+        searchSettings.setRegexEnabled(true);
+        searchSettings.setWrapAround(false);
+        searchSettings.setSearchText(Object.mRegex);
+
+        TextIter StartTi, EndTi;
+        TextIter FinalStartTi, FinalEndTi;
+        
+        FinalEndTi = ti.copy();
+        FinalStartTi = ti.copy();
+        
+        if(cursor != TEXT_OBJECT_CURSOR.START)
+        {
+            if(searchContext.backward(ti,StartTi, EndTi))
+            {
+                //ti = EndTi.copy();
+                ti = StartTi.copy();
+            }
+        }
+        
+
+        foreach(ctr; 0..Reps)
+        {
+            if(searchContext.forward(ti, StartTi, EndTi))
+            {
+                FinalStartTi = StartTi.copy();
+                FinalEndTi = EndTi.copy();
+                
+                
+                if(ti.equal(StartTi))
+                {
+                    auto TempTi = ti.copy();
+                    if(TempTi.forwardChar())
+                    {
+                        if(searchContext.forward(TempTi, StartTi, EndTi))
+                        {
+                            FinalStartTi = StartTi.copy();
+                            FinalEndTi = EndTi.copy();
+                        }
+                    }
+                }
+            }
+            ti = FinalEndTi.copy();
+        }         
+        final switch(cursor) with (TEXT_OBJECT_CURSOR)
+        {
+            case RANGE:
+                SetMoveIter(FinalStartTi, false);
+                SetMoveIter(FinalEndTi, true);
+                break;
+            case START:
+                SetMoveIter(FinalStartTi, selection_bound);
+                break;
+            case END:
+                SetMoveIter(FinalEndTi, selection_bound);
+        }
+
+    }    
     void MoveObjectPrev(TEXT_OBJECT Object, int Reps, bool selection_bound)
     {
 
@@ -2714,8 +2817,117 @@ class DOCUMENT : SourceView, DOC_IF
         SetMoveIter(ti, selection_bound);
 
     }
+   
+    void MoveObjectPrev(TEXT_OBJECT Object, TEXT_OBJECT_CURSOR cursor, int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
 
 
+        auto searchContext = new SourceSearchContext(getBuffer, null);
+        auto searchSettings = searchContext.getSettings();
+        searchContext.setHighlight(false);
+        searchSettings.setCaseSensitive(true);
+        searchSettings.setRegexEnabled(true);
+        searchSettings.setWrapAround(false);
+        searchSettings.setSearchText(Object.mRegex);
+        
+        TextIter StartTi, EndTi;
+        TextIter FinalStartTi, FinalEndTi;
+        bool result_forward;
+        
+        FinalEndTi = ti.copy();
+        FinalStartTi = ti.copy();
+        
+        if(cursor != TEXT_OBJECT_CURSOR.END)
+        {
+            if(searchContext.forward(ti, StartTi, EndTi))
+            {
+                ti = StartTi.copy();
+            }
+        }
+
+        foreach(ctr; 0..Reps)
+        {
+            if(searchContext.backward(ti, StartTi, EndTi))
+            {
+                FinalStartTi = StartTi.copy();
+                FinalEndTi = EndTi.copy();
+                
+                
+                if(ti.equal(StartTi))
+                {
+                    auto TempTi = ti.copy();
+                    if(TempTi.backwardChar())
+                    {
+                         if(searchContext.backward(TempTi, StartTi, EndTi))
+                        {
+                            FinalStartTi = StartTi.copy();
+                            FinalEndTi = EndTi.copy();
+                        }
+                    }
+                }
+            }
+            ti = FinalStartTi.copy();
+        }
+        final switch (cursor) with(TEXT_OBJECT_CURSOR)
+        {
+            case START:
+                SetMoveIter(FinalStartTi, selection_bound);
+                break;
+            case END:
+                SetMoveIter(FinalEndTi, selection_bound);
+                break;
+            case RANGE:
+                SetMoveIter(FinalStartTi, false);
+                SetMoveIter(FinalEndTi, true);
+                break;
+        }
+    }    
+
+    bool MoveNextCharArg(char ArgChar, int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto ti = GetMovementIter(selection_bound, DIRECTION.FORWARD);
+        auto ti2 = ti.copy();
+        
+        int Ctr;
+        
+        while(ti2.forwardChar())
+        {
+            if(ArgChar == ti2.getChar())
+            {
+                ti = ti2.copy();
+                Ctr++;
+            }
+            if(Ctr >= Reps)break;
+        }
+
+        SetMoveIter(ti, selection_bound);
+        return (Ctr >= Reps);
+    }
+            
+    bool MovePrevCharArg(char ArgChar, int Reps, bool selection_bound)
+    {
+        mStaticHorizontalCursorPosition = -1;
+        auto ti = GetMovementIter(selection_bound, DIRECTION.BACKWARD);
+        auto ti2 = ti.copy();
+        int Ctr;
+
+        while(ti2.backwardChar())
+        {
+            if(ArgChar == ti2.getChar())
+            {
+                ti = ti2.copy();
+                Ctr++;
+            }
+            if(Ctr >= Reps)break;
+        }
+
+        SetMoveIter(ti, selection_bound);
+        return (Ctr >= Reps);
+    }
 }
 
 
@@ -2724,4 +2936,30 @@ class DOCUMENT : SourceView, DOC_IF
 
 
 
-
+/*objects
+* character
+* word
+* number
+*   int, float, scientific, hex, binary, underscores
+* loop
+*   for foreach while do
+* switch
+* function
+* block {}
+* List (a,b,c) [a,b,c]
+* Listitem
+* Line
+* Statement
+* Comment
+* String literal
+* camelCase
+* CamelCase //whatever
+* 
+* start|object|end
+* moveprevstartobj
+* moveprevendobj
+* movenextstartobj
+* movenextendobj
+* moveprevobj
+* movenextobj 
+* */

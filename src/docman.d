@@ -144,6 +144,8 @@ interface DOC_IF
     bool MoveNextStatementEnd(int Reps, bool selection_bound);
     bool MovePrevCurrentChar(int Reps, bool selection_bound);
     bool MoveNextCurrentChar(int Reps, bool selection_bound);
+    bool MoveNextCharArg(char ArgChar, int Reps, bool selection_bound);
+    bool MovePrevCharArg(char ArgChar, int Reps, bool selection_bound);
     bool MoveBracketMatch(bool selection_bound);
     bool MovePrevSymbol(int Reps, bool selection_bound);
     bool MoveNextSymbol(int Reps, bool selection_bound);
@@ -161,7 +163,9 @@ interface DOC_IF
 
     //object movement -- should deprecate all (most) movements above
     void MoveObjectNext(TEXT_OBJECT Object, int reps, bool selection_bound);
+    void MoveObjectNext(TEXT_OBJECT Object, TEXT_OBJECT_CURSOR cursor, int reps, bool selection_bound);
     void MoveObjectPrev(TEXT_OBJECT Object, int reps, bool selection_bound);
+    void MoveObjectPrev(TEXT_OBJECT Object, TEXT_OBJECT_CURSOR cursor, int reps, bool selection_bound);
 
     //void MoveObject(TEXT_OBJECT Object, TEXT_OBJECT_DIRECTION Direction, TEXT_OBJECT_MARK Mark);
 
@@ -679,72 +683,58 @@ class DOCMAN
 }
 
 
-/+
-enum OBJECT_POSITION
-{
-    START,
-    WHOLE,
-    END
-}
-
-enum OBJECT_DEFINED_BY
-{
-    REGEX,
-    FUNCTION
-}
-
-
 
 struct TEXT_OBJECT
 {
-    private:
-    string mID;
-    OBJECT_DEFINED_BY mDefinedBy;
-    string mRegexDef; //regular expression for the object
-    void  function() mFunctionDef;
-
-    public:
-    this(string ID, string Definition, OBJECT_DEFINED_BY DefinedBy = OBJECT_DEFINED_BY.REGEX)
-    {
-        mID = ID; mRegexDef = Definition; mDefinedBy = DefinedBy;
-    }
-
-    void SetFunction(void function() FunctionDefinition) { mFunctionDef = FunctionDefinition;}
-
-    bool IsRegex(){ return (mDefinedBy == OBJECT_DEFINED_BY.REGEX);} //DON'T ASK ME! like some kind of sad UNION
-    bool IsFunction(){return (mDefinedBy == OBJECT_DEFINED_BY.FUNCTION);}
-    string GetRegex(){ return (mDefinedBy == OBJECT_DEFINED_BY.REGEX) ? mRegexDef : "";}
-    void CallObject(){if(mFunctionDef)mFunctionDef();}
-    string ID() { return mID;}
-}+/
-
-
-struct TEXT_OBJECT
-{
+    //needed?
     string mId;
     char mKey;
+    
+    
+    TEXT_OBJECT_TYPE mType;
+    
     string mRegex;
+    string mOperation;
+    
+    TEXT_OBJECT_CURSOR mCursor;
+    
 
-    this(string Name, char key, string Regex)
+    this(string Name, char key, TEXT_OBJECT_CURSOR cursor, string objectStr)
     {
         mId = Name;
         mKey = key;
-        mRegex = Regex;
+        
+        mCursor = cursor;
+        
+        if(mType == TEXT_OBJECT_TYPE.REGEX) 
+        {
+            mRegex = objectStr;
+        }
+        else
+        {
+            mOperation = objectStr;
+        }
+    }
+    
+    void SetType(TEXT_OBJECT_TYPE type)
+    {
+        mType = type;
     }
 }
 
-enum TEXT_OBJECT_DIRECTION
+enum TEXT_OBJECT_TYPE
 {
-    PREV,
-    NEXT
+    REGEX,
+    OPERATION
 }
 
-enum TEXT_OBJECT_MARK
+enum TEXT_OBJECT_CURSOR :string
 {
-    CURSOR,
-    START,
-    END
+    START = "START",
+    END = "END",
+    RANGE = "RANGE"
 }
+
 
 //====================================================================================================================
 //====================================================================================================================
