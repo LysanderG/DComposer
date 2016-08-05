@@ -4,7 +4,8 @@ static import std.process;
 import std.stdio;
 import std.string;
 import std.array;
-
+import std.conv;
+import std.path;
 
 import dcore;
 import ui;
@@ -81,7 +82,10 @@ class DCD_ELEM : ELEMENT
 
         foreach(path; Project.Lists[LIST_NAMES.IMPORT])
         {
-            std.process.execute([mClientCommand, "-I" ~ path]);
+            path = path.absolutePath(Project.Folder);
+            Log.Entry("DCD importing '" ~ path ~ "'");
+            auto result = std.process.execute([mClientCommand,"-p" ~ mPort.to!string, "-I" ~ path]);
+            if(result.status != 0)Log.Entry("DCD failed to add '" ~ path ~ "' to import path.", "Error");  
         }
     }
 
