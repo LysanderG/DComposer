@@ -75,7 +75,6 @@ void Engage()
         {
             Libraries[libraryKey].mEnabled = true;
             LoadElements();
-            tglValue = 1;
         }
         else
         {
@@ -84,9 +83,8 @@ void Engage()
             {
                 UnloadElement(libraryKey);
             }
-            tglValue = 0;
         }
-        mPreferenceBtn.setSensitive(tglValue);
+        mPreferenceBtn.setSensitive(Libraries[libraryKey].mEnabled);
 
         mStore.setValue(ti, 0, Libraries[libraryKey].mEnabled);
         mStore.setValue(ti, 1, Libraries[libraryKey].mFile.baseName());

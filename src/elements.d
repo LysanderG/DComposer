@@ -141,9 +141,36 @@ void LoadElements()
                 }
                 Log.Entry("Loaded library: " ~ lib.mFile);
                 auto tmpvar = dlsym(lib.Ptr, "GetClassName");
+                if(tmpvar is null)
+                {
+                    lib.mEnabled = false;
+                    Log.Entry(lib.mFile ~ " is not a valid dcomposer element.", "Error");
+                    ShowMessage("Error loading element", lib.mFile ~ " is not a valid dcomposer element", "Continue");
+                    Runtime.unloadLibrary(lib.Ptr);
+                    lib.Ptr = null;
+                    continue;
+                } 
                 string function() GetClassName = cast(string function())tmpvar; //wouldn't work without tmpvar??
+                dwrite(GetClassName);
+                if(GetClassName is null)
+                {
+                    lib.mEnabled = false;
+                    Log.Entry(lib.mFile ~ " does not contain an ELEMENT interface.", "Error");
+                    ShowMessage("Error loading element", lib.mFile ~ " does not contain an ELEMENT interface", "Continue");
+                    Runtime.unloadLibrary(lib.Ptr);
+                    lib.Ptr = null;
+                    continue;
+                }
                 lib.mClassName = GetClassName().idup;
                 auto  tmp = cast(ELEMENT)Object.factory(lib.mClassName);
+                if(tmp is null)
+                {
+                    lib.mEnabled = false;
+                    Log.Entry(lib.mClassName ~ " does not exist in element", "Error");
+                    Runtime.unloadLibrary(lib.Ptr);
+                    lib.Ptr = null;
+                    continue;
+                }
                 lib.mName = tmp.Name.idup;
                 lib.mInfo = tmp.Info.idup;
                 lib.mRegistered = true;
@@ -156,6 +183,7 @@ void LoadElements()
 
 bool UnloadElement(string Name)
 {
+
     if(Libraries[Name].mClassName !in Elements) return false;
     bool rv;
 
