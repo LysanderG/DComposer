@@ -3,6 +3,7 @@ module dcd_elem;
 static import std.process;
 import std.stdio;
 import std.string;
+import std.format;
 import std.array;
 import std.conv;
 import std.path;
@@ -86,7 +87,6 @@ class DCD_ELEM : ELEMENT
             path = path.absolutePath(Project.Folder);
             foreach(alreadyGotIt; mImportPaths)
             {
-                dwrite(path, "||",alreadyGotIt.absolutePath(Project.Folder));
                 if(path == alreadyGotIt.absolutePath(Project.Folder))
                 {
                     Continue = true;
@@ -170,6 +170,12 @@ class DCD_ELEM : ELEMENT
         
         DocMan.Insertion.connect(&WatchForText);
         Project.Event.connect(&WatchImportPaths);
+        
+        //goto location stuff
+        AddIcon("dcd-got", SystemPath(Config.GetValue("dcd_elem", "goto_icon", "elements/resources/target.png")));
+        AddAction("ActDcdGoto", "Locate Symbol", "Where is symbol defined", "dcd-got", "F2", 
+            delegate void(Action a){Locate();});
+        uiContextMenu.AddAction("ActDcdGoto");
 
         //are we running
         string[] cmd = [mClientCommand];
@@ -215,6 +221,10 @@ class DCD_ELEM : ELEMENT
 
     void Disengage()
     {
+        uiContextMenu.RemoveAction("ActDcdGoto");
+        RemoveAction("ActDcdGoto");
+        
+        
         DocMan.Insertion.disconnect(&WatchForText);
         Project.Event.disconnect(&WatchImportPaths);
 
@@ -272,6 +282,42 @@ class DCD_ELEM : ELEMENT
         return mPort;
     }
     
+    void Locate()
+    {
+        string[] Output;
+        
+        int CursorOffset = DocMan.Current.GetCursorByteIndex();
+        string arg = format("-c%s",CursorOffset);
+        string port = format("-p%s", mPort);
+
+        auto pipes = std.process.pipeProcess([mClientCommand, port, arg, "-l"]);
+
+        pipes.stdin.writeln(DocMan.Current.GetText());
+        pipes.stdin.flush();
+        pipes.stdin.close();
+        
+        std.process.wait(pipes.pid());
+        
+        foreach(line; pipes.stdout.byLine)
+        {
+            dwrite(line);
+            Output ~= line.idup;
+        }
+        pipes.stdout.close();
+        
+        if(Output.length > 0)
+        {
+            if (Output[0] == "Not found") return;
+            string file;
+            int pos;
+            formattedRead(Output[0], "%s\t%s",  &file, &pos);
+            dwrite(file,pos);
+            DocMan.Open(file);
+            DocMan.Current.SetCursorByteIndex(pos);
+        }           
+        
+    }
+        
 }
 
 

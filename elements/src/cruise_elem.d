@@ -300,7 +300,6 @@ class CRUISE_ELEM : ELEMENT
 
         foreach(line; objectkeys)
         {
-            dwrite(line);
             string object, location, regex;
             formattedRead(line, " %s %s %s %s#-->%s", &key, &object, &location, &regex, &help);
             mTextObjects[key] = TEXT_OBJECT(object, key, cast(TEXT_OBJECT_CURSOR)location, regex);
@@ -435,6 +434,8 @@ class CRUISE_ELEM : ELEMENT
         auto uniKey = cast(char)Keymap.keyvalToUnicode(keyValue);
         bool ctrlKey = cast(bool)modKeyFlag & GdkModifierType.CONTROL_MASK;
         bool shiftKey = modKeyFlag & GdkModifierType.SHIFT_MASK;
+        
+        dwrite("(",keyValue,")",uniKey, ":",ctrlKey,"<>", shiftKey);
 
         if(mReplacing)
         {
@@ -641,7 +642,6 @@ class CRUISE_ELEM : ELEMENT
                 if(mSelection == SELECTION.ON) mSelection = SELECTION.OFF;
                 return;
             case STATUS.FAILURE :
-                dwrite("run command failure ",mInputString);
                 mInputString.length = 0;
                 mCount =1;
                 if(mSelection == SELECTION.ON) mSelection = SELECTION.OFF;
@@ -709,7 +709,6 @@ class CRUISE_ELEM : ELEMENT
                 if(MotionCommand.length < 2) return STATUS.INCOMPLETE;
                 char objkey = MotionCommand[1];
                 if(objkey !in mTextObjects)return STATUS.FAILURE;   
-                dwrite(mTextObjects[objkey]);             
                 doc.MoveObjectNext(mTextObjects[objkey],mTextObjects[objkey].mCursor, mCount, selection);
                 return STATUS.SUCCESS;
             case SELECT_OBJ_NEXT    :
@@ -777,7 +776,6 @@ class CRUISE_ELEM : ELEMENT
         auto motionStatus = DoMotion(CpyCmd[1..$], SELECTION.ON);
         if(motionStatus == STATUS.FAILURE) 
         {   
-            dwrite("hi");
             mSelection = SELECTION.ON;
             motionStatus = DoAlias(CpyCmd[1..$]);
         }
@@ -800,7 +798,6 @@ class CRUISE_ELEM : ELEMENT
         auto motionStatus = DoMotion(DelCmd[1..$], SELECTION.ON);
         if(motionStatus == STATUS.FAILURE) 
         {   
-            dwrite("hi");
             mSelection = SELECTION.ON;
             motionStatus = DoAlias(DelCmd[1..$]);
         }
@@ -849,13 +846,6 @@ class CRUISE_ELEM : ELEMENT
         static int insStart;
         auto doc = DocMan.Current();
 
-        /+if(inputChar == 0)
-        {
-            dwrite(inputChar);
-            insStart = doc.Column();
-            mReplacing = true;
-            return;
-        }+/
         if(mReplacing == false)
         {
             insStart = doc.Column();
@@ -949,7 +939,6 @@ class CRUISE_ELEM : ELEMENT
         {
             foreach(cmdStep; mAliasKeys[cmdAlias])
             {
-                dwrite(cmdStep);
                 mInputString = cmdStep;
                 RunCommand();
             }

@@ -1325,6 +1325,27 @@ class DOCUMENT : SourceView, DOC_IF
         while(tiOffset.backwardLine())offsetnotbytes += tiOffset.getBytesInLine();
         return offsetnotbytes;
     }
+    
+    void SetCursorByteIndex(uint pos)
+    {
+        uint ctr;
+        TextIter tiDest;
+        getBuffer().getStartIter(tiDest);
+        dwrite(ctr);
+        while(tiDest.getBytesInLine() + ctr < pos)
+        {
+            dwrite(ctr);
+            ctr += tiDest.getBytesInLine();
+            tiDest.forwardLine();
+        }
+        tiDest.setLineIndex(pos - ctr);
+        getBuffer().placeCursor(tiDest);
+        scrollToIter(tiDest,0.4, false, 0.5, 0.5);
+    }
+        
+            
+        
+        
 
     void ScrollUp(int Steps)
     {
@@ -1539,14 +1560,12 @@ class DOCUMENT : SourceView, DOC_IF
                 ch = ti.getChar();
                 if(ch.isWordStartChar() && lastCharWasNotAWordChar)
                 {
-                    dwrite(ch);
                     foundstart = true;
                     break;
                 }                 
                 lastCharWasNotAWordChar = !ch.isWordChar();
             }
         }
-        dwrite("true >>",ti.getLine());
         if(ti.isEnd()) return false;
         if(!foundstart) return false;
 
@@ -2502,15 +2521,13 @@ class DOCUMENT : SourceView, DOC_IF
             {
                 buff.getIterAtMark(ti, buff.getMark("insert"));
                 ctr++;
-                dwrite(ti.getLine(),"  <<<<<<<<<<<<<<<<<<<<<<<");
                 if(ctr >= Reps)break;
             }
             wordstepping = MoveNextWordStart(1, selection_bound);
         }
-        dwrite(wordstepping,">",ti.getLine());
         if(!wordstepping)
         {
-            while(Main.eventsPending()){dwrite("hi");Main.iteration();}
+            while(Main.eventsPending()){Main.iteration();}
             buff.placeCursor(ti);
             scrollMarkOnscreen(buff.getMark("insert"));
         }

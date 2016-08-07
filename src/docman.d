@@ -105,6 +105,7 @@ interface DOC_IF
     void ClearHiliteAllSearchResults();
     void ReplaceText(string NewText, int Line, int StartOffset, int EndOffset);
     int GetCursorByteIndex();
+    void SetCursorByteIndex(uint pos);
     RECTANGLE GetCursorRectangle();
     RECTANGLE GetMarkRectangle(string MarkName);
     
