@@ -82,7 +82,19 @@ class DCD_ELEM : ELEMENT
 
         foreach(path; Project.Lists[LIST_NAMES.IMPORT])
         {
+            bool Continue;
             path = path.absolutePath(Project.Folder);
+            foreach(alreadyGotIt; mImportPaths)
+            {
+                dwrite(path, "||",alreadyGotIt.absolutePath(Project.Folder));
+                if(path == alreadyGotIt.absolutePath(Project.Folder))
+                {
+                    Continue = true;
+                    break;
+                }
+            }
+            if(Continue) continue;
+            mImportPaths ~= path;
             Log.Entry("DCD importing '" ~ path ~ "'");
             auto result = std.process.execute([mClientCommand,"-p" ~ mPort.to!string, "-I" ~ path]);
             if(result.status != 0)Log.Entry("DCD failed to add '" ~ path ~ "' to import path.", "Error");  
