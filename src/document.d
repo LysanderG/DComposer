@@ -1340,7 +1340,15 @@ class DOCUMENT : SourceView, DOC_IF
         }
         tiDest.setLineIndex(pos - ctr);
         getBuffer().placeCursor(tiDest);
-        scrollToIter(tiDest,0.4, false, 0.5, 0.5);
+        scrollToMark(getBuffer().getInsert(),0.25, false, 0.5, 0.5);
+        while(Main.eventsPending())
+        {
+             //scrollToMark(getBuffer().getInsert(),0.0, false, 0.5, 0.5);
+             Main.iteration();
+        }
+             
+        scrollToMark(getBuffer().getInsert(),0.25, false, 0.5, 0.5);
+        
     }
         
             
