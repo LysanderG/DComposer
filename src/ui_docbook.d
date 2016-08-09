@@ -284,7 +284,7 @@ public:
 
     bool ConfirmCloseFile(DOC_IF DocToClose)
     {
-        auto ConfClosing = new MessageDialog(null, DialogFlags.MODAL, MessageType.QUESTION, ButtonsType.NONE, false, "");
+        auto ConfClosing = new MessageDialog(MainWindow, DialogFlags.MODAL, MessageType.QUESTION, ButtonsType.NONE, false, "");
         if(!DocToClose.Modified) return true;
 
         ConfClosing.setTitle("Confirm closing modified document.");
