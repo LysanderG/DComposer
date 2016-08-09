@@ -14,6 +14,7 @@ import dcore;
 import ui;
 import docman;
 import elements;
+import document;
 
 
 extern (C) string GetClassName()
@@ -208,6 +209,10 @@ class CRUISE_ELEM : ELEMENT
             "D DELETE_LINE --> Delete current line",
             "s SELECT --> Select text from next input",
             "S SELECT_LOCK --> Select text from next inputs until unlocked",
+            "\x1C SEL_SHRINK_LEFT --> Shrink selection from the left ",
+            "\x1D SEL_SHRINK_RIGHT --> Shrink selection from the right",
+            "\x1E SEL_SHRINK --> Shrink selection range",
+            "\x1F SEL_EXPAND --> Expand selection range",
             "p PASTE --> Insert Current Register",
             "P PASTE_AFTER --> Insert Current Register after cursor",
             "i INSERT --> Exit Cruise mode",
@@ -434,8 +439,6 @@ class CRUISE_ELEM : ELEMENT
         auto uniKey = cast(char)Keymap.keyvalToUnicode(keyValue);
         bool ctrlKey = cast(bool)modKeyFlag & GdkModifierType.CONTROL_MASK;
         bool shiftKey = modKeyFlag & GdkModifierType.SHIFT_MASK;
-        
-        dwrite("(",keyValue,")",uniKey, ":",ctrlKey,"<>", shiftKey);
 
         if(mReplacing)
         {
@@ -444,7 +447,16 @@ class CRUISE_ELEM : ELEMENT
         }
 
 
-        if(uniKey.isControl())return;
+        //if(uniKey.isControl()){dwrite("yes");return;}
+                
+        if(keyValue == 65362)uniKey = '\x1F';
+        if(keyValue == 65364)uniKey = '\x1E';
+        if(keyValue == 65363)uniKey = '\x1D';
+        if(keyValue == 65361)uniKey = '\x1C';
+        
+        dwrite("(",keyValue,")",uniKey, ":",ctrlKey,"<>", shiftKey);
+
+        
 
         //space resets command ... obvious from the code?
         if(uniKey == ' ')
@@ -547,7 +559,7 @@ class CRUISE_ELEM : ELEMENT
         assert(mInputString.length > 0);
         
         STATUS Status;
-
+        
         if( mInputString[0] in mCommands)
         {
             final switch(mCommands[mInputString[0]]) with (PRIME_COMMANDS)
@@ -575,6 +587,45 @@ class CRUISE_ELEM : ELEMENT
                     mSelection = SELECTION.LOCKED;
                     Status = STATUS.INCOMPLETE;
                     mInputString.length = 0;
+                    break;
+                case SEL_EXPAND     :
+                    //CHEATING CASTING TO DOCUMENT
+                    auto doc = cast(DOCUMENT)DocMan.Current();
+                    auto buff = doc.getBuffer();
+                    TextIter startTi, endTi;
+                    buff.getSelectionBounds(startTi, endTi);
+                    startTi.backwardChars(mCount);
+                    endTi.forwardChars(mCount);
+                    buff.selectRange(startTi, endTi);
+                    break;
+                case SEL_SHRINK     :
+                    auto doc = cast(DOCUMENT)DocMan.Current();
+                    auto buff = doc.getBuffer();
+                    TextIter startTi, endTi;
+                    buff.getSelectionBounds(startTi, endTi);
+                    startTi.forwardChars(mCount);
+                    if(startTi.compare(endTi) > 0 )startTi = endTi.copy();
+                    endTi.backwardChars(mCount);
+                    if(endTi.compare(startTi) < 0)endTi = startTi.copy();
+                    buff.selectRange(startTi, endTi);
+                    break;
+                case SEL_SHRINK_LEFT:
+                    auto doc = cast(DOCUMENT)DocMan.Current();
+                    auto buff = doc.getBuffer();
+                    TextIter startTi, endTi;
+                    buff.getSelectionBounds(startTi, endTi);
+                    startTi.forwardChars(mCount);
+                    if(startTi.compare(endTi) > 0) startTi = endTi.copy();
+                    buff.selectRange(startTi,endTi);
+                    break;
+                case SEL_SHRINK_RIGHT:
+                    auto doc = cast(DOCUMENT)DocMan.Current();
+                    auto buff = doc.getBuffer();
+                    TextIter startTi, endTi;
+                    buff.getSelectionBounds(startTi, endTi);
+                    endTi.backwardChars(mCount);
+                    if(endTi.compare(startTi) < 0) endTi = startTi.copy();
+                    buff.selectRange(startTi, endTi);
                     break;
                 case PASTE          :
                     Status = DoPaste();
@@ -987,6 +1038,10 @@ enum PRIME_COMMANDS :string
     DELETE_LINE     = "DELETE_LINE",
     SELECT          = "SELECT",
     SELECT_LOCK     = "SELECT_LOCK",
+    SEL_SHRINK_LEFT = "SEL_SHRINK_LEFT",
+    SEL_SHRINK_RIGHT= "SEL_SHRINK_RIGHT",
+    SEL_SHRINK      = "SEL_SHRINK",
+    SEL_EXPAND      = "SEL_EXPAND",
     PASTE           = "PASTE",
     PASTE_AFTER     = "PASTE_AFTER",
     INSERT          = "INSERT",
