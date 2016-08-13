@@ -218,6 +218,8 @@ class CRUISE_ELEM : ELEMENT
             "i INSERT --> Exit Cruise mode",
             "I INSERT_NL --> Create a new line and return to insert mode",
             "r REPLACE --> Insert keyboard text until Return/Enter key is pressed",
+            "> INDENT --> Indent line",
+            "< UNINDENT --> Remove line indentation",
             "f FILTER --> Shell command to change text",
             "u UNDO --> undo last change",
             "U REDO --> redo last undo",
@@ -446,17 +448,16 @@ class CRUISE_ELEM : ELEMENT
             return;
         }
 
-
-        //if(uniKey.isControl()){dwrite("yes");return;}
+        bool itsAControlKeyBail = uniKey.isControl();
                 
-        if(keyValue == 65362)uniKey = '\x1F';
-        if(keyValue == 65364)uniKey = '\x1E';
-        if(keyValue == 65363)uniKey = '\x1D';
-        if(keyValue == 65361)uniKey = '\x1C';
+        if(keyValue == 65362){uniKey = '\x1F';itsAControlKeyBail = false;}
+        if(keyValue == 65364){uniKey = '\x1E';itsAControlKeyBail = false;}
+        if(keyValue == 65363){uniKey = '\x1D';itsAControlKeyBail = false;}
+        if(keyValue == 65361){uniKey = '\x1C';itsAControlKeyBail = false;}
         
         dwrite("(",keyValue,")",uniKey, ":",ctrlKey,"<>", shiftKey);
-
         
+        if(itsAControlKeyBail)return;
 
         //space resets command ... obvious from the code?
         if(uniKey == ' ')
@@ -650,6 +651,12 @@ class CRUISE_ELEM : ELEMENT
                 case REPLACE        :
                     DoReplace(0);
                     Status = STATUS.SUCCESS;
+                    break;
+                case INDENT         :
+                    DocMan.Current.IndentLines(mCount);
+                    break;
+                case UNINDENT       :
+                    DocMan.Current.UnIndentLines(mCount);
                     break;
                 case FILTER         :
                     Status = DoFilter();
@@ -1046,6 +1053,8 @@ enum PRIME_COMMANDS :string
     PASTE_AFTER     = "PASTE_AFTER",
     INSERT          = "INSERT",
     INSERT_NL       = "INSERT_NL",
+    INDENT          = "INDENT",
+    UNINDENT        = "UNINDENT",
     REPLACE         = "REPLACE",
     FILTER          = "FILTER",
     UNDO            = "UNDO",
