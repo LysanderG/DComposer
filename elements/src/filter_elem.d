@@ -1,4 +1,4 @@
-module filterui;
+module filter_elem;
 
 import dcore;
 import ui;
