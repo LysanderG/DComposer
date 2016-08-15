@@ -291,8 +291,8 @@ class CRUISE_ELEM : ELEMENT
         //key object location regex 
         r"w OBJECT_WORD START (?<=^|[^_\p{L}\p{N}])([_\p{L}][_\p{L}\p{N}]*)#-->Word start",
         r"e OBJECT_WORD END (?<=^|[^_\p{L}\p{N}])([_\p{L}][_\p{L}\p{N}]*)#-->Word end",
-        r"( OBJECT_LIST START [\(\[](?>[^\(\)\]\[]|(?R))*[\)\]]#-->Array/Arguments start",
-        r") OBJECT_LIST END [\(\[](?>[^\(\)\]\[]|(?R))*[\)\]]#-->Array/Arguments end",
+        r"( OBJECT_LIST START (\(|\[)(?>[^()\[\]]|(?R))*(\)|\])#-->Array/Arguments start",
+        r") OBJECT_LIST END (\(|\[)(?>[^()\[\]]|(?R))*(\)|\])#-->Array/Arguments end",
         r"i OBJECT_ITEM START (?<=[\[\(,])[^,\)\]]+(?=[\)\],])#-->Element/Parameter start",
         r"I OBJECT_ITEM END (?<=[\[\(,])[^,\)\]]+(?=[\)\],])#-->Element/Parameter end",
         r"n OBJECT_INT START \b((0[Xx][0-9a-fA-F][0-9a-fA-F_]+)|(0[BbB][01][01_]+)|([0-9][0-9_]+[uU]?L?))#-->Integer start",
@@ -455,16 +455,8 @@ class CRUISE_ELEM : ELEMENT
         if(keyValue == 65363){uniKey = '\x1D';itsAControlKeyBail = false;}
         if(keyValue == 65361){uniKey = '\x1C';itsAControlKeyBail = false;}
         
-        dwrite("(",keyValue,")",uniKey, ":",ctrlKey,"<>", shiftKey);
         
         if(itsAControlKeyBail)return;
-
-        //space resets command ... obvious from the code?
-        if(uniKey == ' ')
-        {
-            ResetCommand();
-            return;
-        }
 
         //we are setting the register key
         if(uniKey == '\'')
@@ -476,6 +468,13 @@ class CRUISE_ELEM : ELEMENT
         {
             SetRegisterKey(uniKey);
             mSettingRegisterKey = false;
+            return;
+        }
+
+        //space resets command ... obvious from the code?
+        if(uniKey == ' ')
+        {
+            ResetCommand();
             return;
         }
 
