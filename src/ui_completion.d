@@ -198,8 +198,8 @@ class UI_COMPLETION
             mTipStore.append(treeIter);
             mTipStore.setValue(treeIter, 0, candi);
         }
-        mTipWindow.showAll();
         MapCallTipWindow();
+        mTipWindow.showAll();
     }
 
     void CallTipSelectionDown()
@@ -314,6 +314,7 @@ class UI_COMPLETION
     void KillCompletionWindow()
     {
         mCompWindow.hide();
+        mCompStore.clear();
         ShowCallTip();
     }
 
@@ -461,8 +462,8 @@ class UI_COMPLETION
         }
 
         mCompTree.setModel(mCompStore);
-        mCompWindow.showAll();
         MapCompletionWindow();
+        mCompWindow.showAll();
         
         mCompTree.setCursor(new TreePath("0"), null, false);
             
