@@ -241,6 +241,17 @@ class DOCUMENT : SourceView, DOC_IF
             return DocMan.BlockDocumentKeyPress();
 
         },cast(GConnectFlags)0);
+        
+        addOnKeyRelease(delegate bool (Event e, Widget me)
+        {
+            uint keyval;
+            int rv;
+            e.getKeyval(keyval);
+            GdkModifierType state;
+            e.getState(state);
+            DocMan.DocumentKeyUp.emit(keyval, cast(uint)state);
+            return DocMan.BlockDocumentKeyPress();
+        },cast(GConnectFlags)0);
 
         bool MouseButtonCallBack(Event ev, Widget wgdt)
         {
@@ -875,7 +886,12 @@ class DOCUMENT : SourceView, DOC_IF
         while(ti.backwardChar())
         {
             thisChar = ti.getChar();
-
+            
+            if(thisChar.isWordChar() && ti.isStart())
+            {
+                foundStart = true;
+                break;
+            }
             if(lastChar.isWordStartChar() && !thisChar.isWordChar())
             {
                 ti.forwardChar();

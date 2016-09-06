@@ -676,11 +676,13 @@ class DOCMAN
     mixin Signal!(DOC_IF) PageFocusOut;
     mixin Signal!(DOC_IF) PageFocusIn;
     mixin Signal!(uint, uint) DocumentKeyDown;
+    mixin Signal!(uint, uint) DocumentKeyUp;
     mixin Signal!(void *, DOC_IF) MouseButton;
     mixin Signal!(DOC_IF, int, int) PreCursorJump;
     mixin Signal!(DOC_IF, int, int) CursorJump;
     mixin Signal!(DOC_IF, int) GutterActivated;
     mixin Signal!(DOC_IF, string) Tooltip;
+    mixin Signal!(DOC_IF, string) SnippetTrigger;
 }
 
 
