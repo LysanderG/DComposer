@@ -7,6 +7,9 @@ import std.algorithm;
 import std.string;
 import std.utf;
 import std.typecons;
+import std.signals; 
+ 
+
 
 import gtk.Switch;
 
@@ -33,6 +36,8 @@ class CRUISE_ELEM : ELEMENT
     string License(){return "Unknown";}
     string CopyRight(){return "Anthony Goins © 2015";}
     string[] Authors(){return ["Anthony Goins <neontotem@gmail.com>"];}
+    
+    mixin Signal!(string) Snippet;
 
 
     void Engage()
@@ -217,6 +222,7 @@ class CRUISE_ELEM : ELEMENT
             "P PASTE_AFTER --> Insert Current Register after cursor",
             "i INSERT --> Exit Cruise mode",
             "I INSERT_NL --> Create a new line and return to insert mode",
+            "\n NEWLINE --> Create a new line and stay in cruise mode",
             "r REPLACE --> Insert keyboard text until Return/Enter key is pressed",
             "> INDENT --> Indent line",
             "< UNINDENT --> Remove line indentation",
@@ -227,7 +233,8 @@ class CRUISE_ELEM : ELEMENT
             "y SCROLL_DOWN --> Scroll down (Cursor does not move)",
             "M SCROLL_CENTER --> Center cursor mid screen",
             ", REPEAT --> Issue last command (1 time only)",
-            "R REVERT --> Undo all changes to text"
+            "R REVERT --> Undo all changes to text",
+            "\t SNIPPET --> Emit a snippet trigger to snippet engine"
         ];
         
         auto primekeys = Config.GetArray("cruise", "primary_commands", defprimekeys);
@@ -454,7 +461,16 @@ class CRUISE_ELEM : ELEMENT
         if(keyValue == 65364){uniKey = '\x1E';itsAControlKeyBail = false;}
         if(keyValue == 65363){uniKey = '\x1D';itsAControlKeyBail = false;}
         if(keyValue == 65361){uniKey = '\x1C';itsAControlKeyBail = false;}
-        
+        if(keyValue == GdkKeysyms.GDK_Return) 
+        {
+            itsAControlKeyBail = false;
+            uniKey = '\n';
+        }
+        if(keyValue == GdkKeysyms.GDK_Tab)
+        {
+            itsAControlKeyBail = false;
+            dwrite(uniKey, "<>", mInputString);
+        }
         
         if(itsAControlKeyBail)return;
 
@@ -633,6 +649,15 @@ class CRUISE_ELEM : ELEMENT
                 case PASTE_AFTER    :
                     Status = DoPasteAfter();
                     break;
+                case NEWLINE        :
+                    DocMan.Current().MoveLineStart(1,false);
+                    DocMan.Current().MoveLineStart(1,true);
+                    auto whitespace = DocMan.Current().Selection();
+                    DocMan.Current().MoveLineEnd(1, false);
+                    string newlines;
+                    foreach(i; 0..mCount)newlines ~= "\n";
+                    DocMan.Current().InsertText(newlines ~ whitespace);
+                    break;
                 case INSERT_NL      :
                     DocMan.Current().MoveLineStart(1,false);
                     DocMan.Current().MoveLineStart(1,true);
@@ -683,6 +708,9 @@ class CRUISE_ELEM : ELEMENT
                     DocMan.Current().ScrollUp(mCount);
                     Status = STATUS.SUCCESS;
                     break;
+                case SNIPPET        :
+                    Status = DoEmitSnippetTrigger();
+                    break;
             }
         }
         else
@@ -712,7 +740,6 @@ class CRUISE_ELEM : ELEMENT
 
     STATUS DoMotion(string MotionCommand, bool selection = false)
     {
-        //scope(exit) if(mSelection == SELECTION.ON) mSelection = SELECTION.OFF;
 
         assert(MotionCommand.length > 0);
         if(MotionCommand[0] !in mMotions) return STATUS.FAILURE;
@@ -760,7 +787,8 @@ class CRUISE_ELEM : ELEMENT
                 if(MotionCommand.length < 2) return STATUS.INCOMPLETE;
                 char objkey = MotionCommand[1];
                 if(objkey !in mTextObjects)return STATUS.FAILURE;
-                doc.MoveObjectPrev(mTextObjects[objkey], mCount, selection);
+                //doc.MoveObjectPrev(mTextObjects[objkey], mCount, selection);
+                doc.MoveObjectPrev(mTextObjects[objkey], mTextObjects[objkey].mCursor, mCount, selection);
                 return STATUS.SUCCESS;
             case OBJECT_NEXT    :
                 if(MotionCommand.length < 2) return STATUS.INCOMPLETE;
@@ -974,6 +1002,27 @@ class CRUISE_ELEM : ELEMENT
         DocMan.Current().ReplaceSelection(rv.chomp());
         return STATUS.SUCCESS;
     }
+    
+    STATUS DoEmitSnippetTrigger()
+    {
+        if(mInputString.length < 3) return STATUS.INCOMPLETE;
+        if(mInputString[$-1] == '\t')
+        {
+            auto trigger = mInputString[1..$-1];
+            
+            mCruiseActive = false;
+
+            string statestring = "Cruise mode is "  ~ ( (mCruiseActive)? "on":"off");
+
+            mIndicatorLabel.setMarkup(mCruiseActive?mIndicatorTextOn:mIndicatorTextOFF);
+            Log.Entry(statestring);
+              
+            DocMan.SnippetTrigger.emit(DocMan.Current(), trigger);
+            return STATUS.SUCCESS;
+        }
+        return STATUS.INCOMPLETE;
+    }
+        
 
 
 
@@ -1052,6 +1101,7 @@ enum PRIME_COMMANDS :string
     PASTE_AFTER     = "PASTE_AFTER",
     INSERT          = "INSERT",
     INSERT_NL       = "INSERT_NL",
+    NEWLINE         = "NEWLINE",
     INDENT          = "INDENT",
     UNINDENT        = "UNINDENT",
     REPLACE         = "REPLACE",
@@ -1062,7 +1112,8 @@ enum PRIME_COMMANDS :string
     REPEAT          = "REPEAT",
     SCROLL_CENTER   = "SCROLL_CENTER",
     SCROLL_UP       = "SCROLL_UP",
-    SCROLL_DOWN     = "SCROLL_DOWN"
+    SCROLL_DOWN     = "SCROLL_DOWN",
+    SNIPPET         = "SNIPPET"
 }
 
 enum MOTIONS :string
