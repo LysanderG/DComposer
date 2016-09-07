@@ -45,6 +45,8 @@ class UI_COMPLETION
     TreeViewColumn  mTipCol;
 
     SList!(CALLTIP) mAnchor;
+    
+    bool            mDisableCompletions;
 
 
 
@@ -445,6 +447,7 @@ class UI_COMPLETION
 
     void ShowCompletion(string[] Candidates, string[] Info)
     {
+        if(mDisableCompletions) return;
 
         mCompWindow.hide();
         mTipWindow.hide();
@@ -471,6 +474,7 @@ class UI_COMPLETION
 
     void PushCallTip(string[] Candidates)
     {
+        if(mDisableCompletions) return;
 
         static string unique_name = "aaa000";
         scope(exit) unique_name = unique_name.succ();
@@ -523,6 +527,17 @@ class UI_COMPLETION
             return INERT;
         }
 
+    }
+    
+    void Disable()
+    {
+        mDisableCompletions = true;
+        KillCallTips();
+        KillCompletionWindow();
+    }
+    void Enable()
+    {
+        mDisableCompletions = false;
     }
 }
 
