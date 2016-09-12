@@ -406,6 +406,7 @@ public:
 
     void NotifySelection()
     {
+        if(Current is null) return;
         auto xcut = mActions.getAction("ActEditCut");
         auto xcopy = mActions.getAction("ActEditCopy");
         if(Current.Selection() == "")
