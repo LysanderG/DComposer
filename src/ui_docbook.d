@@ -249,6 +249,7 @@ public:
         auto indx = getCurrentPage();
         if(indx < 1) return null;  //would be zero but 0 index is project options page (maybe 1 will be preference page)
         ScrolledWindow scrwin = cast(ScrolledWindow)getNthPage(indx);
+        if(scrwin is null) return null;
         auto doc = cast(DOC_IF)scrwin.getChild();
         return doc;
     }
