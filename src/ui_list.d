@@ -219,7 +219,8 @@ class UI_LIST
         auto ChosenFiles = filechooser.getFilenames();
         while(ChosenFiles !is null)
         {
-            string afile = toImpl!(string, char *)(cast(char *)ChosenFiles.data());
+            //string afile = toImpl!(string, char *)(cast(char *)ChosenFiles.data());
+	    string afile = to!string(cast(char *)ChosenFiles.data());
             //don't add duplicates
             if(!GetItems.canFind(afile))
             {
@@ -245,7 +246,8 @@ class UI_LIST
 
         while(chosenpaths !is null)
         {
-            string apath = toImpl!(string, char *)(cast(char *)chosenpaths.data());
+            //string apath = toImpl!(string, char *)(cast(char *)chosenpaths.data());
+	    string apath = to!string(cast(char *)chosenpaths.data());
             if(!GetItems.canFind(apath))
             {
                 auto apathAbsPath = apath.absolutePath();

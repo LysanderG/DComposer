@@ -284,7 +284,8 @@ class PROJECT_VIEW : ELEMENT
         auto SelFiles = FileDialog.getFilenames();
         while(SelFiles !is null)
         {
-            afile = toImpl!(string, char *)(cast(char *)SelFiles.data());
+            //afile = toImpl!(string, char *)(cast(char *)SelFiles.data());
+	    afile = to!string(cast(char *)SelFiles.data());
             auto afileAbsPath = afile.absolutePath();
             auto projectAbsPath = Project.Folder.absolutePath();
 
@@ -317,7 +318,8 @@ class PROJECT_VIEW : ELEMENT
         auto SelFiles = FileDialog.getFilenames();
         while(SelFiles !is null)
         {
-            apath = toImpl!(string, char *)(cast(char *)SelFiles.data());
+            //apath = toImpl!(string, char *)(cast(char *)SelFiles.data());
+	    apath = to!string(cast(char *)SelFiles.data());
             //Project.AddItem(CurrentKey, afile); //AddUniqueItem?
             //Project.Lists[CurrentKey] ~= apath;
             Project.AddListItem(CurrentKey, apath);
