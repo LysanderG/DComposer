@@ -187,7 +187,7 @@ class UI_SEARCH
         string repText = mReplaceBox.getActiveText();
         string oriText = mSearchBox.getActiveText();
 
-
+		DocMan.Current.BeginUserAction();
         foreach(indx, ref result; mSearchResults)
         {
             if(result.DocFile != DocMan.Current.Name)continue;
@@ -203,7 +203,7 @@ class UI_SEARCH
                 res2.OffsetStart += repText.length - oriText.length;
             }
         }
-
+        DocMan.Current.EndUserAction();
         UpdateResults();
     }
 
