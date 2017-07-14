@@ -1064,6 +1064,8 @@ class DOCUMENT : SourceView, DOC_IF
 
     void StopUndo(){getBuffer().beginNotUndoableAction();}
     void RestartUndo(){getBuffer(). endNotUndoableAction();}
+    void BeginUserAction(){getBuffer().beginUserAction();}
+    void EndUserAction(){getBuffer().endUserAction();}
 
     void SetTimeStamp()
     {

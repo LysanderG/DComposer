@@ -57,6 +57,8 @@ interface DOC_IF
     void    CompleteSymbol(string txt);
     void    StopUndo();
     void    RestartUndo();
+    void	BeginUserAction();
+    void	EndUserAction();
 
     string  Selection();
     void    GotoLine(int LineNo, int LinePos);
