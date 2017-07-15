@@ -265,6 +265,13 @@ class DOCUMENT : SourceView, DOC_IF
 
         getBuffer().addOnInsertText(delegate void(TextIter ti, string text, int len, TextBuffer tb)
         {
+            if(DocMan.IsDocumentKeyPressBlocked())
+            {
+                Signals.stopEmissionByName(tb, "GtkTextBuffer::insert-text");
+                return;
+            }
+            
+            
             if(tb.getMark("dcomposer_saveMark") !is null){return;}
 
             auto saveMark = new TextMark("dcomposer_saveMark", 0);
