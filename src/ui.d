@@ -291,7 +291,10 @@ void EngageActions()
     AddIcon("dcmp-toolbar-configure", SystemPath(Config.GetValue("icons", "toolbar-configure", "resources/ui-toolbar-configure.png")));
     AddIcon("dcmp-about", SystemPath(Config.GetValue("icons", "about", "resources/information-frame.png")));
     AddIcon("dcmp-preferences", SystemPath(Config.GetValue("icons", "preferences", "resources/gear.png")));
+    AddIcon("dcmp-view-statusbar", SystemPath(Config.GetValue("icons","statusbar-view","resources/ui-status-bar.png")));
 
+    AddToggleAction("ActViewStatusbar", "View Statusbar", "show/hide statusbar", "dcmp-view-statusbar", "",
+		delegate void(Action a){auto y = cast(ToggleAction)a;mStatusbar.setVisible(y.getActive());});
     AddToggleAction("ActViewToolbar", "View Toolbar", "show/hide toolbar", "dcmp-view-toolbar", "",
         delegate void(Action a){auto y = cast(ToggleAction)a;mToolbar.setVisible(y.getActive());});
     AddAction("ActQuit", "Quit", "exit dcomposer", "dcmp-quit", "<Control>q",
@@ -309,6 +312,7 @@ void EngageActions()
     AddToMenuBar("-", mRootMenuNames[0]);
     AddToMenuBar("ActQuit",mRootMenuNames[0]);
 
+	AddToMenuBar("ActViewStatusbar", mRootMenuNames[1]);
     AddToMenuBar("ActViewToolbar", mRootMenuNames[1]);
     AddToMenuBar("ActAbout", mRootMenuNames[7], 0);
 
