@@ -68,7 +68,7 @@ public:
 
         Menu SubMenu = new Menu;
         MenuItem[] menuitems;
-        foreach(ftype; Filetypes)menuitems ~= new MenuItem(delegate void(MenuItem x){DocMan.Create(ftype);}, ftype);
+        foreach(ftype; Filetypes)menuitems ~= new MenuItem(delegate void(MenuItem x){DocMan.Create(x.getLabel());}, ftype);
         foreach(mi; menuitems)SubMenu.append(mi);
 
         Menu ToolSubMenu = new Menu;
