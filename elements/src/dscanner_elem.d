@@ -292,6 +292,7 @@ class DSCANNER_ELEM : ELEMENT
     {
         auto doc = DocMan.Current();
         if(!doc) return; //impossible ?? 
+        if(text[$-1] != '\n')return;
         
         TreePath tmpStart, tmpEnd;
         mOutlineTree.getVisibleRange(tmpStart, tmpEnd);
