@@ -89,6 +89,14 @@ class FILTER : ELEMENT
 			if(i < 10) mSavedStore.setValue(ti, 3, format("<CTRL><SHIFT>%s", (i+1)%10 ));
 			else mSavedStore.setValue(ti, 3, "  --  ");
 		}
+		if(mSavedFilters.length    )GetAction("ActUserOne"  ).setLabel(mSavedFilters[0].Command);
+		if(mSavedFilters.length > 1)GetAction("ActUserTwo"  ).setLabel(mSavedFilters[1].Command);				
+		if(mSavedFilters.length > 2)GetAction("ActUserThree").setLabel(mSavedFilters[2].Command);
+		if(mSavedFilters.length > 3)GetAction("ActUserFour" ).setLabel(mSavedFilters[3].Command);
+		if(mSavedFilters.length > 4)GetAction("ActUserFive" ).setLabel(mSavedFilters[4].Command);
+		if(mSavedFilters.length > 5)GetAction("ActUserSix"  ).setLabel(mSavedFilters[5].Command);				
+		if(mSavedFilters.length > 6)GetAction("ActUserSeven").setLabel(mSavedFilters[6].Command);
+		if(mSavedFilters.length > 7)GetAction("ActUserEight").setLabel(mSavedFilters[7].Command);
 	}
 
 	void UpdateSaveFilters()
@@ -291,17 +299,15 @@ class FILTER : ELEMENT
 
 
 		//LOAD SAVED FILTERS
-		foreach(obj; Config.GetArray!JSON("shellfilter", "saved"))
+		foreach(i, obj; Config.GetArray!JSON("filter_elem", "saved"))
 		{
-			SAVED_FILTER xfilter;
+			mSavedFilters.length = mSavedFilters.length + 1;
 
-			xfilter.In = cast(FILTER_INPUT)obj["input"];
-			xfilter.Out = cast(FILTER_OUTPUT)obj["output"];
-			xfilter.Command = cast(string)obj["command"];
-			mSavedFilters ~= xfilter;
+			mSavedFilters[i].In = cast(FILTER_INPUT)obj["input"];
+			mSavedFilters[i].Out = cast(FILTER_OUTPUT)obj["output"];
+			mSavedFilters[i].Command = cast(string)obj["command"];
+			//mSavedFilters ~= xfilter;
 		}
-		UpdateSavedView();
-
 
 		//connect the signals
 
@@ -330,6 +336,7 @@ class FILTER : ELEMENT
 			}
 			return false;
 		});
+		
         mSavedView.addOnRowActivated(delegate void(TreePath tp, TreeViewColumn tvc, TreeView tv)
         {
             auto ti = mSavedView.getSelectedIter();
@@ -392,6 +399,7 @@ class FILTER : ELEMENT
 		AddToMenuBar("ActUserTen", "E_lements");
 		//uiContextMenu.AddAction("ActUserTen");
 
+        UpdateSavedView();
 		Log.Entry("Engaged");
 	}
 
