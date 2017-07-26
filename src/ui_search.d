@@ -355,7 +355,6 @@ class UI_SEARCH
                     TheReturnValue.init(GType.OBJECT);
                     TheReturnValue.setObject(wi);
                     auto id = Signals.lookup("move-cursor", Type.fromName("GtkTreeView"));
-                    //dwrite("\t",TheInstance,"\t",TheStep,"\t",TheDirection,"\t",TheUserData, "::", id,"::",TheReturnValue);
                     Signals.emitv([TheInstance, TheStep, TheDirection, TheRepetions], id, 0u, TheReturnValue);
                     break;
                 default:

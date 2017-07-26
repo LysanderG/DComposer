@@ -1002,12 +1002,9 @@ int BuildTagFile(string PkgPath, string PkgName, string[] Ipaths, string[] Jpath
     CmdLine ~= ["-Df" ~ docfile];
     CmdLine ~= ["-Xf" ~ jsonfile];
     
-    dwrite (CmdLine);
-    dwrite (PkgPath);
     
     foreach(string srcFile; dirEntries(PkgPath, SpanMode.depth))
     {
-        dwrite(srcFile);
         if((srcFile.extension == ".d") || (srcFile.extension == ".di"))
         {
             CmdLine ~= srcFile;

@@ -62,8 +62,6 @@ class TERMINAL : ELEMENT
                             null);
         
         mVteTerm.watchChild(mShellPid);
-        
-        dwrite(mVteTerm.getEncoding(), " ", mVteTerm.getRewrapOnResize());
                             
         Configure();
         mVteTerm.addOnChildExited(delegate void(int exitStatus, Terminal term)

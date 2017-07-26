@@ -151,7 +151,6 @@ void LoadElements()
                     continue;
                 } 
                 string function() GetClassName = cast(string function())tmpvar; //wouldn't work without tmpvar??
-                dwrite(GetClassName);
                 if(GetClassName is null)
                 {
                     lib.mEnabled = false;

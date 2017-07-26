@@ -323,7 +323,6 @@ string FormatParams(string paramInput)
     }
     procInput ~= " |";
     procInput = procInput.tr("\n", " ");
-    dwrite(procInput);
     
     string[string] Parameters;
     string Identifier;
@@ -337,7 +336,6 @@ string FormatParams(string paramInput)
         Parameters[Identifier] = procInput[indx + 1..pipeindex].strip();
         indx = procInput.indexOf("=", pipeindex);
     }
-    foreach(p;Parameters)dwrite("->",p);
     
     int col1end   = 31; //30
     int sep       = 32; //1
@@ -398,7 +396,6 @@ string FormatParams(string paramInput)
         foreach(i; col2start..col2end) output ~= "═";
         output ~= " \n";
     
-    dwrite(output);
     return "$(DDOC_PARAMS " ~ output ~ ")\n";
 }
             

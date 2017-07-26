@@ -1356,10 +1356,8 @@ class DOCUMENT : SourceView, DOC_IF
         uint ctr;
         TextIter tiDest;
         getBuffer().getStartIter(tiDest);
-        dwrite(ctr);
         while(tiDest.getBytesInLine() + ctr < pos)
         {
-            dwrite(ctr);
             ctr += tiDest.getBytesInLine();
             tiDest.forwardLine();
         }

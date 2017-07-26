@@ -122,7 +122,7 @@ class NTDB
         }
         catch(Exception x)
         {
-            dwrite(x);
+            writeln(x);
         }
     }
 	
@@ -350,7 +350,7 @@ class NTDB
 			}
 			catch(Exception x)
 			{
-				dwrite(x);
+				writeln(x);
 			}
 		}
 		return false;
@@ -374,7 +374,7 @@ class NTDB
 		}
 		catch(Exception x)
 		{
-			dwrite(x);
+			writeln(x);
 		}
 	}
 	void ContinueTarget()

@@ -290,11 +290,9 @@ class SYM_ASSIST_UI :ELEMENT
     {
         if(DocMan.Current is null)return;
         auto symCandidate = DocMan.Current.FullSymbol();
-        dwrite(symCandidate);
 
         if(symCandidate.length < 1) return;
 
-        foreach(s; Symbols.FindExact(symCandidate))dwrite(s.Name);
         //auto dsyms = Symbols.GetCompletions(symCandidate.split('.'));
         auto dsyms = Symbols.FindExact(symCandidate);
         if(dsyms.length < 1) return;

@@ -391,7 +391,6 @@ class PROJECT
         CmdStrings[$-1] = `bash -c '` ~ CmdStrings[$-1] ~ ` ; echo -e "\n\nProgram has terminated.\nPress a key to close terminal..." ; read -rn1'`;
         try
         {
-            dwrite(CmdStrings);
             mRunPids ~= spawnProcess(CmdStrings);
             Log.Entry(`"` ~ mName ~ `"` ~ " spawned ... " );
         }

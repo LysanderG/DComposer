@@ -368,7 +368,6 @@ public:
         
         if(dtagBuild)
         {
-            dwrite (dtagPackagePath);
             BuildTagFile(dtagPackagePath, dtagPackageName, dtagImports, dtagJpaths);
             exit(0);
         }

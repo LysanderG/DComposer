@@ -469,7 +469,6 @@ class CRUISE_ELEM : ELEMENT
         if(keyValue == GdkKeysyms.GDK_Tab)
         {
             itsAControlKeyBail = false;
-            dwrite(uniKey, "<>", mInputString);
         }
         
         if(itsAControlKeyBail)return;

@@ -300,7 +300,6 @@ class DCD_ELEM : ELEMENT
         
         foreach(line; pipes.stdout.byLine)
         {
-            dwrite(line);
             Output ~= line.idup;
         }
         pipes.stdout.close();
@@ -311,7 +310,6 @@ class DCD_ELEM : ELEMENT
             string file;
             int pos;
             formattedRead(Output[0], "%s\t%s",  &file, &pos);
-            dwrite(file,pos);
             DocMan.Open(file);
             DocMan.Current.SetCursorByteIndex(pos);
         }           

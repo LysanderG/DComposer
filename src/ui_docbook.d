@@ -211,7 +211,6 @@ public:
         dragDestAddTextTargets();            
         addOnDragDataReceived(delegate void(DragContext dc, int i1, int i2, SelectionData sd, uint u1, uint u2, Widget w)
         {
-            dwrite(sd.getText(), sd.getUris());
             foreach(line; sd.getText().lineSplitter())
             {
                 if(!line.startsWith("file://"))continue;
