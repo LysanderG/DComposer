@@ -213,6 +213,8 @@ void Run()
 
 void Disengage()
 {
+	Config.SetValue("ui","statusbar-visible", mStatusbar.getVisible());
+	
     uiContextMenu.Disengage();
     ui_elementmanager.Disengage();
     uiCompletion.Disengage();
@@ -306,6 +308,10 @@ void EngageActions()
     AddAction("ActPreferences", "Preferences", "edit options", "dcmp-preferences", "<Control>p",
         delegate void(Action a){ShowAppPreferences();});
 
+	auto tmpVisibleValue = Config.GetValue("ui","statusbar-visible",true);
+	mStatusbar.setVisible(tmpVisibleValue);
+	auto sbvAct = cast(ToggleAction)GetAction("ActViewStatusbar");
+	sbvAct.setActive(tmpVisibleValue);
 
     AddToMenuBar("ActConfigureToolbar", mRootMenuNames[0]);
     AddToMenuBar("ActPreferences", mRootMenuNames[0]);

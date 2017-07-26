@@ -375,6 +375,11 @@ class UI_SEARCH
         mProjectAll.addOnToggled(&Find);
 
         mMarkAllButton.addOnToggled(delegate void(ToggleButton){MarkAll();});
+        
+        AddIcon("dcmp-view-search_ui", SystemPath(Config.GetValue("icons","search_ui-view","resources/ui-status-bar.png")));
+        AddToggleAction("ActViewSearchUI", "View Search", "show/hide Search", "dcmp-view-search_ui", "",
+    		delegate void(Action a){auto y = cast(ToggleAction)a;mRoot.setVisible(y.getActive());});
+    	AddToMenuBar("ActViewSearchUI",mRootMenuNames[1]);	
 
         AddIcon("dcmp-search", SystemPath( Config.GetValue("icons", "search", "resources/spectacle.png")));
         AddAction("ActSearch", "Search", "Seek out that which is hidden", "dcmp-search", "<Control>F", delegate void(Action a)
@@ -407,8 +412,13 @@ class UI_SEARCH
 
     void PostEngage()
     {
+	    //view menu action
+	    bool searchVisible = Config.GetValue("ui_search", "visible", true);
+		mRoot.setVisible(searchVisible);
+		auto vact = cast(ToggleAction)GetAction("ActViewSearchUI");
+		vact.setActive(searchVisible);
+		
         //load combox strings
-
         string[] PastSearches = Config.GetArray("ui_search","search_strings", ["one", "two", "three"]);
         mSearchBox.removeAll();
         foreach(oldsearch; PastSearches)mSearchBox.appendText(oldsearch);
@@ -425,6 +435,9 @@ class UI_SEARCH
 
     void Disengage()
     {
+    
+		//save visible
+		Config.SetValue("ui_search", "visible", mRoot.getVisible());
 
         //store last 20 search and replace strings
         auto ti = new TreeIter;
