@@ -220,6 +220,7 @@ void Disengage()
     uiCompletion.Disengage();
     uiSearch.Disengage();
     uiProject.Disengage();
+    DocBook.Disengage();
     Log.Entry("Disengaged");
 }
 
