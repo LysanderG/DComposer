@@ -2,6 +2,7 @@ module ui_docbook;
 
 import ui;
 import dcore;
+import docman;
 import document;
 
 import std.conv;
@@ -44,6 +45,36 @@ private:
     uint mCutSignalID;
     uint mPasteSignalID;
     uint mCopySignalID;
+    
+    //add history
+    string[]	mRecentFiles;
+    MenuItem	mRecentMenu;
+    int			mMaxRecentFiles;
+    
+    
+    void WatchForDocClose(string type, DOC_IF doc)
+    {
+	    if(ui.IsQuitting()) return;
+	    if(type != "Close")return;
+	    import std.algorithm;
+	    import std.array;
+	    
+	    auto buf = mRecentFiles.remove!(a=>a==doc.Name).array();
+	    buf ~= doc.Name;
+	    if(buf.length > mMaxRecentFiles) mRecentFiles = buf[1..$];
+	    else mRecentFiles = buf;
+	    UpdateRecentFiles();		
+    }
+    
+    void UpdateRecentFiles()
+    {
+	    auto RecentMenuItem = new Menu;
+	    MenuItem[] RecentItems;
+	    foreach(rfile; mRecentFiles) RecentItems ~= new MenuItem(delegate void(MenuItem x){DocMan.Open(x.getLabel());}, rfile);
+	    foreach(ri; RecentItems) RecentMenuItem.append(ri);
+	    mRecentMenu.setSubmenu(RecentMenuItem);
+	    mRecentMenu.showAll();
+    }
 
 
 
@@ -59,6 +90,7 @@ public:
 
     void Engage()
     {
+	    
 
         AddIcon("gtk-no", SystemPath( Config.GetValue("icons", "tab-close", "resources/cross-button.png")));
         /////////////////////////////////////////////////////////////////////////actions
@@ -100,7 +132,19 @@ public:
         AddIcon("dcmp-doc-open", SystemPath( Config.GetValue("icons", "doc-open", "resources/folder-open-document-text.png")));
         auto ActOpen = "ActDocOpen".AddAction("_Open","Open a text document", "dcmp-doc-open","<Control>O",delegate void(Action a){DocMan.Open();});
         AddToMenuBar("ActDocOpen", "_Document");
-
+		
+		//recent add
+		mMaxRecentFiles = 10;
+	    mRecentFiles = Config.GetArray("ui_docbook", "recent_files",["/home/anthony/projects/dcomposer/src/dcore.d", "/home/anthony/projects/dcomposer/src/ui.d"]);
+	    auto RecentMenuItem = new Menu;
+	    MenuItem[] RecentItems;
+	    foreach(rfile; mRecentFiles) RecentItems ~= new MenuItem(delegate void(MenuItem x){DocMan.Open(x.getLabel());}, rfile);
+	    foreach(ri; RecentItems) RecentMenuItem.append(ri);
+	    mRecentMenu = new MenuItem("Recent");
+	    mRecentMenu.setSubmenu(RecentMenuItem);
+	    AddItemToMenuBar(mRecentMenu,"_Document");
+	    mRecentMenu.showAll();
+	    //recent add end
 
         //save
         AddIcon("dcmp-doc-save", SystemPath( Config.GetValue("icons", "doc-save", "resources/document-save.png")));
@@ -226,6 +270,10 @@ public:
         //probably a better way but I'm a dumby
         auto x = new DOCUMENT;
 
+        //recent files add
+        DocMan.Event.connect(&WatchForDocClose);
+        //recent files end
+
         mInstanceAndParamsForSignal = new Value;
         mInstanceAndParamsForSignal.init(GType.OBJECT);
         mReturnValueForSignal = new Value;
@@ -240,6 +288,10 @@ public:
 
     void Disengage()
     {
+	    //recent files add
+	    Config.SetArray("ui_docbook","recent_files", mRecentFiles);
+	    //recent files add end
+	    
         Log.Entry("Disengaged");
     }
 
