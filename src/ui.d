@@ -258,7 +258,7 @@ Paned       mPaneH;
 Clipboard   mClipBoard;
 Label       mProjectTitle;
 
-
+bool		mQuitting;
 
 
 public:
@@ -271,6 +271,9 @@ UI_SEARCH   uiSearch;
 UI_COMPLETION uiCompletion;
 Notebook    mExtraPane;
 Notebook    mSidePane;
+
+
+bool IsQuitting(){return mQuitting;}
 
 
 //////////////////////////////////////////////////////////////////////
@@ -658,6 +661,7 @@ int ShowMessage(string Title, string Message, string[] Buttons ...)
 
 void Quit()
 {
+	mQuitting = true;
     auto ModdedDocs = DocMan.Modified();
     DocMan.SaveSessionDocuments();
     if(ModdedDocs) with (ResponseType)
@@ -674,9 +678,15 @@ void Quit()
             case YES : DocMan.SaveAll();break;
             case NO  : break;
             case OK  : DocMan.CloseAll();
-                       if(!DocMan.Empty)return;
+                       if(!DocMan.Empty)
+                       {
+	                       mQuitting = false;
+	                       return;
+                       }
                        break;
-            default  : return;
+            default  : 
+        			   mQuitting = false;
+        			   return;
         }
 
     }
