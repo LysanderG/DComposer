@@ -997,7 +997,7 @@ int BuildTagFile(string PkgPath, string PkgName, string[] Ipaths, string[] Jpath
     string docfile = PkgName.setExtension(".html");
     string jsonfile = PkgName.setExtension(".json");
     
-    string[] CmdLine = [ "dmd", "-c", "-o-", "-D", "-X", "-release", "-v"];
+    string[] CmdLine = [ "dmd", "-c", "-o-", "-D", "-X", "-release", "-v", "-unittest", "main"];
     CmdLine ~= Ipaths ~ Jpaths;
     CmdLine ~= ["-Df" ~ docfile];
     CmdLine ~= ["-Xf" ~ jsonfile];

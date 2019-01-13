@@ -91,7 +91,7 @@ import std.array;
 import std.algorithm;
 import std.string;
 import std.uni;
-import std.utf : toUTF8;
+import std.utf : byCodeUnit, toUTF8;
 import std.stdio;
 import std.math;
 
@@ -2140,7 +2140,8 @@ private struct JSONReader(InputRange) {
 
                     char[4] buf;
 
-                    result.put(toUTF8(buf, val));
+                    //result.put(toUTF8(buf, val));
+                    result.put(toUTF8([val]));
                 break;
                 default:
                     throw complaint("Invalid escape character");
@@ -2165,7 +2166,7 @@ private struct JSONReader(InputRange) {
 
         long integer   = 0;
         long remainder = 0;
-        short exponent = 0;
+        int exponent = 0;
         byte signInfo  = 0;
 
         // Accumulate digits reading left-to-right in a number.

@@ -1,4 +1,4 @@
-#!/usr/bin/rdmd -I../deps/dson
+#!/usr/bin/rdmd -Isrc/
 
 module buildtags;
 
@@ -71,7 +71,7 @@ int main(string [] args)
 
     MainPackage.LoadFile(pkgName, tagfile); 
 
-    MainPackage.SaveSymFile(buildPath("../tags",setExtension(pkgName, ".dtags")));
+    MainPackage.SaveSymFile(buildPath("./tags",setExtension(pkgName, ".dtags")));
     return 0;
 }
 

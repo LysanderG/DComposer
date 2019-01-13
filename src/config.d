@@ -9,7 +9,7 @@ import std.array;
 import std.file;
 import std.getopt;
 import std.path;
-import std.process: executeShell;
+//import std.process: executeShell;
 import std.stdio;
 import std.signals;
 import std.string;
@@ -67,14 +67,21 @@ DCOMPOSER_VERSION, DCOMPOSER_BUILD_DATE, DCOMPOSER_COPYRIGHT);
 
         string src;
         string dest;
-        string cpCommand;
+        
+        void myCopy(string srcDir, string glob, string destDir)
+        {
+            foreach(dentry; dirEntries(srcDir, glob, SpanMode.shallow))
+            {
+                copy (dentry.name, buildPath(destDir,dentry.name.baseName)); 
+            }
+        } 
+        
 
         //copy any cfg files
         src = mRootResourceDirectory;
         dest = userDirectory;
         mkdir(dest);
-        cpCommand = "cp " ~ src ~ "/*.cfg " ~ dest;
-        executeShell(cpCommand);
+        myCopy(src, "*.cfg",dest);
         mCfgFile = buildPath(dest,"dcomposer.cfg");
         Save();
 

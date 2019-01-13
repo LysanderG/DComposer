@@ -368,7 +368,8 @@ string FormatParams(string paramInput)
         if(param.length >= (col2end - col2start))
         {
             col2 = param.wrap((col2end - col2start));
-            height = col2.countchars("\n");
+            //height = col2.countchars("\n");
+	    height = col2.countUntil('\n');
         }
         else
         {

@@ -7,17 +7,17 @@ rdmd utils/builddata.d;
 # /usr/local/  thus -I/usr/local/include/d/gtkd-3/ -L/usr/local/lib/
 # tried using pkg-config but some systems I tried did not set 
 # the environment path to gtkd's default /usr/local/share/pkgconfig
-GTKD_PREFIX="/usr/local/"
-GTKD_IMPORT_PATH="${GTKD_PREFIX}d/gtkd-3/"
-GTKD_LIB_PATH="${GTKD_PREFIX}lib/"
+#GTKD_PREFIX="/usr/local/"
+GTKD_PREFIX="/home/anthony/projects/gtkd-dmd/"
+GTKD_IMPORT_PATH="${GTKD_PREFIX}generated/"
+GTKD_LIB_PATH="${GTKD_PREFIX}"
 
-dmd -g -debug -I./src -Ideps/dson/ \
--I$GTKD_IMPORT_PATH \
--L-L$GTKD_LIB_PATH \
+dmd -g -debug -I./src  \
+-I${GTKD_IMPORT_PATH}gtkd \
+-I${GTKD_IMPORT_PATH}sourceview \
+-I${GTKD_IMPORT_PATH}vte \
+-L-L${GTKD_PREFIX} \
 -L-ldl \
--L-lvted-3 \
--L-lgtkd-3 \
--L-lgtkdsv-3 \
 -defaultlib=libphobos2.so \
 src/dcomposer.d \
 src/dcore.d \
@@ -42,6 +42,9 @@ src/ui_contextmenu.d \
 src/ui_docbook.d \
 src/elements.d \
 src/json.d \
+/home/anthony/projects/gtkd-dmd/libgtkdsv-3.a \
+/home/anthony/projects/gtkd-dmd/libvted-3.a \
+/home/anthony/projects/gtkd-dmd/libgtkd-3.a \
 -odobjdir -J./ 
 #if [ $? -eq 0 ]; then 
 #    bash elementbuilder.sh

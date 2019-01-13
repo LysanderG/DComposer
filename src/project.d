@@ -50,7 +50,7 @@ class PROJECT
         //Name = "\0";
         //Folder = mDefaultProjectRootPath;
         SetNameAndFolder("", mDefaultProjectRootPath);
-        CurrentPath(Folder);
+        //CurrentPath(Folder);
         Compiler = COMPILER.DMD;
         TargetType = TARGET.EMPTY;
         UseCustomBuild = false;
@@ -253,7 +253,6 @@ class PROJECT
 
     void Save()
     {
-        if(TargetType == TARGET.EMPTY) return;
         if(mName.length < 1)
         {
             Log.Entry ("Failed to save unnamed project.");
@@ -322,7 +321,11 @@ class PROJECT
     void Build()
     {
 
-        if(TargetType == TARGET.EMPTY) return;
+        if(TargetType == TARGET.EMPTY) 
+        {
+            ui.ShowMessage("Project Build", "No project to build", "OK");
+            return;
+        }
         DocMan.SaveAll();
         Save();
 
@@ -414,6 +417,7 @@ class PROJECT
             ShowMessage("Error", "Failed to run " ~ mName);
             Log.Entry("Failed to run " ~ mName);
         }
+        if(TargetType == TARGET.EMPTY) ui.ShowMessage("Project Run", "No project to run.\nTo run single source file try Document->Run", "OK");
         if(TargetType != TARGET.APPLICATION) 
         {
             Log.Entry("Failed to run " ~ mName ~ ", project is not an application");

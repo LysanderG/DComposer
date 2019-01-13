@@ -35,7 +35,6 @@ class DCD_ELEM : ELEMENT
 
     bool mShutServerDown;
 
-
     void SetupTypeNames()
     {
         TypeName["c"] = "Class";
@@ -64,6 +63,7 @@ class DCD_ELEM : ELEMENT
         {
             return;
         }
+	    if(DocMan.Current is null) return;
         if((DocMan.Current.WordLength() < mMinChars) && (text[0] != '(') && (text[0] != ')'))return;
         switch (text[0])
         {
@@ -113,17 +113,22 @@ class DCD_ELEM : ELEMENT
 
         auto pipes = std.process.pipeProcess([mClientCommand, port, arg]);
 
-        pipes.stdin.writeln(DocMan.Current.GetText());
-        pipes.stdin.flush();
-        pipes.stdin.close();
-        
-        std.process.wait(pipes.pid());
-        
-        foreach(line; pipes.stdout.byLine)
+    	if(DocMan.Current is null) return;
         {
-            Output ~= line.idup;
+            scope(failure) return;
+            pipes.stdin.writeln(DocMan.Current.GetText());
+            pipes.stdin.flush();
+            pipes.stdin.close();
+            
+            std.process.wait(pipes.pid());
+            
+            foreach(line; pipes.stdout.byLine)
+            {
+                Output ~= line.idup;
+            }
+            pipes.stdout.close();
+        
         }
-        pipes.stdout.close();
         
         
         if(Output.length < 2) return;
@@ -284,6 +289,7 @@ class DCD_ELEM : ELEMENT
     
     void Locate()
     {
+
         string[] Output;
         
         int CursorOffset = DocMan.Current.GetCursorByteIndex();
@@ -348,6 +354,7 @@ class DCD_ELEM_PREFERENCE_PAGE : PREFERENCE_PAGE
         string switchOldPort = format("-p%s", DCD_ELEM.GetPort());
         string[] switchImports;
         foreach(I; Imports) switchImports ~= format("-I%s", I);
+        foreach(I; Project.Lists[LIST_NAMES.IMPORT]) switchImports ~= format("-I%s",I);
 
         std.process.Pid newPID;
 

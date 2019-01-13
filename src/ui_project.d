@@ -325,7 +325,11 @@ class UI_PROJECT
 
         //Save
         AddIcon("dcmp-proj-save", SystemPath( Config.GetValue("icons", "proj-save", "resources/color-save.png")));
-        auto ActSave = "ActProjSave".AddAction("_Save","Save project", "dcmp-proj-save","<Control>F7",delegate void(Action a){Project.Save();});
+        auto ActSave = "ActProjSave".AddAction("_Save","Save project", "dcmp-proj-save","<Control>F7",delegate void(Action a)
+        {
+            if(Project.TargetType == TARGET.EMPTY) return;
+            Project.Save();
+        });
         AddToMenuBar("ActProjSave", "_Project");
 
         //Edit
@@ -335,22 +339,42 @@ class UI_PROJECT
 
         //Build
         AddIcon("dcmp-proj-build", SystemPath( Config.GetValue("icons", "proj-build",  "resources/color-build.png")));
-        auto ActBuild = "ActProjBuild".AddAction("_Build","Build project", "dcmp-proj-build","<Control>F9",delegate void(Action a){SetBusyCursor(true);Project.Build();SetBusyCursor(false);});
+        auto ActBuild = "ActProjBuild".AddAction("_Build","Build project", "dcmp-proj-build","<Control>F9",delegate void(Action a)
+        {
+            if(Project.TargetType == TARGET.EMPTY)return;
+            SetBusyCursor(true);
+            Project.Build();
+            SetBusyCursor(false);
+        });            
         AddToMenuBar("ActProjBuild", "_Project");
 
         //run
         AddIcon("dcmp-proj-run", SystemPath( Config.GetValue("icons", "proj-run", "resources/color-arrow.png")));
-        auto ActRun = "ActProjRun".AddAction("_Run","Run project", "dcmp-proj-run","<Control>F10",delegate void(Action a){Project.Run();});
+        auto ActRun = "ActProjRun".AddAction("_Run","Run project", "dcmp-proj-run","<Control>F10",delegate void(Action a)
+        {
+            if(Project.TargetType == TARGET.EMPTY)return;
+            Project.Run();
+        });
         AddToMenuBar("ActProjRun", "_Project");
 
         //run args
         AddIcon("dcmp-proj-run-args", SystemPath( Config.GetValue("icons", "proj-run-args",  "resources/color-run-args.png")));
-        auto ActRunArgs = "ActProjRunArgs".AddAction("Run with _Args","Run project with arguments", "dcmp-proj-run-args","<Control><Shift>F10",delegate void(Action a){auto args = GetArgs(); Project.Run(args);});
+        auto ActRunArgs = "ActProjRunArgs".AddAction("Run with _Args","Run project with arguments", "dcmp-proj-run-args","<Control><Shift>F10",delegate void(Action a)
+        {
+            if(Project.TargetType == TARGET.EMPTY)return;
+            auto args = GetArgs();
+            Project.Run(args);
+        });
         AddToMenuBar("ActProjRunArgs", "_Project");
 
         //Close
         AddIcon("dcmp-proj-close", SystemPath( Config.GetValue("icons", "proj-close",  "resources/color-close.png")));
-        auto ActClose = "ActProjClose".AddAction("_Close","Close project", "dcmp-proj-close","<Control><Shift>F5",delegate void(Action a){Project.Close();mRootWidget.hide();});
+        auto ActClose = "ActProjClose".AddAction("_Close","Close project", "dcmp-proj-close","<Control><Shift>F5",delegate void(Action a)
+        {
+            if(Project.TargetType == TARGET.EMPTY)return;
+            Project.Close();
+            mRootWidget.hide();
+        });
         AddToMenuBar("ActProjClose", "_Project");
 
         //=============================================================================================================
@@ -361,7 +385,9 @@ class UI_PROJECT
 
         ProjName.addOnChanged(delegate void (EditableIF e)
         {
-            auto xtext = ProjName.getText().removechars(`\/`);
+            //auto xtext = ProjName.getText().removechars(`\/`);
+	    //auto xtext = ProjName.getText().remove!(`a == "\/"`);
+	    auto xtext = ProjName.getText();
             if(xtext.length == 0)xtext = "";
             ProjName.setText(xtext);
             ProjRelPath.setText(xtext);
@@ -470,6 +496,8 @@ class UI_PROJECT
     string[] GetArgs()
     {
         static string[] lastargs;
+        
+        if(Project.TargetType == TARGET.EMPTY) return lastargs;
 
         auto ArgList = new UI_LIST("Program Arguments", ListType.IDENTIFIERS);
         ArgList.SetItems(lastargs);

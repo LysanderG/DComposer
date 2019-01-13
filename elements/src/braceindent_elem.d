@@ -163,7 +163,8 @@ class BRACE_INDENT : ELEMENT
         {
             //save the current iter or things get really screwy
             auto saveTIMark = new TextMark("saveTI", 1);
-            self.addMark(saveTIMark, ti);
+            saveTIMark = self.createMark("saveTI", ti, 1);
+            //self.addMark(saveTIMark, ti);
 
             scope(exit)
             {

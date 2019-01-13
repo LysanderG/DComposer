@@ -75,7 +75,8 @@ class SYM_ASSIST_UI :ELEMENT
             if(tv.getModel().getIter(ti, tp))
             {
                 int idx = tv.getModel().getValueInt(ti, 2);
-
+                
+                dwrite(mCandidatesComboBox.getActive(), "  ",idx);
                 mCandidates = [mCandidates[mCandidatesComboBox.getActive()].Children[idx]];
                 UpdateUI();
             }
@@ -204,12 +205,12 @@ class SYM_ASSIST_UI :ELEMENT
         }
 
         mInterfaceStore.clear();
-        foreach(iface; candi.Interfaces)
+        /*foreach(iface; candi.Interfaces)
         {
             mInterfaceStore.append(ti);
             mInterfaceStore.setValue(ti, 0, iface);
-            mInterfaceStore.setValue(ti, 1, iface);
-        }
+            //mInterfaceStore.setValue(ti, 1, iface);
+        }*/
 
         string type;
         if(candi.Type.length > 0)type = candi.Type;
@@ -253,6 +254,8 @@ class SYM_ASSIST_UI :ELEMENT
 
     void CatchSymbols(DSYMBOL[] Candidates)
     {
+	    if(Candidates.length < 1) return;
+	    
         mCandidates = Candidates;
 
         mCandidatesComboBox.removeAll();

@@ -137,8 +137,8 @@ class CRUISE_ELEM : ELEMENT
     
     Frame                   mIndicatorFrame;
     Label                   mIndicatorLabel;
-    string                  mIndicatorTextOn = `<span background="dark gray">Cruise Mode :<span color="white"> ON</span>/OFF</span> `;
-    string                  mIndicatorTextOFF =`<span background="dark gray">Cruise Mode : ON/<span color="white">OFF</span></span> `;
+    string                  mIndicatorTextOn = `Cruise Mode :<span color="red">ON </span>`;
+    string                  mIndicatorTextOFF =`Cruise Mode :OFF`;
 
 //-----------------------------------------------------------------------------------------------------------
     void ToggleCruiseMode(Action a)
@@ -300,7 +300,7 @@ class CRUISE_ELEM : ELEMENT
         r"e OBJECT_WORD END (?<=^|[^_\p{L}\p{N}])([_\p{L}][_\p{L}\p{N}]*)#-->Word end",
         r"( OBJECT_LIST START (\(|\[)(?>[^()\[\]]|(?R))*(\)|\])#-->Array/Arguments start",
         r") OBJECT_LIST END (\(|\[)(?>[^()\[\]]|(?R))*(\)|\])#-->Array/Arguments end",
-        r"i OBJECT_ITEM START (?<=[\[\(,])[^,\)\]]+(?=[\)\],])#-->Element/Parameter start",
+        r"i OBJECT_ITEM START (?<=[\[\(,])[^,\)\] ]+(?=[\)\],])#-->Element/Parameter start",
         r"I OBJECT_ITEM END (?<=[\[\(,])[^,\)\]]+(?=[\)\],])#-->Element/Parameter end",
         r"n OBJECT_INT START \b((0[Xx][0-9a-fA-F][0-9a-fA-F_]+)|(0[BbB][01][01_]+)|([0-9][0-9_]+[uU]?L?))#-->Integer start",
         r"N OBJECT_INT END \b((0[Xx][0-9a-fA-F][0-9a-fA-F_]+)|(0[BbB][01][01_]+)|([0-9][0-9_]+[uU]?L?))#-->Integer end",   
