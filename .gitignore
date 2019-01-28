@@ -30,3 +30,4 @@ tmpdocs/*
 trace.def
 *.old
 simple_todo
+.untracked/*

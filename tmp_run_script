@@ -1,4 +1,0 @@
-#!/bin/bash
-./dcomposer
-echo -e "\n\nProgram Terminated.\nPress a key to close terminal..."
-read -sn1
