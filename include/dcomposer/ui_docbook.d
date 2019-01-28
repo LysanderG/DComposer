@@ -92,7 +92,7 @@ public:
     {
 	    
 
-        AddIcon("gtk-no", SystemPath( Config.GetValue("icons", "tab-close", "resources/cross-button.png")));
+        AddIcon("gtk-no", ResourcePath( Config.GetValue("icons", "tab-close", "cross-button.png")));
         /////////////////////////////////////////////////////////////////////////actions
         /////////////////////////////////////////////////////////////////////////
         //create
@@ -109,7 +109,7 @@ public:
         foreach(mi; Toolmenuitems)ToolSubMenu.insert(mi,0);
         ToolSubMenu.showAll();
 
-        AddIcon("dcmp-doc-new", SystemPath( Config.GetValue("icons", "doc-create", "resources/document-text.png")));
+        AddIcon("dcmp-doc-new", ResourcePath( Config.GetValue("icons", "doc-create", "document-text.png")));
         auto tmpAct = "ActDocNew".AddAction("_New", "create a new document", "dcmp-doc-new","<Control>n",delegate void(Action a){DocMan.Create();});
 
         MenuItem x = new MenuItem("New _Types");//tmpAct.createMenuItem();
@@ -129,7 +129,7 @@ public:
         x.showAll();
 
         //open
-        AddIcon("dcmp-doc-open", SystemPath( Config.GetValue("icons", "doc-open", "resources/folder-open-document-text.png")));
+        AddIcon("dcmp-doc-open", ResourcePath( Config.GetValue("icons", "doc-open", "folder-open-document-text.png")));
         auto ActOpen = "ActDocOpen".AddAction("_Open","Open a text document", "dcmp-doc-open","<Control>O",delegate void(Action a){DocMan.Open();});
         AddToMenuBar("ActDocOpen", "_Document");
 		
@@ -147,53 +147,53 @@ public:
 	    //recent add end
 
         //save
-        AddIcon("dcmp-doc-save", SystemPath( Config.GetValue("icons", "doc-save", "resources/document-save.png")));
+        AddIcon("dcmp-doc-save", ResourcePath( Config.GetValue("icons", "doc-save", "document-save.png")));
         auto ActSave = "ActDocSave".AddAction("_Save","Save document", "dcmp-doc-save", "<Control>S", delegate void(Action a){DocMan.Save();});
         AddToMenuBar("ActDocSave", "_Document");
 
         //saveas
-        AddIcon("dcmp-doc-save-as", SystemPath( Config.GetValue("icons", "doc-save-as", "resources/document-save-as.png")));
+        AddIcon("dcmp-doc-save-as", ResourcePath( Config.GetValue("icons", "doc-save-as", "document-save-as.png")));
         auto ActSaveAs = "ActDocSaveAs".AddAction("Save _As...", "Save document to new file", "dcmp-doc-save-as", "<Control><Shift>S", delegate void (Action a){DocMan.SaveAs();});
         AddToMenuBar("ActDocSaveAs", "_Document");
 
         //saveall
-        AddIcon("dcmp-doc-save-all", SystemPath( Config.GetValue("icons", "doc-save-all", "resources/document-save-all.png")));
+        AddIcon("dcmp-doc-save-all", ResourcePath( Config.GetValue("icons", "doc-save-all", "document-save-all.png")));
         auto ActSaveAll = "ActDocSaveAll".AddAction("Save A_ll...", "Save all documents", "dcmp-doc-save-all", "", delegate void (Action a){DocMan.SaveAll();});
         AddToMenuBar("ActDocSaveAll", "_Document");
 
         //close
-        AddIcon("dcmp-doc-close", SystemPath( Config.GetValue("icons", "doc-close",  "resources/document-close.png")));
+        AddIcon("dcmp-doc-close", ResourcePath( Config.GetValue("icons", "doc-close",  "document-close.png")));
         auto ActClose = "ActDocClose".AddAction("_Close", "Close document","dcmp-doc-close","<Control>W",delegate void(Action a){DocMan.Close();});
         AddToMenuBar("ActDocClose","_Document");
         uiContextMenu.AddAction("ActDocClose");
 
         //closeall
-        AddIcon("dcmp-doc-close-all", SystemPath( Config.GetValue("icons", "doc-close-all",  "resources/document-close-all.png")));
+        AddIcon("dcmp-doc-close-all", ResourcePath( Config.GetValue("icons", "doc-close-all",  "document-close-all.png")));
         auto ActCloseAll = "ActDocCloseAll".AddAction("Close All", "Close all documents", "dcmp-doc-close-all", "<Shift><Control>W",delegate void(Action a){DocMan.CloseAll();});
         AddToMenuBar("ActDocCloseAll", "_Document");
         uiContextMenu.AddAction("ActDocCloseAll");
 
         AddToMenuBar("-", "_Document");
         //compiles w/ no object file output
-        AddIcon("dcmp-doc-compile", SystemPath( Config.GetValue("icons", "doc-compile", "resources/document-text-compile.png")));
+        AddIcon("dcmp-doc-compile", ResourcePath( Config.GetValue("icons", "doc-compile", "document-text-compile.png")));
         auto ActCompile = "ActDocCompile".AddAction("Com_pile", "Check if document compiles (no object file output)","dcmp-doc-compile", "<shift><control>C", delegate void (Action a){DocMan.Compile();});
         AddToMenuBar("ActDocCompile", "_Document");
         uiContextMenu.AddAction("ActDocCompile");
 
         //run with rdmd
-        AddIcon("dcmp-doc-run", SystemPath( Config.GetValue("icons", "doc-run", "resources/document--arrow.png")));
+        AddIcon("dcmp-doc-run", ResourcePath( Config.GetValue("icons", "doc-run", "document--arrow.png")));
         auto ActRun = "ActDocRun".AddAction("_Run", "Run current document with rdmd", "dcmp-doc-run", "<shift><Control>R", delegate void (Action a){DocMan.Run();});
         AddToMenuBar("ActDocRun", "_Document");
         uiContextMenu.AddAction("ActDocRun");
         
         //run unit tests
-        AddIcon("dcmp-doc-unit-tests", SystemPath( Config.GetValue("icons", "doc-unit-tests", "resources/document-block.png")));
+        AddIcon("dcmp-doc-unit-tests", ResourcePath( Config.GetValue("icons", "doc-unit-tests", "document-block.png")));
         auto ActUnitTests = "ActDocUnitTests".AddAction("_Unit Tests", "Run current documents unit tests", "dcmp-doc-unit-tests", "<shift><control>U", delegate void (Action a){DocMan.UnitTests();});
         AddToMenuBar("ActDocUnitTests","_Document");
         uiContextMenu.AddAction("ActDocUnitTests");
         
         //toggle coverage
-        AddIcon("dcmp-doc-hide-coverage", SystemPath( Config.GetValue("icons", "doc-hide-coverage", "resources/switch.png")));
+        AddIcon("dcmp-doc-hide-coverage", ResourcePath( Config.GetValue("icons", "doc-hide-coverage", "switch.png")));
         auto ActDocHideCoverage = "ActDocHideCoverage".AddAction("Toggle _coverage", "Show/Hide code coverage in gutter", "dcmp-doc-hide-coverage", "<control><shift>H", delegate void (Action a){DocMan.HideGutterCoverage();});
         uiContextMenu.AddAction("ActDocHideCoverage");
 
@@ -202,13 +202,13 @@ public:
         //                                                         undo redo
 
         //undo
-        AddIcon("dcmp-undo", SystemPath( Config.GetValue("icons", "undo", "resources/arrow-curve-180-left.png")));
+        AddIcon("dcmp-undo", ResourcePath( Config.GetValue("icons", "undo", "arrow-curve-180-left.png")));
         auto ActUndo = "ActUndo".AddAction("_Undo", "undo last change", "dcmp-undo", "<Control>U", delegate void(Action a){DocMan.Undo();});
         AddToMenuBar("ActUndo", "_Edit");
 
 
         //redo
-        AddIcon("dcmp-redo", SystemPath( Config.GetValue("icons", "redo", "resources/arrow-curve.png")));
+        AddIcon("dcmp-redo", ResourcePath( Config.GetValue("icons", "redo", "arrow-curve.png")));
         auto ActRedo = "ActRedo".AddAction("_Redo", "redo last undo", "dcmp-redo", "<Control>R", delegate void(Action a){DocMan.Redo();});
         AddToMenuBar("ActRedo", "_Edit");
 
@@ -221,21 +221,21 @@ public:
 
 
         //cut
-        AddIcon("dcmp-edit-cut", SystemPath( Config.GetValue("icons", "edit-cut",  "resources/scissors-blue.png")));
+        AddIcon("dcmp-edit-cut", ResourcePath( Config.GetValue("icons", "edit-cut",  "scissors-blue.png")));
         auto ActEditCut = "ActEditCut".AddAction("Cu_t", "cut selected text", "dcmp-edit-cut", "<Control>X", delegate void(Action a){DocMan.Cut();});
         ActEditCut.setSensitive(false);
         AddToMenuBar("ActEditCut", "_Edit");
 
 
         //copy
-        AddIcon("dcmp-edit-copy", SystemPath( Config.GetValue("icons", "edit-copy", "resources/blue-document-copy.png")));
+        AddIcon("dcmp-edit-copy", ResourcePath( Config.GetValue("icons", "edit-copy", "blue-document-copy.png")));
         auto ActEditCopy = "ActEditCopy".AddAction("_Copy", "copy selected text", "dcmp-edit-copy", "<Control>C", delegate void(Action a){DocMan.Copy();});
         ActEditCopy.setSensitive(false);
         AddToMenuBar("ActEditCopy", "_Edit");
 
 
         //paste
-        AddIcon("dcmp-edit-paste", SystemPath( Config.GetValue("icons", "edit-paste", "resources/clipboard-paste-document-text.png")));
+        AddIcon("dcmp-edit-paste", ResourcePath( Config.GetValue("icons", "edit-paste", "clipboard-paste-document-text.png")));
         auto ActEditPaste = "ActEditPaste".AddAction("_Paste", "paste clipboard", "dcmp-edit-paste", "<Control>V", delegate void(Action a){DocMan.Paste();});
         AddToMenuBar("ActEditPaste", "_Edit");
 

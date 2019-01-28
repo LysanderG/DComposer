@@ -1,51 +1,63 @@
-
+echo Building DCOMPOSER YAHOO!!!!
+echo This build script attempts to build the dcomposer ide with the dmd compiler.
+echo It depends on linking with a COMPATIBLE version of gtkd.
+echo GtkD built with different compilers \(ldc,gdc\) or with a different version of 
+echo dmd \(than what is being used now\) will most likely result in a flood of 
+echo undefined symbol errors.
+echo No problem :\)
+echo Just rebuild GtkD with your current dmd compiler or change this script to meet
+echo your needs.
+echo
+echo Oh, if this script can\'t find your GtkD just set the GTKD_PREFIX
+echo \(if you used dub it would probably be ~/.dub/packages/gtk-d-x.x.x/gtk-d/\)
+echo Good luck let the building begin!!
+echo ...
 
 #collect build variables
 rdmd utils/builddata.d;
+echo ...
 
 # this build script assumes gtkd is installed at
 # /usr/local/  thus -I/usr/local/include/d/gtkd-3/ -L/usr/local/lib/
 # tried using pkg-config but some systems I tried did not set 
 # the environment path to gtkd's default /usr/local/share/pkgconfig
-#GTKD_PREFIX="/usr/local/"
-GTKD_PREFIX="/home/anthony/projects/gtkd-dmd/"
+GTKD_PREFIX="/home/anthony/projects/GtkD/"
 GTKD_IMPORT_PATH="${GTKD_PREFIX}generated/"
-GTKD_LIB_PATH="${GTKD_PREFIX}"
 
-dmd -g -debug -I./src  \
+dmd \
+-of=bin/dcomposer \
+-g \
+-debug \
+-I./include/dcomposer/ \
 -I${GTKD_IMPORT_PATH}gtkd \
 -I${GTKD_IMPORT_PATH}sourceview \
 -I${GTKD_IMPORT_PATH}vte \
--L-L${GTKD_PREFIX} \
 -L-ldl \
 -defaultlib=libphobos2.so \
-src/dcomposer.d \
-src/dcore.d \
-src/config.d \
-src/log.d \
-src/docman.d \
-src/symbols.d \
-src/document.d \
-src/project.d \
-src/search.d \
-src/shellfilter.d \
-src/ddocconvert.d \
-src/debugger.d \
-src/ui.d \
-src/ui_search.d \
-src/ui_completion.d \
-src/ui_list.d \
-src/ui_project.d \
-src/ui_elementmanager.d \
-src/ui_preferences.d \
-src/ui_contextmenu.d \
-src/ui_docbook.d \
-src/elements.d \
-src/json.d \
-/home/anthony/projects/gtkd-dmd/libgtkdsv-3.a \
-/home/anthony/projects/gtkd-dmd/libvted-3.a \
-/home/anthony/projects/gtkd-dmd/libgtkd-3.a \
+include/dcomposer/dcomposer.d \
+include/dcomposer/dcore.d \
+include/dcomposer/config.d \
+include/dcomposer/log.d \
+include/dcomposer/docman.d \
+include/dcomposer/symbols.d \
+include/dcomposer/document.d \
+include/dcomposer/project.d \
+include/dcomposer/search.d \
+include/dcomposer/shellfilter.d \
+include/dcomposer/ddocconvert.d \
+include/dcomposer/debugger.d \
+include/dcomposer/ui.d \
+include/dcomposer/ui_search.d \
+include/dcomposer/ui_completion.d \
+include/dcomposer/ui_list.d \
+include/dcomposer/ui_project.d \
+include/dcomposer/ui_elementmanager.d \
+include/dcomposer/ui_preferences.d \
+include/dcomposer/ui_contextmenu.d \
+include/dcomposer/ui_docbook.d \
+include/dcomposer/elements.d \
+include/dcomposer/json.d \
+/home/anthony/projects/GtkD/libgtkdsv-3.a \
+/home/anthony/projects/GtkD/libvted-3.a \
+/home/anthony/projects/GtkD/libgtkd-3.a \
 -odobjdir -J./ 
-#if [ $? -eq 0 ]; then 
-#    bash elementbuilder.sh
-#fi

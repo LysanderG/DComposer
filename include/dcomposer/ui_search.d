@@ -229,7 +229,7 @@ class UI_SEARCH
     {
         mBuilder = new Builder;
 
-        mBuilder.addFromFile( SystemPath( Config.GetValue("ui_search", "glade_file",  "glade/ui_search.glade")));
+        mBuilder.addFromFile( GladePath( Config.GetValue("ui_search", "glade_file",  "ui_search.glade")));
 
         mRoot = cast(Box) mBuilder.getObject("box10");
 
@@ -375,12 +375,12 @@ class UI_SEARCH
 
         mMarkAllButton.addOnToggled(delegate void(ToggleButton){MarkAll();});
         
-        AddIcon("dcmp-view-search_ui", SystemPath(Config.GetValue("icons","search_ui-view","resources/ui-status-bar.png")));
+        AddIcon("dcmp-view-search_ui", ResourcePath(Config.GetValue("icons","search_ui-view","ui-status-bar.png")));
         AddToggleAction("ActViewSearchUI", "View Search", "show/hide Search", "dcmp-view-search_ui", "",
     		delegate void(Action a){auto y = cast(ToggleAction)a;mRoot.setVisible(y.getActive());});
     	AddToMenuBar("ActViewSearchUI",mRootMenuNames[1]);	
 
-        AddIcon("dcmp-search", SystemPath( Config.GetValue("icons", "search", "resources/spectacle.png")));
+        AddIcon("dcmp-search", ResourcePath( Config.GetValue("icons", "search", "spectacle.png")));
         AddAction("ActSearch", "Search", "Seek out that which is hidden", "dcmp-search", "<Control>F", delegate void(Action a)
         {
             if(DocMan.Current)

@@ -48,19 +48,19 @@ import gtkc.Loader;
 import gtkc.paths;
 
 public import gsv.SourceBuffer;
-public import gsv.SourceCompletion;
-public import gsv.SourceCompletionContext;
-public import gsv.SourceCompletionInfo;
-public import gsv.SourceCompletionItem;
-public import gsv.SourceCompletionProposalIF;
-public import gsv.SourceCompletionProvider;
-public import gsv.SourceCompletionProviderIF;
-public import gsv.SourceCompletionProviderT;
-public import gsv.SourceCompletionWords;
+//public import gsv.SourceCompletion;
+//public import gsv.SourceCompletionContext;
+//public import gsv.SourceCompletionInfo;
+//public import gsv.SourceCompletionItem;
+//public import gsv.SourceCompletionProposalIF;
+//public import gsv.SourceCompletionProvider;
+//public import gsv.SourceCompletionProviderIF;
+//public import gsv.SourceCompletionProviderT;
+//public import gsv.SourceCompletionWords;
 public import gsv.SourceLanguage;
 public import gsv.SourceLanguageManager;
 public import gsv.SourceStyleSchemeManager;
-public import gsv.SourceUndoManager;
+//public import gsv.SourceUndoManager;
 public import gsv.SourceUndoManagerIF;
 public import gsv.SourceView;
 public import gsv.SourceMark;
@@ -79,13 +79,6 @@ import gtk.TextIter;
 import gtk.TextBuffer;
 import gtk.TextMark;
 
-import gsv.SourceCompletionProviderIF;
-import gsv.SourceCompletionProvider;
-import gsv.SourceCompletionContext;
-import gsv.SourceCompletionInfo;
-import gsv.SourceCompletionProposalIF;
-import gsv.SourceCompletionProviderT;
-import gsv.SourceCompletionItem;
 
 import gobject.ObjectG;
 import gobject.Type;
@@ -327,16 +320,16 @@ class DOCUMENT : SourceView, DOC_IF
 
 
         auto SrcMrkAttribs = new SourceMarkAttributes;
-        SrcMrkAttribs.setPixbuf(new Pixbuf(SystemPath(Config.GetValue("docman", "nav_point_icon", "resources/pin-small.png"))));
+        SrcMrkAttribs.setPixbuf(new Pixbuf(ResourcePath(Config.GetValue("docman", "nav_point_icon", "pin-small.png"))));
         setMarkAttributes("NavPoints", SrcMrkAttribs, 1);
 
         //this shows where execution point is while debugging
         auto SrcMrkExecPt = new SourceMarkAttributes;
-        SrcMrkExecPt.setPixbuf(new Pixbuf(SystemPath(Config.GetValue("docman", "execution_point", "resources/yin-yang.png"))));
+        SrcMrkExecPt.setPixbuf(new Pixbuf(ResourcePath(Config.GetValue("docman", "execution_point", "yin-yang.png"))));
         setMarkAttributes("ExecPoint", SrcMrkExecPt, 100);
         //breakpoints source mark category
         auto SrcMrkBreakPt = new SourceMarkAttributes;
-        SrcMrkBreakPt.setPixbuf(new Pixbuf(SystemPath(Config.GetValue("docman", "break_point", "resources/target.png"))));
+        SrcMrkBreakPt.setPixbuf(new Pixbuf(ResourcePath(Config.GetValue("docman", "break_point", "target.png"))));
         setMarkAttributes("Breakpoint", SrcMrkBreakPt, 50);
         
         //adding gutter stuff for code coverage 

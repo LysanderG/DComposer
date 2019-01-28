@@ -54,7 +54,7 @@ class UI_LIST
     {
 
         auto builder = new Builder;
-        builder.addFromFile( SystemPath( Config.GetValue("ui_list", "glade_file",  "glade/ui_list.glade")));
+        builder.addFromFile( GladePath( Config.GetValue("ui_list", "glade_file",  "ui_list.glade")));
 
         mRoot   = cast(Frame)builder.getObject("uilist");
 

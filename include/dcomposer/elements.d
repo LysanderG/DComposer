@@ -79,13 +79,14 @@ string[] AcquireLibraries()
 {
     string[] newLibs;
     //first lets see what we have in the search paths ---> add a user option for more search paths silly
-    auto available  = filter!`endsWith(a.name, ".so")`(dirEntries( SystemPath( Config.GetValue("elements", "element_path", "elements")),SpanMode.shallow));
+    auto available  = filter!`endsWith(a.name, ".so")`(dirEntries(ElementPaths[0],SpanMode.shallow));
+    auto available1 = filter!`endsWith(a.name, ".so")`(dirEntries(ElementPaths[1],SpanMode.shallow));
 
     //now lets see whats "on record"
     auto LibsRegistered = Config.GetKeys("element_libraries");
 
     //check for new elements (libsavailable - libsregistered)
-    foreach (string elemlib; available)
+    foreach (string elemlib; chain(available, available1) )
     {
         auto elemkey = elemlib.baseName();
         Libraries[elemkey] = LIBRARY(elemlib);

@@ -192,7 +192,6 @@ class UI_PROJECT
         Project.Name = ProjName.getText();
         Project.Folder = buildNormalizedPath(Project.DefaultProjectRootPath, ProjRelPath.getText());
 
-        //Project.SetNameAndFolder(ProjName.getText(), buildPath(Project.DefaultProjectRootPath, ProjRelPath.getText()));
         ui.SetProjectTitle(Project.Name);
         SetRootPath(Project.Folder);
     }
@@ -245,7 +244,7 @@ class UI_PROJECT
         mFlagsLoading = false;
 
         auto uiBuilder = new Builder;
-        uiBuilder.addFromFile( SystemPath( Config.GetValue("ui_project", "glade_file",  "glade/ui_project.glade")));
+        uiBuilder.addFromFile( GladePath( Config.GetValue("ui_project", "glade_file",  "ui_project.glade")));
 
         mRootWidget     = cast(Frame)uiBuilder.getObject("frame1");
 
@@ -314,17 +313,17 @@ class UI_PROJECT
         // actions ===============================================================
 
         //new
-        AddIcon("dcmp-proj-new", SystemPath( Config.GetValue("icons", "proj-new", "resources/color-new.png")));
+        AddIcon("dcmp-proj-new", ResourcePath( Config.GetValue("icons", "proj-new", "color-new.png")));
         auto ActNew = "ActProjNew".AddAction("_New","Create a project", "dcmp-proj-new","<Control>F5",delegate void(Action a){Project.Create();});
         AddToMenuBar("ActProjNew", "_Project");
 
         //Open
-        AddIcon("dcmp-proj-open", SystemPath( Config.GetValue("icons", "proj-open",  "resources/color-open.png")));
+        AddIcon("dcmp-proj-open", ResourcePath( Config.GetValue("icons", "proj-open",  "color-open.png")));
         auto ActOpen = "ActProjOpen".AddAction("_Open","Open a project", "dcmp-proj-open","<Control>F6",delegate void(Action a){Open();});
         AddToMenuBar("ActProjOpen", "_Project");
 
         //Save
-        AddIcon("dcmp-proj-save", SystemPath( Config.GetValue("icons", "proj-save", "resources/color-save.png")));
+        AddIcon("dcmp-proj-save", ResourcePath( Config.GetValue("icons", "proj-save", "color-save.png")));
         auto ActSave = "ActProjSave".AddAction("_Save","Save project", "dcmp-proj-save","<Control>F7",delegate void(Action a)
         {
             if(Project.TargetType == TARGET.EMPTY) return;
@@ -333,12 +332,12 @@ class UI_PROJECT
         AddToMenuBar("ActProjSave", "_Project");
 
         //Edit
-        AddIcon("dcmp-proj-edit", SystemPath( Config.GetValue("icons", "proj-edit",  "resources/color-edit.png")));
+        AddIcon("dcmp-proj-edit", ResourcePath( Config.GetValue("icons", "proj-edit",  "color-edit.png")));
         auto ActEdit = "ActProjEdit".AddAction("_Edit","Edit project", "dcmp-proj-edit","<Control>F8",delegate void(Action a){Project.Edit();});
         AddToMenuBar("ActProjEdit", "_Project");
 
         //Build
-        AddIcon("dcmp-proj-build", SystemPath( Config.GetValue("icons", "proj-build",  "resources/color-build.png")));
+        AddIcon("dcmp-proj-build", ResourcePath( Config.GetValue("icons", "proj-build",  "color-build.png")));
         auto ActBuild = "ActProjBuild".AddAction("_Build","Build project", "dcmp-proj-build","<Control>F9",delegate void(Action a)
         {
             if(Project.TargetType == TARGET.EMPTY)return;
@@ -349,7 +348,7 @@ class UI_PROJECT
         AddToMenuBar("ActProjBuild", "_Project");
 
         //run
-        AddIcon("dcmp-proj-run", SystemPath( Config.GetValue("icons", "proj-run", "resources/color-arrow.png")));
+        AddIcon("dcmp-proj-run", ResourcePath( Config.GetValue("icons", "proj-run", "color-arrow.png")));
         auto ActRun = "ActProjRun".AddAction("_Run","Run project", "dcmp-proj-run","<Control>F10",delegate void(Action a)
         {
             if(Project.TargetType == TARGET.EMPTY)return;
@@ -358,7 +357,7 @@ class UI_PROJECT
         AddToMenuBar("ActProjRun", "_Project");
 
         //run args
-        AddIcon("dcmp-proj-run-args", SystemPath( Config.GetValue("icons", "proj-run-args",  "resources/color-run-args.png")));
+        AddIcon("dcmp-proj-run-args", ResourcePath( Config.GetValue("icons", "proj-run-args",  "color-run-args.png")));
         auto ActRunArgs = "ActProjRunArgs".AddAction("Run with _Args","Run project with arguments", "dcmp-proj-run-args","<Control><Shift>F10",delegate void(Action a)
         {
             if(Project.TargetType == TARGET.EMPTY)return;
@@ -368,7 +367,7 @@ class UI_PROJECT
         AddToMenuBar("ActProjRunArgs", "_Project");
 
         //Close
-        AddIcon("dcmp-proj-close", SystemPath( Config.GetValue("icons", "proj-close",  "resources/color-close.png")));
+        AddIcon("dcmp-proj-close", ResourcePath( Config.GetValue("icons", "proj-close",  "color-close.png")));
         auto ActClose = "ActProjClose".AddAction("_Close","Close project", "dcmp-proj-close","<Control><Shift>F5",delegate void(Action a)
         {
             if(Project.TargetType == TARGET.EMPTY)return;

@@ -133,7 +133,7 @@ void ShowAppPreferences()
 Widget BuildGenPrefPage()
 {
     auto genBuilder = new Builder;
-    genBuilder.addFromFile(SystemPath("glade/pref_general.glade"));
+    genBuilder.addFromFile(GladePath("pref_general.glade"));
 
     auto root = cast(Frame)genBuilder.getObject("frame1");
     auto grid = cast(Grid)genBuilder.getObject("grid1");
@@ -251,7 +251,7 @@ Widget BuildGenPrefPage()
 Widget BuildDocPrefPage()
 {
     auto docBuilder = new Builder;
-    docBuilder.addFromFile(SystemPath("glade/pref_documents.glade"));
+    docBuilder.addFromFile(GladePath("pref_documents.glade"));
 
     auto root = cast(Frame)docBuilder.getObject("frame1");
 

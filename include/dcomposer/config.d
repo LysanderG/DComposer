@@ -9,7 +9,6 @@ import std.array;
 import std.file;
 import std.getopt;
 import std.path;
-//import std.process: executeShell;
 import std.stdio;
 import std.signals;
 import std.string;
@@ -29,7 +28,6 @@ string DCOMPOSER_COPYRIGHT;
 
 string userDirectory;
 string sysDirectory;
-string installDirectories;
 
 string BUILD_USER;
 string BUILD_MACHINE;
@@ -37,7 +35,15 @@ long BUILD_NUMBER ;
 
 static this()
 {
-    mixin(import(".build.data"));
+    //mixin(import(".build.data"));
+    DCOMPOSER_VERSION = "v0.1test";
+    DCOMPOSER_BUILD_DATE = "January 24, 2019";
+    DCOMPOSER_COPYRIGHT = "Copyright 2011 - 2019 Anthony Goins";
+    BUILD_USER = "anthony@archdad";
+    BUILD_MACHINE = "archdad";
+    BUILD_NUMBER = 1000;
+    userDirectory = "~/.config/dcomposer/".expandTilde();
+    //s
 }
 
 
@@ -45,8 +51,6 @@ class CONFIG
 {
 private:
 
-    string mDefaultRootResourceDirectory;
-    string mRootResourceDirectory;
     bool mIsFirstRun;
     string mCfgFile;
     JSON mJson;
@@ -54,77 +58,15 @@ private:
     void FirstUserRun()
     {
         string WelcomeText = format(
-`Welcome to DComposer (ver %s, %s).
-The naive IDE for the D programming language.
-%s
+    "Welcome to DComposer (ver %s, %s).\n"~
+    "The naive IDE for the D programming language.\n"~
+    "%s\n" ~
+    "I really hope it proves useful for you.\n"~
+    "Thanks for trying it out!",
+    DCOMPOSER_VERSION, DCOMPOSER_BUILD_DATE, DCOMPOSER_COPYRIGHT);
 
-I really hope it proves useful for you.
-Thanks for trying it out!`,
-DCOMPOSER_VERSION, DCOMPOSER_BUILD_DATE, DCOMPOSER_COPYRIGHT);
-
-
-        //copy resources from global (immutable) to user (mutable) space
-
-        string src;
-        string dest;
-        
-        void myCopy(string srcDir, string glob, string destDir)
-        {
-            foreach(dentry; dirEntries(srcDir, glob, SpanMode.shallow))
-            {
-                copy (dentry.name, buildPath(destDir,dentry.name.baseName)); 
-            }
-        } 
-        
-
-        //copy any cfg files
-        src = mRootResourceDirectory;
-        dest = userDirectory;
-        mkdir(dest);
-        myCopy(src, "*.cfg",dest);
-        mCfgFile = buildPath(dest,"dcomposer.cfg");
+        mCfgFile = buildPath(userDirectory,"dcomposer.cfg");
         Save();
-
-        //elements
-        dest = buildPath(userDirectory, "elements");
-        mkdir(dest);
-        cpCommand = "cp " ~ src ~ "/elements/*.so " ~ dest;
-        executeShell(cpCommand);
-        //and element resources
-        dest = buildPath(dest, "resources");
-        mkdir(dest);
-        cpCommand = "cp " ~ src ~ "/elements/resources/* " ~ dest;
-        executeShell(cpCommand);
-
-        //flags
-        dest = buildPath(userDirectory, "flags");
-        mkdir(dest);
-        cpCommand = "cp " ~ src ~ "/flags/* " ~ dest;
-        executeShell(cpCommand);
-
-        //glade
-        dest = buildPath(userDirectory, "glade");
-        mkdir(dest);
-        cpCommand = "cp " ~ src ~ "/glade/*.glade " ~ dest;
-        executeShell(cpCommand);
-
-        //resources
-        dest = buildPath(userDirectory, "resources");
-        mkdir(dest);
-        cpCommand = "cp " ~ src ~ "/resources/* " ~ dest;
-        executeShell(cpCommand);
-
-        //styles
-        dest = buildPath(userDirectory, "styles");
-        mkdir(dest);
-        cpCommand = "cp " ~ src ~ "/styles/*.xml " ~ dest;
-        executeShell(cpCommand);
-
-        //tags
-        dest = buildPath(userDirectory, "tags");
-        mkdir(dest);
-        cpCommand = "cp " ~ src ~ "/tags/*.dtags " ~ dest;
-        executeShell(cpCommand);
 
         FirstRun.emit();
         ShowMessage("First Run", WelcomeText, "OK");
@@ -150,60 +92,28 @@ public:
     }
     void SetCfgFile(string cmdLineCfgName)
     {
-        //1. use command line given cfg file
-        //2. look at current directory  << 2 AND 3 SHOULD BE REVERSED AND HAVE BEEN
-        //3. look at mRootResourceDirectory
-        //4. create one in mRootResource directory
-        //5. create one in  current
-
-        scope(success)Log.Entry("\tConfiguration file set to: " ~ mCfgFile);
-        //1
-        if(cmdLineCfgName.length > 0)
+        if(cmdLineCfgName.length)
         {
-            if(!cmdLineCfgName.exists())
-            {
-                scope(failure)Log.Entry("Failed: Unable to create configuration file: " ~ cmdLineCfgName, "Error");
-                std.file.write(cmdLineCfgName,`{"config": { "this_file": "` ~ cmdLineCfgName ~ `"}}`);
-                mCfgFile = cmdLineCfgName;
-                return;
-            }
-            else
+            if(cmdLineCfgName.exists) 
             {
                 mCfgFile = cmdLineCfgName;
                 return;
             }
-        }
-
-        //3
-        auto tmpdir2 = buildPath(mRootResourceDirectory, "dcomposer.cfg");
-        if(tmpdir2.exists)
-        {
-            mCfgFile = tmpdir2;
+            scope(failure)Log.Entry("Failed: Unable to create configuration file: " ~ cmdLineCfgName, "Error");
+            std.file.write(cmdLineCfgName,`{"config": { "this_file": "` ~ cmdLineCfgName ~ `"}}`);
+            mCfgFile = cmdLineCfgName;
             return;
         }
-        //2
-        auto tmpdir1 = buildPath(getcwd(), "dcomposer.cfg");
-        if(tmpdir1.exists)
+        //no cfg file given on command line so it is ~/.config/dcomposer/dcomposer.cfg
+        else
         {
-            mCfgFile = tmpdir1;
-            return;
-        }
-
-        //4
-        {
-            scope(failure)
-            {
-                scope(failure)Log.Entry("Failed: Unable to create configuration file.", "Error");
-                std.file.write(tmpdir1,`{"config": { "this_file": "` ~ tmpdir1 ~ `"}}`);
-                return;
-            }
-            std.file.write(tmpdir2,`{"config": { "this_file": "` ~ tmpdir2 ~ `"}}`);
-            mCfgFile = tmpdir2;
+            mCfgFile = buildPath(userDirectory, "dcomposer.cfg");
+            if(!mCfgFile.exists)std.file.write(mCfgFile, `{"config": { "this_file": "` ~ mCfgFile ~ `"}}`);
         }
     }
 
 
-    bool FindRootResourceDirectory(string ExecPath)
+    /*@disable bool FindRootResourceDirectory(string ExecPath)
     {
         mDefaultRootResourceDirectory = "~/.config/dcomposer".expandTilde();
         mRootResourceDirectory.length = 0;
@@ -261,7 +171,7 @@ public:
         Log.Entry("\tResource files found @ " ~ mRootResourceDirectory);
         sysDirectory = mRootResourceDirectory;
         return true;
-    }
+    }*/
 
     void Engage(string[] CmdArgs)
     {
@@ -281,7 +191,8 @@ public:
         string[] dtagImports;
         string[] dtagJpaths;
         
-
+        sysDirectory = CmdArgs[0].dirName().buildPath("../").absolutePath().buildNormalizedPath();
+        dwrite(sysDirectory);
         try
         {
             auto cmdResults = CmdArgs.getopt
@@ -305,8 +216,6 @@ public:
                 "p|project",
                 "Specify a project to load.",
                 &project,
-                //"h|help",
-                //&Help,
                 "t|dtag",
                 "Create a dtag file from a package.",
                 &dtagBuild,
@@ -351,9 +260,13 @@ public:
         
         if(Quiet)Log.QuietStandardOut();
         
-        if(!FindRootResourceDirectory(CmdArgs[0]))
+        if(!userDirectory.exists)
         {
-            Log.Entry("Failed to find DComposer resource files!!", "Error");
+            mkdir(userDirectory);
+            mkdir(buildPath(userDirectory, "resources"));
+            mkdir(buildPath(userDirectory, "elements"));
+            mIsFirstRun = true;
+                    
         }
         SetCfgFile(TmpForCfg);
         
@@ -630,7 +543,18 @@ public string RelativeSystemPath(string Folder)
     }
     return relativePath(Folder, sysDirectory);
 }
-
+public string[] ElementPaths()
+{
+    string[] rv;
+    rv.length = 2;
+    rv[0] = buildPath(sysDirectory,"lib/dcomposer/elements");
+    rv[1] = buildPath(userDirectory, "elements");
+    return rv;
+}
+public string ResourcePath(string file){return buildPath(sysDirectory, "share/dcomposer/resources/",file);}
+public string GladePath(string file)   {return buildPath(sysDirectory, "share/dcomposer/glade/",file);}
+public string FlagsPath(string file)   {return buildPath(sysDirectory, "share/dcomposer/flags/",file);}
+public string StylesPath(string file="")  {return buildPath(sysDirectory, "share/dcomposer/styles/",file);}
 
 /*
  * Ok, some notes about paths after hitting a few stone walls.

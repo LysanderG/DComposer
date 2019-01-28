@@ -87,7 +87,7 @@ class LOG
         f.writeln(DCOMPOSER_COPYRIGHT);
         f.writeln(userDirectory);
         f.writeln(sysDirectory);
-        f.writeln(installDirectories);
+        //f.writeln(installDirectories);
         f.writeln(BUILD_USER);
         f.writeln(BUILD_MACHINE);
         f.writeln(BUILD_NUMBER) ;

@@ -42,14 +42,14 @@ auto muText = `<span font="monospace 16"><span weight="ultralight">Name        :
 void Engage()
 {
 
-    AddIcon("ui_element_manager", SystemPath("resources/plug.png"));
+    AddIcon("ui_element_manager", ResourcePath("plug.png"));
     AddAction("ActElementManager", "Element Manager ...", "Manage additional elements","ui_element_manager","\0", delegate void(Action){Execute();LoadElements();});
     AddToMenuBar("ActElementManager", "E_lements");
 
     "ActElementManager".GetAction().setSensitive(!Config.GetValue!bool("elements", "disabled"));
 
     auto builder = new Builder;
-    builder.addFromFile( SystemPath( Config.GetValue("ui_element_manager", "glade_file", "glade/ui_elements.glade")));
+    builder.addFromFile( GladePath( Config.GetValue("ui_element_manager", "glade_file", "ui_elements.glade")));
 
     mElementManager = cast(Dialog)builder.getObject("dialog1");
     mElementManager.setTransientFor(MainWindow);

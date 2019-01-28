@@ -47,10 +47,7 @@ class PROJECT
     void Clear()
     {
         mDcomposerProjectVersion = PROJECT_MODULE_VERSION;
-        //Name = "\0";
-        //Folder = mDefaultProjectRootPath;
         SetNameAndFolder("", mDefaultProjectRootPath);
-        //CurrentPath(Folder);
         Compiler = COMPILER.DMD;
         TargetType = TARGET.EMPTY;
         UseCustomBuild = false;
@@ -63,7 +60,7 @@ class PROJECT
 
     void LoadFlags()
     {
-        string ffile = SystemPath( Config.GetValue("project", "flag_file", "flags/flags.json"));
+        string ffile = FlagsPath( Config.GetValue("project", "flag_file", "flags.json"));
         string ftext = readText(ffile);
         auto jflags = parseJSON(ftext);
         mFlagsVersion = cast(string)jflags["dmdversion"];
@@ -174,7 +171,6 @@ class PROJECT
         Save();
         Config.Remove("project", "cmd_line_project");
         Config.Remove("project", "last_session_project");
-        //if(mTargetType != TARGET.EMPTY) Config.SetValue("project", "last_session_project", buildNormalizedPath(mFolder,mName.setExtension(".dpro")));
         if(mName.length > 0) Config.SetValue("project", "last_session_project", buildNormalizedPath(mFolder,mName.setExtension(".dpro")));
         foreach(pid; mRunPids)kill(pid);
         foreach(pid; mRunPids)wait(pid);
@@ -375,35 +371,6 @@ class PROJECT
             Log.Entry("\t" ~ script ~ " exited with a return value of :" ~ to!string(postrv.status));
         }
     }
-
-/*    void Run(string[] args = null)
-    {
-        scope(failure){Log.Entry("Failed to Run", "error"); return;}
-        //if(TargetType == TARGET.EMPTY) return;
-        if(TargetType != TARGET.APPLICATION) return;
-
-        CurrentPath(Folder);
-
-         string ExecName = (GetFlag("-of", "name output file to filename")) ? GetFlagArgument("-of", "name output file to filename") : mName;
-
-        auto CmdStrings = Config.GetArray!string("terminal_cmd","run", ["xterm", "-T","dcomposer running project","-e"]);
-
-        CmdStrings ~= [`./` ~ ExecName];
-
-        foreach(arg; args) CmdStrings[$-1] ~= " " ~ arg;
-        CmdStrings[$-1] = `bash -c '` ~ CmdStrings[$-1] ~ ` ; echo -e "\n\nProgram has terminated.\nPress a key to close terminal..." ; read -rn1'`;
-        try
-        {
-            mRunPids ~= spawnProcess(CmdStrings);
-            Log.Entry(`"` ~ mName ~ `"` ~ " spawned ... " );
-        }
-        catch(Exception E)
-        {
-            writeln(E.msg);
-            return;
-        }
-
-    }*/
 
     //try run with a script
     void Run(string[] args = null)
