@@ -1,133 +1,6 @@
-#!/usr/bin/rdmd -Isrc/
+module symbols;
 
-module buildtags;
-
-import std.process;
-import std.file;
-import std.path;
-import std.stdio;
-import std.datetime;
-import std.utf;
-import std.encoding;
-import std.conv;
-import std.string;
-
-
-
-
-/*
-input should be..
-
-dmd path_to_package/package/*.d [-I] 
-
-*/
-
-
-int main(string [] args)
-{
-    scope(failure)
-    {
-        writeln("USAGE :");
-        writeln("buildtags path_to_package  package   [-Iimport_paths] [-Jstring_import_paths]\n");
-        writeln("EXAMPLE :");
-        writeln("buildtags /usr/include/dmd/drunttime/import core");
-        //return 1;
-    }
-
-    assert(args.length >= 3);
-
-    string path = buildPath(args[1]);
-    string pkgName = args[2];
-
-    string[] Ipaths;
-    if(args.length > 3)foreach(Path; args[3 .. $])if(Path.startsWith("-I"))Ipaths ~= Path;
-
-    string[] Jpaths;
-    if(args.length > 3)foreach(Path; args[3 .. $])if(Path.startsWith("-J"))Jpaths ~= Path;
-
-    string docfile = pkgName.setExtension(".html");
-    string tagfile = pkgName.setExtension(".json");
-
-    string[] cmdline = ["dmd", "-c", "-o-", "-D", "-X", "-release","-v"];
-    cmdline ~= Ipaths;
-    cmdline ~= Jpaths;
-    cmdline ~= ["-Df" ~ docfile];
-    cmdline ~= ["-Xf" ~ tagfile];
-
-    foreach(string fileItem; dirEntries(path, SpanMode.depth))
-    {
-        if((fileItem.extension == ".d") || (fileItem.extension == ".di"))
-        {
-            cmdline ~= fileItem;
-        }
-    }
-    writeln(cmdline);
-    auto res = execute(cmdline);
-    writeln(res.output);
-
-    if(docfile.exists())remove(docfile);
-
-    auto MainPackage = new SYMBOLS;
-
-    MainPackage.LoadFile(pkgName, tagfile); 
-
-    MainPackage.SaveSymFile(buildPath("./tags",setExtension(pkgName, ".dtags")));
-    return 0;
-}
-
-
-
-
-
-//below this line is copy and pasted symbols.d --->> stupid me got it too entwined with dcomposer to remove -- search for ((MOD)) to find any changes
-/*
- * left this module in a state of undocumented chaos
- * there are two types of symbol files that can be loaded
- * json files --> loaded straight from dmd output made to fit in a DSYMBOL
- * dtags files -->  modified json for faster loading into DSYMBOLS larger but faster to load
- *
- * dtags are for "stable" libraries that rarely change such as phobos or gtk
- * json files can be used for individual files and projects that are being hacked on
- * combined with DCD I should be able to make something work
- * DCD is not without its issues ... uses lotso memory and bogs down at times ... very slow to startup with many import paths (over a minute)
- * my more simple minded way is even more lacking... not dynamic ... no local symbols
- *
- * fix
- *  1.  startup load dtags fall back to json (for packages set up for autoinstall)
- *  2.  clearify and separate dtags from json
- *  3.  perfect when to (re)build tags keep projects and working documents in sync as much as possible
- *  4.  fix the stupid api so I know what is going on
- *  5.  public calls
- *      a. DSYMBOL[] Symbols.Find(string symbolname)  //full path (easy) or name or file+line or signature
- *      b. DSYMBOL[] Symbols.Complete(string partialname) // find anything that starts with partial name
- *      c. DSYMBOL[] Symbols.CallTip(string symbolname) //look in functions for a whole name -- or path after '('
- *      d. DSYMBOL[] Symbols.TemplateTips(string templatename) //look in templates for templatename after !
- *      e. DSYMBOL[] Symbols.UFCSComplete(string paramtype)// how the hell can I do this fast "blahblah ".chomp();
- *      f. DSYMBOL[] Symbols.Members(string symboltype) // kind of like Complete but after .
- *
- *  Thu Apr 10 00:12:15 EDT 2014
- *  serious issues in this module
- *  1. loadDtagsfile always returns null but directly adds all modules to mModules
- *  2. calling it supposed to return a dsymbol that is then added to our mModules list
- *  3. should be
-        loadjsonfile
-        loaddtagsfile
-        add the return value of either to mModules
-        remove tag ??
-
-        DSYMOBL[] ExactSymbol(symbolName); //array for overloads but must be the fully qualified name (not const/pure ... but a.b.c)
-        DSYMBOL[] Symbol(symbolName); //not a completion but simple name of symbol (ie writeln vs std.stdio.File.writeln)
-        DSYMBOL[] Completions(partialName); //any symbol that completes partial name
-        DSYMBOL[] Calltip(symbolName); // any function with symbolName
-        DSYMOBL[] TemplateTip(symbolName); //just like Calltip but fires on ! not ( and returns templates
-        DSYMBOL[] Members(Parent); all children of symbols matching Parent
- *
- */
-
-
-//module symbols;   ((MOD)
-
- //((MOD))import dcore;
+import dcore;
 
 import json;
 
@@ -141,7 +14,7 @@ import std.array;
 import std.path;
 import std.signals;
 import std.encoding;
-
+import std.process :spawnProcess, execute, kill, wait;
 
 enum SYMBOL_KIND
 {
@@ -203,22 +76,23 @@ class SYMBOLS
 
     SysTime         mLastLoadTime;
 
-/*    void AutoLoadPackages()  ((MOD)
+    void AutoLoadPackages()
     {
         mLastLoadTime  = Clock.currTime();
         auto PackageKeys = Config.GetKeys("symbol_libs");
-        string jsontext;
 
         foreach(jfile; PackageKeys)
         {
+            scope(failure)
+            {
+                Log.Entry("Autoload " ~ jfile ~ " failed", "Error");
+                continue;
+            }
             auto dtagfile = SystemPath(Config.GetValue("symbol_libs", jfile, ""));
-            auto NewSymbols = LoadDTagsFile(dtagfile);
-            //auto NewSymbols = LoadFile(dtagfile);
-            if(NewSymbols !is null) mModules[jfile] = NewSymbols;
+            LoadDTagsFile(dtagfile);
         }
-
     }
-((MOD)*/
+
 
     @system void BuildSymbol(DSYMBOL CurrSym, JSON SymData)
     {
@@ -493,8 +367,7 @@ class SYMBOLS
     {
         scope(failure)
         {
-             //((MOD))Log.Entry("LoadPackage : Unable to load Symbol file: " ~ PackageName, "Error");
-             writeln("failed ", PackageName, "/",SymbolJson);
+            Log.Entry("LoadPackage : Unable to load Symbol file: " ~ PackageName, "Error");
             return null;
         }
 
@@ -526,10 +399,10 @@ class SYMBOLS
 
     void Engage()
     {
-       //((MOD)) mAutoLoadPackages = Config.GetValue("symbols", "auto_load_packages", true);
-        //((MOD)) mAutoLoadProject  = Config.GetValue("symbols", "auto_load_project", true);
+        mAutoLoadPackages = Config.GetValue("symbols", "auto_load_packages", true);
+        mAutoLoadProject  = Config.GetValue("symbols", "auto_load_project", true);
 
-         //((MOD))if(mAutoLoadPackages)AutoLoadPackages();
+        if(mAutoLoadPackages)AutoLoadPackages();
 
         string loadedstuff = " [";
         foreach(index, symkey; mModules.keys)
@@ -539,16 +412,16 @@ class SYMBOLS
         }
         loadedstuff ~= "]";
 
-         //((MOD))Log.Entry("Engaged " ~ loadedstuff);
+        Log.Entry("Engaged " ~ loadedstuff);
     }
     void PostEngage()
     {
-         //((MOD))Log.Entry("PostEngaged");
+        Log.Entry("PostEngaged");
     }
     void Disengage()
     {
 
-         //((MOD))Log.Entry("Disengaged");
+        Log.Entry("Disengaged");
     }
 
     mixin Signal!(DSYMBOL[]);
@@ -564,9 +437,9 @@ class SYMBOLS
         if(ModName in mModules) return;
         mModules[ModName] = nuSymbol;
 
-         //((MOD))Log.Entry(ModName ~ " added to symbol tables.");
+        Log.Entry(ModName ~ " added to symbol tables.");
     }
-    DSYMBOL LoadFile(string FileName)
+    deprecated DSYMBOL LoadFile(string FileName)
     {
         auto jstring = readText(FileName);
 
@@ -632,6 +505,54 @@ class SYMBOLS
 
 //=====================================================================================================================
 //=====================================================================================================================
+
+    DSYMBOL[] FindAncestors(string CandidatePath)
+    {
+        DSYMBOL[] rv;
+
+        bool CheckKid(DSYMBOL thisun)
+        {
+            if(thisun.Path == CandidatePath)
+            {
+                rv ~= thisun;
+                rv ~= FindAncestors(thisun.Base);
+                return true;
+            }
+            foreach(kid; thisun.Children)if(CheckKid(kid))return true;
+            return false;
+        }
+
+        foreach(mod; mModules)
+        {
+            if(mod.Path == CandidatePath)
+            {
+                rv ~= mod;
+                rv ~= FindAncestors(mod.Base);
+                return rv;
+            }
+
+            foreach(kid; mod.Children) if(CheckKid(kid))break;
+        }
+        return rv;
+    }
+
+    DSYMBOL[] FindDescendants(string CandidatePath)
+    {
+        DSYMBOL[] rv;
+        void CheckKid(DSYMBOL thisun)
+        {
+            if(thisun.Base == CandidatePath)rv ~= thisun;
+            foreach(kid; thisun.Children)CheckKid(kid);
+        }
+
+        foreach(mod; mModules)
+        {
+            if(mod.Base == CandidatePath) rv ~= mod;
+            foreach(kid; mod.Children)CheckKid(kid);
+        }
+        return rv;
+    }
+
 
     DSYMBOL[] FindExact(string Candidate)
     {
@@ -1070,4 +991,31 @@ string GetIcon(DSYMBOL X)
 }
 
 
-
+int BuildTagFile(string PkgPath, string PkgName, string[] Ipaths, string[] Jpaths)
+{
+    scope(failure)return 1;
+    string docfile = PkgName.setExtension(".html");
+    string jsonfile = PkgName.setExtension(".json");
+    
+    string[] CmdLine = [ "dmd", "-c", "-o-", "-D", "-X", "-release", "-v", "-unittest", "main"];
+    CmdLine ~= Ipaths ~ Jpaths;
+    CmdLine ~= ["-Df" ~ docfile];
+    CmdLine ~= ["-Xf" ~ jsonfile];
+    
+    
+    foreach(string srcFile; dirEntries(PkgPath, SpanMode.depth))
+    {
+        if((srcFile.extension == ".d") || (srcFile.extension == ".di"))
+        {
+            CmdLine ~= srcFile;
+        }
+    }
+    
+    auto res = execute(CmdLine);
+    if(docfile.exists())docfile.remove();
+    
+    auto MainPackage = new SYMBOLS;
+    MainPackage.LoadFile(PkgName, jsonfile);
+    MainPackage.SaveSymFile(buildPath(SystemPath("tags"),setExtension(PkgName,".dtags")));
+    return 0;
+}
