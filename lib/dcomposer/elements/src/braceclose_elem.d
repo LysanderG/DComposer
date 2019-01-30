@@ -7,6 +7,7 @@ import document;
 import std.uni;
 
 import gtk.TextMark;
+import gtk.TextIter;
 
 
 
