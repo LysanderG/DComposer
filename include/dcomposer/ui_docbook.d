@@ -84,7 +84,7 @@ public:
     alias mNotebook this;
     this(Notebook x)
     {
-        SourceStyleSchemeManager.getDefault().appendSearchPath(SystemPath("styles"));
+        foreach(pth; StylesPath)SourceStyleSchemeManager.getDefault().appendSearchPath(pth);
         mNotebook = x;
     }
 

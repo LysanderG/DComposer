@@ -1,4 +1,4 @@
-cd elements/src;
+cd lib/dcomposer/elements/src;
 
 error_arg="No errors"
 
@@ -13,13 +13,11 @@ echo
 cd ../../
 for xes in $xfiles ;
     do echo -n $xes ;
-     ./utils/buildelement.d $xes ;
+     ../../utils/buildelement.d /home/anthony/projects/dcomposer/ /home/anthony/projects/GtkD/generated/ $xes ;
      rv="$?" ;
      if [ "$rv" -ne 0 ]; then if [ "$error_arg" = "No errors" ]; then error_arg="First Error in $xes"; fi; fi;
-     echo "$rv <<<<<<";
+     echo " $rv <<<<<<";
      echo ;
 done
-rm -rf ~/.config/dcomposer/elements/*.so;
-cp elements/*.so ~/.config/dcomposer/elements;
 
 echo $error_arg

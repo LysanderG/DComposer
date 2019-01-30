@@ -551,10 +551,26 @@ public string[] ElementPaths()
     rv[1] = buildPath(userDirectory, "elements");
     return rv;
 }
+public string ElementPath(string file)
+{
+    string rv = buildPath(userDirectory, "/elements/", file);
+    if (rv.exists) return rv;
+    rv = buildPath(sysDirectory, "lib/dcomposer/elements/", file);
+    if (rv.exists) return rv;
+    throw new Exception("Failed to find " ~ file ~ " in Element path.");
+
+}
 public string ResourcePath(string file){return buildPath(sysDirectory, "share/dcomposer/resources/",file);}
 public string GladePath(string file)   {return buildPath(sysDirectory, "share/dcomposer/glade/",file);}
 public string FlagsPath(string file)   {return buildPath(sysDirectory, "share/dcomposer/flags/",file);}
-public string StylesPath(string file="")  {return buildPath(sysDirectory, "share/dcomposer/styles/",file);}
+public string[] StylesPath()  
+{
+    string[] rv;
+    rv.length = 2;
+    rv[0] = buildPath(sysDirectory,"share/dcomposer/styles");
+    rv[1] = buildPath(userDirectory, "styles");
+    return rv;
+}
 
 /*
  * Ok, some notes about paths after hitting a few stone walls.

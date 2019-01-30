@@ -162,7 +162,7 @@ class CRUISE_ELEM : ELEMENT
     {
         auto builder = new  Builder;
         
-        builder.addFromFile(SystemPath(Config.GetValue("cruise", "glade_file", "elements/resources/cruise.glade")));
+        builder.addFromFile(ElementPath(Config.GetValue("cruise", "glade_file", "resources/cruise.glade")));
         uiRoot = cast(Box)builder.getObject("box1");
         uiSwitch = cast(Switch)builder.getObject("switch1");
         uiCurrentCommand = cast(Entry)builder.getObject("entry4");
@@ -243,9 +243,9 @@ class CRUISE_ELEM : ELEMENT
         {
             formattedRead(line,"%s %s --> %s", &key, &cmd, &help);
             mCommands[key] = cast(PRIME_COMMANDS)cmd;
-            
+            string strkey = [key];
             uiKeyStore.append(ti);
-            uiKeyStore.setValue(ti, 0, [key]);
+            uiKeyStore.setValue(ti, 0, strkey);
             uiKeyStore.setValue(ti, 1, cmd);
             uiKeyStore.setValue(ti, 2, "Command");
             uiKeyStore.setValue(ti, 3, help);
@@ -287,8 +287,9 @@ class CRUISE_ELEM : ELEMENT
         {
             formattedRead(line, "%s %s --> %s", &key, &cmd, &help);
             mMotions[key] = cast(MOTIONS)cmd;
+            string strKey = [key];
             uiKeyStore.append(ti);
-            uiKeyStore.setValue(ti, 0, [key]);
+            uiKeyStore.setValue(ti, 0, strKey);
             uiKeyStore.setValue(ti, 1, cmd);
             uiKeyStore.setValue(ti, 2, "Motion");
             uiKeyStore.setValue(ti, 3, help);            
@@ -665,7 +666,7 @@ class CRUISE_ELEM : ELEMENT
                     string newlines;
                     foreach(i; 0..mCount)newlines ~= "\n";
                     DocMan.Current().InsertText(newlines ~ whitespace);
-                    //pass through
+                    goto case;//pass through
                 case INSERT         :
                     auto CruiseAction = cast(ToggleAction)GetAction("ActCruiseMode");
                     CruiseAction.setActive(false);
