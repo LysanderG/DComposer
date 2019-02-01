@@ -21,7 +21,7 @@ echo ...
 # /usr/local/  thus -I/usr/local/include/d/gtkd-3/ -L/usr/local/lib/
 # tried using pkg-config but some systems I tried did not set 
 # the environment path to gtkd's default /usr/local/share/pkgconfig
-GTKD_PREFIX="/home/anthony/projects/GtkD/"
+GTKD_PREFIX="${GTKD_PREFIX:-/home/anthony/projects/GtkD/}"
 GTKD_IMPORT_PATH="${GTKD_PREFIX}generated/"
 
 dmd \
@@ -32,7 +32,7 @@ dmd \
 -I${GTKD_IMPORT_PATH}gtkd \
 -I${GTKD_IMPORT_PATH}sourceview \
 -I${GTKD_IMPORT_PATH}vte \
--L-ldl \
+-L-LDL \
 -defaultlib=libphobos2.so \
 include/dcomposer/dcomposer.d \
 include/dcomposer/dcore.d \
@@ -57,7 +57,7 @@ include/dcomposer/ui_contextmenu.d \
 include/dcomposer/ui_docbook.d \
 include/dcomposer/elements.d \
 include/dcomposer/json.d \
-/home/anthony/projects/GtkD/libgtkdsv-3.a \
-/home/anthony/projects/GtkD/libvted-3.a \
-/home/anthony/projects/GtkD/libgtkd-3.a \
+${GTKD_PREFIX}libgtkdsv-3.a \
+${GTKD_PREFIX}libvted-3.a \
+${GTKD_PREFIX}libgtkd-3.a \
 -odobjdir -J./ 
