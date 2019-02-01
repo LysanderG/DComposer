@@ -13,7 +13,7 @@ echo
 cd ../../
 for xes in $xfiles ;
     do echo -n $xes ;
-     ../../utils/buildelement.d /home/anthony/projects/dcomposer/ /home/anthony/projects/GtkD/generated/ $xes ;
+     ../../utils/buildelement.d /home/anthony/projects/dcomposer/ ${GTKD_IMPORT} $xes ;
      rv="$?" ;
      if [ "$rv" -ne 0 ]; then if [ "$error_arg" = "No errors" ]; then error_arg="First Error in $xes"; fi; fi;
      echo " $rv <<<<<<";

@@ -191,7 +191,7 @@ class DIR_VIEW : ELEMENT
         mViewHidden = true;
 
         auto builder = new Builder;
-        builder.addFromFile(SystemPath(Config.GetValue("dir_view", "glade_file", "elements/resources/dir_view.glade")));
+        builder.addFromFile(ElementPath(Config.GetValue("dir_view", "glade_file", "resources/dir_view.glade")));
 
         //stuff we need to manipulate or just look at
         mRoot = cast(Box)builder.getObject("root");
@@ -216,15 +216,15 @@ class DIR_VIEW : ELEMENT
 
 
         //icons, actions, unspoken holy vows
-        AddIcon("dir_view_up", SystemPath("elements/resources/navigation-090-frame.png"));
-        AddIcon("dir_view_refresh", SystemPath("elements/resources/arrow-circle-double-135.png"));
-        AddIcon("dir_view_home", SystemPath("elements/resources/home.png"));
-        AddIcon("dir_view_sync", SystemPath("elements/resources/navigation-270-frame.png"));
-        AddIcon("dir_view_hidden_true", SystemPath("elements/resources/eye-close.png"));
-        AddIcon("dir_view_hidden_false", SystemPath("elements/resources/eye.png"));
-        AddIcon("dir_view_folder", SystemPath("elements/resources/folder.png"));
-        AddIcon("dir_view_file", SystemPath("elements/resources/document.png"));
-        AddIcon("dir_view_file_d", SystemPath("elements/resources/document-attribute-d.png"));
+        AddIcon("dir_view_up",ElementPath("resources/navigation-090-frame.png"));
+        AddIcon("dir_view_refresh", ElementPath("resources/arrow-circle-double-135.png"));
+        AddIcon("dir_view_home", ElementPath("resources/home.png"));
+        AddIcon("dir_view_sync", ElementPath("resources/navigation-270-frame.png"));
+        AddIcon("dir_view_hidden_true", ElementPath("resources/eye-close.png"));
+        AddIcon("dir_view_hidden_false", ElementPath("resources/eye.png"));
+        AddIcon("dir_view_folder", ElementPath("resources/folder.png"));
+        AddIcon("dir_view_file", ElementPath("resources/document.png"));
+        AddIcon("dir_view_file_d", ElementPath("resources/document-attribute-d.png"));
 
         //buttons
         auto upButton = new ToolButton("dir_view_up");

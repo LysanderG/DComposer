@@ -553,7 +553,7 @@ public string[] ElementPaths()
 }
 public string ElementPath(string file)
 {
-    string rv = buildPath(userDirectory, "/elements/", file);
+    string rv = buildPath(userDirectory, "elements/", file);
     if (rv.exists) return rv;
     rv = buildPath(sysDirectory, "lib/dcomposer/elements/", file);
     if (rv.exists) return rv;

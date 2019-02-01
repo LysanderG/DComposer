@@ -398,7 +398,7 @@ class DCD_ELEM_PREFERENCE_PAGE : PREFERENCE_PAGE
 
         auto dcdBuilder = new Builder;
 
-        dcdBuilder.addFromFile(SystemPath(Config.GetValue("dcd_elem", "glade_file", "elements/resources/dcd_elem_pref.glade")));
+        dcdBuilder.addFromFile(ElementPath(Config.GetValue("dcd_elem", "glade_file", "resources/dcd_elem_pref.glade")));
 
         auto tmp = cast(Grid)dcdBuilder.getObject("grid1");
         mServerFile = cast(FileChooserButton)dcdBuilder.getObject("filechooserbutton1");
