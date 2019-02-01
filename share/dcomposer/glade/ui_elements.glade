@@ -85,13 +85,15 @@
             <property name="can_default">True</property>
             <property name="shadow_type">in</property>
             <property name="min_content_width">600</property>
-            <property name="min_content_height">400</property>
+            <property name="min_content_height">300</property>
             <child>
               <object class="GtkTreeView" id="treeview1">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="has_focus">True</property>
                 <property name="is_focus">True</property>
+                <property name="hscroll_policy">natural</property>
+                <property name="vscroll_policy">natural</property>
                 <property name="model">liststore1</property>
                 <property name="expander_column">treeviewcolumn3</property>
                 <property name="tooltip_column">4</property>
@@ -177,7 +179,7 @@
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="fill">False</property>
+            <property name="fill">True</property>
             <property name="position">3</property>
           </packing>
         </child>
