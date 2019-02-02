@@ -55,13 +55,14 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
-        <property name="column_homogeneous">True</property>
+        <property name="column_spacing">2</property>
         <child>
           <object class="GtkLabel" id="label1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="xpad">2</property>
-            <property name="label" translatable="yes">Cruise Mode :</property>
+            <property name="label" translatable="yes">Cruise 
+Mode</property>
             <property name="xalign">0</property>
           </object>
           <packing>
@@ -74,7 +75,8 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="xpad">2</property>
-            <property name="label" translatable="yes">Repeat Count :</property>
+            <property name="label" translatable="yes">Repeat
+Count</property>
             <property name="xalign">0</property>
           </object>
           <packing>
@@ -87,7 +89,8 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="xpad">2</property>
-            <property name="label" translatable="yes">Last Command</property>
+            <property name="label" translatable="yes">Last
+Command</property>
             <property name="xalign">0</property>
           </object>
           <packing>
@@ -100,7 +103,8 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="xpad">2</property>
-            <property name="label" translatable="yes">Current Register :</property>
+            <property name="label" translatable="yes">Current
+Register</property>
             <property name="xalign">0</property>
           </object>
           <packing>
@@ -123,6 +127,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="editable">False</property>
+            <property name="width_chars">5</property>
           </object>
           <packing>
             <property name="left_attach">5</property>
@@ -134,6 +139,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="editable">False</property>
+            <property name="width_chars">5</property>
           </object>
           <packing>
             <property name="left_attach">7</property>
@@ -145,6 +151,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="editable">False</property>
+            <property name="width_chars">2</property>
           </object>
           <packing>
             <property name="left_attach">9</property>
@@ -156,7 +163,8 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="xpad">2</property>
-            <property name="label" translatable="yes">Current Command :</property>
+            <property name="label" translatable="yes">Current 
+Command</property>
             <property name="xalign">0</property>
           </object>
           <packing>
@@ -169,6 +177,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="editable">False</property>
+            <property name="width_chars">5</property>
             <property name="caps_lock_warning">False</property>
           </object>
           <packing>

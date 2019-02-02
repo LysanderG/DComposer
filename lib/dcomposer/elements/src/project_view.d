@@ -383,7 +383,7 @@ class PROJECT_VIEW : ELEMENT
     void Engage()
     {
         mBuilding = new Builder;
-        mBuilding.addFromFile(SystemPath(Config.GetValue("PROJECT_VIEW", "glade_file", "elements/resources/project_view.glade")));
+        mBuilding.addFromFile(ElementPath(Config.GetValue("PROJECT_VIEW", "glade_file", "resources/project_view.glade")));
         mRoot       = cast(Box)                mBuilding.getObject("box1");
         mLabel      = cast(Label)               mBuilding.getObject("label1");
         mToolBar    = cast(Toolbar)             mBuilding.getObject("toolbar2");

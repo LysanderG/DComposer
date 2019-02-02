@@ -136,7 +136,7 @@ final class TERMINAL_ELEMENT_PREFERENCE_PAGE : PREFERENCE_PAGE
         SplashWidget = null;
         
         auto termBuilder = new Builder;
-        termBuilder.addFromFile(SystemPath(Config.GetValue("terminal_elem", "glade_file", "elements/resources/terminal_elem_pref.glade")));
+        termBuilder.addFromFile(ElementPath(Config.GetValue("terminal_elem", "glade_file", "resources/terminal_elem_pref.glade")));
         
         ContentWidget = cast(Grid)termBuilder.getObject("grid1");
         
