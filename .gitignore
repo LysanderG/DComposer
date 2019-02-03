@@ -5,7 +5,7 @@ bindir
 .build.info
 *.cfg
 utils/buildtags
-bin/dcomposer
+bin/*
 dcomposerA
 dcomposer_filter
 dcomposer_filter_error

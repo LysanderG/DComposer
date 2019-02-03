@@ -96,6 +96,11 @@ class DCD_ELEM : ELEMENT
             if(Continue) continue;
             mImportPaths ~= path;
             Log.Entry("DCD importing '" ~ path ~ "'");
+            scope(failure)
+            {
+	            Log.Entry("DCD Error, ensure dcd is installed and known to dcomposer");
+	            return;
+	        }
             auto result = std.process.execute([mClientCommand,"-p" ~ mPort.to!string, "-I" ~ path]);
             if(result.status != 0)Log.Entry("DCD failed to add '" ~ path ~ "' to import path.", "Error");  
         }
@@ -103,6 +108,11 @@ class DCD_ELEM : ELEMENT
 
     void PresentCandidates()
     {
+    	scope(failure)
+    	{
+    		Log.Entry("DCD failure in PresentCandidates.  Ensure DCD is installed and dcomposer is pointed at it.");
+    		return;
+    	}
         string[] Candidates;
         string[] Types;
         string[] Output;
@@ -289,6 +299,11 @@ class DCD_ELEM : ELEMENT
     
     void Locate()
     {
+    	scope(failure)
+    	{
+    		Log.Entry("DCD Locate symbol Error. Ensure DCD is installed and DComposer can see it.");
+    		return;
+    	}
 
         string[] Output;
         
@@ -415,8 +430,8 @@ class DCD_ELEM_PREFERENCE_PAGE : PREFERENCE_PAGE
         tmp.attach(mDcdImportPaths.GetRootWidget(), 0, 4, 2, 2);
         ContentWidget = tmp;
 
-        mServerFile.setFilename(SystemPath(Config.GetValue("dcd_elem", "server_command", "deps/DCD/bin/dcd-server")));
-        mClientFile.setFilename(SystemPath(Config.GetValue("dcd_elem", "client_command", "deps/DCD/bin/dcd-client")));
+        mServerFile.setFilename(SystemPath(Config.GetValue("dcd_elem", "server_command", "dcd-server")));
+        mClientFile.setFilename(SystemPath(Config.GetValue("dcd_elem", "client_command", "dcd-client")));
         mMinLookupChars.setValue(Config.GetValue("dcd_elem", "min_char_lookup", 3));
         mPort.setValue(Config.GetValue!ushort("dcd_elem", "port_number", 9166));
         mDcdImportPaths.SetItems(Config.GetArray("dcd_elem", "import_paths", ["/usr/include/dmd/phobos", "/usr/include/dmd/druntime"]));
