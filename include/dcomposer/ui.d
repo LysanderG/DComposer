@@ -1070,7 +1070,7 @@ void ShowAboutDialog()
     adBuilder.addFromFile(GladePath(Config.GetValue("aboutdialog", "aboutdialog_glade", "ui_about.glade")));
 
     auto adDialog = cast(AboutDialog)adBuilder.getObject("aboutdialog1");
-    adDialog.setVersion(DCOMPOSER_VERSION ~ " " ~ DCOMPOSER_BUILD_DATE ~ "\nBuild #" ~ to!string(BUILD_NUMBER));
+    adDialog.setVersion( DCOMPOSER_BUILD_DATE  ~ "\n" ~ DCOMPOSER_VERSION);
     adDialog.setCopyright(DCOMPOSER_COPYRIGHT);
     adDialog.setTransientFor(MainWindow);
     adDialog.run();

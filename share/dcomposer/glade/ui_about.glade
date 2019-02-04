@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.18.3 -->
+<!-- Generated with glade 3.22.1 -->
 <interface>
   <requires lib="gtk+" version="3.12"/>
   <!-- interface-local-resource-path /home/anthony/.config/dcomposer -->
@@ -13,7 +13,6 @@
     <property name="destroy_with_parent">True</property>
     <property name="type_hint">dialog</property>
     <property name="deletable">False</property>
-    <property name="has_resize_grip">False</property>
     <property name="program_name">DComposer</property>
     <property name="version">0.01a</property>
     <property name="copyright" translatable="yes">Copyright 2011 - 2015 Anthony Goins</property>
@@ -23,6 +22,9 @@
     <property name="authors">Anthony Goins (neontotem@gmail.com)</property>
     <property name="logo">../resources/neontotemz2.png</property>
     <property name="license_type">lgpl-3-0</property>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox1">
         <property name="visible">True</property>
@@ -43,47 +45,45 @@
           </packing>
         </child>
         <child>
+          <object class="GtkSeparator" id="separator2">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label5">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">&lt;span background="black" font="mono" size="x-large" weight="light"&gt;  &lt;span foreground="#4deeea"&gt;N&lt;/span&gt;&lt;span foreground="#74ee15"&gt;E&lt;/span&gt;&lt;span foreground="#74ee15"&gt;O&lt;/span&gt;&lt;span foreground="#ffe700"&gt;N&lt;/span&gt;&lt;span foreground="#ffe700"&gt;T&lt;/span&gt;&lt;span foreground="#f000ff"&gt;O&lt;/span&gt;&lt;span foreground="#f000ff"&gt;T&lt;/span&gt;&lt;span foreground="#001eff"&gt;E&lt;/span&gt;&lt;span foreground="#001eff"&gt;M&lt;/span&gt;  &lt;/span&gt;</property>
+            <property name="use_markup">True</property>
+            <property name="justify">center</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkSeparator" id="separator1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
+        <child>
           <object class="GtkBox" id="box1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkSeparator" id="separator1">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label5">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">from
-&lt;b&gt;Neontotem&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-                <property name="justify">center</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkSeparator" id="separator2">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">True</property>
-                <property name="position">3</property>
-              </packing>
-            </child>
             <child>
               <object class="GtkFrame" id="frame3">
                 <property name="visible">True</property>
@@ -143,6 +143,18 @@
               </object>
               <packing>
                 <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSeparator">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="orientation">vertical</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">4</property>
               </packing>
@@ -234,7 +246,7 @@ Some very minor modifications by Anthony Goins.
           <packing>
             <property name="expand">False</property>
             <property name="fill">True</property>
-            <property name="position">3</property>
+            <property name="position">5</property>
           </packing>
         </child>
       </object>

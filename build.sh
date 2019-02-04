@@ -32,7 +32,6 @@ dmd \
 -I${GTKD_IMPORT_PATH}gtkd \
 -I${GTKD_IMPORT_PATH}sourceview \
 -I${GTKD_IMPORT_PATH}vte \
--L-LDL \
 -defaultlib=libphobos2.so \
 include/dcomposer/dcomposer.d \
 include/dcomposer/dcore.d \

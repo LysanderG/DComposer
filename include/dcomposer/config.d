@@ -29,21 +29,21 @@ string DCOMPOSER_COPYRIGHT;
 string userDirectory;
 string sysDirectory;
 
-string BUILD_USER;
-string BUILD_MACHINE;
-long BUILD_NUMBER ;
+//string BUILD_USER;
+//string BUILD_MACHINE;
+//long BUILD_NUMBER ;
 
 static this()
 {
-    //mixin(import(".build.data"));
-    DCOMPOSER_VERSION = "v0.1test";
-    DCOMPOSER_BUILD_DATE = "January 24, 2019";
-    DCOMPOSER_COPYRIGHT = "Copyright 2011 - 2019 Anthony Goins";
-    BUILD_USER = "anthony@archdad";
-    BUILD_MACHINE = "archdad";
-    BUILD_NUMBER = 1000;
-    userDirectory = "~/.config/dcomposer/".expandTilde();
-    //s
+    mixin(import(".build.data"));
+    userDirectory = "~/.config/dcomposer".expandTilde();
+    //windows -> / ??? something appdata something ?
+    //i would boot my laptop into windows but i don't have an hour to sit around waiting
+    //for windows to tell me "Preparing Updates, this may take a few days."
+    //Seriously by the time Windows responds to the keyboard
+    //I could boot into arch, complete the task, rage quit "Jagged Alliance 2", beat the newer "X COM",
+    //pirate 2 movies plus an album, reduce unread emails to a 4 digit number,
+    //figure out how to remove drop shadows from my DOCK, ... aaahh nvm
 }
 
 
@@ -192,6 +192,7 @@ public:
         string[] dtagJpaths;
         
         sysDirectory = CmdArgs[0].dirName().buildPath("../").absolutePath().buildNormalizedPath();
+	//windows -> "/Program Files/dcomposer";
         dwrite(sysDirectory);
         try
         {

@@ -88,9 +88,9 @@ class LOG
         f.writeln(userDirectory);
         f.writeln(sysDirectory);
         //f.writeln(installDirectories);
-        f.writeln(BUILD_USER);
-        f.writeln(BUILD_MACHINE);
-        f.writeln(BUILD_NUMBER) ;
+//        f.writeln(BUILD_USER);
+//        f.writeln(BUILD_MACHINE);
+//        f.writeln(BUILD_NUMBER) ;
 
         Entry("\tLog file set to : " ~ mLogFile);
         Entry("Engaged");
