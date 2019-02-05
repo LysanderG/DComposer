@@ -29,7 +29,7 @@ class PRINT_ELEM : ELEMENT
 
     void Engage()
     {
-        AddIcon("print-element", SystemPath(Config.GetValue("print_elem", "icon", "elements/resources/printer.png")));
+        AddIcon("print-element", ElementPath(Config.GetValue("print_elem", "icon", "resources/printer.png")));
         AddAction("ActPrint", "Print", "Print current document", "print-element", "<Control><Shift>P",
             delegate void (Action a){ PrintDoc();});
 
@@ -102,7 +102,7 @@ class PRINT_ELEM : ELEMENT
         ObjectG AddCustomTab(PrintOperation po)
         {
             Builder xBuilder = new Builder;
-            xBuilder.addFromFile(SystemPath(Config.GetValue("print_elem", "glade_file", "elements/resources/print_elem.glade")));
+            xBuilder.addFromFile(ElementPath(Config.GetValue("print_elem", "glade_file", "resources/print_elem.glade")));
 
             mCustomPage = cast(Box)             xBuilder.getObject("root");
 

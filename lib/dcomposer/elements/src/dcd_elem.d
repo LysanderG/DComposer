@@ -177,8 +177,8 @@ class DCD_ELEM : ELEMENT
     {
         SetupTypeNames();
 
-        mServerCommand = SystemPath(Config.GetValue("dcd_elem", "server_command", "dcd-server"));
-        mClientCommand = SystemPath(Config.GetValue("dcd_elem", "client_command", "dcd-client"));
+        mServerCommand = Config.GetValue("dcd_elem", "server_command", "dcd-server");
+        mClientCommand = Config.GetValue("dcd_elem", "client_command", "dcd-client");
         mImportPaths = Config.GetArray("dcd_elem", "import_paths", ["/usr/include/dmd/phobos", "/usr/include/dmd/druntime"]);
         mPort = Config.GetValue!ushort("dcd_elem", "port_number", 9166);
         mMinChars = Config.GetValue("dcd_elem", "min_char_lookup", 3);
@@ -187,7 +187,7 @@ class DCD_ELEM : ELEMENT
         Project.Event.connect(&WatchImportPaths);
         
         //goto location stuff
-        AddIcon("dcd-got", SystemPath(Config.GetValue("dcd_elem", "goto_icon", "elements/resources/target.png")));
+        AddIcon("dcd-got", ElementPath(Config.GetValue("dcd_elem", "goto_icon", "resources/target.png")));
         AddAction("ActDcdGoto", "Locate Symbol", "Where is symbol defined", "dcd-got", "F2", 
             delegate void(Action a){Locate();});
         uiContextMenu.AddAction("ActDcdGoto");
@@ -266,8 +266,8 @@ class DCD_ELEM : ELEMENT
 
     void Configure()
     {
-        mServerCommand = SystemPath(Config.GetValue("dcd_elem", "server_command", "deps/DCD/bin/dcd-server"));
-        mClientCommand = SystemPath(Config.GetValue("dcd_elem", "client_command", "deps/DCD/bin/dcd-client"));
+        mServerCommand = Config.GetValue("dcd_elem", "server_command", "dcd-server");
+        mClientCommand = Config.GetValue("dcd_elem", "client_command", "dcd-client");
         mImportPaths = Config.GetArray("dcd_elem", "import_paths", ["/usr/include/dmd/druntime", "/usr/include/dmd/phobos"]);
         mPort = Config.GetValue!ushort("dcd_elem", "port_number", 9166);
         mMinChars = Config.GetValue("dcd_elem", "min_char_lookup", 3);
@@ -430,8 +430,8 @@ class DCD_ELEM_PREFERENCE_PAGE : PREFERENCE_PAGE
         tmp.attach(mDcdImportPaths.GetRootWidget(), 0, 4, 2, 2);
         ContentWidget = tmp;
 
-        mServerFile.setFilename(SystemPath(Config.GetValue("dcd_elem", "server_command", "dcd-server")));
-        mClientFile.setFilename(SystemPath(Config.GetValue("dcd_elem", "client_command", "dcd-client")));
+        mServerFile.setFilename(Config.GetValue("dcd_elem", "server_command", "dcd-server"));
+        mClientFile.setFilename(Config.GetValue("dcd_elem", "client_command", "dcd-client"));
         mMinLookupChars.setValue(Config.GetValue("dcd_elem", "min_char_lookup", 3));
         mPort.setValue(Config.GetValue!ushort("dcd_elem", "port_number", 9166));
         mDcdImportPaths.SetItems(Config.GetArray("dcd_elem", "import_paths", ["/usr/include/dmd/phobos", "/usr/include/dmd/druntime"]));

@@ -67,6 +67,7 @@ class FILTER : ELEMENT
 	ListStore mSavedStore;
 	TextView mErrorText;
 	TextView mPadText;
+    MenuItem[10] mMenuItems;
 
 	//Idle mUpdateOnIdle;
 	SAVED_FILTER[] mSavedFilters;
@@ -351,52 +352,52 @@ class FILTER : ELEMENT
 		//actions
 		AddIcon("dcmp-doc-filter-user-1",  ElementPath(Config.GetValue("filter_elem", "filter-act-1","resources/notification-counter.png")));
 		auto ActUserOne = "ActUserOne".AddAction("User 1", "Saved user text filter", "dcmp-doc-filter-user-1", "<Control><Shift>exclam",delegate void(Action a){UserAction(1);});
-		AddToMenuBar("ActUserOne", "E_lements");
+		mMenuItems[0] = AddToMenuBar("ActUserOne", "E_lements");
 		uiContextMenu.AddAction("ActUserOne");
 
 		AddIcon("dcmp-doc-filter-user-2",  ElementPath(Config.GetValue("filter_elem", "filter-act-2", "resources/notification-counter-02.png")));
 		auto ActUserTwo = "ActUserTwo".AddAction("User 2", "Saved user text filter", "dcmp-doc-filter-user-2", "<Shift><Control>at",delegate void(Action a){UserAction(2);});
-		AddToMenuBar("ActUserTwo", "E_lements");
+		mMenuItems[1] = AddToMenuBar("ActUserTwo", "E_lements");
 		uiContextMenu.AddAction("ActUserTwo");
 
 		AddIcon("dcmp-doc-filter-user-3",  ElementPath(Config.GetValue("filter_elem", "filter-act-3", "resources/notification-counter-03.png")));
 		auto ActUserThree = "ActUserThree".AddAction("User 3", "Saved user text filter", "dcmp-doc-filter-user-3", "<Shift><Control>numbersign",delegate void(Action a){UserAction(3);});
-		AddToMenuBar("ActUserThree", "E_lements");
+		mMenuItems[2] = AddToMenuBar("ActUserThree", "E_lements");
 		uiContextMenu.AddAction("ActUserThree");
 
 		AddIcon("dcmp-doc-filter-user-4",  ElementPath(Config.GetValue("filter_elem", "filter-act-4", "resources/notification-counter-04.png")));
 		auto ActUserFour = "ActUserFour".AddAction("User 4", "Saved user text filter", "dcmp-doc-filter-user-4", "<Shift><Control>dollar",delegate void(Action a){UserAction(4);});
-		AddToMenuBar("ActUserFour", "E_lements");
+		mMenuItems[3] = AddToMenuBar("ActUserFour", "E_lements");
 		//uiContextMenu.AddAction("ActUserFour");
 
 		AddIcon("dcmp-doc-filter-user-5",  ElementPath(Config.GetValue("filter_elem", "filter-act-5", "resources/notification-counter-05.png")));
 		auto ActUserFive = "ActUserFive".AddAction("User 5", "Saved user text filter", "dcmp-doc-filter-user-5", "<Shift><Control>percent",delegate void(Action a){UserAction(5);});
-		AddToMenuBar("ActUserFive", "E_lements");
+		mMenuItems[4] = AddToMenuBar("ActUserFive", "E_lements");
 		//uiContextMenu.AddAction("ActUserFive");
 
 		AddIcon("dcmp-doc-filter-user-6",  ElementPath(Config.GetValue("filter_elem", "filter-act-6", "resources/notification-counter-06.png")));
 		auto ActUserSix = "ActUserSix".AddAction("User 6", "Saved user text filter", "dcmp-doc-filter-user-6", "<Shift><Control>asciicircum",delegate void(Action a){UserAction(6);});
-		AddToMenuBar("ActUserSix", "E_lements");
+		mMenuItems[5] = AddToMenuBar("ActUserSix", "E_lements");
 		//uiContextMenu.AddAction("ActUserSix");
 
 		AddIcon("dcmp-doc-filter-user-7",  ElementPath(Config.GetValue("filter_elem", "filter-act-7", "resources/notification-counter-07.png")));
 		auto ActUserSeven = "ActUserSeven".AddAction("User 7", "Saved user text filter", "dcmp-doc-filter-user-7", "<Shift><Control>ampersand",delegate void(Action a){UserAction(7);});
-		AddToMenuBar("ActUserSeven", "E_lements");
+		mMenuItems[6] = AddToMenuBar("ActUserSeven", "E_lements");
 		//uiContextMenu.AddAction("ActUserSeven");
 
 		AddIcon("dcmp-doc-filter-user-8",  ElementPath(Config.GetValue("filter_elem", "filter-act-8", "resources/notification-counter-08.png")));
 		auto ActUserEight = "ActUserEight".AddAction("User 8", "Saved user text filter", "dcmp-doc-filter-user-8", "<Shift><Control>asterisk",delegate void(Action a){UserAction(8);});
-		AddToMenuBar("ActUserEight", "E_lements");
+		mMenuItems[7] = AddToMenuBar("ActUserEight", "E_lements");
 		//uiContextMenu.AddAction("ActUserEight");
 
 		AddIcon("dcmp-doc-filter-user-9",  ElementPath(Config.GetValue("filter_elem", "filter-act-9", "resources/notification-counter-09.png")));
 		auto ActUserNine = "ActUserNine".AddAction("User 9", "Saved user text filter", "dcmp-doc-filter-user-9", "<Shift><Control>parenleft",delegate void(Action a){UserAction(9);});
-		AddToMenuBar("ActUserNine", "E_lements");
+		mMenuItems[8] = AddToMenuBar("ActUserNine", "E_lements");
 		//uiContextMenu.AddAction("ActUserNine");
 
 		AddIcon("dcmp-doc-filter-user-0",  ElementPath(Config.GetValue("filter_elem", "filter-act-0", "resources/notification-counter-10.png")));
 		auto ActUserTen = "ActUserTen".AddAction("User 10", "Saved user text filter", "dcmp-doc-filter-user-0", "<Shift><Control>parenright",delegate void(Action a){UserAction(10);});
-		AddToMenuBar("ActUserTen", "E_lements");
+		mMenuItems[9] = AddToMenuBar("ActUserTen", "E_lements");
 		//uiContextMenu.AddAction("ActUserTen");
 
         UpdateSavedView();
@@ -416,16 +417,25 @@ class FILTER : ELEMENT
 			jobject["output"] = cast(int)filter.Out;
 			Config.AppendObject("filter_elem","saved", jobject);
 		}
-        
+        RemoveFromMenuBar(mMenuItems[9],mRootMenuNames[6]);
         RemoveAction("ActUserTen");
+        RemoveFromMenuBar(mMenuItems[8],mRootMenuNames[6]);
         RemoveAction("ActUserNine");
+        RemoveFromMenuBar(mMenuItems[7],mRootMenuNames[6]);
         RemoveAction("ActUserEight");
+        RemoveFromMenuBar(mMenuItems[6],mRootMenuNames[6]);
         RemoveAction("ActUserSeven");
+        RemoveFromMenuBar(mMenuItems[5],mRootMenuNames[6]);
         RemoveAction("ActUserSix");
+        RemoveFromMenuBar(mMenuItems[4],mRootMenuNames[6]);
         RemoveAction("ActUserFive");
+        RemoveFromMenuBar(mMenuItems[3],mRootMenuNames[6]);
         RemoveAction("ActUserFour");
+        RemoveFromMenuBar(mMenuItems[2],mRootMenuNames[6]);
         RemoveAction("ActUserThree");
+        RemoveFromMenuBar(mMenuItems[1],mRootMenuNames[6]);
         RemoveAction("ActUserTwo");
+        RemoveFromMenuBar(mMenuItems[0],mRootMenuNames[6]);
         RemoveAction("ActUserOne");        
 
 		RemoveExtraPage(mRoot);

@@ -106,10 +106,10 @@ class DSCANNER_ELEM : ELEMENT
 
         mOutlineTree = new TreeView;
         mOutlineStore = new TreeStore([GType.STRING, GType.INT, GType.STRING]);
-        mOutlineTree.appendColumn(new TreeViewColumn("symbol", new CellRendererText, "text", 2));
         mOutlineTree.appendColumn(new TreeViewColumn("line", new CellRendererText, "text", 1));
-        mOutlineTree.getColumn(0).setSortColumnId(2);
-        mOutlineTree.getColumn(1).setSortColumnId(1);
+        mOutlineTree.appendColumn(new TreeViewColumn("symbol", new CellRendererText, "text", 2));
+        mOutlineTree.getColumn(1).setSortColumnId(2);
+        mOutlineTree.getColumn(0).setSortColumnId(1);
         mOutlineTree.setTooltipColumn(0);
         mOutlineTree.setModel(mOutlineStore);
 
@@ -148,7 +148,7 @@ class DSCANNER_ELEM : ELEMENT
         });
         
         mOutlineTree.getSelection().setMode(SelectionMode.BROWSE);
-        mOutlineTree.getColumn(0).setSizing(TreeViewColumnSizing.AUTOSIZE);
+        mOutlineTree.getColumn(1).setSizing(TreeViewColumnSizing.AUTOSIZE);
 
         DocMan.Insertion.connect(&WatchForInsertion);
         DocMan.PageFocusIn.connect(&WatchForPageFocus);
@@ -341,7 +341,7 @@ class DSCANNER_ELEM_PREF_PAGE :PREFERENCE_PAGE
         Title = "DScanner Preferences";
         
         auto tmpBuilder = new Builder;
-        tmpBuilder.addFromFile(SystemPath(Config.GetValue("dscanner_elem", "glade_file", "elements/resources/dscanner_elem_pref.glade")));
+        tmpBuilder.addFromFile(ElementPath(Config.GetValue("dscanner_elem", "glade_file", "resources/dscanner_elem_pref.glade")));
         
         
         

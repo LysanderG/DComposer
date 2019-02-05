@@ -11,26 +11,6 @@ import ui;
 import dcore;
 import ui_preferences;
 
-//import gtk.Builder;
-//import gtk.Label;
-//import gtk.TreeView;
-//import gtk.TreeIter;
-//import gtk.ComboBox;
-//import gtk.Toolbar;
-//import gtk.ListStore;
-//import gtk.TreePath;
-//import gtk.TreeViewColumn;
-//import gtk.ToolButton;
-//import gtk.FileChooserDialog;
-//import gtk.CellRendererText;
-//import gtk.Viewport;
-//import gtk.Frame;
-//import gtk.CheckButton;
-//import gtk.Widget;
-//
-//import gobject.Value;
-
-
 
 extern (C) string GetClassName()
 {
