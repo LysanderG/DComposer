@@ -2888,7 +2888,16 @@ class DOCUMENT : SourceView, DOC_IF
                 ti = StartTi.copy();
             }
         }
-
+        else 
+        {
+            auto tmpti = ti.copy();
+            TextIter tmp1, tmp2;
+            if(searchContext.backward(tmpti, tmp1, tmp2))
+            {
+                dwrite("blah blah blah", tmpti.getOffset(), " ", tmp1.getOffset(), " ", tmp2.getOffset());
+                if(ti.getOffset()== tmp2.getOffset()) ti.backwardChar();
+            }
+        }
         foreach(ctr; 0..Reps)
         {
             if(searchContext.backward(ti, StartTi, EndTi))

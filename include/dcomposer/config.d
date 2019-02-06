@@ -574,7 +574,10 @@ public string[] StylesPath()
     return rv;
 }
 
-/*
+/*   NEVERMIND ALL THIS ASSUMING WE'RE IN distdir or prefix  /usr
+ *   or somewhere in the users home folder  whereever arg[0] is ../
+ *   and user configuration and elements are in ~/.config/dcomposer
+ *
  * Ok, some notes about paths after hitting a few stone walls.
  * dir 1  defaults to ~/.config/dcomposer (or should it be ~/.local/share/dcomposer)
  *  userDirectory
