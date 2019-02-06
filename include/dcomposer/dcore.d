@@ -16,12 +16,6 @@ LOG         Log;
 DOCMAN      DocMan;
 PROJECT     Project;
 SYMBOLS     Symbols;
-//DEBUGGER  Debugger;
-//history
-//bookmarks
-//terminal --maybe
-//shellif (for the shell filter thingy)
-
 
 void Engage(string[] CmdLineArgs)
 {
@@ -37,7 +31,6 @@ void Engage(string[] CmdLineArgs)
     Project.    Engage();
     Symbols.    Engage();
     search.     Engage();
-    //debugger. Engage();
 
     Log.Entry("Engaged");
 }
@@ -50,14 +43,12 @@ void PostEngage()
     Project.    PostEngage();
     Symbols.    PostEngage();
     search.     PostEngage();
-    //Debugger. PostEngage();
 
     Log.Entry("PostEngaged");
 }
 
 void Disengage()
 {
-    //Debugger. Disengage();
     search.     Disengage();
     Symbols.    Disengage();
     Project.    Disengage();
