@@ -45,7 +45,7 @@ class SYM_ASSIST_UI :ELEMENT
     void Engage()
     {
         auto sauBuilder = new Builder;
-        sauBuilder.addFromFile(SystemPath(Config.GetValue("sym_assist_ui", "glade_file", "elements/resources/sym_assist_ui.glade")));
+        sauBuilder.addFromFile(ElementPath(Config.GetValue("sym_assist_ui", "glade_file", "resources/sym_assist_ui.glade")));
         mRootBox  = cast(Box)sauBuilder.getObject("box1");
         //mMatchingLabel = cast(Label)sauBuilder.getObject("label1");
         mCandidatesComboBox = cast(ComboBoxText)sauBuilder.getObject("comboboxtext1");
@@ -97,7 +97,7 @@ class SYM_ASSIST_UI :ELEMENT
 
 
 
-        AddIcon("dcmp-sym-assist", SystemPath(Config.GetValue("icons", "sym-assist-ui", "elements/resources/question-frame.png")));
+        AddIcon("dcmp-sym-assist", ElementPath(Config.GetValue("icons", "sym-assist-ui", "resources/question-frame.png")));
         auto ActSymAssistUi = "ActSymAssistUI".AddAction("Symbol Assist", "See documentation for symbol", "dcmp-sym-assist", "F1",delegate void (Action){ActionAssist();});
         mActionMenuItem = AddToMenuBar("ActSymAssistUI", "E_lements");
         uiContextMenu.AddAction("ActSymAssistUI");
