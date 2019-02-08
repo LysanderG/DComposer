@@ -128,6 +128,14 @@ void LoadElements()
 {
     foreach(keyfile, ref lib; Libraries)
     {
+	scope(failure)
+	{
+		ShowMessage("AARRRGGG","Error Loading/Engaging " ~ lib.mName);
+		Log.Entry("Failed loading " ~ lib.mName, "Error");
+		UnloadElement(keyfile);
+		continue;
+	}
+
         if(lib.mEnabled)
         {
             if(lib.Ptr is null)
@@ -189,13 +197,12 @@ bool UnloadElement(string Name)
 
     scope(failure)Log.Entry("Failed to unload " ~ Name, "Error");
     scope(success)Log.Entry("Unloaded library: " ~ Libraries[Name].mClassName);
-
     Elements[Libraries[Name].mClassName].Disengage();
     Config.Save();
 
     destroy(Elements[Libraries[Name].mClassName]);
     Elements.remove(Libraries[Name].mClassName);
-
+	
     rv = Runtime.unloadLibrary(Libraries[Name].Ptr);
     Libraries[Name].Ptr = null;
     Libraries[Name].mEnabled = false;

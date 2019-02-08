@@ -401,7 +401,7 @@ class SNIPPETS : ELEMENT
         if(newMode == false)
         {
             mCurrentTabStop = 0;
-            mCurrentSnip.Clear();
+	    //mCurrentSnip.Clear();
             mMode = false;
             mStatusLabel.setVisible(false);
         }

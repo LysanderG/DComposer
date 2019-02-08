@@ -421,8 +421,6 @@ class UI_COMPLETION
         mTipWindow.setKeepAbove(true);
         mTipTree.setHeadersVisible(false);
 
-
-
         //----------------
 
         DocMan.DocumentKeyDown.connect(&WatchForKeys);
@@ -466,9 +464,7 @@ class UI_COMPLETION
         }
 
         mCompTree.setModel(mCompStore);
-        //MapCompletionWindow();
         mCompWindow.showAll();
-        
         MapCompletionWindow();
         mCompTree.setCursor(new TreePath("0"), null, false);
             
