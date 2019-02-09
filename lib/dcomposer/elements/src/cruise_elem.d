@@ -173,7 +173,8 @@ class CRUISE_ELEM : ELEMENT
         uiKeyTree = cast(TreeView)builder.getObject("treeview1");
         uiKeyStore = cast(ListStore)builder.getObject("liststore1");
 
-        AddToggleAction("ActCruiseMode","Cruise Mode", "Text cruising mode", "", "<Control>J",&ToggleCruiseMode);
+        AddIcon("cruise_icon", ElementPath( Config.GetValue("cruise", "icon", "resources/dashboard.png")));
+        AddToggleAction("ActCruiseMode","Cruise Mode", "Text cruising mode", "cruise_icon", "<Control>J",&ToggleCruiseMode);
         mActionMenuItem = AddToMenuBar("ActCruiseMode", mRootMenuNames[6], 0);
         
         uiSwitch.setRelatedAction(GetAction("ActCruiseMode"));
