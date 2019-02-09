@@ -397,7 +397,9 @@ class UI_PROJECT
         {
             CalculateFolder();
         });
-        ProjTargetType.addOnChanged(delegate void (ComboBoxText cbt){Project.TargetType = cast(TARGET)ProjTargetType.getActive();});
+        ProjTargetType.addOnChanged(delegate void (ComboBoxText cbt){
+		Project.TargetType = cast(TARGET)ProjTargetType.getActive();
+	});
         ProjCompiler.addOnChanged(delegate void (ComboBoxText cbt){Project.Compiler = cast(COMPILER)ProjCompiler.getActiveText();});
         ProjNotes.getBuffer().addOnChanged(delegate void (TextBuffer tb){Project.Lists["Notes"] = tb.getText();});
         ProjCustomBuild.addOnToggled(delegate void(ToggleButton tb){Project.UseCustomBuild = cast(bool)tb.getActive();ProjCustomBuildCommand.setEditable(ProjCustomBuild.getActive());});

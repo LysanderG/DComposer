@@ -499,6 +499,29 @@ class PROJECT
     {
         if(nuType == mTargetType) return;
         mTargetType = nuType;
+	switch(nuType)
+	{
+		case TARGET.SHARED :
+			SetFlagArgument("-of", "name output file to filename", "lib" ~ Name ~ ".so");
+			SetFlag("-of", "name output file to filename",true);
+			SetFlag("-shared", "generate shared library (DLL)", true);
+			SetFlag("-lib", "generate library rather than object files", false);
+			break;
+		case TARGET.APPLICATION :
+			SetFlagArgument("-of", "name output file to filename", Name);
+			SetFlag("-of", "name output file to filename",true);
+			SetFlag("-shared", "generate shared library (DLL)", false);
+			SetFlag("-lib", "generate library rather than object files", false);
+			break;
+		case TARGET.STATIC:
+			SetFlagArgument("-of", "name output file to filename", "lib" ~ Name ~ ".a");
+			SetFlag("-of", "name output file to filename", true);
+			SetFlag("-shared", "generate shared library (DLL)", false);
+			SetFlag("-lib", "generate library rather than object files", true);
+			break;
+		default :break;
+	}
+			
         Event.emit(PROJECT_EVENT.TARGET_TYPE);
     }
     @property TARGET TargetType()
