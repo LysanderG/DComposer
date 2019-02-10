@@ -642,9 +642,20 @@ void RestoreExtraPane()
 
 void CompactView()
 {
+    auto box = cast(Box)mBuilder.getObject("boxMenuTool");
+    dwrite(box);
     auto compactToggleAction = cast(ToggleAction)GetAction("ActCompactUI");
-    if(compactToggleAction.getActive())mPaneV.setOrientation(Orientation.HORIZONTAL);
-    else mPaneV.setOrientation(Orientation.VERTICAL);
+    dwrite (compactToggleAction);
+    if(compactToggleAction.getActive())
+    {
+        mPaneV.setOrientation(Orientation.HORIZONTAL);
+        box.setOrientation(Orientation.HORIZONTAL);
+    }
+    else
+    {
+        mPaneV.setOrientation(Orientation.VERTICAL);
+        box.setOrientation(Orientation.VERTICAL);
+    }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
