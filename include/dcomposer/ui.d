@@ -189,7 +189,6 @@ void RestoreGui()
     MainWindow.setDefaultSize(win_x_len, win_y_len);
 
 
-
     RestoreSidePane();
 
     RestoreExtraPane();
@@ -298,6 +297,7 @@ void EngageActions()
     AddIcon("dcmp-about", ResourcePath(Config.GetValue("icons", "about", "information-frame.png")));
     AddIcon("dcmp-preferences", ResourcePath(Config.GetValue("icons", "preferences", "gear.png")));
     AddIcon("dcmp-view-statusbar", ResourcePath(Config.GetValue("icons","statusbar-view","ui-status-bar.png")));
+    AddIcon("dcmp-compact-ui", ResourcePath(Config.GetValue("icons","compact-ui", "layout-hf-3.png")));
 
     AddToggleAction("ActViewStatusbar", "View Statusbar", "show/hide statusbar", "dcmp-view-statusbar", "",
 		delegate void(Action a){auto y = cast(ToggleAction)a;mStatusbar.setVisible(y.getActive());});
@@ -308,15 +308,18 @@ void EngageActions()
     AddAction("ActConfigureToolbar", "Edit Toolbar", "customize toolbar buttons", "dcmp-toolbar-configure", "",
         delegate void (Action a){ConfigureToolBar();});
     AddAction("ActAbout", "About", "dcomposer information", "dcmp-about", "",
-        delegate void(Action a){ShowAboutDialog();}); foreach(name; mRootMenuNames) mRootMenu[name] = mMenuBar.append(name);
+        delegate void(Action a){ShowAboutDialog();}); 
     AddAction("ActPreferences", "Preferences", "edit options", "dcmp-preferences", "<Control>p",
         delegate void(Action a){ShowAppPreferences();});
+    AddToggleAction("ActCompactUI", "Save Vertical Space", "Conserve vertical editing space", "dcmp-compact-ui","",
+        delegate void(Action a){CompactView();});
 
 	auto tmpVisibleValue = Config.GetValue("ui","statusbar-visible",true);
 	mStatusbar.setVisible(tmpVisibleValue);
 	auto sbvAct = cast(ToggleAction)GetAction("ActViewStatusbar");
 	sbvAct.setActive(tmpVisibleValue);
-
+    
+    foreach(name; mRootMenuNames) mRootMenu[name] = mMenuBar.append(name);
     AddToMenuBar("ActConfigureToolbar", mRootMenuNames[0]);
     AddToMenuBar("ActPreferences", mRootMenuNames[0]);
     AddToMenuBar("-", mRootMenuNames[0]);
@@ -324,6 +327,7 @@ void EngageActions()
 
 	AddToMenuBar("ActViewStatusbar", mRootMenuNames[1]);
     AddToMenuBar("ActViewToolbar", mRootMenuNames[1]);
+    AddToMenuBar("ActCompactUI", mRootMenuNames[1]);
     AddToMenuBar("ActAbout", mRootMenuNames[7], 0);
 
 
@@ -595,6 +599,7 @@ void StoreExtraPane()
 {
     Config.SetValue("ui", "extra_pane_position", mPaneV.getPosition());
     Config.SetValue("ui", "extra_pane_visible", mExtraPane.getParent().getVisible());
+    Config.SetValue("ui", "extra_pane_orientation", mPaneV.getOrientation());
 
     foreach(int i; 0 .. (mExtraPane.getNPages()))
     {
@@ -607,6 +612,11 @@ void StoreExtraPane()
 }
 void RestoreExtraPane()
 {
+    auto ExtraPaneCompact = cast(Orientation)Config.GetValue("ui", "extra_pane_orientation", 0);
+    mPaneV.setOrientation(ExtraPaneCompact);
+    auto orient = cast (ToggleAction)GetAction("ActCompactUI");
+    orient.setActive(ExtraPaneCompact==Orientation.HORIZONTAL);
+
     mPaneV.setPosition(Config.GetValue!int("ui", "extra_pane_position", 681));
 
     bool ExtraPaneVisible = Config.GetValue("ui", "extra_pane_visible", true);
@@ -630,7 +640,14 @@ void RestoreExtraPane()
     mExtraPane.setCurrentPage(0);
 }
 
-
+void CompactView()
+{
+    auto compactToggleAction = cast(ToggleAction)GetAction("ActCompactUI");
+    if(compactToggleAction.getActive())mPaneV.setOrientation(Orientation.HORIZONTAL);
+    else mPaneV.setOrientation(Orientation.VERTICAL);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
 //this really needs a button parameter or its useless!
 void ShowMessage(string Title, string Message)
 {
