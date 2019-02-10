@@ -488,7 +488,7 @@ private int findClosingQuote(string text)
     int rv = -1;
     bool skipnext = false;
     if(text[0] == '"') text = text[1..$];
-    foreach(int i, x;text)
+    foreach( i, x;text)
     {
         if(skipnext)
         {
@@ -498,7 +498,7 @@ private int findClosingQuote(string text)
         if(x == '\\')skipnext = true;
         if(x == '"')
         {
-            rv = i+1;
+            rv = cast(int)i+1;
             break;
         }
     }

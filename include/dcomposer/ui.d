@@ -648,9 +648,9 @@ int ShowMessage(string Title, string Message, string[] Buttons ...)
     auto dialog = new MessageDialog(MainWindow, DialogFlags.MODAL, MessageType.INFO, ButtonsType.NONE, "");
     dialog.setTitle(Title);
     dialog.setMarkup(Message);
-    foreach(int indx, string btn;Buttons)
+    foreach(indx, string btn;Buttons)
     {
-        dialog.addButton(btn, indx);
+        dialog.addButton(btn, cast(int)indx);
     }
 
     auto response = dialog.run();
