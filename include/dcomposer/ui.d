@@ -585,7 +585,7 @@ void AddExtraPage(Container subject, string tab_text)
 {
     mExtraPane.appendPage(subject, tab_text);
     mExtraPane.setTabReorderable(subject, 1);
-
+    mExtraPane.setTabDetachable(subject, true);
 }
 void RemoveExtraPage(Container page)
 {
