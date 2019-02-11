@@ -517,6 +517,7 @@ void AddSidePage(Container page, string tab_text)
 {
     mSidePane.appendPage(page, tab_text);
     mSidePane.setTabReorderable(page, 1);
+    mSidePane.setTabDetachable(page, 1);
     if(mSidePane.getNPages == 1)
     {
         auto tmpToggle = cast(ToggleAction)GetAction("ActViewSidePane");
