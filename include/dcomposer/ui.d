@@ -312,7 +312,7 @@ void EngageActions()
     AddAction("ActPreferences", "Preferences", "edit options", "dcmp-preferences", "<Control>p",
         delegate void(Action a){ShowAppPreferences();});
     AddToggleAction("ActCompactUI", "Save Vertical Space", "Conserve vertical editing space", "dcmp-compact-ui","",
-        delegate void(Action a){CompactView();});
+        delegate void(Action a){CompactView(cast(ToggleAction) a);});
 
 	auto tmpVisibleValue = Config.GetValue("ui","statusbar-visible",true);
 	mStatusbar.setVisible(tmpVisibleValue);
@@ -462,7 +462,9 @@ string[] ListActions()
 
     while(actnode !is null)
     {
-        x  = new Action(cast(GtkAction*)actnode.data());
+        //using ToggleAction because Action seems to return null for ToggleActions
+        //see if this works.
+        x  = new ToggleAction(cast(GtkToggleAction*)actnode.data());
         rv ~= x.getName();
         actnode = actnode.next();
     }
@@ -521,6 +523,7 @@ void AddSidePage(Container page, string tab_text)
     if(mSidePane.getNPages == 1)
     {
         auto tmpToggle = cast(ToggleAction)GetAction("ActViewSidePane");
+        dwrite(tmpToggle);
         tmpToggle.setActive(true);
         tmpToggle.toggled();
     }
@@ -531,6 +534,7 @@ void RemoveSidePage(Container page)
     if(mSidePane.getNPages() < 1)
     {
         auto tmpToggle = cast(ToggleAction)GetAction("ActViewSidePane");
+        dwrite(tmpToggle);
         tmpToggle.setActive(false);
         tmpToggle.toggled();
     }
@@ -641,11 +645,10 @@ void RestoreExtraPane()
     mExtraPane.setCurrentPage(0);
 }
 
-void CompactView()
+void CompactView(ToggleAction compactToggleAction)
 {
     auto box = cast(Box)mBuilder.getObject("boxMenuTool");
     dwrite(box);
-    auto compactToggleAction = cast(ToggleAction)GetAction("ActCompactUI");
     dwrite (compactToggleAction);
     if(compactToggleAction.getActive())
     {
