@@ -348,6 +348,7 @@ class FILTER : ELEMENT
         });
             
 
+        AddToMenuBar("-", mRootMenuNames[6]);
 
 		//actions
 		AddIcon("dcmp-doc-filter-user-1",  ElementPath(Config.GetValue("filter_elem", "filter-act-1","resources/notification-counter.png")));

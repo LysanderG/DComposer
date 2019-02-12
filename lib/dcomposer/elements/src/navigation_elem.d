@@ -32,25 +32,27 @@ class NAVIGATION_ELEM : ELEMENT
         DocMan.PreCursorJump.connect(&PushNavPoint);
         DocMan.CursorJump.connect(&PushNavPoint);
 
+        AddToMenuBar("-", mRootMenuNames[6]);
+
         AddIcon("nav-back", ElementPath(Config.GetValue("navigation_elem", "nav_back", "resources/document-page-previous.png")));
         AddAction("NavBack", "Back", "Go back to last cursor location", "nav-back", "<Control>comma",
             delegate void(Action a){BackNavPoint();});
-        mActionMenuItems ~= AddToMenuBar("NavBack", mRootMenuNames[6], 0);
+        mActionMenuItems ~= AddToMenuBar("NavBack", mRootMenuNames[6]);
 
         AddIcon("nav-forward", ElementPath(Config.GetValue("navigation_elem", "nav_forward", "resources/document-page-next.png")));
         AddAction("NavForward", "Forward", "Go forward to previous cursor location", "nav-forward", "<Control>period",
             delegate void(Action a){ForwardNavPoint();});
-        mActionMenuItems ~= AddToMenuBar("NavForward", mRootMenuNames[6], 0);
+        mActionMenuItems ~= AddToMenuBar("NavForward", mRootMenuNames[6]);
 
         AddIcon("nav-add", ElementPath(Config.GetValue("navigation_elem", "nav_add", "resources/pin-small.png")));
         AddAction("NavAdd", "Add Nav Point", "Insert a navigation mark", "nav-add", "<Control>M",
             delegate void(Action a){AddNavPoint();});
-        mActionMenuItems ~= AddToMenuBar("NavAdd", mRootMenuNames[6], 0);
+        mActionMenuItems ~= AddToMenuBar("NavAdd", mRootMenuNames[6]);
 
         AddIcon("nav-clear", ElementPath(Config.GetValue("navigation_elem", "nav_clear", "resources/minus-small-circle.png")));
         AddAction("NavClear", "Clear Nav Points", "Clear all navigation marks", "nav-clear", "<Control><Shift>M",
             delegate void(Action a){ClearNavPoints();});
-        mActionMenuItems ~= AddToMenuBar("NavClear", mRootMenuNames[6], 0);
+        mActionMenuItems ~= AddToMenuBar("NavClear", mRootMenuNames[6]);
 
 
         Log.Entry("Engaged");

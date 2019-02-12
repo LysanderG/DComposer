@@ -175,7 +175,8 @@ class CRUISE_ELEM : ELEMENT
 
         AddIcon("cruise_icon", ElementPath( Config.GetValue("cruise", "icon", "resources/dashboard.png")));
         AddToggleAction("ActCruiseMode","Cruise Mode", "Text cruising mode", "cruise_icon", "<Control>J",&ToggleCruiseMode);
-        mActionMenuItem = AddToMenuBar("ActCruiseMode", mRootMenuNames[6], 0);
+        AddToMenuBar("-", mRootMenuNames[6]);
+        mActionMenuItem = AddToMenuBar("ActCruiseMode", mRootMenuNames[6]);
         
         uiSwitch.setRelatedAction(GetAction("ActCruiseMode"));
         
