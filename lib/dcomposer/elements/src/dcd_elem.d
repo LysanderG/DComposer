@@ -63,7 +63,8 @@ class DCD_ELEM : ELEMENT
         {
             return;
         }
-	    if(DocMan.Current is null) return;
+	if(DocMan.Current is null) return;
+	if(DocMan.Current.Name.extension != ".d")return;
         if((DocMan.Current.WordLength() < mMinChars) && (text[0] != '(') && (text[0] != ')'))return;
         switch (text[0])
         {
