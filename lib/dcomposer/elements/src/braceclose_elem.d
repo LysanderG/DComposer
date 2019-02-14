@@ -23,6 +23,7 @@ class BRACE_CLOSE: ELEMENT
     
     void WatchForKeyDown(uint keyval, uint keymod)
     {
+	if(DocMan.IsDocumentKeyPressBlocked()) return;
         switch (keyval)
         {
             case 123 :
