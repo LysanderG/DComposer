@@ -116,6 +116,7 @@ Register</property>
           <object class="GtkSwitch" id="switch1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="valign">center</property>
           </object>
           <packing>
             <property name="left_attach">1</property>
@@ -126,6 +127,7 @@ Register</property>
           <object class="GtkEntry" id="entry1">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="valign">center</property>
             <property name="editable">False</property>
             <property name="width_chars">5</property>
           </object>
@@ -138,6 +140,7 @@ Register</property>
           <object class="GtkEntry" id="entry2">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="valign">center</property>
             <property name="editable">False</property>
             <property name="width_chars">5</property>
           </object>
@@ -150,6 +153,7 @@ Register</property>
           <object class="GtkEntry" id="entry3">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="valign">center</property>
             <property name="editable">False</property>
             <property name="width_chars">2</property>
           </object>
@@ -176,6 +180,7 @@ Command</property>
           <object class="GtkEntry" id="entry4">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="valign">center</property>
             <property name="editable">False</property>
             <property name="width_chars">5</property>
             <property name="caps_lock_warning">False</property>
