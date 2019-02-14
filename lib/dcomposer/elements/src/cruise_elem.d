@@ -301,8 +301,8 @@ class CRUISE_ELEM : ELEMENT
         //key object location regex 
         r"w OBJECT_WORD START (?<=^|[^_\p{L}\p{N}])([_\p{L}][_\p{L}\p{N}]*)#-->Word start",
         r"e OBJECT_WORD END (?<=^|[^_\p{L}\p{N}])([_\p{L}][_\p{L}\p{N}]*)#-->Word end",
-        r"( OBJECT_LIST START (\(|\[)(?>[^()\[\]]|(?R))*(\)|\])#-->Array/Arguments start",
-        r") OBJECT_LIST END (\(|\[)(?>[^()\[\]]|(?R))*(\)|\])#-->Array/Arguments end",
+        r"( OBJECT_LIST START (\([^\)]*\))|(\[[^\]]*\])#-->Array/Arguments start",
+        r") OBJECT_LIST END (\([^\)]*\))|(\[[^\]]*\])#-->Array/Arguments end",
         r"i OBJECT_ITEM START (?<=[\[\(,])[^,\)\] ]+(?=[\)\],])#-->Element/Parameter start",
         r"I OBJECT_ITEM END (?<=[\[\(,])[^,\)\]]+(?=[\)\],])#-->Element/Parameter end",
         r"n OBJECT_INT START \b((0[Xx][0-9a-fA-F][0-9a-fA-F_]+)|(0[BbB][01][01_]+)|([0-9][0-9_]+[uU]?L?))#-->Integer start",
@@ -1148,3 +1148,34 @@ enum MOTIONS :string
     DOC_NEXT        = "DOC_NEXT",
     DOC_PREV        = "DOC_PREV"
 }
+
+
+
+/* simplified how this works
+command is a char[] 0 = main command  1..$ = args ... dnd  (delete "to" next d)
+register is a-z list of well basically clipboards
+repeat number of time to perform the command 
+
+1 TheKey
+	if the key is
+		number -> add digit to repeat and bail
+		' -> get ready to set register on next TheKey
+		r -> go to repeat mode (simple insert mode)
+		space -> reset command
+		
+		command ~= thekey
+
+		switch by command[0]
+			goes to a basic command 
+				select cut delete paste scroll re/undo ... returns success /fail or incomplete
+			if not a basic command its a motion
+				move object line word list  etc returns success / fail / incomplete
+		
+		on success
+			last command = this one
+			reset command and repeat count
+		on failure
+			reset command cause the one you just made don't exist
+		on incomplete
+			keep all variables and wait for next TheKey input
+*/
