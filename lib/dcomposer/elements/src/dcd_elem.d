@@ -163,6 +163,17 @@ class DCD_ELEM : ELEMENT
         
     }
 
+    //the ddoc stuff
+    ScrolledWindow      mScrollRoot;
+    Label               mDdocLabel;
+    void UpdateDdocUI(string[] docs)
+    {
+        string docup;
+        dwrite ("hi " , docs);
+        foreach(doc; docs) docup ~= Ddoc2Pango(doc.replace("\\n", "\n")) ~ "\n";
+        mDdocLabel.setMarkup(docup);
+    }
+
 
     public:
 
@@ -192,6 +203,12 @@ class DCD_ELEM : ELEMENT
         AddAction("ActDcdGoto", "Locate Symbol", "Where is symbol defined", "dcd-got", "F2", 
             delegate void(Action a){Locate();});
         uiContextMenu.AddAction("ActDcdGoto");
+
+        //ddoc stuff
+        AddAction("ActDcdDoc", "Documentation", "Symbols Documentation Comments", "", "F1",
+            delegate void (Action a){DDoc();});
+        uiContextMenu.AddAction("ActDcdDoc");
+        
 
         //are we running
         string[] cmd = [mClientCommand];
@@ -230,6 +247,12 @@ class DCD_ELEM : ELEMENT
         string eyeports = format("%s", mImportPaths);
         Log.Entry("DCD server running :" ~ format(" @%s ", mPort) ~ eyeports);
 
+        //ddoc stuff
+        mScrollRoot = new ScrolledWindow;
+        mDdocLabel = new Label("Documentation Window", false);
+        mScrollRoot.add(mDdocLabel);
+        AddExtraPage(mScrollRoot, "Documentation");
+        mScrollRoot.showAll();
 
         Log.Entry("Engaged :) Are you happy? ");
     }
@@ -237,8 +260,12 @@ class DCD_ELEM : ELEMENT
 
     void Disengage()
     {
+        uiContextMenu.RemoveAction("ActDcdDoc");
+        RemoveAction("ActDcdDoc");
         uiContextMenu.RemoveAction("ActDcdGoto");
         RemoveAction("ActDcdGoto");
+
+        RemoveExtraPage(mScrollRoot);
         
         
         DocMan.Insertion.disconnect(&WatchForText);
@@ -337,6 +364,38 @@ class DCD_ELEM : ELEMENT
         }           
         
     }
+
+    void DDoc()
+    { 
+    	scope(failure)
+    	{
+    		Log.Entry("DCD Document symbol Error. Ensure DCD is installed and DComposer can see it.");
+    		return;
+    	}
+
+        string[] Output;
+        
+        int CursorOffset = DocMan.Current.GetCursorByteIndex();
+        string arg = format("-c%s",CursorOffset);
+        string port = format("-p%s", mPort);
+
+        auto pipes = std.process.pipeProcess([mClientCommand, port, arg, "-d"]);
+
+        pipes.stdin.writeln(DocMan.Current.GetText());
+        pipes.stdin.flush();
+        pipes.stdin.close();
+        
+        std.process.wait(pipes.pid());
+        
+        foreach(line; pipes.stdout.byLine)
+        {
+            Output ~= line.idup;
+        }
+        pipes.stdout.close();
+        
+        UpdateDdocUI(Output);
+    }
+
         
 }
 
