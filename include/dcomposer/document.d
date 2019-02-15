@@ -2894,7 +2894,6 @@ class DOCUMENT : SourceView, DOC_IF
             TextIter tmp1, tmp2;
             if(searchContext.backward(tmpti, tmp1, tmp2))
             {
-                dwrite("blah blah blah", tmpti.getOffset(), " ", tmp1.getOffset(), " ", tmp2.getOffset());
                 if(ti.getOffset()== tmp2.getOffset()) ti.backwardChar();
             }
         }

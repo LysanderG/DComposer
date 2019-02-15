@@ -193,7 +193,6 @@ public:
         
         sysDirectory = CmdArgs[0].dirName().buildPath("../").absolutePath().buildNormalizedPath();
 	//windows -> "/Program Files/dcomposer";
-        dwrite(sysDirectory);
         try
         {
             auto cmdResults = CmdArgs.getopt
@@ -554,7 +553,6 @@ public string[] ElementPaths()
 }
 public string ElementPath(string file)
 {
-    dwrite(userDirectory, " ", sysDirectory);
     string rv = buildPath(userDirectory, "elements/", file);
     if (rv.exists) return rv;
     rv = buildPath(sysDirectory, "lib/dcomposer/elements/", file);

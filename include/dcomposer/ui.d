@@ -318,6 +318,8 @@ void EngageActions()
 	mStatusbar.setVisible(tmpVisibleValue);
 	auto sbvAct = cast(ToggleAction)GetAction("ActViewStatusbar");
 	sbvAct.setActive(tmpVisibleValue);
+    auto compactAct = cast(ToggleAction)GetAction("ActCompactUI");
+    compactAct.setActive(Config.GetValue("ui", "compact-ui", false));
     
     foreach(name; mRootMenuNames) mRootMenu[name] = mMenuBar.append(name);
     AddToMenuBar("ActConfigureToolbar", mRootMenuNames[0]);
@@ -523,7 +525,6 @@ void AddSidePage(Container page, string tab_text)
     if(mSidePane.getNPages == 1)
     {
         auto tmpToggle = cast(ToggleAction)GetAction("ActViewSidePane");
-        dwrite(tmpToggle);
         tmpToggle.setActive(true);
         tmpToggle.toggled();
     }
@@ -534,7 +535,6 @@ void RemoveSidePage(Container page)
     if(mSidePane.getNPages() < 1)
     {
         auto tmpToggle = cast(ToggleAction)GetAction("ActViewSidePane");
-        dwrite(tmpToggle);
         tmpToggle.setActive(false);
         tmpToggle.toggled();
     }
@@ -648,8 +648,6 @@ void RestoreExtraPane()
 void CompactView(ToggleAction compactToggleAction)
 {
     auto box = cast(Box)mBuilder.getObject("boxMenuTool");
-    dwrite(box);
-    dwrite (compactToggleAction);
     if(compactToggleAction.getActive())
     {
         mPaneV.setOrientation(Orientation.HORIZONTAL);
