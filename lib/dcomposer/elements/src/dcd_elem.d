@@ -168,10 +168,15 @@ class DCD_ELEM : ELEMENT
     Label               mDdocLabel;
     void UpdateDdocUI(string[] docs)
     {
+	import std.regex;
+	
         string docup;
-        dwrite ("hi " , docs);
-        foreach(doc; docs) docup ~= Ddoc2Pango(doc.replace("\\n", "\n")) ~ "\n";
-        mDdocLabel.setMarkup(docup);
+        foreach(doc; docs)
+	{ 
+	    auto reallines = regex(r"(?<=[^\\])(\\n)","g");
+	    docup ~= Ddoc2Pango(doc.replaceAll(reallines, "\n")) ~ "\n";
+	}
+        mDdocLabel.setMarkup("<span face=\"Monospace\">" ~ docup ~ "</span>");
     }
 
 
@@ -370,7 +375,7 @@ class DCD_ELEM : ELEMENT
     	scope(failure)
     	{
     		Log.Entry("DCD Document symbol Error. Ensure DCD is installed and DComposer can see it.");
-    		return;
+    		//return;
     	}
 
         string[] Output;

@@ -7,7 +7,7 @@ import std.algorithm.searching;
 import std.algorithm;
 import std.regex;
 import std.utf;
-
+import std.typecons;
 import dcore;
 
 
@@ -16,11 +16,9 @@ string Ddoc2Pango(string Input)
 {
     string rvText;
     
-    
     Input = ProcessEmbeddedCode(Input);
     Input = ProcessSections(Input);
     rvText = ProcessMacros(Input);
-
     return rvText;
 }
 
@@ -37,11 +35,11 @@ string ProcessSections(string inputText)
 
     foreach(ndx, line; splitLines(inputText, KeepTerminator.yes))
     {
-        if(ndx == 0)line = StartSection(key, line);
-        if((line.length == 0) && (ndx > 0) && (key == "DDOC_SUMMARY"))
-        {
-            key = "DDOC_DESCRIPTION";
-            line = StartSection(key,line);
+        if(ndx == 0)key = "DDOC_SUMMARY";
+        if((line.length < 1) && (ndx > 0) && (key == "DDOC_SUMMARY"))
+        { 
+			key = "DDOC_DESCRIPTION";
+			line = "$(BR)" ~ line;
         }
 
         auto colonIndex = indexOf(line, ":");
@@ -106,12 +104,16 @@ string ProcessSections(string inputText)
                 case "MACROS"               :key = "MACROS";
                                              line = StartSection(key, line[colonIndex .. $]);
                                              break;
-               default : break;
+               default 			   			:if(possibleSection.indexOf(" ") < 0)
+											 {
+												key = possibleSection;
+												line = StartSection(key,line[colonIndex .. $]);
+											 }
+										     break;
             }
 
         }
-
-        Section[key] ~= line;// ~ "\n";
+        Section[key] ~= line;
     }
 
     string rv;
@@ -126,8 +128,9 @@ string ProcessSections(string inputText)
                 continue;
             }
             if(secKey == "DDOC_PARAMS") rv ~= FormatParams(Section[secKey]);
-            else rv ~= Section[secKey] ~ ")\n";
+            else rv ~= Section[secKey] ~ "\n";
         }
+	    if(!rv.balancedParens('(',')')) rv ~= ")";
     }
     
     return rv;
@@ -314,90 +317,59 @@ string FormatDCodeLines(string codeInput)
  * */
 string FormatParams(string paramInput)
 {
-    string procInput;
-    foreach(line; paramInput.splitLines())
-    {
-        if(line.startsWith("$(DDOC_PARAM"))continue;
-        if(line.indexOf("=")>0) procInput ~= " |" ~ line;
-        else procInput ~= line;
-    }
-    procInput ~= " |";
-    procInput = procInput.tr("\n", " ");
-    
-    string[string] Parameters;
-    string Identifier;
-    
-    ulong pipeindex = 1;
-    auto indx = procInput.indexOf("=");
-    while(indx > 0)
-    {
-        Identifier = procInput[pipeindex+1..indx].strip();
-        pipeindex = procInput.indexOf("|", indx);
-        Parameters[Identifier] = procInput[indx + 1..pipeindex].strip();
-        indx = procInput.indexOf("=", pipeindex);
-    }
-    
-    int col1end   = 31; //30
-    int sep       = 32; //1
-    int col2start = 33;
-    int col2end   = 93; //60
-    int end       = 94; //1
-    
-    string output = "╔";
-    foreach(i; 1..col1end) output ~= "═";
-    output ~= "╦";
-    foreach(i; col2start..col2end) output ~= "═";
-    output ~= " \n";
-    
-    bool xguard;
-    foreach(key, param; Parameters)
-    {
-        if(xguard)
-        {
-            output ~= "╠";
-            foreach(i; 1..col1end) output ~= "═";
-            output ~= "╬";
-            foreach(i; col2start..col2end) output ~= "═";
-            output ~= " \n";
-        }
-        xguard=true;
-        
-        string col1 = key.center(col1end - 1);
-        string col2;
-        ulong height;
-        if(param.length >= (col2end - col2start))
-        {
-            col2 = param.wrap((col2end - col2start));
-            //height = col2.countchars("\n");
-	    height = col2.countUntil('\n');
-        }
-        else
-        {
-            col2 = param.leftJustify((col2end - col2start));
-            height = 1;
-        }
-        foreach(h; 0..height)
-        {
-            output ~= "║";
-            if(height == 1) output ~= col1 ~ "║" ~ col2 ~ " \n";
-            else
-            {
-                if(h == 0) output ~= col1 ;
-                else output ~= " ".center(col1end - 1);
-                output ~= "║";
-                output ~= col2.splitLines()[h].leftJustify(col2end-col2start) ~ " \n";
-            }
-        }
+	dwrite(paramInput);
+	paramInput = ProcessMacros(paramInput ~ ")");
+	dwrite (paramInput);
+	string rv;
+	size_t idWidth = 22;
+	int descWidth = 90;
+	auto rgxItemPattern = regex("^[^=\n]*=", "gm");
+		
+	auto items = paramInput.splitter!(Yes.keepSeparators)(rgxItemPattern);
 
-    }
+	rv = "╔";
+    foreach(i; 0..idWidth) rv ~= "═";
+    rv ~= "╦";
+    foreach(i; 0..descWidth) rv ~= "═";
+    rv ~= "╗\n";
+
+	bool id = true;
+	bool header = true;
+	foreach( item; items)
+    {
+		if(header){header=false; continue;}
+		auto x = item[0..$-2];
+		if(id)rv ~= "║" ~ center(x.strip, idWidth,'+') ~ "║";
+		else
+		{
+			foreach(ndx, subItem; item.wrap(descWidth).splitLines())
+		    {
+				if(ndx == 0) rv ~= subItem.center(descWidth) ~ "║\n";
+				else
+				{
+					rv ~= "║";
+					foreach(i; 0..idWidth) rv ~= " ";
+					rv ~= "║";
+					rv ~= subItem.leftJustify(descWidth) ~ "║\n";
+				}
+		    }
+			
+			rv ~= "╠";
+			foreach(i;0..idWidth)rv ~= "═";
+			rv ~= "╬";
+			foreach(i;0..descWidth)rv ~= "═";
+			rv ~= "╣\n";
+		}
+		id = !id;
+	}
+
+	rv ~= "╚";
+	foreach(i;0..idWidth) rv ~= "═";
+	rv ~= "╩";
+	foreach(i;0..descWidth) rv ~="═";
+	rv ~= "╝\n";
     
-        output ~= "╚";
-        foreach(i; 1..col1end) output ~= "═";
-        output ~= "╩";
-        foreach(i; col2start..col2end) output ~= "═";
-        output ~= " \n";
-    
-    return "$(DDOC_PARAMS " ~ output ~ ")\n";
+    return "$(DDOC_PARAMS " ~ rv ~ ")\n";
 }
             
         
@@ -431,12 +403,19 @@ string ProcessEmbeddedCode(string inputText)
 
 string StartSection(string key, string line)
 {
+	bool nonStandardKey;
+	if(!OrderedKeys.canFind(key))
+	{
+		nonStandardKey = true;
+		OrderedKeys ~= key;
+	}
 
     string rv;
     if( (line.length == 1) && (line[0] == ':') ) line.length = 0;
     if( (line.length >  1) && (line[0] == ':') ) line = line[1..$];
 
-    rv ~= "$(" ~ key ~ " " ~ line;
+	if(nonStandardKey) rv ~= "$(B " ~ key ~ ":)" ~ line;
+    else rv ~= "$(" ~ key ~ " " ~ line;
     return rv;
 }
 
@@ -472,7 +451,7 @@ void LoadMacros()
     Macro["GREEN"] = `<span foreground="green">$0</span>`;
     Macro["BLACK"] = `<span foreground="black">$0</span>`;
     Macro["WHITE"] = `<span foreground="white">$0</span>`;
-
+    Macro["YELLOW"] = `<span foreground="yellow">$0</span>`;
     //Macro["D_CODE"] = `$(BR)----$(BR)<span background="#777777">$0</span>$(BR)----$(BR)`;
     Macro["D_CODE"] = `$(BR)<span foreground="yellow" background="black" font="monospace">$0</span>$(BR)`;
     Macro["D_COMMENT"] = "$(GREEN $0)";
@@ -487,7 +466,7 @@ void LoadMacros()
     Macro["DDOC_DECL_DD"] = "$(DD $0)";
     Macro["DDOC_DITTO"] = "$(BR)$0";
     Macro["DDOC_SECTIONS"] = "$0";
-    Macro["DDOC_SUMMARY"] = "$0$(BR)";
+    Macro["DDOC_SUMMARY"] = "<span foreground=\"yellow\" background=\"gray\">$0\n</span>";
     Macro["DDOC_DESCRIPTION"] = "$0$(BR)";
     Macro["DDOC_AUTHORS"] = "$(B Authors:)$(BR)$0$(BR)";
     Macro["DDOC_SOURCE"] = "$(B Source:)$(BR)$0$(BR)";
@@ -501,7 +480,7 @@ void LoadMacros()
     Macro["DDOC_EXAMPLE"] = "$(B Examples:)$(BR)$0$(BR)";
     Macro["DDOC_HISTORY"] = "$(B History:)$(BR)$0$(BR)";
     Macro["DDOC_LICENSE"] = "$(B License:)$(BR)$0$(BR)";
-    Macro["DDOC_RETURNS"] = "$(B Returns:)$(BR)$0$(BR)";
+    Macro["DDOC_RETURNS"] = "$(B Returns:)$(BR)$(GRAY $0)$(BR)";
     Macro["DDOC_SEE_ALSO"] = "$(B See Also:)$(BR)$0$(BR)";
     Macro["DDOC_HISTORY"] = "$(B History:)$(BR)$0$(BR)";
     Macro["DDOC_STANDARDS"] = "$(B Sandards:)$(BR)$0$(BR)";
@@ -543,6 +522,7 @@ void LoadMacros()
     Macro["LESS"] = "&lt;";
     Macro["GREATER"] = "&gt;";
     Macro["HREF"] = "$(LINK2 $0)";
+	Macro["REF"] = "$(U $0)";
 
 }
 
@@ -579,5 +559,6 @@ string[] OrderedKeys =
     "DDOC_COPYRIGHT",
     "DDOC_SOURCE",      //NOT A STANDARD SECTION, do not see anything about non standard sections in docs
     "MACROS",
-    "ESCAPES"
+    "ESCAPES",
+    "DDOC_OTHER",
 ];
