@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.18.3 -->
+<!-- Generated with glade 3.22.1 -->
 <interface>
   <requires lib="gtk+" version="3.12"/>
   <object class="GtkAdjustment" id="adjustment1">
@@ -52,10 +52,10 @@
           <object class="GtkLabel" id="label2">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="xpad">5</property>
             <property name="label" translatable="yes">Style :</property>
             <property name="justify">right</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -66,10 +66,10 @@
           <object class="GtkLabel" id="label3">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="xpad">5</property>
             <property name="label" translatable="yes">AutoIndent :</property>
             <property name="justify">right</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -80,10 +80,10 @@
           <object class="GtkLabel" id="label4">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="xpad">5</property>
             <property name="label" translatable="yes">Indent On Tab :</property>
             <property name="justify">right</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -105,6 +105,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="tooltip_text" translatable="yes">Improve readablilty of code using colors to emphasize structure.</property>
+            <property name="halign">center</property>
             <property name="active">True</property>
           </object>
           <packing>
@@ -116,6 +117,7 @@
           <object class="GtkSwitch" id="indent_on_tab">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="halign">center</property>
             <property name="active">True</property>
           </object>
           <packing>
@@ -127,10 +129,10 @@
           <object class="GtkLabel" id="label5">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="xpad">5</property>
             <property name="label" translatable="yes">Spaces For Tabs :</property>
             <property name="justify">right</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -141,6 +143,7 @@
           <object class="GtkSwitch" id="spaces_for_tabs">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="halign">center</property>
             <property name="active">True</property>
           </object>
           <packing>
@@ -152,10 +155,10 @@
           <object class="GtkLabel" id="label6">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="xpad">5</property>
             <property name="label" translatable="yes">Smart Home/End :</property>
             <property name="justify">right</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -166,6 +169,7 @@
           <object class="GtkSwitch" id="smart_home_end">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="halign">center</property>
             <property name="active">True</property>
           </object>
           <packing>
@@ -177,10 +181,10 @@
           <object class="GtkLabel" id="label7">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="xpad">5</property>
             <property name="label" translatable="yes">Highlight Current Line :</property>
             <property name="justify">right</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -191,6 +195,7 @@
           <object class="GtkSwitch" id="line_highlite">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="halign">center</property>
           </object>
           <packing>
             <property name="left_attach">1</property>
@@ -201,10 +206,10 @@
           <object class="GtkLabel" id="label8">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="xpad">5</property>
             <property name="label" translatable="yes">Show Line  Numbers :</property>
             <property name="justify">right</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -215,6 +220,7 @@
           <object class="GtkSwitch" id="line_numbers">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="halign">center</property>
           </object>
           <packing>
             <property name="left_attach">1</property>
@@ -225,10 +231,10 @@
           <object class="GtkLabel" id="label9">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="xpad">5</property>
             <property name="label" translatable="yes">Show Right Margin :</property>
             <property name="justify">right</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -239,6 +245,7 @@
           <object class="GtkSwitch" id="right_margin_show">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="halign">center</property>
             <property name="active">True</property>
           </object>
           <packing>
@@ -251,10 +258,10 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="tooltip_text" translatable="yes">Improve readablilty of code using colors to emphasize structure.</property>
-            <property name="xalign">1</property>
             <property name="xpad">5</property>
             <property name="label" translatable="yes">Syntax Highlighting :</property>
             <property name="justify">right</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -265,6 +272,7 @@
           <object class="GtkSwitch" id="auto_indent">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="halign">center</property>
           </object>
           <packing>
             <property name="left_attach">1</property>
@@ -275,10 +283,10 @@
           <object class="GtkLabel" id="label11">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="xpad">5</property>
             <property name="label" translatable="yes">Highlight Matching Braces :</property>
             <property name="ellipsize">start</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -289,6 +297,7 @@
           <object class="GtkSwitch" id="braces_highlite">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="halign">center</property>
           </object>
           <packing>
             <property name="left_attach">1</property>
@@ -299,10 +308,10 @@
           <object class="GtkLabel" id="label12">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="xpad">5</property>
             <property name="label" translatable="yes">Right Margin Position :</property>
             <property name="justify">right</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -339,9 +348,9 @@
           <object class="GtkLabel" id="label13">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="xpad">5</property>
             <property name="label" translatable="yes">Indent Width :</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -364,10 +373,10 @@
           <object class="GtkLabel" id="label14">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="xpad">5</property>
             <property name="label" translatable="yes">Tab Width :</property>
             <property name="justify">right</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -389,10 +398,10 @@
           <object class="GtkLabel" id="label15">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="xpad">5</property>
             <property name="label" translatable="yes">Bottom Border Size :</property>
             <property name="justify">right</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
@@ -414,10 +423,10 @@
           <object class="GtkLabel" id="label16">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="xalign">1</property>
             <property name="xpad">5</property>
             <property name="label" translatable="yes">Pixels Below Line :</property>
             <property name="justify">right</property>
+            <property name="xalign">1</property>
           </object>
           <packing>
             <property name="left_attach">0</property>
