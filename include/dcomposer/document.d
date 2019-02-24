@@ -395,6 +395,11 @@ class DOCUMENT : SourceView, DOC_IF
                 string StyleID = Config.GetValue("document", "style_scheme", "mnml");
                 getBuffer().setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(StyleID));
                 return;
+            case "carat_type" :
+                string caratType = Config.GetValue("document", "carat_type", "insert");
+                if(caratType == "overwrite")setOverwrite(true);
+                else setOverwrite(false);
+                return;
             default : Configure();
         }
     }

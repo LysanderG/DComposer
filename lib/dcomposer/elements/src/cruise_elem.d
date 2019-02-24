@@ -154,7 +154,9 @@ class CRUISE_ELEM : ELEMENT
         ResetCommand();
         //uiSwitch.setActive(mCruiseActive);
         mIndicatorLabel.setMarkup(mCruiseActive?mIndicatorTextOn:mIndicatorTextOFF);
-
+        if(mCruiseActive)Config.SetValue("document", "carat_type", "overwrite");
+        else Config.SetValue("document","carat_type","insert");
+        
         Log.Entry(statestring);
     }
 
