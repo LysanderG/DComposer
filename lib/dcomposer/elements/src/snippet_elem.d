@@ -248,24 +248,36 @@ struct SNIP
         auto doc = cast(DOCUMENT)DocMan.Current();
         auto buffer = doc.getBuffer();
 
-        
-        if(mSnipMarkStart)mSnipMarkStart.setVisible(false);
-        buffer.deleteMark(mSnipMarkStart);
-        if(mSnipMarkEnd)mSnipMarkEnd.setVisible(false);
-        buffer.deleteMark(mSnipMarkEnd);
+        dwrite("clear snippet"); int xctr;
+        if(mSnipMarkStart)
+        {
+            mSnipMarkStart.setVisible(false);
+            buffer.deleteMark(mSnipMarkStart);
+            dwrite(++xctr);
+        }
+        if(mSnipMarkEnd)
+        {
+            mSnipMarkEnd.setVisible(false);
+            buffer.deleteMark(mSnipMarkEnd);
+            dwrite(++xctr);
+        }
         
         foreach(ts; mTabStops)
         {
            ts.mTStopMarkStart.setVisible(false);
            buffer.deleteMark(ts.mTStopMarkStart);
+           dwrite(++xctr);
            ts.mTStopMarkEnd.setVisible(false);
            buffer.deleteMark(ts.mTStopMarkEnd);
+           dwrite(++xctr);
            foreach(mirror; ts.mMirrors)
            {
                mirror.mMirrorMarkStart.setVisible(false);
                buffer.deleteMark(mirror.mMirrorMarkStart);
+               dwrite(++xctr);
                mirror.mMirrorMarkEnd.setVisible(false);
                buffer.deleteMark(mirror.mMirrorMarkEnd);
+               dwrite(++xctr);
            }
         }
     }
@@ -354,15 +366,17 @@ class SNIPPETS : ELEMENT
             
         }
         
-        string resourcePath = SystemPath(Config.GetValue("snippets", "paths", "elements/resources/"));
-        
-        foreach(string filename; dirEntries(resourcePath, SpanMode.shallow))
+        foreach(resPath; ElementPaths())
         {
-            if(filename.extension() != ".snippets")continue;
-            if(!filename.isFile) continue;
-            auto fileText = readText(filename);
-            ParseSnippets(fileText);
-            Log.Entry(filename ~ " read");
+            if(!buildPath(resPath,"resources").exists())continue;
+            foreach(string filename; dirEntries(buildPath(resPath,"resources"), SpanMode.shallow))
+            {
+                if(filename.extension() != ".snippets")continue;
+                if(!filename.isFile) continue;
+                auto fileText = readText(filename);
+                ParseSnippets(fileText);
+                Log.Entry(filename ~ " read");
+            }
         }
     }
     
@@ -401,7 +415,7 @@ class SNIPPETS : ELEMENT
         if(newMode == false)
         {
             mCurrentTabStop = 0;
-	    //mCurrentSnip.Clear();
+            mCurrentSnip.Clear();
             mMode = false;
             mStatusLabel.setVisible(false);
         }

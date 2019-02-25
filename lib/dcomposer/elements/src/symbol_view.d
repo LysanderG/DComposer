@@ -43,7 +43,7 @@ class SYMBOL_VIEW :ELEMENT
     {
         auto builder = new Builder;
 
-        builder.addFromFile(SystemPath(Config.GetValue("symbol_view", "glade_file", "elements/resources/symbol_view.glade")));
+        builder.addFromFile(ElementPath(Config.GetValue("symbol_view", "glade_file", "resources/symbol_view.glade")));
 
         mRoot = cast(Box)builder.getObject("box1");
         mTree = cast(TreeView)builder.getObject("treeview1");
@@ -76,7 +76,7 @@ class SYMBOL_VIEW :ELEMENT
     void Disengage()
     {
         RemoveSidePage(mRoot);
-        mRoot.destroy();
+        //mRoot.destroy();
         mRoot = null;
 
         Log.Entry("Disengaged");
