@@ -138,13 +138,6 @@ class DSCANNER_ELEM : ELEMENT
             if (ti is null) return;
             auto candidate = mOutlineStore.getValueString(ti, 2).findSplitBefore("(");
             auto line = mOutlineStore.getValueInt(ti, 1);
-            DSYMBOL[] results;
-            foreach(eyetem; Symbols.GetCompletions([candidate[0]]))
-            {
-                //hah! close as I can get
-                if(eyetem.Line == line) results ~= eyetem;
-            }
-            Symbols.emit(results);
         });
         
         mOutlineTree.getSelection().setMode(SelectionMode.BROWSE);

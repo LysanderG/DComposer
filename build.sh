@@ -38,7 +38,6 @@ include/dcomposer/dcore.d \
 include/dcomposer/config.d \
 include/dcomposer/log.d \
 include/dcomposer/docman.d \
-include/dcomposer/symbols.d \
 include/dcomposer/document.d \
 include/dcomposer/project.d \
 include/dcomposer/search.d \

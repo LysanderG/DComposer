@@ -288,7 +288,7 @@ public:
         
         if(dtagBuild)
         {
-            BuildTagFile(dtagPackagePath, dtagPackageName, dtagImports, dtagJpaths);
+	    writeln("This functionality was removed in v0.5 (or there abouts)");
             exit(0);
         }
         if(TmpForLog.length)SetValue("log", "interim_log_file", TmpForLog);
