@@ -1,243 +1,14 @@
+#This is a heavily modified file from vim's D snippets
+
 # clear 'official' D snippets (which have priority -50).
-priority -49
-clearsnippets
 
-# set priority of DSnips snippets
-priority -40
-
-global !p
-
-# Global variables
-
-# negateOp[op] gives a negated version of operator op
-negateOp = {"=="  : "!=",
-            "!="  : "==",
-            "!is" : "is",
-            "is"  : "!is",
-            "<"   : ">=",
-            "<="  : ">",
-            ">"   : "<=",
-            ">="  : "<"}
-# Functions useful for all snippets
-
-def complete(t, opts):
-    """
-    Modified completion example from UltiSnips videos.
-    """
-    if t:
-        opts = [m[len(t):] for m in opts if m.startswith(t) ]
-    if len(opts) == 0:
-        return ""
-    if len(opts) == 1:
-        return opts[0]
-    return "(" + '|'.join(opts) + ')'
-
-def breakLine(snip, linelength, extraindent = 0, default = ""):
-    """
-    Insert a line break if a line is too long.
-
-    :param snip:        The UltiSnips snippet object.
-    :param linelength:  Length of the line.
-    :param extraindent: Add this many spaces of extra indentation after the line break
-                        (for alignment of lines).
-    :param default:     If the line is not too long, insert this string instead of a
-                        line break.
-    """
-    textwidth = int(snip.opt("&textwidth", "80"))
-    # don't break at all if textwidth is 0
-    if textwidth > 0 and linelength > textwidth:
-        snip.rv += snip.mkline("\n")
-        snip.rv += snip.mkline(" " * extraindent)
-    else:
-        snip.rv += default
-
-def alignSpaces(t, current, *other):
-    """
-    Get a string of spaces long enough to align the current tabstop with tabstops
-    above/below it that should be aligned equally.
-    Useful e.g. to align parameter names in DDoc of a function.
-
-    :param t: Tabstops of the snippet
-    :param current: Index of the current item that's being aligned in t
-    :param other: Indices of all other items aligned with the current element
-    """
-    thisWidth = len(t[current])
-    maxWidth  = max(thisWidth, max([len(t[s]) for s in other]))
-    return (maxWidth - thisWidth) * " ";
-
-def paramNames(paramStr):
-    """
-    Get a list of parameter names for a function.
-
-    :param paramStr: Parameter list of a function as a single string. E.g. for
-                     void doStuff(int p1, string p2), this would be "int p1, string p2"
-    """
-    import re
-    # Remove every paren pair and what is between the parens
-    # (e.g. templated types, delegs, etc)
-    paramStr = re.sub(r'\([^)]*\)', '', paramStr)
-    # Split into individual params and get the last word (param name) for each param
-    return [a.strip().split()[-1] for a in paramStr.split(',') if a.strip() != ""]
-
-def docStyle(docStr):
-    """
-    Get the documentation style ('///' vs '/**/') based on a reference documentation
-    string. Returns a 3-tuple of strings: comment string for the first line of
-    a documentation block, comment string for a line in the middle of a documentation
-    block and a comment string for the line at the end of the documentation block,
-    *after* the last documentation line with content.
-
-    :param docStr: A reference documentation line (e.g. written by the user)
-    """
-    docStr = docStr.strip()
-    if docStr.startswith("*") or docStr.startswith("/*"):
-        return ("/**", " *", " */")
-    return ("///", "///", "")
-
-def paramsDoc(snip, paramStr, docStr):
-    """
-    Generate the 'Params:' DDoc section with all parameter names.
-
-    :param snip:     The UltiSnips snippet object.
-    :param paramStr: Parameter list of a function as a single string. E.g. for
-                     void doStuff(int p1, string p2), this would be "int p1, string p2"
-    :param docStr:   A reference documentation string to determine documentation style
-                     ('///' vs '/**/')
-    """
-    params = paramNames(paramStr)
-    prefix = docStyle(docStr)[1]
-    if params == []:
-        return
-    maxWidth = max([len(p) for p in params])
-    snip += prefix + " Params:"
-    snip += prefix
-    for param in params:
-        snip += prefix + " " + param + (maxWidth - len(param)) * " " + " ="
-
-def funcDoc(snip, description, params, defParams):
-    """
-    Generate a DDoc header for a function (except the description at the beginning of
-    the header, which is written by the user as a tabstop)
-
-    :param snip:        The UltiSnips snippet object.
-    :param params:      Parameter list of the function as a single string. E.g. for
-                        void doStuff(int p1, string p2), this would be "int p1, string p2".
-    :param defParams:   Default parameter list of the function as defined by the
-                        snippet (as a single string),
-    :param description: Description DDoc comment of the function written by the user.
-                        (Usually the top line of a DDoc block)
-    """
-    style = docStyle(description)
-    if params not in ["", defParams]:
-        snip += style[1]
-        paramsDoc(snip, params, description)
-    if style[2] != "":
-        snip += style[2]
-
-def typeName(basename):
-    """
-    Get a name for a type (e.g. class or struct) defined by a snippet based on the
-    base name of the file.
-
-    :param basename: The base name of the source file. E.g. 'matrix' for 'matrix.d'.
-    """
-    if basename:
-        return basename[0].upper() + basename[1:]
-    else:
-        # If there's no basename for some reason, make it evident that the user needs
-        # to specify the name
-        return "/+name+/"
-
-# Code for the "for" snippet
-def forVar(definition):
-    """
-    Get the variable name from a string such as 'int a = 1'
-
-    :param definition: Declaration of the 'for counter variable'
-    """
-    if '=' in definition:
-        return definition.split("=")[0].split()[-1]
-    if len(definition) > 0:
-        return definition.split()[-1]
-    return ""
-
-# Code for the "op" snippet
-
-def opType(match):
-    """
-    Determine the type of operator for the 'op' snippet.
-
-    :param match: Regex matches of the snippet.
-    """
-    t = match.group(1)[0];
-    if not t in ['U', 'B', 'O']:
-        return "ERROR: Unknown operator type"
-    return {'U':"Unary", 'B':"Binary", 'O':"OpAssign"}[t]
-
-def opList(t, match):
-    """
-    Get a list of operators to overload as strings for the 'op' snippets.
-
-    :param t: Tabstops of the snippet
-    """
-    if len(t[1]) == 0:
-        return ["specify an operator"]
-    #opstring = t[1][1:]
-    opstring = t[1]
-    optype  = opType(match)
-    if optype not in ["Unary", "Binary", "OpAssign"]:
-        return ["ERROR: Unhandled operator type"]
-    validOps = {"Unary":    ["--", "++", "-", "+", "~", "*"],
-                "Binary":   [">>>","<<",">>","^^","in","~","+","-","*","/","%","&","|","^"],
-                "OpAssign": [">>>=","<<=",">>=","^^=","+=","-=","*=","/=","%=","&=","|=","^=","~="]
-               }[optype]
-    result = []
-    while opstring != "":
-        # if opstring starts with a valid operator, move the operator to result
-        for op in validOps:
-            if opstring.startswith(op):
-                if op in result:
-                    return ["duplicate operator: " + op]
-                result.append(op)
-                opstring = opstring[len(op):]
-                break
-        # we didn't break out of the for loop;
-        # i.e. opstring doesn't start by a valid operator
-        else:
-            # we're at the end of the original opstring and the user is typing a new
-            # operator but not done yet, so just return the operators done so far
-            if opstring in [a[:len(opstring)] for a in validOps]:
-                return result if result != [] else ["specify an operator"]
-            if opstring != "":
-                return ["no op" + optype + " operator starts with " + opstring]
-    return result
-def packageName(fullPath):
-    parts = fullPath.split("/")[:-1]
-    # DUB
-    if "source" in parts:
-        return '.'.join(parts[parts.index("source") + 1: ])
-    return parts[-1] if len(parts) else "/+package name+/"
-endglobal
-
-# Future TODO: more snippets taking line width to account.
-#              E.g. if switch cases are short enough, make them one-line,
-#              splitting writefln and similar.
-
-# -------
-# Various
-# -------
-
-# If the user has a DUB-style file hierarchy with 'source/package/subpackage/file.d',
-# this will correctly set the full package name.
-# Otherwise it will guess that parent directory name is the package name.
 snippet module "New module (module)" b
-${1://          Copyright ${2:/+1: Author+/} `!v strftime("%Y")`.
+${1://          Copyright ${2:/+1: Author+/} 
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)}
 
-module ${3:`!p snip.rv = packageName(vim.eval("split(expand('%:p'))")[0])`}.`!v vim_snippets#Filename('$1', 'name')`;
-
+module ${3};
 
 ${0}
 endsnippet
@@ -248,7 +19,7 @@ ${0}
 endsnippet
 
 snippet al "alias (al)" b
-alias ${1:/+1: alias+/} = ${2:/+2: original name+/};
+alias ${1} = ${2};
 ${0}
 endsnippet
 
@@ -261,7 +32,7 @@ static ${0}
 endsnippet
 
 snippet new "new (new)"
-new ${1}(${0})
+new ${1}(${2})${0}
 endsnippet
 
 # Future TODO: @safe should have completion for @system and @trusted.
@@ -270,7 +41,7 @@ endsnippet
 # @nogc is $0 so when used in a function definition snippet we can move to the next
 # tabstop immediately
 snippet spn "@safe pure nothrow const @nogc (spn)"
-${1:@safe }${2:pure }${3:nothrow }${4:const }${0:@nogc }
+${1:@safe }${2:pure }${3:nothrow }${4:const }${5:@nogc }${0}
 endsnippet
 
 snippet cont "continue (cont)" b
@@ -302,17 +73,17 @@ return ${0};
 endsnippet
 
 snippet avar "auto variable (avar)" b
-auto ${1:/+2: variable+/} = ${2:${VISUAL}};
+auto ${1:/variable/} = ${2:};
 ${0}
 endsnippet
 
 snippet cvar "const variable (cvar)" b
-const ${1:/+2: variable+/} = ${2:${VISUAL}};
+const ${1:/variable/} = ${2}};
 ${0}
 endsnippet
 
 snippet ivar "immutable variable (ivar)" b
-immutable ${1:/+2: variable+/} = ${2:${VISUAL}};
+immutable ${1} = ${2};
 ${0}
 endsnippet
 
@@ -322,16 +93,16 @@ endsnippet
 
 # Future TODO: exit/success/failure completion
 snippet scope "scope (scope)" b
-scope(${1:exit}`!p snip.rv = complete(t[1], ["exit", "success", "failure"])`)
+scope(${1:exit})
 {
-	${2:${VISUAL}}${0}
+	${0}
 }
 endsnippet
 
 snippet with "with (with)"
 with(${1})
 {
-	${2:${VISUAL}}${0}
+	${0}
 }
 endsnippet
 
@@ -345,27 +116,24 @@ tuple(${1:/*first*/}, ${0:/*more*/})
 endsnippet
 
 snippet wr "writeln (wr)"
-writeln(${1:${VISUAL}});
+writeln(${1});
 ${0}
 endsnippet
 
 # Writeln debugging: type a comma-separated list of values to create a writeln()
 # that will print them along their names.
 snippet wrdbg "writeln debugging (wrdbg)"
-writeln("${1:${VISUAL}} = ", `!p snip.rv = ', \", \",'.join(t[1].split(','))`);
+writeln("${1}");
 ${0}
 endsnippet
 
 snippet wrf "writefln (wrf)"
-writefln("${1:/+1: format string+/}", ${2:${VISUAL}});
+writefln("${1:/format string/}", ${2});
 ${0}
 endsnippet
 
 snippet enf "enforce (enf)" b
-enforce(${1:/+1: condition+/},`!p
-linelength = len(snip.indent + "enforce(, new Exception());" + t[1] + t[2] + t[3])
-breakLine(snip, linelength, len("enforce("), " ")
-`new ${2}Exception(${3}));
+enforce(${1:/+1: condition+/}, ${2:/new Exception or message/});
 ${0}
 endsnippet
 
@@ -381,7 +149,7 @@ endsnippet
 snippet if "if .. (if)"
 if(${1:/+1: condition+/})
 {
-	${2:${VISUAL}}${0}
+	${0:-->}
 }
 endsnippet
 
@@ -399,14 +167,14 @@ endsnippet
 snippet else "else (else)" b
 else
 {
-	${1:${VISUAL}}${0}
+	${0}
 }
 endsnippet
 
 snippet elif "else if (elif)" b
 else if(${1:/+1: condition+/})
 {
-	${2:${VISUAL}}${0}
+	${0}
 }
 endsnippet
 
@@ -452,19 +220,19 @@ endsnippet
 snippet do "do while (do)" b
 do
 {
-	${2:${VISUAL}}${0}
+	${0}
 } while(${1:/+1: condition+/});
 endsnippet
 
 snippet wh "while (wh)" b
 while(${1:/+1: condition+/})
 {
-	${2:${VISUAL}}${0}
+	${0}
 }
 endsnippet
 
 snippet for "for (for)" b
-for(${2:int i = 0}; `!p snip.rv = forVar(t[2])` ${1:< count}; ${3:++`!p snip.rv = forVar(t[2])`})
+for(${2:int i = 0}; ${1:i < count}; ${3:i++)})
 {
 	${4:${VISUAL}}${0}
 }

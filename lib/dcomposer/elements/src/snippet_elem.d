@@ -153,13 +153,13 @@ struct SNIP
         
         while(tstopMatch)
         {		
-            DocMan.DocumentKeyDown.disconnect(&snippet.WatchKeyDown);
+            //DocMan.DocumentKeyDown.disconnect(&snippet.WatchKeyDown);
             foreach(c; tstopMatch.pre)
             {
                 doc.insertText([c]);
                 while(Main.eventsPending()){Main.iteration();}
             }
-            DocMan.DocumentKeyDown.connect(&snippet.WatchKeyDown);
+            //DocMan.DocumentKeyDown.connect(&snippet.WatchKeyDown);
             
             auto tstopIdMatch = matchFirst(tstopMatch.hit, regex(`\d+`));
             auto id = tstopIdMatch.hit.to!int;
@@ -174,13 +174,13 @@ struct SNIP
             
             if(id in mTabStops) //mirror
             {         
-                DocMan.DocumentKeyDown.disconnect(&snippet.WatchKeyDown);
+                //DocMan.DocumentKeyDown.disconnect(&snippet.WatchKeyDown);
                 foreach(c; mTabStops[id].mText)
                 {
                     doc.insertText([c]);
                     while(Main.eventsPending()){Main.iteration();}
                 }
-                DocMan.DocumentKeyDown.connect(&snippet.WatchKeyDown);
+                //DocMan.DocumentKeyDown.connect(&snippet.WatchKeyDown);
                 
                 buffer.getIterAtMark(ti, buffer.getMark("insert"));
                 endmark = buffer.createMark(null, ti, true);
@@ -190,13 +190,13 @@ struct SNIP
             else //new tabstop
             {
                 
-                DocMan.DocumentKeyDown.disconnect(&snippet.WatchKeyDown);
+                //DocMan.DocumentKeyDown.disconnect(&snippet.WatchKeyDown);
                 foreach(c; DefText)
                 {
                     doc.insertText([c]);
                     while(Main.eventsPending()){Main.iteration();}
                 }
-                DocMan.DocumentKeyDown.connect(&snippet.WatchKeyDown);
+                //DocMan.DocumentKeyDown.connect(&snippet.WatchKeyDown);
                 
                 buffer.getIterAtMark(ti, buffer.getMark("insert"));
                 endmark = buffer.createMark(null, ti, true);
@@ -209,13 +209,13 @@ struct SNIP
             tstopMatch = matchFirst(tstopMatch.post, regex(`(\$\{[^}]*\})|(\$\d+)`));
             if(tstopMatch.empty())
             {
-                DocMan.DocumentKeyDown.disconnect(&snippet.WatchKeyDown);
+                //DocMan.DocumentKeyDown.disconnect(&snippet.WatchKeyDown);
                 foreach(c; trailing)
                 {
                     doc.insertText([c]);
                     while(Main.eventsPending()){Main.iteration();}
                 }
-                DocMan.DocumentKeyDown.connect(&snippet.WatchKeyDown);
+                //DocMan.DocumentKeyDown.connect(&snippet.WatchKeyDown);
             }
         } 
         
@@ -246,6 +246,7 @@ struct SNIP
     void Clear()
     {
         auto doc = cast(DOCUMENT)DocMan.Current();
+	if(doc is null) return;
         auto buffer = doc.getBuffer();
 
         dwrite("clear snippet"); int xctr;
@@ -353,8 +354,8 @@ class SNIPPETS : ELEMENT
   
     void LoadSnippetFiles()
     {
+	dwrite(mSnips);
         mSnips.Clear;
-        //auto rgx = regex(`^snippet (?P<trigger>[\w]+)(?P<description>(.))+\n(?P<body>(.|\n)+?(?=endsnippet$))`, "mg");
         auto rgx = regex(`^snippet (?P<trigger>[\w]+) (?P<description>[^\n]+)\n(?P<body>(.|\n)+?(?=endsnippet$))`, "mg");
         void ParseSnippets(string stext)
         {
@@ -415,6 +416,7 @@ class SNIPPETS : ELEMENT
         if(newMode == false)
         {
             mCurrentTabStop = 0;
+	    dwrite("Current Snip ", mCurrentSnip);
             mCurrentSnip.Clear();
             mMode = false;
             mStatusLabel.setVisible(false);
@@ -438,6 +440,7 @@ class SNIPPETS : ELEMENT
     
     void WatchKeyDown(uint keyval, uint modifier)
     {
+	if(DocMan.IsDocumentKeyPressBlocked()) return;
         if(mMode)
         {
             if(uiCompletion.GetState() == COMPLETION_STATUS.ACTIVE)return;
