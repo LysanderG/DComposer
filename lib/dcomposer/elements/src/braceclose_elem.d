@@ -8,7 +8,7 @@ import std.uni;
 
 import gtk.TextMark;
 import gtk.TextIter;
-
+import gdk.Keysyms;
 
 
 
@@ -20,13 +20,66 @@ extern (C) string GetClassName()
 class BRACE_CLOSE: ELEMENT
 {
     private:
+
+    bool CloseParens;
+    bool CloseBracket;
+    bool CloseAngle;
     
     void WatchForKeyDown(uint keyval, uint keymod)
     {
-	if(DocMan.IsDocumentKeyPressBlocked()) return;
+        if(DocMan.IsDocumentKeyPressBlocked()) return;
         switch (keyval)
         {
-            case 123 :
+            
+            case GdkKeysyms.GDK_bracketleft:
+            {
+                dwrite("okay [");
+                if(!CloseBracket)return;
+                DocMan.SetBlockDocumentKeyPress();
+                auto self = DocMan.Current();                
+                self.InsertText("[]");
+                self.MoveLeft(1, false);            
+                return; 
+            }
+            case GdkKeysyms.GDK_bracketright:
+            {
+                if(!CloseBracket)return;
+                Close(']');
+                return;
+            }
+            case GdkKeysyms.GDK_less:
+            {
+                dwrite("okay <");
+                if(!CloseAngle)return;
+                DocMan.SetBlockDocumentKeyPress();
+                auto self = DocMan.Current();                
+                self.InsertText("<>");
+                self.MoveLeft(1, false);            
+                return; 
+            }
+            case GdkKeysyms.GDK_greater:
+            {
+                if(!CloseAngle)return;
+                Close('>');
+                return;
+            }
+
+            case 40: //(
+            {
+                if(!CloseParens)return;
+                DocMan.SetBlockDocumentKeyPress();
+                auto self = DocMan.Current();                
+                self.InsertText("()");
+                self.MoveLeft(1, false);            
+                return; 
+            }
+            case 41: //)
+            {
+                if(!CloseParens)return;
+                Close(')');
+                return;
+            }
+            case 123 : //{
             {
                 DocMan.SetBlockDocumentKeyPress();
                 auto self = DocMan.Current();                
@@ -34,116 +87,58 @@ class BRACE_CLOSE: ELEMENT
                 self.MoveLeft(1, false);            
                 return;   
             }
-            case 125:
+            case 125: //}
             {
-                auto self = cast(DOCUMENT)DocMan.Current();
-                auto lineTi = self.Cursor();
-                
-                if(self.GetChar() != '}') return;
-                DocMan.SetBlockDocumentKeyPress();                
-                self.MoveRight(1, false);
-                lineTi.backwardChar();
-                while(lineTi.getLineOffset() > 0)
-                {
-                    lineTi.backwardChar();
-                    if(lineTi.getChar().isSpace() || lineTi.getChar.isWhite())continue;
-                    //there are none whitespace characters between our } and line start so lets ignore indentation
-                    else return;
-                }
-                
-                self.UnIndentLines(1);
+                Close('}');
                 return;
-            
             }
-            
             default : return;
         }
-        
         
     }
-    
-    void WatchForText2(void* void_ti, string text, int len, void* void_self)
+
+    void Close(char closeChar)
     {
-      
-        switch(text)
+        auto self = cast (DOCUMENT)DocMan.Current();
+        auto lineTi = self.Cursor();
+        
+        if(self.GetChar() != closeChar) return;
+        DocMan.SetBlockDocumentKeyPress();                
+        self.MoveRight(1, false);
+        lineTi.backwardChar();
+        while(lineTi.getLineOffset() > 0)
         {
-            case "{":
-            {
-                DocMan.SetBlockDocumentKeyPress();
-                auto ti = cast(TextIter)void_ti;
-                auto ti2 = new TextIter;
-                ti2 = ti.copy();
-                auto self = cast(SourceBuffer)void_self;
-        
-                auto saveTiMark = new TextMark("saveTix", 1);
-                saveTiMark = self.createMark("saveTix", ti, 1);   
-                
-                self.insert(ti, "}"); 
-                ti2 = ti.copy(); 
-                ti2.backwardChar();  
-                self.placeCursor(ti2);
-                
-                self.getIterAtMark(ti, saveTiMark);
-                self.deleteMark(saveTiMark);
-                return;
-            }
-            case "}":
-            {
-                auto self = cast(DOCUMENT)void_self;
-  
-                self.MoveRight(2, true);
-                //self.ReplaceSelection("");
-                //self.MoveRight(1,false);
-                /*DocMan.SetBlockDocumentKeyPress();
-                auto ti = cast(TextIter)void_ti;
-                auto ti2 = new TextIter;
-                ti2 = ti.copy();
-                auto self = cast(SourceBuffer)void_self;
-        
-                auto saveTiMark = new TextMark("saveTix", 1);
-                saveTiMark = self.createMark("saveTix", ti, 1); 
-                if(saveTiMark is null)
-                {
-                    dwrite(ti, ti2);   
-                    return;
-                }
-                
-                ti.backwardChar();
-                if(ti2.getChar() == '}')
-                {
-                    self.backspace(ti2, 0, 1);
-                    
-                    self.getIterAtMark(ti,saveTiMark);                   
-                    ti2.forwardChar();
-                    self.placeCursor(ti2);
-                    
-                    self.getIterAtMark(ti, saveTiMark);
-                    self.deleteMark(saveTiMark);                    
-                }*/
-                
-                return;     
-            }
-            default : return;
+            lineTi.backwardChar();
+            if(lineTi.getChar().isSpace() || lineTi.getChar.isWhite())continue;
+            //there are no whitespace characters between our } and line start so lets ignore indentation
+            else return;
         }
- 
-     }
+        self.UnIndentLines(1);
+        return;
+    }
 
     public:
     
     void Engage()
     {
-        //DocMan.Insertion.connect(&WatchForText2);
+        CloseParens = Config.GetValue("brace_close", "close_parens", true);
+        CloseAngle = Config.GetValue("brace_close", "close_angles", true);
+        CloseBracket = Config.GetValue("brace_close", "close_brackets", true);
         DocMan.DocumentKeyDown.connect(&WatchForKeyDown);
         Log.Entry("Engaged");
     }
     void Disengage()
     {
-        //DocMan.Insertion.disconnect(&WatchForText2);
         DocMan.DocumentKeyDown.disconnect(&WatchForKeyDown);
         Log.Entry("Disengaged");
     }
 
-    void Configure(){}
+    void Configure()
+    {
+        CloseParens = Config.GetValue("brace_close", "close_parens", true);
+        CloseAngle = Config.GetValue("brace_close", "close_angles", true);
+        CloseBracket = Config.GetValue("brace_close", "close_brackets", true);
+    }
 
     string Name(){return "Auto brace close";}
     string Info(){return `Automatically adds a closing character to brace after the cursor`;} 
@@ -152,5 +147,61 @@ class BRACE_CLOSE: ELEMENT
     string CopyRight(){return "Anthony Goins © 2018";}
     string[] Authors(){return ["Anthony Goins <neontotem@gmail.com>"];}
 
-    PREFERENCE_PAGE PreferencePage(){return null;}
+    PREFERENCE_PAGE PreferencePage()
+    {
+        return new BRACE_CLOSE_PREFERENCE_PAGE;
+    }
+}
+
+final class BRACE_CLOSE_PREFERENCE_PAGE : PREFERENCE_PAGE
+{
+    import gtk.ToggleButton;
+    import gtk.CheckButton;
+    import gtk.Label;
+    import gtk.Box;
+
+    CheckButton Parens;
+    CheckButton Angles;
+    CheckButton Brackets;
+    Label       ALittleHelp;
+
+
+    this()
+    {
+        ALittleHelp = new Label("Also Close ...");
+
+        Parens = new CheckButton("Parenthesis");
+        Angles = new CheckButton("Angle Brackets (actually just greater and less than characters)");
+        Brackets = new CheckButton("Brackets");
+
+        Parens.setActive(Config.GetValue("brace_close", "close_parens", false));
+        Angles.setActive(Config.GetValue("brace_close", "close_angles", false));
+        Brackets.setActive(Config.GetValue("brace_close", "close_brackets", false));
+
+        Parens.addOnToggled(delegate void(ToggleButton Checked)
+        {
+            Config.SetValue("brace_close", "close_parens", Checked.getActive());
+        });
+        
+        Angles.addOnToggled(delegate void(ToggleButton Checked)
+        {
+            Config.SetValue("brace_close", "close_angles", Checked.getActive());
+        });
+        
+        Brackets.addOnToggled(delegate void(ToggleButton Checked)
+        {
+            Config.SetValue("brace_close", "close_brackets", Checked.getActive());
+        });
+
+        Title = "Brace Close Preferences";
+        auto Content = new Box(GtkOrientation.VERTICAL, 3);
+
+        Content.packStart(ALittleHelp , 1, 1, 1);
+        Content.packStart(Parens , 1, 1, 1);
+        Content.packStart(Angles , 1, 1, 1);
+        Content.packStart(Brackets , 1, 1, 1);
+
+        ContentWidget = Content;
+        ContentWidget.showAll();
+    }
 }
