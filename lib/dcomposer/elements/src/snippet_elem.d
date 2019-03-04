@@ -249,36 +249,29 @@ struct SNIP
 	if(doc is null) return;
         auto buffer = doc.getBuffer();
 
-        dwrite("clear snippet"); int xctr;
         if(mSnipMarkStart)
         {
             mSnipMarkStart.setVisible(false);
             buffer.deleteMark(mSnipMarkStart);
-            dwrite(++xctr);
         }
         if(mSnipMarkEnd)
         {
             mSnipMarkEnd.setVisible(false);
             buffer.deleteMark(mSnipMarkEnd);
-            dwrite(++xctr);
         }
         
         foreach(ts; mTabStops)
         {
            ts.mTStopMarkStart.setVisible(false);
            buffer.deleteMark(ts.mTStopMarkStart);
-           dwrite(++xctr);
            ts.mTStopMarkEnd.setVisible(false);
            buffer.deleteMark(ts.mTStopMarkEnd);
-           dwrite(++xctr);
            foreach(mirror; ts.mMirrors)
            {
                mirror.mMirrorMarkStart.setVisible(false);
                buffer.deleteMark(mirror.mMirrorMarkStart);
-               dwrite(++xctr);
                mirror.mMirrorMarkEnd.setVisible(false);
                buffer.deleteMark(mirror.mMirrorMarkEnd);
-               dwrite(++xctr);
            }
         }
     }
@@ -310,8 +303,10 @@ class SNIPPETS : ELEMENT
         AddStatusBox(mStatusLabel,false, false, 1);
                 
 
-        mMarkStart = new TextMark("snippet_start", true);
-        mMarkEnd = new TextMark("snippet_end", true);
+
+	mMarkStart = new TextMark("snippet_start", true);
+	mMarkEnd = new TextMark("snippet_end", true);
+
         
         mCurrentTabStop = 0;
         
@@ -354,7 +349,6 @@ class SNIPPETS : ELEMENT
   
     void LoadSnippetFiles()
     {
-	dwrite(mSnips);
         mSnips.Clear;
         auto rgx = regex(`^snippet (?P<trigger>[\w]+) (?P<description>[^\n]+)\n(?P<body>(.|\n)+?(?=endsnippet$))`, "mg");
         void ParseSnippets(string stext)
@@ -416,7 +410,6 @@ class SNIPPETS : ELEMENT
         if(newMode == false)
         {
             mCurrentTabStop = 0;
-	    dwrite("Current Snip ", mCurrentSnip);
             mCurrentSnip.Clear();
             mMode = false;
             mStatusLabel.setVisible(false);
