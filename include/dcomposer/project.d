@@ -613,6 +613,12 @@ class PROJECT
     }
 
     immutable(FLAG[]) Flags(){return mFlags.idup;};
+
+    string getExecutable()
+    {
+	if(TargetType != TARGET.APPLICATION)return null;
+	return GetFlagArgument("-of", "name output file to filename");
+    }
 }
 
 
