@@ -205,8 +205,9 @@ void Execute()
     //load up the liststore
     //AcquireLibraries();
     mStore.clear();
+    import std.algorithm;
 
-    foreach(lib; Libraries)
+    foreach(lib; Libraries.values.sort!("a.mFile < b.mFile"))
     {
         auto ti = new TreeIter;
         mStore.append(ti);
