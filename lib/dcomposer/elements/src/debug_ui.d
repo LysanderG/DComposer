@@ -32,7 +32,7 @@ class DEBUG_UI : ELEMENT
     {
         
         
-        auto builder = new Builder(SystemPath(Config.GetValue("debug_ui", "glade_file", "elements/resources/debug_ui.glade")));
+        auto builder = new Builder(ElementPath(Config.GetValue("debug_ui", "glade_file", "resources/debug_ui.glade")));
         
         mSideRoot = cast(Box)builder.getObject("sideroot");
         mSidePane = cast(Paned)builder.getObject("paned1");
@@ -75,17 +75,17 @@ class DEBUG_UI : ELEMENT
         
         mBtn_SwitchGdb.addOnToggled(&ToggleGdb);
         
-		mBtn_Start.addOnClicked(delegate void(ToolButton tb)
+	mBtn_Start.addOnClicked(delegate void(ToolButton tb)
         {
             ResetPty();
             mNtdb.StartTarget();
         });
-		mBtn_Continue.addOnClicked(delegate void(ToolButton tb){mNtdb.ContinueTarget();});
-		mBtn_Step_Over.addOnClicked(delegate void(ToolButton tb){mNtdb.StepOver();});
-		mBtn_Step_In.addOnClicked(delegate void(ToolButton tb){mNtdb.StepIn();});
-		mBtn_Step_Out.addOnClicked(delegate void(ToolButton tb){mNtdb.StepOut();});
-		mBtn_To_Cursor.addOnClicked(delegate void(ToolButton tb)
-        {
+	mBtn_Continue.addOnClicked(delegate void(ToolButton tb){mNtdb.ContinueTarget();});
+	mBtn_Step_Over.addOnClicked(delegate void(ToolButton tb){mNtdb.StepOver();});
+	mBtn_Step_In.addOnClicked(delegate void(ToolButton tb){mNtdb.StepIn();});
+	mBtn_Step_Out.addOnClicked(delegate void(ToolButton tb){mNtdb.StepOut();});
+	mBtn_To_Cursor.addOnClicked(delegate void(ToolButton tb)
+	{
             string name;
             int oline,ocol;
             if(DocMan.Current is null) return;
@@ -95,44 +95,44 @@ class DEBUG_UI : ELEMENT
         
         mBtn_Ins_Break.addOnClicked(delegate void(ToolButton tb)
 		{
-			//THIS SHOULD PULL UP A BREAKPOINT (AND MAYBE WATCHPOINT)
-            //CREATION DIALOG
-            //OR...
-            //BREAKS AND WATCHES WILL BE ADDED ELSEWHERE
-            //AND OPENS AN EDIT BREAKPOINT DIALOG
-            //DON'T GO ANYWHERE I'LL BE RIGHT BACK
+		    //THIS SHOULD PULL UP A BREAKPOINT (AND MAYBE WATCHPOINT)
+		    //CREATION DIALOG
+		    //OR...
+		    //BREAKS AND WATCHES WILL BE ADDED ELSEWHERE
+		    //AND OPENS AN EDIT BREAKPOINT DIALOG
+		    //DON'T GO ANYWHERE I'LL BE RIGHT BACK
 		});
         mBtn_Remove_Break.addOnClicked(delegate void(ToolButton tb)
 		{
 			auto ti = mBreaksView.getSelectedIter();
 			if(ti is null) return;
-            auto doc = DocMan.GetDoc(ti.getValueString(12));
-            if(doc !is null)ToggleBreakPoint(doc, ti.getValueString(11).to!int-1);
-            
+			auto doc = DocMan.GetDoc(ti.getValueString(12));
+		        if(doc !is null)ToggleBreakPoint(doc, ti.getValueString(11).to!int-1);
+			    
 			//mNtdb.RemoveBreak(ti.getValueString(0));
 		});
         
         mTglBreakEnabled.addOnToggled(delegate void(string path, CellRendererToggle crt)
-		{
+	{
 
-			TreeIter ti = new TreeIter(mBreaksStore, path);
-			auto enabled = new Value;
-			ti.getValue(3, enabled);
-			auto id = ti.getValueString(0);
-			crt.setActive(!enabled.getBoolean());			
-			if(!enabled.getBoolean())
-			{
-				mNtdb.EnableBreak(id);
-				enabled.setBoolean(true);
-				mBreaksStore.setValue(ti, 3, enabled.getBoolean());
-			}
-			else
-			{
-				mNtdb.DisableBreak(id);
-				enabled.setBoolean(false);
-				mBreaksStore.setValue(ti, 3, enabled.getBoolean());
-			}
-		});
+		TreeIter ti = new TreeIter(mBreaksStore, path);
+		auto enabled = new Value;
+		ti.getValue(3, enabled);
+		auto id = ti.getValueString(0);
+		crt.setActive(!enabled.getBoolean());			
+		if(!enabled.getBoolean())
+		{
+			mNtdb.EnableBreak(id);
+			enabled.setBoolean(true);
+			mBreaksStore.setValue(ti, 3, enabled.getBoolean());
+		}
+		else
+		{
+			mNtdb.DisableBreak(id);
+			enabled.setBoolean(false);
+			mBreaksStore.setValue(ti, 3, enabled.getBoolean());
+		}
+	});
         
         mFramesView.addOnRowActivated(delegate void(TreePath tp, TreeViewColumn tvc, TreeView self)
         {
@@ -284,8 +284,8 @@ class DEBUG_UI : ELEMENT
         mTerminalFd = mTerminal.getPty().getFd();
         
         import core.sys.posix.stdlib;
-        mPts = ptsname(mTerminal.getPty().getFd()).to!string;
-        
+        mPts = ptsname(mTerminalFd).to!string;
+       	dwrite("StartNtdb ", mPts); 
         mTerminalWindow.add(mTerminal);
         
                 
@@ -294,28 +294,45 @@ class DEBUG_UI : ELEMENT
         int ylen = Config.GetValue("debug_ui","y_len", 130);
         
         mTerminal.setRewrapOnResize(rewrap);
+	int child_pid;
+	
+        
         mTerminalWindow.resize(xlen, ylen);
-        
-        mTerminalWindow.setVisible(true);
-        
+         mTerminal.spawnSync( VtePtyFlags.DEFAULT,
+                            getcwd(),
+                            ["/usr/bin/bash"],
+                            [],
+                            GSpawnFlags.DEFAULT,
+                            null,
+			    null,
+                            child_pid,
+                            null);
+
+        //mTerminalWindow.setVisible(true);
+	mTerminalWindow.showAll(); 
         return mNtdb.StartGdb(Target, mPts);
     }
     
     void ResetPty()
     {
-        mTerminal.setPty(mTerminal.ptyNewSync(VtePtyFlags.DEFAULT, null));
+        //mTerminal.setPty(mTerminal.ptyNewSync(VtePtyFlags.DEFAULT, null));
         mTerminalFd = mTerminal.getPty().getFd();
         import core.sys.posix.stdlib;
         mPts = ptsname(mTerminal.getPty().getFd()).to!string;
+	dwrite("reset ",mPts);
         mNtdb.SetTty(mPts);
     }
     
     
     void StopNtdb()
     {
+	if(mNtdb is null) return;
         mNtdb.StopGdb();
-        mTerminalWindow.remove(mTerminal);
-        mTerminal.destroy();
+	if(mTerminal)
+	{
+		mTerminalWindow.remove(mTerminal);
+		mTerminal.destroy();
+	}
         mNtdb.disconnect(&DebugWatcher);
         mNtdb = null;
     }
@@ -386,8 +403,9 @@ class DEBUG_UI : ELEMENT
             //should return -of arg or name and ensure it is runnable
             //for now lets just use project name and failing that try
             //to run current doc
+
             if(Project.TargetType == TARGET.APPLICATION)
-                TargetFile = Project.Name;
+                TargetFile = Project.getExecutable();
             else
             {
                 auto doc = DocMan.Current();
@@ -395,7 +413,7 @@ class DEBUG_UI : ELEMENT
             }
             if (!TargetFile.exists())
             {
-                ShowMessage("Debugger", "No Target for debugging");
+                ShowMessage("Debugger", "No Target for debugging[n" ~ TargetFile);
                 mBtn_SwitchGdb.setActive(false);
                 Log.Entry("Failed to Start Debugger... " ~ TargetFile ~ " does not exist");
                 return;
@@ -430,8 +448,8 @@ class DEBUG_UI : ELEMENT
     void DebugWatcher(RECORD rec)
     {
         auto tmpstring = Cooked(rec._rawString);
+	dwrite(tmpstring);
 
-        
         switch(rec._class)
         {
             case "*stopped":
