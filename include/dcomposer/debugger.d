@@ -262,7 +262,7 @@ private:
 
     void InitModules()
     {
-        ModuleInit = true;
+        mModuleInit = true;
         IssueCommand("1 info variables ModuleInfo for \n\0");
     }
 
@@ -389,6 +389,8 @@ public:
         {
             dwrite("here");
             IssueCommand("-exec-run --start \n\0");
+            IssueCommand("-break-insert _d_throwc \n\0");
+            IssueCommand("-break-insert _d_throwdwarf \n\0");
         }
         catch (Exception x)
         {

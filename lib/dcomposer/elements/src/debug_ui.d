@@ -66,7 +66,12 @@ class DEBUG_UI : ELEMENT
         mTglBreakEnabled = cast(CellRendererToggle)builder.getObject("cellrenderertoggle1");
         
         mTextView       = cast(TextView)builder.getObject("textview1");
-        
+        mTextScroll     = cast(ScrolledWindow)builder.getObject("scrolledwindow1");
+        mTextView.getBuffer().addOnInsertText(delegate void(TextIter ti, string txt, int len, TextBuffer self)
+                {
+                    mTextView.getHadjustment.setValue(0);
+                });
+
         mTerminalWindow = cast(Window)builder.getObject("window1");
 
         
@@ -250,6 +255,7 @@ class DEBUG_UI : ELEMENT
     ListStore           mBreaksStore;
     
     TextView            mTextView;
+    ScrolledWindow      mTextScroll;
     
     Window              mTerminalWindow;
     Terminal            mTerminal;
@@ -453,7 +459,7 @@ class DEBUG_UI : ELEMENT
         switch(rec._class)
         {
             case "*stopped":
-                mTextView.appendText("\n" ~ tmpstring);
+                mTextView.insertText("\n" ~ tmpstring);
                 mNtdb.GetStackList();
                 AddStatus("Debugger", "Debug target stopped " ~ rec.Get("reason"));
                 if(rec.Get("reason").startsWith("exit"))
@@ -506,6 +512,7 @@ class DEBUG_UI : ELEMENT
                 break;
             case "^running":
                 mTextView.appendText("\n"~tmpstring);
+                mTextView.getHadjustment().setValue(0);
                 AddStatus("Debugger", "Debug target running");
                 break;
             case "$updatevariables":
