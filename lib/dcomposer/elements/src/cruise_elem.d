@@ -312,7 +312,9 @@ class CRUISE_ELEM : ELEMENT
         r"f OBJECT_FLOAT START \b(([-+]?[0-9][0-9_]*\.[0-9_]+([eEPp][-+]?[0-9][0-9_]+)?[fF]?L?i?)|(0[xX][0-9a-fA-F][0-9a-fA-F_]+\.[0-9a-fA-F_]+[Pp][+-]?[0-9][0-9_]+[fFL]?))#-->Decimal start",
         r"F OBJECT_FLOAT END \b(([-+]?[0-9][0-9_]*\.[0-9_]+([eEPp][-+]?[0-9][0-9_]+)?[fF]?L?i?)|(0[xX][0-9a-fA-F][0-9a-fA-F_]+\.[0-9a-fA-F_]+[Pp][+-]?[0-9][0-9_]+[fFL]?))#-->Decimal end",
         r"c OBJECT_CAMEL_CASE START _?[\p{Ll}\p{Lu}][\p{Ll}\p{N}_]+#-->camelCase start",
-        r"C OBJECT_CAMEL_CASE END _?[\p{Ll}\p{Lu}][\p{Ll}\p{N}_]+#-->camelCase end"
+        r"C OBJECT_CAMEL_CASE END _?[\p{Ll}\p{Lu}][\p{Ll}\p{N}_]+#-->camelCase end",
+         "q OBJECT_QUOTE START \"#-->Quote start", //"
+         "Q OBJECT_QUOTE END \"#-->Quote end", //"
         ];
         
         auto objectkeys = Config.GetArray("cruise", "object_keys", defobjectkeys);
@@ -660,7 +662,8 @@ class CRUISE_ELEM : ELEMENT
                     DocMan.Current().MoveLineEnd(1, false);
                     string newlines;
                     foreach(i; 0..mCount)newlines ~= "\n";
-                    DocMan.Current().InsertText(newlines ~ whitespace);
+                    DocMan.Current().ReplaceSelection(newlines ~ whitespace);
+                    DocMan.Current().MoveLineEnd(1,false);
                     break;
                 case INSERT_NL      :
                     DocMan.Current().MoveLineStart(1,false);
@@ -669,7 +672,7 @@ class CRUISE_ELEM : ELEMENT
                     DocMan.Current().MoveLineEnd(1, false);
                     string newlines;
                     foreach(i; 0..mCount)newlines ~= "\n";
-                    DocMan.Current().InsertText(newlines ~ whitespace);
+                    DocMan.Current().ReplaceSelection(newlines ~ whitespace);
                     goto case;//pass through
                 case INSERT         :
                     auto CruiseAction = cast(ToggleAction)GetAction("ActCruiseMode");
