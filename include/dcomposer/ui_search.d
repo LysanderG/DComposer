@@ -464,4 +464,12 @@ class UI_SEARCH
 
         Log.Entry("Disengaged");
     }
+    void Vertical()
+    {
+        mRoot.OrientableIF.setOrientation(GtkOrientation.VERTICAL);
+    }
+    void Horizontal()
+    {
+        mRoot.OrientableIF.setOrientation(GtkOrientation.HORIZONTAL);
+    }
 }

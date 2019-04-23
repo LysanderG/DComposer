@@ -652,11 +652,13 @@ void CompactView(ToggleAction compactToggleAction)
     {
         mPaneV.setOrientation(Orientation.HORIZONTAL);
         box.setOrientation(Orientation.HORIZONTAL);
+        uiSearch.Vertical();
     }
     else
     {
         mPaneV.setOrientation(Orientation.VERTICAL);
         box.setOrientation(Orientation.VERTICAL);
+        uiSearch.Horizontal();
     }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
