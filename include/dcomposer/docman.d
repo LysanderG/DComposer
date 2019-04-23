@@ -353,7 +353,11 @@ class DOCMAN
         }
 
         auto nudoc = DOC_IF.Open(FileName, LineNo, LinePos);
-        if(nudoc is null) return null;
+        if(nudoc is null)
+        {
+            Log.Entry("Failed to open " ~ FileName, "Error");    
+            return null;
+        }
         nudoc.Modified = false;
         nudoc.Virgin = false;
         nudoc.Configure();
