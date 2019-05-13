@@ -313,8 +313,6 @@ class CRUISE_ELEM : ELEMENT
         r"F OBJECT_FLOAT END \b(([-+]?[0-9][0-9_]*\.[0-9_]+([eEPp][-+]?[0-9][0-9_]+)?[fF]?L?i?)|(0[xX][0-9a-fA-F][0-9a-fA-F_]+\.[0-9a-fA-F_]+[Pp][+-]?[0-9][0-9_]+[fFL]?))#-->Decimal end",
         r"c OBJECT_CAMEL_CASE START _?[\p{Ll}\p{Lu}][\p{Ll}\p{N}_]+#-->camelCase start",
         r"C OBJECT_CAMEL_CASE END _?[\p{Ll}\p{Lu}][\p{Ll}\p{N}_]+#-->camelCase end",
-         "q OBJECT_QUOTE START \"#-->Quote start", //"
-         "Q OBJECT_QUOTE END \"#-->Quote end", //"
         ];
         
         auto objectkeys = Config.GetArray("cruise", "object_keys", defobjectkeys);
@@ -341,7 +339,7 @@ class CRUISE_ELEM : ELEMENT
             "i OBJECT_ITEM--> List Item",
             "n OBJECT_INT--> Integer",
             "f OBJECT_FLOAT--> Float",
-            "c OBJECT_CAMEL_CASE-->CamelCase"
+            "c OBJECT_CAMEL_CASE--> CamelCase",
         ];
         
         auto objSelKeys = Config.GetArray("cruise", "selection_keys", defobjSelKeys);
@@ -390,9 +388,12 @@ class CRUISE_ELEM : ELEMENT
             "gb:{|M|s|m-->Select outer block",
             "Gb:[|M|s|m-->Select \"previous\" block",
             "gl:L|s|H-->Select line",
-            "Gl:H|s|L-->Select line"
+            "Gl:H|s|L-->Select line",
+	    "gq:q|s|Q-->Select betwext quotes",
+	    "GQ:Q|Q|s|q-->Select previous string",
+	    "Gq:q|q|s|Q-->Select next string",
         ];
-        
+       
         auto aliaskeys = Config.GetArray("cruise", "alias_keys", defaliaskeys);
         
         foreach(line; aliaskeys)

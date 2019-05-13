@@ -195,9 +195,10 @@ class DEBUG_UI : ELEMENT
         
         RemoveSidePage(mSideRoot);
         RemoveExtraPage(mExtraRoot);
-        destroy(mTerminalWindow);
-        destroy(mTerminal);
-        destroy(mNtdb);
+	mTerminalWindow.remove(mTerminal);
+        //destroy(mTerminalWindow);
+        //destroy(mTerminal);
+        //destroy(mNtdb);
         Log.Entry("Disengaged");
     }
     void Configure()
