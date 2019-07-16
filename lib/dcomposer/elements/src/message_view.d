@@ -135,7 +135,7 @@ class MESSAGE_VIEW :ELEMENT
         mErrorView.insertColumn(new TreeViewColumn("Line",   new CellRendererText, "text", 1), -1);
         mErrorView.insertColumn(new TreeViewColumn("Column", new CellRendererText, "text", 2), -1);
         mErrorView.insertColumn(new TreeViewColumn("Error",  new CellRendererText, "text", 3), -1);
-
+        mErrorView.getColumn(0).setResizable(1);
         mErrorView.setModel(mStore);
         mErrorView.setActivateOnSingleClick (true);
         mScrollWin.add(mErrorView);

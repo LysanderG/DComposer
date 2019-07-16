@@ -44,6 +44,6 @@ int main(string[] args)
                         buildPath(DCOMPOSER_PREFIX, "lib/dcomposer/elements/src", args[3]),
                         ];
     auto rv = execute(options);
-    writeln(rv.output);
+    std.stdio.write("*\n",rv.output);
     return rv.status;
 }

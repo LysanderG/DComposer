@@ -69,8 +69,9 @@ class BRACE_CLOSE: ELEMENT
                 if(!CloseParens)return;
                 DocMan.SetBlockDocumentKeyPress();
                 auto self = DocMan.Current();                
-                self.InsertText("()");
-                self.MoveLeft(1, false);            
+                self.InsertText(")");
+                self.MoveLeft(1, false);
+                self.InsertText("(");            
                 return; 
             }
             case 41: //)
