@@ -2,6 +2,12 @@
 
 # clear 'official' D snippets (which have priority -50).
 
+snippet br "brace closing?"
+{
+${0}
+}
+endsnippet
+
 snippet module "New module (module)" b
 ${1://          Copyright ${2:/+1: Author+/} 
 // Distributed under the Boost Software License, Version 1.0.
@@ -105,6 +111,7 @@ with(${1})
 	${0}
 }
 endsnippet
+
 
 
 # ------
@@ -809,3 +816,5 @@ ok test this ${5: will it work} i dont know
 
 ${7: ${9:var} = ${10: value}}
 endsnippet
+
+

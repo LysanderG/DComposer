@@ -261,6 +261,7 @@ class DOCUMENT : SourceView, DOC_IF
             if(DocMan.IsDocumentKeyPressBlocked())
             {
                 Signals.stopEmissionByName(tb, "GtkTextBuffer::insert-text");
+                dwrite("insert-text stopped");
                 return;
             }
             
@@ -1015,6 +1016,8 @@ class DOCUMENT : SourceView, DOC_IF
     void SetText(string txt){getBuffer.setText(txt);}
     void InsertText(string txt)
     {
+	if(txt == "\n") dwrite("-\\n-");
+	else dwrite("-",txt,"-");
         getBuffer.beginUserAction();
         getBuffer.insertAtCursor(txt);
         getBuffer.endUserAction();

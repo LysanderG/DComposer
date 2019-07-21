@@ -302,7 +302,11 @@ void EngageActions()
     AddToggleAction("ActViewStatusbar", "View Statusbar", "show/hide statusbar", "dcmp-view-statusbar", "",
 		delegate void(Action a){auto y = cast(ToggleAction)a;mStatusbar.setVisible(y.getActive());});
     AddToggleAction("ActViewToolbar", "View Toolbar", "show/hide toolbar", "dcmp-view-toolbar", "",
-        delegate void(Action a){auto y = cast(ToggleAction)a;mToolbar.setVisible(y.getActive());});
+        delegate void(Action a){
+            auto y = cast(ToggleAction)a;
+            mToolbar.setVisible(y.getActive());
+            mProjectTitle.getParent().setVisible(y.getActive());
+        });
     AddAction("ActQuit", "Quit", "exit dcomposer", "dcmp-quit", "<Control>q",
         delegate void(Action a){Quit();});
     AddAction("ActConfigureToolbar", "Edit Toolbar", "customize toolbar buttons", "dcmp-toolbar-configure", "",
@@ -335,19 +339,17 @@ void EngageActions()
 
     mMenuBar.showAll();
     mToolbar.showAll();
-
+    mProjectTitle.getParent().showAll();
 }
 
 @disable void RestoreActions()
 {
-
-
     //ClearToolbar();
     auto ActionNames = Config.GetArray("toolbar", "actions", ["ActViewToolbar","ActQuit"]);
     foreach(name; ActionNames) {mToolbar.insert(mActions.getAction(name).createToolItem(),1);}
-
     bool ToolbarVisible = Config.GetValue("ui", "visible_toolbar", true);
     mToolbar.setVisible(ToolbarVisible);
+    mProjectTitle.getParent().setVisible(ToolbarVisible);
     auto tact = cast(ToggleAction)GetAction("ActViewToolbar");
     tact.setActive(ToolbarVisible);
     ConfigureToolBar();
@@ -1075,7 +1077,7 @@ void RestoreToolbar()
     }
     bool ToolbarVisible = Config.GetValue("ui", "visible_toolbar", true);
     mToolbar.setVisible(ToolbarVisible);
-
+    mProjectTitle.getParent().setVisible(ToolbarVisible);
     Action actnott = GetAction("ActViewToolbar");
     actnott.setProperty("active", ToolbarVisible);
 

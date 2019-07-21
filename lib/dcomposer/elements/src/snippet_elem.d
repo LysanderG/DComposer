@@ -157,6 +157,8 @@ struct SNIP
             foreach(c; tstopMatch.pre)
             {
                 doc.insertText([c]);
+		//doc.InsertText([c]);
+		//buffer.insertAtCursor([c]);
                 while(Main.eventsPending()){Main.iteration();}
             }
             //DocMan.DocumentKeyDown.connect(&snippet.WatchKeyDown);
@@ -178,6 +180,7 @@ struct SNIP
                 foreach(c; mTabStops[id].mText)
                 {
                     doc.insertText([c]);
+		    //doc.InsertText([c]);
                     while(Main.eventsPending()){Main.iteration();}
                 }
                 //DocMan.DocumentKeyDown.connect(&snippet.WatchKeyDown);
@@ -194,6 +197,7 @@ struct SNIP
                 foreach(c; DefText)
                 {
                     doc.insertText([c]);
+		    //doc.InsertText([c]);
                     while(Main.eventsPending()){Main.iteration();}
                 }
                 //DocMan.DocumentKeyDown.connect(&snippet.WatchKeyDown);
@@ -213,6 +217,8 @@ struct SNIP
                 foreach(c; trailing)
                 {
                     doc.insertText([c]);
+		    //doc.InsertText([c]);
+		    //buffer.insertAtCursor([c]);
                     while(Main.eventsPending()){Main.iteration();}
                 }
                 //DocMan.DocumentKeyDown.connect(&snippet.WatchKeyDown);

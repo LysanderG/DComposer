@@ -363,6 +363,7 @@ class CRUISE_ELEM : ELEMENT
             "d:date-->Date",
             "s:sort-->Sort selection lines",
             "r:tac-->Reverse selection lines",
+	    "q:quotes-->Surround selection in quotes",
             //q"[a:sed -r ':L;s=\b([0-9^\.]+)([0-9]{3})\b=\1,\2=g;t L;s/,/_/g'-->Format numbers with underscores]"
         ];
         

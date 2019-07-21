@@ -338,7 +338,7 @@ class UI_PROJECT
 
         //Build
         AddIcon("dcmp-proj-build", ResourcePath( Config.GetValue("icons", "proj-build",  "color-build.png")));
-        auto ActBuild = "ActProjBuild".AddAction("_Build","Build project", "dcmp-proj-build","<Control>F9",delegate void(Action a)
+        auto ActBuild = "ActProjBuild".AddAction("_Build","Build project", "dcmp-proj-build","<Control>B",delegate void(Action a)
         {
             if(Project.TargetType == TARGET.EMPTY)return;
             SetBusyCursor(true);
@@ -349,7 +349,7 @@ class UI_PROJECT
 
         //run
         AddIcon("dcmp-proj-run", ResourcePath( Config.GetValue("icons", "proj-run", "color-arrow.png")));
-        auto ActRun = "ActProjRun".AddAction("_Run","Run project", "dcmp-proj-run","<Control>F10",delegate void(Action a)
+        auto ActRun = "ActProjRun".AddAction("_Run","Run project", "dcmp-proj-run","<Control>R",delegate void(Action a)
         {
             if(Project.TargetType == TARGET.EMPTY)return;
             Project.Run();
