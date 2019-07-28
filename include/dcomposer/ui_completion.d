@@ -420,6 +420,12 @@ class UI_COMPLETION
 
         mTipWindow.setKeepAbove(true);
         mTipTree.setHeadersVisible(false);
+        mTipTree.getSelection.addOnChanged(delegate void( TreeSelection me)
+                {
+                    auto tmpIter = me.getSelected();
+                    auto text = tmpIter.getValueString(0);
+                    ui.AddStatus("tip", text);
+                });   
 
         //----------------
 
@@ -488,6 +494,7 @@ class UI_COMPLETION
         auto txtIter = doc.Cursor();
         buf.createMark(unique_name, txtIter, true);
 
+        mTipTree.setCursor(new TreePath(true), mTipCol, false);
         ShowCallTip();
     }
 

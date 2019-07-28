@@ -68,6 +68,7 @@ public import gtk.ComboBoxText;
 public import gtk.Button;
 public import gtk.TreeView;
 public import gtk.TreeViewColumn;
+public import gtk.TreeSelection;
 public import gtk.ListStore;
 public import gtk.TreeModelIF;
 public import gtk.SelectionData;
