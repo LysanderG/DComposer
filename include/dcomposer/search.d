@@ -104,14 +104,22 @@ ITEM[] Search( SCOPE Scope, string Needle, SEARCH_OPTIONS Opts)
             case PROJ_ALL :
             {
                 if(Project.Lists[LIST_NAMES.REL_FILES] != [""])
-                foreach(item; Project.Lists[LIST_NAMES.SRC_FILES] ~ Project.Lists[LIST_NAMES.REL_FILES]) rv ~= FindInFile(item, rgx);
+                foreach(item; Project.Lists[LIST_NAMES.SRC_FILES] ~ Project.Lists[LIST_NAMES.REL_FILES])
+		{
+			if(DocMan.IsOpen(item)) rv ~= FindInDoc(DocMan.GetDoc(item), rgx);
+			else rv ~= FindInFile(item, rgx);
+		}
                 break;
             }
 
             case PROJ_SOURCE :
             {
                 if(Project.Lists[LIST_NAMES.SRC_FILES] == [""])break;
-                foreach(item; Project.Lists[LIST_NAMES.SRC_FILES]) rv ~= FindInFile(item, rgx);
+                foreach(item; Project.Lists[LIST_NAMES.SRC_FILES]) 
+		{
+			if(DocMan.IsOpen(item)) rv ~= FindInDoc(DocMan.GetDoc(item), rgx);
+			else rv ~= FindInFile(item, rgx);
+		}
                 break;
             }
             case FOLDER :

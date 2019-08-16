@@ -89,13 +89,17 @@ class UI_PROJECT
     {
         switch (event) with(PROJECT_EVENT)
         {
-            case OPENED:
+	    
             case CREATED:
+	    {
+		mRootWidget.show();
+		DocBook.setCurrentPage(mRootWidget);
+		goto case;
+	    }
+            case OPENED:
             {
                 ProjRelPath.setText(relativePath(Project.Folder, Project.DefaultProjectRootPath));
                 UpdateFlags();
-                mRootWidget.show();
-                //DocBook.setCurrentPage(mRootWidget);
                 break;
             }
             case EDIT:

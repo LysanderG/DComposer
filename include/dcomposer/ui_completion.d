@@ -423,6 +423,7 @@ class UI_COMPLETION
         mTipTree.getSelection.addOnChanged(delegate void( TreeSelection me)
                 {
                     auto tmpIter = me.getSelected();
+	    	    if(tmpIter is null) return;
                     auto text = tmpIter.getValueString(0);
                     ui.AddStatus("tip", text);
                 });   
