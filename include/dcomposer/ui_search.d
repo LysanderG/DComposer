@@ -401,6 +401,14 @@ class UI_SEARCH
         AddToMenuBar("ActSearch", mRootMenuNames[0], 0);
         //AddToToolBar("ActSearch");
 
+        AddIcon("dcmp-search-next", ResourcePath( Config.GetValue("icons", "search_next", "magnifier-arrow.png");
+        AddAction("ActSearchNext", "Search Next", "Next found string", "dcmp-search-next", "<Control>/", delegate void(Action a)
+        {
+            if(DocMan.Current)
+            {
+                
+            }
+        }
         AddExtraPage(mRoot, "Search");
 
         mExtraPane.setTabReorderable(mRoot, 1);
