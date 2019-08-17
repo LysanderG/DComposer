@@ -67,6 +67,7 @@ class UI_SEARCH
     SCOPE           mScope;
 
     ITEM[]          mSearchResults;
+    size_t          mResultsIndex;		
 
     bool            mUpdatingMStore; //so as not to react to cursor changes while adding search results
 
@@ -401,14 +402,18 @@ class UI_SEARCH
         AddToMenuBar("ActSearch", mRootMenuNames[0], 0);
         //AddToToolBar("ActSearch");
 
-        AddIcon("dcmp-search-next", ResourcePath( Config.GetValue("icons", "search_next", "magnifier-arrow.png");
-        AddAction("ActSearchNext", "Search Next", "Next found string", "dcmp-search-next", "<Control>/", delegate void(Action a)
+        AddIcon("dcmp-search-next", ResourcePath( Config.GetValue("icons", "search_next", "magnifier--arrow.png")));
+        AddAction("ActSearchNext", "Search Next", "Next found string", "dcmp-search-next","F3", delegate void(Action a)
         {
-            if(DocMan.Current)
-            {
-                
-            }
-        }
+	    auto tp = new TreePath;
+	    auto tvc = new TreeViewColumn;
+	    mTree.getCursor(tp, tvc);
+	    if(tp is null) return;
+	    if(tvc is null) return;
+	    tp.next();
+	    mTree.setCursor(tp, tvc, false);
+	});
+	AddToMenuBar("ActSearchNext", mRootMenuNames[0],0);
         AddExtraPage(mRoot, "Search");
 
         mExtraPane.setTabReorderable(mRoot, 1);
