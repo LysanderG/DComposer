@@ -403,16 +403,17 @@ class UI_SEARCH
         //AddToToolBar("ActSearch");
 
         AddIcon("dcmp-search-next", ResourcePath( Config.GetValue("icons", "search_next", "magnifier--arrow.png")));
-        AddAction("ActSearchNext", "Search Next", "Next found string", "dcmp-search-next","F3", delegate void(Action a)
+        AddAction("ActSearchNext", "Search Next", "Next found string", "dcmp-search-next","<Control>slash", delegate void(Action a)
         {
-	    auto tp = new TreePath;
-	    auto tvc = new TreeViewColumn;
-	    mTree.getCursor(tp, tvc);
-	    if(tp is null) return;
-	    if(tvc is null) return;
-	    tp.next();
-	    mTree.setCursor(tp, tvc, false);
-	});
+	        auto tp = new TreePath;
+	        auto tvc = new TreeViewColumn;
+	        mTree.getCursor(tp, tvc);
+	        if(tp is null) return;
+	        if(tvc is null) return;
+	        tp.next();
+	        mTree.setCursor(tp, tvc, false);
+	        mTree.rowActivated(tp, tvc);
+	    });
 	AddToMenuBar("ActSearchNext", mRootMenuNames[0],0);
         AddExtraPage(mRoot, "Search");
 
