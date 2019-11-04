@@ -144,7 +144,7 @@ public:
 	    mRecentFiles = Config.GetArray("ui_docbook", "recent_files",["/home/anthony/projects/dcomposer/src/dcore.d", "/home/anthony/projects/dcomposer/src/ui.d"]);
 	    auto RecentMenuItem = new Menu;
 	    MenuItem[] RecentItems;
-	    foreach(rfile; mRecentFiles) RecentItems ~= new MenuItem(delegate void(MenuItem x){DocMan.Open(x.getLabel());}, rfile);
+	    foreach(rfile; mRecentFiles) RecentItems ~= new MenuItem(delegate void(MenuItem x){DocMan.Open(x.getLabel());}, rfile, false);
 	    foreach(ri; RecentItems) RecentMenuItem.append(ri);
 	    mRecentMenu = new MenuItem("Recent");
 	    mRecentMenu.setUseUnderline(false);
