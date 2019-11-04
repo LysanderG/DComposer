@@ -68,10 +68,16 @@ private:
     
     void UpdateRecentFiles()
     {
+        mRecentMenu.setSubmenu(null);
+	    mRecentMenu.setUseUnderline(false);
 	    auto RecentMenuItem = new Menu;
 	    MenuItem[] RecentItems;
-	    foreach(rfile; mRecentFiles) RecentItems ~= new MenuItem(delegate void(MenuItem x){DocMan.Open(x.getLabel());}, rfile);
+	    foreach(rfile; mRecentFiles)
+	    {   
+    	    RecentItems ~= new MenuItem(delegate void(MenuItem x){DocMan.Open(x.getLabel());}, rfile, false);
+	    }
 	    foreach(ri; RecentItems) RecentMenuItem.append(ri);
+	    
 	    mRecentMenu.setSubmenu(RecentMenuItem);
 	    mRecentMenu.showAll();
     }
@@ -141,6 +147,7 @@ public:
 	    foreach(rfile; mRecentFiles) RecentItems ~= new MenuItem(delegate void(MenuItem x){DocMan.Open(x.getLabel());}, rfile);
 	    foreach(ri; RecentItems) RecentMenuItem.append(ri);
 	    mRecentMenu = new MenuItem("Recent");
+	    mRecentMenu.setUseUnderline(false);
 	    mRecentMenu.setSubmenu(RecentMenuItem);
 	    AddItemToMenuBar(mRecentMenu,"_Document");
 	    mRecentMenu.showAll();
