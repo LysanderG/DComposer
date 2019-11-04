@@ -60,6 +60,12 @@ ITEM[] FindInDoc(DOC_IF doc, Regex!char Needle)
 ITEM[] FindInFile(string FileName, Regex!char Needle)
 {
     ITEM[] rv;
+    if(!FileName.exists)
+    {
+        Log.Entry("Can not search non existant file :" ~ FileName);
+        return rv;
+    }
+
     auto HayStackLines = readText(FileName).splitLines();
     foreach(ulong line, string text; HayStackLines)
     {
