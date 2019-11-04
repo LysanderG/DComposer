@@ -2723,17 +2723,18 @@ class DOCUMENT : SourceView, DOC_IF
         TextIter StartTi, EndTi;
         TextIter TempTi;
         bool result_forward;
-
+        bool searchWrapped;
+        
         foreach(ctr; 0..Reps)
         {
-            if(searchContext.forward(ti, StartTi, EndTi))
+            if(searchContext.forward(ti, StartTi, EndTi,searchWrapped))
             {
                 if(ti.equal(StartTi))
                 {
                     TempTi = ti.copy();
                     if(TempTi.forwardChar())
                     {
-                         if(searchContext.forward(TempTi, StartTi, EndTi))
+                         if(searchContext.forward(TempTi, StartTi, EndTi,searchWrapped))
                         {
                             ti = StartTi.copy();
                         }
@@ -2774,10 +2775,11 @@ class DOCUMENT : SourceView, DOC_IF
         
         FinalEndTi = ti.copy();
         FinalStartTi = ti.copy();
+	bool searchWrapped;
         
         if(cursor != TEXT_OBJECT_CURSOR.START)
         {
-            if(searchContext.backward(ti,StartTi, EndTi))
+            if(searchContext.backward(ti,StartTi, EndTi,searchWrapped))
             {
                 //ti = EndTi.copy();
                 ti = StartTi.copy();
@@ -2787,7 +2789,7 @@ class DOCUMENT : SourceView, DOC_IF
 
         foreach(ctr; 0..Reps)
         {
-            if(searchContext.forward(ti, StartTi, EndTi))
+            if(searchContext.forward(ti, StartTi, EndTi,searchWrapped))
             {
                 FinalStartTi = StartTi.copy();
                 FinalEndTi = EndTi.copy();
@@ -2798,7 +2800,7 @@ class DOCUMENT : SourceView, DOC_IF
                     auto TempTi = ti.copy();
                     if(TempTi.forwardChar())
                     {
-                        if(searchContext.forward(TempTi, StartTi, EndTi))
+                        if(searchContext.forward(TempTi, StartTi, EndTi,searchWrapped))
                         {
                             FinalStartTi = StartTi.copy();
                             FinalEndTi = EndTi.copy();
@@ -2842,16 +2844,17 @@ class DOCUMENT : SourceView, DOC_IF
         
         TextIter StartTi, EndTi;
         bool result_forward;
+	bool searchWrapped;
 
         foreach(ctr; 0..Reps)
         {
-            if(searchContext.backward(ti, StartTi, EndTi))
+            if(searchContext.backward(ti, StartTi, EndTi, searchWrapped))
             {
                 if(ti.equal(StartTi))
                 {
                     if(ti.backwardChar())
                     {
-                         if(searchContext.backward(ti, StartTi, EndTi))
+                         if(searchContext.backward(ti, StartTi, EndTi, searchWrapped))
                         {
                             ti = StartTi.copy();
                         }
@@ -2885,13 +2888,14 @@ class DOCUMENT : SourceView, DOC_IF
         TextIter StartTi, EndTi;
         TextIter FinalStartTi, FinalEndTi;
         bool result_forward;
-        
+        bool searchWrapped;
+
         FinalEndTi = ti.copy();
         FinalStartTi = ti.copy();
         
         if(cursor != TEXT_OBJECT_CURSOR.END)
         {
-            if(searchContext.forward(ti, StartTi, EndTi))
+            if(searchContext.forward(ti, StartTi, EndTi,searchWrapped))
             {
                 ti = StartTi.copy();
             }
@@ -2900,14 +2904,14 @@ class DOCUMENT : SourceView, DOC_IF
         {
             auto tmpti = ti.copy();
             TextIter tmp1, tmp2;
-            if(searchContext.backward(tmpti, tmp1, tmp2))
+            if(searchContext.backward(tmpti, tmp1, tmp2, searchWrapped))
             {
                 if(ti.getOffset()== tmp2.getOffset()) ti.backwardChar();
             }
         }
         foreach(ctr; 0..Reps)
         {
-            if(searchContext.backward(ti, StartTi, EndTi))
+            if(searchContext.backward(ti, StartTi, EndTi, searchWrapped))
             {
                 FinalStartTi = StartTi.copy();
                 FinalEndTi = EndTi.copy();
@@ -2918,7 +2922,7 @@ class DOCUMENT : SourceView, DOC_IF
                     auto TempTi = ti.copy();
                     if(TempTi.backwardChar())
                     {
-                         if(searchContext.backward(TempTi, StartTi, EndTi))
+                         if(searchContext.backward(TempTi, StartTi, EndTi, searchWrapped))
                         {
                             FinalStartTi = StartTi.copy();
                             FinalEndTi = EndTi.copy();
