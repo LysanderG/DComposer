@@ -83,15 +83,15 @@ class NAVIGATION_ELEM : ELEMENT
 
     private:
 
-    NAV_POINT[] NavPoints;
-    ulong       NavIndex;
+    NAV_POINT[] mNavPoints;
+    ulong       mNavIndex;
 
     MenuItem[]  mActionMenuItems;   //save these to remove them on disengage with out crashing
 
 
     void PushNavPoint(DOC_IF docIF, int line, int column)
     {
-
+        scope(exit)UpdateGutters();
         auto Doc = cast(DOCUMENT) docIF;
         if(Doc is null) return;
         if(Doc.Cursor.isEnd()) return;
@@ -102,43 +102,43 @@ class NAVIGATION_ELEM : ELEMENT
         newPoint.Line = line;
         newPoint.Col = column;
 
-        if(NavPoints.length == 0)
+        if(mNavPoints.length == 0)
         {
-            NavPoints ~= newPoint;
-            NavIndex = 0;
+            mNavPoints ~= newPoint;
+            mNavIndex = 0;
             return;
         }
 
-        if( (newPoint.DocName == NavPoints[NavIndex].DocName) && (newPoint.Line == NavPoints[NavIndex].Line)) return;
+        if( (newPoint.DocName == mNavPoints[mNavIndex].DocName) && (newPoint.Line == mNavPoints[mNavIndex].Line)) return;
 
-        if(NavIndex == 0)
+        if(mNavIndex == 0)
         {
-            NavPoints = NavPoints[0..1];
-            NavPoints ~= newPoint;
-            NavIndex = 1;
+            mNavPoints = mNavPoints[0..1];
+            mNavPoints ~= newPoint;
+            mNavIndex = 1;
             return;
         }
 
-        NavPoints = NavPoints[0 .. NavIndex+1] ~ newPoint;
-        NavIndex = NavPoints.length - 1;
+        mNavPoints = mNavPoints[0 .. mNavIndex+1] ~ newPoint;
+        mNavIndex = mNavPoints.length - 1;
 
     }
 
     void BackNavPoint()
     {
-        if(NavPoints.length < 1) return;
-        if(NavIndex > 0) NavIndex--;
+        if(mNavPoints.length < 1) return;
+        if(mNavIndex > 0) mNavIndex--;
 
-        Go(NavPoints[NavIndex]);
+        Go(mNavPoints[mNavIndex]);
     }
 
     void ForwardNavPoint()
     {
-        if(NavIndex+1 >= NavPoints.length) return;
-        NavIndex++;
-        //DocMan.Open(NavPoints[NavIndex].DocName, NavPoints[NavIndex].Line);
-        //Go(cast(DOCUMENT)DocMan.Open(NavPoints[NavIndex].DocName), NavPoints[NavIndex].Line);
-        Go(NavPoints[NavIndex]);
+        if(mNavIndex+1 >= mNavPoints.length) return;
+        mNavIndex++;
+        //DocMan.Open(mNavPoints[mNavIndex].DocName, mNavPoints[mNavIndex].Line);
+        //Go(cast(DOCUMENT)DocMan.Open(mNavPoints[mNavIndex].DocName), mNavPoints[mNavIndex].Line);
+        Go(mNavPoints[mNavIndex]);
     }
 
     void Go(NAV_POINT np)
@@ -167,9 +167,34 @@ class NAVIGATION_ELEM : ELEMENT
 
     void ClearNavPoints()
     {
-        NavPoints.length = 0;
-        NavIndex = 0;
+        mNavPoints.length = 0;
+        mNavIndex = 0;
+        UpdateGutters();
     }
+    void UpdateGutters()
+    {
+        foreach(doc_if; DocMan.GetOpenDocs())
+        {
+            auto doc = cast(DOCUMENT)doc_if;
+            TextIter tiStart, tiEnd;
+            doc.getBuffer.getStartIter(tiStart);
+            doc.getBuffer.getEndIter(tiEnd);
+            doc.getBuffer.removeSourceMarks(tiStart, tiEnd, "NavPoints");
+        }
+        foreach(nvpt; mNavPoints)
+        {
+            auto doc = cast(DOCUMENT)DocMan.GetDoc(nvpt.DocName);
+            if(doc)
+            {
+                TextIter ti = new TextIter;
+                doc.getBuffer().getIterAtLineOffset(ti, nvpt.Line, nvpt.Col);
+                doc.getBuffer().createSourceMark(null, "NavPoints", ti);
+            }            
+        }
+
+    }
+
+
 
 }
 
