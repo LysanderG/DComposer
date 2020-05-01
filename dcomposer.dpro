@@ -1,0 +1,456 @@
+{
+     "Folder": "\/home\/anthony\/projects\/dcomposerx",
+     "Name": "dcomposer",
+     "FlagsVersion": "DMD64 D Compiler v2.068.2",
+     "Compiler": "dmd ",
+     "UseCustomBuild": false,
+     "lists": {
+          "Source Files": [
+               "source\/app.d",
+               "source\/config.d",
+               "source\/elements.d",
+               "source\/json.d",
+               "source\/log.d",
+               "source\/quore.d",
+               "source\/ui.d"
+          ],
+          "Related Files": [],
+          "Postbuild Scripts": [],
+          "String Imports": [],
+          "Libraries": [],
+          "Debugs": [],
+          "Sundry": [],
+          "Versions": [],
+          "Prebuild Scripts": [],
+          "Import Paths": [
+               "source"
+          ],
+          "Notes": [],
+          "Library Paths": []
+     },
+     "DcomposerProjectVersion": "A",
+     "TargetType": 1,
+     "Flags": [
+          {
+               "State": false,
+               "Switch": "-allinst",
+               "Brief": "generate code for all template instantiations",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-c",
+               "Brief": "do not link",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-color=",
+               "Brief": "force colored console on or off",
+               "Argument": true,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-conf=",
+               "Brief": "use config file at path",
+               "Argument": true,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-cov",
+               "Brief": "do code coverage analysis",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-cov=",
+               "Brief": "require at least nnn% code coverage",
+               "Argument": true,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-D",
+               "Brief": "generate documentation",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-Dd",
+               "Brief": "write documentation file to docdir directory",
+               "Argument": true,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-Df",
+               "Brief": "write documentation file to filename",
+               "Argument": true,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-d",
+               "Brief": "silently allow deprecated features",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-dw",
+               "Brief": "show use of deprecated features as warnings (default)",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-de",
+               "Brief": "show use of deprecated features as errors (halt compilation)",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-debug",
+               "Brief": "compile in debug code",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-debug=",
+               "Brief": "compile in debug code &lt;= level",
+               "Argument": true,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-debuglib=",
+               "Brief": "set symbolic debug library to name",
+               "Argument": true,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-defaultlib=",
+               "Brief": "set default library to name",
+               "Argument": true,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-deps",
+               "Brief": "print module dependencies (imports\/file\/version\/debug\/lib)",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-deps=",
+               "Brief": "write module dependencies to filename (only imports)",
+               "Argument": true,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-fPIC",
+               "Brief": "generate position independent code",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-dip25",
+               "Brief": "implement http:\/\/wiki.dlang.org\/DIP25 (experimental)",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": true,
+               "Switch": "-g",
+               "Brief": "add symbolic debug info",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-gc",
+               "Brief": "add symbolic debug info, pretend to be C",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-gs",
+               "Brief": "always emit stack frame",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-gx",
+               "Brief": "add stack stomp code",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-H",
+               "Brief": "generate &apos;header&apos; file",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-Hd",
+               "Brief": "write &apos;header&apos; file to directory",
+               "Argument": true,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-Hf",
+               "Brief": "write &apos;header&apos; file to filename",
+               "Argument": true,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-ignore",
+               "Brief": "ignore unsupported pragmas",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-inline",
+               "Brief": "do function inlining",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-lib",
+               "Brief": "generate library rather than object files",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-m32",
+               "Brief": "generate 32 bit code",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-m64",
+               "Brief": "generate 64 bit code",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-main",
+               "Brief": "add default main() (e.g. for unittesting)",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-man",
+               "Brief": "open web browser on manual page",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-map",
+               "Brief": "generate linker .map file",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-noboundscheck",
+               "Brief": "turns off array bounds checking for all functions",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-O",
+               "Brief": "optimize",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-o-",
+               "Brief": "do not write object file",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": true,
+               "Switch": "-od",
+               "Brief": "write object &amp; library files to directory objdir",
+               "Argument": true,
+               "Value": "obj"
+          },
+          {
+               "State": true,
+               "Switch": "-of",
+               "Brief": "name output file to filename",
+               "Argument": true,
+               "Value": "bin\/dcomposer"
+          },
+          {
+               "State": false,
+               "Switch": "-op",
+               "Brief": "preserve source path for output files",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-profile",
+               "Brief": "profile runtime performance of generated code",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-profile=gc",
+               "Brief": "profile runtime allocations",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-property",
+               "Brief": "enforce property syntax",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-release",
+               "Brief": "compile release version",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-run",
+               "Brief": "srcfile args...   run resulting program, passing args",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-shared",
+               "Brief": "generate shared library (DLL)",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-transition=",
+               "Brief": "show additional info about language change identified by &apos;id&apos;",
+               "Argument": true,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-transition=?",
+               "Brief": "list all language changes",
+               "Argument": true,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-unittest",
+               "Brief": "compile in unit tests",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-v",
+               "Brief": "verbose",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": true,
+               "Switch": "-vcolumns",
+               "Brief": "print character (column) numbers in diagnostics",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-verrors=",
+               "Brief": "limit the number of error messages (0 means unlimited)",
+               "Argument": true,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-vgc",
+               "Brief": "list all gc allocations including hidden ones",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-vtls",
+               "Brief": "list all variables going into thread local storage",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-version=",
+               "Brief": "compile in version code &gt;= level",
+               "Argument": true,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-w",
+               "Brief": "warnings as errors (compilation will halt)",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-wi",
+               "Brief": "warnings as messages (compilation will continue)",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-X",
+               "Brief": "generate JSON file",
+               "Argument": false,
+               "Value": ""
+          },
+          {
+               "State": false,
+               "Switch": "-Xf",
+               "Brief": "write JSON file to filename",
+               "Argument": true,
+               "Value": ""
+          }
+     ],
+     "CustomBuildCommand": ""
+}
