@@ -1,0 +1,14 @@
+bin/
+obj/
+tmp/
+*.obj
+*.exe
+*.log
+*.lst
+*.a
+*.so
+*.o
+*.cfg
+*.data
+*.info
+.dub/d

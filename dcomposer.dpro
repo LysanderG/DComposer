@@ -12,21 +12,28 @@
                "source\/json.d",
                "source\/log.d",
                "source\/quore.d",
-               "source\/ui.d"
+               "source\/ui.d",
+               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_docbook.d",
+               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_action.d"
           ],
           "Related Files": [],
           "Postbuild Scripts": [],
           "String Imports": [],
-          "Libraries": [],
+          "Libraries": [
+               "\/usr\/lib\/libgtkd-3.so"
+          ],
           "Debugs": [],
           "Sundry": [],
           "Versions": [],
           "Prebuild Scripts": [],
           "Import Paths": [
-               "source"
+               "source",
+               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/generated\/gtkd"
           ],
           "Notes": [],
-          "Library Paths": []
+          "Library Paths": [
+               "\/usr\/lib"
+          ]
      },
      "DcomposerProjectVersion": "A",
      "TargetType": 1,
@@ -116,7 +123,7 @@
                "Value": ""
           },
           {
-               "State": false,
+               "State": true,
                "Switch": "-debug",
                "Brief": "compile in debug code",
                "Argument": false,
@@ -137,11 +144,11 @@
                "Value": ""
           },
           {
-               "State": false,
+               "State": true,
                "Switch": "-defaultlib=",
                "Brief": "set default library to name",
                "Argument": true,
-               "Value": ""
+               "Value": "libphobos2.so"
           },
           {
                "State": false,

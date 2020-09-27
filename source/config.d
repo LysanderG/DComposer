@@ -31,7 +31,8 @@ bool isInstalled;
 static this()
 {
 	userDirectory = "~/.config/dcomposer".expandTilde();
-	sysDirectory = "/opt/dcomposer";
+	//sysDirectory = "/opt/dcomposer";
+	sysDirectory = "/home/anthony/projects/dcomposerx";
 	defaultConfigFile = buildPath(userDirectory, "dcomposer_nuveau.cfg");
 }
 
@@ -74,6 +75,16 @@ string GetCmdLineOptions()
 	string rv;
 	rv ~= "\t-c	--config=FILE\t\tset config file for session\n";
 	return rv;
+}
+
+string findResource(string relativePath)
+{
+	auto optOne = buildPath(sysDirectory, relativePath);
+	if(exists(optOne)) return optOne;
+	auto optTwo = buildPath(userDirectory, relativePath);
+	if(exists(optTwo))return optTwo;
+	Log.Entry("Unable to locate resource " ~ relativePath, "Error");
+	throw new Exception("Failed to locate resoure!");
 }
 
 class CONFIG
