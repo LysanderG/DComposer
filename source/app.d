@@ -18,7 +18,7 @@ int main(string[] args)
     ui.Mesh();
     elements.Mesh();
     
-    ui.run;
+    ui.run(args);
      
     elements.Disengage();
     ui.Disengage();

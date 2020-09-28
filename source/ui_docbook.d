@@ -70,9 +70,6 @@ private:
 		//new document
         auto newdoc = new MenuItem("New", delegate void(MenuItem mi){dwrite("help");},"activate");
         newdoc.showAll();
-        mRootMenus["_Document"].append( newdoc);
-        import gtk.AccelMap;
-        newdoc.addAccelerator("activate", mAccelGroup, 'n', GdkModifierType.CONTROL_MASK, GtkAccelFlags.VISIBLE);
 		//open document
 		//save document
 		//save as

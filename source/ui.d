@@ -4,9 +4,9 @@ import config;
 
 
 import ui_docbook;
-public import ui_action;
 
-
+import gio.Cancellable;
+import gio.Application;
 import gdk.Event;
 import gio.SimpleAction;
 import gio.SimpleActionGroup;
@@ -31,18 +31,19 @@ import glib.Variant;
 void Engage(string[] args)
 {
 	Main.init(args);
-	
-	//mAccelGroup = new AccelGroup;
-	mIconFactory = new IconFactory;
-	mActionGroup = new SimpleActionGroup;
-	
-	
-	
+
+	mApplication = new Application("dcomposer.com", GApplicationFlags.REPLACE);
+	mApplication.register(new Cancellable());
+	dwrite (mApplication);
+	dwrite (mApplication.getApplicationId());
 	auto mBuilder = new Builder;
-	mBuilder.addFromFile(config.findResource(Config.GetValue("ui", "ui_main_window", "glade/ui_main2.glade"))); 
+	dwrite(mBuilder);
+	dwrite(mBuilder.addFromFile(config.findResource(Config.GetValue("ui", "ui_main_window", "glade/ui_main.glade")))); 
 	
-	mAccelGroup = cast(AccelGroup)mBuilder.getObject("accels");
+	dwrite(mBuilder, "hi");
 	EngageMainWindow(mBuilder);
+	dwrite("here0");
+	
 	EngageMenuBar(mBuilder);
 	EngageToolBar(mBuilder);
 	EngageSidePane(mBuilder);
@@ -52,28 +53,32 @@ void Engage(string[] args)
 	//EngageContextMenu(mBuilder);
 	//EngageProject(mBuilder);
 	//EngageCompletion(mBuilder);
-	dwrite(mMainWindow.listActions());
+	dwrite("here");
 	Log.Entry("Engaged");
 }
 
 void Mesh()
 {
+    Log.Entry("Meshed");
 }
 
 void Disengage()
 {
+    Log.Entry("Disengaged");
 }
 
-void run()
+void run(string[] args)
 {
 	Log.Entry("++++++ Entering GTK Main Loop ++++++");
-	Main.run();
+	mApplication.run(args);
 	Log.Entry("------  Exiting GTK Main Loop ------");
 	
 }
 
 
 //================================================================
+private:
+gio.Application.Application         mApplication;
 ApplicationWindow 	mMainWindow;
 AccelGroup 			mAccelGroup;
 IconFactory 		mIconFactory;
@@ -82,22 +87,23 @@ SimpleActionGroup 	mActionGroup;
 void EngageMainWindow(Builder mBuilder)
 {
 	mMainWindow = cast(ApplicationWindow) mBuilder.getObject("main_window");
-	mMainWindow.insertActionGroup("win",mActionGroup);
+	dwrite(mMainWindow);
+	//mMainWindow.insertActionGroup("win",mActionGroup);
 	
-	auto quitaction = new SimpleAction("myquit", new VariantType("i"),new Variant(454));
-    quitaction.addOnActivate(delegate void (Variant v, SimpleAction sa)
-    {
-	    dwrite(v.getInt32());
-		Quit();	
-	});
-	quitaction.setEnabled(true);
-	quitaction.setState(new Variant(2));
+	//auto quitaction = new SimpleAction("myquit", new VariantType("i"),new Variant(454));
+    //quitaction.addOnActivate(delegate void (Variant v, SimpleAction sa)
+    //{
+	//    dwrite(v.getInt32());
+	//	Quit();	
+	//});
+	//quitaction.setEnabled(true);
+	//quitaction.setState(new Variant(2));
 	
-	mActionGroup.insert(quitaction);
+	//mActionGroup.insert(quitaction);
 	
 	mMainWindow.addOnDelete(delegate bool(Event ev, Widget wdgt)
 	{
-		Quit();
+		dwrite("quit!!");
 		return true;
 	});
 	mMainWindow.showAll();

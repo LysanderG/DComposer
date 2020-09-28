@@ -13,7 +13,7 @@ void Engage(string[] args)
 void Mesh()
 {
     log.Mesh();
-    //config.Mesh();    
+    config.Mesh();    
     Log.Entry("Mesh");
 }
 
