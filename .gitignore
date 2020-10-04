@@ -13,3 +13,4 @@ tmp/
 *.info
 .dub/d
 *~
+dcomposer_filter
