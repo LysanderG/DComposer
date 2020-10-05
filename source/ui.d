@@ -42,14 +42,13 @@ import gtk.Window;
 
 void Engage(string[] args)
 {
-	mApplication = new Application("dcomposer.com", GApplicationFlags.FLAGS_NONE);
+	mApplication = new Application("dcomposer.com", GApplicationFlags.NON_UNIQUE);
 	mApplication.register(new Cancellable());
 	
 	auto mBuilder = new Builder;
     mBuilder.addFromFile(config.findResource(Config.GetValue("ui", "ui_main_window", "glade/ui_main.glade"))); 
     
 
-    mAccelGroup =  cast(AccelGroup)mBuilder.getObject("accel_group");
 	mApplication.addOnActivate(delegate void(GApplication app)
 	{
     	EngageMainWindow(mBuilder);
@@ -89,15 +88,17 @@ void run(string[] args)
 private:
 Application         mApplication;
 ApplicationWindow 	mMainWindow;
-AccelGroup          mAccelGroup;
-IconFactory 		mIconFactory;
+MenuBar             mMenuBar;
+Toolbar             mToolbar;
+Notebook 			mSidePane;
+Notebook 			mExtraPane;
+Box                 mStatusBox;
+UI_DOCBOOK 			mDocBook;
 
-
-SimpleAction mQuitAction;
 void EngageMainWindow(Builder mBuilder)
 {
 	mMainWindow = cast(ApplicationWindow) mBuilder.getObject("main_window");
-	mAccelGroup = cast(AccelGroup) mBuilder.getObject("accel_group");
+
 	
     mApplication.addWindow(mMainWindow);
     
@@ -105,7 +106,7 @@ void EngageMainWindow(Builder mBuilder)
 	
 	mMainWindow.addOnDelete(delegate bool(Event Ev, Widget wdgt)
 	{
-    	if(Quit())mApplication.quit();
+    	if(ConfirmQuit())mApplication.quit();
     	return true;
 		
 	});
@@ -113,63 +114,38 @@ void EngageMainWindow(Builder mBuilder)
 
 }
 
-MenuBar mMenuBar;
-Menu[string] mRootMenus;
+
 void EngageMenuBar(Builder mBuilder)
 {
     mMenuBar = cast(MenuBar)mBuilder.getObject("menu_bar");
-    
-    foreach(string rootname; EnumMembers!ROOT)
-    {
-        mRootMenus[rootname] = mMenuBar.append(rootname);
-        mRootMenus[rootname].setAccelGroup(mAccelGroup);
-        mRootMenus[rootname].setAccelPath("<dcomposer>/" ~ rootname);
-    }
-    
-GtkShortcutsWindow scw;
-        GtkShortcutsWindow * scwp;
-    auto quitMenuItem = new MenuItem("Quit", delegate void (MenuItem mi)
-    {
-        import gtk.ShortcutsWindow;
-        
-        ShortcutsWindow helpoverlay = new ShortcutsWindow(swcp);
-        
-        mMainWindow.setHelpOverlay(helpoverlay);
-        //helpoverlay = mMainWindow.getHelpOverlay();
-        dwrite(helpoverlay);
-        helpoverlay.present();
-        if(Quit())
-        {
-            mApplication.quit();
-        }
-    }
-    , "app.actQuit");
-    auto accLabel = cast(AccelLabel)quitMenuItem.getChild();
-    accLabel.setAccel('q', GdkModifierType.CONTROL_MASK);
-    accLabel.setAccelWidget(cast(Widget)mApplication);
 
+//quit
+    GActionEntry[] ag = [{"actionQuit", &action_quit,null, null, null}];
+    mMainWindow.addActionEntries(ag, null);
+    mApplication.setAccelsForAction("win.actionQuit",["<Control>q"]);
+//pref
+    GActionEntry aePref = {"actionPreferences", &action_preferences, null, null, null};
+    mMainWindow.addActionEntries([aePref], null);
+    mApplication.setAccelsForAction("win.actionPreferences", ["<Control>p"]);
+//views
+    GActionEntry[] aevViews =[
+        {"actionViewMenubar",     &action_view_menubar, null, null, null},
+        {"actionViewToolbar",     &action_view_toolbar, null, null, null},
+        {"actionViewSidepane",    &action_view_sidepane, null, null, null},
+        {"actionViewExtrapane"}
+    mMainWindow.addActionEntries([aev]
 
-    mRootMenus[ROOT.SYSTEM].append(quitMenuItem); 
-
-    quitMenuItem.addAccelerator("activate", mAccelGroup, 'q', GdkModifierType.CONTROL_MASK, GtkAccelFlags.VISIBLE);
-    quitMenuItem.setAccelPath("<dcomposer>/System/Quit");
-    quitMenuItem.setSensitive(true);
-
-
-    
-    dwrite(mApplication.listActionDescriptions());
 
     mMenuBar.showAll();
 }
 
-Toolbar mToolbar;
+
 void EngageToolBar(Builder mBuilder)
 {
 	mToolbar = cast(Toolbar)mBuilder.getObject("tool_bar");
 }
 
 
-Notebook mSidePane;
 void EngageSidePane(Builder mBuilder)
 {
 	mSidePane = cast(Notebook)mBuilder.getObject("side_pane");
@@ -178,26 +154,26 @@ void EngageSidePane(Builder mBuilder)
 	
 }
 
-Notebook mExtraPane;
+
 void EngageExtraPane(Builder mBuilder)
 {
 	mExtraPane = cast(Notebook)mBuilder.getObject("extra_pane");
 }
 
-Box mStatusBox;
+
 void EngageStatusBar(Builder mBuilder)
 {
 	mStatusBox = cast(Box)mBuilder.getObject("status_box");
 }
 
-UI_DOCBOOK mDocBook;
+
 void EngageDocBook(Builder mBuilder)
 {
 	mDocBook = new UI_DOCBOOK;
 	mDocBook.Engage(mBuilder);
 }
 
-bool Quit()
+bool ConfirmQuit()
 {
 	bool mQuitting = true;
     auto ModdedDocs = true; //DocMan.Modified();
@@ -213,8 +189,11 @@ bool Quit()
         ConfQuit.destroy();
         switch (response)
         {
+            //saveall & quit
             case YES : break;//DocMan.SaveAll();break;
+            //discard changes & quit
             case NO  : break;
+            //pick & choose & quit (or do not quit if modified docs haven't been closed)
             case OK  : //DocMan.CloseAll();
                        //if(!DocMan.Empty)
                        //{
@@ -222,6 +201,7 @@ bool Quit()
 	                   //    return;
                        //}
                        break;
+            //any other response do nothing return to editting
             default  : 
         			   mQuitting = false;
         }
@@ -243,3 +223,21 @@ enum ROOT :string
     HELP    = "Help",
 }
 
+
+//action callbacks from gtk ... so extern c
+extern (C)
+{
+    void action_quit(void* sa, void* v, void * vptr)
+    {
+       if(ConfirmQuit())mApplication.quit();
+    }
+    
+    void action_preferences(void* simAction, void* varTarget, void* voidUserData)
+    {
+        auto x = new MessageDialog(mMainWindow, GtkDialogFlags.MODAL,GtkMessageType.INFO, GtkButtonsType.CLOSE,"Preferences",null);
+        x.run();
+        dwrite("preferences menu activated");
+        x.close();
+        x.destroy();
+    }
+}

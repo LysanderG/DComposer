@@ -19,22 +19,87 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkMenuItem">
+              <object class="GtkMenuItem" id="system">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">__glade_unnamed_9</property>
+                <property name="label" translatable="yes">_System</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
                   <object class="GtkMenu">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkCheckMenuItem">
+                      <object class="GtkMenuItem" id="preferences">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">__glade_unnamed_11</property>
+                        <property name="action_name">win.actionPreferences</property>
+                        <property name="label" translatable="yes">Preferences</property>
                         <property name="use_underline">True</property>
-                        <accelerator key="b" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="p" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="quit">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="action_name">win.actionQuit</property>
+                        <property name="accel_path">&lt;dcomposer&gt;/quit</property>
+                        <property name="label" translatable="yes">Quit</property>
+                        <property name="use_underline">True</property>
+                        <accelerator key="q" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="views">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Views</property>
+                <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="view_menu">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Menubar</property>
+                        <property name="use_underline">True</property>
+                        <property name="active">True</property>
+                        <accelerator key="m" signal="activate" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="view_toolbar">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Toolbar</property>
+                        <property name="use_underline">True</property>
+                        <accelerator key="t" signal="activate" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="view_sidepane">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Side panel</property>
+                        <property name="use_underline">True</property>
+                        <property name="active">True</property>
+                        <accelerator key="s" signal="activate" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="view_extra_pane">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Extra panel</property>
+                        <property name="use_underline">True</property>
+                        <property name="active">True</property>
+                        <accelerator key="x" signal="activate" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                   </object>
