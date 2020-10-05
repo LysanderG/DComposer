@@ -9,6 +9,7 @@ import config;
 
 import ui_docbook;
 
+import gtk.CheckMenuItem;
 import gtk.AccelLabel;
 import gio.SimpleAction;
 import gdk.Event;
@@ -89,6 +90,9 @@ private:
 Application         mApplication;
 ApplicationWindow 	mMainWindow;
 MenuBar             mMenuBar;
+CheckMenuItem       miViewMenubar;
+CheckMenuItem       miViewSidepane;
+CheckMenuItem       miViewExtrapane;
 Toolbar             mToolbar;
 Notebook 			mSidePane;
 Notebook 			mExtraPane;
@@ -98,12 +102,9 @@ UI_DOCBOOK 			mDocBook;
 void EngageMainWindow(Builder mBuilder)
 {
 	mMainWindow = cast(ApplicationWindow) mBuilder.getObject("main_window");
-
 	
     mApplication.addWindow(mMainWindow);
-    
-    
-	
+
 	mMainWindow.addOnDelete(delegate bool(Event Ev, Widget wdgt)
 	{
     	if(ConfirmQuit())mApplication.quit();
@@ -118,6 +119,9 @@ void EngageMainWindow(Builder mBuilder)
 void EngageMenuBar(Builder mBuilder)
 {
     mMenuBar = cast(MenuBar)mBuilder.getObject("menu_bar");
+    miViewMenubar = cast(CheckMenuItem)mBuilder.getObject("view_menubar");
+    miViewSidepane = cast(CheckMenuItem)mBuilder.getObject("view_sidepane");
+    miViewExtrapane = cast(CheckMenuItem)mBuilder.getObject("view_extrapane");
 
 //quit
     GActionEntry[] ag = [{"actionQuit", &action_quit,null, null, null}];
@@ -129,11 +133,17 @@ void EngageMenuBar(Builder mBuilder)
     mApplication.setAccelsForAction("win.actionPreferences", ["<Control>p"]);
 //views
     GActionEntry[] aevViews =[
-        {"actionViewMenubar",     &action_view_menubar, null, null, null},
-        {"actionViewToolbar",     &action_view_toolbar, null, null, null},
-        {"actionViewSidepane",    &action_view_sidepane, null, null, null},
-        {"actionViewExtrapane"}
-    mMainWindow.addActionEntries([aev]
+        {"actionViewMenubar",   &action_view_menubar,   null, null, null},
+        {"actionViewToolbar",   &action_view_toolbar,   null, null, null},
+        {"actionViewSidepane",  &action_view_sidepane,  null, null, null},
+        {"actionViewExtrapane", &action_view_extrapane, null, null, null}
+        ];
+    mMainWindow.addActionEntries(aevViews, null);
+    mApplication.setAccelsForAction("win.actionViewMenubar", ["<Control><Shift>m"]);
+    mApplication.setAccelsForAction("win.actionViewToolbar", ["<Control><Shift>t"]);
+    mApplication.setAccelsForAction("win.actionViewSidepane", ["<Control><Shift>s"]);
+    mApplication.setAccelsForAction("win.actionViewExtrapane",["<Control><Shift>x"]);
+    
 
 
     mMenuBar.showAll();
@@ -149,23 +159,17 @@ void EngageToolBar(Builder mBuilder)
 void EngageSidePane(Builder mBuilder)
 {
 	mSidePane = cast(Notebook)mBuilder.getObject("side_pane");
-	
-	//view side pane stuff
-	
 }
-
 
 void EngageExtraPane(Builder mBuilder)
 {
 	mExtraPane = cast(Notebook)mBuilder.getObject("extra_pane");
 }
 
-
 void EngageStatusBar(Builder mBuilder)
 {
 	mStatusBox = cast(Box)mBuilder.getObject("status_box");
 }
-
 
 void EngageDocBook(Builder mBuilder)
 {
@@ -210,7 +214,6 @@ bool ConfirmQuit()
     return mQuitting;
 }
 
-
 enum ROOT :string
 {
     SYSTEM  = "System",
@@ -239,5 +242,26 @@ extern (C)
         dwrite("preferences menu activated");
         x.close();
         x.destroy();
+    }
+    
+    void action_view_menubar(void* simAction, void* varTarget, void* voidUserData)
+    { 
+        mMenuBar.setVisible(!mMenuBar.getVisible());
+        dwrite("action view menubar");
+    }
+    void action_view_toolbar(void* simAction, void* varTarget, void* voidUserData)
+    {
+        mToolbar.setVisible(!mToolbar.getVisible());
+        dwrite("action view toolbar");
+    }
+    void action_view_sidepane(void* simAction, void* varTarget, void* voidUserData)
+    {
+        mSidePane.setVisible(!mSidePane.getVisible());
+        dwrite("action view sidepane");
+    }
+    void action_view_extrapane(void* simAction, void* varTarget, void* voidUserData)
+    {
+        mExtraPane.setVisible(!mExtraPane.getVisible());
+        dwrite("action view extrapane");
     }
 }

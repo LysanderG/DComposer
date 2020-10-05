@@ -64,9 +64,10 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkCheckMenuItem" id="view_menu">
+                      <object class="GtkCheckMenuItem" id="view_menubar">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="action_name">win.actionViewMenubar</property>
                         <property name="label" translatable="yes">Menubar</property>
                         <property name="use_underline">True</property>
                         <property name="active">True</property>
@@ -77,6 +78,7 @@
                       <object class="GtkCheckMenuItem" id="view_toolbar">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="action_name">win.actionViewToolbar</property>
                         <property name="label" translatable="yes">Toolbar</property>
                         <property name="use_underline">True</property>
                         <accelerator key="t" signal="activate" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
@@ -86,6 +88,7 @@
                       <object class="GtkCheckMenuItem" id="view_sidepane">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="action_name">win.actionViewSidepane</property>
                         <property name="label" translatable="yes">Side panel</property>
                         <property name="use_underline">True</property>
                         <property name="active">True</property>
@@ -93,9 +96,10 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkCheckMenuItem" id="view_extra_pane">
+                      <object class="GtkCheckMenuItem" id="view_extrapane">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="action_name">win.actionViewExtrapane</property>
                         <property name="label" translatable="yes">Extra panel</property>
                         <property name="use_underline">True</property>
                         <property name="active">True</property>
