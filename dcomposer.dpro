@@ -13,7 +13,8 @@
                "source\/log.d",
                "source\/quore.d",
                "source\/ui.d",
-               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_docbook.d"
+               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_docbook.d",
+               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_toolbar.d"
           ],
           "Related Files": [],
           "Postbuild Scripts": [],

@@ -8,6 +8,7 @@ import config;
 
 
 import ui_docbook;
+import ui_toolbar;
 
 import gtk.CheckMenuItem;
 import gtk.AccelLabel;
@@ -49,17 +50,17 @@ void Engage(string[] args)
 	auto mBuilder = new Builder;
     mBuilder.addFromFile(config.findResource(Config.GetValue("ui", "ui_main_window", "glade/ui_main.glade"))); 
     
+    EngageMainWindow(mBuilder);
+    EngageMenuBar(mBuilder);    	
+
+    EngageToolbar(mBuilder);
+    EngageSidePane(mBuilder);
+    EngageExtraPane(mBuilder);
+    EngageStatusBar(mBuilder);
+    EngageDocBook(mBuilder);
 
 	mApplication.addOnActivate(delegate void(GApplication app)
 	{
-    	EngageMainWindow(mBuilder);
-    	EngageMenuBar(mBuilder);    	
-
-    	EngageToolBar(mBuilder);
-    	EngageSidePane(mBuilder);
-    	EngageExtraPane(mBuilder);
-    	EngageStatusBar(mBuilder);
-    	EngageDocBook(mBuilder);
     	    	
     });
 	
@@ -67,7 +68,10 @@ void Engage(string[] args)
 }
 
 void Mesh()
-{
+{ 
+    InsertToolButton("preferences");
+    InsertToolButton("quit");
+    MeshToolbar();
     Log.Entry("Meshed");
 }
 
@@ -84,6 +88,8 @@ void run(string[] args)
 	
 }
 
+Application GetApp(){return mApplication;}
+ApplicationWindow GetWin(){return mMainWindow;}
 
 //================================================================
 private:
@@ -93,7 +99,6 @@ MenuBar             mMenuBar;
 CheckMenuItem       miViewMenubar;
 CheckMenuItem       miViewSidepane;
 CheckMenuItem       miViewExtrapane;
-Toolbar             mToolbar;
 Notebook 			mSidePane;
 Notebook 			mExtraPane;
 Box                 mStatusBox;
@@ -127,10 +132,13 @@ void EngageMenuBar(Builder mBuilder)
     GActionEntry[] ag = [{"actionQuit", &action_quit,null, null, null}];
     mMainWindow.addActionEntries(ag, null);
     mApplication.setAccelsForAction("win.actionQuit",["<Control>q"]);
+    AddToolObject("quit", "Quit", "Exit DComposer", Config.GetResource("system","quit_icon","resource","yin-yang.png"),"win.actionQuit");
+
 //pref
     GActionEntry aePref = {"actionPreferences", &action_preferences, null, null, null};
     mMainWindow.addActionEntries([aePref], null);
     mApplication.setAccelsForAction("win.actionPreferences", ["<Control>p"]);
+    AddToolObject("preferences","Preferences","Edit Preferences", Config.GetResource("system","preferences_icon", "resource", "gear.png"), "win.actionPreferences");
 //views
     GActionEntry[] aevViews =[
         {"actionViewMenubar",   &action_view_menubar,   null, null, null},
@@ -150,10 +158,10 @@ void EngageMenuBar(Builder mBuilder)
 }
 
 
-void EngageToolBar(Builder mBuilder)
-{
-	mToolbar = cast(Toolbar)mBuilder.getObject("tool_bar");
-}
+//void EngageToolBar(Builder mBuilder)
+//{
+	//mToolbar = cast(Toolbar)mBuilder.getObject("tool_bar");
+//}
 
 
 void EngageSidePane(Builder mBuilder)

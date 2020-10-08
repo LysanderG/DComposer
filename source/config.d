@@ -51,6 +51,7 @@ void Engage(ref string[] cmdLineArgs)
 	if(configFile.length < 1)configFile = defaultConfigFile;
 	
 	Config.SetCfgFile(configFile);
+	Config.SetResourcePath("resource", "/home/anthony/projects/dcomposerx/resources");
 	Config.Load();
 
 	Log.Entry("Engaged");
@@ -93,6 +94,11 @@ private:
 
     string mCfgFile;
     JSON mJson;
+    //like mResourcePath["icons"] = "/opt/dcomposer/resources/icons/";
+    //cfg.SetResource("glade", "/opt/dcomposer/glade");
+    //cfg.GetResource("section", "key", "icons", "ying-yang.png"); <- /opt/dcomposer/resources/icons/ying-yang.png
+    //cfg.GetResource("section", "key", "glade", "ui_preferences.glade"); <- /opt/dcomposer/glade/ui_preferences.glade 
+    string[string] mResourcePath;
 
 public:
     alias mJson this;
@@ -249,6 +255,18 @@ public:
         if(Section !in mJson.object) return false;
         if(Key !in mJson[Section].object) return false;
         return true;
+    }
+    
+    void SetResourcePath(string ResourceType, string ResourcePath)
+    {
+        //to do to do 
+        mResourcePath[ResourceType] = ResourcePath;
+    }
+    
+    string GetResource(string Section, string Key, string ResourceType, string Default = string.init)
+    {
+        return buildPath(mResourcePath[ResourceType], GetValue(Section, Key, Default));
+           
     }
 
     mixin Signal!(string, string) Changed;      //some option has been changed
