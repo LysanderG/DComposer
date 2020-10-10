@@ -10,25 +10,25 @@ import config;
 import ui_docbook;
 import ui_toolbar;
 
-import gtk.CheckMenuItem;
-import gtk.AccelLabel;
-import gio.SimpleAction;
 import gdk.Event;
+import gio.ActionGroupIF;
 import gio.ActionIF;
 import gio.ActionMapIF;
 import gio.Application : GApplication = Application;
-import gio.ActionGroupIF;
 import gio.Cancellable;
+import gio.SimpleAction;
 import gio.SimpleAction;
 import gio.SimpleActionGroup;
 import glib.Variant;
 import glib.VariantType;
 import gtk.AccelGroup;
+import gtk.AccelLabel;
 import gtk.Application;
 import gtk.ApplicationWindow;
 import gtk.Box;
 import gtk.Builder;
 import gtk.Button;
+import gtk.CheckMenuItem;
 import gtk.IconFactory;
 import gtk.Main;
 import gtk.Menu;
@@ -36,6 +36,7 @@ import gtk.MenuBar;
 import gtk.MenuItem;
 import gtk.MessageDialog;
 import gtk.Notebook;
+import gtk.Paned;
 import gtk.Toolbar;
 import gtk.Widget;
 import gtk.Window;
@@ -56,27 +57,48 @@ void Engage(string[] args)
     EngageToolbar(mBuilder);
     EngageSidePane(mBuilder);
     EngageExtraPane(mBuilder);
-    EngageStatusBar(mBuilder);
+    EngageStatusbar(mBuilder);
     EngageDocBook(mBuilder);
 
 	mApplication.addOnActivate(delegate void(GApplication app)
 	{
-    	    	
     });
+
+
 	
 	Log.Entry("Engaged");
 }
 
 void Mesh()
 { 
-    InsertToolButton("preferences");
-    InsertToolButton("quit");
+    MeshMenubar();
     MeshToolbar();
+    MeshSidePane();
+    MeshExtraPane();
     Log.Entry("Meshed");
 }
 
 void Disengage()
 {
+ 
+    DisengageExtraPane();
+    DisengageSidePane();
+    DisengageToolbar();
+    DisengageMenubar();
+    
+    Config.SetValue("ui","vertical_pane_pos", mVerticalPane.getPosition());
+    Config.SetValue("ui","horizontal_pane_pos", mHorizontalPane.getPosition());
+    
+    int win_x_pos, win_y_pos;
+    int win_x_len, win_y_len;
+    
+    mMainWindow.getPosition(win_x_pos, win_y_pos);
+    mMainWindow.getSize(win_x_len, win_y_len);
+    
+    Config.SetValue("ui", "win_x_pos", win_x_pos);
+    Config.SetValue("ui", "win_y_pos", win_y_pos);
+    Config.SetValue("ui", "win_x_len", win_x_len);
+    Config.SetValue("ui", "win_y_len", win_y_len);
     Log.Entry("Disengaged");
 }
 
@@ -103,6 +125,8 @@ Notebook 			mSidePane;
 Notebook 			mExtraPane;
 Box                 mStatusBox;
 UI_DOCBOOK 			mDocBook;
+Paned               mVerticalPane;
+Paned               mHorizontalPane;
 
 void EngageMainWindow(Builder mBuilder)
 {
@@ -116,11 +140,23 @@ void EngageMainWindow(Builder mBuilder)
     	return true;
 		
 	});
-	mMainWindow.showAll();
+	
+    int win_x_pos = Config.GetValue("ui", "win_x_pos", 10);
+	int win_y_pos = Config.GetValue("ui", "win_y_pos", 10);
+	int win_x_len = Config.GetValue("ui", "win_x_len", 200);
+	int win_y_len = Config.GetValue("ui", "win_y_len", 200);
+	
+	mMainWindow.getWindow().moveResize(win_x_pos,win_y_pos,win_x_len,win_y_len);
+	
+    mVerticalPane = cast(Paned)mBuilder.getObject("root_pane");
+	mHorizontalPane = cast(Paned)mBuilder.getObject("secondary_pane");
+	mVerticalPane.setPosition(Config.GetValue("ui", "vertical_pane_pos", 10));
+	mHorizontalPane.setPosition(Config.GetValue("ui","horizontal_pane_pos", 10));
+	Log.Entry("\tMain Window Engaged");
 
 }
 
-
+//menubar stuff
 void EngageMenuBar(Builder mBuilder)
 {
     mMenuBar = cast(MenuBar)mBuilder.getObject("menu_bar");
@@ -151,32 +187,71 @@ void EngageMenuBar(Builder mBuilder)
     mApplication.setAccelsForAction("win.actionViewToolbar", ["<Control><Shift>t"]);
     mApplication.setAccelsForAction("win.actionViewSidepane", ["<Control><Shift>s"]);
     mApplication.setAccelsForAction("win.actionViewExtrapane",["<Control><Shift>x"]);
-    
-
 
     mMenuBar.showAll();
+    mMenuBar.setVisible(Config.GetValue("ui_menubar", "visible",true));
+    
+    Log.Entry("\tMenubar Engaged");
+}
+void MeshMenubar()
+{
+	Log.Entry("\tMenubar Meshed");
+}
+void DisengageMenubar()
+{
+    Config.SetValue("ui_menubar", "visible", mMenuBar.getVisible());
+    Log.Entry("\tMenubar Disengaged");
 }
 
-
-//void EngageToolBar(Builder mBuilder)
-//{
-	//mToolbar = cast(Toolbar)mBuilder.getObject("tool_bar");
-//}
-
-
+//side pane stuff
 void EngageSidePane(Builder mBuilder)
 {
 	mSidePane = cast(Notebook)mBuilder.getObject("side_pane");
+	mSidePane.setVisible(Config.GetValue("ui_sidepane","visible", true));
+	
+	Log.Entry("\tSidePane Engaged");
+}
+void MeshSidePane()
+{
+    Log.Entry("\tSidePane Meshed");
+}
+void DisengageSidePane()
+{
+    Config.SetValue("ui_sidepane", "visible", mSidePane.getVisible());
+    Log.Entry("\tSidePane Disengaged");
 }
 
+//Extra Pane stuff
 void EngageExtraPane(Builder mBuilder)
 {
 	mExtraPane = cast(Notebook)mBuilder.getObject("extra_pane");
+	mExtraPane.setVisible(Config.GetValue("ui_extrapane","visible",true));
+    Log.Entry("\tExtraPane Engaged");
+}
+void MeshExtraPane()
+{
+    Log.Entry("\tExtraPane Meshed");
+}
+void DisengageExtraPane()
+{
+    
+    Config.SetValue("ui_extrapane", "visible", mExtraPane.getVisible());
+    Log.Entry("\tExtraPane Disengaged");
 }
 
-void EngageStatusBar(Builder mBuilder)
+
+void EngageStatusbar(Builder mBuilder)
 {
 	mStatusBox = cast(Box)mBuilder.getObject("status_box");
+	Log.Entry("\tStatusbar Engaged");	
+}
+void MeshStatusbar()
+{
+    Log.Entry("\tStatusbar Meshed");
+}
+void DisengageStatusbar()
+{
+    Log.Entry("\tStatusbar Disengaged");
 }
 
 void EngageDocBook(Builder mBuilder)
@@ -184,6 +259,8 @@ void EngageDocBook(Builder mBuilder)
 	mDocBook = new UI_DOCBOOK;
 	mDocBook.Engage(mBuilder);
 }
+
+
 
 bool ConfirmQuit()
 {
@@ -222,17 +299,7 @@ bool ConfirmQuit()
     return mQuitting;
 }
 
-enum ROOT :string
-{
-    SYSTEM  = "System",
-    VIEW    = "View",
-    EDIT    = "Edit",
-    DOCUMENT= "Document",
-    PROJECT = "Project",
-    TOOLS   = "Tools",
-    ELEMENTS= "Elements",
-    HELP    = "Help",
-}
+
 
 
 //action callbacks from gtk ... so extern c
