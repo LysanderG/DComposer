@@ -1,3 +1,4 @@
+.dub/
 bin/
 obj/
 tmp/
@@ -14,3 +15,6 @@ tmp/
 .dub/d
 *~
 dcomposer_filter
+dcomposerx
+dcomposer
+

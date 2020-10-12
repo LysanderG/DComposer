@@ -49,7 +49,7 @@ void Engage(string[] args)
 	mApplication.register(new Cancellable());
 	
 	auto mBuilder = new Builder;
-    mBuilder.addFromFile(config.findResource(Config.GetValue("ui", "ui_main_window", "glade/ui_main.glade"))); 
+    mBuilder.addFromFile(config.findResource(Config.GetValue("ui", "ui_main_window", "glade/ui_main2.glade"))); 
     
     EngageMainWindow(mBuilder);
     EngageMenuBar(mBuilder);    	
@@ -111,7 +111,7 @@ void run(string[] args)
 }
 
 Application GetApp(){return mApplication;}
-ApplicationWindow GetWin(){return mMainWindow;}
+ApplicationWindow GetMainWin(){return mMainWindow;}
 
 //================================================================
 private:
@@ -168,13 +168,13 @@ void EngageMenuBar(Builder mBuilder)
     GActionEntry[] ag = [{"actionQuit", &action_quit,null, null, null}];
     mMainWindow.addActionEntries(ag, null);
     mApplication.setAccelsForAction("win.actionQuit",["<Control>q"]);
-    AddToolObject("quit", "Quit", "Exit DComposer", Config.GetResource("system","quit_icon","resource","yin-yang.png"),"win.actionQuit");
+    AddToolObject("quit", "Quit", "Exit DComposer", Config.GetResource("icon","quit","resource","yin-yang.png"),"win.actionQuit");
 
 //pref
     GActionEntry aePref = {"actionPreferences", &action_preferences, null, null, null};
     mMainWindow.addActionEntries([aePref], null);
     mApplication.setAccelsForAction("win.actionPreferences", ["<Control>p"]);
-    AddToolObject("preferences","Preferences","Edit Preferences", Config.GetResource("system","preferences_icon", "resource", "gear.png"), "win.actionPreferences");
+    AddToolObject("preferences","Preferences","Edit Preferences", Config.GetResource("icon","preferences", "resource", "gear.png"), "win.actionPreferences");
 //views
     GActionEntry[] aevViews =[
         {"actionViewMenubar",   &action_view_menubar,   null, null, null},

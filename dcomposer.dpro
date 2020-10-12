@@ -14,7 +14,8 @@
                "source\/quore.d",
                "source\/ui.d",
                "\/home\/anthony\/projects\/dcomposerx\/source\/ui_docbook.d",
-               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_toolbar.d"
+               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_toolbar.d",
+               "source\/ui_action.d"
           ],
           "Related Files": [],
           "Postbuild Scripts": [],
