@@ -1,20 +1,24 @@
+module app;
+
+import std.file;
 import std.stdio;
 
 
-import quore;
+import qore;
 import ui;
 import elements;
 
 
 int main(string[] args)
 {
+    
 	HandleCommandLineHelp(args);
 
-    quore.Engage(args);
+    qore.Engage(args);
     ui.Engage(args);
     elements.Engage(args);
     
-    quore.Mesh();
+    qore.Mesh();
     ui.Mesh();
     elements.Mesh();
     
@@ -22,7 +26,7 @@ int main(string[] args)
      
     elements.Disengage();
     ui.Disengage();
-    quore.Disengage();
+    qore.Disengage();
     
     return 0;
 }

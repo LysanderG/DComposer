@@ -1,6 +1,6 @@
 module ui_toolbar;
 
-import quore;
+import qore;
 import ui;
 
 

@@ -1,10 +1,14 @@
 module ui_docbook;
 
+
+import std.conv;
+
 import ui;
 import ui_action;
 import ui_toolbar;
 import log;
 import config;
+import docman;
 
 
 import gdk.Event;
@@ -20,48 +24,136 @@ import gtk.MenuItem;
 import gtk.Notebook;
 import gtk.ScrolledWindow;
 import gtk.Widget;
-
+import gtk.Dialog;
+import gtk.FileChooserDialog;
+import gsv.SourceStyleSchemeManager;
+import gsv.SourceStyleScheme;
+import gsv.SourceStyle;
 
 
 class UI_DOCBOOK
 {
 
 private:
-	Notebook 			mDocBook;
+    Notebook            mNotebook;
     Label				mInfoLabel;
 	EventBox			mEventBox;
+	SourceStyleSchemeManager mStyleManager;
 	
 public:
+    
+    alias mNotebook this;
 
 	void Engage(Builder mBuilder)
 	{
-		mDocBook = cast(Notebook)mBuilder.getObject("doc_book");
+    	mStyleManager = SourceStyleSchemeManager.getDefault();
+    	Config.SetResourcePath("styles","styles");
+    	mStyleManager.appendSearchPath(Config.GetResource("styles", "searchPaths", "styles"));
+    	dwrite(mStyleManager.getSchemeIds());
+	    
+        mNotebook = cast(Notebook)mBuilder.getObject("doc_book");
 		mInfoLabel = cast(Label)mBuilder.getObject("doc_status");
 		mEventBox = cast(EventBox)mBuilder.getObject("doc_eventbox");
 		
 		mEventBox.addOnEnterNotify(delegate bool(GdkEventCrossing* mode, Widget self)
 		{
-			mDocBook.setShowTabs(true);
+			setShowTabs(true);
 			return false;
         });
-        mDocBook.addOnLeaveNotify(delegate bool(GdkEventCrossing* mode, Widget self)
+        mNotebook.addOnLeaveNotify(delegate bool(GdkEventCrossing* mode, Widget self)
         {
 
-	        mDocBook.setShowTabs(false);
+	        setShowTabs(false);
 	        return false;
         });
         
         
-        EngageActions();       
+        EngageActions();    
+        Log.Entry("\tEngaged");   
     }
     
     void Mesh()
 	{
+    	Log.Entry("\tMeshed");
     }
     
     void Disengage()
     {
+        Log.Entry("\tDisengaged");
     }
+    
+    
+    void Open()
+    {
+        auto Ofd = new FileChooserDialog("Load Document", null, GtkFileChooserAction.OPEN);
+
+        Ofd.setSelectMultiple(true);
+        Ofd.setModal(false);
+        auto result  = Ofd.run();
+        Ofd.hide();
+        if(result != GtkResponseType.OK) return;
+        auto fileList = Ofd.getFilenames();
+        
+        while(fileList)
+        {
+            scope(failure)
+            {
+                Log.Entry("Error loading " ~ text(cast(char*) fileList.data()));
+                fileList = fileList.next();
+                continue;
+            }
+            auto fileName = text(cast(char*)fileList.data());
+
+            if(docman.Opened(fileName))
+            {
+               dwrite("opened ",fileName);
+               auto doc = cast(DOCUMENT)docman.GetDoc(fileName);
+               mNotebook.setCurrentPage(doc.getParent());
+               fileList = fileList.next();
+               continue;
+            }
+            auto x = DOC_IF.Create();
+            x.Name = fileName;
+            x.Load(fileName);
+            docman.AddDoc(x);
+            AddDocument(x);
+            fileList = fileList.next();
+        }
+        
+    }
+    void Save()
+    {
+    }
+    void SaveAs()
+    {
+    }
+    void SaveAll()
+    {
+    }
+    void Close()
+    {
+    }    
+    void CloseAll()
+    {
+    }
+    
+    void AddDocument(DOC_IF newDoc,int pos = -1)
+    {
+        auto scrollWin = new ScrolledWindow;
+        scrollWin.add(cast(Widget)newDoc);
+        newDoc.Reconfigure();
+        scrollWin.showAll();
+        mNotebook.insertPage(scrollWin, cast(Widget)newDoc.TabWidget, pos);
+        mNotebook.setCurrentPage(scrollWin);
+    }
+    DOC_IF Current()
+    {
+        int currPageNum = mNotebook.getCurrentPage();
+        DOC_IF doc = cast(DOC_IF)mNotebook.getNthPage(currPageNum);
+        return doc;
+        
+    }
+    
     
 private:
 	
@@ -77,25 +169,25 @@ private:
 			{"actionDocCloseAll", &action_DocCloseAll, null, null, null},
 			{"actionDocCompile", &action_DocCompile, null, null, null},
 			];
-		GetMainWin().addActionEntries(actEntNew, null);
+		mMainWindow.addActionEntries(actEntNew, null);
 		
 		
 		//new
-		GetApp().setAccelsForAction("win.actionDocNew",["<Control>n"]);
+		mApplication.setAccelsForAction("win.actionDocNew",["<Control>n"]);
 		AddToolObject("docnew","New","Create a new D source file",
 			Config.GetResource("icons","docnew","resource", "document-text.png"),"win.actionDocNew");
         //open document
-		GetApp().setAccelsForAction("win.actionDocOpen", ["<Control>o"]);
+		mApplication.setAccelsForAction("win.actionDocOpen", ["<Control>o"]);
 		AddToolObject("docopen","Open", "Open Document",
 			Config.GetResource("icons","docopen","resource","folder-open-document-text.png"),"win.actionDocOpen");
 		//save document
-		GetApp().setAccelsForAction("win.actionDocSave", ["<Control>s"]);
+		mApplication.setAccelsForAction("win.actionDocSave", ["<Control>s"]);
 		AddToolObject("docsave","Save", "Save Document",
 			Config.GetResource("icons","docsave","resource","document-save.png"),"win.actionDocSave");
 		//save as
 		//save all
 		//close
-		GetApp().setAccelsForAction("win.actionDocClose", ["<Control>w"]);
+		mApplication.setAccelsForAction("win.actionDocClose", ["<Control>w"]);
 		AddToolObject("docclose","Close", "Close Document",
 			Config.GetResource("icons","docclose","resource","document-close.png"),"win.actionDocClose");
 		
@@ -114,33 +206,44 @@ extern (C)
 {
 	void action_DocNew(void* simAction, void* varTarget, void* voidUserData)
 	{
+    	auto x = DOC_IF.Create();
+    	mDocBook.AddDocument(cast(DOCUMENT)x);
 		dwrite("creating a new document.");
 	}
 	void action_DocOpen(void* simAction, void* varTarget, void* voidUserData)
 	{
+	    mDocBook.Open();
 		dwrite("opening a new document.");
 	}
 	void action_DocSave(void* simAction, void* varTarget, void* voidUserData)
 	{
+    	mDocBook.Save();
 		dwrite("saving a new document.");
 		
 	}
 	void action_DocSaveAs(void* simAction, void* varTarget, void* voidUserData)
 	{
+    	mDocBook.SaveAs();
 		dwrite("saving as a new document.");
 		
 	}
 	void action_DocClose(void* simAction, void* varTarget, void* voidUserData)
 	{
+    	mDocBook.Close();
 		dwrite("close a new document.");
 	}
 	void action_DocCloseAll(void* simAction, void* varTarget, void* voidUserData)
 	{
+    	mDocBook.CloseAll();
 		dwrite("Closing all  a new document.");
 	}
 	void action_DocCompile(void* simAction, void* varTarget, void* voidUserData)
 	{
 		dwrite("compiling a new document.");
+	}
+	void action_DocRun(void* simAction, void* varTarget, void* voidUserData)
+	{
+		dwrite("running a new document.");
 	}
 }
 

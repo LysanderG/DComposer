@@ -3,7 +3,7 @@ module ui;
 import std.conv;
 import std.traits; 
 
-import quore;
+import qore;
 import config;
 
 
@@ -61,7 +61,7 @@ void Engage(string[] args)
     EngageDocBook(mBuilder);
 
 	mApplication.addOnActivate(delegate void(GApplication app)
-	{
+	{        
     });
 
 
@@ -75,19 +75,17 @@ void Mesh()
     MeshToolbar();
     MeshSidePane();
     MeshExtraPane();
+    MeshDocBook();
     Log.Entry("Meshed");
 }
 
 void Disengage()
 {
- 
+    DisengageDocBook();
     DisengageExtraPane();
     DisengageSidePane();
     DisengageToolbar();
     DisengageMenubar();
-    
-    Config.SetValue("ui","vertical_pane_pos", mVerticalPane.getPosition());
-    Config.SetValue("ui","horizontal_pane_pos", mHorizontalPane.getPosition());
     
     int win_x_pos, win_y_pos;
     int win_x_len, win_y_len;
@@ -110,13 +108,11 @@ void run(string[] args)
 	
 }
 
-Application GetApp(){return mApplication;}
-ApplicationWindow GetMainWin(){return mMainWindow;}
-
-//================================================================
-private:
 Application         mApplication;
 ApplicationWindow 	mMainWindow;
+UI_DOCBOOK 			mDocBook;
+//================================================================
+private:
 MenuBar             mMenuBar;
 CheckMenuItem       miViewMenubar;
 CheckMenuItem       miViewSidepane;
@@ -124,7 +120,6 @@ CheckMenuItem       miViewExtrapane;
 Notebook 			mSidePane;
 Notebook 			mExtraPane;
 Box                 mStatusBox;
-UI_DOCBOOK 			mDocBook;
 Paned               mVerticalPane;
 Paned               mHorizontalPane;
 
@@ -146,12 +141,13 @@ void EngageMainWindow(Builder mBuilder)
 	int win_x_len = Config.GetValue("ui", "win_x_len", 200);
 	int win_y_len = Config.GetValue("ui", "win_y_len", 200);
 	
-	mMainWindow.getWindow().moveResize(win_x_pos,win_y_pos,win_x_len,win_y_len);
-	
     mVerticalPane = cast(Paned)mBuilder.getObject("root_pane");
 	mHorizontalPane = cast(Paned)mBuilder.getObject("secondary_pane");
-	mVerticalPane.setPosition(Config.GetValue("ui", "vertical_pane_pos", 10));
-	mHorizontalPane.setPosition(Config.GetValue("ui","horizontal_pane_pos", 10));
+	mVerticalPane.setPosition(Config.GetValue("ui", "sidepane_pos", 10));
+	mHorizontalPane.setPosition(Config.GetValue("ui","extrapane_pos", 10));
+	
+	mMainWindow.move(win_x_pos, win_y_pos);
+	mMainWindow.resize(win_x_len, win_y_len);
 	Log.Entry("\tMain Window Engaged");
 
 }
@@ -217,6 +213,7 @@ void MeshSidePane()
 }
 void DisengageSidePane()
 {
+    Config.SetValue("ui","sidepane_pos", mVerticalPane.getPosition());
     Config.SetValue("ui_sidepane", "visible", mSidePane.getVisible());
     Log.Entry("\tSidePane Disengaged");
 }
@@ -236,6 +233,7 @@ void DisengageExtraPane()
 {
     
     Config.SetValue("ui_extrapane", "visible", mExtraPane.getVisible());
+    Config.SetValue("ui","extrapane_pos",mHorizontalPane.getPosition());
     Log.Entry("\tExtraPane Disengaged");
 }
 
@@ -259,7 +257,14 @@ void EngageDocBook(Builder mBuilder)
 	mDocBook = new UI_DOCBOOK;
 	mDocBook.Engage(mBuilder);
 }
-
+void MeshDocBook()
+{
+    mDocBook.Mesh();
+}
+void DisengageDocBook()
+{
+    mDocBook.Disengage();
+}
 
 
 bool ConfirmQuit()
@@ -307,7 +312,7 @@ extern (C)
 {
     void action_quit(void* sa, void* v, void * vptr)
     {
-       if(ConfirmQuit())mApplication.quit();
+       if(ConfirmQuit())mApplication.quit;
     }
     
     void action_preferences(void* simAction, void* varTarget, void* voidUserData)

@@ -24,16 +24,24 @@ string DCOMPOSER_BUILD_ID;
 string DCOMPOSER_COPYRIGHT;
 
 string userDirectory;
-string sysDirectory;
+string sysRootDirectory;
+string[] resourceDirectories;
 string defaultConfigFile;
+string bypassConfigFile;
 bool isInstalled;
 
 static this()
 {
 	userDirectory = "~/.config/dcomposer".expandTilde();
-	//sysDirectory = "/opt/dcomposer";
-	sysDirectory = "/home/anthony/projects/dcomposerx";
+	string exePath = thisExePath();
+	
+	resourceDirectories ~= "~/.local/share/dcomposer".expandTilde();
+    if(exePath.startsWith("/usr/bin")) resourceDirectories ~= "/usr/share/dcomposer";
+    if(exePath.startsWith("/usr/local/bin")) resourceDirectories ~= "/usr/local/share/dcomposer";
+    if(exePath.startsWith("/opt/")) resourceDirectories ~= "/opt/dcomposer";
+    if(exePath.startsWith("~/".expandTilde()))resourceDirectories ~= buildNormalizedPath(exePath, "../..");
 	defaultConfigFile = buildPath(userDirectory, "dcomposer_nuveau.cfg");
+	bypassConfigFile = "tmpfile";
 }
 
 
@@ -46,17 +54,17 @@ void Engage(ref string[] cmdLineArgs)
 	Config = new CONFIG;
 	
 	string configFile;
-	getopt(cmdLineArgs, std.getopt.config.passThrough, "config|c", &configFile);
+	bool configBypass;
 	
+	getopt(cmdLineArgs, std.getopt.config.passThrough, "config|c", &configFile,"defaults|d", &configBypass);	
 	if(configFile.length < 1)configFile = defaultConfigFile;
+	if(configBypass)configFile = bypassConfigFile;
 	
 	Config.SetCfgFile(configFile);
 	Config.SetResourcePath("resource", "/home/anthony/projects/dcomposerx/resources");
 	Config.Load();
 
 	Log.Entry("Engaged");
-	
-	
 }
 
 void Mesh()
@@ -75,15 +83,19 @@ string GetCmdLineOptions()
 {
 	string rv;
 	rv ~= "\t-c	--config=FILE\t\tset config file for session\n";
+	rv ~= "\t-d\t--defaults\t\tbypass config file and use defaults\n";
 	return rv;
 }
 
 string findResource(string relativePath)
 {
-	auto optOne = buildPath(sysDirectory, relativePath);
-	if(exists(optOne)) return optOne;
-	auto optTwo = buildPath(userDirectory, relativePath);
-	if(exists(optTwo))return optTwo;
+    
+    foreach(d; resourceDirectories)
+    {
+        auto res = buildPath(d, relativePath);
+        if(exists(res))return res;
+    }
+	
 	Log.Entry("Unable to locate resource " ~ relativePath, "Error");
 	throw new Exception("Failed to locate resoure!");
 }
@@ -105,6 +117,11 @@ public:
 
     void Load()
     {
+        if(mCfgFile == bypassConfigFile) 
+        {
+            mJson = parseJSON(`{"config": { "this_file": "/tmp/dcomposer.cfg"}}`);
+            return;
+        }
         string CfgText = readText(mCfgFile);
         dstring FinalText;
         char[] copy = CfgText.dup;
@@ -115,6 +132,16 @@ public:
     
     void SetCfgFile(string cmdLineCfgName)
     {
+        //cmdLine should be
+        // null -> use default (ie ~/.config/dcomposer/dcomposer.cfg)saves user changes
+        // "tmpFile" -> uses default(hardwired) settings for everything and does not save anything
+        // 'valid' path for cfg file  -> user specified configuration file.
+        // error -> invalid, no permission whatever bail.
+        if(cmdLineCfgName == bypassConfigFile)
+        {
+            mCfgFile = bypassConfigFile;
+            return;
+        }
         if(cmdLineCfgName.length)
         {
             if(cmdLineCfgName.exists) 
@@ -137,6 +164,7 @@ public:
     
     void Save()
     {
+        if(mCfgFile == bypassConfigFile) return;
         try
         {
             string jstring = toJSON!3(mJson);

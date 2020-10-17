@@ -9,7 +9,7 @@ import std.stdio;
 import std.string;
 import std.getopt;
 
-import quore;
+import qore;
 
 string mDefaultLogFile = "~/.config/dcomposer/loggity.log";
 int MAX_ENTRIES_MEM = 1024;

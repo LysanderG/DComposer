@@ -1,4 +1,4 @@
-module quore;
+module qore;
 
 public import log;
 public import config;

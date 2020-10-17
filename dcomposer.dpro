@@ -11,17 +11,20 @@
                "source\/elements.d",
                "source\/json.d",
                "source\/log.d",
-               "source\/quore.d",
                "source\/ui.d",
                "\/home\/anthony\/projects\/dcomposerx\/source\/ui_docbook.d",
                "\/home\/anthony\/projects\/dcomposerx\/source\/ui_toolbar.d",
-               "source\/ui_action.d"
+               "source\/ui_action.d",
+               "\/home\/anthony\/projects\/dcomposerx\/source\/docman.d",
+               "\/home\/anthony\/projects\/dcomposerx\/source\/document.d",
+               "source\/qore.d"
           ],
           "Related Files": [],
           "Postbuild Scripts": [],
           "String Imports": [],
           "Libraries": [
-               "\/usr\/lib\/libgtkd-3.so"
+               "\/usr\/lib\/libgtkd-3.so",
+               "\/usr\/lib\/libgtkdsv-3.so"
           ],
           "Debugs": [],
           "Sundry": [],
@@ -29,7 +32,8 @@
           "Prebuild Scripts": [],
           "Import Paths": [
                "source",
-               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/generated\/gtkd"
+               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/generated\/gtkd",
+               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/generated\/sourceview"
           ],
           "Notes": [],
           "Library Paths": [
