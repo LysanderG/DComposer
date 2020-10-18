@@ -79,6 +79,14 @@ public:
     }
     void Save()
     {
+	    auto dfile = new SourceFile();
+	    auto gfile = FileIF.parseName(mFullPathName);
+	    dwrite("--",gfile.getPath());
+	    dfile.setLocation(gfile);
+	    dwrite(mFullPathName,"<> ","location ",gfile.getPath());
+	    auto dfileSave = new SourceFileSaver(getBuffer, dfile);
+	    dfileSave.saveAsync(G_PRIORITY_DEFAULT, null, null, null, null, &FileSaved, cast(void*)dfileSave);
+	    
     }
     void SaveAs(string newFileName)
     {
@@ -102,8 +110,11 @@ extern (C)
     {
         auto dfile = cast(SourceFileLoader)user_data;
         
-        dwrite("encoding ",dfile.getEncoding(), "  ",source_object);
-        
-        
+        dwrite("encoding ",dfile.getEncoding(), "  ",source_object, " ",user_data);       
     }   
+    void FileSaved(GObject *source_object, GAsyncResult *res, void * user_data)
+	{
+		auto dfile = cast(SourceFileSaver)user_data;
+		dwrite("saved ", dfile.getLocation().getPath());	
+    }
 }

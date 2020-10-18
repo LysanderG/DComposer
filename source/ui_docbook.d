@@ -123,6 +123,10 @@ public:
     }
     void Save()
     {
+	    DOC_IF doc = Current();
+	    dwrite(doc);
+	    doc.Save();
+	    
     }
     void SaveAs()
     {
@@ -149,7 +153,8 @@ public:
     DOC_IF Current()
     {
         int currPageNum = mNotebook.getCurrentPage();
-        DOC_IF doc = cast(DOC_IF)mNotebook.getNthPage(currPageNum);
+        auto parent = cast(ScrolledWindow)mNotebook.getNthPage(currPageNum);
+        auto doc = cast(DOC_IF)parent.getChild();
         return doc;
         
     }

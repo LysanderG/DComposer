@@ -2,6 +2,7 @@ module docman;
 
 import object;
 import std.format;
+import std.file;
 
 public import document;
 import log;
@@ -78,7 +79,7 @@ string NameMaker()
     static int suffixNumber = 0;
     scope(exit)suffixNumber++;
     
-    enum baseName = "dcomposer%4s.d";
+    string baseName = getcwd() ~ "/dcomposer%0s.d";
     return format(baseName, suffixNumber);
     
     

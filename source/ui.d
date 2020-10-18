@@ -143,8 +143,6 @@ void EngageMainWindow(Builder mBuilder)
 	
     mVerticalPane = cast(Paned)mBuilder.getObject("root_pane");
 	mHorizontalPane = cast(Paned)mBuilder.getObject("secondary_pane");
-	mVerticalPane.setPosition(Config.GetValue("ui", "sidepane_pos", 10));
-	mHorizontalPane.setPosition(Config.GetValue("ui","extrapane_pos", 10));
 	
 	mMainWindow.move(win_x_pos, win_y_pos);
 	mMainWindow.resize(win_x_len, win_y_len);
@@ -209,6 +207,7 @@ void EngageSidePane(Builder mBuilder)
 }
 void MeshSidePane()
 {
+	mVerticalPane.setPosition(Config.GetValue("ui", "sidepane_pos", 10));
     Log.Entry("\tSidePane Meshed");
 }
 void DisengageSidePane()
@@ -227,6 +226,7 @@ void EngageExtraPane(Builder mBuilder)
 }
 void MeshExtraPane()
 {
+	mHorizontalPane.setPosition(Config.GetValue("ui","extrapane_pos", 10));
     Log.Entry("\tExtraPane Meshed");
 }
 void DisengageExtraPane()
