@@ -42,6 +42,7 @@ interface DOC_IF
     string  Name();
     void    Virgin(bool virgin);
     bool    Virgin();
+    bool	Modified();
     //void    Modified(bool modified);
     //bool    Modified();
 }
@@ -58,9 +59,19 @@ void AddDoc(DOC_IF nuDoc)
     }
     mDocs[nuDoc.FullName] = nuDoc;
 }
+void Remove(DOC_IF oldDoc)
+{
+	dwrite("remove ... ",oldDoc.FullName, "...",mDocs.keys);
+	mDocs.remove(oldDoc.FullName);
+}
 DOC_IF GetDoc(string docName)
 {
     return mDocs[docName];
+}
+
+DOC_IF[] GetDocs()
+{
+	return mDocs.values;
 }
 
 bool Opened(string testDoc)

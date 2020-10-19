@@ -36,6 +36,9 @@ public:
     
     bool Virgin(){return mVirgin;}
     void Virgin(bool nuVirgin){mVirgin = false;}
+    bool Modified(){return getBuffer.getModified();}
+    
+    
     void Reconfigure()
     {
         dwrite(Name);

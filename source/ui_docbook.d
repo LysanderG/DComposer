@@ -2,6 +2,7 @@ module ui_docbook;
 
 
 import std.conv;
+import std.algorithm;
 
 import ui;
 import ui_action;
@@ -29,16 +30,17 @@ import gtk.FileChooserDialog;
 import gsv.SourceStyleSchemeManager;
 import gsv.SourceStyleScheme;
 import gsv.SourceStyle;
+import gtk.MessageDialog;
 
 
 class UI_DOCBOOK
 {
 
 private:
-    Notebook            mNotebook;
-    Label				mInfoLabel;
-	EventBox			mEventBox;
-	SourceStyleSchemeManager mStyleManager;
+    Notebook            		mNotebook;
+    Label						mInfoLabel;
+	EventBox					mEventBox;
+	SourceStyleSchemeManager 	mStyleManager;
 	
 public:
     
@@ -134,11 +136,37 @@ public:
     void SaveAll()
     {
     }
-    void Close()
+    void Close(DOC_IF curr = null)
     {
-    }    
+	    dwrite(curr);
+	    if(curr is null) curr = Current();
+	    if(curr is null) return;
+	    if(curr.Modified)
+	    {
+		    bool confirmedClose = false;
+		    auto msgDialog = new MessageDialog(
+		    	mMainWindow,
+		    	GtkDialogFlags.MODAL,
+		    	GtkMessageType.QUESTION,
+		    	GtkButtonsType.NONE,
+		    	"%s\nHas been modified. Do you wish to close and discard changes; Save and close; or cancel action.",
+		    	curr.FullName());
+		    msgDialog.addButtons(["Close & Discard","Close & Save","Do NOT close"],[GtkResponseType.ACCEPT,GtkResponseType.APPLY,GtkResponseType.CANCEL]);
+		    auto response = msgDialog.run();
+		    msgDialog.hide();
+		    if(response == ResponseType.CANCEL) return;
+		    if(response == ResponseType.APPLY) Save();
+
+        }
+	    mNotebook.removePage(mNotebook.getCurrentPage());
+	    docman.Remove(curr);   
+    }
     void CloseAll()
     {
+	   	DOC_IF[] docs = docman.GetDocs();
+	   	dwrite(docs, "--",docs.length);
+	   	docs.each!(n=>Close(n));
+	   	
     }
     
     void AddDocument(DOC_IF newDoc,int pos = -1)
@@ -197,7 +225,9 @@ private:
 			Config.GetResource("icons","docclose","resource","document-close.png"),"win.actionDocClose");
 		
 		//close all
-		
+		mApplication.setAccelsForAction("win.actionDocCloseAll", ["<Control><Shift>w"]);
+		AddToolObject("doccloseall","Close All", "Close All Documents",
+			Config.GetResource("icons","doccloseall","resource","document-close-all.png"),"win.actionDocCloseAll");
 		//compile document
 		//run document
 		//unittest document

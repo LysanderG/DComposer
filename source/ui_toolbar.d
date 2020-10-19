@@ -33,7 +33,7 @@ void EngageToolbar(Builder mBuilder)
 
 void MeshToolbar()
 {
-    string[] buttonsOnBar = Config.GetArray("ui_toolbar", "buttons", ["preferences", "docnew","docopen","docsave","docclose","quit"]);
+    string[] buttonsOnBar = Config.GetArray("ui_toolbar", "buttons", ["preferences", "docnew","docopen","docsave","docclose","doccloseall","quit"]);
     buttonsOnBar.each!InsertToolButton();
     Log.Entry("\tToolbar Meshed");
 }
