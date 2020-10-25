@@ -1,30 +1,42 @@
 module document;
 
 import std.path;
+import std.format;
+import std.file;
 
 import ui;
 import qore;
 import docman;
 
-import gtk.Label;
-import gtk.Widget;
-import gsv.SourceLanguage;
-import gsv.SourceLanguageManager;
-import gsv.SourceView;
+import gdk.Event;
+import gio.FileIF;
 import gsv.SourceFile;
 import gsv.SourceFileLoader;
 import gsv.SourceFileSaver;
+import gsv.SourceLanguage;
+import gsv.SourceLanguageManager;
 import gsv.SourceStyleSchemeManager;
+import gsv.SourceView;
+import gtk.Box;
+import gtk.Button;
+import gtk.EventBox;
+import gtk.Image;
+import gtk.Label;
+import gtk.Notebook;
+import gtk.TextBuffer;
+import gtk.Widget;
 import pango.PgFontDescription;
-import gio.FileIF;
+
 
 class DOCUMENT : SourceView, DOC_IF
 {
 private:
     string      mFullPathName;
     bool        mVirgin;
-    Widget      mTabWidget;
-
+    Box         mTabWidget;
+    Label       mTabLabel;
+    SourceFile  mFile;
+    
 public:
 
     string FullName(){return mFullPathName;}
@@ -32,16 +44,16 @@ public:
     void   Name(string nuFileName)
     {
         mFullPathName = nuFileName;
+        UpdateTabWidget();
     }
     
-    bool Virgin(){return mVirgin;}
-    void Virgin(bool nuVirgin){mVirgin = false;}
+    bool Virgin(){return mFile is null;}
+    
     bool Modified(){return getBuffer.getModified();}
     
     
     void Reconfigure()
     {
-        dwrite(Name);
         auto Lang = SourceLanguageManager.getDefault().guessLanguage(Name, null);
         getBuffer.setLanguage(Lang);
         string StyleID = Config.GetValue("document", "style_scheme", "mnml");
@@ -68,31 +80,68 @@ public:
         modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.GetValue("document", "font", "Monospace 13")));
         setMonospace(true);   
     }
+    
+    void Init(string nuFileName = null)
+    {
+        mTabWidget = new Box(Orientation.HORIZONTAL,0);
+        mTabLabel = new Label(mFullPathName, false);        
+                
+        //use an Image because buttons are too damn large. Who wants a giant sized tab row.
+        auto tabXButton = new Image(Config.GetValue("document","close_button_icon", "resources/cross-circle-frame.png"));
+        
+        tabXButton.setSizeRequest(8, 8);
+        tabXButton.addEvents(EventMask.BUTTON_RELEASE_MASK);
+        auto stupidEventBox = new EventBox();
+        stupidEventBox.add(tabXButton);
+        stupidEventBox.setAboveChild(false);
+        stupidEventBox.setVisibleWindow(false);
+        stupidEventBox.setEvents(EventMask.BUTTON_RELEASE_MASK);
+        stupidEventBox.addOnButtonRelease(delegate bool(Event ev, Widget w)
+        {
+            if(ev.button.button != GDK_BUTTON_PRIMARY) return false;
+            mDocBook.Close(this);
+            return true;
+        });
+        
+        mTabWidget.packStart(mTabLabel,false,false,0);
+        mTabWidget.packStart(stupidEventBox,false,false,2);
+        mTabWidget.showAll();
+        getBuffer().addOnModifiedChanged(delegate void (TextBuffer Buf){UpdateTabWidget();});
+        
+        if(nuFileName is null)Name = NameMaker();
+        else Name = nuFileName;
+        
+        Reconfigure();
+        docman.AddDoc(this);
+    }
     void Load(string fileName)
     {
-        auto label = new Label(fileName.baseName);
-        label.setUseUnderline(false);
-        label.setTooltipText(fileName);
-        mTabWidget = label;
-        auto dfile = new SourceFile();
-        dfile.setLocation(FileIF.parseName(fileName));
-        auto dfileloader = new SourceFileLoader(getBuffer, dfile);
+        Init(fileName);
+        mFile = new SourceFile();
+        mFile.setLocation(FileIF.parseName(fileName));
+        auto dfileloader = new SourceFileLoader(getBuffer, mFile);
         dfileloader.loadAsync(G_PRIORITY_DEFAULT, null, null, null, null, &FileLoaded, cast(void*)dfileloader);
-        
+        Name =  fileName;
     }
     void Save()
     {
-	    auto dfile = new SourceFile();
-	    auto gfile = FileIF.parseName(mFullPathName);
-	    dwrite("--",gfile.getPath());
-	    dfile.setLocation(gfile);
-	    dwrite(mFullPathName,"<> ","location ",gfile.getPath());
-	    auto dfileSave = new SourceFileSaver(getBuffer, dfile);
-	    dfileSave.saveAsync(G_PRIORITY_DEFAULT, null, null, null, null, &FileSaved, cast(void*)dfileSave);
-	    
+	    if(mFile is null) 
+	    {
+    	    //what about DRY
+    	    mFile = new SourceFile;
+    	    mFile.setLocation(FileIF.parseName(mFullPathName));
+    	    dwrite(mFile);
+	    }
+	    auto mFileSave = new SourceFileSaver(getBuffer, mFile);
+	    dwrite(mFileSave);
+	    mFileSave.saveAsync(G_PRIORITY_DEFAULT, null, null, null, null, &FileSaved, cast(void*)mFileSave);
     }
     void SaveAs(string newFileName)
     {
+        if(mFile is null) mFile = new SourceFile();
+        mFile.setLocation(FileIF.parseName(newFileName));
+        dwrite("saveas ... ");
+        Save();
     }
     void Close()
     {
@@ -100,24 +149,74 @@ public:
     void SaveCopy(string copyFileName)
     {
     }
-    string StatusText()
+
+    void* TabWidget(){return cast(void*)mTabWidget;}
+    void UpdateTabWidget()
     {
-        return "status text";
-    }  
-    void *      TabWidget(){return cast(void*)mTabWidget;}
+        if(mTabLabel is null) return;
+        if(getBuffer.getModified())
+        {
+            mTabLabel.setMarkup(`<span foreground="red" >[* `~ Name ~` *]</span>`);
+        }
+        else mTabLabel.setText(Name);
+        mTabWidget.setTooltipText(FullName);
+    }
+    
+    string GetStatusLine()
+    {
+        string rv;
+        //rv = format("%s:%i/%i (col:%i) %s
+        return mFullPathName;
+    }
 }
+
+string NameMaker()
+{
+    static int suffixNumber = 0;
+    scope(exit)suffixNumber++;
+    
+    string baseName = getcwd() ~ "/dcomposer%0s.d";
+    return format(baseName, suffixNumber);
+}
+
 
 extern (C)
 {
+    import gio.AsyncResultIF;
+    import gio.Task;
     void FileLoaded(GObject *source_object, GAsyncResult *res, void * user_data)
     {
-        auto dfile = cast(SourceFileLoader)user_data;
-        
-        dwrite("encoding ",dfile.getEncoding(), "  ",source_object, " ",user_data);       
+        try
+        {
+            auto dfile = cast(SourceFileLoader)user_data;
+            auto theTask = new Task(cast(GTask*)res);  
+            if(!dfile.loadFinish(theTask))
+            {
+                Log.Entry("File load error");
+            }
+        }
+        catch(Exception oops)
+        {
+            Log.Entry(oops.msg, "Error");
+        }
     }   
     void FileSaved(GObject *source_object, GAsyncResult *res, void * user_data)
-	{
-		auto dfile = cast(SourceFileSaver)user_data;
-		dwrite("saved ", dfile.getLocation().getPath());	
+	{   
+    	dwrite("finished");
+    	try
+        {
+    		auto dfile = cast(SourceFileSaver)user_data;
+    		
+    		auto theTask = new Task(cast(GTask*)res);
+            if(!dfile.saveFinish(theTask))
+            {
+                Log.Entry("File save error");
+            }
+            
+        }
+        catch(Exception oops)
+        {
+            Log.Entry(oops.msg);
+        }
     }
 }

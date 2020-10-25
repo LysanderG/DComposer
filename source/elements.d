@@ -1,6 +1,6 @@
 module elements;
 
-void Engage(string[] args)
+void Engage(ref string[] args)
 {
 }
 

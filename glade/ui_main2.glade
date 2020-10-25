@@ -18,123 +18,6 @@
           <object class="GtkMenuBar" id="menu_bar">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <child>
-              <object class="GtkMenuItem" id="system">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_System</property>
-                <property name="use-underline">True</property>
-                <child type="submenu">
-                  <object class="GtkMenu">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkMenuItem" id="preferences">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">win.actionPreferences</property>
-                        <property name="label" translatable="yes">Preferences</property>
-                        <property name="use-underline">True</property>
-                        <accelerator key="p" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="quit">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">win.actionQuit</property>
-                        <property name="accel-path">&lt;dcomposer&gt;/quit</property>
-                        <property name="label" translatable="yes">Quit</property>
-                        <property name="use-underline">True</property>
-                        <accelerator key="q" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkMenuItem" id="views">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_Views</property>
-                <property name="use-underline">True</property>
-                <child type="submenu">
-                  <object class="GtkMenu">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkCheckMenuItem" id="view_menubar">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">win.actionViewMenubar</property>
-                        <property name="label" translatable="yes">Menubar</property>
-                        <property name="use-underline">True</property>
-                        <property name="active">True</property>
-                        <accelerator key="m" signal="activate" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkCheckMenuItem" id="view_toolbar">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">win.actionViewToolbar</property>
-                        <property name="label" translatable="yes">Toolbar</property>
-                        <property name="use-underline">True</property>
-                        <accelerator key="t" signal="activate" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkCheckMenuItem" id="view_sidepane">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">win.actionViewSidepane</property>
-                        <property name="label" translatable="yes">Side panel</property>
-                        <property name="use-underline">True</property>
-                        <property name="active">True</property>
-                        <accelerator key="s" signal="activate" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkCheckMenuItem" id="view_extrapane">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="action-name">win.actionViewExtrapane</property>
-                        <property name="label" translatable="yes">Extra panel</property>
-                        <property name="use-underline">True</property>
-                        <property name="active">True</property>
-                        <accelerator key="x" signal="activate" modifiers="GDK_SHIFT_MASK | GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkMenuItem" id="documents">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">_Documents</property>
-                <property name="use-underline">True</property>
-                <child type="submenu">
-                  <object class="GtkMenu">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="GtkMenuItem" id="docnew">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="tooltip-text" translatable="yes">Create a new D source file.</property>
-                        <property name="action-name">win.actionDocNew</property>
-                        <property name="label" translatable="yes">_New</property>
-                        <property name="use-underline">True</property>
-                        <accelerator key="n" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -218,20 +101,6 @@
                         <property name="enable-popup">True</property>
                         <property name="group-name">docs</property>
                         <child>
-                          <object class="GtkScrolledWindow">
-                            <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="shadow-type">in</property>
-                            <child>
-                              <object class="GtkTextView">
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="monospace">True</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
                           <placeholder/>
                         </child>
                         <child>
@@ -250,14 +119,17 @@
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="events">GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_STRUCTURE_MASK</property>
+                        <property name="above-child">True</property>
                         <child>
                           <object class="GtkLabel" id="doc_status">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="events">GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_STRUCTURE_MASK</property>
+                            <property name="xpad">2</property>
                             <property name="label" translatable="yes">super interesting file info line yay blkajd;fjdfsgsdfgfsdgfdg</property>
                             <property name="ellipsize">end</property>
                             <property name="single-line-mode">True</property>
+                            <property name="xalign">0</property>
                           </object>
                         </child>
                       </object>

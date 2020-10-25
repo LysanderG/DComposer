@@ -16,7 +16,9 @@ import gio.ActionIF;
 import gio.ActionMapIF;
 import gio.Application : GApplication = Application;
 import gio.Cancellable;
-import gio.SimpleAction;
+import gio.Menu : GMenu = Menu;
+import gio.MenuItem : GMenuItem = MenuItem;
+import gio.MenuModel;
 import gio.SimpleAction;
 import gio.SimpleActionGroup;
 import glib.Variant;
@@ -43,7 +45,7 @@ import gtk.Window;
 
 
 
-void Engage(string[] args)
+void Engage(ref string[] args)
 {
 	mApplication = new Application("dcomposer.com", GApplicationFlags.NON_UNIQUE);
 	mApplication.register(new Cancellable());
@@ -63,9 +65,7 @@ void Engage(string[] args)
 	mApplication.addOnActivate(delegate void(GApplication app)
 	{        
     });
-
-
-	
+    
 	Log.Entry("Engaged");
 }
 
@@ -114,6 +114,7 @@ UI_DOCBOOK 			mDocBook;
 //================================================================
 private:
 MenuBar             mMenuBar;
+GMenu               mMenubarModel;
 CheckMenuItem       miViewMenubar;
 CheckMenuItem       miViewSidepane;
 CheckMenuItem       miViewExtrapane;
@@ -122,6 +123,7 @@ Notebook 			mExtraPane;
 Box                 mStatusBox;
 Paned               mVerticalPane;
 Paned               mHorizontalPane;
+
 
 void EngageMainWindow(Builder mBuilder)
 {
@@ -153,35 +155,55 @@ void EngageMainWindow(Builder mBuilder)
 //menubar stuff
 void EngageMenuBar(Builder mBuilder)
 {
+    mMenubarModel = new GMenu();
+    
     mMenuBar = cast(MenuBar)mBuilder.getObject("menu_bar");
-    miViewMenubar = cast(CheckMenuItem)mBuilder.getObject("view_menubar");
-    miViewSidepane = cast(CheckMenuItem)mBuilder.getObject("view_sidepane");
-    miViewExtrapane = cast(CheckMenuItem)mBuilder.getObject("view_extrapane");
+    GMenu menuSystem = new GMenu();
+    GMenu menuViews = new GMenu();
+    
+    //miViewMenubar = cast(CheckMenuItem)mBuilder.getObject("view_menubar");
+    //miViewSidepane = cast(CheckMenuItem)mBuilder.getObject("view_sidepane");
+    //miViewExtrapane = cast(CheckMenuItem)mBuilder.getObject("view_extrapane");
 
+//==> System Menu
 //quit
     GActionEntry[] ag = [{"actionQuit", &action_quit,null, null, null}];
     mMainWindow.addActionEntries(ag, null);
     mApplication.setAccelsForAction("win.actionQuit",["<Control>q"]);
     AddToolObject("quit", "Quit", "Exit DComposer", Config.GetResource("icon","quit","resource","yin-yang.png"),"win.actionQuit");
-
+    GMenuItem menuQuit = new GMenuItem("Quit", "actionQuit");
 //pref
     GActionEntry aePref = {"actionPreferences", &action_preferences, null, null, null};
     mMainWindow.addActionEntries([aePref], null);
     mApplication.setAccelsForAction("win.actionPreferences", ["<Control>p"]);
     AddToolObject("preferences","Preferences","Edit Preferences", Config.GetResource("icon","preferences", "resource", "gear.png"), "win.actionPreferences");
+    GMenuItem menuPref = new GMenuItem("Preferences", "actionPreferences");
+    
+    mMenubarModel.insertSubmenu(0,"System",menuSystem);
+    menuSystem.appendItem(menuQuit); 
+    menuSystem.appendItem(menuPref);   
+
+    
+
 //views
     GActionEntry[] aevViews =[
-        {"actionViewMenubar",   &action_view_menubar,   null, null, null},
-        {"actionViewToolbar",   &action_view_toolbar,   null, null, null},
-        {"actionViewSidepane",  &action_view_sidepane,  null, null, null},
-        {"actionViewExtrapane", &action_view_extrapane, null, null, null}
+        {"actionViewMenubar",   &action_view_menubar,   "b", "true", null},
+        {"actionViewToolbar",   &action_view_toolbar,   "b", "true", null},
+        {"actionViewSidepane",  &action_view_sidepane,  "b", "true", null},
+        {"actionViewExtrapane", &action_view_extrapane, "b", "true", null}
         ];
     mMainWindow.addActionEntries(aevViews, null);
-    mApplication.setAccelsForAction("win.actionViewMenubar", ["<Control><Shift>m"]);
-    mApplication.setAccelsForAction("win.actionViewToolbar", ["<Control><Shift>t"]);
-    mApplication.setAccelsForAction("win.actionViewSidepane", ["<Control><Shift>s"]);
-    mApplication.setAccelsForAction("win.actionViewExtrapane",["<Control><Shift>x"]);
-
+    mApplication.setAccelsForAction("win.actionViewMenubar(true)", ["<Control><Shift>m"]);
+    mApplication.setAccelsForAction("win.actionViewToolbar(true)", ["<Control><Shift>t"]);
+    mApplication.setAccelsForAction("win.actionViewSidepane(true)", ["<Control><Shift>s"]);
+    mApplication.setAccelsForAction("win.actionViewExtrapane(true)",["<Control><Shift>x"]);
+    
+    
+    mMenubarModel.insertSubmenu(1, "Views", menuViews);
+    menuViews.appendItem(new GMenuItem("Menubar","actionViewMenubar(true)"));
+    menuViews.appendItem(new GMenuItem("Toolbar","actionViewToolbar(true)"));
+    menuViews.appendItem(new GMenuItem("Sidepane","actionViewSidepane(true)"));
+    menuViews.appendItem(new GMenuItem("Extrapane","actionViewExtrapane(true)"));
     mMenuBar.showAll();
     mMenuBar.setVisible(Config.GetValue("ui_menubar", "visible",true));
     
@@ -189,11 +211,13 @@ void EngageMenuBar(Builder mBuilder)
 }
 void MeshMenubar()
 {
+    mMenuBar.bindModel(mMenubarModel, "win", true);
+    //mMainWindow.setShowMenubar(true);
 	Log.Entry("\tMenubar Meshed");
 }
 void DisengageMenubar()
 {
-    Config.SetValue("ui_menubar", "visible", mMenuBar.getVisible());
+    //Config.SetValue("ui_menubar", "visible", mMenuBar.getVisible());
     Log.Entry("\tMenubar Disengaged");
 }
 
@@ -236,8 +260,6 @@ void DisengageExtraPane()
     Config.SetValue("ui","extrapane_pos",mHorizontalPane.getPosition());
     Log.Entry("\tExtraPane Disengaged");
 }
-
-
 void EngageStatusbar(Builder mBuilder)
 {
 	mStatusBox = cast(Box)mBuilder.getObject("status_box");
@@ -265,14 +287,13 @@ void DisengageDocBook()
 {
     mDocBook.Disengage();
 }
-
-
 bool ConfirmQuit()
 {
 	bool mQuitting = true;
-    auto ModdedDocs = true; //DocMan.Modified();
+    auto ModdedDocs = docman.GetModifiedDocs();
+    dwrite(docman.GetModifiedDocs());
     //DocMan.SaveSessionDocuments();
-    if(ModdedDocs) with (ResponseType)
+    if(!ModdedDocs.empty) with (ResponseType)
     {
         //confirm quit or return
         auto ConfQuit = new MessageDialog(mMainWindow, DialogFlags.MODAL, MessageType.QUESTION, ButtonsType.NONE, false, "");
@@ -284,7 +305,7 @@ bool ConfirmQuit()
         switch (response)
         {
             //saveall & quit
-            case YES : break;//DocMan.SaveAll();break;
+            case YES : mDocBook.SaveAll();break;
             //discard changes & quit
             case NO  : break;
             //pick & choose & quit (or do not quit if modified docs haven't been closed)
@@ -324,24 +345,36 @@ extern (C)
         x.destroy();
     }
     
-    void action_view_menubar(void* simAction, void* varTarget, void* voidUserData)
+    void action_view_menubar(GSimpleAction* simAction, GVariant* varTarget, void* voidUserData)
     { 
+        SimpleAction sa = new SimpleAction(simAction);
+        Variant v = new Variant(varTarget);
         mMenuBar.setVisible(!mMenuBar.getVisible());
+        sa.setState(new Variant(mMenuBar.getVisible()));
         dwrite("action view menubar");
     }
-    void action_view_toolbar(void* simAction, void* varTarget, void* voidUserData)
+    void action_view_toolbar(GSimpleAction* simAction, GVariant* varTarget, void* voidUserData)
     {
+        SimpleAction sa = new SimpleAction(simAction);
+        Variant v = new Variant(varTarget);
         mToolbar.setVisible(!mToolbar.getVisible());
-        dwrite("action view toolbar");
+        sa.setState(new Variant(mToolbar.getVisible()));
+        dwrite("action view toolpane");
     }
-    void action_view_sidepane(void* simAction, void* varTarget, void* voidUserData)
+    void action_view_sidepane(GSimpleAction* simAction, GVariant* varTarget, void* voidUserData)
     {
+        SimpleAction sa = new SimpleAction(simAction);
+        Variant v = new Variant(varTarget);
         mSidePane.setVisible(!mSidePane.getVisible());
+        sa.setState(new Variant(mSidePane.getVisible()));
         dwrite("action view sidepane");
     }
-    void action_view_extrapane(void* simAction, void* varTarget, void* voidUserData)
+    void action_view_extrapane(GSimpleAction* simAction, GVariant* varTarget, void* voidUserData)
     {
+        SimpleAction sa = new SimpleAction(simAction);
+        Variant v = new Variant(varTarget);
         mExtraPane.setVisible(!mExtraPane.getVisible());
-        dwrite("action view extrapane");
+        sa.setState(new Variant(mExtraPane.getVisible()));
+        dwrite("action view extra");
     }
 }

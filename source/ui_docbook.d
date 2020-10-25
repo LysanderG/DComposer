@@ -18,64 +18,80 @@ import gio.FileT;
 import gio.SimpleAction;
 import gio.SimpleActionGroup;
 import glib.Variant;
+import gsv.SourceStyle;
+import gsv.SourceStyleScheme;
+import gsv.SourceStyleSchemeManager;
+import gtk.Box;
 import gtk.Builder;
+import gtk.Dialog;
 import gtk.EventBox;
+import gtk.FileChooserDialog;
 import gtk.Label;
 import gtk.MenuItem;
+import gtk.MessageDialog;
 import gtk.Notebook;
 import gtk.ScrolledWindow;
 import gtk.Widget;
-import gtk.Dialog;
-import gtk.FileChooserDialog;
-import gsv.SourceStyleSchemeManager;
-import gsv.SourceStyleScheme;
-import gsv.SourceStyle;
-import gtk.MessageDialog;
+
 
 
 class UI_DOCBOOK
 {
-
 private:
-    Notebook            		mNotebook;
-    Label						mInfoLabel;
-	EventBox					mEventBox;
+    Label						mStatusLine;
 	SourceStyleSchemeManager 	mStyleManager;
-	
+		
 public:
+    Notebook            		mNotebook;
+	EventBox					mEventBox;
     
     alias mNotebook this;
-
+    
 	void Engage(Builder mBuilder)
 	{
     	mStyleManager = SourceStyleSchemeManager.getDefault();
     	Config.SetResourcePath("styles","styles");
     	mStyleManager.appendSearchPath(Config.GetResource("styles", "searchPaths", "styles"));
-    	dwrite(mStyleManager.getSchemeIds());
+
 	    
         mNotebook = cast(Notebook)mBuilder.getObject("doc_book");
-		mInfoLabel = cast(Label)mBuilder.getObject("doc_status");
+		mStatusLine = cast(Label)mBuilder.getObject("doc_status");
 		mEventBox = cast(EventBox)mBuilder.getObject("doc_eventbox");
 		
 		mEventBox.addOnEnterNotify(delegate bool(GdkEventCrossing* mode, Widget self)
 		{
 			setShowTabs(true);
-			return false;
+			return true;
         });
         mNotebook.addOnLeaveNotify(delegate bool(GdkEventCrossing* mode, Widget self)
         {
 
+            //this line is here because GtkButton causes a LeaveNotify event
+            //that I really don't want. so ... this is my hack.
+            if(mode.y > 0) return true;
+            
 	        setShowTabs(false);
-	        return false;
+	        return true;
+        },ConnectFlags.AFTER);
+        
+        addOnSwitchPage(delegate void(Widget w, uint pgNum, Notebook self)
+        {
+            ScrolledWindow x = cast(ScrolledWindow) w;
+            
+            UpdateStatusLine(cast(DOCUMENT)x.getChild());
         });
-        
-        
+
         EngageActions();    
         Log.Entry("\tEngaged");   
     }
     
     void Mesh()
 	{
+        foreach(preOpener; docman.GetDocs())
+        {
+            AddDocument(preOpener);
+        }
+        
     	Log.Entry("\tMeshed");
     }
     
@@ -83,11 +99,10 @@ public:
     {
         Log.Entry("\tDisengaged");
     }
-    
-    
+
     void Open()
     {
-        auto Ofd = new FileChooserDialog("Load Document", null, GtkFileChooserAction.OPEN);
+        auto Ofd = new FileChooserDialog("Resurrect the dcomposed doc", null, GtkFileChooserAction.OPEN);
 
         Ofd.setSelectMultiple(true);
         Ofd.setModal(false);
@@ -123,18 +138,34 @@ public:
         }
         
     }
-    void Save()
+    void Save(DOC_IF doc = null)
     {
-	    DOC_IF doc = Current();
-	    dwrite(doc);
+	    if(doc is null) doc = Current();
+	    if(doc is null) return;
+	    
+	    if(doc.Virgin)
+	    {
+    	    SaveAs(doc);
+    	    return;
+        }
 	    doc.Save();
 	    
     }
-    void SaveAs()
-    {
+    void SaveAs(DOC_IF doc = null)
+    { 
+        if(doc is null) doc = Current;
+        if(doc is null) return;        
+        
+        auto sfd = new FileChooserDialog("Bury the dcomposed doc as ...", mMainWindow, FileChooserAction.SAVE);
+        sfd.setFilename(doc.FullName);
+        auto result = sfd.run();
+        sfd.hide();
+        if(result != GtkResponseType.OK) return;
+        doc.SaveAs(sfd.getFilename);
     }
     void SaveAll()
     {
+        docman.GetDocs().each!("a.Save");
     }
     void Close(DOC_IF curr = null)
     {
@@ -151,7 +182,7 @@ public:
 		    	GtkButtonsType.NONE,
 		    	"%s\nHas been modified. Do you wish to close and discard changes; Save and close; or cancel action.",
 		    	curr.FullName());
-		    msgDialog.addButtons(["Close & Discard","Close & Save","Do NOT close"],[GtkResponseType.ACCEPT,GtkResponseType.APPLY,GtkResponseType.CANCEL]);
+		    msgDialog.addButtons(["Save & Close","Discard & Close","Do NOT close"],[GtkResponseType.APPLY,GtkResponseType.ACCEPT,GtkResponseType.CANCEL]);
 		    auto response = msgDialog.run();
 		    msgDialog.hide();
 		    if(response == ResponseType.CANCEL) return;
@@ -164,9 +195,7 @@ public:
     void CloseAll()
     {
 	   	DOC_IF[] docs = docman.GetDocs();
-	   	dwrite(docs, "--",docs.length);
 	   	docs.each!(n=>Close(n));
-	   	
     }
     
     void AddDocument(DOC_IF newDoc,int pos = -1)
@@ -184,10 +213,22 @@ public:
         auto parent = cast(ScrolledWindow)mNotebook.getNthPage(currPageNum);
         auto doc = cast(DOC_IF)parent.getChild();
         return doc;
-        
     }
     
-    
+    void UpdateStatusLine(string nuStatus)
+    {
+        mStatusLine.setMarkup(nuStatus);
+    }
+    void UpdateStatusLine(DOCUMENT doc)
+    {
+        if(doc is null)return;
+        mStatusLine.setMarkup(doc.GetStatusLine());
+    }
+    string GetStatusLine()
+    {
+        return mStatusLine.getText();
+    }
+   
 private:
 	
 	void EngageActions()
@@ -198,12 +239,12 @@ private:
 			{"actionDocOpen", &action_DocOpen, null, null, null},
 			{"actionDocSave", &action_DocSave, null, null, null},
 			{"actionDocSaveAs", &action_DocSaveAs, null, null, null},
+			{"actionDocSaveAll", &action_DocSaveAll, null, null, null},
 			{"actionDocClose", &action_DocClose, null, null, null},
 			{"actionDocCloseAll", &action_DocCloseAll, null, null, null},
 			{"actionDocCompile", &action_DocCompile, null, null, null},
 			];
 		mMainWindow.addActionEntries(actEntNew, null);
-		
 		
 		//new
 		mApplication.setAccelsForAction("win.actionDocNew",["<Control>n"]);
@@ -218,6 +259,9 @@ private:
 		AddToolObject("docsave","Save", "Save Document",
 			Config.GetResource("icons","docsave","resource","document-save.png"),"win.actionDocSave");
 		//save as
+		mApplication.setAccelsForAction("win.actionDocSaveAs", ["<Control><Shift>s"]);
+		AddToolObject("docsaveas", "Save As", "Save Document As...",
+		    Config.GetResource("icon","docsaveas", "resource", "document-save-as.png"), "win.actionDocSaveAs");
 		//save all
 		//close
 		mApplication.setAccelsForAction("win.actionDocClose", ["<Control>w"]);
@@ -242,8 +286,9 @@ extern (C)
 	void action_DocNew(void* simAction, void* varTarget, void* voidUserData)
 	{
     	auto x = DOC_IF.Create();
+    	x.Init();    	
     	mDocBook.AddDocument(cast(DOCUMENT)x);
-		dwrite("creating a new document.");
+		Log.Entry("Created new document " ~ x.Name);
 	}
 	void action_DocOpen(void* simAction, void* varTarget, void* voidUserData)
 	{
@@ -253,15 +298,17 @@ extern (C)
 	void action_DocSave(void* simAction, void* varTarget, void* voidUserData)
 	{
     	mDocBook.Save();
-		dwrite("saving a new document.");
-		
 	}
 	void action_DocSaveAs(void* simAction, void* varTarget, void* voidUserData)
 	{
     	mDocBook.SaveAs();
 		dwrite("saving as a new document.");
-		
 	}
+	void action_DocSaveAll(void* simAction, void* varTarget, void* voidUserData)
+	{
+    	mDocBook.SaveAll();
+    	dwrite("saving all documents");
+    }
 	void action_DocClose(void* simAction, void* varTarget, void* voidUserData)
 	{
     	mDocBook.Close();

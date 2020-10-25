@@ -27,13 +27,11 @@ void EngageToolbar(Builder mBuilder)
     mToolbar = cast(Toolbar)mBuilder.getObject("tool_bar");
     mToolbar.setVisible(Config.GetValue("ui_toolbar", "visible", true));
     Log.Entry("\tToolbar Engaged");
-    
-
 }
 
 void MeshToolbar()
 {
-    string[] buttonsOnBar = Config.GetArray("ui_toolbar", "buttons", ["preferences", "docnew","docopen","docsave","docclose","doccloseall","quit"]);
+    string[] buttonsOnBar = Config.GetArray("ui_toolbar", "buttons", ["preferences", "docnew","docopen","docsave","docsaveas","docclose","doccloseall","quit"]);
     buttonsOnBar.each!InsertToolButton();
     Log.Entry("\tToolbar Meshed");
 }

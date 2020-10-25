@@ -1,32 +1,52 @@
 module docman;
 
 import object;
+import std.algorithm;
 import std.format;
 import std.file;
+import std.path;
 
+import qore;
 public import document;
-import log;
-import config;
+
 
 
 public:
 
+void Engage(ref string[] args)
+{
+    string[] cmdLineFiles;
+    if(args.length > 1) foreach(arg; args[1..$])
+    {
+        if(arg.extension != ".dpro")cmdLineFiles ~= buildNormalizedPath(getcwd(),arg);
+    }
+    if(cmdLineFiles.length)Config.SetValue!(string[])("docman","cmdLineFiles", cmdLineFiles);
+    else Config.SetValue!(string[])("docman","cmdLineFiles", []);
+    
+}
+void Mesh()
+{  
+    string[] openFilesOnStart;
+    openFilesOnStart = Config.GetArray!string("docman", "cmdLineFiles");
+    openFilesOnStart ~= Config.GetArray!string("docman", "last_session_files");
+    
+    foreach(startup; openFilesOnStart) OpenDoc(startup);
+    dwrite(openFilesOnStart); 
+}
+void Disengage(){}
 
 //ui agnostic interface to DOCUMENT
 //ostensibly to use something other than GtkSourceView
 //but super unlikely :)
 interface DOC_IF
 {
-    static  DOC_IF Create(string fileName = null, string DOC_IF_CLASS = "document.DOCUMENT")
+    static  DOC_IF Create(string DOC_IF_CLASS = "document.DOCUMENT")
     {
         auto rv = cast(DOC_IF)Object.factory(DOC_IF_CLASS);
-        if(fileName is null)fileName = NameMaker();
-        
-        rv.Name = fileName;
-        rv.Virgin = true;
-        docman.AddDoc(rv);
         return rv;      
     }
+    //Must call either Init or Load for doc_if to function 
+    void    Init(string nuFileName = null);
     void    Reconfigure();
     void    Load(string fileName);
     void    Save();
@@ -35,21 +55,27 @@ interface DOC_IF
     void    Close();
     
     void *  TabWidget();
-    string  StatusText();
     
     string  FullName();
     void    Name(string nuName);
     string  Name();
-    void    Virgin(bool virgin);
     bool    Virgin();
     bool	Modified();
-    //void    Modified(bool modified);
-    //bool    Modified();
+    string  GetStatusLine();
 }
 
 //#############################################################################
 //#############################################################################
-
+void OpenDoc(string fileName)
+{
+    scope(failure)
+    {
+        Log.Entry("Unable to open document ",fileName);
+    }
+    auto doc = DOC_IF.Create();
+    doc.Load(fileName);
+    AddDoc(doc);    
+}
 void AddDoc(DOC_IF nuDoc)
 {
     if(nuDoc.FullName in mDocs) 
@@ -81,17 +107,13 @@ bool Opened(string testDoc)
     return false;
 }
 
+auto GetModifiedDocs()
+{
+    return (mDocs.byValue).filter!("a.Modified");
+}
+
+
 private:
 
 DOC_IF[string]      mDocs;
 
-string NameMaker()
-{
-    static int suffixNumber = 0;
-    scope(exit)suffixNumber++;
-    
-    string baseName = getcwd() ~ "/dcomposer%0s.d";
-    return format(baseName, suffixNumber);
-    
-    
-}

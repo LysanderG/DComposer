@@ -19,7 +19,7 @@ void Engage(ref string[] cmdArgs)
 	string logFileName;
 	bool   quietStdOut;
 	
-	auto goResults = getopt(cmdArgs, std.getopt.config.passThrough, "log", &logFileName, "quiet", &quietStdOut);
+	auto goResults = getopt(cmdArgs, std.getopt.config.passThrough, "log|l", &logFileName, "quiet|q", &quietStdOut);
 	if(logFileName.length <1)logFileName = mDefaultLogFile.expandTilde();	
 	Log = new LOG;	
 	Log.Engage("xcomposer", !quietStdOut, logFileName);
