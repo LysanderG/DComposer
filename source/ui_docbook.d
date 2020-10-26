@@ -157,6 +157,7 @@ public:
         if(doc is null) return;        
         
         auto sfd = new FileChooserDialog("Bury the dcomposed doc as ...", mMainWindow, FileChooserAction.SAVE);
+        sfd.setCurrentName(doc.Name);
         sfd.setFilename(doc.FullName);
         auto result = sfd.run();
         sfd.hide();
@@ -263,6 +264,9 @@ private:
 		AddToolObject("docsaveas", "Save As", "Save Document As...",
 		    Config.GetResource("icon","docsaveas", "resource", "document-save-as.png"), "win.actionDocSaveAs");
 		//save all
+		mApplication.setAccelsForAction("win.actionDocSaveAll", ["<Super>s"]);
+		AddToolObject("docsaveall", "Save All", "Save All Open Documents",
+			Config.GetResource("icon","docsaveall", "resource", "document-save-all.png"), "win.actionDocSaveAll");
 		//close
 		mApplication.setAccelsForAction("win.actionDocClose", ["<Control>w"]);
 		AddToolObject("docclose","Close", "Close Document",
