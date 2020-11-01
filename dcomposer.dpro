@@ -23,11 +23,13 @@
           "Postbuild Scripts": [],
           "String Imports": [],
           "Libraries": [
-               "\/usr\/lib\/libgtkd-3.so",
-               "\/usr\/lib\/libgtkdsv-3.so"
+               "\/home\/anthony\/projects\/dcomposer_git\/libgtkd-3.so",
+               "\/home\/anthony\/projects\/dcomposer_git\/libgtkdsv-3.so"
           ],
           "Debugs": [],
-          "Sundry": [],
+          "Sundry": [
+               "-L-rpath=\/home\/anthony\/projects\/dcomposer_git\/"
+          ],
           "Versions": [],
           "Prebuild Scripts": [],
           "Import Paths": [
@@ -37,7 +39,7 @@
           ],
           "Notes": [],
           "Library Paths": [
-               "\/usr\/lib"
+               "\/home\/anthony\/projects\/dcomposer_git"
           ]
      },
      "DcomposerProjectVersion": "A",
