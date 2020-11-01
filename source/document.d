@@ -3,13 +3,19 @@ module document;
 import std.path;
 import std.format;
 import std.file;
+import std.algorithm;
+import std.datetime;
+
 
 import ui;
 import qore;
 import docman;
 
+
 import gdk.Event;
 import gio.FileIF;
+import gio.SimpleAsyncResult;
+import gobject.ObjectG;
 import gsv.SourceFile;
 import gsv.SourceFileLoader;
 import gsv.SourceFileSaver;
@@ -28,6 +34,7 @@ import gtk.Widget;
 import pango.PgFontDescription;
 
 
+
 class DOCUMENT : SourceView, DOC_IF
 {
 private:
@@ -36,6 +43,7 @@ private:
     Box         mTabWidget;
     Label       mTabLabel;
     SourceFile  mFile;
+    SysTime     mFileTimeStamp;
     
 public:
 
@@ -47,7 +55,7 @@ public:
         UpdateTabWidget();
     }
     
-    bool Virgin(){return mFile is null;}
+    bool Virgin(){return mVirgin;}
     
     bool Modified(){return getBuffer.getModified();}
     
@@ -83,6 +91,7 @@ public:
     
     void Init(string nuFileName = null)
     {
+        mVirgin = true;
         mTabWidget = new Box(Orientation.HORIZONTAL,0);
         mTabLabel = new Label(mFullPathName, false);        
                 
@@ -107,9 +116,9 @@ public:
         mTabWidget.packStart(stupidEventBox,false,false,2);
         mTabWidget.showAll();
         getBuffer().addOnModifiedChanged(delegate void (TextBuffer Buf){UpdateTabWidget();});
-        
         if(nuFileName is null)Name = NameMaker();
         else Name = nuFileName;
+        addOnFocusIn(delegate bool(Event event, Widget widget){DocumentModifiedExternally();return false;});
         
         Reconfigure();
         docman.AddDoc(this);
@@ -117,13 +126,20 @@ public:
     void Load(string fileName)
     {
         Init(fileName);
+        if(!fileName.exists)
+        {
+            Log.Entry("Document " ~ fileName ~ " does not exist, continuing as empty document.");
+            return;
+        }
+        mFileTimeStamp = timeLastModified(fileName);
+        mVirgin = false;
         mFile = new SourceFile();
         mFile.setLocation(FileIF.parseName(fileName));
         auto dfileloader = new SourceFileLoader(getBuffer, mFile);
         dfileloader.loadAsync(G_PRIORITY_DEFAULT, null, null, null, null, &FileLoaded, cast(void*)dfileloader);
         Name =  fileName;
     }
-    void Save()
+    void SaveOldNotWorking()
     {
 	    if(mFile is null) 
 	    {
@@ -133,14 +149,34 @@ public:
     	    dwrite(mFile);
 	    }
 	    auto mFileSave = new SourceFileSaver(getBuffer, mFile);
-	    dwrite(mFileSave);
-	    mFileSave.saveAsync(G_PRIORITY_DEFAULT, null, null, null, null, &FileSaved, cast(void*)mFileSave);
+	    //Task t = new Task(mFileSave, null , &FileSaved, null);
+	    //mFileSave.saveFinish(t);
+	    //mFileSave.saveAsync(G_PRIORITY_HIGH, null, null, null, null, &FileSaved, cast(void*)this);
+        //dwrite("Start Saving ", Name);
+    }
+    void Save()
+    {
+        try
+        {
+            string savetext = getBuffer.getText();
+            if(!savetext.endsWith("\n"))savetext ~= "\n";
+            std.file.write(mFullPathName,savetext);
+            mFileTimeStamp = timeLastModified(mFullPathName);
+            getBuffer.setModified = false;
+            mVirgin = false;
+            
+        }
+        catch(FileException fe)
+        {
+            Log.Entry(fe.msg,"Error");
+            ui.ShowMessage("File Error", fe.msg);
+        }
     }
     void SaveAs(string newFileName)
     {
         if(mFile is null) mFile = new SourceFile();
         mFile.setLocation(FileIF.parseName(newFileName));
-        dwrite("saveas ... ");
+        Name = newFileName;
         Save();
     }
     void Close()
@@ -168,6 +204,34 @@ public:
         //rv = format("%s:%i/%i (col:%i) %s
         return mFullPathName;
     }
+    void DocumentModifiedExternally()
+    {
+        if(Virgin) return;
+        auto currentTimeStamp = timeLastModified(mFullPathName);
+        if(currentTimeStamp > mFileTimeStamp)
+        {
+            mFileTimeStamp = currentTimeStamp;
+            auto rv = ShowMessage("Externally Modified File",
+                                    Name ~ 
+                                    "\nHas possibly been modified since last save.\n" ~
+                                    "How dow you wish to proceed?",
+                                    ["Ignore External Changes", 
+                                     "Replace Document with External Changes",
+                                     "Save Document to new File (Save As..)",
+                                     "Copy External Changed File to New File"]
+                                    ); 
+            switch(rv)
+            {
+                case 0: break;
+                case 1: Load(mFullPathName); break;
+                case 2: mDocBook.SaveAs(this);break;
+              
+                case 3: copy(mFullPathName, mFullPathName ~"~"); break;
+                default:
+            } 
+        }
+    }
+
 }
 
 string NameMaker()
@@ -197,26 +261,13 @@ extern (C)
         }
         catch(Exception oops)
         {
-            Log.Entry(oops.msg, "Error");
+            Log.Entry(oops.msg, "-Error");
         }
     }   
     void FileSaved(GObject *source_object, GAsyncResult *res, void * user_data)
 	{   
-    	dwrite("finished");
-    	try
-        {
-    		auto dfile = cast(SourceFileSaver)user_data;
-    		
-    		auto theTask = new Task(cast(GTask*)res);
-            if(!dfile.saveFinish(theTask))
-            {
-                Log.Entry("File save error");
-            }
-            
-        }
-        catch(Exception oops)
-        {
-            Log.Entry(oops.msg);
-        }
+    	dwrite("-->finished saving ", (cast(DOCUMENT)user_data).Name);
+    	
+
     }
 }
