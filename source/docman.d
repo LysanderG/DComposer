@@ -80,14 +80,14 @@ void AddDoc(DOC_IF nuDoc)
 {
     if(nuDoc.FullName in mDocs) 
     {
-        Log.Entry("Readding DocIF to document manager");
+        Log.Entry("Adding " ~ nuDoc.Name ~ " to document manager");
         return;
     }
     mDocs[nuDoc.FullName] = nuDoc;
 }
 void Remove(DOC_IF oldDoc)
 {
-	dwrite("remove ... ",oldDoc.FullName, "...",mDocs.keys);
+    dwrite("removing ",oldDoc.Name);
 	mDocs.remove(oldDoc.FullName);
 }
 DOC_IF GetDoc(string docName)
@@ -112,8 +112,19 @@ auto GetModifiedDocs()
     return (mDocs.byValue).filter!("a.Modified");
 }
 
+void SaveSessionDocuments()
+{
+    Config.SetArray!(string[])("docman","last_session_files",mDocs.keys);
+}
+
+struct RECTANGLE
+{
+    int x, y;
+    int xl, yl;
+}
 
 private:
 
 DOC_IF[string]      mDocs;
+int                 mSaveCtr;
 

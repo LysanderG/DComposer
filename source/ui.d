@@ -1,10 +1,14 @@
 module ui;
 
+import core.thread;
+import std.datetime;
 import std.conv;
 import std.traits; 
+import std.algorithm;
 
 import qore;
 import config;
+import docman;
 
 
 import ui_docbook;
@@ -87,16 +91,6 @@ void Disengage()
     DisengageToolbar();
     DisengageMenubar();
     
-    int win_x_pos, win_y_pos;
-    int win_x_len, win_y_len;
-    
-    mMainWindow.getPosition(win_x_pos, win_y_pos);
-    mMainWindow.getSize(win_x_len, win_y_len);
-    
-    Config.SetValue("ui", "win_x_pos", win_x_pos);
-    Config.SetValue("ui", "win_y_pos", win_y_pos);
-    Config.SetValue("ui", "win_x_len", win_x_len);
-    Config.SetValue("ui", "win_y_len", win_y_len);
     Log.Entry("Disengaged");
 }
 
@@ -106,6 +100,37 @@ void run(string[] args)
 	mApplication.run(args);
 	Log.Entry("------  Exiting GTK Main Loop ------");
 	
+}
+
+void AddSubMenu(int pos, string label, GMenu menu)
+{
+    GMenu xMenu = new GMenu();
+    mMenubarModel.insertSubmenu(pos, label, menu);
+}
+
+void ShowMessage(string Title, string Message)
+{
+    auto x = new MessageDialog(mMainWindow, DialogFlags.MODAL, MessageType.OTHER, ButtonsType.NONE, "");
+    x.addButtons(["DONE"],[ResponseType.OK]);
+    x.setTitle(Title);
+    x.setMarkup(Message);
+    x.run();
+    x.hide();
+    x.destroy();
+}
+int ShowMessage(string Title, string Message, string[] Buttons ...)
+{
+    auto dialog = new MessageDialog(mMainWindow, DialogFlags.MODAL, MessageType.INFO, ButtonsType.NONE, "");
+    dialog.setTitle(Title);
+    dialog.setMarkup(Message);
+    foreach(indx, string btn;Buttons)
+    {
+        dialog.addButton(btn, cast(int)indx);
+    }
+
+    auto response = dialog.run();
+    dialog.hide();
+    return response;
 }
 
 Application         mApplication;
@@ -133,8 +158,12 @@ void EngageMainWindow(Builder mBuilder)
 
 	mMainWindow.addOnDelete(delegate bool(Event Ev, Widget wdgt)
 	{
-    	if(ConfirmQuit())mApplication.quit();
-    	return true;
+    	if(ConfirmQuit())
+    	{
+            mApplication.removeWindow(mMainWindow);
+    	    StoreGui();
+    	}
+    	return false;
 		
 	});
 	
@@ -180,8 +209,8 @@ void EngageMenuBar(Builder mBuilder)
     GMenuItem menuPref = new GMenuItem("Preferences", "actionPreferences");
     
     mMenubarModel.insertSubmenu(0,"System",menuSystem);
-    menuSystem.appendItem(menuQuit); 
-    menuSystem.appendItem(menuPref);   
+    menuSystem.appendItem(menuPref); 
+    menuSystem.appendItem(menuQuit);   
 
     
 
@@ -215,9 +244,13 @@ void MeshMenubar()
     //mMainWindow.setShowMenubar(true);
 	Log.Entry("\tMenubar Meshed");
 }
+void StoreMenubar()
+{
+    Config.SetValue("ui", "menubar_visible", mMenuBar.getVisible());
+}
 void DisengageMenubar()
 {
-    //Config.SetValue("ui_menubar", "visible", mMenuBar.getVisible());
+    
     Log.Entry("\tMenubar Disengaged");
 }
 
@@ -225,7 +258,7 @@ void DisengageMenubar()
 void EngageSidePane(Builder mBuilder)
 {
 	mSidePane = cast(Notebook)mBuilder.getObject("side_pane");
-	mSidePane.setVisible(Config.GetValue("ui_sidepane","visible", true));
+	mSidePane.setVisible(Config.GetValue("ui","sidepane_visible", true));
 	
 	Log.Entry("\tSidePane Engaged");
 }
@@ -234,10 +267,13 @@ void MeshSidePane()
 	mVerticalPane.setPosition(Config.GetValue("ui", "sidepane_pos", 10));
     Log.Entry("\tSidePane Meshed");
 }
+void StoreSidePane()
+{
+    Config.SetValue("ui", "sidepane_pos",     mVerticalPane.getPosition());
+    Config.SetValue("ui", "sidepane_visible", mSidePane.getVisible());    
+}
 void DisengageSidePane()
 {
-    Config.SetValue("ui","sidepane_pos", mVerticalPane.getPosition());
-    Config.SetValue("ui_sidepane", "visible", mSidePane.getVisible());
     Log.Entry("\tSidePane Disengaged");
 }
 
@@ -245,7 +281,7 @@ void DisengageSidePane()
 void EngageExtraPane(Builder mBuilder)
 {
 	mExtraPane = cast(Notebook)mBuilder.getObject("extra_pane");
-	mExtraPane.setVisible(Config.GetValue("ui_extrapane","visible",true));
+	mExtraPane.setVisible(Config.GetValue("ui","extrapane_visible",true));
     Log.Entry("\tExtraPane Engaged");
 }
 void MeshExtraPane()
@@ -253,11 +289,13 @@ void MeshExtraPane()
 	mHorizontalPane.setPosition(Config.GetValue("ui","extrapane_pos", 10));
     Log.Entry("\tExtraPane Meshed");
 }
+void StoreExtraPane()
+{
+    Config.SetValue("ui", "extrapane_visible", mExtraPane.getVisible());
+    Config.SetValue("ui", "extrapane_pos",     mHorizontalPane.getPosition());    
+}
 void DisengageExtraPane()
 {
-    
-    Config.SetValue("ui_extrapane", "visible", mExtraPane.getVisible());
-    Config.SetValue("ui","extrapane_pos",mHorizontalPane.getPosition());
     Log.Entry("\tExtraPane Disengaged");
 }
 void EngageStatusbar(Builder mBuilder)
@@ -291,8 +329,7 @@ bool ConfirmQuit()
 {
 	bool mQuitting = true;
     auto ModdedDocs = docman.GetModifiedDocs();
-    dwrite(docman.GetModifiedDocs());
-    //DocMan.SaveSessionDocuments();
+    docman.SaveSessionDocuments();
     if(!ModdedDocs.empty) with (ResponseType)
     {
         //confirm quit or return
@@ -305,17 +342,16 @@ bool ConfirmQuit()
         switch (response)
         {
             //saveall & quit
-            case YES : mDocBook.SaveAll();break;
+            case YES : 
+                mDocBook.SaveAll();
+                break;
             //discard changes & quit
-            case NO  : break;
+            case NO  : 
+                break;
             //pick & choose & quit (or do not quit if modified docs haven't been closed)
-            case OK  : //DocMan.CloseAll();
-                       //if(!DocMan.Empty)
-                       //{
-	                   //    mQuitting = false;
-	                   //    return;
-                       //}
-                       break;
+            case OK  : 
+                mDocBook.CloseAll();
+                break;
             //any other response do nothing return to editting
             default  : 
         			   mQuitting = false;
@@ -325,8 +361,25 @@ bool ConfirmQuit()
     return mQuitting;
 }
 
-
-
+void StoreGui()
+{
+    mDocBook.StoreDocBook();
+    StoreExtraPane();
+    StoreSidePane();
+    StoreToolbar();
+    StoreMenubar();
+    
+    int win_x_pos, win_y_pos;
+    int win_x_len, win_y_len;
+    
+    mMainWindow.getPosition(win_x_pos, win_y_pos);
+    mMainWindow.getSize(win_x_len, win_y_len);
+    
+    Config.SetValue("ui", "win_x_pos", win_x_pos);
+    Config.SetValue("ui", "win_y_pos", win_y_pos);
+    Config.SetValue("ui", "win_x_len", win_x_len);
+    Config.SetValue("ui", "win_y_len", win_y_len);
+}
 
 //action callbacks from gtk ... so extern c
 extern (C)
@@ -378,3 +431,6 @@ extern (C)
         dwrite("action view extra");
     }
 }
+
+
+

@@ -3,6 +3,7 @@ module ui_docbook;
 
 import std.conv;
 import std.algorithm;
+import std.format;
 
 import ui;
 import ui_action;
@@ -32,6 +33,8 @@ import gtk.MessageDialog;
 import gtk.Notebook;
 import gtk.ScrolledWindow;
 import gtk.Widget;
+import gio.Menu :GMenu=Menu;
+import gio.MenuItem : GMenuItem=MenuItem;
 
 
 
@@ -80,6 +83,12 @@ public:
             
             UpdateStatusLine(cast(DOCUMENT)x.getChild());
         });
+        addOnPageRemoved(delegate void(Widget w, uint pg, Notebook self)
+        {
+            //should be named addOnPreRemovalOfPage 'cause page is acutually
+            //removed after responding to this signal.
+            if(docman.GetDocs.length < 2) UpdateStatusLine("No Opened Documents");            
+        });
 
         EngageActions();    
         Log.Entry("\tEngaged");   
@@ -94,6 +103,9 @@ public:
         
     	Log.Entry("\tMeshed");
     }
+
+    void StoreDocBook()
+    {}
     
     void Disengage()
     {
@@ -166,7 +178,7 @@ public:
     }
     void SaveAll()
     {
-        docman.GetDocs().each!("a.Save");
+        foreach(doc;GetModifiedDocs)doc.Save();
     }
     void Close(DOC_IF curr = null)
     {
@@ -222,7 +234,7 @@ public:
     }
     void UpdateStatusLine(DOCUMENT doc)
     {
-        if(doc is null)return;
+        if(doc is null)mStatusLine.setMarkup("Error?");
         mStatusLine.setMarkup(doc.GetStatusLine());
     }
     string GetStatusLine()
@@ -247,39 +259,62 @@ private:
 			];
 		mMainWindow.addActionEntries(actEntNew, null);
 		
+		
+		GMenu docMenu = new GMenu();
 		//new
 		mApplication.setAccelsForAction("win.actionDocNew",["<Control>n"]);
 		AddToolObject("docnew","New","Create a new D source file",
 			Config.GetResource("icons","docnew","resource", "document-text.png"),"win.actionDocNew");
+		auto menuItemNew = new GMenuItem("New", "actionDocNew");
+       
         //open document
 		mApplication.setAccelsForAction("win.actionDocOpen", ["<Control>o"]);
 		AddToolObject("docopen","Open", "Open Document",
 			Config.GetResource("icons","docopen","resource","folder-open-document-text.png"),"win.actionDocOpen");
+		auto menuItemOpen = new GMenuItem("Open", "actionDocOpen");
+		
 		//save document
 		mApplication.setAccelsForAction("win.actionDocSave", ["<Control>s"]);
 		AddToolObject("docsave","Save", "Save Document",
 			Config.GetResource("icons","docsave","resource","document-save.png"),"win.actionDocSave");
-		//save as
+		auto menuItemSave = new GMenuItem("Save", "actionDocSave");
+       
+        //save as
 		mApplication.setAccelsForAction("win.actionDocSaveAs", ["<Control><Shift>s"]);
 		AddToolObject("docsaveas", "Save As", "Save Document As...",
 		    Config.GetResource("icon","docsaveas", "resource", "document-save-as.png"), "win.actionDocSaveAs");
+		auto menuItemSaveAs = new GMenuItem("Save As...", "actionDocSaveAs");	
+		
 		//save all
 		mApplication.setAccelsForAction("win.actionDocSaveAll", ["<Super>s"]);
 		AddToolObject("docsaveall", "Save All", "Save All Open Documents",
 			Config.GetResource("icon","docsaveall", "resource", "document-save-all.png"), "win.actionDocSaveAll");
+		auto menuItemSaveAll = new GMenuItem("Save All", "actionDocSaveAll");
+		
 		//close
 		mApplication.setAccelsForAction("win.actionDocClose", ["<Control>w"]);
 		AddToolObject("docclose","Close", "Close Document",
 			Config.GetResource("icons","docclose","resource","document-close.png"),"win.actionDocClose");
+		auto menuItemClose = new GMenuItem("Close", "actionDocClose");		
 		
 		//close all
 		mApplication.setAccelsForAction("win.actionDocCloseAll", ["<Control><Shift>w"]);
 		AddToolObject("doccloseall","Close All", "Close All Documents",
 			Config.GetResource("icons","doccloseall","resource","document-close-all.png"),"win.actionDocCloseAll");
+		auto menuItemCloseAll = new GMenuItem("Close All", "actionDocCloseAll");
+		
 		//compile document
 		//run document
 		//unittest document
-		
+		docMenu.appendItem(menuItemNew);
+		docMenu.appendItem(menuItemOpen);
+        docMenu.appendItem(menuItemSave);
+        docMenu.appendItem(menuItemSaveAs);
+        docMenu.appendItem(menuItemSaveAll);
+        docMenu.appendItem(menuItemClose);
+        docMenu.appendItem(menuItemCloseAll);
+        
+		ui.AddSubMenu(2, "Documents", docMenu);
 	}
 	
 }

@@ -36,9 +36,13 @@ void MeshToolbar()
     Log.Entry("\tToolbar Meshed");
 }
 
-void DisengageToolbar()
+void StoreToolbar()
 {
     Config.SetValue("ui_toolbar","visible",mToolbar.getVisible());
+}
+
+void DisengageToolbar()
+{   
     Log.Entry("\tToolbar Disengaged");
 }
 
