@@ -74,9 +74,9 @@ class LOG
         auto rightnow = Clock.currTime();
         auto logtime = rightnow.toISOExtString();
 
-        Entry("<<<+++ LOG BEGINS +++>>>");
+        Entry("<<<+++ LOG BEGINS +++>>>", "Begin");
         Entry(application);
-        Entry("start time : " ~ logtime);
+        Entry(logtime, "Start");
         Entry("Log file set to : " ~ mLogFileName);        
         Entry("Engaged");
         

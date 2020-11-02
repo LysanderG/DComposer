@@ -53,6 +53,7 @@ public:
     {
         mFullPathName = nuFileName;
         UpdateTabWidget();
+        mDocBook.UpdateStatusLine(GetStatusLine());
     }
     
     bool Virgin(){return mVirgin;}
@@ -139,21 +140,7 @@ public:
         dfileloader.loadAsync(G_PRIORITY_DEFAULT, null, null, null, null, &FileLoaded, cast(void*)dfileloader);
         Name =  fileName;
     }
-    void SaveOldNotWorking()
-    {
-	    if(mFile is null) 
-	    {
-    	    //what about DRY
-    	    mFile = new SourceFile;
-    	    mFile.setLocation(FileIF.parseName(mFullPathName));
-    	    dwrite(mFile);
-	    }
-	    auto mFileSave = new SourceFileSaver(getBuffer, mFile);
-	    //Task t = new Task(mFileSave, null , &FileSaved, null);
-	    //mFileSave.saveFinish(t);
-	    //mFileSave.saveAsync(G_PRIORITY_HIGH, null, null, null, null, &FileSaved, cast(void*)this);
-        //dwrite("Start Saving ", Name);
-    }
+
     void Save()
     {
         try
@@ -214,18 +201,17 @@ public:
             auto rv = ShowMessage("Externally Modified File",
                                     Name ~ 
                                     "\nHas possibly been modified since last save.\n" ~
-                                    "How dow you wish to proceed?",
-                                    ["Ignore External Changes", 
-                                     "Replace Document with External Changes",
-                                     "Save Document to new File (Save As..)",
-                                     "Copy External Changed File to New File"]
+                                    "How dow you wish to proceed?\nIGNORE external changes(continue)\nLOAD the changed file(replace)\nSAVE document to new file(Save As)\nMOVE changed file to new file(copy)",
+                                    ["IGNORE(continue)", 
+                                     "LOAD(replace)",
+                                     "SAVE(save as)",
+                                     "MOVE(copy)"]
                                     ); 
             switch(rv)
             {
                 case 0: break;
                 case 1: Load(mFullPathName); break;
-                case 2: mDocBook.SaveAs(this);break;
-              
+                case 2: mDocBook.SaveAs(this);break;              
                 case 3: copy(mFullPathName, mFullPathName ~"~"); break;
                 default:
             } 

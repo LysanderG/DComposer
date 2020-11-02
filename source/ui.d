@@ -55,7 +55,8 @@ void Engage(ref string[] args)
 	mApplication.register(new Cancellable());
 	
 	auto mBuilder = new Builder;
-    mBuilder.addFromFile(config.findResource(Config.GetValue("ui", "ui_main_window", "glade/ui_main2.glade"))); 
+    //mBuilder.addFromFile(config.findResource(Config.GetValue("ui", "ui_main_window", "glade/ui_main2.glade"))); 
+    mBuilder.addFromFile(Config.GetResource("ui", "ui_main_window", "glade", "ui_main2.glade"));
     
     EngageMainWindow(mBuilder);
     EngageMenuBar(mBuilder);    	
@@ -75,6 +76,7 @@ void Engage(ref string[] args)
 
 void Mesh()
 { 
+	MeshMainWidown();
     MeshMenubar();
     MeshToolbar();
     MeshSidePane();
@@ -86,10 +88,12 @@ void Mesh()
 void Disengage()
 {
     DisengageDocBook();
+    DisengageStatusbar();
     DisengageExtraPane();
     DisengageSidePane();
     DisengageToolbar();
     DisengageMenubar();
+    DisengageMainWindow();
     
     Log.Entry("Disengaged");
 }
@@ -153,6 +157,10 @@ Paned               mHorizontalPane;
 void EngageMainWindow(Builder mBuilder)
 {
 	mMainWindow = cast(ApplicationWindow) mBuilder.getObject("main_window");
+		
+    mVerticalPane = cast(Paned)mBuilder.getObject("root_pane");
+	mHorizontalPane = cast(Paned)mBuilder.getObject("secondary_pane");
+	
 	
     mApplication.addWindow(mMainWindow);
 
@@ -166,20 +174,30 @@ void EngageMainWindow(Builder mBuilder)
     	return false;
 		
 	});
+
+	Log.Entry("\tMain Window Engaged");
+
+}
+
+void MeshMainWidown()
+{
 	
     int win_x_pos = Config.GetValue("ui", "win_x_pos", 10);
 	int win_y_pos = Config.GetValue("ui", "win_y_pos", 10);
 	int win_x_len = Config.GetValue("ui", "win_x_len", 200);
 	int win_y_len = Config.GetValue("ui", "win_y_len", 200);
-	
-    mVerticalPane = cast(Paned)mBuilder.getObject("root_pane");
-	mHorizontalPane = cast(Paned)mBuilder.getObject("secondary_pane");
-	
+
 	mMainWindow.move(win_x_pos, win_y_pos);
 	mMainWindow.resize(win_x_len, win_y_len);
-	Log.Entry("\tMain Window Engaged");
-
+	Log.Entry("\tMain Window Meshed");
 }
+
+void DisengageMainWindow()
+{
+	Log.Entry("\tMain Window Disengaged");
+}
+
+
 
 //menubar stuff
 void EngageMenuBar(Builder mBuilder)
@@ -199,13 +217,13 @@ void EngageMenuBar(Builder mBuilder)
     GActionEntry[] ag = [{"actionQuit", &action_quit,null, null, null}];
     mMainWindow.addActionEntries(ag, null);
     mApplication.setAccelsForAction("win.actionQuit",["<Control>q"]);
-    AddToolObject("quit", "Quit", "Exit DComposer", Config.GetResource("icon","quit","resource","yin-yang.png"),"win.actionQuit");
+    AddToolObject("quit", "Quit", "Exit DComposer", Config.GetResource("icon","quit","resources","yin-yang.png"),"win.actionQuit");
     GMenuItem menuQuit = new GMenuItem("Quit", "actionQuit");
 //pref
     GActionEntry aePref = {"actionPreferences", &action_preferences, null, null, null};
     mMainWindow.addActionEntries([aePref], null);
     mApplication.setAccelsForAction("win.actionPreferences", ["<Control>p"]);
-    AddToolObject("preferences","Preferences","Edit Preferences", Config.GetResource("icon","preferences", "resource", "gear.png"), "win.actionPreferences");
+    AddToolObject("preferences","Preferences","Edit Preferences", Config.GetResource("icon","preferences", "resources", "gear.png"), "win.actionPreferences");
     GMenuItem menuPref = new GMenuItem("Preferences", "actionPreferences");
     
     mMenubarModel.insertSubmenu(0,"System",menuSystem);

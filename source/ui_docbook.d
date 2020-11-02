@@ -53,7 +53,6 @@ public:
 	void Engage(Builder mBuilder)
 	{
     	mStyleManager = SourceStyleSchemeManager.getDefault();
-    	Config.SetResourcePath("styles","styles");
     	mStyleManager.appendSearchPath(Config.GetResource("styles", "searchPaths", "styles"));
 
 	    
@@ -91,7 +90,7 @@ public:
         });
 
         EngageActions();    
-        Log.Entry("\tEngaged");   
+        Log.Entry("\tDocBook Engaged");   
     }
     
     void Mesh()
@@ -101,7 +100,7 @@ public:
             AddDocument(preOpener);
         }
         
-    	Log.Entry("\tMeshed");
+    	Log.Entry("\tDocBook Meshed");
     }
 
     void StoreDocBook()
@@ -109,7 +108,7 @@ public:
     
     void Disengage()
     {
-        Log.Entry("\tDisengaged");
+        Log.Entry("\tDocBook Disengaged");
     }
 
     void Open()
@@ -165,6 +164,7 @@ public:
     }
     void SaveAs(DOC_IF doc = null)
     { 
+	    dwrite(doc);
         if(doc is null) doc = Current;
         if(doc is null) return;        
         
@@ -223,6 +223,7 @@ public:
     DOC_IF Current()
     {
         int currPageNum = mNotebook.getCurrentPage();
+        if(currPageNum < 0) return null;
         auto parent = cast(ScrolledWindow)mNotebook.getNthPage(currPageNum);
         auto doc = cast(DOC_IF)parent.getChild();
         return doc;
@@ -264,43 +265,43 @@ private:
 		//new
 		mApplication.setAccelsForAction("win.actionDocNew",["<Control>n"]);
 		AddToolObject("docnew","New","Create a new D source file",
-			Config.GetResource("icons","docnew","resource", "document-text.png"),"win.actionDocNew");
+			Config.GetResource("icons","docnew","resources", "document-text.png"),"win.actionDocNew");
 		auto menuItemNew = new GMenuItem("New", "actionDocNew");
        
         //open document
 		mApplication.setAccelsForAction("win.actionDocOpen", ["<Control>o"]);
 		AddToolObject("docopen","Open", "Open Document",
-			Config.GetResource("icons","docopen","resource","folder-open-document-text.png"),"win.actionDocOpen");
+			Config.GetResource("icons","docopen","resources","folder-open-document-text.png"),"win.actionDocOpen");
 		auto menuItemOpen = new GMenuItem("Open", "actionDocOpen");
 		
 		//save document
 		mApplication.setAccelsForAction("win.actionDocSave", ["<Control>s"]);
 		AddToolObject("docsave","Save", "Save Document",
-			Config.GetResource("icons","docsave","resource","document-save.png"),"win.actionDocSave");
+			Config.GetResource("icons","docsave","resources","document-save.png"),"win.actionDocSave");
 		auto menuItemSave = new GMenuItem("Save", "actionDocSave");
        
         //save as
 		mApplication.setAccelsForAction("win.actionDocSaveAs", ["<Control><Shift>s"]);
 		AddToolObject("docsaveas", "Save As", "Save Document As...",
-		    Config.GetResource("icon","docsaveas", "resource", "document-save-as.png"), "win.actionDocSaveAs");
+		    Config.GetResource("icon","docsaveas", "resources", "document-save-as.png"), "win.actionDocSaveAs");
 		auto menuItemSaveAs = new GMenuItem("Save As...", "actionDocSaveAs");	
 		
 		//save all
 		mApplication.setAccelsForAction("win.actionDocSaveAll", ["<Super>s"]);
 		AddToolObject("docsaveall", "Save All", "Save All Open Documents",
-			Config.GetResource("icon","docsaveall", "resource", "document-save-all.png"), "win.actionDocSaveAll");
+			Config.GetResource("icon","docsaveall", "resources", "document-save-all.png"), "win.actionDocSaveAll");
 		auto menuItemSaveAll = new GMenuItem("Save All", "actionDocSaveAll");
 		
 		//close
 		mApplication.setAccelsForAction("win.actionDocClose", ["<Control>w"]);
 		AddToolObject("docclose","Close", "Close Document",
-			Config.GetResource("icons","docclose","resource","document-close.png"),"win.actionDocClose");
+			Config.GetResource("icons","docclose","resources","document-close.png"),"win.actionDocClose");
 		auto menuItemClose = new GMenuItem("Close", "actionDocClose");		
 		
 		//close all
 		mApplication.setAccelsForAction("win.actionDocCloseAll", ["<Control><Shift>w"]);
 		AddToolObject("doccloseall","Close All", "Close All Documents",
-			Config.GetResource("icons","doccloseall","resource","document-close-all.png"),"win.actionDocCloseAll");
+			Config.GetResource("icons","doccloseall","resources","document-close-all.png"),"win.actionDocCloseAll");
 		auto menuItemCloseAll = new GMenuItem("Close All", "actionDocCloseAll");
 		
 		//compile document
