@@ -11,6 +11,12 @@ import qore;
 private Widget[][string] sectionWidgets;
 void AddAppPreferenceWidget(string Page, Widget[] rowComponents ...)
 {
+	if(rowComponents.length == 1)
+	{
+		sectionWidgets[Page] ~= rowComponents[0];
+		rowComponents[0].hideOnDelete;
+		return;
+    }
     auto listRow = new Box(Orientation.HORIZONTAL,4);
     listRow.setHomogeneous(true);
     foreach(component; rowComponents) listRow.packStart(component, false, false, 24);

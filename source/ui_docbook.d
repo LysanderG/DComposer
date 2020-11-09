@@ -4,6 +4,7 @@ module ui_docbook;
 import std.conv;
 import std.algorithm;
 import std.format;
+import std.traits;
 
 import ui;
 import ui_action;
@@ -466,6 +467,34 @@ private:
         AddAppPreferenceWidget("Editor", new Label("Tab Width :"), prefTabWidthSpinButton);
    
         //word wrap
+        auto prefWrapStore = new ListStore([GType.STRING, GType.INT]);
+        foreach(item; [EnumMembers!WrapMode])
+		{	
+			auto iter = new TreeIter;
+			prefWrapStore.append(iter);	
+			prefWrapStore.setValue!string(iter, 0, item.to!string);
+			prefWrapStore.setValue!int(iter, 1, item.to!int);
+			dwrite("hey!!",item, " ", item.to!int);
+        }
+        auto prefWrapCombo = new ComboBox(prefWrapStore);
+        prefWrapCombo.setEntryTextColumn(0);
+        prefWrapCombo.setActive(Config.GetValue("document", "wrap_mode", 0)); //assumes enum values are sequential 0 .. 3 [none, word, char, word_char]
+        prefWrapCombo.addOnChanged(delegate void(ComboBox self)
+        {
+	        Config.SetValue!GtkWrapMode("document","wrap_mode",cast(GtkWrapMode)self.getActive); //hmm
+        });
+        AddAppPreferenceWidget("Editor",prefWrapCombo);
+        
+        //finally font!! this is one long function.
+        auto prefFontButton = new FontButton();
+        prefFontButton.setUseFont(true);
+        prefFontButton.setFont(Config.GetValue("document", "font", "monospace 13"));
+        prefFontButton.addOnFontSet(delegate void(FontButton self)
+        {
+	        Config.SetValue("document","font", self.getFont());
+        });
+        
+        AddAppPreferenceWidget("Editor", prefFontButton);
         
     }
 	

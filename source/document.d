@@ -96,6 +96,7 @@ public:
         setBorderWindowSize(GtkTextWindowType.BOTTOM, Config.GetValue("document", "bottom_border_size", 5));
         setPixelsBelowLines(Config.GetValue("document", "pixels_below_line", 1));
         modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.GetValue("document", "font", "Monospace 13")));
+        setWrapMode(Config.GetValue("document","wrap_mode", WrapMode.NONE));
         setMonospace(true);   
     }
     

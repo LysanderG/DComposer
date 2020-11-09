@@ -43,11 +43,13 @@ public import gtk.Builder;
 public import gtk.Button;
 public import gtk.CellEditableIF;
 public import gtk.CheckMenuItem;
+public import gtk.ComboBox;
 public import gtk.Entry;
 public import gtk.FileChooserButton;
 public import gtk.FileChooserDialog;
 public import gtk.FileChooserIF;
 public import gtk.FileChooserWidget;
+public import gtk.FontButton;
 public import gtk.Frame;
 public import gtk.IconFactory;
 public import gtk.Label;
@@ -61,6 +63,7 @@ public import gtk.MessageDialog;
 public import gtk.Notebook;
 public import gtk.Paned;
 public import gtk.Toolbar;
+public import gtk.TreeIter;
 public import gtk.Separator;
 public import gtk.SpinButton;
 public import gtk.Switch;
@@ -436,7 +439,7 @@ void LogPreferences()
     auto prefLogFileLabel = new Label("Default Log File :");   
     auto prefLogFileEntry = new Entry(Log.GetLogFileName);
     auto prefLogFileDialog = new FileChooserDialog("Choose Log File", mMainWindow, FileChooserAction.SAVE);
-    
+    prefLogFileEntry.setPosition(-1);
     prefLogFileEntry.addOnIconPress(delegate void(GtkEntryIconPosition pos, Event event, Entry entry)
     {
         prefLogFileDialog.setFilename(entry.getText());
@@ -450,7 +453,7 @@ void LogPreferences()
         Log.ChangeLogFileName(prefLogFileEntry.getText());
     });
     
-    prefLogFileEntry.setIconFromPixbuf(EntryIconPosition.SECONDARY, new Pixbuf(Config.GetResource("preferences","logfile", "resources", "document-save.png")));
+    prefLogFileEntry.setIconFromPixbuf(EntryIconPosition.SECONDARY, new Pixbuf(Config.GetResource("preferences","logfile", "resources", "folder-open-document-text.png")));
 
     AddAppPreferenceWidget("General", prefLogFileLabel, prefLogFileEntry);
 
@@ -460,8 +463,7 @@ void LogPreferences()
     AddAppPreferenceWidget("General", prefLogEchoLabel, prefLogEchoSwitch);
     prefLogEchoSwitch.setState(Log.GetEchoStdOut());
     auto sep = new Separator(Orientation.VERTICAL);
-    sep.setVexpand(true);
-    sep.setHexpand(true);
+
     AddAppPreferenceWidget("General", sep );
 }
 
