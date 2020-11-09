@@ -31,8 +31,7 @@
           ],
           "Debugs": [],
           "Sundry": [
-               "-L-L\/usr\/local\/lib",
-               "-L-rpath=\/usr\/local\/lib"
+               "-L-rpath=\/usr\/local\/lib:\/usr\/lib"
           ],
           "Versions": [],
           "Prebuild Scripts": [],
