@@ -17,30 +17,32 @@
                "source\/ui_action.d",
                "\/home\/anthony\/projects\/dcomposerx\/source\/docman.d",
                "\/home\/anthony\/projects\/dcomposerx\/source\/document.d",
-               "source\/qore.d"
+               "source\/qore.d",
+               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_preferences.d",
+               "source\/transmit.d"
           ],
           "Related Files": [],
           "Postbuild Scripts": [],
           "String Imports": [],
           "Libraries": [
-               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/libgtkd-3.so.0",
-               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/libvted-3.so.0",
-               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/libgtkdsv-3.so.0"
+               "\/usr\/local\/lib\/libgtkdsv-3.so",
+               "\/usr\/local\/lib\/libvted-3.so",
+               "\/usr\/local\/lib\/libgtkd-3.so"
           ],
           "Debugs": [],
           "Sundry": [
+               "-L-L\/usr\/local\/lib",
                "-L-rpath=\/usr\/local\/lib"
           ],
           "Versions": [],
           "Prebuild Scripts": [],
           "Import Paths": [
                "source",
-               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/generated\/gtkd",
-               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/generated\/sourceview"
+               "\/usr\/local\/include\/d\/gtkd-3"
           ],
           "Notes": [],
           "Library Paths": [
-               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d"
+               "\/usr\/local\/lib"
           ]
      },
      "DcomposerProjectVersion": "A",
@@ -324,7 +326,7 @@
                "Switch": "-of",
                "Brief": "name output file to filename",
                "Argument": true,
-               "Value": "bin\/dcomposer"
+               "Value": "bin\/dcomposerx"
           },
           {
                "State": false,
