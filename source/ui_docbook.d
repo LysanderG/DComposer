@@ -8,6 +8,7 @@ import std.format;
 import ui;
 import ui_action;
 import ui_toolbar;
+import ui_preferences;
 import log;
 import config;
 import docman;
@@ -21,6 +22,7 @@ import gio.SimpleActionGroup;
 import glib.Variant;
 import gsv.SourceStyle;
 import gsv.SourceStyleScheme;
+import gsv.StyleSchemeChooserButton;
 import gsv.SourceStyleSchemeManager;
 import gtk.Box;
 import gtk.Builder;
@@ -28,6 +30,7 @@ import gtk.Dialog;
 import gtk.EventBox;
 import gtk.FileChooserDialog;
 import gtk.Label;
+
 import gtk.MenuItem;
 import gtk.MessageDialog;
 import gtk.Notebook;
@@ -89,7 +92,8 @@ public:
             if(docman.GetDocs.length < 2) UpdateStatusLine("No Opened Documents");            
         });
 
-        EngageActions();    
+        EngageActions();
+        EngagePreferences();
         Log.Entry("\tDocBook Engaged");   
     }
     
@@ -317,6 +321,154 @@ private:
         
 		ui.AddSubMenu(2, "Documents", docMenu);
 	}
+	
+	void EngagePreferences()
+	{
+        //syntax highlight
+        auto prefSyntaxHiLiteLabel = new Label("Syntax Highlighting :");
+        auto prefSyntaxHiLiteSwitch = new Switch();
+                
+        prefSyntaxHiLiteSwitch.setState(Config.GetValue("document","syntax_hilite", true));
+        prefSyntaxHiLiteSwitch.addOnStateSet(delegate bool(bool state, Switch w)
+        {
+            dwrite("addonstateset ", state);
+            Config.SetValue("document","hilite_syntax", state);
+            return false;
+        });
+        AddAppPreferenceWidget("Editor", prefSyntaxHiLiteLabel, prefSyntaxHiLiteSwitch);   
+   
+        //scheme
+        auto prefSchemeLabel = new Label("Style Scheme :");
+        auto prefSchemeButton = new StyleSchemeChooserButton();
+        dwrite("action name ",prefSchemeButton.getActionName());
+        AddAppPreferenceWidget("Editor",prefSchemeLabel, prefSchemeButton);
+        prefSchemeButton.setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(Config.GetValue("document", "style_scheme", "mnml")));
+        prefSchemeButton.addOnEventAfter(delegate void(Event event, Widget widget)
+        {
+            if(prefSchemeButton.getStyleScheme.getId != Config.GetValue!string("document", "style_scheme"))
+            {
+                Config.SetValue("document","style_scheme", prefSchemeButton.getStyleScheme.getId);
+            }
+        });
+        //show line numbers
+        auto prefLineNoLabel = new Label("Show line numbers :");
+        auto prefLineNoSwitch = new Switch();
+        prefLineNoSwitch.setActive(Config.GetValue("document","show_line_numbers",true));
+        prefLineNoSwitch.addOnStateSet(delegate bool(bool huh, Switch prefSwitch)
+        {
+            dwrite(huh, "line numbers = ", prefSwitch.getActive());
+            Config.SetValue("document","show_line_numbers", prefSwitch.getActive());
+            return false;
+        });
+        AddAppPreferenceWidget("Editor", prefLineNoLabel, prefLineNoSwitch);
+        //auto indent
+        auto prefAutoIndentLabel = new Label("Auto Indent :");
+        auto prefAutoIndentSwitch = new Switch;
+        prefAutoIndentSwitch.setActive(Config.GetValue("document","auto_indent", true));
+        prefAutoIndentSwitch.addOnStateSet(delegate bool(bool status, Switch sw)
+        {
+            Config.SetValue("document","auto_indent",status);
+            return false;
+        });
+        AddAppPreferenceWidget("Editor",prefAutoIndentLabel, prefAutoIndentSwitch);
+        //background pattern ... ignore for now
+        //highlight current line
+        auto prefHiliteCurLineLabel = new Label("Highlight Current Line :");
+        auto prefHiliteCurLineSwitch = new Switch;
+        prefHiliteCurLineSwitch.setActive(Config.GetValue("document","hilite_current_line",true));
+        prefHiliteCurLineSwitch.addOnStateSet(delegate bool(bool status, Switch sw)
+        {
+            Config.SetValue("document","hilite_current_line", status);
+            return false;
+        });
+        AddAppPreferenceWidget("Editor",prefHiliteCurLineLabel, prefHiliteCurLineSwitch);
+        //indent on tab
+        auto prefIndentTabSwitch = new Switch;
+        prefIndentTabSwitch.setActive(Config.GetValue("document","indent_on_tab",true));
+        prefIndentTabSwitch.addOnStateSet(delegate bool(bool status, Switch sw)
+        {
+            Config.SetValue("document", "indent_on_tab", status);
+            return false;
+        });
+        AddAppPreferenceWidget("Editor", new Label("Indent on Tab"), prefIndentTabSwitch);
+        
+        //indent width
+        auto prefIndentWidthAdjustment = new Adjustment(4.0, 1.0, 65.0, 1.0, 4.0, 4.0);
+        auto prefIndentWidthSpinButton = new SpinButton(prefIndentWidthAdjustment, 0.0, 0);
+        prefIndentWidthAdjustment.setValue(Config.GetValue("document","indent_width", 4));
+        prefIndentWidthAdjustment.addOnValueChanged(delegate void(Adjustment adj)
+        {
+            Config.SetValue("document","indent_width", prefIndentWidthAdjustment.getValue());
+            dwrite(adj.getValue());
+        });
+        AddAppPreferenceWidget("Editor", new Label("Indent Width :"), prefIndentWidthSpinButton);
+        //spaces for tabs
+        auto prefSpaces4Tabs = new Switch;
+        prefSpaces4Tabs.setActive(Config.GetValue("document", "spaces_for_tabs",true));
+        prefSpaces4Tabs.addOnStateSet(delegate bool(bool status, Switch sw)
+        {
+            Config.SetValue("document", "spaces_for_tabs", status);
+            return false;
+        });
+        //right margin
+        //show right margin
+        auto prefShowRightMargin = new Switch;
+        prefShowRightMargin.setActive(Config.GetValue("document","show_right_margin",true));
+        prefShowRightMargin.addOnStateSet(delegate bool(bool status, Switch sw)
+        {
+            Config.SetValue("document", "show_right_margin", status);
+            return false;
+        });
+        auto prefRighMarginAdj = new Adjustment(120.0, 1.0, 1000.0, 1.0, 1.0, 0.0);
+        auto prefRightMargin = new SpinButton(prefRighMarginAdj, 0, 0);
+        prefRighMarginAdj.setValue(Config.GetValue("document","right_margin",120));
+        prefRighMarginAdj.addOnValueChanged(delegate void(Adjustment adj)
+        {
+            Config.SetValue("document", "right_margin", adj.getValue());
+        });
+        AddAppPreferenceWidget("Editor", new Label("Right Margin :"), prefShowRightMargin, prefRightMargin);
+        //show line marks
+        auto prefLineMarks = new Switch;
+        prefLineMarks.setActive(Config.GetValue("document","show_line_marks",true));
+        prefLineMarks.addOnStateSet(delegate bool(bool status, Switch sw)
+        {
+            Config.SetValue("document","show_line_marks", status);
+            return false;
+        });
+        AddAppPreferenceWidget("Editor", new Label("Show Line Marks :"), prefLineMarks);
+        //smart backspace
+        auto prefSmartBackSpace = new Switch;
+        prefSmartBackSpace.setActive(Config.GetValue("document","smart_backspace",true));
+        prefSmartBackSpace.addOnStateSet(delegate bool(bool status, Switch sw)
+        {
+            Config.SetValue("document","smart_backspace", status);
+            return false;
+        });
+        AddAppPreferenceWidget("Editor", new Label("Smart Backspace :"), prefSmartBackSpace);
+        //smart home end
+        auto prefSmartHomeEnd = new Switch;
+        prefSmartHomeEnd.setActive(Config.GetValue("document","smart_home_end",true));
+        prefSmartHomeEnd.addOnStateSet(delegate bool(bool status, Switch sw)
+        {
+            Config.SetValue("document","smart_home_end", status);
+            return false;
+        });
+        AddAppPreferenceWidget("Editor", new Label("Smart Home End :"), prefSmartHomeEnd);
+        //tab width
+        auto prefTabWidthAdjustment = new Adjustment(4.0, 1.0, 32.0, 1.0, 1.0, 0.0);
+        auto prefTabWidthSpinButton = new SpinButton(prefTabWidthAdjustment, 0.0, 0);
+        prefTabWidthAdjustment.setValue(Config.GetValue("document","tab_width", 4));
+        prefTabWidthAdjustment.addOnValueChanged(delegate void(Adjustment adj)
+        {
+            Config.SetValue("document","tab_width", adj.getValue());
+            dwrite(adj.getValue());
+        });
+        AddAppPreferenceWidget("Editor", new Label("Tab Width :"), prefTabWidthSpinButton);
+   
+        //word wrap
+        
+    }
+	
 	
 }
 

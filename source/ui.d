@@ -1,10 +1,14 @@
 module ui;
 
 import core.thread;
+import std.algorithm;
+import std.array;
 import std.datetime;
 import std.conv;
 import std.traits; 
 import std.algorithm;
+import std.format;
+import std.file;
 
 import qore;
 import config;
@@ -12,45 +16,62 @@ import docman;
 
 
 import ui_docbook;
+import ui_preferences;
 import ui_toolbar;
 
-import gdk.Event;
-import gio.ActionGroupIF;
-import gio.ActionIF;
-import gio.ActionMapIF;
-import gio.Application : GApplication = Application;
-import gio.Cancellable;
-import gio.Menu : GMenu = Menu;
-import gio.MenuItem : GMenuItem = MenuItem;
-import gio.MenuModel;
-import gio.SimpleAction;
-import gio.SimpleActionGroup;
-import glib.Variant;
-import glib.VariantType;
-import gtk.AccelGroup;
-import gtk.AccelLabel;
-import gtk.Application;
-import gtk.ApplicationWindow;
-import gtk.Box;
-import gtk.Builder;
-import gtk.Button;
-import gtk.CheckMenuItem;
-import gtk.IconFactory;
-import gtk.Main;
-import gtk.Menu;
-import gtk.MenuBar;
-import gtk.MenuItem;
-import gtk.MessageDialog;
-import gtk.Notebook;
-import gtk.Paned;
-import gtk.Toolbar;
-import gtk.Widget;
-import gtk.Window;
+public import gdk.Event;
+public import gio.ActionGroupIF;
+public import gio.ActionIF;
+public import gio.ActionMapIF;
+public import gio.Application : GApplication = Application;
+public import gio.Cancellable;
+public import gio.Menu : GMenu = Menu;
+public import gio.MenuItem : GMenuItem = MenuItem;
+public import gio.MenuModel;
+public import gio.SimpleAction;
+public import gio.SimpleActionGroup;
+public import gdk.Pixbuf;
+public import glib.Variant;
+public import glib.VariantType;
+public import gtk.AccelGroup;
+public import gtk.AccelLabel;
+public import gtk.Adjustment;
+public import gtk.Application;
+public import gtk.ApplicationWindow;
+public import gtk.Box;
+public import gtk.Builder;
+public import gtk.Button;
+public import gtk.CellEditableIF;
+public import gtk.CheckMenuItem;
+public import gtk.Entry;
+public import gtk.FileChooserButton;
+public import gtk.FileChooserDialog;
+public import gtk.FileChooserIF;
+public import gtk.FileChooserWidget;
+public import gtk.Frame;
+public import gtk.IconFactory;
+public import gtk.Label;
+public import gtk.ListBox;
+public import gtk.ListStore;
+public import gtk.Main;
+public import gtk.Menu;
+public import gtk.MenuBar;
+public import gtk.MenuItem;
+public import gtk.MessageDialog;
+public import gtk.Notebook;
+public import gtk.Paned;
+public import gtk.Toolbar;
+public import gtk.Separator;
+public import gtk.SpinButton;
+public import gtk.Switch;
+public import gtk.Widget;
+public import gtk.Window;
 
 
 
 void Engage(ref string[] args)
-{
+{    
+    
 	mApplication = new Application("dcomposer.com", GApplicationFlags.NON_UNIQUE);
 	mApplication.register(new Cancellable());
 	
@@ -70,6 +91,9 @@ void Engage(ref string[] args)
 	mApplication.addOnActivate(delegate void(GApplication app)
 	{        
     });
+    
+    EngagePreferences();
+
     
 	Log.Entry("Engaged");
 }
@@ -208,9 +232,6 @@ void EngageMenuBar(Builder mBuilder)
     GMenu menuSystem = new GMenu();
     GMenu menuViews = new GMenu();
     
-    //miViewMenubar = cast(CheckMenuItem)mBuilder.getObject("view_menubar");
-    //miViewSidepane = cast(CheckMenuItem)mBuilder.getObject("view_sidepane");
-    //miViewExtrapane = cast(CheckMenuItem)mBuilder.getObject("view_extrapane");
 
 //==> System Menu
 //quit
@@ -399,6 +420,72 @@ void StoreGui()
     Config.SetValue("ui", "win_y_len", win_y_len);
 }
 
+
+void EngagePreferences()
+{
+    LogPreferences();
+    ConfigPreferences();
+ 
+}
+
+void LogPreferences()
+{    
+    //---------------------log
+    //logfile
+
+    auto prefLogFileLabel = new Label("Default Log File :");   
+    auto prefLogFileEntry = new Entry(Log.GetLogFileName);
+    auto prefLogFileDialog = new FileChooserDialog("Choose Log File", mMainWindow, FileChooserAction.SAVE);
+    
+    prefLogFileEntry.addOnIconPress(delegate void(GtkEntryIconPosition pos, Event event, Entry entry)
+    {
+        prefLogFileDialog.setFilename(entry.getText());
+        prefLogFileDialog.run();
+        prefLogFileDialog.hide();
+        entry.setText(prefLogFileDialog.getFilename());
+        entry.editingDone();
+    });
+    prefLogFileEntry.addOnEditingDone(delegate void(CellEditableIF ce)
+    {
+        Log.ChangeLogFileName(prefLogFileEntry.getText());
+    });
+    
+    prefLogFileEntry.setIconFromPixbuf(EntryIconPosition.SECONDARY, new Pixbuf(Config.GetResource("preferences","logfile", "resources", "document-save.png")));
+
+    AddAppPreferenceWidget("General", prefLogFileLabel, prefLogFileEntry);
+
+    //log echo stdout
+    auto prefLogEchoLabel = new Label("Echo Log Entries to Std Out:");
+    auto prefLogEchoSwitch = new Switch();
+    AddAppPreferenceWidget("General", prefLogEchoLabel, prefLogEchoSwitch);
+    prefLogEchoSwitch.setState(Log.GetEchoStdOut());
+    auto sep = new Separator(Orientation.VERTICAL);
+    sep.setVexpand(true);
+    sep.setHexpand(true);
+    AddAppPreferenceWidget("General", sep );
+}
+
+void ConfigPreferences()
+{
+    //folder info
+    string info = format(`<span font_weight = "bold">App path :</span>
+    %s
+<span font_weight = "bold">User configuration :</span>
+    %s
+<span font_weight = "bold">Resource search paths</span> :
+    %s`,thisExePath, userDirectory, resourceDirectories.join("\n    "));   
+       
+    auto configDirPrefInfo = new Label(info);
+    configDirPrefInfo.setMarkup(info);
+    configDirPrefInfo.setUseMarkup(true);
+    auto configDirPrefFrame = new Frame(configDirPrefInfo, "Dcomposer Paths (info only):");
+    configDirPrefFrame.setLabelAlign(0.2, 0.5);
+    configDirPrefInfo.setAlignment(0.0, 0.2);
+    //configDirPrefUI.packStart(configDirPrefFrame, true, true, 1);
+    //configDirPrefUI.packStart(configDirPrefInfo, true, true, 1);
+    ui_preferences.AddAppPreferenceWidget("General", configDirPrefFrame);
+}
+
 //action callbacks from gtk ... so extern c
 extern (C)
 {
@@ -409,11 +496,13 @@ extern (C)
     
     void action_preferences(void* simAction, void* varTarget, void* voidUserData)
     {
-        auto x = new MessageDialog(mMainWindow, GtkDialogFlags.MODAL,GtkMessageType.INFO, GtkButtonsType.CLOSE,"Preferences",null);
-        x.run();
-        dwrite("preferences menu activated");
-        x.close();
-        x.destroy();
+        //auto x = new MessageDialog(mMainWindow, GtkDialogFlags.MODAL,GtkMessageType.INFO, GtkButtonsType.CLOSE,"Preferences",null);
+        //x.run();
+        //dwrite("preferences menu activated");
+        //x.close();
+        //x.destroy();
+        ui_preferences.ShowAppPreferences();
+        
     }
     
     void action_view_menubar(GSimpleAction* simAction, GVariant* varTarget, void* voidUserData)
@@ -449,6 +538,4 @@ extern (C)
         dwrite("action view extra");
     }
 }
-
-
 

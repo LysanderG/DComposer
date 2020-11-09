@@ -60,6 +60,17 @@ class LOG
 	int 			mMaxFileSize;
 	
     public:
+    
+    void ChangeLogFileName(string NuName)
+    {
+        mLogFileName = NuName;
+        mLogFile = File(mLogFileName, "a");
+        Flush();
+    }
+    string GetLogFileName(){return mLogFileName;}
+    
+    void SetEchoStdOut(bool echo){mEchoToStdOut = echo;}
+    bool GetEchoStdOut(){return mEchoToStdOut;}
 
     void Engage(string application, bool echoStdOut, string logFileName)
     {    	

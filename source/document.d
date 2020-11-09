@@ -16,6 +16,7 @@ import gdk.Event;
 import gio.FileIF;
 import gio.SimpleAsyncResult;
 import gobject.ObjectG;
+import gsv.SourceBuffer;
 import gsv.SourceFile;
 import gsv.SourceFileLoader;
 import gsv.SourceFileSaver;
@@ -44,6 +45,12 @@ private:
     Label       mTabLabel;
     SourceFile  mFile;
     SysTime     mFileTimeStamp;
+    
+    void WatchConfigChange(string section, string key)
+    {
+        dwrite(section, ":", key);
+        if(section == "document") Reconfigure();
+    }
     
 public:
 
@@ -82,8 +89,10 @@ public:
         getBuffer.setHighlightSyntax(Config.GetValue("document", "hilite_syntax", true));
         getBuffer.setHighlightMatchingBrackets(Config.GetValue("document", "match_brackets", true));
         setRightMarginPosition(Config.GetValue("document", "right_margin", 120));
-        setIndentWidth(Config.GetValue("document", "indentation_width", 4));
-        setTabWidth(Config.GetValue("document", "tab_width", 4));
+        setIndentWidth(Config.GetValue("document", "indent_width", 4));
+        setTabWidth(Config.GetValue("document", "tab_width" , 4));
+        setShowLineMarks(Config.GetValue("document", "show_line_marks", true));
+        setSmartBackspace(Config.GetValue("document", "smart_backspace", true));
         setBorderWindowSize(GtkTextWindowType.BOTTOM, Config.GetValue("document", "bottom_border_size", 5));
         setPixelsBelowLines(Config.GetValue("document", "pixels_below_line", 1));
         modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.GetValue("document", "font", "Monospace 13")));
@@ -120,9 +129,12 @@ public:
         if(nuFileName is null)Name = NameMaker();
         else Name = nuFileName;
         addOnFocusIn(delegate bool(Event event, Widget widget){DocumentModifiedExternally();return false;});
-        
+        Config.Reconfigure.connect(&Reconfigure);
+        Config.Changed.connect(&WatchConfigChange);
         Reconfigure();
         docman.AddDoc(this);
+        
+        Transmit.SigUpdateAppPreferencesOptions.connect(&Reconfigure);
     }
     void Load(string fileName)
     {
