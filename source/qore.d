@@ -3,11 +3,13 @@ module qore;
 public import log;
 public import config;
 public import docman;
+public import transmit;
 
 void Engage(ref string[] args)
 {    
     log.Engage(args);
     config.Engage(args);
+    transmit.Engage(args);
     docman.Engage(args);
 	Log.Entry("Engaged");    
 }
@@ -15,7 +17,8 @@ void Engage(ref string[] args)
 void Mesh()
 {
     log.Mesh();
-    config.Mesh();    
+    config.Mesh();
+    transmit.Mesh();    
     docman.Mesh();
     Log.Entry("Mesh");
 }
@@ -23,6 +26,7 @@ void Mesh()
 void Disengage()
 {
     docman.Disengage();
+    transmit.Disengage();
     config.Disengage();
     log.Disengage();
     Log.Entry("Disengaged");
