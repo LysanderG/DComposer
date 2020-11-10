@@ -92,8 +92,6 @@ string findResource(string relativePath)
     foreach(d; resourceDirectories)
     {
         auto res = buildPath(d, relativePath);
-        dwrite(res);
-        
         if(exists(res))return res;
     }
 	

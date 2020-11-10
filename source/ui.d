@@ -33,6 +33,9 @@ public import gio.SimpleActionGroup;
 public import gdk.Pixbuf;
 public import glib.Variant;
 public import glib.VariantType;
+public import gsv.SourceStyle;
+public import gsv.SourceStyleScheme;
+public import gsv.SourceStyleSchemeManager;
 public import gtk.AccelGroup;
 public import gtk.AccelLabel;
 public import gtk.Adjustment;
@@ -64,6 +67,7 @@ public import gtk.Notebook;
 public import gtk.Paned;
 public import gtk.Toolbar;
 public import gtk.TreeIter;
+public import gtk.TreeView;
 public import gtk.Separator;
 public import gtk.SpinButton;
 public import gtk.Switch;
@@ -428,6 +432,7 @@ void EngagePreferences()
 {
     LogPreferences();
     ConfigPreferences();
+    ToolbarPreferences();    
  
 }
 
@@ -498,11 +503,7 @@ extern (C)
     
     void action_preferences(void* simAction, void* varTarget, void* voidUserData)
     {
-        //auto x = new MessageDialog(mMainWindow, GtkDialogFlags.MODAL,GtkMessageType.INFO, GtkButtonsType.CLOSE,"Preferences",null);
-        //x.run();
-        //dwrite("preferences menu activated");
-        //x.close();
-        //x.destroy();
+        //ui_preferences.BuildAppPreferences();
         ui_preferences.ShowAppPreferences();
         
     }
@@ -513,7 +514,6 @@ extern (C)
         Variant v = new Variant(varTarget);
         mMenuBar.setVisible(!mMenuBar.getVisible());
         sa.setState(new Variant(mMenuBar.getVisible()));
-        dwrite("action view menubar");
     }
     void action_view_toolbar(GSimpleAction* simAction, GVariant* varTarget, void* voidUserData)
     {
@@ -521,7 +521,6 @@ extern (C)
         Variant v = new Variant(varTarget);
         mToolbar.setVisible(!mToolbar.getVisible());
         sa.setState(new Variant(mToolbar.getVisible()));
-        dwrite("action view toolpane");
     }
     void action_view_sidepane(GSimpleAction* simAction, GVariant* varTarget, void* voidUserData)
     {
@@ -529,7 +528,6 @@ extern (C)
         Variant v = new Variant(varTarget);
         mSidePane.setVisible(!mSidePane.getVisible());
         sa.setState(new Variant(mSidePane.getVisible()));
-        dwrite("action view sidepane");
     }
     void action_view_extrapane(GSimpleAction* simAction, GVariant* varTarget, void* voidUserData)
     {
@@ -537,7 +535,6 @@ extern (C)
         Variant v = new Variant(varTarget);
         mExtraPane.setVisible(!mExtraPane.getVisible());
         sa.setState(new Variant(mExtraPane.getVisible()));
-        dwrite("action view extra");
     }
 }
 

@@ -14,7 +14,6 @@ int main(string[] args)
     
 	HandleCommandLineHelp(args);
 
-    dwrite(args);
     qore.Engage(args);
     dwrite(args);
     ui.Engage(args);

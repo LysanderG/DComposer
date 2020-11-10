@@ -58,7 +58,7 @@ public:
 	{
     	mStyleManager = SourceStyleSchemeManager.getDefault();
     	mStyleManager.appendSearchPath(Config.GetResource("styles", "searchPaths", "styles"));
-
+        dwrite(mStyleManager.getSearchPath());
 	    
         mNotebook = cast(Notebook)mBuilder.getObject("doc_book");
 		mStatusLine = cast(Label)mBuilder.getObject("doc_status");
@@ -139,7 +139,6 @@ public:
 
             if(docman.Opened(fileName))
             {
-               dwrite("opened ",fileName);
                auto doc = cast(DOCUMENT)docman.GetDoc(fileName);
                mNotebook.setCurrentPage(doc.getParent());
                fileList = fileList.next();
@@ -169,7 +168,6 @@ public:
     }
     void SaveAs(DOC_IF doc = null)
     { 
-	    dwrite(doc);
         if(doc is null) doc = Current;
         if(doc is null) return;        
         
@@ -187,7 +185,6 @@ public:
     }
     void Close(DOC_IF curr = null)
     {
-	    dwrite(curr);
 	    if(curr is null) curr = Current();
 	    if(curr is null) return;
 	    if(curr.Modified)
@@ -332,7 +329,6 @@ private:
         prefSyntaxHiLiteSwitch.setState(Config.GetValue("document","syntax_hilite", true));
         prefSyntaxHiLiteSwitch.addOnStateSet(delegate bool(bool state, Switch w)
         {
-            dwrite("addonstateset ", state);
             Config.SetValue("document","hilite_syntax", state);
             return false;
         });
@@ -341,7 +337,6 @@ private:
         //scheme
         auto prefSchemeLabel = new Label("Style Scheme :");
         auto prefSchemeButton = new StyleSchemeChooserButton();
-        dwrite("action name ",prefSchemeButton.getActionName());
         AddAppPreferenceWidget("Editor",prefSchemeLabel, prefSchemeButton);
         prefSchemeButton.setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(Config.GetValue("document", "style_scheme", "mnml")));
         prefSchemeButton.addOnEventAfter(delegate void(Event event, Widget widget)
@@ -357,7 +352,6 @@ private:
         prefLineNoSwitch.setActive(Config.GetValue("document","show_line_numbers",true));
         prefLineNoSwitch.addOnStateSet(delegate bool(bool huh, Switch prefSwitch)
         {
-            dwrite(huh, "line numbers = ", prefSwitch.getActive());
             Config.SetValue("document","show_line_numbers", prefSwitch.getActive());
             return false;
         });
@@ -386,6 +380,7 @@ private:
         //indent on tab
         auto prefIndentTabSwitch = new Switch;
         prefIndentTabSwitch.setActive(Config.GetValue("document","indent_on_tab",true));
+        prefIndentTabSwitch.setTooltipText("Pressing tab with multiple lines selected indents all selected lines.");             
         prefIndentTabSwitch.addOnStateSet(delegate bool(bool status, Switch sw)
         {
             Config.SetValue("document", "indent_on_tab", status);
@@ -400,7 +395,6 @@ private:
         prefIndentWidthAdjustment.addOnValueChanged(delegate void(Adjustment adj)
         {
             Config.SetValue("document","indent_width", prefIndentWidthAdjustment.getValue());
-            dwrite(adj.getValue());
         });
         AddAppPreferenceWidget("Editor", new Label("Indent Width :"), prefIndentWidthSpinButton);
         //spaces for tabs
@@ -431,6 +425,7 @@ private:
         //show line marks
         auto prefLineMarks = new Switch;
         prefLineMarks.setActive(Config.GetValue("document","show_line_marks",true));
+        prefLineMarks.setTooltipText("Show 'marks' (breakpoints, bookmarks, etc) in 'gutter'");
         prefLineMarks.addOnStateSet(delegate bool(bool status, Switch sw)
         {
             Config.SetValue("document","show_line_marks", status);
@@ -440,6 +435,7 @@ private:
         //smart backspace
         auto prefSmartBackSpace = new Switch;
         prefSmartBackSpace.setActive(Config.GetValue("document","smart_backspace",true));
+        prefSmartBackSpace.setTooltipText("Backspace will remove spaces until tab character is reached");
         prefSmartBackSpace.addOnStateSet(delegate bool(bool status, Switch sw)
         {
             Config.SetValue("document","smart_backspace", status);
@@ -454,7 +450,7 @@ private:
             Config.SetValue("document","smart_home_end", status);
             return false;
         });
-        AddAppPreferenceWidget("Editor", new Label("Smart Home End :"), prefSmartHomeEnd);
+        AddAppPreferenceWidget("Editor", new Label("Smart Home/End :"), prefSmartHomeEnd);
         //tab width
         auto prefTabWidthAdjustment = new Adjustment(4.0, 1.0, 32.0, 1.0, 1.0, 0.0);
         auto prefTabWidthSpinButton = new SpinButton(prefTabWidthAdjustment, 0.0, 0);
@@ -462,7 +458,6 @@ private:
         prefTabWidthAdjustment.addOnValueChanged(delegate void(Adjustment adj)
         {
             Config.SetValue("document","tab_width", adj.getValue());
-            dwrite(adj.getValue());
         });
         AddAppPreferenceWidget("Editor", new Label("Tab Width :"), prefTabWidthSpinButton);
    
@@ -474,7 +469,6 @@ private:
 			prefWrapStore.append(iter);	
 			prefWrapStore.setValue!string(iter, 0, item.to!string);
 			prefWrapStore.setValue!int(iter, 1, item.to!int);
-			dwrite("hey!!",item, " ", item.to!int);
         }
         auto prefWrapCombo = new ComboBox(prefWrapStore);
         prefWrapCombo.setEntryTextColumn(0);
@@ -483,7 +477,8 @@ private:
         {
 	        Config.SetValue!GtkWrapMode("document","wrap_mode",cast(GtkWrapMode)self.getActive); //hmm
         });
-        AddAppPreferenceWidget("Editor",prefWrapCombo);
+        prefWrapCombo.setTooltipText("Where to wrap lines:\nNONE: no where\nCHAR: between characters(graphemes)\nWORD: between words\nWORD_CHAR: any where basically");
+        AddAppPreferenceWidget("Editor",new Label("Line Wrap Mode :"),prefWrapCombo);
         
         //finally font!! this is one long function.
         auto prefFontButton = new FontButton();
@@ -514,7 +509,6 @@ extern (C)
 	void action_DocOpen(void* simAction, void* varTarget, void* voidUserData)
 	{
 	    mDocBook.Open();
-		dwrite("opening a new document.");
 	}
 	void action_DocSave(void* simAction, void* varTarget, void* voidUserData)
 	{
@@ -523,30 +517,24 @@ extern (C)
 	void action_DocSaveAs(void* simAction, void* varTarget, void* voidUserData)
 	{
     	mDocBook.SaveAs();
-		dwrite("saving as a new document.");
 	}
 	void action_DocSaveAll(void* simAction, void* varTarget, void* voidUserData)
 	{
     	mDocBook.SaveAll();
-    	dwrite("saving all documents");
     }
 	void action_DocClose(void* simAction, void* varTarget, void* voidUserData)
 	{
     	mDocBook.Close();
-		dwrite("close a new document.");
 	}
 	void action_DocCloseAll(void* simAction, void* varTarget, void* voidUserData)
 	{
     	mDocBook.CloseAll();
-		dwrite("Closing all  a new document.");
 	}
 	void action_DocCompile(void* simAction, void* varTarget, void* voidUserData)
 	{
-		dwrite("compiling a new document.");
 	}
 	void action_DocRun(void* simAction, void* varTarget, void* voidUserData)
 	{
-		dwrite("running a new document.");
 	}
 }
 

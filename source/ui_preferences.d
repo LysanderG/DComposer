@@ -41,7 +41,7 @@ Dialog BuildAppPreferences()
     foreach(string label, page; sectionWidgets)
     {
         auto vbox = new Box(Orientation.VERTICAL, 10);
-        dwrite(pageBook.appendPage(vbox, label));
+        pageBook.appendPage(vbox, label);
         foreach(sect; page) 
         {
             vbox.packStart(sect, false, true, 1);   

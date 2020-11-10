@@ -48,7 +48,6 @@ private:
     
     void WatchConfigChange(string section, string key)
     {
-        dwrite(section, ":", key);
         if(section == "document") Reconfigure();
     }
     
@@ -265,8 +264,6 @@ extern (C)
     }   
     void FileSaved(GObject *source_object, GAsyncResult *res, void * user_data)
 	{   
-    	dwrite("-->finished saving ", (cast(DOCUMENT)user_data).Name);
     	
-
     }
 }

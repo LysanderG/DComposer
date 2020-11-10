@@ -80,3 +80,9 @@ class TOOL_OBJECT
     string      mActionName;
     
 }
+
+void ToolbarPreferences()
+{
+    auto AvailStore = new ListStore([GType.OBJECT, GType.STRING]);
+    auto prefToolbarAvailIcons = new TreeView(AvailStore);
+}

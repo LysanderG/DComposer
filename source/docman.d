@@ -31,7 +31,6 @@ void Mesh()
     openFilesOnStart ~= Config.GetArray!string("docman", "last_session_files");
     
     foreach(startup; openFilesOnStart) OpenDoc(startup);
-    dwrite(openFilesOnStart); 
 }
 void Disengage(){}
 
@@ -87,7 +86,6 @@ void AddDoc(DOC_IF nuDoc)
 }
 void Remove(DOC_IF oldDoc)
 {
-    dwrite("removing ",oldDoc.Name);
 	mDocs.remove(oldDoc.FullName);
 }
 DOC_IF GetDoc(string docName)
@@ -102,7 +100,6 @@ DOC_IF[] GetDocs()
 
 bool Opened(string testDoc)
 {
-    dwrite(testDoc, "\n",mDocs);
     if(testDoc in mDocs) return true;
     return false;
 }
