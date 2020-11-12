@@ -475,6 +475,13 @@ void LogPreferences()
     auto prefLogEchoSwitch = new Switch();
     AddAppPreferenceWidget("General", prefLogEchoLabel, prefLogEchoSwitch);
     prefLogEchoSwitch.setState(Log.GetEchoStdOut());
+    prefLogEchoSwitch.addOnStateSet(delegate bool(bool status, Switch sw)
+    {
+	    Log.SetEchoStdOut(status);
+	    Config.SetValue("log", "comment", "no configuration exist before log is started!");
+	    Config.SetValue("log", "echo", status);
+	    return false;
+    });
     auto sep = new Separator(Orientation.VERTICAL);
 
     AddAppPreferenceWidget("General", sep );
@@ -494,8 +501,8 @@ void ConfigPreferences()
     configDirPrefInfo.setMarkup(info);
     configDirPrefInfo.setUseMarkup(true);
     auto configDirPrefFrame = new Frame(configDirPrefInfo, "Dcomposer Paths (info only):");
-    configDirPrefFrame.setLabelAlign(0.2, 0.5);
-    configDirPrefInfo.setAlignment(0.0, 0.2);
+    configDirPrefFrame.setLabelAlign(0.0, 1.0);
+    configDirPrefInfo.setAlignment(0.0, 0.0);
     //configDirPrefUI.packStart(configDirPrefFrame, true, true, 1);
     //configDirPrefUI.packStart(configDirPrefInfo, true, true, 1);
     ui_preferences.AddAppPreferenceWidget("General", configDirPrefFrame);

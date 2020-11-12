@@ -94,7 +94,7 @@ void ToolbarPreferences()
 {    
     ListStore UsedStore;
     
-    void PrefLoadUsedButtons()
+    void LoadUsedStore()
     {
         foreach(button; Config.GetArray!string("ui_toolbar", "buttons"))
         {
@@ -107,6 +107,18 @@ void ToolbarPreferences()
             UsedStore.setValue(ti, 2, new Value(button));
         }
     }  
+    void LoadConfig()
+    {
+	    auto iter =  new TreeIter;
+	    string[] holdingArray;
+	    UsedStore.getIterFirst(iter);
+	    while(UsedStore.iterIsValid(iter))
+	    {
+		    holdingArray ~= UsedStore.getValueString(iter, 2);
+		    UsedStore.iterNext(iter);
+        }
+        Config.SetArray("ui_toolbar", "buttons", holdingArray);
+   	}
 
     auto AvailStore = new ListStore([GType.OBJECT, GType.STRING,GType.STRING]);
     auto prefAvailIcons = new TreeView(AvailStore);
@@ -140,20 +152,11 @@ void ToolbarPreferences()
     prefUsedIcons.setReorderable(true);
     prefUsedIcons.addOnShow(delegate void(Widget w)
     {
-        PrefLoadUsedButtons();
+        LoadUsedStore();
     });
     prefUsedIcons.addOnCursorChanged(delegate void(TreeView self)
     {
-        string[] toolNames;
-        TreeIter Usedti = new TreeIter;
-        
-        UsedStore.getIterFirst(Usedti);
-        while(UsedStore.iterIsValid(Usedti))
-        {
-            toolNames ~= UsedStore.getValueString(Usedti, 2);
-            UsedStore.iterNext(Usedti);
-        }
-        Config.SetArray("ui_toolbar","buttons",toolNames);
+        LoadConfig();
         UpdateToolbar();
     });
     
@@ -173,22 +176,28 @@ void ToolbarPreferences()
         auto selIter = new TreeIter;
         auto destIter = new TreeIter;
         selIter = prefUsedIcons.getSelectedIter();
-        if(selIter is null) return;
-        UsedStore.insertAfter(destIter, selIter);
+        if(selIter is null) UsedStore.append(destIter);
+        else UsedStore.insertAfter(destIter, selIter);
         UsedStore.setValue(destIter, 0, new Value(new Pixbuf(mToolObjects[AddedTool].mIconResource)));
         UsedStore.setValue(destIter, 1, new Value(mToolObjects[AddedTool].mName));
-        UsedStore.setValue(destIter, 2, new Value(AddedTool));
-        string[] toolNames;
-        TreeIter Usedti = new TreeIter;        
-        UsedStore.getIterFirst(Usedti);
-        while(UsedStore.iterIsValid(Usedti))
-        {
-            toolNames ~= UsedStore.getValueString(Usedti, 2);
-            UsedStore.iterNext(Usedti);
-        }
-        Config.SetArray("ui_toolbar","buttons",toolNames);        
+        UsedStore.setValue(destIter, 2, new Value(AddedTool));     LoadConfig();        
         UpdateToolbar();
-        
+    });
+    
+    delBtn.addOnClicked(delegate void(Button btn)
+    {
+	    auto selIter = new TreeIter;
+	    selIter = prefUsedIcons.getSelectedIter();
+	    UsedStore.remove(selIter);
+	    LoadConfig();
+	    UpdateToolbar();
+    });
+    
+    clearBtn.addOnClicked(delegate void(Button)
+    {
+	    UsedStore.clear();
+	    LoadConfig();
+	    UpdateToolbar();
     });
 
     buttons.packStart(addBtn, false, false, 4);
