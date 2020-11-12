@@ -27,6 +27,10 @@ void Engage(ref string[] cmdArgs)
 
 void Mesh()
 {
+	if(Log.GetEchoStdOut()) //not set by command line so check config
+	{
+		Log.SetEchoStdOut(qore.config.Config.GetValue("log", "echo", true));
+	}	 
 	Log.Mesh();
 }
 
