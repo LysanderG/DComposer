@@ -285,13 +285,13 @@ private:
         //save as
 		mApplication.setAccelsForAction("win.actionDocSaveAs", ["<Control><Shift>s"]);
 		AddToolObject("docsaveas", "Save As", "Save Document As...",
-		    Config.GetResource("icon","docsaveas", "resources", "document-save-as.png"), "win.actionDocSaveAs");
+		    Config.GetResource("icons","docsaveas", "resources", "document-save-as.png"), "win.actionDocSaveAs");
 		auto menuItemSaveAs = new GMenuItem("Save As...", "actionDocSaveAs");	
 		
 		//save all
 		mApplication.setAccelsForAction("win.actionDocSaveAll", ["<Super>s"]);
 		AddToolObject("docsaveall", "Save All", "Save All Open Documents",
-			Config.GetResource("icon","docsaveall", "resources", "document-save-all.png"), "win.actionDocSaveAll");
+			Config.GetResource("icons","docsaveall", "resources", "document-save-all.png"), "win.actionDocSaveAll");
 		auto menuItemSaveAll = new GMenuItem("Save All", "actionDocSaveAll");
 		
 		//close
