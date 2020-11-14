@@ -389,7 +389,7 @@ bool ConfirmQuit()
         //confirm quit or return
         auto ConfQuit = new MessageDialog(mMainWindow, DialogFlags.MODAL, MessageType.QUESTION, ButtonsType.NONE, false, "");
         ConfQuit.setTitle("Quit DComposer?");
-        ConfQuit.setMarkup("Do you really wish to quit with " ~ to!string(ModdedDocs) ~ " modified documents?");
+        ConfQuit.setMarkup("Do you really wish to quit with " ~ ModdedDocs.length.to!string ~ " modified documents?");
         ConfQuit.addButtons(["Save all & quit", "Discard all & quit", "Pick & choose", "Oops, don't quit!!"], [YES, NO,OK,CANCEL]);
         auto response = ConfQuit.run();
         ConfQuit.destroy();
