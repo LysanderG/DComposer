@@ -206,6 +206,13 @@ public:
     void DocumentModifiedExternally()
     {
         if(Virgin) return;
+        if(!mFullPathName.exists())
+        {
+            ShowMessage("Externally Modified File", mFullPathName ~ " no longer exists in storage!",["Acknowledge"]);
+            mVirgin = true;
+            getBuffer.setModified(true);
+            return;
+        }
         auto currentTimeStamp = timeLastModified(mFullPathName);
         if(currentTimeStamp > mFileTimeStamp)
         {
