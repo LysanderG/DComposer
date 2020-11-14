@@ -58,7 +58,7 @@ public:
 	{
     	mStyleManager = SourceStyleSchemeManager.getDefault();
     	mStyleManager.appendSearchPath(Config.GetResource("styles", "searchPaths", "styles"));
-        dwrite(mStyleManager.getSearchPath());
+
 	    
         mNotebook = cast(Notebook)mBuilder.getObject("doc_book");
 		mStatusLine = cast(Label)mBuilder.getObject("doc_status");
@@ -213,6 +213,11 @@ public:
 	   	docs.each!(n=>Close(n));
     }
     
+    void Run()
+    {
+        docman.Run(Current.FullName);
+    }
+    
     void AddDocument(DOC_IF newDoc,int pos = -1)
     {
         auto scrollWin = new ScrolledWindow;
@@ -259,6 +264,7 @@ private:
 			{"actionDocClose", &action_DocClose, null, null, null},
 			{"actionDocCloseAll", &action_DocCloseAll, null, null, null},
 			{"actionDocCompile", &action_DocCompile, null, null, null},
+			{"actionDocRun", &action_DocRun, null, null, null},
 			];
 		mMainWindow.addActionEntries(actEntNew, null);
 		
@@ -285,13 +291,13 @@ private:
         //save as
 		mApplication.setAccelsForAction("win.actionDocSaveAs", ["<Control><Shift>s"]);
 		AddToolObject("docsaveas", "Save As", "Save Document As...",
-		    Config.GetResource("icons","docsaveas", "resources", "document-save-as.png"), "win.actionDocSaveAs");
+		    Config.GetResource("icon","docsaveas", "resources", "document-save-as.png"), "win.actionDocSaveAs");
 		auto menuItemSaveAs = new GMenuItem("Save As...", "actionDocSaveAs");	
 		
 		//save all
 		mApplication.setAccelsForAction("win.actionDocSaveAll", ["<Super>s"]);
 		AddToolObject("docsaveall", "Save All", "Save All Open Documents",
-			Config.GetResource("icons","docsaveall", "resources", "document-save-all.png"), "win.actionDocSaveAll");
+			Config.GetResource("icon","docsaveall", "resources", "document-save-all.png"), "win.actionDocSaveAll");
 		auto menuItemSaveAll = new GMenuItem("Save All", "actionDocSaveAll");
 		
 		//close
@@ -308,6 +314,10 @@ private:
 		
 		//compile document
 		//run document
+		mApplication.setAccelsForAction("win.actionDocRun", ["<Control><Shift>r"]);
+		AddToolObject("docrun","Run", "Run Document with rdmd",
+			Config.GetResource("icons","docrun","resources","document--arrow.png"),"win.actionDocRun");
+		auto menuItemRun = new GMenuItem("Run", "actionDocRun");
 		//unittest document
 		docMenu.appendItem(menuItemNew);
 		docMenu.appendItem(menuItemOpen);
@@ -316,6 +326,7 @@ private:
         docMenu.appendItem(menuItemSaveAll);
         docMenu.appendItem(menuItemClose);
         docMenu.appendItem(menuItemCloseAll);
+        docMenu.appendItem(menuItemRun);
         
 		ui.AddSubMenu(2, "Documents", docMenu);
 	}
@@ -380,7 +391,6 @@ private:
         //indent on tab
         auto prefIndentTabSwitch = new Switch;
         prefIndentTabSwitch.setActive(Config.GetValue("document","indent_on_tab",true));
-        prefIndentTabSwitch.setTooltipText("Pressing tab with multiple lines selected indents all selected lines.");             
         prefIndentTabSwitch.addOnStateSet(delegate bool(bool status, Switch sw)
         {
             Config.SetValue("document", "indent_on_tab", status);
@@ -425,7 +435,6 @@ private:
         //show line marks
         auto prefLineMarks = new Switch;
         prefLineMarks.setActive(Config.GetValue("document","show_line_marks",true));
-        prefLineMarks.setTooltipText("Show 'marks' (breakpoints, bookmarks, etc) in 'gutter'");
         prefLineMarks.addOnStateSet(delegate bool(bool status, Switch sw)
         {
             Config.SetValue("document","show_line_marks", status);
@@ -435,7 +444,6 @@ private:
         //smart backspace
         auto prefSmartBackSpace = new Switch;
         prefSmartBackSpace.setActive(Config.GetValue("document","smart_backspace",true));
-        prefSmartBackSpace.setTooltipText("Backspace will remove spaces until tab character is reached");
         prefSmartBackSpace.addOnStateSet(delegate bool(bool status, Switch sw)
         {
             Config.SetValue("document","smart_backspace", status);
@@ -450,7 +458,7 @@ private:
             Config.SetValue("document","smart_home_end", status);
             return false;
         });
-        AddAppPreferenceWidget("Editor", new Label("Smart Home/End :"), prefSmartHomeEnd);
+        AddAppPreferenceWidget("Editor", new Label("Smart Home End :"), prefSmartHomeEnd);
         //tab width
         auto prefTabWidthAdjustment = new Adjustment(4.0, 1.0, 32.0, 1.0, 1.0, 0.0);
         auto prefTabWidthSpinButton = new SpinButton(prefTabWidthAdjustment, 0.0, 0);
@@ -477,8 +485,7 @@ private:
         {
 	        Config.SetValue!GtkWrapMode("document","wrap_mode",cast(GtkWrapMode)self.getActive); //hmm
         });
-        prefWrapCombo.setTooltipText("Where to wrap lines:\nNONE: no where\nCHAR: between characters(graphemes)\nWORD: between words\nWORD_CHAR: any where basically");
-        AddAppPreferenceWidget("Editor",new Label("Line Wrap Mode :"),prefWrapCombo);
+        AddAppPreferenceWidget("Editor",prefWrapCombo);
         
         //finally font!! this is one long function.
         auto prefFontButton = new FontButton();
@@ -535,6 +542,7 @@ extern (C)
 	}
 	void action_DocRun(void* simAction, void* varTarget, void* voidUserData)
 	{
+    	mDocBook.Run();
 	}
 }
 

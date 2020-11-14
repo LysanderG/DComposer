@@ -2,9 +2,12 @@ module docman;
 
 import object;
 import std.algorithm;
+import std.array;
 import std.format;
 import std.file;
 import std.path;
+import std.process: spawnProcess, pConfig = Config;
+import std.stdio;
 
 import qore;
 public import document;
@@ -30,7 +33,15 @@ void Mesh()
     openFilesOnStart = Config.GetArray!string("docman", "cmdLineFiles");
     openFilesOnStart ~= Config.GetArray!string("docman", "last_session_files");
     
-    foreach(startup; openFilesOnStart) OpenDoc(startup);
+    foreach(startup; openFilesOnStart)
+    { 
+        if(!startup.exists())
+        {
+            Log.Entry(startup ~ " does not exist, skipping");
+            continue;            
+        }
+        OpenDoc(startup);
+    }
 }
 void Disengage(){}
 
@@ -106,12 +117,53 @@ bool Opened(string testDoc)
 
 auto GetModifiedDocs()
 {
-    return (mDocs.byValue).filter!("a.Modified");
+    return (mDocs.byValue).filter!("a.Modified").array;
 }
 
 void SaveSessionDocuments()
 {
     Config.SetArray!(string[])("docman","last_session_files",mDocs.keys);
+}
+
+void Run(string DocName, bool unitTest = true)
+{  
+    auto Doc = (DocName in mDocs);
+    if(Doc is null) return;
+    scope(failure)
+    {
+        Log.Entry("Failed to run " ~ Doc.FullName);
+    }
+    string ExecName = Doc.FullName;
+    auto TerminalCommand = Config.GetArray!string("terminal_cmd","run", ["xterm", "-T","dcomposer running project","-e"]);
+
+    auto tFile = std.stdio.File(mtmpDocRun, "w");
+
+    tFile.writeln("#!/bin/bash");
+    tFile.write("rdmd ");
+    if(unitTest)tFile.write(" -unittest ");
+    tFile.write(ExecName); 
+    tFile.writeln();
+    tFile.writeln(`echo -e "\n\nProgram Terminated.\nPress a key to close terminal..."`);
+    tFile.writeln(`read -sn1`);
+    tFile.writeln(`rm ` ~ mtmpDocRun);
+    tFile.flush();
+    tFile.close();
+    setAttributes(mtmpDocRun, 509);
+
+    string[] CmdStrings;
+    CmdStrings = TerminalCommand;
+    CmdStrings ~= ["./"~mtmpDocRun];
+
+    try
+    {
+        spawnProcess(CmdStrings,stdin, stdout, stderr,null, pConfig.detached, null);
+        Log.Entry(`"` ~ Doc.FullName ~ `"` ~ " spawned ... " );
+    }
+    catch(Exception E)
+    {
+        Log.Entry(E.msg);
+        return;
+    }
 }
 
 struct RECTANGLE
@@ -124,4 +176,5 @@ private:
 
 DOC_IF[string]      mDocs;
 int                 mSaveCtr;
+string              mtmpDocRun = "tmp_doc_run.sh";
 
