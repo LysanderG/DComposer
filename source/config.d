@@ -95,8 +95,8 @@ string findResource(string relativePath)
         if(exists(res))return res;
     }
 	
-	Log.Entry("Unable to locate resource " ~ relativePath, "Error");
-	throw new Exception("Failed to locate resoure!");
+	Log.Entry("Unable to locate resource directory " ~ relativePath, "Error");
+	throw new Exception("Failed to locate resource!");
 }
 
 class CONFIG
@@ -282,8 +282,10 @@ public:
     
     
     string GetResource(string Section, string Key, string ResourceType, string Default = string.init)
-    {
-        return buildPath(findResource(ResourceType), GetValue(Section, Key, Default));       
+    {        
+        auto rval = buildPath(findResource(ResourceType), GetValue(Section, Key, Default));       
+        if(!rval.exists)Log.Entry("Unable to find resource :"~rval, "Error");
+        return rval;
     }
 
     mixin Signal!(string, string) Changed;      //some option has been changed
