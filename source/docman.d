@@ -95,7 +95,13 @@ void AddDoc(DOC_IF nuDoc)
     }
     mDocs[nuDoc.FullName] = nuDoc;
 }
-void Remove(DOC_IF oldDoc)
+void ReplaceDoc(string oldKey, string newKey)
+{
+    auto oldDoc = mDocs[oldKey];
+    if(oldDoc is null) assert(0);
+    if(mDocs.remove(oldKey)) mDocs[newKey] = oldDoc;
+}
+void RemoveDoc(DOC_IF oldDoc)
 {
 	mDocs.remove(oldDoc.FullName);
 }
@@ -125,7 +131,7 @@ void SaveSessionDocuments()
     Config.SetArray!(string[])("docman","last_session_files",mDocs.keys);
 }
 
-void Run(string DocName, bool unitTest = true)
+void Run(string DocName, string[] rdmdOpt ...)
 {  
     auto Doc = (DocName in mDocs);
     if(Doc is null) return;
@@ -140,10 +146,10 @@ void Run(string DocName, bool unitTest = true)
 
     tFile.writeln("#!/bin/bash");
     tFile.write("rdmd ");
-    if(unitTest)tFile.write(" -unittest ");
+    foreach(opt; rdmdOpt) tFile.write(opt ~ " ");
     tFile.write(ExecName); 
     tFile.writeln();
-    tFile.writeln(`echo -e "\n\nProgram Terminated.\nPress a key to close terminal..."`);
+    tFile.writeln(`echo -e "\n\nProgram Terminated with exit code $?.\nPress a key to close terminal..."`);
     tFile.writeln(`read -sn1`);
     tFile.writeln(`rm ` ~ mtmpDocRun);
     tFile.flush();
