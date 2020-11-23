@@ -7,7 +7,7 @@ import std.algorithm;
 import std.datetime;
 
 
-import ui;
+//import ui;
 import qore;
 import docman;
 
@@ -23,6 +23,7 @@ import gsv.SourceFileSaver;
 import gsv.SourceLanguage;
 import gsv.SourceLanguageManager;
 import gsv.SourceStyleSchemeManager;
+import gsv.SourceUndoManagerIF;
 import gsv.SourceView;
 import gtk.Box;
 import gtk.Button;
@@ -31,6 +32,7 @@ import gtk.Image;
 import gtk.Label;
 import gtk.Notebook;
 import gtk.TextBuffer;
+import gtk.TextIter;
 import gtk.Widget;
 import pango.PgFontDescription;
 
@@ -50,7 +52,19 @@ private:
     {
         if(section == "document") Reconfigure();
     }
+        
+    TextIter Cursor()
+    {
+        //auto ti = new TextIter;
+        TextIter ti;
+        auto x = getBuffer();
+        x.getIterAtMark(ti, x.getInsert());
+        //getBuffer().getIterAtMark(ti, getBuffer().getInsert());
+        return ti;
+    }
     
+
+
 public:
 
     string FullName(){return mFullPathName;}
@@ -59,10 +73,15 @@ public:
     {
         mFullPathName = nuFileName;
         UpdateTabWidget();
-        mDocBook.UpdateStatusLine(GetStatusLine());
+        Transmit.DocStatusLine.emit(GetStatusLine());
+        
     }
     
     bool Virgin(){return mVirgin;}
+    void VirginReset(){mVirgin = true;}
+    
+    SysTime TimeStamp(){return mFileTimeStamp;}
+    void TimeStamp(SysTime nutime){mFileTimeStamp = nutime;}
     
     bool Modified(){return getBuffer.getModified();}
     
@@ -118,7 +137,7 @@ public:
         stupidEventBox.addOnButtonRelease(delegate bool(Event ev, Widget w)
         {
             if(ev.button.button != GDK_BUTTON_PRIMARY) return false;
-            mDocBook.Close(this);
+            Transmit.DocClose.emit(this);
             return true;
         });
         
@@ -127,14 +146,13 @@ public:
         mTabWidget.showAll();
         getBuffer().addOnModifiedChanged(delegate void (TextBuffer Buf){UpdateTabWidget();});
         if(nuFileName is null)Name = NameMaker();
-        else Name = nuFileName;
-        addOnFocusIn(delegate bool(Event event, Widget widget){DocumentModifiedExternally();return false;});
-        Config.Reconfigure.connect(&Reconfigure);
+        else Name = nuFileName;        Config.Reconfigure.connect(&Reconfigure);
         Config.Changed.connect(&WatchConfigChange);
         Reconfigure();
         docman.AddDoc(this);
         
         Transmit.SigUpdateAppPreferencesOptions.connect(&Reconfigure);
+       
     }
     void Load(string fileName)
     {
@@ -168,7 +186,7 @@ public:
         catch(FileException fe)
         {
             Log.Entry(fe.msg,"Error");
-            ui.ShowMessage("File Error", fe.msg);
+            //ui.ShowMessage("File Error", fe.msg);
         }
     }
     void SaveAs(string newFileName)
@@ -180,6 +198,7 @@ public:
     }
     void Close()
     {
+        dwrite("aaaaggggggghhhhhh");
     }
     void SaveCopy(string copyFileName)
     {
@@ -200,42 +219,29 @@ public:
     string GetStatusLine()
     {
         string rv;
-        //rv = format("%s:%i/%i (col:%i) %s
-        return mFullPathName;
+        string fore_color = "white";
+        string back_color = "black";
+        string mod_fore_color = "yellow";
+        string mod_back_color = "red";
+        string fore = (Modified)? mod_fore_color:fore_color;
+        string back = "black";
+        string docname = format(`<span foreground="%s">%s</span>`,fore,Name());
+        string virgin = (Virgin)? "(virgin)": "(filed)";
+        int col = Cursor.getLineOffset();
+        int line = Cursor.getLine() + 1;
+        int totalLines = getBuffer.getLineCount();
+        string cursorpos = format("%s[%3s:%3s]",col, line, totalLines);
+
+        
+        
+        rv = format(`<span background="%s">%-100s %s %s</span>`,
+            back,docname, cursorpos, virgin);
+        
+        return rv;
     }
-    void DocumentModifiedExternally()
-    {
-        if(Virgin) return;
-        if(!mFullPathName.exists())
-        {
-            ShowMessage("Externally Modified File", mFullPathName ~ " no longer exists in storage!",["Acknowledge"]);
-            mVirgin = true;
-            getBuffer.setModified(true);
-            return;
-        }
-        auto currentTimeStamp = timeLastModified(mFullPathName);
-        if(currentTimeStamp > mFileTimeStamp)
-        {
-            mFileTimeStamp = currentTimeStamp;
-            auto rv = ShowMessage("Externally Modified File",
-                                    Name ~ 
-                                    "\nHas possibly been modified since last save.\n" ~
-                                    "How dow you wish to proceed?\nIGNORE external changes(continue)\nLOAD the changed file(replace)\nSAVE document to new file(Save As)\nMOVE changed file to new file(copy)",
-                                    ["IGNORE(continue)", 
-                                     "LOAD(replace)",
-                                     "SAVE(save as)",
-                                     "MOVE(copy)"]
-                                    ); 
-            switch(rv)
-            {
-                case 0: break;
-                case 1: Load(mFullPathName); break;
-                case 2: mDocBook.SaveAs(this);break;              
-                case 3: copy(mFullPathName, mFullPathName ~"~"); break;
-                default:
-            } 
-        }
-    }
+
+
+    
 
 }
 

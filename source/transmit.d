@@ -30,6 +30,9 @@ class TRANSMITTER
     mixin Signal!() SigUpdateAppPreferencesOptions;
     //log
     
+    //document
+    mixin Signal!(string) DocStatusLine;
+    mixin Signal!(DOC_IF) DocClose;
 
     
     

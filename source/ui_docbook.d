@@ -5,6 +5,8 @@ import std.conv;
 import std.algorithm;
 import std.format;
 import std.traits;
+import std.string;
+import std.file;
 
 import ui;
 import ui_action;
@@ -13,6 +15,7 @@ import ui_preferences;
 import log;
 import config;
 import docman;
+import transmit;
 
 
 import gdk.Event;
@@ -40,25 +43,71 @@ import gtk.Widget;
 import gio.Menu :GMenu=Menu;
 import gio.MenuItem : GMenuItem=MenuItem;
 
-
-
 class UI_DOCBOOK
 {
 private:
     Label						mStatusLine;
 	SourceStyleSchemeManager 	mStyleManager;
+	
+	Clipboard                   mClipboard;
+	string                      mDocCmdLineSwitches;
+	
+	bool                        mEditSelection;
+	SimpleAction                mActionUndo;
+	SimpleAction                mActionRedo;
+	SimpleAction                mActionCut;
+	SimpleAction                mActionCopy;
+	SimpleAction                mActionPaste;
+	
+	void DocumentModifiedExternally(DOC_IF doc)
+    {
+        auto Document = cast(DOCUMENT)doc;
+        if(Document is null) return;        
+        if(Document.Virgin) return;
+        if(!Document.FullName.exists())
+        {
+            ShowMessage("Externally Modified File", Document.FullName ~ " no longer exists in storage!",["Acknowledge"]);
+            Document.VirginReset();
+            Document.getBuffer.setModified(true);
+            return;
+        }
+        auto currentTimeStamp = timeLastModified(Document.FullName);
+        if(currentTimeStamp > Document.TimeStamp)
+        {
+            Document.TimeStamp = currentTimeStamp;
+            auto rv = ShowMessage("Externally Modified File",
+                                    Document.Name ~ 
+                                    "\nHas possibly been modified since last save.\n" ~
+                                    "How dow you wish to proceed?\nIGNORE external changes(continue)\nLOAD the changed file(replace)\nSAVE document to new file(Save As)\nMOVE changed file to new file(copy)",
+                                    ["IGNORE(continue)", 
+                                     "LOAD(replace)",
+                                     "SAVE(save as)",
+                                     "MOVE(copy)"]
+                                    ); 
+            switch(rv)
+            {
+                case 0: break;
+                case 1: Document.Load(Document.FullName); break;
+                case 2: SaveAs(Document);break;              
+                case 3: copy(Document.FullName, Document.FullName ~"~"); break;
+                default:
+            } 
+        }
+    }
 		
 public:
     Notebook            		mNotebook;
 	EventBox					mEventBox;
-    
+    	
+	SimpleAction                mActionEditCut;
+
     alias mNotebook this;
     
 	void Engage(Builder mBuilder)
 	{
     	mStyleManager = SourceStyleSchemeManager.getDefault();
     	mStyleManager.appendSearchPath(Config.GetResource("styles", "searchPaths", "styles"));
-
+        mDocCmdLineSwitches = Config.GetValue!string("document","cmd_line_switches");
 	    
         mNotebook = cast(Notebook)mBuilder.getObject("doc_book");
 		mStatusLine = cast(Label)mBuilder.getObject("doc_status");
@@ -71,7 +120,6 @@ public:
         });
         mNotebook.addOnLeaveNotify(delegate bool(GdkEventCrossing* mode, Widget self)
         {
-
             //this line is here because GtkButton causes a LeaveNotify event
             //that I really don't want. so ... this is my hack.
             if(mode.y > 0) return true;
@@ -82,8 +130,7 @@ public:
         
         addOnSwitchPage(delegate void(Widget w, uint pgNum, Notebook self)
         {
-            ScrolledWindow x = cast(ScrolledWindow) w;
-            
+            ScrolledWindow x = cast(ScrolledWindow) w;            
             UpdateStatusLine(cast(DOCUMENT)x.getChild());
         });
         addOnPageRemoved(delegate void(Widget w, uint pg, Notebook self)
@@ -92,14 +139,22 @@ public:
             //removed after responding to this signal.
             if(docman.GetDocs.length < 2) UpdateStatusLine("No Opened Documents");            
         });
+        
+        mClipboard = Clipboard.getDefault(Display.getDefault());
+        
+        Timeout.add(800, &TimerStatusUpdate, null);
+        
+        Transmit.DocClose.connect(&Close);
 
         EngageActions();
         EngagePreferences();
+        EngageDocPreferences();
         Log.Entry("\tDocBook Engaged");   
     }
     
     void Mesh()
 	{
+
         foreach(preOpener; docman.GetDocs())
         {
             AddDocument(preOpener);
@@ -113,6 +168,8 @@ public:
     
     void Disengage()
     {
+        
+        Transmit.DocClose.disconnect(&Close);
         Log.Entry("\tDocBook Disengaged");
     }
 
@@ -163,8 +220,7 @@ public:
     	    SaveAs(doc);
     	    return;
         }
-	    doc.Save();
-	    
+	    doc.Save();	    
     }
     void SaveAs(DOC_IF doc = null)
     { 
@@ -177,6 +233,7 @@ public:
         auto result = sfd.run();
         sfd.hide();
         if(result != GtkResponseType.OK) return;
+        docman.ReplaceDoc(doc.FullName, sfd.getFilename);
         doc.SaveAs(sfd.getFilename);
     }
     void SaveAll()
@@ -205,7 +262,7 @@ public:
 
         }
 	    mNotebook.removePage(mNotebook.getCurrentPage());
-	    docman.Remove(curr);   
+	    docman.RemoveDoc(curr);   
     }
     void CloseAll()
     {
@@ -215,7 +272,15 @@ public:
     
     void Run()
     {
-        docman.Run(Current.FullName);
+        docman.Run(Current.FullName, mDocCmdLineSwitches);
+    }
+    void Compile()
+    {
+        docman.Run(Current.FullName, "-c", mDocCmdLineSwitches);
+    }
+    void UnitTest()
+    {
+        docman.Run(Current.FullName, mDocCmdLineSwitches, "-unittest");
     }
     
     void AddDocument(DOC_IF newDoc,int pos = -1)
@@ -225,7 +290,36 @@ public:
         newDoc.Reconfigure();
         scrollWin.showAll();
         mNotebook.insertPage(scrollWin, cast(Widget)newDoc.TabWidget, pos);
+        mNotebook.setMenuLabelText(scrollWin, newDoc.Name);
         mNotebook.setCurrentPage(scrollWin);
+        ConnectDoc(newDoc);
+    }
+    void ConnectDoc(DOC_IF doc)
+    {
+        auto Doc = cast(DOCUMENT)doc;
+        assert(Doc);
+        Doc.addOnFocusIn(delegate bool(Event event, Widget widget){DocumentModifiedExternally(Doc);return false;});
+        Doc.getBuffer.addOnNotify(delegate void(ParamSpec ps, ObjectG obg)
+        {
+            SetSelection = Doc.getBuffer.getHasSelection();            
+        },"has-selection");
+        Doc.getBuffer.getUndoManager.addOnCanRedoChanged(delegate void(SourceUndoManagerIF undoMan)
+        {
+            SetRedoAble(undoMan.canRedo);
+        });
+        Doc.getBuffer.getUndoManager.addOnCanUndoChanged(delegate void(SourceUndoManagerIF undoMan)
+        {
+            SetUndoAble(undoMan.canUndo());
+        });
+        Doc.addOnFocusIn(delegate bool(Event e, Widget w)
+        {
+            auto localDoc = cast(DOCUMENT)w;
+            auto undoManager = localDoc.getBuffer.getUndoManager;
+            SetRedoAble(undoManager.canRedo);
+            SetUndoAble(undoManager.canUndo);
+            SetSelection(localDoc.getBuffer.getHasSelection);
+            return false;
+        });       
     }
     DOC_IF Current()
     {
@@ -240,21 +334,38 @@ public:
     {
         mStatusLine.setMarkup(nuStatus);
     }
-    void UpdateStatusLine(DOCUMENT doc)
+    void UpdateStatusLine(DOC_IF doc = Current)
     {
-        if(doc is null)mStatusLine.setMarkup("Error?");
+        
+        if(doc is null)
+        {
+            mStatusLine.setMarkup("Error?");
+            return;
+        }
         mStatusLine.setMarkup(doc.GetStatusLine());
     }
     string GetStatusLine()
     {
         return mStatusLine.getText();
     }
-   
-private:
+    void SetUndoAble(bool canUndo)
+    {
+        mActionUndo.setEnabled(canUndo);
+    }
+    void SetRedoAble(bool canRedo)
+    {
+        mActionRedo.setEnabled(canRedo);
+    }
+    void SetSelection(bool hasSelection)
+    {
+        mEditSelection = hasSelection;
+        mActionCopy.setEnabled(mEditSelection);
+        mActionCut.setEnabled(mEditSelection);
+        dwrite("set selection ", hasSelection);
+    }
 	
 	void EngageActions()
 	{
-		
 		GActionEntry[] actEntNew = [
 			{"actionDocNew", &action_DocNew, null, null, null},
 			{"actionDocOpen", &action_DocOpen, null, null, null},
@@ -263,8 +374,9 @@ private:
 			{"actionDocSaveAll", &action_DocSaveAll, null, null, null},
 			{"actionDocClose", &action_DocClose, null, null, null},
 			{"actionDocCloseAll", &action_DocCloseAll, null, null, null},
-			{"actionDocCompile", &action_DocCompile, null, null, null},
 			{"actionDocRun", &action_DocRun, null, null, null},
+			{"actionDocCompile", &action_DocCompile, null, null, null},			
+			{"actionDocUnitTest", &action_DocUnitTest, null, null, null},
 			];
 		mMainWindow.addActionEntries(actEntNew, null);
 		
@@ -313,12 +425,20 @@ private:
 		auto menuItemCloseAll = new GMenuItem("Close All", "actionDocCloseAll");
 		
 		//compile document
+		mApplication.setAccelsForAction("win.actionDocCompile", ["<Control><Shift>c"]);
+		AddToolObject("doccompile", "Compile", "Compile document",
+		    Config.GetResource("icons","doccompile","resources","document-text-compile.png"),"win.actionDocCompile");
+        auto menuItemCompile = new GMenuItem("Compile", "actionDocCompile");		    
 		//run document
 		mApplication.setAccelsForAction("win.actionDocRun", ["<Control><Shift>r"]);
 		AddToolObject("docrun","Run", "Run Document with rdmd",
 			Config.GetResource("icons","docrun","resources","document--arrow.png"),"win.actionDocRun");
 		auto menuItemRun = new GMenuItem("Run", "actionDocRun");
 		//unittest document
+		mApplication.setAccelsForAction("win.actionDocUnitTest", ["<Control><Shift>U"]);
+		AddToolObject("docunittest","Unit Test", "Run Document unit tests",
+			Config.GetResource("icons","docunittest","resources","document-block.png"),"win.actionDocUnitTest");
+		auto menuItemUnitTest = new GMenuItem("Unit test", "actionDocUnitTest");
 		docMenu.appendItem(menuItemNew);
 		docMenu.appendItem(menuItemOpen);
         docMenu.appendItem(menuItemSave);
@@ -326,11 +446,98 @@ private:
         docMenu.appendItem(menuItemSaveAll);
         docMenu.appendItem(menuItemClose);
         docMenu.appendItem(menuItemCloseAll);
+        docMenu.appendItem(menuItemCompile);
+        docMenu.appendItem(menuItemUnitTest);
         docMenu.appendItem(menuItemRun);
         
 		ui.AddSubMenu(2, "Documents", docMenu);
-	}
-	
+		
+		GMenu editMenu = new GMenu;
+		//edit undo
+		mActionUndo = new SimpleAction("actionEditUndo", null);
+		mActionUndo.setEnabled(false);
+		auto menuItemUndo = new GMenuItem("Undo", "actionEditUndo");
+		mActionUndo.addOnActivate(delegate void(Variant var, SimpleAction sa)
+		{
+    		auto doc = cast(DOCUMENT)Current;
+    		if(doc is null) return;
+    		doc.getBuffer.undo;
+        });
+        mMainWindow.addAction(mActionUndo);
+        mApplication.setAccelsForAction("win.actionEditUndo", ["<Control>z"]);
+        AddToolObject("docundo", "Undo", "Undo last change to source text",
+            Config.GetResource("icons","undo","resources","arrow-curve-180-left.png"),
+            "win.actionEditUndo");
+		//edit redo
+		mActionRedo = new SimpleAction("actionEditRedo", null);
+		mActionRedo.setEnabled(false);
+		auto menuItemRedo = new GMenuItem("Redo", "actionEditRedo");
+		mActionRedo.addOnActivate(delegate void(Variant var, SimpleAction sa)
+		{
+    		auto doc = cast(DOCUMENT)Current;
+    		if(doc is null) return;
+    		doc.getBuffer.redo;
+        });
+        mMainWindow.addAction(mActionRedo);
+        mApplication.setAccelsForAction("win.actionEditRedo", ["<Control><Shift>z"]);
+        AddToolObject("docredo", "Redo", "Redo last change to source text",
+            Config.GetResource("icons","redo","resources","arrow-curve.png"),
+            "win.actionEditRedo");
+            
+        //edit cut
+        mActionCut = new SimpleAction("actionEditCut", null);
+        mActionCut.setEnabled(false);
+        auto menuItemCut = new GMenuItem("Cut", "actionEditCut");
+        mActionCut.addOnActivate(delegate void(Variant var, SimpleAction sa)
+        {
+            auto doc = cast(DOCUMENT)Current;
+            if(doc is null) return;
+            doc.getBuffer.cutClipboard(mClipboard,true);            
+        });
+        mMainWindow.addAction(mActionCut);
+        mApplication.setAccelsForAction("win.actionEditCut",["<Control>x"]);
+        AddToolObject("doccut", "Cut", "Cut Selected Text to Clipboard",
+            Config.GetResource("icons","cut","resources","scissors-blue.png"),
+            "win.actionEditCut");
+			
+		//Edit copy
+		mActionCopy = new SimpleAction("actionEditCopy", null);
+		mActionCopy.setEnabled(false);
+		auto menuItemCopy = new GMenuItem("Copy", "actionEditCopy");
+		mActionCopy.addOnActivate(delegate void(Variant var, SimpleAction sa)
+		{
+    		auto doc = cast(DOCUMENT)Current;
+    		if(doc is null) return;
+    		doc.getBuffer.copyClipboard(mClipboard);    		
+        });
+        mMainWindow.addAction(mActionCopy);
+        mApplication.setAccelsForAction("win.actionEditCopy", ["<Control>c"]);
+        AddToolObject("doccopy","Copy","Copy Selection to Clipboard",
+            Config.GetResource("icons","copy","resources","blue-document-copy.png"), 
+            "win.actionEditCopy");	
+        //edit paste
+        mActionPaste = new SimpleAction("actionEditPaste", null);
+        auto menuItemPaste = new GMenuItem("Paste", "actionEditPaste");
+        mActionPaste.addOnActivate(delegate void(Variant var, SimpleAction sa)
+        {
+            auto doc = cast(DOCUMENT)Current;
+            if(doc is null) return;
+            doc.getBuffer.pasteClipboard(mClipboard, null, true); 
+        });
+        mMainWindow.addAction(mActionPaste);
+        mApplication.setAccelsForAction("win.actionEditPaste",["<Control>p"]);
+        AddToolObject("docpaste","Paste", "Paste Clipboard",
+            Config.GetResource("icons", "Paste","resources","clipboard-paste-document-text.png"),
+            "win.actionEditPaste");
+         
+        editMenu.appendItem(menuItemUndo);	
+        editMenu.appendItem(menuItemRedo);
+        editMenu.appendItem(menuItemCut);		
+        editMenu.appendItem(menuItemCopy);
+        editMenu.appendItem(menuItemPaste);
+        
+        ui.AddSubMenu(3, "Edit", editMenu);
+	}	
 	void EngagePreferences()
 	{
         //syntax highlight
@@ -417,12 +624,14 @@ private:
         });
         //right margin
         //show right margin
-        auto prefShowRightMargin = new Switch;
+        auto rightBox = new Box(Orientation.HORIZONTAL, 0);
+        //auto prefShowRightMargin = new Switch;
+        auto prefShowRightMargin = new CheckButton();
         prefShowRightMargin.setActive(Config.GetValue("document","show_right_margin",true));
-        prefShowRightMargin.addOnStateSet(delegate bool(bool status, Switch sw)
+        prefShowRightMargin.addOnToggled(delegate void(ToggleButton btn)
         {
-            Config.SetValue("document", "show_right_margin", status);
-            return false;
+            Config.SetValue("document", "show_right_margin", btn.getActive());
+            
         });
         auto prefRighMarginAdj = new Adjustment(120.0, 1.0, 1000.0, 1.0, 1.0, 0.0);
         auto prefRightMargin = new SpinButton(prefRighMarginAdj, 0, 0);
@@ -431,7 +640,11 @@ private:
         {
             Config.SetValue("document", "right_margin", adj.getValue());
         });
-        AddAppPreferenceWidget("Editor", new Label("Right Margin :"), prefShowRightMargin, prefRightMargin);
+        rightBox.packStart(prefShowRightMargin,false, false, 0);
+        rightBox.packStart(prefRightMargin, true, true, 0);
+        //AddAppPreferenceWidget("Editor", new Label("Right Margin :"), prefShowRightMargin, prefRightMargin);
+        AddAppPreferenceWidget("Editor", new Label("Show Right Margin :"), rightBox);
+        
         //show line marks
         auto prefLineMarks = new Switch;
         prefLineMarks.setActive(Config.GetValue("document","show_line_marks",true));
@@ -485,7 +698,7 @@ private:
         {
 	        Config.SetValue!GtkWrapMode("document","wrap_mode",cast(GtkWrapMode)self.getActive); //hmm
         });
-        AddAppPreferenceWidget("Editor",prefWrapCombo);
+        AddAppPreferenceWidget("Editor",new Label("Line Wrap :"),prefWrapCombo);
         
         //finally font!! this is one long function.
         auto prefFontButton = new FontButton();
@@ -496,11 +709,86 @@ private:
 	        Config.SetValue("document","font", self.getFont());
         });
         
-        AddAppPreferenceWidget("Editor", prefFontButton);
+        AddAppPreferenceWidget("Editor", prefFontButton);        
+    }   
+    void EngageDocPreferences()
+    {
+        auto uiBuilder = new Builder(Config.GetResource("docbook","pref_glade","glade","pref_doc_rdmd.glade"));
+
+        auto root = cast(Box)uiBuilder.getObject("root");
+        Button addbtn = cast(Button)uiBuilder.getObject("add_btn");
+        Button removebtn = cast(Button)uiBuilder.getObject("remove_btn");
+        TreeView optionView = cast(TreeView)uiBuilder.getObject("the_view");
+        ListStore optionStore = cast(ListStore)uiBuilder.getObject("liststore1");
+        CellRendererText cellText = cast(CellRendererText)uiBuilder.getObject("text_cell");
+        CellRendererToggle cellToggle = cast(CellRendererToggle)uiBuilder.getObject("toggle_cell");
         
-    }
-	
-	
+        //save optionStore to config
+        void optionStoreSave()
+        {
+            string[] theChoices;
+            auto ti = new TreeIter;
+            optionStore.getIterFirst(ti);
+            while(optionStore.iterIsValid(ti))
+            {
+                theChoices ~= optionStore.getValueString(ti, 1);
+                if(optionStore.getValueInt(ti, 0)) mDocCmdLineSwitches = theChoices[$-1];
+                optionStore.iterNext(ti);   
+            }
+            Config.SetValue("document","cmd_line_choices", theChoices);
+            Config.SetValue("document", "cmd_line_switches", mDocCmdLineSwitches);
+        }
+        //load optionStore from config
+        optionStore.clear();
+        auto ti = new TreeIter;
+        foreach(item; Config.GetArray!string("document", "cmd_line_choices", [""]))
+        {
+            optionStore.append(ti);
+            optionStore.setValue!string(ti, 1, item);
+        }
+
+        addbtn.addOnClicked(delegate void(Button x)
+        {
+            TreeIter ti = new TreeIter();
+            optionStore.append(ti);
+            optionStore.setValue!bool(ti,0,false);
+        });
+        removebtn.addOnClicked(delegate void(Button x)
+        {
+              TreeIter ti = new TreeIter();
+              ti = optionView.getSelectedIter();
+              if(!optionStore.iterIsValid(ti))return;
+              optionStore.remove(ti);              
+        });
+        cellText.addOnEdited(delegate void(string path, string text, CellRendererText crt)
+        {
+              auto ti = new TreeIter;
+              optionStore.getIter(ti, new TreePath(path));
+              optionStore.setValue(ti, 1, text);
+              optionStoreSave();
+        });
+
+        cellToggle.addOnToggled(delegate void(string path, CellRendererToggle crt)
+        {
+            TreeIter ti = new TreeIter;
+            bool val = false;
+            optionStore.getIterFirst(ti);
+            while(optionStore.iterIsValid(ti))
+            {
+                bool toggleValue;
+                if(optionStore.getPath(ti).toString == path)
+                { 
+                  mDocCmdLineSwitches = optionStore.getValueString(ti, 1);
+                  Config.SetValue("document", "cmd_line_switches", mDocCmdLineSwitches);
+                  val = true;
+                }
+                else val = false;
+                optionStore.setValue(ti, 0, val);
+                optionStore.iterNext(ti);
+            }
+        });
+        AddAppPreferenceWidget("document", root);
+    }    
 }
 
 
@@ -531,7 +819,7 @@ extern (C)
     }
 	void action_DocClose(void* simAction, void* varTarget, void* voidUserData)
 	{
-    	mDocBook.Close();
+        	mDocBook.Close();
 	}
 	void action_DocCloseAll(void* simAction, void* varTarget, void* voidUserData)
 	{
@@ -539,10 +827,24 @@ extern (C)
 	}
 	void action_DocCompile(void* simAction, void* varTarget, void* voidUserData)
 	{
+    	mDocBook.Save();
+    	mDocBook.Compile();
 	}
 	void action_DocRun(void* simAction, void* varTarget, void* voidUserData)
 	{
+    	mDocBook.Save();
     	mDocBook.Run();
 	}
+	void action_DocUnitTest(void * simAction, void* varTarget, void *voidUserData)
+	{
+    	mDocBook.Save();
+    	mDocBook.UnitTest();
+    }
+    
+    int TimerStatusUpdate(void * vptr)
+    {
+        mDocBook.UpdateStatusLine(mDocBook.Current);
+        return true;
+    }
 }
 
