@@ -19,7 +19,9 @@ import ui_docbook;
 import ui_preferences;
 import ui_toolbar;
 
+public import gdk.Display;
 public import gdk.Event;
+public import gdk.Pixbuf;
 public import gio.ActionGroupIF;
 public import gio.ActionIF;
 public import gio.ActionMapIF;
@@ -30,13 +32,15 @@ public import gio.MenuItem : GMenuItem = MenuItem;
 public import gio.MenuModel;
 public import gio.SimpleAction;
 public import gio.SimpleActionGroup;
-public import gdk.Pixbuf;
+public import glib.Timeout;
 public import glib.Variant;
 public import glib.VariantType;
+public import gobject.ParamSpec;
 public import gobject.Value;
 public import gsv.SourceStyle;
 public import gsv.SourceStyleScheme;
 public import gsv.SourceStyleSchemeManager;
+public import gsv.SourceUndoManagerIF;
 public import gtk.AccelGroup;
 public import gtk.AccelLabel;
 public import gtk.Adjustment;
@@ -47,7 +51,14 @@ public import gtk.Builder;
 public import gtk.Button;
 public import gtk.ButtonBox;
 public import gtk.CellEditableIF;
+public import gtk.CellRenderer;
+public import gtk.CellRendererPixbuf;
+public import gtk.CellRendererText;
+public import gtk.CellRendererText;
+public import gtk.CellRendererToggle;
+public import gtk.CheckButton;
 public import gtk.CheckMenuItem;
+public import gtk.Clipboard;
 public import gtk.ComboBox;
 public import gtk.Entry;
 public import gtk.FileChooserButton;
@@ -67,18 +78,20 @@ public import gtk.MenuItem;
 public import gtk.MessageDialog;
 public import gtk.Notebook;
 public import gtk.Paned;
-public import gtk.Toolbar;
-public import gtk.TreeModelIF;
-public import gtk.TreePath;
-public import gtk.TreeIter;
-public import gtk.TreeView;
-public import gtk.TreeViewColumn;
-public import gtk.CellRenderer;
-public import gtk.CellRendererPixbuf;
-public import gtk.CellRendererText;
 public import gtk.Separator;
 public import gtk.SpinButton;
 public import gtk.Switch;
+public import gtk.TextBuffer;
+public import gtk.TextIter;
+public import gtk.TextView;
+public import gtk.ToggleButton;
+public import gtk.ToggleToolButton;
+public import gtk.Toolbar;
+public import gtk.TreeIter;
+public import gtk.TreeModelIF;
+public import gtk.TreePath;
+public import gtk.TreeView;
+public import gtk.TreeViewColumn;
 public import gtk.Widget;
 public import gtk.Window;
 
@@ -207,8 +220,8 @@ void EngageMainWindow(Builder mBuilder)
 	{
     	if(ConfirmQuit())
     	{
-            mApplication.removeWindow(mMainWindow);
     	    StoreGui();
+            mApplication.removeWindow(mMainWindow);
     	}
     	return false;
 		
@@ -281,7 +294,15 @@ void EngageMenuBar(Builder mBuilder)
     mApplication.setAccelsForAction("win.actionViewSidepane(true)", ["<Control><Shift>s"]);
     mApplication.setAccelsForAction("win.actionViewExtrapane(true)",["<Control><Shift>x"]);
     
-    
+    AddToolObject("ToggleViewMenubar", "Menubar", "Show/hide menubar", 
+     Config.GetResource("icons", "viewmenubar","resources", "ui-address-bar.png"),"win.actionViewMenubar(true)");
+    AddToolObject("ToggleViewToolbar", "Toolbar", "Show/hide toolbar", 
+     Config.GetResource("icons", "viewtoolbar","resources", "ui-address-bar.png"),"win.actionViewToolbar(true)");
+    AddToolObject("ToggleViewSidepane", "Sidepane", "Show/hide sidepane", 
+     Config.GetResource("icons", "viewsidepane","resources", "ui-address-bar.png"),"win.actionViewSidepane(true)");
+    AddToolObject("ToggleViewExtrapane", "Extrapane", "Show/hide extrapane", 
+     Config.GetResource("icons", "viewextrapane","resources", "ui-address-bar.png"),"win.actionViewExtrapane(true)");
+   
     mMenubarModel.insertSubmenu(1, "Views", menuViews);
     menuViews.appendItem(new GMenuItem("Menubar","actionViewMenubar(true)"));
     menuViews.appendItem(new GMenuItem("Toolbar","actionViewToolbar(true)"));
@@ -426,8 +447,11 @@ void StoreGui()
     int win_x_pos, win_y_pos;
     int win_x_len, win_y_len;
     
-    mMainWindow.getPosition(win_x_pos, win_y_pos);
-    mMainWindow.getSize(win_x_len, win_y_len);
+    auto win = mMainWindow.getWindow();
+    win.getOrigin(win_x_pos, win_y_pos);
+    win_x_len = win.getWidth();
+    win_y_len = win.getHeight();
+
     
     Config.SetValue("ui", "win_x_pos", win_x_pos);
     Config.SetValue("ui", "win_y_pos", win_y_pos);
@@ -513,7 +537,11 @@ extern (C)
 {
     void action_quit(void* sa, void* v, void * vptr)
     {
-       if(ConfirmQuit())mApplication.quit;
+       if(ConfirmQuit())
+       {
+           StoreGui();
+           mApplication.quit;
+       }
     }
     
     void action_preferences(void* simAction, void* varTarget, void* voidUserData)

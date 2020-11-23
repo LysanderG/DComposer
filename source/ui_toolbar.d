@@ -1,9 +1,12 @@
 module ui_toolbar;
 
+
+import std.stdio;
+import std.algorithm;
+
 import qore;
 import ui;
 import ui_preferences;
-
 
 import gtk.Application;
 import gtk.Builder;
@@ -14,9 +17,6 @@ import gtk.ToolItem;
 import gtk.Widget;
 import gtk.Misc;
 
-
-import std.stdio;
-import std.algorithm;
 
 
 Toolbar             mToolbar;
@@ -61,6 +61,11 @@ void AddToolObject(string id, string name, string tooltip, string iconresource, 
 
 void InsertToolButton(string Id, int pos = -1)
 {
+    if(Id.startsWith("Toggle"))
+    {
+        InsertToggleButton(Id);
+        return;
+    }
     auto toptr = (Id in mToolObjects);
     if(toptr is null) return;
     TOOL_OBJECT to = *toptr;   
@@ -69,6 +74,22 @@ void InsertToolButton(string Id, int pos = -1)
     
     ToolButton button = new ToolButton(icon, to.mName);
     button.setActionName(to.mActionName);
+    button.setTooltipText(to.mTooltip);
+    button.showAll();
+    mToolbar.insert(button, pos);
+}
+
+void InsertToggleButton(string Id, int pos = -1)
+{
+    auto toptr = (Id in mToolObjects);
+    if(toptr is null) return;
+    TOOL_OBJECT to = *toptr;       
+    auto icon = new Image(to.mIconResource);
+    ToggleToolButton button = new ToggleToolButton();
+    button.setIconWidget(icon);
+    button.setLabel(to.mName);
+    button.setDetailedActionName(to.mActionName);
+    button.setActive(true);
     button.setTooltipText(to.mTooltip);
     button.showAll();
     mToolbar.insert(button, pos);
@@ -103,8 +124,8 @@ void ToolbarPreferences()
             auto ti = new TreeIter;
             UsedStore.append(ti);
             UsedStore.setValue(ti, 0, new Value(new Pixbuf(tool.mIconResource)));
-            UsedStore.setValue(ti, 1, new Value(tool.mName));
-            UsedStore.setValue(ti, 2, new Value(button));
+            UsedStore.setValue(ti, 1, tool.mName);
+            UsedStore.setValue(ti, 2, button);
         }
     }  
     void LoadConfig()
@@ -129,6 +150,7 @@ void ToolbarPreferences()
     prefAvailIcons.appendColumn(prefColIcon);
     prefAvailIcons.appendColumn(prefColText);
     prefAvailIcons.getSelection.setMode(SelectionMode.BROWSE);
+    AvailStore.setSortColumnId(1,GtkSortType.ASCENDING);
     
     //populate available store    
     foreach(key, tool; mToolObjects)
@@ -178,9 +200,10 @@ void ToolbarPreferences()
         selIter = prefUsedIcons.getSelectedIter();
         if(selIter is null) UsedStore.append(destIter);
         else UsedStore.insertAfter(destIter, selIter);
-        UsedStore.setValue(destIter, 0, new Value(new Pixbuf(mToolObjects[AddedTool].mIconResource)));
-        UsedStore.setValue(destIter, 1, new Value(mToolObjects[AddedTool].mName));
-        UsedStore.setValue(destIter, 2, new Value(AddedTool));     LoadConfig();        
+        UsedStore.setValue(destIter, 0, new Pixbuf(mToolObjects[AddedTool].mIconResource));
+        UsedStore.setValue(destIter, 1, mToolObjects[AddedTool].mName);
+        UsedStore.setValue(destIter, 2, AddedTool);
+        LoadConfig();        
         UpdateToolbar();
     });
     
