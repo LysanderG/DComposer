@@ -17,4 +17,7 @@ tmp/
 dcomposer_filter
 dcomposerx
 dcomposer
+utils/extractflags
+utils/dmd_flags*
+tmp_*
 
