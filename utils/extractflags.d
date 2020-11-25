@@ -49,7 +49,8 @@ int main(string[] args)
 		foreach(achoice; argChoices)jitem["choices"] ~= achoice;
 		
 		jsonFlags ~= jitem;
-		writefln("switch %s  :  %s ::%s",match[2], match[3], match[4]);
+		if(argType != ARG_TYPE.NONE) writefln("switch [%s] %s [%s]", match[2],match[3], match[4]);
+		//writefln("switch %s  :  %s ::%s",match[2], match[3], match[4]);
     }
 	
 	flagFileName = "utils/dmd_flags_v_" ~ dmdVersion ~ ".json";
@@ -70,14 +71,16 @@ void ProcessArgs(string argInput, out ARG_TYPE type, out string[] choices)
 			type = ARG_TYPE.NUMBER;
 			return;
         }
-        if(argInput[0] == '<') 
+        if(argInput[0] != '[') 
         {
 	        type = ARG_TYPE.STRING;
 	        return;
         }
         
         type = ARG_TYPE.STR_ARRAY;
-        argInput = argInput[1..$-1];
+        long endPoint = argInput.countUntil("]");
+        if(endPoint == -1) endPoint = argInput.length;
+        argInput = argInput[1..endPoint-1];
         choices = argInput.split('|');
         
 }
