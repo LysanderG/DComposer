@@ -64,16 +64,19 @@ bool ProcessArgs(string flag, string argInput, out ARG_TYPE type, out string[] c
 		if(argInput.length == 0)
 		{
 			type = ARG_TYPE.NONE;
+			choices = ProcessChoices(flag);			
 			return true;
 		}
 		if((argInput == "<num>") || (argInput == "<nnn>") || (argInput == "<level>"))
 		{
 			type = ARG_TYPE.NUMBER;
+			choices = ProcessChoices(flag);
 			return true;
         }
         if(argInput[0] != '[') 
         {
 	        type = ARG_TYPE.STRING;
+			choices = ProcessChoices(flag);	
 	        return true;
         }
         
@@ -82,7 +85,8 @@ bool ProcessArgs(string flag, string argInput, out ARG_TYPE type, out string[] c
         if(endPoint == -1) endPoint = argInput.length;
         argInput = argInput[1..endPoint];
         choices = argInput.split('|'); 
-        if (choices.canFind("help"))return false;
+        //this is an 'extra' line for the same flag that just says do flag=help to get choices... so skip it
+        if (choices.canFind("help"))return false; 
         string[] longChoices = ProcessChoices(flag);
         if(longChoices.length) choices = longChoices;
         return true;        
@@ -91,16 +95,22 @@ bool ProcessArgs(string flag, string argInput, out ARG_TYPE type, out string[] c
 string[] ProcessChoices(string flag)
 {
 	string[] rv;
-	auto choiceLine = regex(`^[^=]+=(\w+)((\s+)|(\[=)(\[.+\])\])\s+(.*)$`, "gm");
+    //man launches web browser!! so skip this
+    if(flag == "man")return rv;
+    
+	//auto choiceLine = regex(`^[^=]+=(\w+)((\s+)|(\[=)(\[.+\])\])\s+(.*)$`, "gm");
+	auto choiceLine = regex(`^[\s]+=([^\[\s]+)((\s+)|(\[=)(\[.+\])\])\s+(.*)$`, "gm");
 	string shellCommand = format("dmd -%s=help",flag);
 	auto results = executeShell(shellCommand);
 	if(results.status)return rv;
+	//sometimes it just acts like dmd --help and status is success so...
+	if(results.output.startsWith("DMD")) return rv;
+	
 	auto matches = matchAll(results.output, choiceLine);
-	writeln(results.output,"\n",matches);
+	//writeln(results.output,"\n",matches);
 	foreach(match; matches)
 	{
-		
-		writeln(match[1],"  ", match[5], "  ::   ", match[6]);
+		rv ~= match[1] ~ '|' ~ match[6];
     }
 	return rv;
 }

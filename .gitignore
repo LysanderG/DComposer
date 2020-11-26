@@ -20,4 +20,5 @@ dcomposer
 utils/extractflags
 utils/dmd_flags*
 tmp_*
+extractflags
 
