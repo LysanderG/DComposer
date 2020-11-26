@@ -43,7 +43,7 @@ int main(string[] args)
 		jitem["brief"] = match[4];
 		
 		
-		ProcessArgs(match[3], argType, argChoices);
+		if(!ProcessArgs(match[2], match[3], argType, argChoices))continue;
 		jitem["argType"] = argType;
 		jitem["choices"] = jsonArray();
 		foreach(achoice; argChoices)jitem["choices"] ~= achoice;
@@ -59,30 +59,50 @@ int main(string[] args)
 }
 
 
-void ProcessArgs(string argInput, out ARG_TYPE type, out string[] choices)
+bool ProcessArgs(string flag, string argInput, out ARG_TYPE type, out string[] choices)
 {
 		if(argInput.length == 0)
 		{
 			type = ARG_TYPE.NONE;
-			return;
+			return true;
 		}
 		if((argInput == "<num>") || (argInput == "<nnn>") || (argInput == "<level>"))
 		{
 			type = ARG_TYPE.NUMBER;
-			return;
+			return true;
         }
         if(argInput[0] != '[') 
         {
 	        type = ARG_TYPE.STRING;
-	        return;
+	        return true;
         }
         
         type = ARG_TYPE.STR_ARRAY;
         long endPoint = argInput.countUntil("]");
         if(endPoint == -1) endPoint = argInput.length;
-        argInput = argInput[1..endPoint-1];
-        choices = argInput.split('|');
-        
+        argInput = argInput[1..endPoint];
+        choices = argInput.split('|'); 
+        if (choices.canFind("help"))return false;
+        string[] longChoices = ProcessChoices(flag);
+        if(longChoices.length) choices = longChoices;
+        return true;        
+}
+
+string[] ProcessChoices(string flag)
+{
+	string[] rv;
+	auto choiceLine = regex(`^[^=]+=(\w+)((\s+)|(\[=)(\[.+\])\])\s+(.*)$`, "gm");
+	string shellCommand = format("dmd -%s=help",flag);
+	auto results = executeShell(shellCommand);
+	if(results.status)return rv;
+	auto matches = matchAll(results.output, choiceLine);
+	writeln(results.output,"\n",matches);
+	foreach(match; matches)
+	{
+		
+		writeln(match[1],"  ", match[5], "  ::   ", match[6]);
+    }
+	return rv;
 }
 
 enum ARG_TYPE : string
