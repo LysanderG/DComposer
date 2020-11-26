@@ -139,6 +139,11 @@ void Run(string DocName, string[] rdmdOpt ...)
     {
         Log.Entry("Failed to run " ~ Doc.FullName);
     }
+    if(Doc.Virgin)
+    {
+	    Log.Entry(DocName ~ " does not exist on file and can not be run");
+	    return;
+    }
     string ExecName = Doc.FullName;
     auto TerminalCommand = Config.GetArray!string("terminal_cmd","run", ["xterm", "-T","dcomposer running project","-e"]);
 
