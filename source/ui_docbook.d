@@ -105,7 +105,7 @@ public:
     
 	void Engage(Builder mBuilder)
 	{
-    	mStyleManager = SourceStyleSchemeManager.getDefault();
+		mStyleManager = SourceStyleSchemeManager.getDefault();
     	mStyleManager.appendSearchPath(Config.GetResource("styles", "searchPaths", "styles"));
         mDocCmdLineSwitches = Config.GetValue!string("document","cmd_line_switches");
 	    
@@ -142,8 +142,6 @@ public:
         
         mClipboard = Clipboard.getDefault(Display.getDefault());
         
-        Timeout.add(800, &TimerStatusUpdate, null);
-        
         Transmit.DocClose.connect(&Close);
 
         EngageActions();
@@ -159,6 +157,8 @@ public:
         {
             AddDocument(preOpener);
         }
+        
+        Timeout.add(800, &TimerStatusUpdate, cast(void*)mNotebook);
         
     	Log.Entry("\tDocBook Meshed");
     }
@@ -272,6 +272,7 @@ public:
     
     void Run()
     {
+	    if(!Current)return;
         docman.Run(Current.FullName, mDocCmdLineSwitches);
     }
     void Compile()
@@ -324,7 +325,11 @@ public:
     DOC_IF Current()
     {
         int currPageNum = mNotebook.getCurrentPage();
-        if(currPageNum < 0) return null;
+        if(currPageNum < 0) 
+        {
+	        Log.Entry("No Documents Loaded");
+	        return null;
+        }
         auto parent = cast(ScrolledWindow)mNotebook.getNthPage(currPageNum);
         auto doc = cast(DOC_IF)parent.getChild();
         return doc;
@@ -361,7 +366,6 @@ public:
         mEditSelection = hasSelection;
         mActionCopy.setEnabled(mEditSelection);
         mActionCut.setEnabled(mEditSelection);
-        dwrite("set selection ", hasSelection);
     }
 	
 	void EngageActions()
@@ -550,11 +554,13 @@ public:
             Config.SetValue("document","hilite_syntax", state);
             return false;
         });
-        AddAppPreferenceWidget("Editor", prefSyntaxHiLiteLabel, prefSyntaxHiLiteSwitch);   
+        AddAppPreferenceWidget("Editor", prefSyntaxHiLiteLabel, prefSyntaxHiLiteSwitch); 
    
         //scheme
         auto prefSchemeLabel = new Label("Style Scheme :");
+
         auto prefSchemeButton = new StyleSchemeChooserButton();
+
         AddAppPreferenceWidget("Editor",prefSchemeLabel, prefSchemeButton);
         prefSchemeButton.setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(Config.GetValue("document", "style_scheme", "mnml")));
         prefSchemeButton.addOnEventAfter(delegate void(Event event, Widget widget)
@@ -573,7 +579,7 @@ public:
             Config.SetValue("document","show_line_numbers", prefSwitch.getActive());
             return false;
         });
-        AddAppPreferenceWidget("Editor", prefLineNoLabel, prefLineNoSwitch);
+        AddAppPreferenceWidget("Editor", prefLineNoLabel, prefLineNoSwitch);  
         //auto indent
         auto prefAutoIndentLabel = new Label("Auto Indent :");
         auto prefAutoIndentSwitch = new Switch;
@@ -709,12 +715,12 @@ public:
 	        Config.SetValue("document","font", self.getFont());
         });
         
-        AddAppPreferenceWidget("Editor", prefFontButton);        
+        AddAppPreferenceWidget("Editor", prefFontButton);   
     }   
     void EngageDocPreferences()
     {
         auto uiBuilder = new Builder(Config.GetResource("docbook","pref_glade","glade","pref_doc_rdmd.glade"));
-
+        
         auto root = cast(Box)uiBuilder.getObject("root");
         Button addbtn = cast(Button)uiBuilder.getObject("add_btn");
         Button removebtn = cast(Button)uiBuilder.getObject("remove_btn");
@@ -722,12 +728,11 @@ public:
         ListStore optionStore = cast(ListStore)uiBuilder.getObject("liststore1");
         CellRendererText cellText = cast(CellRendererText)uiBuilder.getObject("text_cell");
         CellRendererToggle cellToggle = cast(CellRendererToggle)uiBuilder.getObject("toggle_cell");
-        
         //save optionStore to config
         void optionStoreSave()
         {
             string[] theChoices;
-            auto ti = new TreeIter;
+            TreeIter ti;
             optionStore.getIterFirst(ti);
             while(optionStore.iterIsValid(ti))
             {
@@ -738,6 +743,7 @@ public:
             Config.SetValue("document","cmd_line_choices", theChoices);
             Config.SetValue("document", "cmd_line_switches", mDocCmdLineSwitches);
         }
+
         //load optionStore from config
         optionStore.clear();
         auto ti = new TreeIter;
@@ -841,7 +847,7 @@ extern (C)
     	mDocBook.UnitTest();
     }
     
-    int TimerStatusUpdate(void * vptr)
+    int TimerStatusUpdate(void * self)
     {
         mDocBook.UpdateStatusLine(mDocBook.Current);
         return true;

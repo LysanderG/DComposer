@@ -12,15 +12,7 @@
     <data>
       <row>
         <col id="0">True</col>
-        <col id="1" translatable="yes"/>
-      </row>
-      <row>
-        <col id="0">False</col>
-        <col id="1" translatable="yes">aaaa</col>
-      </row>
-      <row>
-        <col id="0">False</col>
-        <col id="1" translatable="yes">bbbb</col>
+        <col id="1" translatable="yes">\0</col>
       </row>
     </data>
   </object>
@@ -115,6 +107,9 @@ a document with rdmd.</property>
             <property name="can-focus">True</property>
             <property name="model">liststore1</property>
             <property name="activate-on-single-click">True</property>
+            <child internal-child="selection">
+              <object class="GtkTreeSelection"/>
+            </child>
             <child>
               <object class="GtkTreeViewColumn">
                 <property name="title" translatable="yes">Select option</property>

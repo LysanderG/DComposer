@@ -38,7 +38,7 @@
   <color name="blue5" value="#3fa2ff"/>
 
   <!-- Global Settings -->
-  <style name="text" foreground="#black" background="white"/>
+  <style name="text" foreground="#black" background="#white"/>
   <style name="selection" foreground="#black" background="#gray"/>
   <style name="cursor" foreground="#black"/>
   <style name="current-line" background="#f0f0f0"/>
