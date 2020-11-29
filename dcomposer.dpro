@@ -19,7 +19,8 @@
                "\/home\/anthony\/projects\/dcomposerx\/source\/document.d",
                "source\/qore.d",
                "\/home\/anthony\/projects\/dcomposerx\/source\/ui_preferences.d",
-               "source\/transmit.d"
+               "source\/transmit.d",
+               "source\/project.d"
           ],
           "Related Files": [],
           "Postbuild Scripts": [],
@@ -202,7 +203,7 @@
                "Value": ""
           },
           {
-               "State": false,
+               "State": true,
                "Switch": "-gs",
                "Brief": "always emit stack frame",
                "Argument": false,

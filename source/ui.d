@@ -99,7 +99,6 @@ public import gtk.Window;
 
 void Engage(ref string[] args)
 {    
-    
 	mApplication = new Application("dcomposer.com", GApplicationFlags.NON_UNIQUE);
 	mApplication.register(new Cancellable());
 	
@@ -152,6 +151,11 @@ void Disengage()
 
 void run(string[] args)
 {
+	if(mSkipUI)
+	{
+		Log.Entry("Skipping UI");
+		return;
+    }
 	Log.Entry("++++++ Entering GTK Main Loop ++++++");
 	mApplication.run(args);
 	Log.Entry("------  Exiting GTK Main Loop ------");
@@ -189,6 +193,8 @@ int ShowMessage(string Title, string Message, string[] Buttons ...)
     return response;
 }
 
+void SkipUI(){mSkipUI = true;}
+
 Application         mApplication;
 ApplicationWindow 	mMainWindow;
 UI_DOCBOOK 			mDocBook;
@@ -204,6 +210,7 @@ Notebook 			mExtraPane;
 Box                 mStatusBox;
 Paned               mVerticalPane;
 Paned               mHorizontalPane;
+bool				mSkipUI;
 
 
 void EngageMainWindow(Builder mBuilder)

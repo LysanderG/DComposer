@@ -3,7 +3,7 @@ module app;
 import std.file;
 import std.stdio;
 
-
+import app;
 import qore;
 import ui;
 import elements;
@@ -15,10 +15,8 @@ int main(string[] args)
 	HandleCommandLineHelp(args);
 
     qore.Engage(args);
-    dwrite(args);
     ui.Engage(args);
     elements.Engage(args);
-    
     qore.Mesh();
     ui.Mesh();
     elements.Mesh();
@@ -54,6 +52,7 @@ void HandleCommandLineHelp(ref string[] cmdLine)
 		helpString ~= "OPTIONS\n";
 		helpString ~= log.GetCmdLineOptions();
 		helpString ~= config.GetCmdLineOptions();
+		helpString ~= project.GetCmdLineOptions();
 		helpString ~= elements.GetCmdLineOptions();
 		
 		helpString ~= "PROJECT:\n\tProject to open (must be a .dpro file) subsequent project files will be opened in editor\n";
@@ -65,3 +64,4 @@ void HandleCommandLineHelp(ref string[] cmdLine)
     	exit(-1);
     }
 }
+
