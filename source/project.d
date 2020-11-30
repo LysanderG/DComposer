@@ -13,23 +13,33 @@ enum PROJECT_MODULE_VERSION = "B";
 
 PROJECT mProject;
 
+string 	startUpProject;
 
 public:
 void Engage(ref string[] cmdLineArgs)
 {
-	string 	cmdLineProject;
+
 	string	cmdLineBuild;
 	
-	auto optResults = getopt(cmdLineArgs,std.getopt.config.passThrough, "project|p", &cmdLineProject, "build|b", &cmdLineBuild);
+	auto optResults = getopt(cmdLineArgs,std.getopt.config.passThrough, "project|p", &startUpProject, "build|b", &cmdLineBuild);
 	
 	if(cmdLineBuild.length)
 	{
 		dwrite(">>> ",cmdLineBuild);
 		//mProject = new PROJECT(cmdLineBuild);
 		//mProject.Build();
-		CoreSkipUI();
 		dwrite("how do you exit a d program??");
+		
+		import core.runtime;
+		import core.stdc.stdlib;
+        Runtime.terminate();
+        exit(0);
     }
+    
+    if(startUpProject.length < 1)startUpProject = Config.GetValue!string("project", "last_session_project");
+	
+	mProject = new PROJECT;
+    if(startUpProject.length) mProject.Load(startUpProject);
 	
 	Log.Entry("Engaged");
 }
@@ -51,6 +61,7 @@ string GetCmdLineOptions()
 }
 
 
+
 public:
 
 
@@ -61,6 +72,7 @@ private:
 	
 	string 		    mName;				//basename with extension
 	string		    mLocation;			//related to general projects directory option
+	TARGET          mGlobalTarget;     
 	TARGET[]        mTargets;
 	ulong		    mSelectedTarget;
 	
@@ -69,22 +81,66 @@ private:
 	LISTS           mList;			    //almost everything
 	FLAG[]          mFlags;
 	
-	bool            mUseCustomBuild;
-	string          mCustomBuildCommand;
 	
 public:
-	
-	
-	
-	
+
+    this()
+    {
+        mLocation = "/dev/null";
+    }
+    
+    void Load(string projectFile)
+    {
+    }
+    
+    void Close()
+    {
+    }
+    void Save()
+    {
+    }
+    void Build(ulong TargetIndex = ulong.max)
+    {
+    }
+    void Run(string[] arguments)
+    {
+    }
+    void SelectTarget(ulong selectionIndex)
+    {
+    }	
 }
 
-
-struct TARGET
+class TARGET
 {
-	string 		mId;
-	string		mNotes;}
-
+    private:
+    PROJECT     mOwner;
+    
+    TARGET_TYPE mType;
+    FLAG[]      mFlags;
+    LISTS       mTargetLists;
+    
+    bool        mUseCustomBuild;
+    string      mCustomBuildCommand;
+    COMPILER    mCompiler;
+    
+    string[] GetBuildCommand(in TARGET parent)
+    {
+        string[] rv;
+        if(mUseCustomBuild)return [mCustomBuildCommand];
+        
+        rv ~= mCompiler;
+        
+        
+        return rv;
+    }
+    string GetRunCommand()
+    {
+        string rv;
+        return rv;
+    }
+    
+    
+}
 enum TARGET_TYPE
 {
 	UNDEFINED,
@@ -149,11 +205,11 @@ struct LISTS
 
 struct FLAG
 {
-    bool mState;
-    bool mArgument;
-    string mBrief;
-    string mSwitch;
-    string mValue;
+    bool        mState;         //used or not
+    ARG_TYPE    mArgType;       //bool(true used false not used),number, string, str_array, choice_index
+    string      mArgValue;      //string representation of value "123", "blah, blah", "filex" 
+    string[]    mChoices;
+    
 
     this(string Switch, string Brief, bool HasArg, string Arg = "\0")
     {
@@ -169,6 +225,12 @@ struct FLAG
         mState = false;
         mValue = "";
     }
+    void Set(string nuValue = "")
+    {
+        mState = true;
+        if(HasArg && (nuValue.length) mValue = value;
+    }
+    bool opCast(bool T)(){return mState;}
 
 }
 
@@ -193,4 +255,11 @@ enum PROJECT_EVENT
     CUSTOM_BUILD_COMMAND,
     FLAG,
     LISTS,
+}
+
+enum COMPILER :string
+{
+    DMD = "dmd",
+    LDC = "ldmd",
+    GDC = "gdmd",
 }

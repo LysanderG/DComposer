@@ -40,6 +40,6 @@ class TRANSMITTER
     mixin Signal!(DOC_IF) DocClose;
     
     //project
-    mixin Signal!(PROJECT_EVENT) Event;
+    mixin Signal!(PROJECT, PROJECT_EVENT) ProjectEvent;
     
 }

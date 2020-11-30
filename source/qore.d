@@ -1,5 +1,7 @@
 module qore;
 
+import std.algorithm;
+
 public import log;
 public import config;
 public import docman;
@@ -7,7 +9,8 @@ public import transmit;
 public import project;
 
 void Engage(ref string[] args)
-{    
+{ 
+    if(args.canFind(["-b"])|| args.canFind("--build"))args ~= "-q";
     log.Engage(args);
     config.Engage(args);
     transmit.Engage(args);
@@ -36,11 +39,6 @@ void Disengage()
     Log.Entry("Disengaged");
 }
 
-void CoreSkipUI()
-{
-	import ui;
-	ui.SkipUI();
-}
 /* qore stuff
 log
 config

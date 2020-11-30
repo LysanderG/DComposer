@@ -151,11 +151,7 @@ void Disengage()
 
 void run(string[] args)
 {
-	if(mSkipUI)
-	{
-		Log.Entry("Skipping UI");
-		return;
-    }
+
 	Log.Entry("++++++ Entering GTK Main Loop ++++++");
 	mApplication.run(args);
 	Log.Entry("------  Exiting GTK Main Loop ------");
@@ -193,7 +189,6 @@ int ShowMessage(string Title, string Message, string[] Buttons ...)
     return response;
 }
 
-void SkipUI(){mSkipUI = true;}
 
 Application         mApplication;
 ApplicationWindow 	mMainWindow;
@@ -210,8 +205,6 @@ Notebook 			mExtraPane;
 Box                 mStatusBox;
 Paned               mVerticalPane;
 Paned               mHorizontalPane;
-bool				mSkipUI;
-
 
 void EngageMainWindow(Builder mBuilder)
 {
