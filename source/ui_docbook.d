@@ -59,6 +59,8 @@ private:
 	SimpleAction                mActionCopy;
 	SimpleAction                mActionPaste;
 	
+	Timeout						mTimeoutKeeper;
+	
 	void DocumentModifiedExternally(DOC_IF doc)
     {
         auto Document = cast(DOCUMENT)doc;
@@ -94,12 +96,23 @@ private:
             } 
         }
     }
+        
+    bool TimerStatusUpdate()
+    {
+	    import core.memory;
+	    GC.disable();
+        mDocBook.UpdateStatusLine(mDocBook.Current);
+        GC.enable();
+        return true;
+    }
 		
 public:
     Notebook            		mNotebook;
 	EventBox					mEventBox;
     	
 	SimpleAction                mActionEditCut;
+
+	
 
     alias mNotebook this;
     
@@ -158,7 +171,8 @@ public:
             AddDocument(preOpener);
         }
         
-        Timeout.add(800, &TimerStatusUpdate, cast(void*)mNotebook);
+        mTimeoutKeeper = new Timeout(800, &TimerStatusUpdate);
+        //Timeout.add(800, &TimerStatusUpdate, cast(void*)mNotebook);
         
     	Log.Entry("\tDocBook Meshed");
     }
@@ -846,11 +860,6 @@ extern (C)
     	mDocBook.Save();
     	mDocBook.UnitTest();
     }
-    
-    int TimerStatusUpdate(void * self)
-    {
-        mDocBook.UpdateStatusLine(mDocBook.Current);
-        return true;
-    }
+
 }
 

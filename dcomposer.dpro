@@ -18,32 +18,28 @@
                "\/home\/anthony\/projects\/dcomposerx\/source\/docman.d",
                "\/home\/anthony\/projects\/dcomposerx\/source\/document.d",
                "source\/qore.d",
-               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_preferences.d",
-               "source\/transmit.d",
-               "source\/project.d"
+               "source\/project.d",
+               "source\/ui_preferences.d",
+               "source\/transmit.d"
           ],
           "Related Files": [],
           "Postbuild Scripts": [],
           "String Imports": [],
-          "Libraries": [
-               "\/usr\/local\/lib\/libgtkdsv-3.so",
-               "\/usr\/local\/lib\/libvted-3.so",
-               "\/usr\/local\/lib\/libgtkd-3.so"
-          ],
+          "Libraries": [],
           "Debugs": [],
           "Sundry": [
-               "-L-rpath=\/usr\/local\/lib:\/usr\/lib"
+               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/libgtkdsv-3.a",
+               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/libgtkd-3.a"
           ],
           "Versions": [],
           "Prebuild Scripts": [],
           "Import Paths": [
                "source",
-               "\/usr\/local\/include\/d\/gtkd-3"
+               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/generated\/gtkd",
+               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/generated\/sourceview"
           ],
           "Notes": [],
-          "Library Paths": [
-               "\/usr\/local\/lib"
-          ]
+          "Library Paths": []
      },
      "DcomposerProjectVersion": "A",
      "TargetType": 1,
@@ -203,7 +199,7 @@
                "Value": ""
           },
           {
-               "State": true,
+               "State": false,
                "Switch": "-gs",
                "Brief": "always emit stack frame",
                "Argument": false,
@@ -326,7 +322,7 @@
                "Switch": "-of",
                "Brief": "name output file to filename",
                "Argument": true,
-               "Value": "bin\/dcomposerx"
+               "Value": "bin\/dcomposer"
           },
           {
                "State": false,
@@ -406,7 +402,7 @@
                "Value": ""
           },
           {
-               "State": true,
+               "State": false,
                "Switch": "-vcolumns",
                "Brief": "print character (column) numbers in diagnostics",
                "Argument": false,
@@ -469,5 +465,5 @@
                "Value": ""
           }
      ],
-     "CustomBuildCommand": ""
+     "CustomBuildCommand": " dmd\n-debug\n-defaultlib=libphobos2.so\n-g\n-odobj\n-ofbin\/dcomposer\n-vcolumns\n-Isource\n-I\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/generated\/gtkd\n-I\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/generated\/sourceview\n-L-L\/usr\/lib\n-L-lgtkd-3\n-L-lgtkdsv-3\n-L-lvted-3\nsource\/app.d\nsource\/config.d\nsource\/elements.d\nsource\/json.d\nsource\/log.d\nsource\/ui.d\n\/home\/anthony\/projects\/dcomposerx\/source\/ui_docbook.d\n\/home\/anthony\/projects\/dcomposerx\/source\/ui_toolbar.d\nsource\/ui_action.d\n\/home\/anthony\/projects\/dcomposerx\/source\/docman.d\n\/home\/anthony\/projects\/dcomposerx\/source\/document.d\nsource\/qore.d\n"
 }

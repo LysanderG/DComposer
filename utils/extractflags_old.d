@@ -1,7 +1,6 @@
 module extractflags;
 
 import std.algorithm;
-import std.array;
 import std.string;
 import std.regex;
 import std.stdio;
@@ -16,49 +15,51 @@ int main(string[] args)
 	auto jsonFlags = jsonArray();
 	
 	auto rxVersion = regex(`v(\d+\.\d+\.\d+)`);
-	//									1             2            3
+	auto rxFlag = regex(`^([\s]*-)([^\[\s=<]*)[=]*([\S\[\<]*)\s+([^\n]*)`, "gm");
 	
-	auto rxFlag = regex(`^\s*-+(?P<fullswitch>\S+)\s*(?P<brief>.*)`, "gm");
+	auto dmdresults = executeShell("dmd -h");
 	
-	
-	auto dmdresults = executeShell("dmd -h");	
 	if(dmdresults.status != 0) return dmdresults.status;
 	
-	auto allMatches = matchAll(dmdresults.output, rxFlag);
+	auto versionEndLine = indexOf(dmdresults.output, '\n');
+	string versionLine = dmdresults.output[0..versionEndLine];
+	writeln("hi ", versionEndLine, " _ ", versionLine, " ^ ");	
+	auto vmatch = matchFirst(versionLine, rxVersion);
+	writeln(vmatch);
+	string dmdVersion = vmatch[1];
+	auto jversion = jsonObject();
+	jversion["dmdVersion"] = dmdVersion;
+	jsonFlags ~= jversion;
 	
-	File output = File("OUTPUT","w");
-	foreach(m;allMatches)
-	{
-	    if(m["fullswitch"] == "help")continue;
-	    if(m["fullswitch"] == "version")continue;
-	    if(m["fullswitch"] == "man")continue;
-	    if(m["fullswitch"].canFind("h|help|?"))continue;
-	    
-	    output.writeln("1 ",m);
-	    output.writeln("2 ",m["fullswitch"]);
-	    output.writeln("3 ",m["brief"]);
-	    string x = m["fullswitch"] ~ "\n";
-	    auto rxSwitch = regex(`(?P<switch>[\w-]*)[\[=]*\[*(?P<args>[^\n\]]*).*\n`);
-	    
-	    auto processedSwitch = matchFirst(x, rxSwitch);	    
-	    output.writeln("4 ",processedSwitch["switch"]);
-	    output.writeln("5 ",processedSwitch["args"]);    
-	    output.writeln("-------------"); 
-	    string[] choiceBriefs;
-	    auto choices = ProcessChoices(processedSwitch["switch"],choiceBriefs);
-	    foreach( ulong indx, ch; choices)
-	    {
-	        output.writeln(ch);
-	        output.writeln("\t", choiceBriefs[indx]);
-	    }
-	    output.writeln("--------------");
+	
+	auto matches = matchAll(dmdresults.output, rxFlag);
+	foreach(match; matches)
+	{ 
+		auto jitem = jsonObject();
+		ARG_TYPE argType;
+		string[] argChoices;
+		
+		jitem["switch"]= match[2];
+		jitem["brief"] = match[4];
+		
+		
+		if(!ProcessArgs(match[2], match[3], argType, argChoices))continue;
+		jitem["argType"] = argType;
+		jitem["choices"] = jsonArray();
+		foreach(achoice; argChoices)jitem["choices"] ~= achoice;
+		
+		jsonFlags ~= jitem;
+		if(argType != ARG_TYPE.NONE) writefln("switch [%s] %s [%s]", match[2],match[3], match[4]);
+		//writefln("switch %s  :  %s ::%s",match[2], match[3], match[4]);
     }
-	return 0;
 	
+	flagFileName = "utils/dmd_flags_v_" ~ dmdVersion ~ ".json";
+	writeJSON!4(jsonFlags, File(flagFileName, "w"));
+	return 0;
 }
 
-/*
-@disable bool ProcessArgs(string flag, string argInput, out ARG_TYPE type, out string[] choices)
+
+bool ProcessArgs(string flag, string argInput, out ARG_TYPE type, out string[] choices)
 {
 		if(argInput.length == 0)
 		{
@@ -89,17 +90,16 @@ int main(string[] args)
         string[] longChoices = ProcessChoices(flag);
         if(longChoices.length) choices = longChoices;
         return true;        
-}*/
+}
 
-string[] ProcessChoices(string flag, out string[] subBrief)
+string[] ProcessChoices(string flag)
 {
-
 	string[] rv;
     //man launches web browser!! so skip this
     if(flag == "man")return rv;
     
 	//auto choiceLine = regex(`^[^=]+=(\w+)((\s+)|(\[=)(\[.+\])\])\s+(.*)$`, "gm");
-	auto choiceLine = regex(`^\s*(=[^\[=\s]+)\S*\s*(.*)`, "gm");
+	auto choiceLine = regex(`^[\s]+=([^\[\s]+)((\s+)|(\[=)(\[.+\])\])\s+(.*)$`, "gm");
 	string shellCommand = format("dmd -%s=help",flag);
 	auto results = executeShell(shellCommand);
 	if(results.status)return rv;
@@ -107,20 +107,17 @@ string[] ProcessChoices(string flag, out string[] subBrief)
 	if(results.output.startsWith("DMD")) return rv;
 	
 	auto matches = matchAll(results.output, choiceLine);
-
+	//writeln(results.output,"\n",matches);
 	foreach(match; matches)
 	{
-		string tmp = flag.stripRight()~ match[1].stripLeft();
-	    writeln(tmp);
-		rv ~= tmp;
-		subBrief ~= match[2];
+		rv ~= match[1] ~ '|' ~ match[6];
     }
 	return rv;
 }
 
 enum ARG_TYPE : string
 {
-	NONE = "NONE",
+	SIMPLE = "BOOL"
 	STRING = "STRING",
 	NUMBER = "NUMBER",
 	STR_ARRAY = "STR_ARRAY",

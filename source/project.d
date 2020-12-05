@@ -39,7 +39,7 @@ void Engage(ref string[] cmdLineArgs)
     if(startUpProject.length < 1)startUpProject = Config.GetValue!string("project", "last_session_project");
 	
 	mProject = new PROJECT;
-    if(startUpProject.length) mProject.Load(startUpProject);
+    //if(startUpProject.length) mProject.Load(startUpProject);
 	
 	Log.Entry("Engaged");
 }
@@ -68,79 +68,38 @@ public:
 class PROJECT
 {
 
-private:
-	
-	string 		    mName;				//basename with extension
-	string		    mLocation;			//related to general projects directory option
-	TARGET          mGlobalTarget;     
-	TARGET[]        mTargets;
-	ulong		    mSelectedTarget;
-	
-	string[string] 	mTags;
-	
-	LISTS           mList;			    //almost everything
-	FLAG[]          mFlags;
-	
-	
-public:
-
-    this()
-    {
-        mLocation = "/dev/null";
-    }
-    
-    void Load(string projectFile)
-    {
-    }
-    
-    void Close()
-    {
-    }
-    void Save()
-    {
-    }
-    void Build(ulong TargetIndex = ulong.max)
-    {
-    }
-    void Run(string[] arguments)
-    {
-    }
-    void SelectTarget(ulong selectionIndex)
-    {
-    }	
 }
 
-class TARGET
+
+enum TAGS
 {
-    private:
-    PROJECT     mOwner;
-    
-    TARGET_TYPE mType;
-    FLAG[]      mFlags;
-    LISTS       mTargetLists;
-    
-    bool        mUseCustomBuild;
-    string      mCustomBuildCommand;
-    COMPILER    mCompiler;
-    
-    string[] GetBuildCommand(in TARGET parent)
-    {
-        string[] rv;
-        if(mUseCustomBuild)return [mCustomBuildCommand];
-        
-        rv ~= mCompiler;
-        
-        
-        return rv;
-    }
-    string GetRunCommand()
-    {
-        string rv;
-        return rv;
-    }
-    
-    
+	AUTHOR 			= "Author)",
+	COPYRIGHT		= "Copy Right",
 }
+
+enum PROJECT_EVENT
+{
+	CREATED,
+    OPENED,
+    SAVED,
+    EDIT,
+    NAME,
+    FOLDER,
+    COMPILER,
+    TARGET_TYPE,
+    USE_CUSTOM_BUILD,
+    CUSTOM_BUILD_COMMAND,
+    FLAG,
+    LISTS,
+}
+
+enum COMPILER :string
+{
+    DMD = "dmd",
+    LDC = "ldmd",
+    GDC = "gdmd",
+}
+
 enum TARGET_TYPE
 {
 	UNDEFINED,
@@ -152,6 +111,15 @@ enum TARGET_TYPE
 	DOCUMENTATION,
 	HEADERS,
 	OTHER,
+}
+
+enum FLAG_TYPE
+{
+	SIMPLE,
+	NUMBER,
+	STRING,
+	STR_ARRAY,
+	STR_RADIO,
 }
 
 
@@ -203,63 +171,14 @@ struct LISTS
     }
 }
 
+
 struct FLAG
 {
-    bool        mState;         //used or not
-    ARG_TYPE    mArgType;       //bool(true used false not used),number, string, str_array, choice_index
-    string      mArgValue;      //string representation of value "123", "blah, blah", "filex" 
-    string[]    mChoices;
-    
-
-    this(string Switch, string Brief, bool HasArg, string Arg = "\0")
-    {
-        mState = false;
-        mSwitch = Switch;
-        mBrief = Brief;
-        mArgument = HasArg;
-        mValue = Arg;
-    }
-
-    void Reset()
-    {
-        mState = false;
-        mValue = "";
-    }
-    void Set(string nuValue = "")
-    {
-        mState = true;
-        if(HasArg && (nuValue.length) mValue = value;
-    }
-    bool opCast(bool T)(){return mState;}
-
-}
-
-
-enum TAGS
-{
-	AUTHOR 			= "Authors",
-	COPYRIGHT		= "Copy right",
-}
-
-enum PROJECT_EVENT
-{
-    CREATED,
-    OPENED,
-    SAVED,
-    EDIT,
-    NAME,
-    FOLDER,
-    COMPILER,
-    TARGET_TYPE,
-    USE_CUSTOM_BUILD,
-    CUSTOM_BUILD_COMMAND,
-    FLAG,
-    LISTS,
-}
-
-enum COMPILER :string
-{
-    DMD = "dmd",
-    LDC = "ldmd",
-    GDC = "gdmd",
+	string 		mId;		//
+	string 		mSwitch;
+	FLAG_TYPE	mType;
+	string[]    mChoices;
+	ulong 		mIndex;
+	string		Argument;
+	
 }
