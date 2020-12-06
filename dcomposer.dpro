@@ -25,21 +25,24 @@
           "Related Files": [],
           "Postbuild Scripts": [],
           "String Imports": [],
-          "Libraries": [],
+          "Libraries": [
+               "\/usr\/local\/lib\/libgtkd-3.so",
+               "\/usr\/local\/lib\/libgtkdsv-3.so"
+          ],
           "Debugs": [],
           "Sundry": [
-               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/libgtkdsv-3.a",
-               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/libgtkd-3.a"
+               "-L-rpath=\/usr\/local\/lib"
           ],
           "Versions": [],
           "Prebuild Scripts": [],
           "Import Paths": [
                "source",
-               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/generated\/gtkd",
-               "\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/generated\/sourceview"
+               "\/usr\/local\/include\/d\/gtkd-3"
           ],
           "Notes": [],
-          "Library Paths": []
+          "Library Paths": [
+               "\/usr\/local\/lib"
+          ]
      },
      "DcomposerProjectVersion": "A",
      "TargetType": 1,
@@ -465,5 +468,5 @@
                "Value": ""
           }
      ],
-     "CustomBuildCommand": " dmd\n-debug\n-defaultlib=libphobos2.so\n-g\n-odobj\n-ofbin\/dcomposer\n-vcolumns\n-Isource\n-I\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/generated\/gtkd\n-I\/home\/anthony\/.dub\/packages\/gtk-d-3.9.0\/gtk-d\/generated\/sourceview\n-L-L\/usr\/lib\n-L-lgtkd-3\n-L-lgtkdsv-3\n-L-lvted-3\nsource\/app.d\nsource\/config.d\nsource\/elements.d\nsource\/json.d\nsource\/log.d\nsource\/ui.d\n\/home\/anthony\/projects\/dcomposerx\/source\/ui_docbook.d\n\/home\/anthony\/projects\/dcomposerx\/source\/ui_toolbar.d\nsource\/ui_action.d\n\/home\/anthony\/projects\/dcomposerx\/source\/docman.d\n\/home\/anthony\/projects\/dcomposerx\/source\/document.d\nsource\/qore.d\n"
+     "CustomBuildCommand": ""
 }

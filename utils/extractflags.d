@@ -13,16 +13,17 @@ import json;
 int main(string[] args)
 {
 	string flagFileName;
-	auto jsonFlags = jsonArray();
+	auto jsonFlags = jsonObject();
 	
 	auto rxVersion = regex(`v(\d+\.\d+\.\d+)`);
-	//									1             2            3
-	
 	auto rxFlag = regex(`^\s*-+(?P<fullswitch>\S+)\s*(?P<brief>.*)`, "gm");
 	
 	
 	auto dmdresults = executeShell("dmd -h");	
 	if(dmdresults.status != 0) return dmdresults.status;
+	
+	auto matchVersion = matchFirst(dmdresults.output, rxVersion);
+	string dmdVersion = matchVersion.front;
 	
 	auto allMatches = matchAll(dmdresults.output, rxFlag);
 	
@@ -32,7 +33,8 @@ int main(string[] args)
 	    if(m["fullswitch"] == "help")continue;
 	    if(m["fullswitch"] == "version")continue;
 	    if(m["fullswitch"] == "man")continue;
-	    if(m["fullswitch"].canFind("h|help|?"))continue;
+	    if(m["fullswitch"] == "run")continue;
+	    if(m["fullswitch"].canFind("?"))continue;
 	    
 	    output.writeln("1 ",m);
 	    output.writeln("2 ",m["fullswitch"]);
@@ -46,15 +48,59 @@ int main(string[] args)
 	    output.writeln("-------------"); 
 	    string[] choiceBriefs;
 	    auto choices = ProcessChoices(processedSwitch["switch"],choiceBriefs);
-	    foreach( ulong indx, ch; choices)
+	     
+	    auto jItem = jsonObject();
+	    string id;
+	    string flag;
+	    ARG_TYPE arg_type;
+	    string brief;
+
+	    switch(processedSwitch["args"])
 	    {
-	        output.writeln(ch);
-	        output.writeln("\t", choiceBriefs[indx]);
+	        case "":                arg_type = ARG_TYPE.SIMPLE;
+	                                break;
+	        case "<num>":
+	        case "<nnn>":   
+	        case "<level>":         arg_type = ARG_TYPE.NUMBER;
+	                                break;
+	        case "<filename>":
+	        case "<directory>":
+	        case "<driverflag>":
+	        case "<name>":          arg_type = ARG_TYPE.STRING;
+	                                break;
+	        default:                if(m["fullswitch"].canFind("[="))
+	                                    arg_type = ARG_TYPE.STRING;
+	                                else if(processedSwitch["args"].canFind("|"))
+	                                    arg_type = ARG_TYPE.CHOICE;
+	                                else arg_type = ARG_TYPE.SIMPLE;	                                
 	    }
-	    output.writeln("--------------");
-    }
-	return 0;
+	    if((arg_type == ARG_TYPE.CHOICE) && choices.length) arg_type = ARG_TYPE.HEADER;
+	    
+	    id = m["fullswitch"];
+	    flag = processedSwitch["switch"];
+	    brief = m["brief"];
+	    
+	    foreach(index, ch; choices)
+	    {
+	        auto jSubItem = jsonObject;
+	        jSubItem["arg_type"] = ARG_TYPE.SIMPLE;
+	        jSubItem["flag"] = ch;
+	        jSubItem["brief"] = choiceBriefs[index];
+	        jSubItem["id"]  = ch;
+	        jsonFlags[ch] = jSubItem;
+	    }
+	    jItem["id"] = id;
+	    jItem["arg_type"] = arg_type;
+	    jItem["flag"] = flag;
+	    jItem["brief"] = brief;
 	
+	    jsonFlags[id] = jItem;
+	    
+	   
+	}        
+    flagFileName = "utils/dmd_flags_v_" ~ dmdVersion ~ ".json";
+	writeJSON!4(jsonFlags, File(flagFileName, "w"));
+	return 0;	
 }
 
 /*
@@ -120,8 +166,10 @@ string[] ProcessChoices(string flag, out string[] subBrief)
 
 enum ARG_TYPE : string
 {
-	NONE = "NONE",
-	STRING = "STRING",
-	NUMBER = "NUMBER",
-	STR_ARRAY = "STR_ARRAY",
+	SIMPLE = "SIMPLE" ,  // NO ARGUMENT JUST BOOL FLAG (-c ... or -cov=ctfe  <-- not an argument just a long flag
+	STRING = "STRING" ,  // a string --> name filename directory in <>
+	NUMBER = "NUMBER" ,  // a number --> cov=85 
+	CHOICE = "CHOICE",  // an array of choices
+	HEADER = "HEADER",  // NOT usable, kind of a place holder with a brief ??? contains simple choices
+
 }

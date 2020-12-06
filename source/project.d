@@ -67,61 +67,12 @@ public:
 
 class PROJECT
 {
+    private:
+    
+    
+    
 
 }
-
-
-enum TAGS
-{
-	AUTHOR 			= "Author)",
-	COPYRIGHT		= "Copy Right",
-}
-
-enum PROJECT_EVENT
-{
-	CREATED,
-    OPENED,
-    SAVED,
-    EDIT,
-    NAME,
-    FOLDER,
-    COMPILER,
-    TARGET_TYPE,
-    USE_CUSTOM_BUILD,
-    CUSTOM_BUILD_COMMAND,
-    FLAG,
-    LISTS,
-}
-
-enum COMPILER :string
-{
-    DMD = "dmd",
-    LDC = "ldmd",
-    GDC = "gdmd",
-}
-
-enum TARGET_TYPE
-{
-	UNDEFINED,
-	BIN,
-	APP,
-	SHARED_LIB,
-	STATIC_LIB,
-	OBJECT,
-	DOCUMENTATION,
-	HEADERS,
-	OTHER,
-}
-
-enum FLAG_TYPE
-{
-	SIMPLE,
-	NUMBER,
-	STRING,
-	STR_ARRAY,
-	STR_RADIO,
-}
-
 
 alias string[] LIST;
 struct LISTS
@@ -174,11 +125,62 @@ struct LISTS
 
 struct FLAG
 {
-	string 		mId;		//
+	string 		mId;		
 	string 		mSwitch;
 	FLAG_TYPE	mType;
 	string[]    mChoices;
 	ulong 		mIndex;
-	string		Argument;
-	
+	string		Argument;	
 }
+enum TAGS
+{
+	AUTHOR 			= "Author",
+	COPYRIGHT		= "Copy Right",
+}
+
+enum PROJECT_EVENT
+{
+	CREATED,
+    OPENED,
+    SAVED,
+    EDIT,
+    NAME,
+    FOLDER,
+    COMPILER,
+    TARGET_TYPE,
+    USE_CUSTOM_BUILD,
+    CUSTOM_BUILD_COMMAND,
+    FLAG,
+    LISTS,
+}
+
+enum COMPILER :string
+{
+    DMD = "dmd",
+    LDC = "ldmd",
+    GDC = "gdmd",
+}
+
+enum TARGET_TYPE
+{
+	UNDEFINED,
+	BIN,
+	APP,
+	SHARED_LIB,
+	STATIC_LIB,
+	OBJECT,
+	DOCUMENTATION,
+	HEADERS,
+	OTHER,
+}
+
+enum FLAG_TYPE
+{
+	SIMPLE,
+	NUMBER,
+	STRING,
+	CHOICE,
+	NOTHING,
+}
+
+

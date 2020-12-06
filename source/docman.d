@@ -115,6 +115,11 @@ DOC_IF[] GetDocs()
 	return mDocs.values;
 }
 
+bool Empty()
+{
+    return mDocs.length;
+}
+
 bool Opened(string testDoc)
 {
     if(testDoc in mDocs) return true;

@@ -426,6 +426,7 @@ bool ConfirmQuit()
             //pick & choose & quit (or do not quit if modified docs haven't been closed)
             case OK  : 
                 mDocBook.CloseAll();
+                if(!mDocBook.Empty()) mQuitting = false;
                 break;
             //any other response do nothing return to editting
             default  : 

@@ -283,6 +283,10 @@ public:
 	   	DOC_IF[] docs = docman.GetDocs();
 	   	docs.each!(n=>Close(n));
     }
+    bool Empty()
+    {
+        return docman.Empty();
+    }
     
     void Run()
     {
