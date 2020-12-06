@@ -68,6 +68,20 @@ public:
 class PROJECT
 {
     private:
+    string 		mName;				//just a name helloWorld  probably the file basename
+    string      mFileName;			//probably same as mName but could be helloWorld_debug or helloWorld_release
+    string      mLocation;			//location relative to "global project" folder 
+    string 		mFullPath;			//global folder + location + filename
+    
+    COMPILER	mCompiler;
+    TARGET_TYPE mType;
+    
+    
+    
+    LISTS		mTags; 				//any additional info you want. see TAGS enum + anything else
+    LISTS		mLists;				//source files,  libraries, paths, pre and post build scripts
+    FLAG[]		mFlags;				//compiler flags --> this time just the enabled ones
+    
     
     
     
@@ -127,15 +141,21 @@ struct FLAG
 {
 	string 		mId;		
 	string 		mSwitch;
+	string      mBrief;
 	FLAG_TYPE	mType;
-	string[]    mChoices;
-	ulong 		mIndex;
-	string		Argument;	
+	string		mArgument;
+	bool 		mState;
 }
 enum TAGS
 {
 	AUTHOR 			= "Author",
 	COPYRIGHT		= "Copy Right",
+	NOTES 			= "Notes",
+	EMAIL			= "Email",
+	WEBSITE			= "Website",
+	LICENSE			= "License",
+	CREDIT			= "Credit",
+		
 }
 
 enum PROJECT_EVENT

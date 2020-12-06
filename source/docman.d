@@ -100,9 +100,11 @@ void ReplaceDoc(string oldKey, string newKey)
     auto oldDoc = mDocs[oldKey];
     if(oldDoc is null) assert(0);
     if(mDocs.remove(oldKey)) mDocs[newKey] = oldDoc;
+    Log.Entry("Document manger renamed "~oldDoc.Name~" to "~ mDocs[newKey].Name);
 }
 void RemoveDoc(DOC_IF oldDoc)
 {
+	if(oldDoc.Modified)Log.Entry("Removing modified doc ("~ oldDoc.Name ~ ") from document manager");
 	mDocs.remove(oldDoc.FullName);
 }
 DOC_IF GetDoc(string docName)
@@ -117,7 +119,7 @@ DOC_IF[] GetDocs()
 
 bool Empty()
 {
-    return mDocs.length;
+    return mDocs.length == 0;
 }
 
 bool Opened(string testDoc)
