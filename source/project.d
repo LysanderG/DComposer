@@ -2,6 +2,7 @@ module project;
 
 import std.getopt;
 import std.signals;
+import std.path;
 
 
 import qore;
@@ -18,7 +19,8 @@ string 	startUpProject;
 public:
 void Engage(ref string[] cmdLineArgs)
 {
-
+    
+    defaultProjectRoot = Config.GetValue("project", "project_root", "~/projects/dprojects".expandTilde());
 	string	cmdLineBuild;
 	
 	auto optResults = getopt(cmdLineArgs,std.getopt.config.passThrough, "project|p", &startUpProject, "build|b", &cmdLineBuild);
@@ -39,7 +41,7 @@ void Engage(ref string[] cmdLineArgs)
     if(startUpProject.length < 1)startUpProject = Config.GetValue!string("project", "last_session_project");
 	
 	mProject = new PROJECT;
-    //if(startUpProject.length) mProject.Load(startUpProject);
+    if(startUpProject.length) mProject.Load(startUpProject);
 	
 	Log.Entry("Engaged");
 }
@@ -82,9 +84,51 @@ class PROJECT
     LISTS		mLists;				//source files,  libraries, paths, pre and post build scripts
     FLAG[]		mFlags;				//compiler flags --> this time just the enabled ones
     
+    string      mCustomBuildCommand;
+    string      mBuildCommand;
+
+public:
+    this()
+    {
+    }
     
+    void Load(string projectFile)
+    {
+    }
     
+    void Save()
+    {
+    }
     
+    void Build()
+    {
+    }
+    
+    void Run()
+    {
+    }
+    
+    void Close()
+    {
+    }
+    
+    void Name(string nuName)
+    {
+    }
+    string Name()
+    {
+        return mName;
+    }    
+    void FileName(string nuFileName)
+    {
+    }
+    string FileName()
+    {
+        return mFileName;
+    }
+    void Location
+    
+        
 
 }
 
