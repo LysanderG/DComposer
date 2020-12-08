@@ -126,7 +126,30 @@ public:
     {
         return mFileName;
     }
-    void Location
+    void Location(string nuLocation)
+    {
+    }
+    string Location()
+    {
+	    return mLocation;
+	}
+	void Compiler(COMPILER nuCompiler)
+	{
+		mCompiler = nuCompiler;
+    }
+    COMPILER Compiler()
+    {
+	    return mCompiler;
+    }
+    
+    void Type(TARGET_TYPE nuType)
+    {
+	    mType = nuType;
+    }
+    TARGET_TYPE Type()
+    {
+	    return mType;
+    }
     
         
 
