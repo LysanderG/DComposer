@@ -126,6 +126,7 @@ void ToolbarPreferences()
             UsedStore.setValue(ti, 0, new Value(new Pixbuf(tool.mIconResource)));
             UsedStore.setValue(ti, 1, tool.mName);
             UsedStore.setValue(ti, 2, button);
+            UsedStore.setValue(ti, 3, tool.mTooltip);
         }
     }  
     void LoadConfig()
@@ -141,7 +142,7 @@ void ToolbarPreferences()
         Config.SetArray("ui_toolbar", "buttons", holdingArray);
    	}
 
-    auto AvailStore = new ListStore([GType.OBJECT, GType.STRING,GType.STRING]);
+    auto AvailStore = new ListStore([GType.OBJECT, GType.STRING,GType.STRING,GType.STRING]);
     auto prefAvailIcons = new TreeView(AvailStore);
     auto prefCellIcon = new CellRendererPixbuf;
     auto prefCellText = new CellRendererText;
@@ -149,6 +150,7 @@ void ToolbarPreferences()
     auto prefColText = new TreeViewColumn("action", prefCellText, "text", 1);
     prefAvailIcons.appendColumn(prefColIcon);
     prefAvailIcons.appendColumn(prefColText);
+    prefAvailIcons.setTooltipColumn(3);
     prefAvailIcons.getSelection.setMode(SelectionMode.BROWSE);
     AvailStore.setSortColumnId(1,GtkSortType.ASCENDING);
     
@@ -160,9 +162,10 @@ void ToolbarPreferences()
         AvailStore.setValue(ti, 0, new Value(new Pixbuf(tool.mIconResource)));
         AvailStore.setValue(ti, 1, new Value(tool.mName));
         AvailStore.setValue(ti, 2, new Value(key));
+        AvailStore.setValue(ti, 3, new Value(tool.mTooltip));
     }
         
-    UsedStore = new ListStore([GType.OBJECT, GType.STRING, GType.STRING]);
+    UsedStore = new ListStore([GType.OBJECT, GType.STRING, GType.STRING, GType.STRING]);
     auto prefUsedIcons = new TreeView(UsedStore);
     prefCellIcon = new CellRendererPixbuf;
     prefCellText = new CellRendererText;
@@ -170,6 +173,7 @@ void ToolbarPreferences()
     prefColText = new TreeViewColumn("action", prefCellText, "text", 1);
     prefUsedIcons.appendColumn(prefColIcon);
     prefUsedIcons.appendColumn(prefColText);
+    prefUsedIcons.setTooltipColumn(3);
     prefUsedIcons.getSelection.setMode(SelectionMode.BROWSE);
     prefUsedIcons.setReorderable(true);
     prefUsedIcons.addOnShow(delegate void(Widget w)
