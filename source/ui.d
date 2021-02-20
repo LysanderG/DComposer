@@ -14,11 +14,13 @@ import qore;
 import config;
 import docman;
 
-
 import ui_docbook;
 import ui_preferences;
+import ui_project;
 import ui_toolbar;
 
+
+public import gtk.FileFilter;
 public import gdk.Display;
 public import gdk.Event;
 public import gdk.Pixbuf;
@@ -78,6 +80,7 @@ public import gtk.MenuItem;
 public import gtk.MessageDialog;
 public import gtk.Notebook;
 public import gtk.Paned;
+public import gtk.ScrolledWindow;
 public import gtk.Separator;
 public import gtk.SpinButton;
 public import gtk.Switch;
@@ -114,6 +117,7 @@ void Engage(ref string[] args)
     EngageExtraPane(mBuilder);
     EngageStatusbar(mBuilder);
     EngageDocBook(mBuilder);
+    EngageProject();
 
 	mApplication.addOnActivate(delegate void(GApplication app)
 	{        
@@ -133,11 +137,13 @@ void Mesh()
     MeshSidePane();
     MeshExtraPane();
     MeshDocBook();
+    MeshProject();
     Log.Entry("Meshed");
 }
 
 void Disengage()
 {
+    DisengageProject();
     DisengageDocBook();
     DisengageStatusbar();
     DisengageExtraPane();
@@ -333,7 +339,7 @@ void DisengageMenubar()
 void EngageSidePane(Builder mBuilder)
 {
 	mSidePane = cast(Notebook)mBuilder.getObject("side_pane");
-	mSidePane.setVisible(Config.GetValue("ui","sidepane_visible", true));
+	mSidePane.getParent.getParent.setVisible(Config.GetValue("ui","sidepane_visible", true));
 	
 	Log.Entry("\tSidePane Engaged");
 }
@@ -357,6 +363,7 @@ void EngageExtraPane(Builder mBuilder)
 {
 	mExtraPane = cast(Notebook)mBuilder.getObject("extra_pane");
 	mExtraPane.setVisible(Config.GetValue("ui","extrapane_visible",true));
+	mExtraPane.getParent.getParent.setVisible(Config.GetValue("ui","extrapane_visible",true));
     Log.Entry("\tExtraPane Engaged");
 }
 void MeshExtraPane()
@@ -400,6 +407,19 @@ void DisengageDocBook()
 {
     mDocBook.Disengage();
 }
+void EngageProject()
+{
+    ui_project.Engage();
+}
+void MeshProject()
+{
+    ui_project.Mesh();
+}
+void DisengageProject()
+{
+    ui_project.Disengage();
+}
+
 bool ConfirmQuit()
 {
 	bool mQuitting = true;
@@ -570,14 +590,18 @@ extern (C)
     {
         SimpleAction sa = new SimpleAction(simAction);
         Variant v = new Variant(varTarget);
-        mSidePane.setVisible(!mSidePane.getVisible());
+        bool tmpbool = mSidePane.getVisible();
+        mSidePane.getParent.getParent.setVisible(!tmpbool);
+        mSidePane.setVisible(!tmpbool);
         sa.setState(new Variant(mSidePane.getVisible()));
     }
     void action_view_extrapane(GSimpleAction* simAction, GVariant* varTarget, void* voidUserData)
     {
         SimpleAction sa = new SimpleAction(simAction);
         Variant v = new Variant(varTarget);
-        mExtraPane.setVisible(!mExtraPane.getVisible());
+        bool tmpbool = mExtraPane.getVisible();
+        mExtraPane.getParent.getParent.setVisible(!tmpbool);
+        mExtraPane.setVisible(!tmpbool);
         sa.setState(new Variant(mExtraPane.getVisible()));
     }
 }
