@@ -12,6 +12,7 @@ import ui;
 import ui_action;
 import ui_toolbar;
 import ui_preferences;
+import ui_project;
 import log;
 import config;
 import docman;
@@ -362,7 +363,8 @@ public:
         
         if(doc is null)
         {
-            mStatusLine.setMarkup("Error?");
+            scope(failure) mStatusLine.setMarkup("Error?");
+            mStatusLine.setMarkup(ui_project.StatusLine());
             return;
         }
         mStatusLine.setMarkup(doc.GetStatusLine());

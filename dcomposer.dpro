@@ -20,7 +20,8 @@
                "source\/qore.d",
                "source\/project.d",
                "source\/ui_preferences.d",
-               "source\/transmit.d"
+               "source\/transmit.d",
+               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_project.d"
           ],
           "Related Files": [],
           "Postbuild Scripts": [],
@@ -153,11 +154,11 @@
                "Value": ""
           },
           {
-               "State": true,
+               "State": false,
                "Switch": "-defaultlib=",
                "Brief": "set default library to name",
                "Argument": true,
-               "Value": "libphobos2.so"
+               "Value": ""
           },
           {
                "State": false,
@@ -325,7 +326,7 @@
                "Switch": "-of",
                "Brief": "name output file to filename",
                "Argument": true,
-               "Value": "bin\/dcomposer"
+               "Value": "bin\/dcomposer_dmd"
           },
           {
                "State": false,

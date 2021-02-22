@@ -1,0 +1,746 @@
+{
+    "transition=tls": {
+        "brief": "list all variables going into thread local storage",
+        "flag": "transition=tls",
+        "id": "transition=tls",
+        "arg_type": "SIMPLE"
+    },
+    "mv=<package.module>=<filespec>": {
+        "brief": "use <filespec> as source file for <package.module>",
+        "flag": "mv",
+        "id": "mv=<package.module>=<filespec>",
+        "arg_type": "SIMPLE"
+    },
+    "transition=<name>": {
+        "brief": "help with language change identified by 'name'",
+        "flag": "transition",
+        "id": "transition=<name>",
+        "arg_type": "STRING"
+    },
+    "checkaction=context": {
+        "brief": "Use D assert with context information (when available)",
+        "flag": "checkaction=context",
+        "id": "checkaction=context",
+        "arg_type": "SIMPLE"
+    },
+    "revert=dip25": {
+        "brief": "revert DIP25 changes https:\/\/github.com\/dlang\/DIPs\/blob\/master\/DIPs\/archive\/DIP25.md",
+        "flag": "revert=dip25",
+        "id": "revert=dip25",
+        "arg_type": "SIMPLE"
+    },
+    "od=<directory>": {
+        "brief": "write object & library files to directory",
+        "flag": "od",
+        "id": "od=<directory>",
+        "arg_type": "STRING"
+    },
+    "check=on": {
+        "brief": "Enable all assertion checking",
+        "flag": "check=on",
+        "id": "check=on",
+        "arg_type": "SIMPLE"
+    },
+    "preview=dip1008": {
+        "brief": "implement https:\/\/github.com\/dlang\/DIPs\/blob\/master\/DIPs\/other\/DIP1008.md (@nogc Throwable)",
+        "flag": "preview=dip1008",
+        "id": "preview=dip1008",
+        "arg_type": "SIMPLE"
+    },
+    "release": {
+        "brief": "compile release version",
+        "flag": "release",
+        "id": "release",
+        "arg_type": "SIMPLE"
+    },
+    "check=switch": {
+        "brief": "Final switch failure checking",
+        "flag": "check=switch",
+        "id": "check=switch",
+        "arg_type": "SIMPLE"
+    },
+    "preview=intpromote": {
+        "brief": "fix integral promotions for unary + - ~ operators",
+        "flag": "preview=intpromote",
+        "id": "preview=intpromote",
+        "arg_type": "SIMPLE"
+    },
+    "mcpu=baseline": {
+        "brief": "use default architecture as determined by target",
+        "flag": "mcpu=baseline",
+        "id": "mcpu=baseline",
+        "arg_type": "SIMPLE"
+    },
+    "D": {
+        "brief": "generate documentation",
+        "flag": "D",
+        "id": "D",
+        "arg_type": "SIMPLE"
+    },
+    "preview=all": {
+        "brief": "Enables all available upcoming language changes",
+        "flag": "preview=all",
+        "id": "preview=all",
+        "arg_type": "SIMPLE"
+    },
+    "check=out": {
+        "brief": "Out contracts",
+        "flag": "check=out",
+        "id": "check=out",
+        "arg_type": "SIMPLE"
+    },
+    "O": {
+        "brief": "optimize",
+        "flag": "O",
+        "id": "O",
+        "arg_type": "SIMPLE"
+    },
+    "check=bounds": {
+        "brief": "Array bounds checking",
+        "flag": "check=bounds",
+        "id": "check=bounds",
+        "arg_type": "SIMPLE"
+    },
+    "g": {
+        "brief": "add symbolic debug info",
+        "flag": "g",
+        "id": "g",
+        "arg_type": "SIMPLE"
+    },
+    "m64": {
+        "brief": "generate 64 bit code",
+        "flag": "m64",
+        "id": "m64",
+        "arg_type": "SIMPLE"
+    },
+    "boundscheck=[on|safeonly|off]": {
+        "brief": "bounds checks on, in @safe only, or off",
+        "flag": "boundscheck",
+        "id": "boundscheck=[on|safeonly|off]",
+        "arg_type": "CHOICE"
+    },
+    "wi": {
+        "brief": "warnings as messages (compilation will continue)",
+        "flag": "wi",
+        "id": "wi",
+        "arg_type": "SIMPLE"
+    },
+    "preview=dip1000": {
+        "brief": "implement https:\/\/github.com\/dlang\/DIPs\/blob\/master\/DIPs\/other\/DIP1000.md (Scoped Pointers)",
+        "flag": "preview=dip1000",
+        "id": "preview=dip1000",
+        "arg_type": "SIMPLE"
+    },
+    "preview=<name>": {
+        "brief": "enable an upcoming language change identified by 'name'",
+        "flag": "preview",
+        "id": "preview=<name>",
+        "arg_type": "STRING"
+    },
+    "vgc": {
+        "brief": "list all gc allocations including hidden ones",
+        "flag": "vgc",
+        "id": "vgc",
+        "arg_type": "SIMPLE"
+    },
+    "debug": {
+        "brief": "compile in debug code",
+        "flag": "debug",
+        "id": "debug",
+        "arg_type": "SIMPLE"
+    },
+    "dw": {
+        "brief": "issue a message when deprecated features or symbols are used (default)",
+        "flag": "dw",
+        "id": "dw",
+        "arg_type": "SIMPLE"
+    },
+    "check=off": {
+        "brief": "Disable all assertion checking",
+        "flag": "check=off",
+        "id": "check=off",
+        "arg_type": "SIMPLE"
+    },
+    "extern-std=c++14": {
+        "brief": "Sets `__traits(getTargetInfo, \"cppStd\")` to `201402`",
+        "flag": "extern-std=c++14",
+        "id": "extern-std=c++14",
+        "arg_type": "SIMPLE"
+    },
+    "gs": {
+        "brief": "always emit stack frame",
+        "flag": "gs",
+        "id": "gs",
+        "arg_type": "SIMPLE"
+    },
+    "ignore": {
+        "brief": "ignore unsupported pragmas",
+        "flag": "ignore",
+        "id": "ignore",
+        "arg_type": "SIMPLE"
+    },
+    "H": {
+        "brief": "generate 'header' file",
+        "flag": "H",
+        "id": "H",
+        "arg_type": "SIMPLE"
+    },
+    "extern-std=c++98": {
+        "brief": "Sets `__traits(getTargetInfo, \"cppStd\")` to `199711`",
+        "flag": "extern-std=c++98",
+        "id": "extern-std=c++98",
+        "arg_type": "SIMPLE"
+    },
+    "op": {
+        "brief": "preserve source path for output files",
+        "flag": "op",
+        "id": "op",
+        "arg_type": "SIMPLE"
+    },
+    "cov=<nnn>": {
+        "brief": "require at least nnn% code coverage",
+        "flag": "cov",
+        "id": "cov=<nnn>",
+        "arg_type": "NUMBER"
+    },
+    "preview=fieldwise": {
+        "brief": "use fieldwise comparisons for struct equality",
+        "flag": "preview=fieldwise",
+        "id": "preview=fieldwise",
+        "arg_type": "SIMPLE"
+    },
+    "extern-std=<standard>": {
+        "brief": "set C++ name mangling compatibility with <standard>",
+        "flag": "extern-std",
+        "id": "extern-std=<standard>",
+        "arg_type": "SIMPLE"
+    },
+    "vtemplates=[list-instances]": {
+        "brief": "list statistics on template instantiations",
+        "flag": "vtemplates",
+        "id": "vtemplates=[list-instances]",
+        "arg_type": "SIMPLE"
+    },
+    "profile": {
+        "brief": "profile runtime performance of generated code",
+        "flag": "profile",
+        "id": "profile",
+        "arg_type": "SIMPLE"
+    },
+    "preview=dip25": {
+        "brief": "implement https:\/\/github.com\/dlang\/DIPs\/blob\/master\/DIPs\/archive\/DIP25.md (Sealed references)",
+        "flag": "preview=dip25",
+        "id": "preview=dip25",
+        "arg_type": "SIMPLE"
+    },
+    "HCf=<filename>": {
+        "brief": "write C++ 'header' file to filename",
+        "flag": "HCf",
+        "id": "HCf=<filename>",
+        "arg_type": "STRING"
+    },
+    "defaultlib=<name>": {
+        "brief": "set default library to name",
+        "flag": "defaultlib",
+        "id": "defaultlib=<name>",
+        "arg_type": "STRING"
+    },
+    "gx": {
+        "brief": "add stack stomp code",
+        "flag": "gx",
+        "id": "gx",
+        "arg_type": "SIMPLE"
+    },
+    "mcpu=avx": {
+        "brief": "use AVX 1 instructions",
+        "flag": "mcpu=avx",
+        "id": "mcpu=avx",
+        "arg_type": "SIMPLE"
+    },
+    "color=[on|off|auto]": {
+        "brief": "force colored console output on or off, or only when not redirected (default)",
+        "flag": "color",
+        "id": "color=[on|off|auto]",
+        "arg_type": "CHOICE"
+    },
+    "i[=<pattern>]": {
+        "brief": "include imported modules in the compilation",
+        "flag": "i",
+        "id": "i[=<pattern>]",
+        "arg_type": "STRING"
+    },
+    "c": {
+        "brief": "compile only, do not link",
+        "flag": "c",
+        "id": "c",
+        "arg_type": "SIMPLE"
+    },
+    "extern-std=c++11": {
+        "brief": "Sets `__traits(getTargetInfo, \"cppStd\")` to `201103`",
+        "flag": "extern-std=c++11",
+        "id": "extern-std=c++11",
+        "arg_type": "SIMPLE"
+    },
+    "preview=nosharedaccess": {
+        "brief": "disable access to shared memory objects",
+        "flag": "preview=nosharedaccess",
+        "id": "preview=nosharedaccess",
+        "arg_type": "SIMPLE"
+    },
+    "debuglib=<name>": {
+        "brief": "set symbolic debug library to name",
+        "flag": "debuglib",
+        "id": "debuglib=<name>",
+        "arg_type": "STRING"
+    },
+    "betterC": {
+        "brief": "omit generating some runtime information and helper functions",
+        "flag": "betterC",
+        "id": "betterC",
+        "arg_type": "SIMPLE"
+    },
+    "L=<linkerflag>": {
+        "brief": "pass linkerflag to link",
+        "flag": "L",
+        "id": "L=<linkerflag>",
+        "arg_type": "SIMPLE"
+    },
+    "checkaction=[D|C|halt|context]": {
+        "brief": "behavior on assert\/boundscheck\/finalswitch failure",
+        "flag": "checkaction",
+        "id": "checkaction=[D|C|halt|context]",
+        "arg_type": "HEADER"
+    },
+    "unittest": {
+        "brief": "compile in unit tests",
+        "flag": "unittest",
+        "id": "unittest",
+        "arg_type": "SIMPLE"
+    },
+    "vtls": {
+        "brief": "list all variables going into thread local storage",
+        "flag": "vtls",
+        "id": "vtls",
+        "arg_type": "SIMPLE"
+    },
+    "preview=rvaluerefparam": {
+        "brief": "enable rvalue arguments to ref parameters",
+        "flag": "preview=rvaluerefparam",
+        "id": "preview=rvaluerefparam",
+        "arg_type": "SIMPLE"
+    },
+    "vcolumns": {
+        "brief": "print character (column) numbers in diagnostics",
+        "flag": "vcolumns",
+        "id": "vcolumns",
+        "arg_type": "SIMPLE"
+    },
+    "Df<filename>": {
+        "brief": "write documentation file to filename",
+        "flag": "Df",
+        "id": "Df<filename>",
+        "arg_type": "STRING"
+    },
+    "noboundscheck": {
+        "brief": "no array bounds checking (deprecated, use -boundscheck=off)",
+        "flag": "noboundscheck",
+        "id": "noboundscheck",
+        "arg_type": "SIMPLE"
+    },
+    "check=in": {
+        "brief": "Generate In contracts",
+        "flag": "check=in",
+        "id": "check=in",
+        "arg_type": "SIMPLE"
+    },
+    "mixin=<filename>": {
+        "brief": "expand and save mixins to file specified by <filename>",
+        "flag": "mixin",
+        "id": "mixin=<filename>",
+        "arg_type": "STRING"
+    },
+    "lib": {
+        "brief": "generate library rather than object files",
+        "flag": "lib",
+        "id": "lib",
+        "arg_type": "SIMPLE"
+    },
+    "mcpu=<id>": {
+        "brief": "generate instructions for architecture identified by 'id'",
+        "flag": "mcpu",
+        "id": "mcpu=<id>",
+        "arg_type": "SIMPLE"
+    },
+    "transition=all": {
+        "brief": "Enables all available language transitions",
+        "flag": "transition=all",
+        "id": "transition=all",
+        "arg_type": "SIMPLE"
+    },
+    "fPIC": {
+        "brief": "generate position independent code",
+        "flag": "fPIC",
+        "id": "fPIC",
+        "arg_type": "SIMPLE"
+    },
+    "Dd<directory>": {
+        "brief": "write documentation file to directory",
+        "flag": "Dd",
+        "id": "Dd<directory>",
+        "arg_type": "STRING"
+    },
+    "HC=verbose": {
+        "brief": "Add a comment for ignored non-exern(C[++]) declarations",
+        "flag": "HC=verbose",
+        "id": "HC=verbose",
+        "arg_type": "SIMPLE"
+    },
+    "preview=dtorfields": {
+        "brief": "destruct fields of partially constructed objects",
+        "flag": "preview=dtorfields",
+        "id": "preview=dtorfields",
+        "arg_type": "SIMPLE"
+    },
+    "transition=vmarkdown": {
+        "brief": "list instances of Markdown replacements in Ddoc",
+        "flag": "transition=vmarkdown",
+        "id": "transition=vmarkdown",
+        "arg_type": "SIMPLE"
+    },
+    "J=<directory>": {
+        "brief": "look for string imports also in directory",
+        "flag": "J",
+        "id": "J=<directory>",
+        "arg_type": "STRING"
+    },
+    "cov": {
+        "brief": "do code coverage analysis",
+        "flag": "cov",
+        "id": "cov",
+        "arg_type": "SIMPLE"
+    },
+    "d": {
+        "brief": "silently allow deprecated features and symbols",
+        "flag": "d",
+        "id": "d",
+        "arg_type": "SIMPLE"
+    },
+    "conf=<filename>": {
+        "brief": "use config file at filename",
+        "flag": "conf",
+        "id": "conf=<filename>",
+        "arg_type": "STRING"
+    },
+    "profile=gc": {
+        "brief": "profile runtime allocations",
+        "flag": "profile",
+        "id": "profile=gc",
+        "arg_type": "SIMPLE"
+    },
+    "X": {
+        "brief": "generate JSON file",
+        "flag": "X",
+        "id": "X",
+        "arg_type": "SIMPLE"
+    },
+    "check=assert": {
+        "brief": "Assertion checking",
+        "flag": "check=assert",
+        "id": "check=assert",
+        "arg_type": "SIMPLE"
+    },
+    "verror-style=[digitalmars|gnu]": {
+        "brief": "set the style for file\/line number annotations on compiler messages",
+        "flag": "verror-style",
+        "id": "verror-style=[digitalmars|gnu]",
+        "arg_type": "CHOICE"
+    },
+    "debug=<level>": {
+        "brief": "compile in debug code <= level",
+        "flag": "debug",
+        "id": "debug=<level>",
+        "arg_type": "NUMBER"
+    },
+    "lowmem": {
+        "brief": "enable garbage collection for the compiler",
+        "flag": "lowmem",
+        "id": "lowmem",
+        "arg_type": "SIMPLE"
+    },
+    "extern-std=c++17": {
+        "brief": "Sets `__traits(getTargetInfo, \"cppStd\")` to `201703`",
+        "flag": "extern-std=c++17",
+        "id": "extern-std=c++17",
+        "arg_type": "SIMPLE"
+    },
+    "color": {
+        "brief": "turn colored console output on",
+        "flag": "color",
+        "id": "color",
+        "arg_type": "SIMPLE"
+    },
+    "debug=<ident>": {
+        "brief": "compile in debug code identified by ident",
+        "flag": "debug",
+        "id": "debug=<ident>",
+        "arg_type": "SIMPLE"
+    },
+    "I=<directory>": {
+        "brief": "look for imports also in directory",
+        "flag": "I",
+        "id": "I=<directory>",
+        "arg_type": "STRING"
+    },
+    "m32": {
+        "brief": "generate 32 bit code",
+        "flag": "m32",
+        "id": "m32",
+        "arg_type": "SIMPLE"
+    },
+    "checkaction=halt": {
+        "brief": "Halt the program execution (very lightweight)",
+        "flag": "checkaction=halt",
+        "id": "checkaction=halt",
+        "arg_type": "SIMPLE"
+    },
+    "verrors=spec": {
+        "brief": "show errors from speculative compiles such as __traits(compiles,...)",
+        "flag": "verrors",
+        "id": "verrors=spec",
+        "arg_type": "SIMPLE"
+    },
+    "check=[assert|bounds|in|invariant|out|switch][=[on|off]]": {
+        "brief": "enable or disable specific checks",
+        "flag": "check",
+        "id": "check=[assert|bounds|in|invariant|out|switch][=[on|off]]",
+        "arg_type": "STRING"
+    },
+    "HC[=[silent|verbose]]": {
+        "brief": "generate C++ 'header' file",
+        "flag": "HC",
+        "id": "HC[=[silent|verbose]]",
+        "arg_type": "STRING"
+    },
+    "Xcc=<driverflag>": {
+        "brief": "pass driverflag to linker driver (cc)",
+        "flag": "Xcc",
+        "id": "Xcc=<driverflag>",
+        "arg_type": "STRING"
+    },
+    "HCd=<directory>": {
+        "brief": "write C++ 'header' file to directory",
+        "flag": "HCd",
+        "id": "HCd=<directory>",
+        "arg_type": "STRING"
+    },
+    "Xf=<filename>": {
+        "brief": "write JSON file to filename",
+        "flag": "Xf",
+        "id": "Xf=<filename>",
+        "arg_type": "STRING"
+    },
+    "revert=<name>": {
+        "brief": "revert language change identified by 'name'",
+        "flag": "revert",
+        "id": "revert=<name>",
+        "arg_type": "STRING"
+    },
+    "checkaction=D": {
+        "brief": "Usual D behavior of throwing an AssertError",
+        "flag": "checkaction=D",
+        "id": "checkaction=D",
+        "arg_type": "SIMPLE"
+    },
+    "HC=silent": {
+        "brief": "Silently ignore non-exern(C[++]) declarations",
+        "flag": "HC=silent",
+        "id": "HC=silent",
+        "arg_type": "SIMPLE"
+    },
+    "checkaction=C": {
+        "brief": "Call the C runtime library assert failure function",
+        "flag": "checkaction=C",
+        "id": "checkaction=C",
+        "arg_type": "SIMPLE"
+    },
+    "mcpu=avx2": {
+        "brief": "use AVX 2 instructions",
+        "flag": "mcpu=avx2",
+        "id": "mcpu=avx2",
+        "arg_type": "SIMPLE"
+    },
+    "shared": {
+        "brief": "generate shared library (DLL)",
+        "flag": "shared",
+        "id": "shared",
+        "arg_type": "SIMPLE"
+    },
+    "preview=fixAliasThis": {
+        "brief": "when a symbol is resolved, check alias this scope before going to upper scopes",
+        "flag": "preview=fixAliasThis",
+        "id": "preview=fixAliasThis",
+        "arg_type": "SIMPLE"
+    },
+    "verrors=<num>": {
+        "brief": "limit the number of error messages (0 means unlimited)",
+        "flag": "verrors",
+        "id": "verrors=<num>",
+        "arg_type": "NUMBER"
+    },
+    "deps": {
+        "brief": "print module dependencies (imports\/file\/version\/debug\/lib)",
+        "flag": "deps",
+        "id": "deps",
+        "arg_type": "SIMPLE"
+    },
+    "version=<level>": {
+        "brief": "compile in version code >= level",
+        "flag": "version",
+        "id": "version=<level>",
+        "arg_type": "NUMBER"
+    },
+    "o-": {
+        "brief": "do not write object file",
+        "flag": "o-",
+        "id": "o-",
+        "arg_type": "SIMPLE"
+    },
+    "allinst": {
+        "brief": "generate code for all template instantiations",
+        "flag": "allinst",
+        "id": "allinst",
+        "arg_type": "SIMPLE"
+    },
+    "cov=ctfe": {
+        "brief": "Include code executed during CTFE in coverage report",
+        "flag": "cov",
+        "id": "cov=ctfe",
+        "arg_type": "SIMPLE"
+    },
+    "preview=in": {
+        "brief": "`in` on parameters means `scope const [ref]` and accepts rvalues",
+        "flag": "preview=in",
+        "id": "preview=in",
+        "arg_type": "SIMPLE"
+    },
+    "v": {
+        "brief": "verbose",
+        "flag": "v",
+        "id": "v",
+        "arg_type": "SIMPLE"
+    },
+    "of=<filename>": {
+        "brief": "name output file to filename",
+        "flag": "of",
+        "id": "of=<filename>",
+        "arg_type": "STRING"
+    },
+    "check=invariant": {
+        "brief": "Class\/struct invariants",
+        "flag": "check=invariant",
+        "id": "check=invariant",
+        "arg_type": "SIMPLE"
+    },
+    "w": {
+        "brief": "warnings as errors (compilation will halt)",
+        "flag": "w",
+        "id": "w",
+        "arg_type": "SIMPLE"
+    },
+    "revert=markdown": {
+        "brief": "disable Markdown replacements in Ddoc",
+        "flag": "revert=markdown",
+        "id": "revert=markdown",
+        "arg_type": "SIMPLE"
+    },
+    "transition=field": {
+        "brief": "list all non-mutable fields which occupy an object instance",
+        "flag": "transition=field",
+        "id": "transition=field",
+        "arg_type": "SIMPLE"
+    },
+    "Hf=<filename>": {
+        "brief": "write 'header' file to filename",
+        "flag": "Hf",
+        "id": "Hf=<filename>",
+        "arg_type": "STRING"
+    },
+    "de": {
+        "brief": "issue an error when deprecated features or symbols are used (halt compilation)",
+        "flag": "de",
+        "id": "de",
+        "arg_type": "SIMPLE"
+    },
+    "Hd=<directory>": {
+        "brief": "write 'header' file to directory",
+        "flag": "Hd",
+        "id": "Hd=<directory>",
+        "arg_type": "STRING"
+    },
+    "transition=complex": {
+        "brief": "give deprecation messages about all usages of complex or imaginary types",
+        "flag": "transition=complex",
+        "id": "transition=complex",
+        "arg_type": "SIMPLE"
+    },
+    "revert=all": {
+        "brief": "Enables all available revertable language changes",
+        "flag": "revert=all",
+        "id": "revert=all",
+        "arg_type": "SIMPLE"
+    },
+    "inline": {
+        "brief": "do function inlining",
+        "flag": "inline",
+        "id": "inline",
+        "arg_type": "SIMPLE"
+    },
+    "map": {
+        "brief": "generate linker .map file",
+        "flag": "map",
+        "id": "map",
+        "arg_type": "SIMPLE"
+    },
+    "main": {
+        "brief": "add default main() (e.g. for unittesting)",
+        "flag": "main",
+        "id": "main",
+        "arg_type": "SIMPLE"
+    },
+    "deps=<filename>": {
+        "brief": "write module dependencies to filename (only imports)",
+        "flag": "deps",
+        "id": "deps=<filename>",
+        "arg_type": "STRING"
+    },
+    "verrors=context": {
+        "brief": "show error messages with the context of the erroring source line",
+        "flag": "verrors",
+        "id": "verrors=context",
+        "arg_type": "SIMPLE"
+    },
+    "gf": {
+        "brief": "emit debug info for all referenced types",
+        "flag": "gf",
+        "id": "gf",
+        "arg_type": "SIMPLE"
+    },
+    "preview=dip1021": {
+        "brief": "implement https:\/\/github.com\/dlang\/DIPs\/blob\/master\/DIPs\/accepted\/DIP1021.md (Mutable function arguments)",
+        "flag": "preview=dip1021",
+        "id": "preview=dip1021",
+        "arg_type": "SIMPLE"
+    },
+    "version=<ident>": {
+        "brief": "compile in version code identified by ident",
+        "flag": "version",
+        "id": "version=<ident>",
+        "arg_type": "SIMPLE"
+    },
+    "mcpu=native": {
+        "brief": "use CPU architecture that this compiler is running on",
+        "flag": "mcpu=native",
+        "id": "mcpu=native",
+        "arg_type": "SIMPLE"
+    }
+}

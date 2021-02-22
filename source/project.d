@@ -2,12 +2,13 @@ module project;
 
 import std.getopt;
 import std.signals;
+import std.file;
 import std.path;
 
 
 import qore;
+import json;
 
-private:
 
 string defaultProjectRoot;
 enum PROJECT_MODULE_VERSION = "B";
@@ -16,7 +17,10 @@ PROJECT mProject;
 
 string 	startUpProject;
 
-public:
+
+
+PROJECT Project(){return mProject;}
+
 void Engage(ref string[] cmdLineArgs)
 {
     
@@ -82,22 +86,59 @@ class PROJECT
     
     LISTS		mTags; 				//any additional info you want. see TAGS enum + anything else
     LISTS		mLists;				//source files,  libraries, paths, pre and post build scripts
-    FLAG[]		mFlags;				//compiler flags --> this time just the enabled ones
+    FLAG[string]mFlags;				//compiler flags --> this time just the enabled ones
     
+    bool        mUseCustomBuild;
     string      mCustomBuildCommand;
     string      mBuildCommand;
+    
+    void LoadFlags()
+    {
+        string flagtext = readText(Config.GetResource("project","flags","utils","flags.json"));
+        auto jFlags = parseJSON(flagtext);
+        foreach (flag; jFlags.object)
+        {
+            
+            FLAG nuFlag;
+            nuFlag.mBrief = cast(string)flag["brief"];
+            nuFlag.mId = cast(string)flag["id"];
+            nuFlag.mSwitch = cast(string)flag["id"];
+            nuFlag.mType = cast(FLAG_TYPE)flag["arg_type"].toString;
+            mFlags[nuFlag.mId] = nuFlag;            
+        }
+    }
+    void LoadDefaultTags()
+    {
+        import std.traits;
+        static foreach(string mem; EnumMembers!TAGS)
+        {
+            mTags[mem] = [""];
+        } 
+        dwrite(mTags);
+    }
 
 public:
     this()
     {
+        LoadFlags();
+        LoadDefaultTags();
+        Transmit.ProjectEvent.emit(this, PROJECT_EVENT.CREATED);
+        dwrite(mCompiler);
+        dwrite(mType);
     }
     
     void Load(string projectFile)
     {
+        string jsonProjString = readText(projectFile);
+        Log.Entry(jsonProjString);
+        Transmit.ProjectEvent.emit(this, PROJECT_EVENT.OPENED);
+        Log.Entry("Loaded " ~ projectFile);
     }
     
     void Save()
     {
+        Transmit.ProjectEvent.emit(this, PROJECT_EVENT.SAVED);
+        Log.Entry("Saved " ~ mLocation);
     }
     
     void Build()
@@ -109,7 +150,7 @@ public:
     }
     
     void Close()
-    {
+    {     
     }
     
     void Name(string nuName)
@@ -140,8 +181,23 @@ public:
     COMPILER Compiler()
     {
 	    return mCompiler;
+    }  
+    void SetCustomBuildCommand(string theCustomCommand)
+    {
+        mCustomBuildCommand = theCustomCommand;
     }
-    
+    string GetCustomCommand()
+    {
+        return mCustomBuildCommand;
+    }
+    void UseCustomCommand(bool yayNay)
+    {
+        mUseCustomBuild = yayNay;
+    }
+    bool UseCustomCommand()
+    {
+        return mUseCustomBuild;
+    }
     void Type(TARGET_TYPE nuType)
     {
 	    mType = nuType;
@@ -150,9 +206,28 @@ public:
     {
 	    return mType;
     }
-    
-        
-
+    void SetFlag(string id, bool state , string arg = "")
+    {
+        mFlags[id].mState= state;
+        mFlags[id].mArgument = arg;
+    }
+    bool GetFlag(string id, out string arg)
+    {
+        arg = mFlags[id].mArgument;
+        return mFlags[id].mState;
+    }
+    void SetTag(string key, string value)
+    {
+        mTags[key] = value;        
+    }
+    string[] GetTag(string key)
+    {
+        return mTags[key];
+    }
+    void AppendTag(string key, string value)
+    {
+        mTags[key] ~= value;
+    }
 }
 
 alias string[] LIST;
@@ -250,7 +325,7 @@ enum COMPILER :string
 
 enum TARGET_TYPE
 {
-	UNDEFINED,
+	UNDEFINED,          //no project.. dont build,run,save ...
 	BIN,
 	APP,
 	SHARED_LIB,
@@ -261,13 +336,13 @@ enum TARGET_TYPE
 	OTHER,
 }
 
-enum FLAG_TYPE
+enum FLAG_TYPE :string
 {
-	SIMPLE,
-	NUMBER,
-	STRING,
-	CHOICE,
-	NOTHING,
+	SIMPLE = "SIMPE",
+	NUMBER = "NUMBER",
+	STRING = "STRING",
+	CHOICE = "CHOICE",
+	NOTHING = "NOTHING",
 }
 
 
