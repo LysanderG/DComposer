@@ -9,7 +9,8 @@ import ui;
 import qore;
 
 private Widget[][string] sectionWidgets;
-void AddAppPreferenceWidget(string Page, Widget[] rowComponents ...)
+//void AddAppPreferenceWidget(string Page, Widget[] rowComponents ...)
+void AppPreferenceAddWidget(string Page, Widget[] rowComponents ...)
 {
 	if(rowComponents.length == 1)
 	{
@@ -23,14 +24,21 @@ void AddAppPreferenceWidget(string Page, Widget[] rowComponents ...)
     listRow.hideOnDelete();
     sectionWidgets[Page] ~= listRow;
 }
-void ShowAppPreferences()
+
+void AppPreferenceAdjustWidget(string Page, int row, Widget item, bool expand, bool fill, int padding)
 {
-    auto prefs = BuildAppPreferences();
+    Box box = cast(Box)sectionWidgets[Page][row];
+    box.setChildPacking(item, expand, fill, padding, PackType.START);
+}
+
+void AppPreferencesShow()
+{
+    auto prefs = AppPreferencesBuild();
     prefs.run();
     prefs.hide();
     foreach(page; sectionWidgets)foreach(wiget; page)wiget.unparent();
 }   
-Dialog BuildAppPreferences()
+Dialog AppPreferencesBuild()
 {
     auto rv = new Dialog("DCOMPOSER PREFERENCES", mMainWindow, DialogFlags.MODAL, ["Finished"], [ResponseType.CLOSE]);
     auto content = rv.getContentArea();    

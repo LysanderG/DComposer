@@ -142,6 +142,7 @@ void ToolbarPreferences()
         Config.SetArray("ui_toolbar", "buttons", holdingArray);
    	}
 
+    auto AvailScroll = new ScrolledWindow();
     auto AvailStore = new ListStore([GType.OBJECT, GType.STRING,GType.STRING,GType.STRING]);
     auto prefAvailIcons = new TreeView(AvailStore);
     auto prefCellIcon = new CellRendererPixbuf;
@@ -152,7 +153,9 @@ void ToolbarPreferences()
     prefAvailIcons.appendColumn(prefColText);
     prefAvailIcons.setTooltipColumn(3);
     prefAvailIcons.getSelection.setMode(SelectionMode.BROWSE);
-    AvailStore.setSortColumnId(1,GtkSortType.ASCENDING);
+    AvailStore.setSortColumnId(1,GtkSortType.ASCENDING); 
+    
+    
     
     //populate available store    
     foreach(key, tool; mToolObjects)
@@ -167,6 +170,7 @@ void ToolbarPreferences()
         
     UsedStore = new ListStore([GType.OBJECT, GType.STRING, GType.STRING, GType.STRING]);
     auto prefUsedIcons = new TreeView(UsedStore);
+    auto UsedScroll = new ScrolledWindow();
     prefCellIcon = new CellRendererPixbuf;
     prefCellText = new CellRendererText;
     prefColIcon = new TreeViewColumn("icon", prefCellIcon, "pixbuf", 0);
@@ -185,6 +189,7 @@ void ToolbarPreferences()
         LoadConfig();
         UpdateToolbar();
     });
+
     
     auto buttons = new ButtonBox(Orientation.VERTICAL);
     auto buttonFrame = new Frame(buttons,"");
@@ -230,8 +235,17 @@ void ToolbarPreferences()
     buttons.packStart(addBtn, false, false, 4);
     buttons.packStart(delBtn, false, false, 4);
     buttons.packStart(clearBtn, false, false, 4);
-    AddAppPreferenceWidget("Toolbar", new Label("Configure Toolbar"));
-    AddAppPreferenceWidget("Toolbar", prefAvailIcons, buttonFrame, prefUsedIcons);
+    AppPreferenceAddWidget("Toolbar", new Label("Configure Toolbar"));
+    AppPreferenceAddWidget("Toolbar", new Separator(Orientation.HORIZONTAL));
+
+    AvailScroll.add(prefAvailIcons);
+    AvailScroll.setVexpand(true);
+    UsedScroll.add(prefUsedIcons);
+    UsedScroll.setVexpand(true);
+    AppPreferenceAddWidget("Toolbar", AvailScroll, buttonFrame, UsedScroll);
+    
+    AppPreferenceAdjustWidget("Toolbar",2, AvailScroll, true, true, 1);
+    AppPreferenceAdjustWidget("Toolbar",2, UsedScroll, true, true, 1);
 
 }
 

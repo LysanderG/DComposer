@@ -48,6 +48,7 @@ public import gtk.AccelLabel;
 public import gtk.Adjustment;
 public import gtk.Application;
 public import gtk.ApplicationWindow;
+public import gtk.Bin;
 public import gtk.Box;
 public import gtk.Builder;
 public import gtk.Button;
@@ -62,6 +63,8 @@ public import gtk.CheckButton;
 public import gtk.CheckMenuItem;
 public import gtk.Clipboard;
 public import gtk.ComboBox;
+public import gtk.Dialog;
+public import gtk.EditableIF;
 public import gtk.Entry;
 public import gtk.FileChooserButton;
 public import gtk.FileChooserDialog;
@@ -513,12 +516,12 @@ void LogPreferences()
     
     prefLogFileEntry.setIconFromPixbuf(EntryIconPosition.SECONDARY, new Pixbuf(Config.GetResource("preferences","logfile", "resources", "folder-open-document-text.png")));
 
-    AddAppPreferenceWidget("General", prefLogFileLabel, prefLogFileEntry);
+    AppPreferenceAddWidget("General", prefLogFileLabel, prefLogFileEntry);
 
     //log echo stdout
     auto prefLogEchoLabel = new Label("Echo Log Entries to Std Out:");
     auto prefLogEchoSwitch = new Switch();
-    AddAppPreferenceWidget("General", prefLogEchoLabel, prefLogEchoSwitch);
+    AppPreferenceAddWidget("General", prefLogEchoLabel, prefLogEchoSwitch);
     prefLogEchoSwitch.setState(Log.GetEchoStdOut());
     prefLogEchoSwitch.addOnStateSet(delegate bool(bool status, Switch sw)
     {
@@ -529,7 +532,7 @@ void LogPreferences()
     });
     auto sep = new Separator(Orientation.VERTICAL);
 
-    AddAppPreferenceWidget("General", sep );
+    AppPreferenceAddWidget("General", sep );
 }
 
 void ConfigPreferences()
@@ -550,7 +553,7 @@ void ConfigPreferences()
     configDirPrefInfo.setAlignment(0.0, 0.0);
     //configDirPrefUI.packStart(configDirPrefFrame, true, true, 1);
     //configDirPrefUI.packStart(configDirPrefInfo, true, true, 1);
-    ui_preferences.AddAppPreferenceWidget("General", configDirPrefFrame);
+    ui_preferences.AppPreferenceAddWidget("General", configDirPrefFrame);
 }
 
 //action callbacks from gtk ... so extern c
@@ -568,7 +571,7 @@ extern (C)
     void action_preferences(void* simAction, void* varTarget, void* voidUserData)
     {
         //ui_preferences.BuildAppPreferences();
-        ui_preferences.ShowAppPreferences();
+        ui_preferences.AppPreferencesShow();
         
     }
     

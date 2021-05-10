@@ -574,14 +574,14 @@ public:
             Config.SetValue("document","hilite_syntax", state);
             return false;
         });
-        AddAppPreferenceWidget("Editor", prefSyntaxHiLiteLabel, prefSyntaxHiLiteSwitch); 
+        AppPreferenceAddWidget("Editor", prefSyntaxHiLiteLabel, prefSyntaxHiLiteSwitch); 
    
         //scheme
         auto prefSchemeLabel = new Label("Style Scheme :");
 
         auto prefSchemeButton = new StyleSchemeChooserButton();
 
-        AddAppPreferenceWidget("Editor",prefSchemeLabel, prefSchemeButton);
+        AppPreferenceAddWidget("Editor",prefSchemeLabel, prefSchemeButton);
         prefSchemeButton.setStyleScheme(SourceStyleSchemeManager.getDefault().getScheme(Config.GetValue("document", "style_scheme", "mnml")));
         prefSchemeButton.addOnEventAfter(delegate void(Event event, Widget widget)
         {
@@ -599,7 +599,7 @@ public:
             Config.SetValue("document","show_line_numbers", prefSwitch.getActive());
             return false;
         });
-        AddAppPreferenceWidget("Editor", prefLineNoLabel, prefLineNoSwitch);  
+        AppPreferenceAddWidget("Editor", prefLineNoLabel, prefLineNoSwitch);  
         //auto indent
         auto prefAutoIndentLabel = new Label("Auto Indent :");
         auto prefAutoIndentSwitch = new Switch;
@@ -609,7 +609,7 @@ public:
             Config.SetValue("document","auto_indent",status);
             return false;
         });
-        AddAppPreferenceWidget("Editor",prefAutoIndentLabel, prefAutoIndentSwitch);
+        AppPreferenceAddWidget("Editor",prefAutoIndentLabel, prefAutoIndentSwitch);
         //background pattern ... ignore for now
         //highlight current line
         auto prefHiliteCurLineLabel = new Label("Highlight Current Line :");
@@ -620,7 +620,7 @@ public:
             Config.SetValue("document","hilite_current_line", status);
             return false;
         });
-        AddAppPreferenceWidget("Editor",prefHiliteCurLineLabel, prefHiliteCurLineSwitch);
+        AppPreferenceAddWidget("Editor",prefHiliteCurLineLabel, prefHiliteCurLineSwitch);
         //indent on tab
         auto prefIndentTabSwitch = new Switch;
         prefIndentTabSwitch.setActive(Config.GetValue("document","indent_on_tab",true));
@@ -629,7 +629,7 @@ public:
             Config.SetValue("document", "indent_on_tab", status);
             return false;
         });
-        AddAppPreferenceWidget("Editor", new Label("Indent on Tab"), prefIndentTabSwitch);
+        AppPreferenceAddWidget("Editor", new Label("Indent on Tab"), prefIndentTabSwitch);
         
         //indent width
         auto prefIndentWidthAdjustment = new Adjustment(4.0, 1.0, 65.0, 1.0, 4.0, 4.0);
@@ -639,7 +639,7 @@ public:
         {
             Config.SetValue("document","indent_width", prefIndentWidthAdjustment.getValue());
         });
-        AddAppPreferenceWidget("Editor", new Label("Indent Width :"), prefIndentWidthSpinButton);
+        AppPreferenceAddWidget("Editor", new Label("Indent Width :"), prefIndentWidthSpinButton);
         //spaces for tabs
         auto prefSpaces4Tabs = new Switch;
         prefSpaces4Tabs.setActive(Config.GetValue("document", "spaces_for_tabs",true));
@@ -669,7 +669,7 @@ public:
         rightBox.packStart(prefShowRightMargin,false, false, 0);
         rightBox.packStart(prefRightMargin, true, true, 0);
         //AddAppPreferenceWidget("Editor", new Label("Right Margin :"), prefShowRightMargin, prefRightMargin);
-        AddAppPreferenceWidget("Editor", new Label("Show Right Margin :"), rightBox);
+        AppPreferenceAddWidget("Editor", new Label("Show Right Margin :"), rightBox);
         
         //show line marks
         auto prefLineMarks = new Switch;
@@ -679,7 +679,7 @@ public:
             Config.SetValue("document","show_line_marks", status);
             return false;
         });
-        AddAppPreferenceWidget("Editor", new Label("Show Line Marks :"), prefLineMarks);
+        AppPreferenceAddWidget("Editor", new Label("Show Line Marks :"), prefLineMarks);
         //smart backspace
         auto prefSmartBackSpace = new Switch;
         prefSmartBackSpace.setActive(Config.GetValue("document","smart_backspace",true));
@@ -688,7 +688,7 @@ public:
             Config.SetValue("document","smart_backspace", status);
             return false;
         });
-        AddAppPreferenceWidget("Editor", new Label("Smart Backspace :"), prefSmartBackSpace);
+        AppPreferenceAddWidget("Editor", new Label("Smart Backspace :"), prefSmartBackSpace);
         //smart home end
         auto prefSmartHomeEnd = new Switch;
         prefSmartHomeEnd.setActive(Config.GetValue("document","smart_home_end",true));
@@ -697,7 +697,7 @@ public:
             Config.SetValue("document","smart_home_end", status);
             return false;
         });
-        AddAppPreferenceWidget("Editor", new Label("Smart Home End :"), prefSmartHomeEnd);
+        AppPreferenceAddWidget("Editor", new Label("Smart Home End :"), prefSmartHomeEnd);
         //tab width
         auto prefTabWidthAdjustment = new Adjustment(4.0, 1.0, 32.0, 1.0, 1.0, 0.0);
         auto prefTabWidthSpinButton = new SpinButton(prefTabWidthAdjustment, 0.0, 0);
@@ -706,7 +706,7 @@ public:
         {
             Config.SetValue("document","tab_width", adj.getValue());
         });
-        AddAppPreferenceWidget("Editor", new Label("Tab Width :"), prefTabWidthSpinButton);
+        AppPreferenceAddWidget("Editor", new Label("Tab Width :"), prefTabWidthSpinButton);
    
         //word wrap
         auto prefWrapStore = new ListStore([GType.STRING, GType.INT]);
@@ -724,7 +724,7 @@ public:
         {
 	        Config.SetValue!GtkWrapMode("document","wrap_mode",cast(GtkWrapMode)self.getActive); //hmm
         });
-        AddAppPreferenceWidget("Editor",new Label("Line Wrap :"),prefWrapCombo);
+        AppPreferenceAddWidget("Editor",new Label("Line Wrap :"),prefWrapCombo);
         
         //finally font!! this is one long function.
         auto prefFontButton = new FontButton();
@@ -735,7 +735,7 @@ public:
 	        Config.SetValue("document","font", self.getFont());
         });
         
-        AddAppPreferenceWidget("Editor", prefFontButton);   
+        AppPreferenceAddWidget("Editor", prefFontButton);   
     }   
     void EngageDocPreferences()
     {
@@ -813,7 +813,7 @@ public:
                 optionStore.iterNext(ti);
             }
         });
-        AddAppPreferenceWidget("document", root);
+        AppPreferenceAddWidget("document", root);
     }    
 }
 
