@@ -125,7 +125,8 @@ public:
         mTabLabel = new Label(mFullPathName, false);        
                 
         //use an Image because buttons are too damn large. Who wants a giant sized tab row.
-        auto tabXButton = new Image(Config.GetValue("document","close_button_icon", "resources/cross-circle-frame.png"));
+        //auto tabXButton = new Image(Config.GetValue("document","close_button_icon", "resources/cross-circle-frame.png"));
+        auto tabXButton = new Image(Config.GetResource("document","close_button_icon","resources", "cross-circle-frame.png"));
         
         tabXButton.setSizeRequest(8, 8);
         tabXButton.addEvents(EventMask.BUTTON_RELEASE_MASK);
