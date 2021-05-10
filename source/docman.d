@@ -25,6 +25,7 @@ void Engage(ref string[] args)
     }
     if(cmdLineFiles.length)Config.SetValue!(string[])("docman","cmdLineFiles", cmdLineFiles);
     else Config.SetValue!(string[])("docman","cmdLineFiles", []);
+    Log.Entry("Engaged");
     
 }
 void Mesh()
@@ -41,9 +42,13 @@ void Mesh()
             continue;            
         }
         OpenDoc(startup);
+        Log.Entry("Meshed");
     }
 }
-void Disengage(){}
+void Disengage()
+{
+    Log.Entry("Disengaged");
+}
 
 //ui agnostic interface to DOCUMENT
 //ostensibly to use something other than GtkSourceView
@@ -107,6 +112,12 @@ void RemoveDoc(DOC_IF oldDoc)
 	if(oldDoc.Modified)Log.Entry("Removing modified doc ("~ oldDoc.Name ~ ") from document manager");
 	mDocs.remove(oldDoc.FullName);
 }
+
+void SaveAll()
+{
+    foreach(doc;GetModifiedDocs)doc.Save();
+}
+
 DOC_IF GetDoc(string docName)
 {
     return mDocs[docName];
