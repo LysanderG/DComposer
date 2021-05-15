@@ -68,6 +68,7 @@ void Engage(ref string[] cmdLineArgs)
 
 void Mesh()
 {
+    Config.SetValue("config", "initialDir", getcwd);
 	Log.Entry("Meshed");
 
 }
