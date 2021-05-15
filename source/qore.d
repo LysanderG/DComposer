@@ -8,6 +8,11 @@ public import docman;
 public import transmit;
 public import project;
 
+
+
+immutable string ProjRunScript = "tmpProjRunner";
+immutable string DocRunScript = "tmpDocRunner";
+
 void Engage(ref string[] args)
 { 
     if(args.canFind(["-b"])|| args.canFind("--build"))args ~= "-q";

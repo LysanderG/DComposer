@@ -163,9 +163,9 @@ void Run(string DocName, string[] rdmdOpt ...)
 	    return;
     }
     string ExecName = Doc.FullName;
-    auto TerminalCommand = Config.GetArray!string("terminal_cmd","run", ["xterm", "-T","dcomposer running project","-e"]);
+    auto TerminalCommand = Config.GetArray!string("terminal_cmd","run", ["xterm", "-T","dcomposer running document","-e"]);
 
-    auto tFile = std.stdio.File(mtmpDocRun, "w");
+    auto tFile = std.stdio.File(DocRunScript, "w");
 
     tFile.writeln("#!/bin/bash");
     tFile.write("rdmd ");
@@ -173,20 +173,20 @@ void Run(string DocName, string[] rdmdOpt ...)
     tFile.write(ExecName); 
     tFile.writeln();
     tFile.writeln(`echo -e "\n\nProgram Terminated with exit code $?.\nPress a key to close terminal..."`);
+    tFile.writeln(`sleep 30`);
     tFile.writeln(`read -sn1`);
-    tFile.writeln(`rm ` ~ mtmpDocRun);
     tFile.flush();
     tFile.close();
-    setAttributes(mtmpDocRun, 509);
 
     string[] CmdStrings;
     CmdStrings = TerminalCommand;
-    CmdStrings ~= ["./"~mtmpDocRun];
+    CmdStrings ~= ["./"~DocRunScript];
 
     try
     {
-        spawnProcess(CmdStrings,stdin, stdout, stderr,null, pConfig.detached, null);
+        auto result = spawnProcess(CmdStrings,stdin, stdout, stderr,null, pConfig.detached, null);
         Log.Entry(`"` ~ Doc.FullName ~ `"` ~ " spawned ... " );
+        dwrite(result.processID);
     }
     catch(Exception E)
     {
@@ -205,5 +205,3 @@ private:
 
 DOC_IF[string]      mDocs;
 int                 mSaveCtr;
-string              mtmpDocRun = "tmp_doc_run.sh";
-

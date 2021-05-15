@@ -11,6 +11,12 @@ import elements;
 
 int main(string[] args)
 {
+    scope(exit)
+    {
+        import std.file;
+        if(exists(qore.ProjRunScript))remove(qore.ProjRunScript);
+        if(exists(qore.DocRunScript))remove(qore.DocRunScript);
+    }
     
 	HandleCommandLineHelp(args);
 
