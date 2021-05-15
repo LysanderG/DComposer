@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface>
+  <requires lib="gtk+" version="3.24"/>
+  <object class="GtkListStore" id="liststore1">
+    <columns>
+      <!-- column-name basic -->
+      <column type="gchararray"/>
+      <!-- column-name advanced -->
+      <column type="gchararray"/>
+      <!-- column-name tooltip -->
+      <column type="gchararray"/>
+      <!-- column-name editable -->
+      <column type="gboolean"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">ok</col>
+        <col id="1" translatable="yes">/root/one</col>
+        <col id="2" translatable="yes">a tooltip</col>
+        <col id="3">True</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">hi</col>
+        <col id="1" translatable="yes">/root/one</col>
+        <col id="2" translatable="yes">another tip</col>
+        <col id="3">True</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkBox" id="ui_list_root">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="GtkScrolledWindow">
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="shadow-type">in</property>
+        <child>
+          <object class="GtkViewport">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="GtkBox">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkFrame">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="margin-start">3</property>
+                    <property name="margin-end">3</property>
+                    <property name="margin-top">3</property>
+                    <property name="margin-bottom">3</property>
+                    <property name="label-xalign">0.5</property>
+                    <property name="label-yalign">0.699999988079071</property>
+                    <property name="shadow-type">etched-out</property>
+                    <child>
+                      <object class="GtkScrolledWindow">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="shadow-type">in</property>
+                        <child>
+                          <object class="GtkTreeView" id="list_view">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="model">liststore1</property>
+                            <property name="headers-visible">False</property>
+                            <property name="reorderable">True</property>
+                            <property name="enable-grid-lines">horizontal</property>
+                            <property name="tooltip-column">2</property>
+                            <child internal-child="selection">
+                              <object class="GtkTreeSelection"/>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn" id="visible_text">
+                                <property name="title" translatable="yes">Item</property>
+                                <property name="clickable">True</property>
+                                <property name="reorderable">True</property>
+                                <property name="sort-indicator">True</property>
+                                <property name="sort-column-id">0</property>
+                                <child>
+                                  <object class="GtkCellRendererText" id="lv_text">
+                                    <property name="background">black</property>
+                                    <property name="foreground">light green</property>
+                                  </object>
+                                  <attributes>
+                                    <attribute name="sensitive">3</attribute>
+                                    <attribute name="editable">3</attribute>
+                                    <attribute name="text">0</attribute>
+                                  </attributes>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child type="label">
+                      <object class="GtkLabel" id="list_title_label">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">List</property>
+                        <property name="single-line-mode">True</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButtonBox">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="spacing">4</property>
+                    <property name="layout-style">center</property>
+                    <child>
+                      <object class="GtkButton" id="new_button">
+                        <property name="label" translatable="yes">Add</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="remove_button">
+                        <property name="label" translatable="yes">Remove</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="clear_button">
+                        <property name="label" translatable="yes">Clear All</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">True</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+  </object>
+</interface>

@@ -21,7 +21,8 @@
                "source\/project.d",
                "source\/ui_preferences.d",
                "source\/transmit.d",
-               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_project.d"
+               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_project.d",
+               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_list.d"
           ],
           "Related Files": [],
           "Postbuild Scripts": [],
@@ -203,14 +204,14 @@
                "Value": ""
           },
           {
-               "State": false,
+               "State": true,
                "Switch": "-gs",
                "Brief": "always emit stack frame",
                "Argument": false,
                "Value": ""
           },
           {
-               "State": false,
+               "State": true,
                "Switch": "-gx",
                "Brief": "add stack stomp code",
                "Argument": false,
@@ -406,7 +407,7 @@
                "Value": ""
           },
           {
-               "State": false,
+               "State": true,
                "Switch": "-vcolumns",
                "Brief": "print character (column) numbers in diagnostics",
                "Argument": false,

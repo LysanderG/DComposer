@@ -409,43 +409,43 @@ public:
 		//new
 		mApplication.setAccelsForAction("win.actionDocNew",["<Control>n"]);
 		AddToolObject("docnew","New","Create a new D source file",
-			Config.GetResource("icons","docnew","resources", "document-text.png"),"win.actionDocNew");
+		    Config.GetResource("icons","docnew","resources", "document-text.png"),"win.actionDocNew");
 		auto menuItemNew = new GMenuItem("New", "actionDocNew");
        
         //open document
 		mApplication.setAccelsForAction("win.actionDocOpen", ["<Control>o"]);
 		AddToolObject("docopen","Open", "Open Document",
-			Config.GetResource("icons","docopen","resources","folder-open-document-text.png"),"win.actionDocOpen");
+		    Config.GetResource("icons","docopen","resources","folder-open-document-text.png"),"win.actionDocOpen");
 		auto menuItemOpen = new GMenuItem("Open", "actionDocOpen");
 		
 		//save document
 		mApplication.setAccelsForAction("win.actionDocSave", ["<Control>s"]);
 		AddToolObject("docsave","Save", "Save Document",
-			Config.GetResource("icons","docsave","resources","document-save.png"),"win.actionDocSave");
+		    Config.GetResource("icons","docsave","resources","document-save.png"),"win.actionDocSave");
 		auto menuItemSave = new GMenuItem("Save", "actionDocSave");
        
         //save as
 		mApplication.setAccelsForAction("win.actionDocSaveAs", ["<Control><Shift>s"]);
 		AddToolObject("docsaveas", "Save As", "Save Document As...",
-		    Config.GetResource("icon","docsaveas", "resources", "document-save-as.png"), "win.actionDocSaveAs");
+		    Config.GetResource("icons","docsaveas", "resources", "document-save-as.png"), "win.actionDocSaveAs");
 		auto menuItemSaveAs = new GMenuItem("Save As...", "actionDocSaveAs");	
 		
 		//save all
 		mApplication.setAccelsForAction("win.actionDocSaveAll", ["<Super>s"]);
 		AddToolObject("docsaveall", "Save All", "Save All Open Documents",
-			Config.GetResource("icon","docsaveall", "resources", "document-save-all.png"), "win.actionDocSaveAll");
+		    Config.GetResource("icons","docsaveall", "resources", "document-save-all.png"), "win.actionDocSaveAll");
 		auto menuItemSaveAll = new GMenuItem("Save All", "actionDocSaveAll");
 		
 		//close
 		mApplication.setAccelsForAction("win.actionDocClose", ["<Control>w"]);
 		AddToolObject("docclose","Close", "Close Document",
-			Config.GetResource("icons","docclose","resources","document-close.png"),"win.actionDocClose");
+		    Config.GetResource("icons","docclose","resources","document-close.png"),"win.actionDocClose");
 		auto menuItemClose = new GMenuItem("Close", "actionDocClose");		
 		
 		//close all
 		mApplication.setAccelsForAction("win.actionDocCloseAll", ["<Control><Shift>w"]);
 		AddToolObject("doccloseall","Close All", "Close All Documents",
-			Config.GetResource("icons","doccloseall","resources","document-close-all.png"),"win.actionDocCloseAll");
+		    Config.GetResource("icons","doccloseall","resources","document-close-all.png"),"win.actionDocCloseAll");
 		auto menuItemCloseAll = new GMenuItem("Close All", "actionDocCloseAll");
 		
 		//compile document
@@ -456,12 +456,12 @@ public:
 		//run document
 		mApplication.setAccelsForAction("win.actionDocRun", ["<Control><Shift>r"]);
 		AddToolObject("docrun","Run", "Run Document with rdmd",
-			Config.GetResource("icons","docrun","resources","document--arrow.png"),"win.actionDocRun");
+		    Config.GetResource("icons","docrun","resources","document--arrow.png"),"win.actionDocRun");
 		auto menuItemRun = new GMenuItem("Run", "actionDocRun");
 		//unittest document
 		mApplication.setAccelsForAction("win.actionDocUnitTest", ["<Control><Shift>U"]);
 		AddToolObject("docunittest","Unit Test", "Run Document unit tests",
-			Config.GetResource("icons","docunittest","resources","document-block.png"),"win.actionDocUnitTest");
+		    Config.GetResource("icons","docunittest","resources","document-block.png"),"win.actionDocUnitTest");
 		auto menuItemUnitTest = new GMenuItem("Unit test", "actionDocUnitTest");
 		docMenu.appendItem(menuItemNew);
 		docMenu.appendItem(menuItemOpen);
