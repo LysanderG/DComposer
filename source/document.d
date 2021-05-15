@@ -7,15 +7,10 @@ import std.algorithm;
 import std.datetime;
 
 
-//import ui;
+import ui;
 import qore;
 import docman;
 
-
-import gdk.Event;
-import gio.FileIF;
-import gio.SimpleAsyncResult;
-import gobject.ObjectG;
 import gsv.SourceBuffer;
 import gsv.SourceFile;
 import gsv.SourceFileLoader;
@@ -25,15 +20,7 @@ import gsv.SourceLanguageManager;
 import gsv.SourceStyleSchemeManager;
 import gsv.SourceUndoManagerIF;
 import gsv.SourceView;
-import gtk.Box;
-import gtk.Button;
-import gtk.EventBox;
-import gtk.Image;
-import gtk.Label;
-import gtk.Notebook;
-import gtk.TextBuffer;
-import gtk.TextIter;
-import gtk.Widget;
+
 import pango.PgFontDescription;
 
 
