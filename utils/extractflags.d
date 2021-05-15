@@ -24,6 +24,7 @@ int main(string[] args)
 	
 	auto matchVersion = matchFirst(dmdresults.output, rxVersion);
 	string dmdVersion = matchVersion.front;
+
 	
 	auto allMatches = matchAll(dmdresults.output, rxFlag);
 	
@@ -77,14 +78,14 @@ int main(string[] args)
 	    if((arg_type == ARG_TYPE.CHOICE) && choices.length) arg_type = ARG_TYPE.HEADER;
 	    
 	    id = m["fullswitch"];
-	    flag = processedSwitch["switch"];
+	    flag = "-" ~ processedSwitch["switch"];
 	    brief = m["brief"];
 	    
 	    foreach(index, ch; choices)
 	    {
 	        auto jSubItem = jsonObject;
 	        jSubItem["arg_type"] = ARG_TYPE.SIMPLE;
-	        jSubItem["flag"] = ch;
+	        jSubItem["flag"] = "-" ~ ch;
 	        jSubItem["brief"] = choiceBriefs[index];
 	        jSubItem["id"]  = ch;
 	        jsonFlags[ch] = jSubItem;
@@ -98,6 +99,10 @@ int main(string[] args)
 	    
 	   
 	}        
+    auto jsonVersion = jsonObject;
+    jsonVersion["Version"] = dmdVersion;
+    jsonFlags["dmdVersion"] = jsonVersion;
+
     flagFileName = "utils/dmd_flags_v_" ~ dmdVersion ~ ".json";
 	writeJSON!4(jsonFlags, File(flagFileName, "w"));
 	return 0;	
