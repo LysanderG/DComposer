@@ -15,11 +15,11 @@
         <col id="1" translatable="yes">Digital Mars Compiler</col>
       </row>
       <row>
-        <col id="0" translatable="yes">gdc</col>
+        <col id="0" translatable="yes">gdmd</col>
         <col id="1" translatable="yes">Gnu compiler</col>
       </row>
       <row>
-        <col id="0" translatable="yes">ldc</col>
+        <col id="0" translatable="yes">ldmd</col>
         <col id="1" translatable="yes">LLVM compiler</col>
       </row>
     </data>
@@ -135,7 +135,7 @@
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <child>
-                  <!-- n-columns=3 n-rows=10 -->
+                  <!-- n-columns=3 n-rows=11 -->
                   <object class="GtkGrid">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -234,7 +234,7 @@
                       </object>
                       <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">6</property>
+                        <property name="top-attach">8</property>
                         <property name="width">2</property>
                       </packing>
                     </child>
@@ -247,7 +247,7 @@
                       </object>
                       <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">8</property>
+                        <property name="top-attach">6</property>
                         <property name="width">2</property>
                       </packing>
                     </child>
@@ -276,7 +276,7 @@
                       </object>
                       <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">9</property>
+                        <property name="top-attach">7</property>
                       </packing>
                     </child>
                     <child>
@@ -304,8 +304,34 @@
                       </object>
                       <packing>
                         <property name="left-attach">0</property>
-                        <property name="top-attach">7</property>
+                        <property name="top-attach">9</property>
                       </packing>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="label" translatable="yes">Target Types:
+	APP sets -of flag
+	SHARED sets -shared -of  flags
+	STATIC sets -lib  -of flags
+	OBJECT sets -c flag
+	DOCUMENTATION sets -c -D -of flags
+	HEADER sets -c -H flags
+-of flag will only be set to project name if -of is not set
+Flags will not be unset when changing target types and
+may cause unexpected behavior.</property>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">10</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                    <child>
+                      <placeholder/>
                     </child>
                     <child>
                       <placeholder/>
