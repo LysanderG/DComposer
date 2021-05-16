@@ -99,6 +99,8 @@ class PROJECT
     
     string      mErrorMessage;
     
+    BUILD_STATE mLastBuildState;
+    
     void LoadFlags()
     {
         string flagtext = readText(Config.GetResource("project","flags","utils","flags.json"));
@@ -289,7 +291,9 @@ public:
         }
         
         mUseCustomBuild = cast(bool)projson["use_custom_build_command"];
-        mCustomBuildCommand = cast(string)projson["custom_build_command"];      
+        mCustomBuildCommand = cast(string)projson["custom_build_command"];   
+        
+        mLastBuildState = BUILD_STATE.UNKNOWN;   
 		
 		chdir(FullPath.dirName);
         Transmit.ProjectEvent.emit(this, PROJECT_EVENT.OPENED,FullPath);
@@ -353,6 +357,8 @@ public:
     
     void Build()
     {
+        bool buildStatus;
+        scope(exit)Transmit.ProjectEvent.emit(this, PROJECT_EVENT.BUILD, "");
         import std.process;
         
         if(mType == TARGET_TYPE.UNDEFINED) return;
@@ -376,6 +382,8 @@ public:
         {
             auto result = execute(mCustomBuildCommand);
             result.output.splitLines.each!((n){Transmit.Message.emit("compiler", n);});
+            if(result.status == 0) mLastBuildState = BUILD_STATE.SUCCEEDED;
+            else mLastBuildState = BUILD_STATE.FAILED;
         }
         else
         {
@@ -388,6 +396,8 @@ public:
                 Transmit.Message.emit(mCompiler, line);
             }
             Transmit.Message.emit(mCompiler, "end");
+            if(result.status == 0) mLastBuildState = BUILD_STATE.SUCCEEDED;
+            else mLastBuildState = BUILD_STATE.FAILED;
         }
               
         
@@ -639,6 +649,13 @@ public:
         mLists[key] ~= value;
         Transmit.ProjectEvent.emit(this, PROJECT_EVENT.LISTS, key);
     }
+    
+    BUILD_STATE GetLastBuildState()
+    {
+        return mLastBuildState;
+    }
+    
+    
 }
 
 alias string[] LIST;
@@ -736,6 +753,7 @@ enum PROJECT_EVENT
     ERROR,
     TAGS,
     CLOSED,
+    BUILD,
 }
 
 enum COMPILER :string
@@ -778,5 +796,12 @@ enum LIST_KEYS : string
     PRE_SCRIPTS = "Prescript Files",
     POST_SCRIPTS = "Postscript Files",
     SUNDRY = "Sundry",
+}
+
+enum BUILD_STATE
+{
+    UNKNOWN,
+    FAILED,
+    SUCCEEDED,
 }
 

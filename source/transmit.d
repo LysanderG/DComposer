@@ -29,7 +29,7 @@ class TRANSMITTER
     //ui_preferences
     mixin Signal!() SigUpdateAppPreferencesUI;
     mixin Signal!() SigUpdateAppPreferencesOptions;
-    //log
+    //log --log has its own signal -- created before transmittter is
     
     //message -> mainly toolchain errors but could be for anything
     //first string is format type (standard error, 

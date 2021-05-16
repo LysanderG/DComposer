@@ -203,6 +203,12 @@ class UI_PROJECT
     Entry                   uiCustomBuildEntry;
     Label                   uiBuildCommandLabel;
     
+    Box                     uiAppStatus;
+    Label                   uiAppStatusLabel;
+    Image                   uiAppStatusGreenLight;
+    Image                   uiAppStatusRedLight;
+    Image                   uiAppStatusYellowLight;
+    
     UI_LIST[string]         uiLists;
     
     
@@ -218,9 +224,10 @@ class UI_PROJECT
         UpdateUiFlags();
         UpdateTags();
         UpdateUiLists();
+        UpdateAppStatus();
         uiUseCustomBuildBtn.setActive(Project.UseCustomCommand());
         uiCustomBuildEntry.setText(Project.GetCustomCommand());
-        uiBuildCommandLabel.setText(Project.GetBuildCommand());        
+        uiBuildCommandLabel.setText(Project.GetBuildCommand());      
     }
     
     void messageReceiver(PROJECT proj, PROJECT_EVENT event, string content)
@@ -260,6 +267,7 @@ class UI_PROJECT
                 }break;
             case PROJECT_EVENT.NAME:  
                 uiName.setText(content);
+                UpdateAppStatus();
                 break;
             case PROJECT_EVENT.OPENED:
                 {
@@ -275,6 +283,9 @@ class UI_PROJECT
             case PROJECT_EVENT.CLOSED:
                 UpdateAll();
                 mRoot.hide();
+                break;
+            case PROJECT_EVENT.BUILD:
+                UpdateAppStatus();
                 break;
         }
 
@@ -347,6 +358,23 @@ class UI_PROJECT
         }
     }
     
+    void UpdateAppStatus()
+    {
+        //app status bar
+        uiAppStatusLabel.setText("Current Project : " ~ Project.Name);
+        uiAppStatusLabel.setTooltipText(buildPath(Project.Location, Project.FileName));
+        uiAppStatusGreenLight.hide();
+        uiAppStatusYellowLight.hide();
+        uiAppStatusRedLight.hide();
+        dwrite("xxx :",Project.GetLastBuildState);
+        final switch(Project.GetLastBuildState)
+        {
+            case BUILD_STATE.UNKNOWN   : uiAppStatusYellowLight.show(); break;
+            case BUILD_STATE.FAILED    : uiAppStatusRedLight.show(); break;
+            case BUILD_STATE.SUCCEEDED : uiAppStatusGreenLight.show();break;
+        }
+    }
+    
 
     public:
     alias mRoot this;
@@ -379,14 +407,38 @@ class UI_PROJECT
         uiUseCustomBuildBtn = cast(CheckButton)mBuilder.getObject("custom_build_checkbutton");
         uiCustomBuildEntry = cast(Entry)mBuilder.getObject("custom_build_entry");
         uiBuildCommandLabel = cast(Label)mBuilder.getObject("build_command_label");
+        
+        //appstatus stuff (app status vs docbook status bar)
+        uiAppStatus = new Box(Orientation.HORIZONTAL, 2);
+        uiAppStatus.setHalign(Align.END);
+        uiAppStatus.setHexpand(true);
+        uiAppStatusLabel = new Label("No project.");
+        uiAppStatusGreenLight = new Image(Config.GetResource("icons", "green_light", "resources", "status.png"));
+        uiAppStatusGreenLight.setNoShowAll(true);
+        uiAppStatusGreenLight.setTooltipText("Last known build succeeded");
+        uiAppStatusRedLight = new Image(Config.GetResource("icons", "red_light", "resources", "status-busy.png"));
+        uiAppStatusRedLight.setNoShowAll(true);
+        uiAppStatusRedLight.setTooltipText("Last known build failed");
+        uiAppStatusYellowLight = new Image(Config.GetResource("icons", "yello_light", "resources", "status-offline.png"));
+        uiAppStatusYellowLight.setNoShowAll(true);
+        uiAppStatusYellowLight.setTooltipText("Last build not known");
+        
+        uiAppStatusYellowLight.show();
+        
+        uiAppStatus.packStart(uiAppStatusLabel, false, true, 2);
+        uiAppStatus.packStart(uiAppStatusGreenLight, false, false, 2);
+        uiAppStatus.packStart(uiAppStatusYellowLight, false, false, 2);
+        uiAppStatus.packStart(uiAppStatusRedLight, false, false, 2);
+        uiAppStatus.showAll();
     }
-    
+       
     void Engage()
     {
         Transmit.ProjectEvent.connect(&messageReceiver);
         uiName.addOnEditingDone(delegate void(CellEditableIF intre)
         {
             Project.Name = uiName.getText();
+            uiAppStatusLabel.setText(Project.Name);
         });
         uiName.addOnFocusOut(delegate bool (Event ev, Widget w)
         {
@@ -511,6 +563,8 @@ class UI_PROJECT
             Project.SetCustomBuildCommand(uiCustomBuildEntry.getText());
             return false;
         });
+        
+        AddEndStatusWidget(uiAppStatus);
 
     }
     void Mesh()

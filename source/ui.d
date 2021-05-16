@@ -64,6 +64,7 @@ public import gtk.CheckButton;
 public import gtk.CheckMenuItem;
 public import gtk.Clipboard;
 public import gtk.ComboBox;
+public import gtk.ComboBoxText;
 public import gtk.Dialog;
 public import gtk.EditableIF;
 public import gtk.Entry;
@@ -130,13 +131,17 @@ void Engage(ref string[] args)
     });
     
     EngagePreferences();
-
     
+    //temp
+    mStatusLog = new UI_LOG_STATUS;
+        
 	Log.Entry("Engaged");
 }
 
 void Mesh()
 { 
+    //temp
+    AddStartStatusWidget(mStatusLog.mLinesOLog);
 	MeshMainWidown();
     MeshMenubar();
     MeshToolbar();
@@ -201,6 +206,14 @@ int ShowMessage(string Title, string Message, string[] Buttons ...)
     return response;
 }
 
+void AddStartStatusWidget(Widget nuWidget)
+{
+    mStatusBox.packStart(nuWidget, false, true, 2);
+}
+void AddEndStatusWidget(Widget nuWidget)
+{
+    mStatusBox.packEnd(nuWidget, false, true, 1);
+}
 
 Application         mApplication;
 ApplicationWindow 	mMainWindow;
@@ -346,7 +359,7 @@ void EngageSidePane(Builder mBuilder)
 {
 	mSidePane = cast(Notebook)mBuilder.getObject("side_pane");
 	mSidePane.getParent.getParent.setVisible(Config.GetValue("ui","sidepane_visible", true));
-	
+	mSidePane.setVisible(Config.GetValue("ui","sidepane_visible", true));
 	Log.Entry("\tSidePane Engaged");
 }
 void MeshSidePane()
@@ -596,7 +609,7 @@ extern (C)
     {
         SimpleAction sa = new SimpleAction(simAction);
         Variant v = new Variant(varTarget);
-        bool tmpbool = mSidePane.getVisible();
+        bool tmpbool = mSidePane.getParent.getParent.getVisible();
         mSidePane.getParent.getParent.setVisible(!tmpbool);
         mSidePane.setVisible(!tmpbool);
         sa.setState(new Variant(mSidePane.getVisible()));
@@ -612,3 +625,38 @@ extern (C)
     }
 }
 
+
+//temp status bar test remove
+UI_LOG_STATUS mStatusLog;
+class UI_LOG_STATUS
+{
+    ComboBoxText    mLinesOLog;
+    int             mEntryCount;
+    
+    this()
+    {
+        mLinesOLog = new ComboBoxText(false);
+        mLinesOLog.setHexpand(true);
+        mLinesOLog.modifyFont("mono",8);
+        mLinesOLog.showAll();
+        mEntryCount = -1;
+        Log.connect(&Receiver);
+    }
+    
+    void Receiver(string msg, string lvl, string mod)
+    {
+        string L;
+        switch(lvl)
+        {
+            case "Error": L = "!!";break;
+            case "Info": L = "i ";break;
+            case "Warning": L= "W ";break;
+            default: L = "--";break;
+        }
+        
+        string fulltext = format("%s: [%11.11s]\t%s",L, mod, msg);
+        mLinesOLog.appendText(fulltext); 
+        mEntryCount++;
+        mLinesOLog.setActive(mEntryCount);
+    }
+}
