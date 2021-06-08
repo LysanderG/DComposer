@@ -8,6 +8,7 @@ import std.traits;
 import std.string;
 import std.file;
 
+import qore;
 import ui;
 import ui_action;
 import ui_toolbar;
@@ -102,7 +103,7 @@ private:
     {
 	    import core.memory;
 	    GC.disable();
-        mDocBook.UpdateStatusLine(mDocBook.Current);
+        uiDocBook.UpdateStatusLine(uiDocBook.Current);
         GC.enable();
         return true;
     }
@@ -144,8 +145,10 @@ public:
         
         addOnSwitchPage(delegate void(Widget w, uint pgNum, Notebook self)
         {
-            ScrolledWindow x = cast(ScrolledWindow) w;            
-            UpdateStatusLine(cast(DOCUMENT)x.getChild());
+            ScrolledWindow x = cast(ScrolledWindow) w;
+            auto xdoc = cast(DOCUMENT)x.getChild();
+            xdoc ? (CurrentDocName = xdoc.FullName) : (CurrentDocName = "");           
+            UpdateStatusLine(xdoc);
         });
         addOnPageRemoved(delegate void(Widget w, uint pg, Notebook self)
         {
@@ -296,10 +299,12 @@ public:
     }
     void Compile()
     {
+        if(!Current)return;
         docman.Run(Current.FullName, "-c", mDocCmdLineSwitches);
     }
     void UnitTest()
     {
+        if(!Current)return;
         docman.Run(Current.FullName, mDocCmdLineSwitches, "-unittest");
     }
     
@@ -352,6 +357,10 @@ public:
         auto parent = cast(ScrolledWindow)mNotebook.getNthPage(currPageNum);
         auto doc = cast(DOC_IF)parent.getChild();
         return doc;
+    }
+    void Current(DOC_IF doc)
+    {
+        mNotebook.setCurrentPage(cast(Widget)doc.PageWidget);
     }
     
     void UpdateStatusLine(string nuStatus)
@@ -407,59 +416,59 @@ public:
 		
 		GMenu docMenu = new GMenu();
 		//new
-		mApplication.setAccelsForAction("win.actionDocNew",["<Control>n"]);
+		uiApplication.setAccelsForAction("win.actionDocNew",["<Control>n"]);
 		AddToolObject("docnew","New","Create a new D source file",
 		    Config.GetResource("icons","docnew","resources", "document-text.png"),"win.actionDocNew");
 		auto menuItemNew = new GMenuItem("New", "actionDocNew");
        
         //open document
-		mApplication.setAccelsForAction("win.actionDocOpen", ["<Control>o"]);
+		uiApplication.setAccelsForAction("win.actionDocOpen", ["<Control>o"]);
 		AddToolObject("docopen","Open", "Open Document",
 		    Config.GetResource("icons","docopen","resources","folder-open-document-text.png"),"win.actionDocOpen");
 		auto menuItemOpen = new GMenuItem("Open", "actionDocOpen");
 		
 		//save document
-		mApplication.setAccelsForAction("win.actionDocSave", ["<Control>s"]);
+		uiApplication.setAccelsForAction("win.actionDocSave", ["<Control>s"]);
 		AddToolObject("docsave","Save", "Save Document",
 		    Config.GetResource("icons","docsave","resources","document-save.png"),"win.actionDocSave");
 		auto menuItemSave = new GMenuItem("Save", "actionDocSave");
        
         //save as
-		mApplication.setAccelsForAction("win.actionDocSaveAs", ["<Control><Shift>s"]);
+		uiApplication.setAccelsForAction("win.actionDocSaveAs", ["<Control><Shift>s"]);
 		AddToolObject("docsaveas", "Save As", "Save Document As...",
 		    Config.GetResource("icons","docsaveas", "resources", "document-save-as.png"), "win.actionDocSaveAs");
 		auto menuItemSaveAs = new GMenuItem("Save As...", "actionDocSaveAs");	
 		
 		//save all
-		mApplication.setAccelsForAction("win.actionDocSaveAll", ["<Super>s"]);
+		uiApplication.setAccelsForAction("win.actionDocSaveAll", ["<Super>s"]);
 		AddToolObject("docsaveall", "Save All", "Save All Open Documents",
 		    Config.GetResource("icons","docsaveall", "resources", "document-save-all.png"), "win.actionDocSaveAll");
 		auto menuItemSaveAll = new GMenuItem("Save All", "actionDocSaveAll");
 		
 		//close
-		mApplication.setAccelsForAction("win.actionDocClose", ["<Control>w"]);
+		uiApplication.setAccelsForAction("win.actionDocClose", ["<Control>w"]);
 		AddToolObject("docclose","Close", "Close Document",
 		    Config.GetResource("icons","docclose","resources","document-close.png"),"win.actionDocClose");
 		auto menuItemClose = new GMenuItem("Close", "actionDocClose");		
 		
 		//close all
-		mApplication.setAccelsForAction("win.actionDocCloseAll", ["<Control><Shift>w"]);
+		uiApplication.setAccelsForAction("win.actionDocCloseAll", ["<Control><Shift>w"]);
 		AddToolObject("doccloseall","Close All", "Close All Documents",
 		    Config.GetResource("icons","doccloseall","resources","document-close-all.png"),"win.actionDocCloseAll");
 		auto menuItemCloseAll = new GMenuItem("Close All", "actionDocCloseAll");
 		
 		//compile document
-		mApplication.setAccelsForAction("win.actionDocCompile", ["<Control><Shift>c"]);
+		uiApplication.setAccelsForAction("win.actionDocCompile", ["<Control><Shift>c"]);
 		AddToolObject("doccompile", "Compile", "Compile document",
 		    Config.GetResource("icons","doccompile","resources","document-text-compile.png"),"win.actionDocCompile");
         auto menuItemCompile = new GMenuItem("Compile", "actionDocCompile");		    
 		//run document
-		mApplication.setAccelsForAction("win.actionDocRun", ["<Control><Shift>r"]);
+		uiApplication.setAccelsForAction("win.actionDocRun", ["<Control><Shift>r"]);
 		AddToolObject("docrun","Run", "Run Document with rdmd",
 		    Config.GetResource("icons","docrun","resources","document--arrow.png"),"win.actionDocRun");
 		auto menuItemRun = new GMenuItem("Run", "actionDocRun");
 		//unittest document
-		mApplication.setAccelsForAction("win.actionDocUnitTest", ["<Control><Shift>U"]);
+		uiApplication.setAccelsForAction("win.actionDocUnitTest", ["<Control><Shift>U"]);
 		AddToolObject("docunittest","Unit Test", "Run Document unit tests",
 		    Config.GetResource("icons","docunittest","resources","document-block.png"),"win.actionDocUnitTest");
 		auto menuItemUnitTest = new GMenuItem("Unit test", "actionDocUnitTest");
@@ -488,7 +497,7 @@ public:
     		doc.getBuffer.undo;
         });
         mMainWindow.addAction(mActionUndo);
-        mApplication.setAccelsForAction("win.actionEditUndo", ["<Control>z"]);
+        uiApplication.setAccelsForAction("win.actionEditUndo", ["<Control>z"]);
         AddToolObject("docundo", "Undo", "Undo last change to source text",
             Config.GetResource("icons","undo","resources","arrow-curve-180-left.png"),
             "win.actionEditUndo");
@@ -503,7 +512,7 @@ public:
     		doc.getBuffer.redo;
         });
         mMainWindow.addAction(mActionRedo);
-        mApplication.setAccelsForAction("win.actionEditRedo", ["<Control><Shift>z"]);
+        uiApplication.setAccelsForAction("win.actionEditRedo", ["<Control><Shift>z"]);
         AddToolObject("docredo", "Redo", "Redo last change to source text",
             Config.GetResource("icons","redo","resources","arrow-curve.png"),
             "win.actionEditRedo");
@@ -519,7 +528,7 @@ public:
             doc.getBuffer.cutClipboard(mClipboard,true);            
         });
         mMainWindow.addAction(mActionCut);
-        mApplication.setAccelsForAction("win.actionEditCut",["<Control>x"]);
+        uiApplication.setAccelsForAction("win.actionEditCut",["<Control>x"]);
         AddToolObject("doccut", "Cut", "Cut Selected Text to Clipboard",
             Config.GetResource("icons","cut","resources","scissors-blue.png"),
             "win.actionEditCut");
@@ -535,7 +544,7 @@ public:
     		doc.getBuffer.copyClipboard(mClipboard);    		
         });
         mMainWindow.addAction(mActionCopy);
-        mApplication.setAccelsForAction("win.actionEditCopy", ["<Control>c"]);
+        uiApplication.setAccelsForAction("win.actionEditCopy", ["<Control>c"]);
         AddToolObject("doccopy","Copy","Copy Selection to Clipboard",
             Config.GetResource("icons","copy","resources","blue-document-copy.png"), 
             "win.actionEditCopy");	
@@ -549,7 +558,7 @@ public:
             doc.getBuffer.pasteClipboard(mClipboard, null, true); 
         });
         mMainWindow.addAction(mActionPaste);
-        mApplication.setAccelsForAction("win.actionEditPaste",["<Control>p"]);
+        uiApplication.setAccelsForAction("win.actionEditPaste",["<Control>p"]);
         AddToolObject("docpaste","Paste", "Paste Clipboard",
             Config.GetResource("icons", "Paste","resources","clipboard-paste-document-text.png"),
             "win.actionEditPaste");
@@ -824,47 +833,47 @@ extern (C)
 	{
     	auto x = DOC_IF.Create();
     	x.Init();    	
-    	mDocBook.AddDocument(cast(DOCUMENT)x);
+    	uiDocBook.AddDocument(cast(DOCUMENT)x);
 		Log.Entry("Created new document " ~ x.Name);
 	}
 	void action_DocOpen(void* simAction, void* varTarget, void* voidUserData)
 	{
-	    mDocBook.Open();
+	    uiDocBook.Open();
 	}
 	void action_DocSave(void* simAction, void* varTarget, void* voidUserData)
 	{
-    	mDocBook.Save();
+    	uiDocBook.Save();
 	}
 	void action_DocSaveAs(void* simAction, void* varTarget, void* voidUserData)
 	{
-    	mDocBook.SaveAs();
+    	uiDocBook.SaveAs();
 	}
 	void action_DocSaveAll(void* simAction, void* varTarget, void* voidUserData)
 	{
-    	mDocBook.SaveAll();
+    	uiDocBook.SaveAll();
     }
 	void action_DocClose(void* simAction, void* varTarget, void* voidUserData)
 	{
-        	mDocBook.Close();
+        	uiDocBook.Close();
 	}
 	void action_DocCloseAll(void* simAction, void* varTarget, void* voidUserData)
 	{
-    	mDocBook.CloseAll();
+    	uiDocBook.CloseAll();
 	}
 	void action_DocCompile(void* simAction, void* varTarget, void* voidUserData)
 	{
-    	mDocBook.Save();
-    	mDocBook.Compile();
+    	uiDocBook.Save();
+    	uiDocBook.Compile();
 	}
 	void action_DocRun(void* simAction, void* varTarget, void* voidUserData)
 	{
-    	mDocBook.Save();
-    	mDocBook.Run();
+    	uiDocBook.Save();
+    	uiDocBook.Run();
 	}
 	void action_DocUnitTest(void * simAction, void* varTarget, void *voidUserData)
 	{
-    	mDocBook.Save();
-    	mDocBook.UnitTest();
+    	uiDocBook.Save();
+    	uiDocBook.UnitTest();
     }
 
 }

@@ -78,9 +78,9 @@ void Mesh()
     tabWidget.packStart(tabLabel, true, true, 0);
     tabWidget.packStart(tabEvBx, false, false, 0);
     tabWidget.showAll();
-    mDocBook.prependPage(uiProject, tabWidget);
+    uiDocBook.prependPage(uiProject, tabWidget);
     
-    //mDocBook.prependPage(uiProject, new Label("Project Editor"));
+    //uiDocBook.prependPage(uiProject, new Label("Project Editor"));
     
     
     uiProject.Mesh();
@@ -107,7 +107,7 @@ extern(C)
     {
         Project.Close();
         uiProject.mRoot.showAll();
-        mDocBook.setCurrentPage(uiProject);
+        uiDocBook.setCurrentPage(uiProject);
         uiProject.setFocusChild(uiProject.uiName);
         uiProject.UpdateAll();
     }
@@ -138,7 +138,7 @@ extern(C)
 
         if(rv is null)return;
         Project.Load(rv) ;
-        mDocBook.setCurrentPage(uiProject);
+        uiDocBook.setCurrentPage(uiProject);
         uiProject.UpdateAll();
         
     }
@@ -163,7 +163,7 @@ extern(C)
     void action_ProjEdit(GSimpleAction * action, GVariant * parameter, void * user_data)
     {
         uiProject.showAll();
-        mDocBook.setCurrentPage(uiProject);
+        uiDocBook.setCurrentPage(uiProject);
     }
 }
 
@@ -366,7 +366,6 @@ class UI_PROJECT
         uiAppStatusGreenLight.hide();
         uiAppStatusYellowLight.hide();
         uiAppStatusRedLight.hide();
-        dwrite("xxx :",Project.GetLastBuildState);
         final switch(Project.GetLastBuildState)
         {
             case BUILD_STATE.UNKNOWN   : uiAppStatusYellowLight.show(); break;

@@ -11,7 +11,8 @@ import std.stdio;
 
 import qore;
 public import document;
-
+import ui;
+import completion_words; //wordstest
 
 
 public:
@@ -25,6 +26,10 @@ void Engage(ref string[] args)
     }
     if(cmdLineFiles.length)Config.SetValue!(string[])("docman","cmdLineFiles", cmdLineFiles);
     else Config.SetValue!(string[])("docman","cmdLineFiles", []);
+    
+    Words = new WORDS; //wordstest
+    Words.Engage(); //wordstest
+    
     Log.Entry("Engaged");
     
 }
@@ -42,11 +47,14 @@ void Mesh()
             continue;            
         }
         OpenDoc(startup);
-        Log.Entry("Meshed");
     }
+    
+    Words.Mesh(); //wordstest
+    Log.Entry("Meshed");
 }
 void Disengage()
 {
+    Words.Disengage(); //wordstest
     Log.Entry("Disengaged");
 }
 
@@ -70,6 +78,7 @@ interface DOC_IF
     void    Close();
     
     void *  TabWidget();
+    void *  PageWidget();
     
     string  FullName();
     void    Name(string nuName);
@@ -77,6 +86,20 @@ interface DOC_IF
     bool    Virgin();
     bool	Modified();
     string  GetStatusLine();
+    void    Goto(int line, int col, bool focus = true);
+    bool    FindForward(string regexNeedle);
+    bool    FindBackward(string regexNeedle);
+    bool    Replace(string regexNeedle, string replacementText);
+    void    ReplaceAll(string replacementText);
+    void    SetSearchHilite(bool state);
+    bool    GetSearchHilite();
+    
+    string  Text();
+    void    Text(string nuText);
+    string  Selection();
+    string  Identifier (string markName = "insert");
+    string  Word(string markName = "insert");
+    void    CompleteSymbol(string chosenSymbol);
 }
 
 //#############################################################################
@@ -90,6 +113,7 @@ void OpenDoc(string fileName)
     auto doc = DOC_IF.Create();
     doc.Load(fileName);
     AddDoc(doc);    
+    Transmit.DocManEvent.emit(DOCMAN_EVENT.LOAD, doc.FullName);
 }
 void AddDoc(DOC_IF nuDoc)
 {
@@ -99,18 +123,21 @@ void AddDoc(DOC_IF nuDoc)
         return;
     }
     mDocs[nuDoc.FullName] = nuDoc;
+    Transmit.DocManEvent.emit(DOCMAN_EVENT.ADD, nuDoc.FullName);
 }
 void ReplaceDoc(string oldKey, string newKey)
 {
     auto oldDoc = mDocs[oldKey];
     if(oldDoc is null) assert(0);
     if(mDocs.remove(oldKey)) mDocs[newKey] = oldDoc;
+    Transmit.DocManEvent.emit(DOCMAN_EVENT.RENAME, newKey);
     Log.Entry("Document manger renamed "~oldDoc.Name~" to "~ mDocs[newKey].Name);
 }
 void RemoveDoc(DOC_IF oldDoc)
 {
 	if(oldDoc.Modified)Log.Entry("Removing modified doc ("~ oldDoc.Name ~ ") from document manager");
 	mDocs.remove(oldDoc.FullName);
+    Transmit.DocManEvent.emit(DOCMAN_EVENT.REMOVE, oldDoc.FullName);
 }
 
 void SaveAll()
@@ -121,6 +148,12 @@ void SaveAll()
 DOC_IF GetDoc(string docName)
 {
     return mDocs[docName];
+}
+
+DOC_IF GetCurrentDoc()
+{
+    if(CurrentDocName in mDocs) return mDocs[CurrentDocName];
+    return null;
 }
 
 DOC_IF[] GetDocs()
@@ -138,6 +171,27 @@ bool Opened(string testDoc)
     if(testDoc in mDocs) return true;
     return false;
 }
+
+bool OpenDocAt(string fileName, int line, int col, bool focus = true)
+{
+    if(fileName in mDocs)
+    {
+        uiDocBook.Current(mDocs[fileName]);
+        mDocs[fileName].Goto(line, col, focus);
+        return true;
+    }
+    auto nuDoc = DOC_IF.Create();
+    nuDoc.Init(fileName);
+    nuDoc.Load(fileName);
+    
+    AddDoc(nuDoc);
+    uiDocBook.AddDocument(nuDoc);
+    nuDoc.Goto(line, col, focus);
+    
+    return false;
+}
+
+
 
 auto GetModifiedDocs()
 {
@@ -186,7 +240,6 @@ void Run(string DocName, string[] rdmdOpt ...)
     {
         auto result = spawnProcess(CmdStrings,stdin, stdout, stderr,null, pConfig.detached, null);
         Log.Entry(`"` ~ Doc.FullName ~ `"` ~ " spawned ... " );
-        dwrite(result.processID);
     }
     catch(Exception E)
     {
@@ -199,6 +252,21 @@ struct RECTANGLE
 {
     int x, y;
     int xl, yl;
+}
+
+enum DOC_EVENT
+{
+    NAME,
+    REVIRGINED,
+    RECONFIGURED,
+}
+
+enum DOCMAN_EVENT
+{
+    ADD,
+    LOAD,
+    RENAME,
+    REMOVE,
 }
 
 private:

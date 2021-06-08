@@ -7,11 +7,13 @@ public import config;
 public import docman;
 public import transmit;
 public import project;
+public import search;
 
 
 
 immutable string ProjRunScript = "tmpProjRunner";
 immutable string DocRunScript = "tmpDocRunner";
+string CurrentDocName;
 
 void Engage(ref string[] args)
 { 

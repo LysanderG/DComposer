@@ -35,7 +35,12 @@ class TRANSMITTER
     //first string is format type (standard error, 
     mixin Signal!(string , string ) Message;
     
+    //docman
+    mixin Signal!(DOCMAN_EVENT, string ) DocManEvent;
     //document
+    mixin Signal!(DOC_IF, DOC_EVENT, string) DocEvent;
+
+    //ui_book
     mixin Signal!(string) DocStatusLine;
     mixin Signal!(DOC_IF) DocClose;
     

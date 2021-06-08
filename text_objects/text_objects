@@ -1,0 +1,10 @@
+{
+    "config": { 
+        "this_file": "\/home\/anthony\/projects\/dcomposerx\/text_objects\/text_objects"
+    },
+    "objects": {
+        "word": "\\b[a-zA-Z_]{1}[\\w]*\\b",
+        "line": "^.*$",
+        "empty_line": "^[\\t\\f\\v ]*\\n"
+    }
+}

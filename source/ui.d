@@ -14,15 +14,19 @@ import qore;
 import config;
 import docman;
 
-import ui_docbook;
-import ui_preferences;
-import ui_project;
-import ui_toolbar;
+public import ui_docbook;
+public import ui_preferences;
+public import ui_project;
+public import ui_toolbar;
+public import ui_search;
+public import ui_contextmenu;
+public import ui_completion;
 
 
-public import gtk.FileFilter;
+public import gdk.Cursor;
 public import gdk.Display;
 public import gdk.Event;
+public import gdk.Keysyms;
 public import gdk.Pixbuf;
 public import gio.ActionGroupIF;
 public import gio.ActionIF;
@@ -68,14 +72,15 @@ public import gtk.ComboBoxText;
 public import gtk.Dialog;
 public import gtk.EditableIF;
 public import gtk.Entry;
+public import gtk.EventBox;
 public import gtk.FileChooserButton;
 public import gtk.FileChooserDialog;
 public import gtk.FileChooserIF;
 public import gtk.FileChooserWidget;
+public import gtk.FileFilter;
 public import gtk.FontButton;
 public import gtk.Frame;
 public import gtk.IconFactory;
-public import gtk.EventBox;
 public import gtk.Image;
 public import gtk.Label;
 public import gtk.ListBox;
@@ -84,15 +89,20 @@ public import gtk.Main;
 public import gtk.Menu;
 public import gtk.MenuBar;
 public import gtk.MenuItem;
+public import gtk.MenuShell;
 public import gtk.MessageDialog;
 public import gtk.Notebook;
 public import gtk.Paned;
+public import gtk.RadioButton;
 public import gtk.ScrolledWindow;
 public import gtk.Separator;
 public import gtk.SpinButton;
 public import gtk.Switch;
 public import gtk.TextBuffer;
 public import gtk.TextIter;
+public import gtk.TextMark;
+public import gtk.TextTag;
+public import gtk.TextTagTable;
 public import gtk.TextView;
 public import gtk.ToggleButton;
 public import gtk.ToggleToolButton;
@@ -106,11 +116,10 @@ public import gtk.Widget;
 public import gtk.Window;
 
 
-
 void Engage(ref string[] args)
 {    
-	mApplication = new Application("dcomposer.com", GApplicationFlags.NON_UNIQUE);
-	mApplication.register(new Cancellable());
+	uiApplication = new Application("dcomposer.com", GApplicationFlags.NON_UNIQUE);
+	uiApplication.register(new Cancellable());
 	
 	auto mBuilder = new Builder;
     //mBuilder.addFromFile(config.findResource(Config.GetValue("ui", "ui_main_window", "glade/ui_main2.glade"))); 
@@ -125,8 +134,11 @@ void Engage(ref string[] args)
     EngageStatusbar(mBuilder);
     EngageDocBook(mBuilder);
     EngageProject();
+    EngageSearch();
+    EngageContextMenu();
+    EngageCompletion();
 
-	mApplication.addOnActivate(delegate void(GApplication app)
+	uiApplication.addOnActivate(delegate void(GApplication app)
 	{        
     });
     
@@ -149,11 +161,17 @@ void Mesh()
     MeshExtraPane();
     MeshDocBook();
     MeshProject();
+    MeshSearch();
+    MeshContextMenu();
+    MeshCompletion();
     Log.Entry("Meshed");
 }
 
 void Disengage()
 {
+    DisengageCompletion();
+    DisengageContextMenu();
+    DisengageSearch();
     DisengageProject();
     DisengageDocBook();
     DisengageStatusbar();
@@ -170,7 +188,7 @@ void run(string[] args)
 {
 
 	Log.Entry("++++++ Entering GTK Main Loop ++++++");
-	mApplication.run(args);
+	uiApplication.run(args);
 	Log.Entry("------  Exiting GTK Main Loop ------");
 	
 }
@@ -179,6 +197,27 @@ void AddSubMenu(int pos, string label, GMenu menu)
 {
     GMenu xMenu = new GMenu();
     mMenubarModel.insertSubmenu(pos, label, menu);
+}
+void AddSubMenuAction(int barPos, int itemPos, string label, string menuAction)
+{
+    //OMG!! GTK is supposed to be a gui library
+    //what kind of fucking morons make adding a menu item to the menubar
+    //such convoluted mess of obscure BULLSHIT! 
+    //Here's an idea make a fucking add item function that doesn't require
+    //2 days of research and a week of calling random functions 
+    //wth GMenu GtkMenu GMenuModel GMenuShell, GtkMenubar GtkMenuShell
+    //and wtf is GMenuLinkIter!!! 
+    //I am goind to forgo the next 20 pages of complaining about giving up
+    //GtkAction (simple easy to grasp) for GAction (no idea how to use this)
+    MenuModel mbar = uiApplication.getMenubar();
+    auto mLinkIter = mbar.iterateItemLinks(barPos);
+    
+    string outLink;
+    MenuModel value;
+    
+    mLinkIter.getNext(outLink, value);
+    GMenu targetMenu = cast(GMenu) value;
+    targetMenu.insert(itemPos, label, menuAction);
 }
 
 void ShowMessage(string Title, string Message)
@@ -215,9 +254,38 @@ void AddEndStatusWidget(Widget nuWidget)
     mStatusBox.packEnd(nuWidget, false, true, 1);
 }
 
-Application         mApplication;
+
+//side pane stuff
+int AddSidePane(Widget nuPage, string nuPageTitle)
+{
+    return mSidePane.appendPage(nuPage, nuPageTitle);
+}
+
+//extra pane stuff
+int AddExtraPane(Widget nuPage, string nuPageTitle)
+{
+    return mExtraPane.appendPage(nuPage, nuPageTitle);
+}
+
+void SetBusyIndicator(bool on)
+{
+    if(!mMainWindow.isVisible())return;
+    if(on)
+    {
+        mMainWindow.getWindow.setCursor(new Cursor(GdkCursorType.WATCH));
+        Display.getDefault.flush();
+        return;
+    }
+    mMainWindow.getWindow.setCursor(null);
+    Display.getDefault.flush();       
+}
+
+
+
+Application         uiApplication;
 ApplicationWindow 	mMainWindow;
-UI_DOCBOOK 			mDocBook;
+UI_DOCBOOK 		    uiDocBook;
+UI_COMPLETION       uiCompletion;
 //================================================================
 private:
 MenuBar             mMenuBar;
@@ -239,14 +307,14 @@ void EngageMainWindow(Builder mBuilder)
 	mHorizontalPane = cast(Paned)mBuilder.getObject("secondary_pane");
 	
 	
-    mApplication.addWindow(mMainWindow);
+    uiApplication.addWindow(mMainWindow);
 
 	mMainWindow.addOnDelete(delegate bool(Event Ev, Widget wdgt)
 	{
     	if(ConfirmQuit())
     	{
     	    StoreGui();
-            mApplication.removeWindow(mMainWindow);
+            uiApplication.removeWindow(mMainWindow);
     	}
     	return false;
 		
@@ -282,6 +350,7 @@ void EngageMenuBar(Builder mBuilder)
     mMenubarModel = new GMenu();
     
     mMenuBar = cast(MenuBar)mBuilder.getObject("menu_bar");
+    uiApplication.setMenubar(mMenubarModel);
     GMenu menuSystem = new GMenu();
     GMenu menuViews = new GMenu();
     
@@ -290,16 +359,18 @@ void EngageMenuBar(Builder mBuilder)
 //quit
     GActionEntry[] ag = [{"actionQuit", &action_quit,null, null, null}];
     mMainWindow.addActionEntries(ag, null);
-    mApplication.setAccelsForAction("win.actionQuit",["<Control>q"]);
+    uiApplication.setAccelsForAction("win.actionQuit",["<Control>q"]);
     AddToolObject("quit", "Quit", "Exit DComposer", Config.GetResource("icons","quit","resources","yin-yang.png"),"win.actionQuit");
     GMenuItem menuQuit = new GMenuItem("Quit", "actionQuit");
 //pref
     GActionEntry aePref = {"actionPreferences", &action_preferences, null, null, null};
     mMainWindow.addActionEntries([aePref], null);
-    mApplication.setAccelsForAction("win.actionPreferences", ["<Control>p"]);
+    uiApplication.setAccelsForAction("win.actionPreferences", ["<Control>p"]);
     AddToolObject("preferences","Preferences","Edit Preferences", Config.GetResource("icons","preferences", "resources", "gear.png"), "win.actionPreferences");
     GMenuItem menuPref = new GMenuItem("Preferences", "actionPreferences");
+
     
+
     mMenubarModel.insertSubmenu(0,"System",menuSystem);
     menuSystem.appendItem(menuPref); 
     menuSystem.appendItem(menuQuit);   
@@ -311,13 +382,15 @@ void EngageMenuBar(Builder mBuilder)
         {"actionViewMenubar",   &action_view_menubar,   "b", "true", null},
         {"actionViewToolbar",   &action_view_toolbar,   "b", "true", null},
         {"actionViewSidepane",  &action_view_sidepane,  "b", "true", null},
-        {"actionViewExtrapane", &action_view_extrapane, "b", "true", null}
+        {"actionViewExtrapane", &action_view_extrapane, "b", "true", null},
+        {"actionViewStatusbar", &action_view_statusbar, "b", "true", null},
         ];
     mMainWindow.addActionEntries(aevViews, null);
-    mApplication.setAccelsForAction("win.actionViewMenubar(true)", ["<Control><Shift>m"]);
-    mApplication.setAccelsForAction("win.actionViewToolbar(true)", ["<Control><Shift>t"]);
-    mApplication.setAccelsForAction("win.actionViewSidepane(true)", ["<Control><Shift>s"]);
-    mApplication.setAccelsForAction("win.actionViewExtrapane(true)",["<Control><Shift>x"]);
+    uiApplication.setAccelsForAction("win.actionViewMenubar(true)", ["<Control><Shift>m"]);
+    uiApplication.setAccelsForAction("win.actionViewToolbar(true)", ["<Control><Shift>t"]);
+    uiApplication.setAccelsForAction("win.actionViewSidepane(true)", ["<Control><Shift>s"]);
+    uiApplication.setAccelsForAction("win.actionViewExtrapane(true)",["<Control><Shift>x"]);
+    uiApplication.setAccelsForAction("win.actionViewStatusbar(true)",["<Control><Shift>b"]);
     
     AddToolObject("ToggleViewMenubar", "Menubar", "Show/hide menubar", 
      Config.GetResource("icons", "viewmenubar","resources", "ui-address-bar.png"),"win.actionViewMenubar(true)");
@@ -327,7 +400,9 @@ void EngageMenuBar(Builder mBuilder)
      Config.GetResource("icons", "viewsidepane","resources", "ui-address-bar.png"),"win.actionViewSidepane(true)");
     AddToolObject("ToggleViewExtrapane", "Extrapane", "Show/hide extrapane", 
      Config.GetResource("icons", "viewextrapane","resources", "ui-address-bar.png"),"win.actionViewExtrapane(true)");
-   
+    AddToolObject("ToggleViewStatusbar", "Statusbar", "Show/hide statusbar",
+     Config.GetResource("icons", "viewstatusbar","resources", "ui-status-bar.png"),"win.actionViewStatusbar(true)");
+    
     mMenubarModel.insertSubmenu(1, "Views", menuViews);
     menuViews.appendItem(new GMenuItem("Menubar","actionViewMenubar(true)"));
     menuViews.appendItem(new GMenuItem("Toolbar","actionViewToolbar(true)"));
@@ -354,6 +429,8 @@ void DisengageMenubar()
     Log.Entry("\tMenubar Disengaged");
 }
 
+
+
 //side pane stuff
 void EngageSidePane(Builder mBuilder)
 {
@@ -376,6 +453,7 @@ void DisengageSidePane()
 {
     Log.Entry("\tSidePane Disengaged");
 }
+
 
 //Extra Pane stuff
 void EngageExtraPane(Builder mBuilder)
@@ -412,19 +490,23 @@ void DisengageStatusbar()
 {
     Log.Entry("\tStatusbar Disengaged");
 }
+void StoreStatusbar()
+{
+    Config.SetValue("ui", "statusbar_visible", mStatusBox.getVisible());
+}
 
 void EngageDocBook(Builder mBuilder)
 {
-	mDocBook = new UI_DOCBOOK;
-	mDocBook.Engage(mBuilder);
+	uiDocBook = new UI_DOCBOOK;
+	uiDocBook.Engage(mBuilder);
 }
 void MeshDocBook()
 {
-    mDocBook.Mesh();
+    uiDocBook.Mesh();
 }
 void DisengageDocBook()
 {
-    mDocBook.Disengage();
+    uiDocBook.Disengage();
 }
 void EngageProject()
 {
@@ -457,15 +539,15 @@ bool ConfirmQuit()
         {
             //saveall & quit
             case YES : 
-                mDocBook.SaveAll();
+                uiDocBook.SaveAll();
                 break;
             //discard changes & quit
             case NO  : 
                 break;
             //pick & choose & quit (or do not quit if modified docs haven't been closed)
             case OK  : 
-                mDocBook.CloseAll();
-                if(!mDocBook.Empty()) mQuitting = false;
+                uiDocBook.CloseAll();
+                if(!uiDocBook.Empty()) mQuitting = false;
                 break;
             //any other response do nothing return to editting
             default  : 
@@ -478,11 +560,13 @@ bool ConfirmQuit()
 
 void StoreGui()
 {
-    mDocBook.StoreDocBook();
+    uiDocBook.StoreDocBook();
+    StoreSearchGui();
     StoreExtraPane();
     StoreSidePane();
     StoreToolbar();
     StoreMenubar();
+    StoreStatusbar();
     
     int win_x_pos, win_y_pos;
     int win_x_len, win_y_len;
@@ -580,7 +664,7 @@ extern (C)
        if(ConfirmQuit())
        {
            StoreGui();
-           mApplication.quit;
+           uiApplication.quit;
        }
     }
     
@@ -623,6 +707,16 @@ extern (C)
         mExtraPane.setVisible(!tmpbool);
         sa.setState(new Variant(mExtraPane.getVisible()));
     }
+    void action_view_statusbar(GSimpleAction* simAction, GVariant* varTarget, void* voidUserData)
+    {
+        SimpleAction sa = new SimpleAction(simAction);
+        Variant v = new Variant(varTarget);
+        bool tmpbool = mStatusBox.getVisible();
+        mStatusBox.setVisible(!tmpbool);
+        mStatusBox.setVisible(!tmpbool);
+        sa.setState(new Variant(mExtraPane.getVisible()));
+    }
+    
 }
 
 
@@ -654,7 +748,7 @@ class UI_LOG_STATUS
             default: L = "--";break;
         }
         
-        string fulltext = format("%s: [%11.11s]\t%s",L, mod, msg);
+        string fulltext = format("%s: [%11.11s] %s",L, mod, msg);
         mLinesOLog.appendText(fulltext); 
         mEntryCount++;
         mLinesOLog.setActive(mEntryCount);

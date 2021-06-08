@@ -22,7 +22,13 @@
                "source\/ui_preferences.d",
                "source\/transmit.d",
                "\/home\/anthony\/projects\/dcomposerx\/source\/ui_project.d",
-               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_list.d"
+               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_list.d",
+               "\/home\/anthony\/projects\/dcomposerx\/source\/search.d",
+               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_search.d",
+               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_contextmenu.d",
+               "\/home\/anthony\/projects\/dcomposerx\/source\/completion_words.d",
+               "\/home\/anthony\/projects\/dcomposerx\/source\/ui_completion.d",
+               "\/home\/anthony\/projects\/dcomposerx\/source\/text_objects.d"
           ],
           "Related Files": [],
           "Postbuild Scripts": [],
@@ -204,14 +210,14 @@
                "Value": ""
           },
           {
-               "State": true,
+               "State": false,
                "Switch": "-gs",
                "Brief": "always emit stack frame",
                "Argument": false,
                "Value": ""
           },
           {
-               "State": true,
+               "State": false,
                "Switch": "-gx",
                "Brief": "add stack stomp code",
                "Argument": false,
@@ -344,7 +350,7 @@
                "Value": ""
           },
           {
-               "State": false,
+               "State": true,
                "Switch": "-profile=gc",
                "Brief": "profile runtime allocations",
                "Argument": false,

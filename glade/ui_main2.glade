@@ -60,11 +60,7 @@
                         <property name="can-focus">True</property>
                         <property name="scrollable">True</property>
                         <child>
-                          <object class="GtkRecentChooserWidget">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="limit">20</property>
-                          </object>
+                          <placeholder/>
                         </child>
                         <child type="tab">
                           <placeholder/>
@@ -191,23 +187,6 @@
                           <object class="GtkNotebook" id="extra_pane">
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
-                            <child>
-                              <object class="GtkColorChooserWidget">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="rgba">rgb(115,210,22)</property>
-                              </object>
-                            </child>
-                            <child type="tab">
-                              <object class="GtkLabel">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="label" translatable="yes">page 1</property>
-                              </object>
-                              <packing>
-                                <property name="tab-fill">False</property>
-                              </packing>
-                            </child>
                           </object>
                         </child>
                       </object>
