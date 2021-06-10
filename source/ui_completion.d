@@ -26,7 +26,7 @@ void EngageCompletion()
 }
 void MeshCompletion()
 {
-    EngageTextObjects();
+    MeshTextObjects();
     uiCompletion.Mesh();
 }
 void DisengageCompletion()

@@ -71,12 +71,13 @@ TREASURE[] Search(SEARCH_SCOPE sScope, string needle, SEARCH_OPTIONS sOpts)
     rv.reserve = 4_000_000;
     string haystack;
     string flags = "";
+    SpanMode mode = SpanMode.shallow;
     
     if(!sOpts.mRegEx)needle = Escape(needle);
     if(sOpts.mWordStart) needle = '\b' ~ needle;
     if(sOpts.mWordEnd) needle ~= '\b';
     if(!sOpts.mCaseSensitive) flags = "i";
-    
+    if(sOpts.mRecursion) mode = SpanMode.depth;
     auto rgxNeedle = regex(needle, flags);
     
     final switch(sScope) with(SEARCH_SCOPE)
@@ -105,12 +106,10 @@ TREASURE[] Search(SEARCH_SCOPE sScope, string needle, SEARCH_OPTIONS sOpts)
             break;
         case FOLDER:
             string searchPath = GetCurrentDoc().FullName();
-            SpanMode mode = (sOpts.mRecursion) ? SpanMode.breadth : SpanMode.shallow;
-            foreach( sfile; dirEntries(searchPath.dirName, mode))
+            foreach( sfile; dirEntries(searchPath.dirName, mode, false))
             {
                 scope(failure)continue;
-                if(sfile.isDir)continue;
-                FindInFile(sfile.name,rgxNeedle, rv);
+                if(sfile.isFile) FindInFile(sfile.name,rgxNeedle, rv);
             }
             break;
     }

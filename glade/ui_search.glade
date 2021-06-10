@@ -469,7 +469,7 @@ results.</property>
           <object class="GtkTreeViewColumn">
             <property name="resizable">True</property>
             <property name="spacing">1</property>
-            <property name="sizing">autosize</property>
+            <property name="sizing">fixed</property>
             <property name="title" translatable="yes">File</property>
             <property name="clickable">True</property>
             <property name="sort-indicator">True</property>
@@ -516,6 +516,7 @@ results.</property>
         <child>
           <object class="GtkTreeViewColumn">
             <property name="resizable">True</property>
+            <property name="sizing">autosize</property>
             <property name="title" translatable="yes">Text</property>
             <property name="sort-indicator">True</property>
             <property name="sort-column-id">3</property>

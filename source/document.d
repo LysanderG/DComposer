@@ -59,10 +59,7 @@ private:
         
 
 public:
-    this()
-    {
-        super();
-    }
+
     string FullName(){return mFullPathName;}
     string Name(){return baseName(mFullPathName);}
     void   Name(string nuFileName)

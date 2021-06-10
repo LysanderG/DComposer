@@ -21,7 +21,6 @@ import ui;
 void EngageSearch()
 {
     auto builder = new Builder(Config.GetResource("ui_search", "glade_file", "glade", "ui_search.glade"));
-    
     mSideRoot = cast(Widget)builder.getObject("search_side_root");
     mSearchButton = cast(Button)builder.getObject("search_button");
     mSearchEntry = cast(Entry)builder.getObject("search_entry");
@@ -128,7 +127,7 @@ void EngageSearch()
     });
     mRecurseChkBtn.addOnToggled(delegate void(ToggleButton tb)
     {
-        mSearchOptions.mCaseSensitive = tb.getActive();        
+        mSearchOptions.mRecursion = tb.getActive();        
     });
     
     
@@ -158,12 +157,10 @@ void EngageSearch()
     AddToolObject("replace_all", "Replace All", "Guess More!", 
         Config.GetResource("icons", "replace_all", "resources", "spectacle.png"), "win.actionReplace");         
     //results stuff
-    
     mExtraRoot = cast(ScrolledWindow)builder.getObject("search_extra_root");
     mExtraRoot.showAll();
     mSearchResultsView = cast(TreeView)builder.getObject("results_view");
     mSearchResultsStore = cast(ListStore)builder.getObject("treasure_store");
-    
     mSearchAppStatus = new Box(Orientation.HORIZONTAL,1);
     mSearchAppStatusLabel = new Label("Hello D programmer ;)");
     mSearchAppStatus.packStart(mSearchAppStatusLabel, false, true, 1);
