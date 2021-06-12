@@ -318,6 +318,7 @@ public:
         mNotebook.setMenuLabelText(scrollWin, newDoc.Name);
         mNotebook.setCurrentPage(scrollWin);
         ConnectDoc(newDoc);
+        Log.Entry("Document added :" ~ newDoc.Name);
     }
     void ConnectDoc(DOC_IF doc)
     {

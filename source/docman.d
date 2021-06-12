@@ -136,8 +136,8 @@ void ReplaceDoc(string oldKey, string newKey)
 void RemoveDoc(DOC_IF oldDoc)
 {
 	if(oldDoc.Modified)Log.Entry("Removing modified doc ("~ oldDoc.Name ~ ") from document manager");
-	mDocs.remove(oldDoc.FullName);
     Transmit.DocManEvent.emit(DOCMAN_EVENT.REMOVE, oldDoc.FullName);
+    mDocs.remove(oldDoc.FullName);
 }
 
 void SaveAll()
@@ -181,7 +181,6 @@ bool OpenDocAt(string fileName, int line, int col, bool focus = true)
         return true;
     }
     auto nuDoc = DOC_IF.Create();
-    nuDoc.Init(fileName);
     nuDoc.Load(fileName);
     
     AddDoc(nuDoc);

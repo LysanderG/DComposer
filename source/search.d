@@ -16,6 +16,7 @@ import std.regex;
 import std.stdio;
 import std.string;
 import std.utf;
+import std.encoding;
 
 
 
@@ -108,8 +109,12 @@ TREASURE[] Search(SEARCH_SCOPE sScope, string needle, SEARCH_OPTIONS sOpts)
             string searchPath = GetCurrentDoc().FullName();
             foreach( sfile; dirEntries(searchPath.dirName, mode, false))
             {
-                scope(failure)continue;
-                if(sfile.isFile) FindInFile(sfile.name,rgxNeedle, rv);
+                scope(failure)continue;                
+                if(sfile.isFile) 
+                {
+                    if(docman.Opened(sfile.name)) FindInDoc(sfile.name, rgxNeedle, rv);
+                    else FindInFile(sfile.name,rgxNeedle, rv);
+                }
             }
             break;
     }
@@ -150,9 +155,8 @@ void FindInFile(string fileName, Regex!char needle, ref TREASURE[] rv)
     foreach(stringLineText; lineRange)
     {
         if(lineNo == 0)
-        {
-            scope(failure)break;
-            stringLineText.validate();
+        { 
+            if(!isValid(stringLineText))continue;
         }
         auto allMatches = matchAll(stringLineText, needle);
         foreach(item; allMatches)

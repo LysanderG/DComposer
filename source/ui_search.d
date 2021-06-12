@@ -182,6 +182,7 @@ void MeshSearch()
                                         "crash the X server with \n" ~
                                         "small needles and large haystacks.");
     AddSubMenuAction(0, 0, "Search", "actionSearch");
+    AddSubMenuAction(0, 1, "Search Next", "actionFindFore");
     
     void contextDlg(MenuItem mi){SearchAction();}
     //MenuItem mi = new MenuItem("Search",&contextDlg, "win.actionSearch"); 
@@ -382,13 +383,15 @@ Label   mSillyNoticeOfResultsLimit;
 void UpdateSearchAppStatus(string needle, SEARCH_SCOPE scp, ulong items )
 {
     string hr_scp;
+    string currDoc = baseName(CurrentDocName);
+    string CurrFolder = dirName(CurrentDocName);
     final switch(scp) with (SEARCH_SCOPE)
     {
-        case CURRENT : hr_scp = "current document";break;
+        case CURRENT : hr_scp = "current document (" ~ currDoc ~")";break;
         case OPEN : hr_scp = "open documents";break;
         case SOURCE : hr_scp = "project source files";break;
         case ALL : hr_scp = "all project files";break;
-        case FOLDER : hr_scp = "current folder"; break;
+        case FOLDER : hr_scp = "current folder (" ~ CurrFolder ~ ")"; break;
     }
     
     string status = format("Search for \"%s\" in %s found %s results.", needle, 
