@@ -329,33 +329,41 @@ class TEXT_OBJECT_REGEX_2: TEXT_OBJECT_IF_2
     {
         Setup(doc);
         bool hasWrapped;
-
-        mTmpSettings.setSearchText(rgxDefinition);
         
-        bool rez;
-        mTmpSettings.setSearchText(rgxStart);
-        rez = mTmpContext.backward(tiCursor, tiStart, tiEnd, hasWrapped);
-        dwrite("back to start ",tiCursor.getLineOffset(),"/", tiStart.getLineOffset(),"/",tiEnd.getLineOffset());
-        if(rez)tiCursor = tiStart.copy();
+        bool moved;
+        TextIter tiXstart, tiXend;
         
         mTmpSettings.setSearchText(rgxDefinition);
         
-        if(mTmpContext.forward(tiCursor, tiStart, tiEnd, hasWrapped))
+        //backup to get "current" object
+        moved = mTmpContext.backward(tiCursor, tiXstart, tiXend, hasWrapped);
+        if(moved)
         {
-            dwrite(tiCursor.getOffset(), "/",tiStart.getOffset(),"/", tiEnd.getOffset());
-            if(tiCursor.compare(tiStart) == 0)
-            {
-                tiCursor = tiEnd.copy();
-                dwrite('\t',tiCursor.getOffset(), "/",tiStart.getOffset(),"/", tiEnd.getOffset());
-                mTmpContext.forward(tiCursor, tiStart, tiEnd, hasWrapped);
-                dwrite(">>>>",tiCursor.getOffset(), "/",tiStart.getOffset(),"/", tiEnd.getOffset());
+	        if(mTmpContext.forward(tiXend, tiXstart, tiXend, hasWrapped))
+	        {
+		        if(tiCursor.compare(tiXstart) == 1 && tiCursor.compare(tiXend) == -1)
+		        {
+			        doc.getBuffer.selectRange(tiXstart, tiXend);
+			        doc.scrollToIter(tiXstart, 0.05, false,  0.0, 0.0);
+			        return toSelection(true, tiXstart, tiXend);
+                }
+                
             }
-            dwrite(">>>>",tiCursor.getOffset(), "/",tiStart.getOffset(),"/", tiEnd.getOffset());
-            doc.getBuffer.selectRange(tiStart, tiEnd);
-            doc.scrollToIter(tiStart, 0.05, false, 0.0, 0.0);  
-            return toSelection(true, tiStart, tiEnd);          
-        }        
-        return toSelection(false, tiStart, tiEnd);        
+	    }
+	    moved = mTmpContext.forward(tiCursor, tiStart, tiEnd, hasWrapped);
+	    if(moved)
+	    {
+		    if(tiCursor.compare(tiStart) == 0)
+		    {
+			    if(!mTmpContext.forward(tiEnd, tiStart, tiEnd, hasWrapped))
+			    	return toSelection(false, tiCursor, tiCursor.copy());
+            }
+		    doc.getBuffer().selectRange(tiStart, tiEnd);
+		    doc.scrollToIter(tiStart, 0.05, false, 0.0, 0.0);
+		    return toSelection(false, tiStart, tiEnd);
+        }
+	    return toSelection(false, tiCursor, tiCursor.copy());
+        
     }
     
     toSelection SelectPrev(DOCUMENT doc)
@@ -381,6 +389,11 @@ class TEXT_OBJECT_REGEX_2: TEXT_OBJECT_IF_2
         
         if(mTmpContext.forward(tiCursor, tiStart, tiEnd, hasWrapped))
         {
+	        if(tiCursor.compare(tiStart) == 0)
+	        { 
+		        dwrite("startnext ",tiCursor.getLineOffset, "/", tiStart.getLineOffset, "/", tiEnd.getLineOffset);
+		    	mTmpContext.forward(tiEnd, tiStart, tiEnd, hasWrapped);
+		    }
             doc.getBuffer.placeCursor(tiStart);
             doc.scrollToIter(tiStart, 0.05, false, 0.0, 0.0);
             return toSelection(true, tiStart, tiStart);
@@ -397,9 +410,9 @@ class TEXT_OBJECT_REGEX_2: TEXT_OBJECT_IF_2
         {
             doc.getBuffer.placeCursor(tiStart);
             doc.scrollToIter(tiStart, 0.05, false, 0.0, 0.0);
-            return toSelection(true, tiStart, tiEnd);
+            return toSelection(true, tiStart, tiStart);
         }
-        return toSelection(false, tiStart, tiEnd);
+        return toSelection(false, tiStart, tiStart);
     }
     
     toSelection EndNext(DOCUMENT doc)
@@ -412,9 +425,9 @@ class TEXT_OBJECT_REGEX_2: TEXT_OBJECT_IF_2
         {
             doc.getBuffer.placeCursor(tiStart);
             doc.scrollToIter(tiStart, 0.05, false, 0.0, 0.0);
-            return toSelection(true, tiStart, tiEnd);
+            return toSelection(true, tiEnd, tiEnd);
         }
-        return toSelection(false, tiStart, tiEnd);        
+        return toSelection(false, tiEnd, tiEnd);        
     }
     
     toSelection EndPrev(DOCUMENT doc)

@@ -357,6 +357,7 @@ public:
     
     void Build()
     {
+	    
         bool buildStatus;
         scope(exit)Transmit.ProjectEvent.emit(this, PROJECT_EVENT.BUILD, "");
         import std.process;
@@ -496,7 +497,7 @@ public:
         if(!nuLocation.isValidPath())return;
         mLocation = nuLocation;
         mkdirRecurse(buildNormalizedPath(defaultProjectRoot, Location));
-        //chdir(buildPath(defaultProjectRoot, mLocation));
+        chdir(buildPath(defaultProjectRoot, mLocation));
         Transmit.ProjectEvent.emit(this, PROJECT_EVENT.LOCATION, mLocation);        
     }
     string Location()

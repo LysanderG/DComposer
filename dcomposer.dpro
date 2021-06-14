@@ -30,7 +30,9 @@
                "\/home\/anthony\/projects\/dcomposerx\/source\/ui_completion.d",
                "\/home\/anthony\/projects\/dcomposerx\/source\/text_objects.d"
           ],
-          "Related Files": [],
+          "Related Files": [
+               "text_objects\/text_objects"
+          ],
           "Postbuild Scripts": [],
           "String Imports": [],
           "Libraries": [
