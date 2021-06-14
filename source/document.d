@@ -167,11 +167,16 @@ public:
         {
             uint keyvalue;
             keyEvent.getKeyval(keyvalue);
-            if (keyvalue == Keysyms.GDK_bar)
+            
+            switch (keyvalue)
             {
-                //mTextObject["word"].EndPrev(this);
-                mTextObject["line"].EndNext(this);
-                return true;
+                case Keysyms.GDK_1: mTextObject["word"].SelectNext(this);return true;
+                case Keysyms.GDK_2: mTextObject["word"].SelectPrev(this);return true;
+                case Keysyms.GDK_3: mTextObject["word"].StartNext(this);return true;
+                case Keysyms.GDK_4: mTextObject["word"].StartPrev(this);return true;
+                case Keysyms.GDK_5: mTextObject["word"].EndNext(this);return true;
+                case Keysyms.GDK_6: mTextObject["word"].EndPrev(this);return true;
+                default: return false;
             }
             return false;
         });

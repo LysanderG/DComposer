@@ -2,6 +2,7 @@ module text_objects;
 
 import std.path;
 import std.regex;
+import std.typecons;
 
 import config;
 import docman;
@@ -14,8 +15,8 @@ import gsv.SourceSearchSettings;
 
 
 
-TEXT_OBJECT_IF[string] mTextObject;
-private CONFIG                 mConfigRegexObjects;
+TEXT_OBJECT_IF_2[string] mTextObject;
+private CONFIG           mConfigRegexObjects;
 
 
 void EngageTextObjects()
@@ -24,9 +25,9 @@ void EngageTextObjects()
     mConfigRegexObjects.SetCfgFile(buildPath(findResource("text_objects"),"text_objects"));
     mConfigRegexObjects.Load();
     dwrite(mConfigRegexObjects.GetValue("config","this_file", "undefined!!"));
-    dwrite(mConfigRegexObjects.GetKeys("objects"));
-    foreach(key; mConfigRegexObjects.GetKeys("objects"))
-        CreateTextRegexObject(key, mConfigRegexObjects.GetValue!string("objects", key));
+    dwrite(mConfigRegexObjects.GetKeys("text_objects"));
+    foreach(key; mConfigRegexObjects.GetKeys("text_objects"))
+        CreateTextRegexObject(key, mConfigRegexObjects.GetArray!string("text_objects", key)[0..3]);
     
     Log.Entry("Engaged");
 }
@@ -42,14 +43,14 @@ void DisengageTextObjects()
 
 
 
-void CreateTextRegexObject(string UniqueObjectName, string definition)
+void CreateTextRegexObject(string UniqueObjectName, string[3] definitions)
 {
-    TEXT_OBJECT_REGEX nubee = new TEXT_OBJECT_REGEX;
-    nubee.SetRegexDefinition(definition);
+    TEXT_OBJECT_REGEX_2 nubee = new TEXT_OBJECT_REGEX_2;
+    nubee.SetRegexDefinition(definitions);
     mTextObject[UniqueObjectName] = nubee;
 }
 
-void AddTextObject(string UniqueObjectName, TEXT_OBJECT_IF textObject)
+void AddTextObject(string UniqueObjectName, TEXT_OBJECT_IF_2 textObject)
 {
     mTextObject[UniqueObjectName] = textObject;
 }
@@ -66,6 +67,19 @@ interface TEXT_OBJECT_IF
     
     bool EndNext(DOCUMENT Doc);
     bool EndPrev(DOCUMENT Doc);
+}
+interface TEXT_OBJECT_IF_2
+{
+    bool SetRegexDefinition(string[3] definitions);
+    toSelection SelectNext(DOCUMENT Doc);
+    toSelection SelectPrev(DOCUMENT Doc);
+    
+    toSelection StartNext(DOCUMENT Doc);
+    toSelection StartPrev(DOCUMENT Doc);
+    
+    toSelection EndNext(DOCUMENT Doc);
+    toSelection EndPrev(DOCUMENT Doc);
+
 }
 
 
@@ -262,4 +276,160 @@ class TEXT_OBJECT_REGEX : TEXT_OBJECT_IF
         return found;
         
     }
+}
+
+alias toSelection = Tuple!(bool ,"found", TextIter, "start", TextIter, "end");
+class TEXT_OBJECT_REGEX_2: TEXT_OBJECT_IF_2
+{
+    private:
+    
+    string rgxStart;
+    string rgxEnd;
+    string rgxDefinition;
+    
+    TextIter tiCursor;
+    TextIter tiStart;
+    TextIter tiEnd;
+    
+    SourceSearchContext mTmpContext;
+    SourceSearchSettings mTmpSettings;
+    
+    void Setup(DOCUMENT doc)
+    {
+        mTmpContext =  doc.GetSearchContext();
+        mTmpSettings = mTmpContext.getSettings();
+        
+        mTmpSettings.setCaseSensitive(true);
+        mTmpSettings.setRegexEnabled(true);
+        mTmpSettings.setWrapAround(false);
+        mTmpContext.setHighlight(false);        
+        tiStart = new TextIter;
+        tiEnd = new TextIter;
+        tiCursor = doc.Cursor().copy;
+    }
+    
+    public:
+    
+    //this(string definition, string start, string end)
+    //{
+    //    rgxStart = start;
+    //    rgxEnd = end;
+    //    rgxDefinition = definition;
+    //}   
+
+    bool SetRegexDefinition(string[3] definitions)
+    {
+        rgxStart = definitions[0];
+        rgxEnd = definitions[1];
+        rgxDefinition = definitions[2];
+        return true;
+    }
+    
+    toSelection SelectNext(DOCUMENT doc)
+    {
+        Setup(doc);
+        bool hasWrapped;
+
+        mTmpSettings.setSearchText(rgxDefinition);
+        
+        bool rez;
+        mTmpSettings.setSearchText(rgxStart);
+        rez = mTmpContext.backward(tiCursor, tiStart, tiEnd, hasWrapped);
+        dwrite("back to start ",tiCursor.getLineOffset(),"/", tiStart.getLineOffset(),"/",tiEnd.getLineOffset());
+        if(rez)tiCursor = tiStart.copy();
+        
+        mTmpSettings.setSearchText(rgxDefinition);
+        
+        if(mTmpContext.forward(tiCursor, tiStart, tiEnd, hasWrapped))
+        {
+            dwrite(tiCursor.getOffset(), "/",tiStart.getOffset(),"/", tiEnd.getOffset());
+            if(tiCursor.compare(tiStart) == 0)
+            {
+                tiCursor = tiEnd.copy();
+                dwrite('\t',tiCursor.getOffset(), "/",tiStart.getOffset(),"/", tiEnd.getOffset());
+                mTmpContext.forward(tiCursor, tiStart, tiEnd, hasWrapped);
+                dwrite(">>>>",tiCursor.getOffset(), "/",tiStart.getOffset(),"/", tiEnd.getOffset());
+            }
+            dwrite(">>>>",tiCursor.getOffset(), "/",tiStart.getOffset(),"/", tiEnd.getOffset());
+            doc.getBuffer.selectRange(tiStart, tiEnd);
+            doc.scrollToIter(tiStart, 0.05, false, 0.0, 0.0);  
+            return toSelection(true, tiStart, tiEnd);          
+        }        
+        return toSelection(false, tiStart, tiEnd);        
+    }
+    
+    toSelection SelectPrev(DOCUMENT doc)
+    {
+        Setup(doc);
+        bool hasWrapped;
+        mTmpSettings.setSearchText(rgxDefinition);
+        
+        if(mTmpContext.backward(tiCursor, tiStart, tiEnd, hasWrapped))
+        {
+            doc.getBuffer.selectRange(tiStart, tiEnd);
+            doc.scrollToIter(tiStart, 0.05, false, 0.0, 0.0);
+            return toSelection(true, tiStart, tiEnd);
+        }
+        return toSelection(false, tiStart, tiEnd);
+    }
+    
+    toSelection StartNext(DOCUMENT doc)
+    {
+        Setup(doc);
+        bool hasWrapped;
+        mTmpSettings.setSearchText(rgxStart);
+        
+        if(mTmpContext.forward(tiCursor, tiStart, tiEnd, hasWrapped))
+        {
+            doc.getBuffer.placeCursor(tiStart);
+            doc.scrollToIter(tiStart, 0.05, false, 0.0, 0.0);
+            return toSelection(true, tiStart, tiStart);
+        }
+        return toSelection(false, tiStart, tiStart);
+    }
+    toSelection StartPrev(DOCUMENT doc)
+    {
+        Setup(doc);
+        bool hasWrapped;
+        mTmpSettings.setSearchText(rgxStart);
+        
+        if(mTmpContext.backward(tiCursor, tiStart, tiEnd, hasWrapped))
+        {
+            doc.getBuffer.placeCursor(tiStart);
+            doc.scrollToIter(tiStart, 0.05, false, 0.0, 0.0);
+            return toSelection(true, tiStart, tiEnd);
+        }
+        return toSelection(false, tiStart, tiEnd);
+    }
+    
+    toSelection EndNext(DOCUMENT doc)
+    {
+        Setup(doc);
+        bool hasWrapped;
+        mTmpSettings.setSearchText(rgxEnd);
+        
+        if(mTmpContext.forward(tiCursor, tiStart, tiEnd, hasWrapped))
+        {
+            doc.getBuffer.placeCursor(tiStart);
+            doc.scrollToIter(tiStart, 0.05, false, 0.0, 0.0);
+            return toSelection(true, tiStart, tiEnd);
+        }
+        return toSelection(false, tiStart, tiEnd);        
+    }
+    
+    toSelection EndPrev(DOCUMENT doc)
+    {
+        Setup(doc);
+        bool hasWrapped;
+        mTmpSettings.setSearchText(rgxEnd);
+        
+        if(mTmpContext.backward(tiCursor, tiStart, tiEnd, hasWrapped))
+        {
+            doc.getBuffer.placeCursor(tiStart);
+            doc.scrollToIter(tiStart, 0.05, false, 0.0, 0.0);
+            return toSelection(true, tiStart, tiEnd);
+       }
+       return toSelection(false, tiStart, tiEnd);
+    }
+    
 }
