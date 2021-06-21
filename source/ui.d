@@ -566,6 +566,7 @@ void StoreGui()
     StoreSidePane();
     StoreToolbar();
     StoreMenubar();
+    
     StoreStatusbar();
     
     int win_x_pos, win_y_pos;
@@ -742,13 +743,13 @@ class UI_LOG_STATUS
         string L;
         switch(lvl)
         {
-            case "Error": L = "!!";break;
-            case "Info": L = "i ";break;
-            case "Warning": L= "W ";break;
+            case "Error": L = "X";break;
+            case "Info": L = "i";break;
+            case "Warning": L= "W";break;
             default: L = "--";break;
         }
         
-        string fulltext = format("%s: [%11.11s] %s",L, mod, msg);
+        string fulltext = format("%s[%9.9s] %20.20s",L, mod, msg);
         mLinesOLog.appendText(fulltext); 
         mEntryCount++;
         mLinesOLog.setActive(mEntryCount);

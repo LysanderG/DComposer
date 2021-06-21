@@ -86,6 +86,8 @@ interface DOC_IF
     bool    Virgin();
     bool	Modified();
     string  GetStatusLine();
+    void    SetBackgroundGrid(bool on);
+    bool    GetBackgroundGrid();
     void    Goto(int line, int col, bool focus = true);
     bool    FindForward(string regexNeedle);
     bool    FindBackward(string regexNeedle);
