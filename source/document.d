@@ -150,7 +150,7 @@ public:
         else Name = nuFileName;        Config.Reconfigure.connect(&Reconfigure);
         Config.Changed.connect(&WatchConfigChange);
         Reconfigure();
-        setBackgroundPattern(BackgroundPatternType.GRID);
+        //setBackgroundPattern(BackgroundPatternType.GRID);
         
         addOnPopulatePopup(delegate void(Widget w, TextView self)
         {
@@ -170,12 +170,12 @@ public:
             
             switch (keyvalue)
             {
-                case Keysyms.GDK_1: mTextObject["word"].SelectNext(this);return true;
-                case Keysyms.GDK_2: mTextObject["word"].SelectPrev(this);return true;
-                case Keysyms.GDK_3: mTextObject["word"].StartNext(this);return true;
-                case Keysyms.GDK_4: mTextObject["word"].StartPrev(this);return true;
-                case Keysyms.GDK_5: mTextObject["word"].EndNext(this);return true;
-                case Keysyms.GDK_6: mTextObject["word"].EndPrev(this);return true;
+                case Keysyms.GDK_1: mTextObject["item"].SelectNext(this);return true;
+                case Keysyms.GDK_2: mTextObject["item"].SelectPrev(this);return true;
+                case Keysyms.GDK_3: mTextObject["item"].StartNext(this);return true;
+                case Keysyms.GDK_4: mTextObject["item"].StartPrev(this);return true;
+                case Keysyms.GDK_5: mTextObject["item"].EndNext(this);return true;
+                case Keysyms.GDK_6: mTextObject["item"].EndPrev(this);return true;
                 default: return false;
             }
             return false;
@@ -279,6 +279,18 @@ public:
             back,docname, cursorpos, virgin);
         
         return rv;
+    }
+    
+    void SetBackgroundGrid(bool on)
+    {
+        BackgroundPatternType bpt = (on)? BackgroundPatternType.GRID : BackgroundPatternType.NONE;
+        setBackgroundPattern(bpt);        
+    }
+    
+    bool GetBackgroundGrid()
+    {
+        auto bpt = getBackgroundPattern();
+        return (bpt ==BackgroundPatternType.GRID)? true: false;
     }
     
     void Goto(int line, int col, bool focus)
