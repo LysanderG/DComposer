@@ -28,7 +28,9 @@
                "\/home\/anthony\/projects\/dcomposerx\/source\/ui_contextmenu.d",
                "\/home\/anthony\/projects\/dcomposerx\/source\/completion_words.d",
                "\/home\/anthony\/projects\/dcomposerx\/source\/ui_completion.d",
-               "\/home\/anthony\/projects\/dcomposerx\/source\/text_objects.d"
+               "\/home\/anthony\/projects\/dcomposerx\/source\/text_objects.d",
+               "source\/shellfilter.d",
+               "source\/ddocconvert.d"
           ],
           "Related Files": [
                "text_objects\/text_objects"
@@ -36,8 +38,9 @@
           "Postbuild Scripts": [],
           "String Imports": [],
           "Libraries": [
-               "\/usr\/local\/lib\/libgtkd-3.so",
-               "\/usr\/local\/lib\/libgtkdsv-3.so"
+               "\/lib\/libdl.a",
+               "\/usr\/local\/lib\/libgtkdsv-3.so",
+               "\/usr\/local\/lib\/libgtkd-3.so"
           ],
           "Debugs": [],
           "Sundry": [
@@ -163,11 +166,11 @@
                "Value": ""
           },
           {
-               "State": false,
+               "State": true,
                "Switch": "-defaultlib=",
                "Brief": "set default library to name",
                "Argument": true,
-               "Value": ""
+               "Value": "libphobos2.so"
           },
           {
                "State": false,
@@ -184,7 +187,7 @@
                "Value": ""
           },
           {
-               "State": false,
+               "State": true,
                "Switch": "-fPIC",
                "Brief": "generate position independent code",
                "Argument": false,
