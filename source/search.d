@@ -198,7 +198,7 @@ string Escape(string OldNeedle)
     string rv = OldNeedle;
     string specials = "[]-{}()*+?.,^$|#";
 
-    rv = rv.replace(`\`, `\\`);
+    rv = rv.replace(`\`, `\\`);//`back tick screws up highlights
     foreach(specChar; specials) rv = rv.replace([specChar], ['\\'] ~specChar);
 
     return rv;
@@ -286,4 +286,3 @@ S encode(S)(S s)
     assert(encode("\"hi\"") == "&quot;hi&quot;", encode("\"hi\""));
     assert(encode("cat & dog") == "cat &amp; dog");
 }
-
