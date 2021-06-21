@@ -392,7 +392,8 @@ class TEXT_OBJECT_REGEX_2: TEXT_OBJECT_IF_2
 	        if(tiCursor.compare(tiStart) == 0)
 	        { 
 		        dwrite("startnext ",tiCursor.getLineOffset, "/", tiStart.getLineOffset, "/", tiEnd.getLineOffset);
-		    	mTmpContext.forward(tiEnd, tiStart, tiEnd, hasWrapped);
+		    	if(!mTmpContext.forward(tiEnd, tiStart, tiEnd, hasWrapped)) 
+		    	    return toSelection(false, tiCursor, tiCursor);
 		    }
             doc.getBuffer.placeCursor(tiStart);
             doc.scrollToIter(tiStart, 0.05, false, 0.0, 0.0);
@@ -423,7 +424,12 @@ class TEXT_OBJECT_REGEX_2: TEXT_OBJECT_IF_2
         
         if(mTmpContext.forward(tiCursor, tiStart, tiEnd, hasWrapped))
         {
-            doc.getBuffer.placeCursor(tiStart);
+            if(tiCursor.compare(tiStart) == 0)
+            {
+                if(!mTmpContext.forward(tiEnd, tiStart, tiEnd,hasWrapped))
+                    return toSelection(false, tiCursor, tiCursor);
+            }
+            doc.getBuffer.placeCursor(tiEnd);
             doc.scrollToIter(tiStart, 0.05, false, 0.0, 0.0);
             return toSelection(true, tiEnd, tiEnd);
         }
@@ -438,7 +444,7 @@ class TEXT_OBJECT_REGEX_2: TEXT_OBJECT_IF_2
         
         if(mTmpContext.backward(tiCursor, tiStart, tiEnd, hasWrapped))
         {
-            doc.getBuffer.placeCursor(tiStart);
+            doc.getBuffer.placeCursor(tiEnd);
             doc.scrollToIter(tiStart, 0.05, false, 0.0, 0.0);
             return toSelection(true, tiStart, tiEnd);
        }
