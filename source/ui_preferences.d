@@ -33,6 +33,7 @@ void AppPreferenceAdjustWidget(string Page, int row, Widget item, bool expand, b
 
 void AppPreferencesShow()
 {
+    Transmit.PreferencesUpdateUI.emit();
     auto prefs = AppPreferencesBuild();
     prefs.run();
     prefs.hide();

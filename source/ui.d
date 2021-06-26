@@ -21,6 +21,7 @@ public import ui_toolbar;
 public import ui_search;
 public import ui_contextmenu;
 public import ui_completion;
+public import ui_elementmanager;
 
 
 public import gdk.Cursor;
@@ -110,6 +111,7 @@ public import gtk.Toolbar;
 public import gtk.TreeIter;
 public import gtk.TreeModelIF;
 public import gtk.TreePath;
+public import gtk.TreeSelection;
 public import gtk.TreeView;
 public import gtk.TreeViewColumn;
 public import gtk.Widget;
@@ -137,6 +139,7 @@ void Engage(ref string[] args)
     EngageSearch();
     EngageContextMenu();
     EngageCompletion();
+    EngageElementManager();
 
 	uiApplication.addOnActivate(delegate void(GApplication app)
 	{        
@@ -164,11 +167,13 @@ void Mesh()
     MeshSearch();
     MeshContextMenu();
     MeshCompletion();
+    MeshElementManager();
     Log.Entry("Meshed");
 }
 
 void Disengage()
 {
+    DisengageElementManager();
     DisengageCompletion();
     DisengageContextMenu();
     DisengageSearch();

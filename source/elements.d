@@ -27,7 +27,7 @@ interface ELEMENT
     string CopyRight();
     string Authors();
 
-    //PREFERENCE_PAGE PreferencePage();
+    Dialog SettingsDialog();
 }
 
 void Engage(ref string[] args)
@@ -110,6 +110,45 @@ string GetCmdLineOptions()
 	return rv;
 }
 
+void DisableElement(string key)
+{
+    mRegisteredElements[key].mEnabled = false;
+    UnloadElement(key);
+}
+void EnableElement(string key)
+{
+    mRegisteredElements[key].mEnabled = true;
+    if(LoadElement(mRegisteredElements[key]))
+    {
+        mElements[key].Engage();
+        mRegisteredElements[key].mEnabled = true;
+        return;
+    }
+    mRegisteredElements[key].mEnabled = false;
+}
+
+void BreakElement(string key)
+{
+    mRegisteredElements[key].mBroken = true;
+    mRegisteredElements[key].mEnabled = false;
+}
+void UnbreakElement(string key)
+{
+    mRegisteredElements[key].mBroken = false;
+}
+
+auto GetRegisterdElements()
+{
+    return mRegisteredElements;
+}
+
+void ShowSettingDialog(string key)
+{
+    
+    if(key !in mElements) return;
+    Dialog dx = mElements[key].SettingsDialog();
+    dx.run();    
+}
 
 private:
 
@@ -154,25 +193,31 @@ void LoadElements()
         LoadElement(reglibrary);
     }
 }
-void LoadElement(ref REGISTERED_LIBRARY ElementLibrary)
+bool LoadElement(ref REGISTERED_LIBRARY ElementLibrary)
 {
+   
    if(ElementLibrary.mPtr !is null)
    {
        Log.Entry(ElementLibrary.mID ~ ": Element appears to be loaded already");
-       return;
+       return false;
    }
    
    if(ElementLibrary.mEnabled == false)
    {
        Log.Entry(ElementLibrary.mID ~ ": Element has been disabled by user");
-       return;
+       return false;
    }
    if(ElementLibrary.mBroken)
    {
        Log.Entry(ElementLibrary.mID ~ ": Element has been marked as broken");
-       return;
+       return false;
    }
    
+   scope(failure)
+   {
+       ElementLibrary.mBroken =true;
+       return false;
+   }
    ElementLibrary.mPtr = Runtime.loadLibrary(findResource(buildPath("elements", ElementLibrary.mID)));
    
    if(ElementLibrary.mPtr is null) 
@@ -180,7 +225,7 @@ void LoadElement(ref REGISTERED_LIBRARY ElementLibrary)
        ElementLibrary.mBroken = true;
        Log.Entry("Failed to load Element :" ~ ElementLibrary.mID);
        ShowMessage("Error Loading Element", "Faile to load " ~ ElementLibrary.mID ~ "\nElement marked as broken");
-       return;
+       return false;
    } 
    
    auto tmpVar = dlsym(ElementLibrary.mPtr, "GetElementName");
@@ -188,9 +233,10 @@ void LoadElement(ref REGISTERED_LIBRARY ElementLibrary)
    {
        ElementLibrary.mBroken = true;
        ElementLibrary.mEnabled = false;
+       rt_unloadLibrary(ElementLibrary.mPtr);
        Log.Entry(ElementLibrary.mID ~ " does not appear to be an element(Marked as broken)");
        ShowMessage("Broken element library", ElementLibrary.mID ~ "is not a valid element(marked as broken)");
-       
+       return false;
    }
    
    string function() GetElementName = cast(string function())tmpVar;
@@ -200,12 +246,13 @@ void LoadElement(ref REGISTERED_LIBRARY ElementLibrary)
    {
        ElementLibrary.mBroken = true;
        ElementLibrary.mEnabled = false;
+       rt_unloadLibrary(ElementLibrary.mPtr);
        Log.Entry("Failed to instantiate "~GetElementName());
        ShowMessage("Element Error", "Failed to instantiate " ~ GetElementName());
-       return;
+       return false;
    }
-   ElementLibrary.mAuthors = theElement.Authors;
-   ElementLibrary.mInfo   = theElement.Info;
+   ElementLibrary.mAuthors = theElement.Authors.idup;
+   ElementLibrary.mInfo   = theElement.Info.idup;
 
     string strEnabled = ElementLibrary.mEnabled.to!string;
     string strBroken = ElementLibrary.mBroken.to!string;
@@ -218,6 +265,7 @@ void LoadElement(ref REGISTERED_LIBRARY ElementLibrary)
    
    
    mElements[ElementLibrary.mID] = theElement;
+   return true;
           
 }
 
@@ -225,9 +273,12 @@ void UnloadElement(string elementKey)
 {
     if(elementKey !in mElements) return;
     mElements[elementKey].Disengage();
+    mElements.remove(elementKey);
     
-    rt_unloadLibrary(mRegisteredElements[elementKey].mPtr);
+    auto rez = rt_unloadLibrary(mRegisteredElements[elementKey].mPtr);
+    dwrite(rez ,"/ptr:",mRegisteredElements[elementKey].mPtr);
     mRegisteredElements[elementKey].mPtr = null;
+    mRegisteredElements[elementKey].mEnabled = false;
 }
 
 void RegisterLibrary(string libraryID)

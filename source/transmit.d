@@ -28,6 +28,7 @@ class TRANSMITTER
 {
     //ui_preferences
     mixin Signal!() SigUpdateAppPreferencesUI;
+    mixin Signal!() PreferencesUpdateUI;
     mixin Signal!() SigUpdateAppPreferencesOptions;
     //log --log has its own signal -- created before transmittter is
     

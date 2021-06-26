@@ -30,7 +30,8 @@
                "\/home\/anthony\/projects\/dcomposerx\/source\/ui_completion.d",
                "\/home\/anthony\/projects\/dcomposerx\/source\/text_objects.d",
                "source\/shellfilter.d",
-               "source\/ddocconvert.d"
+               "source\/ddocconvert.d",
+               "source\/ui_elementmanager.d"
           ],
           "Related Files": [
                "text_objects\/text_objects"
