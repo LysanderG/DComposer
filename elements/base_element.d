@@ -8,7 +8,7 @@ import elements;
 
 extern(C) string GetElementName()
 {
-    return "base2_element.BASE2";
+    return "base_element.BASE";
 }
 
 class BASE :ELEMENT

@@ -25,5 +25,9 @@ class BASE2 :ELEMENT
     string CopyRight(){return "right now".idup;}
     string Authors(){return "me, billy, jim, evan".idup;}
 
-    //PREFERENCE_PAGE PreferencePage();
+    Dialog SettingsDialog()
+    {
+        return new MessageDialog(mMainWindow, DialogFlags.USE_HEADER_BAR, 
+            MessageType.OTHER, ButtonsType.CLOSE, "my message");
+    }
 }

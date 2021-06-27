@@ -94,8 +94,10 @@ void Disengage()
         ]);
     
     }
+    //foreach(elem;mElements)elem.Disengage();
     foreach(lib; mRegisteredElements)
     {
+        
         UnloadElement(lib.mID);   
     }
     Config.Save();
@@ -147,7 +149,8 @@ void ShowSettingDialog(string key)
     
     if(key !in mElements) return;
     Dialog dx = mElements[key].SettingsDialog();
-    dx.run();    
+    dx.run();
+    dx.destroy();    
 }
 
 private:
@@ -276,7 +279,7 @@ void UnloadElement(string elementKey)
     mElements.remove(elementKey);
     
     auto rez = rt_unloadLibrary(mRegisteredElements[elementKey].mPtr);
-    dwrite(rez ,"/ptr:",mRegisteredElements[elementKey].mPtr);
+    //dwrite(rez ,"/ptr:",mRegisteredElements[elementKey].mPtr);
     mRegisteredElements[elementKey].mPtr = null;
     mRegisteredElements[elementKey].mEnabled = false;
 }
