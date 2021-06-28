@@ -39,6 +39,7 @@ void Mesh()
     openFilesOnStart = Config.GetArray!string("docman", "cmdLineFiles");
     openFilesOnStart ~= Config.GetArray!string("docman", "last_session_files");
     
+
     foreach(startup; openFilesOnStart)
     { 
         if(!startup.exists())
@@ -149,6 +150,7 @@ void SaveAll()
 
 DOC_IF GetDoc(string docName)
 {
+    if(docName !in mDocs) return null;
     return mDocs[docName];
 }
 
@@ -232,6 +234,8 @@ void Run(string DocName, string[] rdmdOpt ...)
     tFile.writeln(`read -sn1`);
     tFile.flush();
     tFile.close();
+    import std.conv;
+    setAttributes(DocRunScript, (getAttributes(DocRunScript) | octal!700));
 
     string[] CmdStrings;
     CmdStrings = TerminalCommand;
