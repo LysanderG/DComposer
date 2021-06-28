@@ -103,6 +103,7 @@ TREASURE[] Search(SEARCH_SCOPE sScope, string needle, SEARCH_OPTIONS sOpts)
             }
             break;
         case CURRENT:
+            dwrite(CurrentDocName);
             FindInDoc(CurrentDocName, rgxNeedle, rv);    
             break;
         case FOLDER:
@@ -126,6 +127,7 @@ void FindInDoc(string DocName, Regex!char needle, ref TREASURE[] rv)
 {
     //TREASURE[] rv;
     auto curDoc = GetDoc(DocName);
+    if(curDoc is null) return;
     int line = 0;
     foreach(string text; curDoc.Text.lineSplitter())
     {

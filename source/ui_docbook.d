@@ -142,7 +142,7 @@ public:
 	        setShowTabs(false);
 	        return true;
         },ConnectFlags.AFTER);
-        
+                
         addOnSwitchPage(delegate void(Widget w, uint pgNum, Notebook self)
         {
             ScrolledWindow x = cast(ScrolledWindow) w;
@@ -154,7 +154,11 @@ public:
         {
             //should be named addOnPreRemovalOfPage 'cause page is acutually
             //removed after responding to this signal.
-            if(docman.GetDocs.length < 2) UpdateStatusLine("No Opened Documents");            
+            if(docman.GetDocs.length < 2)
+            {
+                CurrentDocName = "";
+                UpdateStatusLine("No Opened Documents");  
+            }
         });
         
         mClipboard = Clipboard.getDefault(Display.getDefault());
