@@ -121,8 +121,9 @@ public import gtk.Window;
 void Engage(ref string[] args)
 {    
 	uiApplication = new Application("dcomposer.com", GApplicationFlags.NON_UNIQUE);
-	uiApplication.register(new Cancellable());
-	
+	uiApplication.register(null);
+	import core.memory;
+    GC.collect();
 	auto mBuilder = new Builder;
     //mBuilder.addFromFile(config.findResource(Config.GetValue("ui", "ui_main_window", "glade/ui_main2.glade"))); 
     mBuilder.addFromFile(Config.GetResource("ui", "ui_main_window", "glade", "ui_main2.glade"));
@@ -149,6 +150,7 @@ void Engage(ref string[] args)
     
     //temp
     mStatusLog = new UI_LOG_STATUS;
+    
         
 	Log.Entry("Engaged");
 }
