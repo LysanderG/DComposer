@@ -158,7 +158,6 @@ extern(C)
     void action_ProjRun(GSimpleAction * action, GVariant * parameter, void * user_data)
     {
         Project.Run();
-        dwrite("projRun");
     }
     void action_ProjEdit(GSimpleAction * action, GVariant * parameter, void * user_data)
     {
@@ -215,7 +214,6 @@ class UI_PROJECT
     
     void UpdateAll()
     {
-        
         uiName.setText(Project.Name);
         uiLocation.setText(Project.Location);
         uiRootFolder.setText(Config.GetValue("project", "project_root", "~/projects/dprojects".expandTilde()));
@@ -232,7 +230,6 @@ class UI_PROJECT
     
     void messageReceiver(PROJECT proj, PROJECT_EVENT event, string content)
     {
-        dwrite("project msg rec: ", event, " > ", content);
         final switch (event)
         {
             case PROJECT_EVENT.CREATED : 
@@ -325,7 +322,7 @@ class UI_PROJECT
 
         }       
         Entry tmp = cast(Entry)uiTagComboBox.getChild();
-        tmp.setText("");   
+        tmp.setText("new tag");   
         uiTagBox.showAll();
     }
     
@@ -480,6 +477,7 @@ class UI_PROJECT
                                                  "%s",
                                                  "Tag Name?") ;
             auto tagEntry = new Entry();
+            tagEntry.setText("tmp\0");
             tagEntry.addOnActivate(delegate void(Entry intri)
             {
                 entrydialog.response(ResponseType.OK);

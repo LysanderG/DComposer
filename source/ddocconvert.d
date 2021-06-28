@@ -319,9 +319,7 @@ string FormatDCodeLines(string codeInput)
  * */
 string FormatParams(string paramInput)
 {
-	dwrite(paramInput);
 	paramInput = ProcessMacros(paramInput ~ ")");
-	dwrite (paramInput);
 	string rv;
 	size_t idWidth = 22;
 	int descWidth = 90;

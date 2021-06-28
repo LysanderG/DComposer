@@ -60,7 +60,6 @@ class UI_COMPLETION
         mComTree.setHeadersVisible(false);
         mComTree.setCanFocus(true);
         mComWindow.setCanFocus(true);
-        dwrite(mComWindow.getCanFocus());
         
         
         mTipWindow = new Window(GtkWindowType.TOPLEVEL);

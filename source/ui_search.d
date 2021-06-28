@@ -281,9 +281,7 @@ void StoreSearchGui()
     
     //replace history
     TreeModelIF repModel = mReplaceCombo.getModel();
-    dwrite (repModel);
     TreeIter repTI = new TreeIter(repModel, new TreePath(true));
-    dwrite (repTI);
     
     string[] repStore;
     if(!repModel.getIterFirst(repTI))dwrite("EERRRROORR!!");

@@ -24,10 +24,8 @@ void EngageTextObjects()
     mConfigRegexObjects = new CONFIG;
     mConfigRegexObjects.SetCfgFile(buildPath(findResource("text_objects"),"text_objects"));
     mConfigRegexObjects.Load();
-    dwrite(mConfigRegexObjects.GetValue("config","this_file", "undefined!!"));
-    dwrite(mConfigRegexObjects.GetKeys("text_objects"));
     foreach(key; mConfigRegexObjects.GetKeys("text_objects"))
-        CreateTextRegexObject(key, mConfigRegexObjects.GetArray!string("text_objects", key)[0..3]);
+    CreateTextRegexObject(key, mConfigRegexObjects.GetArray!string("text_objects", key)[0..3]);
     
     Log.Entry("Engaged");
 }
@@ -391,7 +389,6 @@ class TEXT_OBJECT_REGEX_2: TEXT_OBJECT_IF_2
         {
 	        if(tiCursor.compare(tiStart) == 0)
 	        { 
-		        dwrite("startnext ",tiCursor.getLineOffset, "/", tiStart.getLineOffset, "/", tiEnd.getLineOffset);
 		    	if(!mTmpContext.forward(tiEnd, tiStart, tiEnd, hasWrapped)) 
 		    	    return toSelection(false, tiCursor, tiCursor);
 		    }

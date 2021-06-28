@@ -279,7 +279,6 @@ void UnloadElement(string elementKey)
     mElements.remove(elementKey);
     
     auto rez = rt_unloadLibrary(mRegisteredElements[elementKey].mPtr);
-    //dwrite(rez ,"/ptr:",mRegisteredElements[elementKey].mPtr);
     mRegisteredElements[elementKey].mPtr = null;
     mRegisteredElements[elementKey].mEnabled = false;
 }

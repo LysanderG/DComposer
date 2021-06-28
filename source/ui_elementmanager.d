@@ -23,8 +23,6 @@ void EngageElementManager()
     mInfoLabel = cast(Label)mBuilder.getObject("info_label");
     mSettingsButton = cast(Button)mBuilder.getObject("settings_button");
     
-    //dwrite (mBuilder, "/", mRootBox,"/",mTree, "/", mStore);
-    
     mTree.getSelection.addOnChanged(delegate void(TreeSelection ts)
     {
         TreeIter ti = ts.getSelected();
@@ -53,13 +51,11 @@ void EngageElementManager()
         
         mStore.getValue(ti, 2, bval);  
         bool nuState = !bval.getBoolean;
-        //dwrite(nuState);
           
         string key = mStore.getValueString(ti, 0); 
         
         if(nuState) EnableElement(key);
         else DisableElement(key);
-        //dwrite(">>", GetRegisterdElements[key].mEnabled);
         mListener.LoadStore();
         
     });
@@ -85,7 +81,6 @@ void EngageElementManager()
         TreeIter ti = mTree.getSelectedIter();
         assert(mStore.iterIsValid(ti));
         string id = mStore.getValueString(ti, 0);
-        //dwrite(" button id >",id);
         ShowSettingDialog(id);        
     });
     
@@ -129,7 +124,6 @@ class LISTENER
         TreeIter ti;
         foreach (element; GetRegisterdElements())
         {
-            //dwrite(element);
             mStore.append(ti);
             mStore.setValue(ti, 0, element.mID);
             mStore.setValue(ti, 1, element.mInfo);
