@@ -339,7 +339,7 @@
                "Switch": "-of",
                "Brief": "name output file to filename",
                "Argument": true,
-               "Value": "bin\/dcomposer_dmd"
+               "Value": "bin\/dcomposer"
           },
           {
                "State": false,
@@ -356,7 +356,7 @@
                "Value": ""
           },
           {
-               "State": true,
+               "State": false,
                "Switch": "-profile=gc",
                "Brief": "profile runtime allocations",
                "Argument": false,
