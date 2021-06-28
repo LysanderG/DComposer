@@ -59,7 +59,6 @@ private:
         
 
 public:
-
     string FullName(){return mFullPathName;}
     string Name(){return baseName(mFullPathName);}
     void   Name(string nuFileName)
@@ -562,7 +561,14 @@ string NameMaker()
     scope(exit)suffixNumber++;
     
     string baseName = getcwd() ~ "/dcomposer%0s.d";
-    return format(baseName, suffixNumber);
+    
+    string rv = format(baseName, suffixNumber);
+    while(Opened(rv) || exists(rv)) 
+    { 
+        suffixNumber++;
+        rv = NameMaker();
+    }
+    return rv;
 }
 
 
