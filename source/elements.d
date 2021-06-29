@@ -34,7 +34,7 @@ void Engage(ref string[] args)
 {
     //cmdline stuff
     getopt(args, std.getopt.config.passThrough, "disableElements|X", &mElementsDisabled,"suppress|x", &mSuppressedElements);	
-    
+    dwrite(mSuppressedElements);
     if(mElementsDisabled) 
     {
         Log.Entry("Elements disabled for current session (not engaged)");
@@ -191,8 +191,11 @@ void LoadElements()
 {
     foreach(ref reglibrary; mRegisteredElements)
     {
-        if(reglibrary.mEnabled == false) continue;
-        if(reglibrary.mBroken == true) continue;
+        if((!reglibrary.mEnabled) || reglibrary.mBroken || reglibrary.mSuppressed)
+        {
+            Log.Entry(reglibrary.mID ~ " not loaded (disabled, broken or suppressed");
+            continue;
+        }
         LoadElement(reglibrary);
     }
 }
