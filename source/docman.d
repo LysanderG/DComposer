@@ -87,6 +87,7 @@ interface DOC_IF
     bool    Virgin();
     bool	Modified();
     string  GetStatusLine();
+    void    AddStatusSection(string Sect, string Value);
     void    SetBackgroundGrid(bool on);
     bool    GetBackgroundGrid();
     void    Goto(int line, int col, bool focus = true);

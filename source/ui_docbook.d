@@ -103,11 +103,21 @@ private:
     {
 	    import core.memory;
 	    GC.disable();
+	    Transmit.GatherStatusSections.emit(uiDocBook.Current);
         uiDocBook.UpdateStatusLine(uiDocBook.Current);
         GC.enable();
         return true;
     }
-		
+    
+    void WatchGatherStatusSections(DOC_IF doc)
+    {
+        string fmt = `<span background="yellow" foreground="black">%s/%s open tabs</span>`;
+        auto pgNum = mNotebook.pageNum(cast(Widget) doc.PageWidget());
+        auto pages = mNotebook.getNPages();
+        string Value = format(fmt, pgNum, pages);
+        doc.AddStatusSection("ui_docbook", Value);
+    }
+	
 public:
     Notebook            		mNotebook;
 	EventBox					mEventBox;
@@ -168,6 +178,8 @@ public:
         EngageActions();
         EngagePreferences();
         EngageDocPreferences();
+        
+        Transmit.GatherStatusSections.connect(&WatchGatherStatusSections);
         Log.Entry("\tDocBook Engaged");   
     }
     

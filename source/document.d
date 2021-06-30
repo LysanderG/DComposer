@@ -1,6 +1,7 @@
 module document;
 
 import std.algorithm;
+import std.array;
 import std.conv;
 import std.datetime;
 import std.file;
@@ -52,11 +53,13 @@ private:
     SourceSearchContext     mSearchContext;
     SourceCompletion        mCompletion;        
     
+    string[string]          mStatusSections;
+    
     void WatchConfigChange(string section, string key)
     {
         if(section == "document") Reconfigure();
     }
-        
+    
 
 public:
     string FullName(){return mFullPathName;}
@@ -256,7 +259,12 @@ public:
         mTabWidget.setTooltipText(FullName);
     }
     
-    string GetStatusLine()
+    void AddStatusSection(string Section, string Value)
+    {
+        mStatusSections[Section] = Value;
+    }
+    
+    /*string GetStatusLine()
     {
         string rv;
         string fore_color = "white";
@@ -278,6 +286,10 @@ public:
             back,docname, cursorpos, virgin);
         
         return rv;
+    }*/
+    string GetStatusLine()
+    {
+        return join(mStatusSections.values, " ");
     }
     
     void SetBackgroundGrid(bool on)

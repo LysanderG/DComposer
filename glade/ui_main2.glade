@@ -148,6 +148,7 @@
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <property name="events">GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_STRUCTURE_MASK</property>
+                                    <property name="hexpand">True</property>
                                     <property name="xpad">2</property>
                                     <property name="label" translatable="yes">super interesting file info line yay blkajd;fjdfsgsdfgfsdgfdg</property>
                                     <property name="ellipsize">end</property>
@@ -170,7 +171,7 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="resize">False</property>
+                    <property name="resize">True</property>
                     <property name="shrink">True</property>
                   </packing>
                 </child>
