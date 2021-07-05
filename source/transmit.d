@@ -4,6 +4,7 @@ import std.signals;
 
 import qore;
 import project;
+import ui;
 
 public:
 
@@ -41,6 +42,7 @@ class TRANSMITTER
     //document
     mixin Signal!(DOC_IF, DOC_EVENT, string) DocEvent;
     mixin Signal!(DOC_IF) GatherStatusSections;
+    mixin Signal!(DOC_IF, TextIter, string) DocInsertText;
 
     //ui_book
     mixin Signal!(string) DocStatusLine;

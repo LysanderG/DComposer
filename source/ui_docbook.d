@@ -111,11 +111,32 @@ private:
     
     void WatchGatherStatusSections(DOC_IF doc)
     {
-        string fmt = `<span background="yellow" foreground="black">%s/%s open tabs</span>`;
+        if(doc is null) return;
+        string fmtString;
+        string background;
+        string foreground;
+        string Value;
+        
+        //filename
+        fmtString = `<span background="%s" foreground="%s"> | %s | </span>`;
+        background = "black";
+        foreground = "white";
+        if (doc.Modified) foreground = "red";
+        Value = format(fmtString, background, foreground, doc.Name);
+        doc.AddStatusSection(0, Value);
+
+        //tab of tabs
+        fmtString = `<span background="yellow" foreground="black"> %s/%s open tabs </span>`;
         auto pgNum = mNotebook.pageNum(cast(Widget) doc.PageWidget());
         auto pages = mNotebook.getNPages();
-        string Value = format(fmt, pgNum, pages);
-        doc.AddStatusSection("ui_docbook", Value);
+        Value = format(fmtString, pgNum, pages);
+        doc.AddStatusSection(10000, Value);
+        
+        //line of lines and col
+        //DOCUMENT document = cast (DOCUMENT)doc;
+        fmtString = `<span background="black" foreground="white"> [ %s/%s:%s ] </span>`;
+        Value = format(fmtString, doc.Line, doc.LineCount,doc.Column);
+        doc.AddStatusSection(1000, Value);
     }
 	
 public:
@@ -166,8 +187,7 @@ public:
             //removed after responding to this signal.
             if(docman.GetDocs.length < 2)
             {
-                CurrentDocName = "";
-                UpdateStatusLine("No Opened Documents");  
+                CurrentDocName = ""; 
             }
         });
         
@@ -368,7 +388,7 @@ public:
         int currPageNum = mNotebook.getCurrentPage();
         if(currPageNum < 0) 
         {
-	        Log.Entry("No Documents Loaded");
+	        //Log.Entry("No Documents Loaded");
 	        return null;
         }
         auto parent = cast(ScrolledWindow)mNotebook.getNthPage(currPageNum);
@@ -380,10 +400,6 @@ public:
         mNotebook.setCurrentPage(cast(Widget)doc.PageWidget);
     }
     
-    void UpdateStatusLine(string nuStatus)
-    {
-        mStatusLine.setMarkup(nuStatus);
-    }
     void UpdateStatusLine(DOC_IF doc = Current)
     {
         

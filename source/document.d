@@ -53,13 +53,12 @@ private:
     SourceSearchContext     mSearchContext;
     SourceCompletion        mCompletion;        
     
-    string[string]          mStatusSections;
+    string[long]          mStatusSections;
     
     void WatchConfigChange(string section, string key)
     {
         if(section == "document") Reconfigure();
-    }
-    
+    }    
 
 public:
     string FullName(){return mFullPathName;}
@@ -183,6 +182,13 @@ public:
             return false;
         });
         
+        getBuffer.addOnInsertText(delegate void(TextIter ti, string text, int len, TextBuffer tb)
+        {
+            auto tm = buff.createMark("tmp", ti, false);
+            Transmit.DocInsertText.emit(this, ti, text);
+            buff.getIterAtMark(ti, tm); 
+        },ConnectFlags.AFTER);
+        
         mCompletion = getCompletion();//wordstest
         mCompletion.addProvider(Words.mWords);
         
@@ -259,37 +265,17 @@ public:
         mTabWidget.setTooltipText(FullName);
     }
     
-    void AddStatusSection(string Section, string Value)
+    void AddStatusSection(long Section, string Value)
     {
         mStatusSections[Section] = Value;
     }
     
-    /*string GetStatusLine()
-    {
-        string rv;
-        string fore_color = "white";
-        string back_color = "black";
-        string mod_fore_color = "yellow";
-        string mod_back_color = "red";
-        string fore = (Modified)? mod_fore_color:fore_color;
-        string back = "black";
-        string docname = format(`<span foreground="%s">%s</span>`,fore,Name());
-        string virgin = (Virgin)? "(virgin)": "(filed)";
-        int col = Cursor.getLineOffset();
-        int line = Cursor.getLine() + 1;
-        int totalLines = getBuffer.getLineCount();
-        string cursorpos = format("%s[%3s:%3s]",col, line, totalLines);
-
-        
-        
-        rv = format(`<span background="%s">%-100s %s %s</span>`,
-            back,docname, cursorpos, virgin);
-        
-        return rv;
-    }*/
     string GetStatusLine()
     {
-        return join(mStatusSections.values, " ");
+        string rv;
+        foreach(key; mStatusSections.keys.sort)
+            rv ~= mStatusSections[key];
+        return rv;
     }
     
     void SetBackgroundGrid(bool on)
@@ -457,6 +443,10 @@ public:
         rv = buff.getText(tiStart, tiEnd, true);
         return rv;
     }
+    
+    int Line(){return Cursor.getLine();}
+    int LineCount(){return getBuffer.getLineCount();}
+    int Column(){return Cursor.getLineOffset();}
     
     ///Returns current Identifier at cursor or an empty string
     string Identifier(string markName)

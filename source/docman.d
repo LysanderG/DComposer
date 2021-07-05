@@ -87,7 +87,7 @@ interface DOC_IF
     bool    Virgin();
     bool	Modified();
     string  GetStatusLine();
-    void    AddStatusSection(string Sect, string Value);
+    void    AddStatusSection(long Sect, string Value);
     void    SetBackgroundGrid(bool on);
     bool    GetBackgroundGrid();
     void    Goto(int line, int col, bool focus = true);
@@ -101,6 +101,10 @@ interface DOC_IF
     string  Text();
     void    Text(string nuText);
     string  Selection();
+    int     Line();
+    int     LineCount();
+    int     Column();
+    
     string  Identifier (string markName = "insert");
     string  Word(string markName = "insert");
     void    CompleteSymbol(string chosenSymbol);
