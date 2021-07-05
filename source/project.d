@@ -60,7 +60,10 @@ void Mesh()
 void Disengage()
 {
     Project().Save();
-    Config.SetValue("project", "last_session_project", Project.FullPath);
+    if(Project.Type() != TARGET_TYPE.UNDEFINED)
+        Config.SetValue("project", "last_session_project", Project.FullPath);
+    else
+        Config.SetValue("project", "last_session_project", "");
 	Log.Entry("Disengaged");
 }
 
@@ -309,7 +312,7 @@ public:
             Transmit.ProjectEvent.emit(this, PROJECT_EVENT.ERROR, mErrorMessage);
             return;
         }
-        
+        if(mType == TARGET_TYPE.UNDEFINED)return;
 	    auto projson = jsonObject();
 	    
 	    projson["name"] = mName;
