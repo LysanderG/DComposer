@@ -278,10 +278,13 @@ bool LoadElement(ref REGISTERED_LIBRARY ElementLibrary)
 void UnloadElement(string elementKey)
 {
     if(elementKey !in mElements) return;
+    ELEMENT victim = mElements[elementKey];
     mElements[elementKey].Disengage();
     mElements.remove(elementKey);
+    destroy(victim);
     
-    auto rez = rt_unloadLibrary(mRegisteredElements[elementKey].mPtr);
+    //auto rez = rt_unloadLibrary(mRegisteredElements[elementKey].mPtr);
+    auto rez = Runtime.unloadLibrary(mRegisteredElements[elementKey].mPtr);
     mRegisteredElements[elementKey].mPtr = null;
     mRegisteredElements[elementKey].mEnabled = false;
 }
