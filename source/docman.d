@@ -12,7 +12,7 @@ import std.stdio;
 import qore;
 public import document;
 import ui;
-import completion_words; //wordstest
+//import completion_words; //wordstest
 
 
 public:
@@ -27,8 +27,8 @@ void Engage(ref string[] args)
     if(cmdLineFiles.length)Config.SetValue!(string[])("docman","cmdLineFiles", cmdLineFiles);
     else Config.SetValue!(string[])("docman","cmdLineFiles", []);
     
-    Words = new WORDS; //wordstest
-    Words.Engage(); //wordstest
+    //Words = new WORDS; //wordstest
+    //Words.Engage(); //wordstest
     
     Log.Entry("Engaged");
     
@@ -50,12 +50,12 @@ void Mesh()
         OpenDoc(startup);
     }
     
-    Words.Mesh(); //wordstest
+    //Words.Mesh(); //wordstest
     Log.Entry("Meshed");
 }
 void Disengage()
 {
-    Words.Disengage(); //wordstest
+    //Words.Disengage(); //wordstest
     Log.Entry("Disengaged");
 }
 

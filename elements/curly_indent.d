@@ -53,12 +53,11 @@ class CURLY_INDENT : ELEMENT
         DOCUMENT doc = cast(DOCUMENT)self;
         TextIter startTi = ti.copy();
         TextIter endTi = ti.copy();
-        TextMark SaveTiPos = doc.getBuffer.createMark("oldti", ti, true);
+        
         scope(exit)
         {
             ti = new TextIter;
-            doc.getBuffer.getIterAtMark(ti, SaveTiPos);
-            doc.getBuffer.deleteMark(SaveTiPos);            
+            doc.getBuffer.getIterAtMark(ti, doc.getBuffer.getMark("tmp"));
         }
         
         if (text == "\n")
@@ -84,10 +83,11 @@ class CURLY_INDENT : ELEMENT
             if(thisline[0] != '}')return;
             //find line with matching bracket
             OpenBracketLineStart = ti.copy();
-            int counter = 1;
+            int counter = 0;
             while(OpenBracketLineStart.backwardChar())
             {
                 assert(OpenBracketLineStart.getChar() != 0);
+                dwrite(OpenBracketLineStart.getChar(), " ", counter);
                 if(OpenBracketLineStart.getChar() == '}') counter++;
                 if(OpenBracketLineStart.getChar() == '{') counter--;
                 if(counter == 0) break;
@@ -97,7 +97,10 @@ class CURLY_INDENT : ELEMENT
             OpenBracketLineEnd = OpenBracketLineStart.copy();
             while((OpenBracketLineEnd.getChar == ' ') || (OpenBracketLineEnd.getChar == '\t')) OpenBracketLineEnd.forwardChar();
             string iString = doc.getBuffer.getText(OpenBracketLineStart, OpenBracketLineEnd, true);
-            if(iString.length == 0) return;
+            dwrite("lines? ", OpenBracketLineStart.getLine, "/",OpenBracketLineEnd.getLine);
+            dwrite ("from:",OpenBracketLineStart.getLineOffset, " to:",OpenBracketLineEnd.getLineOffset);
+            dwrite("ident size = ",iString.length);
+            //if(iString.length == 0) return;
             //delete current
             endTi = startTi.copy();
             while(endTi.forwardChar())
@@ -105,12 +108,13 @@ class CURLY_INDENT : ELEMENT
                 if((endTi.getChar() == ' ') || (endTi.getChar() == '\t')) continue;
                 break;
             }
-            TextMark preDeleteMark = doc.getBuffer.createMark("ok", ti, false);
+            
             if(startTi.compare(endTi) != 0)doc.getBuffer.delete_(startTi, endTi);
             ti = new TextIter;
-            doc.buff.getIterAtMark(ti, preDeleteMark);
+            doc.buff.getIterAtMark(ti, doc.buff.getMark("tmp"));
+            ti.backwardChar();
             doc.getBuffer.insert(ti, iString);
-            
+            dwrite("ok");
         }
     }
     

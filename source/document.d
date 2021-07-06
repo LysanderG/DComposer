@@ -14,7 +14,7 @@ import ui;
 import qore;
 import docman;
 import text_objects;
-import completion_words;//wordstest
+//import completion_words;//wordstest
 import ui_contextmenu;
 import ui_search;
 
@@ -186,11 +186,13 @@ public:
         {
             auto tm = buff.createMark("tmp", ti, false);
             Transmit.DocInsertText.emit(this, ti, text);
+            ti = new TextIter;
             buff.getIterAtMark(ti, tm); 
+            buff.deleteMark(tm);
         },ConnectFlags.AFTER);
         
-        mCompletion = getCompletion();//wordstest
-        mCompletion.addProvider(Words.mWords);
+        //mCompletion = getCompletion();//wordstest
+        //mCompletion.addProvider(Words.mWords);//wordstest
         
         docman.AddDoc(this);
         
