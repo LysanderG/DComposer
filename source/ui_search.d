@@ -272,23 +272,28 @@ void StoreSearchGui()
     TreeModelIF tmIF = mSearchCombo.getModel();
     TreeIter ti = new TreeIter;
     ti.setModel(tmIF);
-    tmIF.getIterFirst(ti);
-    do
+    if(tmIF.getIterFirst(ti))
     {
-        stores ~= tmIF.getValueString(ti, 0);
-    }while(tmIF.iterNext(ti));
+        do
+        {
+            stores ~= tmIF.getValueString(ti, 0);
+        }while(tmIF.iterNext(ti));
+    }
     Config.SetArray("ui_search", "search_history", stores);
     
     //replace history
     TreeModelIF repModel = mReplaceCombo.getModel();
-    TreeIter repTI = new TreeIter(repModel, new TreePath(true));
+    TreeIter repTI = new TreeIter;
+    repTI.setModel(repModel);
     
     string[] repStore;
-    if(!repModel.getIterFirst(repTI))dwrite("EERRRROORR!!");
-    do
-    {
-        repStore ~= repModel.getValueString(repTI, 0);
-    }while(repModel.iterNext(repTI));
+    if(repModel.getIterFirst(repTI))
+	{    
+        do
+        {
+            repStore ~= repModel.getValueString(repTI, 0);
+        }while(repModel.iterNext(repTI));
+	}
     Config.SetArray("ui_search", "replacement_history", repStore);   
     
     Log.Entry("Gui Stored");
