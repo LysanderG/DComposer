@@ -10,13 +10,16 @@ import std.path;
 import std.uni;
 import std.utf;
 
+
 import ui;
 import qore;
 import docman;
+public import doc_utils;
 import text_objects;
 //import completion_words;//wordstest
 import ui_contextmenu;
 import ui_search;
+
 
 
 import gsv.SourceBuffer;
@@ -49,6 +52,7 @@ private:
     Label       mTabLabel;
     SourceFile  mFile;
     SysTime     mFileTimeStamp;
+    TextMark    mInsertMark;
     
     SourceSearchContext     mSearchContext;
     SourceCompletion        mCompletion;        
@@ -182,13 +186,13 @@ public:
             return false;
         });
         
+        mInsertMark = new TextMark("transmitInsert", false);
+        buff.addMark(mInsertMark, Cursor());
         getBuffer.addOnInsertText(delegate void(TextIter ti, string text, int len, TextBuffer tb)
         {
-            auto tm = buff.createMark("tmp", ti, false);
+            SetValidationMark(this, ti);
             Transmit.DocInsertText.emit(this, ti, text);
-            ti = new TextIter;
-            buff.getIterAtMark(ti, tm); 
-            buff.deleteMark(tm);
+            ValidateTextIters(this, ti);
         },ConnectFlags.AFTER);
         
         //mCompletion = getCompletion();//wordstest
@@ -304,8 +308,7 @@ public:
     }    
     TextIter Cursor()
     {
-        //auto ti = new TextIter;
-        TextIter ti;
+        auto ti = new TextIter;
         auto x = getBuffer();
         x.getIterAtMark(ti, x.getInsert());
         return ti;
