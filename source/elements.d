@@ -69,6 +69,7 @@ void Engage(ref string[] args)
     foreach (successfulElement; mElements)
     {
         successfulElement.Engage();
+        successfulElement.Mesh();
      }
     
     Log.Entry("Engaged");
@@ -76,7 +77,10 @@ void Engage(ref string[] args)
 
 void Mesh()
 {
-    foreach (elem; mElements)elem.Mesh();
+    //foreach (elem; mElements)elem.Mesh();
+    //not a good place to call element.mesh only happens once at startup ...
+    //ignores that elements might be loaded dynamically anytime and need to call mesh.
+    //was causing a frustrating double mesh error (2 connections for signals)
     Log.Entry("Meshed");
 }
 
@@ -123,6 +127,7 @@ void EnableElement(string key)
     if(LoadElement(mRegisteredElements[key]))
     {
         mElements[key].Engage();
+        mElements[key].Mesh();
         mRegisteredElements[key].mEnabled = true;
         return;
     }
