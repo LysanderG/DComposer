@@ -1,10 +1,12 @@
 module curly_indent;
 
 import std.string;
+import std.uni;
 
 import qore;
 import ui;
 import elements;
+import document;
 
 extern(C) string GetElementName()
 {
@@ -47,7 +49,7 @@ class CURLY_INDENT : ELEMENT
         return new MessageDialog(mMainWindow, DialogFlags.MODAL, MessageType.OTHER, ButtonsType.CLOSE, "Hey this is working");
     }
     
-    void WatchForText(DOC_IF self, TextIter ti, string text)
+    /*void WatchForText_old(DOC_IF self, TextIter ti, string text)
     {
         if(text.length > 1) return;
         DOCUMENT doc = cast(DOCUMENT)self;
@@ -57,8 +59,12 @@ class CURLY_INDENT : ELEMENT
         scope(exit)
         {
             ti = new TextIter;
-            doc.getBuffer.getIterAtMark(ti, doc.getBuffer.getMark("tmp"));
+            doc.getBuffer.getIterAtMark(ti, doc.getBuffer.getMark("transmitInsert"));
+            doc.getBuffer.getIterAtMark(endTi, doc.getBuffer.getMark("transmitInsert"));            
+            doc.getBuffer.getIterAtMark(startTi, doc.getBuffer.getMark("transmitInsert"));            
         }
+            
+            
         
         if (text == "\n")
         {
@@ -81,21 +87,30 @@ class CURLY_INDENT : ELEMENT
             thisline = thisline.stripLeft();
             assert (thisline.length > 0);
             if(thisline[0] != '}')return;
+            if(!FindMatchingBrace(ti, OpenBracketLineStart))return;
+            
             //find line with matching bracket
-            OpenBracketLineStart = ti.copy();
-            int counter = 0;
-            while(OpenBracketLineStart.backwardChar())
-            {
-                assert(OpenBracketLineStart.getChar() != 0);
-                dwrite(OpenBracketLineStart.getChar(), " ", counter);
-                if(OpenBracketLineStart.getChar() == '}') counter++;
-                if(OpenBracketLineStart.getChar() == '{') counter--;
-                if(counter == 0) break;
-            }
+            //OpenBracketLineStart = ti.copy();
+            //int counter = 0;
+            //while(OpenBracketLineStart.backwardChar())
+           // {
+            //    assert(OpenBracketLineStart.getChar() != 0);
+            //    dwrite(OpenBracketLineStart.getChar(), " ", counter);
+            //    if(OpenBracketLineStart.getChar() == '}') counter++;
+            //    if(OpenBracketLineStart.getChar() == '{') counter--;
+            //    if(counter == 0) break;
+            //}
             //get the 'indentation' string oblstart and oblend
             OpenBracketLineStart.setLineOffset(0);
             OpenBracketLineEnd = OpenBracketLineStart.copy();
-            while((OpenBracketLineEnd.getChar == ' ') || (OpenBracketLineEnd.getChar == '\t')) OpenBracketLineEnd.forwardChar();
+            bool moveBack;
+            while((OpenBracketLineEnd.getChar == ' ') || (OpenBracketLineEnd.getChar == '\t'))
+            {
+                OpenBracketLineEnd.forwardChar();
+                moveBack = true;
+            }
+            if(moveBack)OpenBracketLineEnd.backwardChar(); 
+            
             string iString = doc.getBuffer.getText(OpenBracketLineStart, OpenBracketLineEnd, true);
             dwrite("lines? ", OpenBracketLineStart.getLine, "/",OpenBracketLineEnd.getLine);
             dwrite ("from:",OpenBracketLineStart.getLineOffset, " to:",OpenBracketLineEnd.getLineOffset);
@@ -103,20 +118,94 @@ class CURLY_INDENT : ELEMENT
             //if(iString.length == 0) return;
             //delete current
             endTi = startTi.copy();
-            while(endTi.forwardChar())
+            moveBack = false;
+            while((endTi.getChar() == ' ') || (endTi.getChar() == '\t'))
             {
-                if((endTi.getChar() == ' ') || (endTi.getChar() == '\t')) continue;
-                break;
+                endTi.forwardChar();
+                moveBack = true;
             }
-            
-            if(startTi.compare(endTi) != 0)doc.getBuffer.delete_(startTi, endTi);
+            if(moveBack)endTi.backwardChar();
+            if(OpenBracketLineEnd.getLineOffset() == 0) endTi.forwardChar();
+            doc.getBuffer.delete_(startTi, endTi);
             ti = new TextIter;
-            doc.buff.getIterAtMark(ti, doc.buff.getMark("tmp"));
+            doc.buff.getIterAtMark(ti, doc.buff.getMark("transmitInsert"));
+            if(iString.length == 0)return;
             ti.backwardChar();
             doc.getBuffer.insert(ti, iString);
             dwrite("ok");
+            doc.getBuffer.getIterAtMark(OpenBracketLineEnd, doc.getBuffer.getMark("transmitInsert"));
+            doc.getBuffer.getIterAtMark(OpenBracketLineStart, doc.getBuffer.getMark("transmitInsert"));
+        }
+    }*/
+    
+    void WatchForText(DOC_IF docIf, TextIter ti, string text)
+    {
+        auto doc = cast(DOCUMENT)docIf;
+        SetValidationMark(doc, ti);
+        scope(exit)
+        {
+
+            ValidateTextIters(doc, ti);
+        }
+        if(text == "\n")
+        {
+            scope TextIter lastTi;
+            lastTi = ti.copy();
+            lastTi.backwardLine();               
+            string lastline = doc.GetLineText(lastTi);
+            lastline = lastline.stripRight();
+            if(lastline.length < 1)return;
+            if(lastline[$-1] != '{')return;            
+            AddIndentationLevel(doc, ti);
+            
+            ValidateTextIters(doc, ti);
+            if(mCurlyClose)
+            {
+                int ctr = 0;
+                string ws;
+                while(lastline[ctr++] == ' ')ws ~= " ";
+                ws = "\n" ~ ws ~ "}";
+                doc.buff.insert(ti, ws);
+                ti.backwardChars(cast(int)ws.length);
+                doc.buff.placeCursor(ti);
+                SetValidationMark(doc, ti);
+            }
+            return;            
+        }
+        //==================================================
+        if(text == "}")
+        {
+            
+            if(mCurlyClose)
+            {
+                TextIter skipCloseTi = ti.copy();
+                scope TextIter deleteAnchorTi = ti.copy();
+                while(skipCloseTi.forwardChar())
+                {
+                    dwrite("continue ", skipCloseTi.getChar());
+                    if(isWhite(skipCloseTi.getChar()))continue;
+                    if(skipCloseTi.getChar() == '}')
+                    {
+                        skipCloseTi.forwardChar();
+                        doc.buff.createMark("xxx", skipCloseTi, false);
+                        ti.backwardChar();
+                        doc.buff.delete_(ti, deleteAnchorTi);
+                        doc.buff.getIterAtMark(ti, doc.buff.getMark("xxx"));
+                        doc.buff.placeCursor(ti);
+                        dwrite(ti.getLine());
+                        //dwrite(skipCloseTi.getLine());
+                        return;
+                    }
+                    break;
+                }
+            }
+            if(GetLineText(doc, ti)[0] != '}')return;
+            doc.unindentLines(ti, ti);
         }
     }
     
-}
+private:
+    bool mCurlyClose = true;
     
+}
+        

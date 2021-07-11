@@ -31,10 +31,12 @@
                "\/home\/anthony\/projects\/dcomposerx\/source\/text_objects.d",
                "source\/shellfilter.d",
                "source\/ddocconvert.d",
-               "source\/ui_elementmanager.d"
+               "source\/ui_elementmanager.d",
+               "source\/doc_utils.d"
           ],
           "Related Files": [
-               "text_objects\/text_objects"
+               "text_objects\/text_objects",
+               "elements\/curly_indent.d"
           ],
           "Postbuild Scripts": [],
           "String Imports": [],
