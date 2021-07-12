@@ -196,8 +196,7 @@ void run(string[] args)
 
 	Log.Entry("++++++ Entering GTK Main Loop ++++++");
 	uiApplication.run(args);
-	Log.Entry("------  Exiting GTK Main Loop ------");
-	
+	Log.Entry("------  Exiting GTK Main Loop ------");	
 }
 
 void AddSubMenu(int pos, string label, GMenu menu)
@@ -329,9 +328,10 @@ void EngageMainWindow(Builder mBuilder)
     	if(ConfirmQuit())
     	{
     	    StoreGui();
-            uiApplication.removeWindow(mMainWindow);
+            //uiApplication.removeWindow(mMainWindow);
+            uiApplication.quit();
     	}
-    	return false;
+    	return true;
 		
 	});
 
