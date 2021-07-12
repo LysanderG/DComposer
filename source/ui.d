@@ -159,7 +159,7 @@ void Mesh()
 { 
     //temp
     AddStartStatusWidget(mStatusLog.mLinesOLog);
-	MeshMainWidown();
+	MeshMainWindow();
     MeshMenubar();
     MeshToolbar();
     MeshSidePane();
@@ -267,11 +267,19 @@ int AddSidePane(Widget nuPage, string nuPageTitle)
 {
     return mSidePane.appendPage(nuPage, nuPageTitle);
 }
+void RemoveSidePaneWidget(Widget oldPage)
+{
+    mSidePane.removePage(mSidePane.pageNum(oldPage));
+}
 
 //extra pane stuff
 int AddExtraPane(Widget nuPage, string nuPageTitle)
 {
     return mExtraPane.appendPage(nuPage, nuPageTitle);
+}
+void RemoveExtraPaneWidget(Widget oldPage)
+{
+    return mExtraPane.removePage(mExtraPane.pageNum(oldPage));
 }
 
 void SetBusyIndicator(bool on)
@@ -331,7 +339,7 @@ void EngageMainWindow(Builder mBuilder)
 
 }
 
-void MeshMainWidown()
+void MeshMainWindow()
 {
 	
     int win_x_pos = Config.GetValue("ui", "win_x_pos", 10);
