@@ -19,6 +19,19 @@ class CURLY_INDENT : ELEMENT
 
     void Engage()
     {
+        mCurlyClose = Config.GetValue("element","curly_indent_close", true);
+        
+        mPrefDialog = new Dialog("Curly Indent Preferences", mMainWindow, DialogFlags.MODAL,["Finished"],[ResponseType.CLOSE]);
+        CheckButton cb = new CheckButton("Auto Close Curly Brace?", delegate void(CheckButton cbtn)
+        {
+            mCurlyClose = cbtn.getActive();
+            Config.SetValue("element","curly_indent_close", mCurlyClose);
+            Configure();
+        });
+        cb.setActive(true);
+        cb.showAll();
+        mPrefDialog.getContentArea.packStart(cb, true, true, 3);
+        Configure();
         Log.Entry("Engaged");
     }
     void Mesh()
@@ -29,12 +42,15 @@ class CURLY_INDENT : ELEMENT
     void Disengage()
     {
         Transmit.DocInsertText.disconnect(&WatchForText);
-        
-        Log.Entry("Disengaged");
-        
+        destroy(mPrefDialog);
+        Log.Entry("Disengaged");        
     }
 
-    void Configure(){Log.Entry("Configure");}
+    void Configure()
+    {
+        mCurlyClose = Config.GetValue("element", "curly_indent_close", true);
+        Log.Entry("Configure");
+    }
 
     string Name(){return "Curly Brackets".idup;}
     string Info(){return "Indents curly brackets... or braces(whatever)".idup;}
@@ -46,7 +62,7 @@ class CURLY_INDENT : ELEMENT
     Dialog SettingsDialog()
     {
 
-        return new MessageDialog(mMainWindow, DialogFlags.MODAL, MessageType.OTHER, ButtonsType.CLOSE, "Hey this is working");
+        return mPrefDialog;
     }
     
     /*void WatchForText_old(DOC_IF self, TextIter ti, string text)
@@ -199,13 +215,14 @@ class CURLY_INDENT : ELEMENT
                     break;
                 }
             }
-            if(GetLineText(doc, ti)[0] != '}')return;
+            if(stripLeft(GetLineText(doc, ti))[0] != '}')return;
             doc.unindentLines(ti, ti);
         }
     }
     
 private:
-    bool mCurlyClose = true;
+    bool mCurlyClose;
+    Dialog mPrefDialog;
     
 }
         

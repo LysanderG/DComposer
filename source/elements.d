@@ -98,13 +98,12 @@ void Disengage()
         ]);
     
     }
-    //foreach(elem;mElements)elem.Disengage();
     foreach(lib; mRegisteredElements)
     {
         
         UnloadElement(lib.mID);   
     }
-    Config.Save();
+    //Config.Save();
     Log.Entry("Disengaged");
 }
 
@@ -155,7 +154,8 @@ void ShowSettingDialog(string key)
     if(key !in mElements) return;
     Dialog dx = mElements[key].SettingsDialog();
     dx.run();
-    dx.destroy();    
+    dx.hide();
+
 }
 
 private:

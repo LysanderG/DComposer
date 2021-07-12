@@ -18,7 +18,7 @@ class LOG_VIEW : ELEMENT
     ScrolledWindow      mRootScroll;
     TreeView            mTree;
     ListStore           mStore;
-    
+    Dialog              mPreferencesDialog;
     
     void WatchLog(string msg, string level, string mod)
     {
@@ -27,6 +27,9 @@ class LOG_VIEW : ELEMENT
         mStore.setValue(ti, 0, level);
         mStore.setValue(ti, 1, mod);
         mStore.setValue(ti, 2, msg);
+        
+        auto path = mStore.getPath(ti);
+        mTree.setCursor(path, null, false);
     } 
     
     
@@ -45,31 +48,51 @@ class LOG_VIEW : ELEMENT
         mTree.appendColumn(tvcMessage);
         
         tvcLevel.setResizable(false);
-        tvcModule.setResizable(false);        
+        tvcModule.setResizable(true);        
         tvcMessage.setResizable(true);
-        /*TreeIter ti = new TreeIter();
-        mStore.append(ti);
-        mStore.setValue(ti, 0, "one");
-        mStore.setValue(ti, 1, "two");
-        mStore.setValue(ti, 2, "three");*/
         mTree.setModel(mStore);
 
         mRootScroll.add(mTree);
         mRootScroll.showAll();
-        AddExtraPane(mRootScroll, "Log View");
-        
+        AddExtraPane(mRootScroll, "Log View");        
         Log.connect(&WatchLog);
+        
+        
+        mPreferencesDialog = new Dialog("Log_View Element Preferences",mMainWindow, DialogFlags.MODAL,["Finished"], [ResponseType.CLOSE]);
+        Box box = mPreferencesDialog.getContentArea();        
+        FontButton fontbtn = new FontButton();
+        box.add(fontbtn);
+        box.showAll();  
+        fontbtn.addOnFontSet(delegate void(FontButton fb)
+        {
+            Config.SetValue("element", "log_view_font", fb.getFont().idup);
+            Configure();
+        });
+        Configure();
+        
+        Log.Entry("Engaged");
+        
     }
     
-    void Mesh(){}
+    void Mesh()
+    {
+        Log.Entry("Meshed");
+    }
     void Disengage()
     {
+        destroy(mPreferencesDialog);
         Log.disconnect(&WatchLog);
-        RemoveExtraPaneWidget(mRootScroll);   
+        RemoveExtraPaneWidget(mRootScroll);  
+        Log.Entry("Disengaged"); 
     }
     
 
-    void Configure(){}
+    void Configure()
+    {
+        string cfgstr = Config.GetValue!string("element", "log_view_font","monospace 8");
+        dwrite(cfgstr);
+        mTree.modifyFont(PgFontDescription.fromString(cfgstr));
+    }
 
     string Name(){return "Log View".idup;}
     string Info(){return "shows log output".idup;}
@@ -80,6 +103,6 @@ class LOG_VIEW : ELEMENT
 
     Dialog SettingsDialog()
     {
-        return new MessageDialog(mMainWindow, DialogFlags.MODAL, MessageType.OTHER, ButtonsType.CLOSE, "Hey this is working");
+        return mPreferencesDialog;
     }
 }

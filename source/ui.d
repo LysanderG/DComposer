@@ -116,6 +116,7 @@ public import gtk.TreeView;
 public import gtk.TreeViewColumn;
 public import gtk.Widget;
 public import gtk.Window;
+public import pango.PgFontDescription;
 
 
 void Engage(ref string[] args)
