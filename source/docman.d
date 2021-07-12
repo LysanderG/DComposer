@@ -144,6 +144,7 @@ void ReplaceDoc(string oldKey, string newKey)
 void RemoveDoc(DOC_IF oldDoc)
 {
 	if(oldDoc.Modified)Log.Entry("Removing modified doc ("~ oldDoc.Name ~ ") from document manager");
+	else Log.Entry("Removing (" ~ oldDoc.Name ~ ") from document manager");
     Transmit.DocManEvent.emit(DOCMAN_EVENT.REMOVE, oldDoc.FullName);
     mDocs.remove(oldDoc.FullName);
 }

@@ -313,9 +313,11 @@ public:
 		    msgDialog.hide();
 		    if(response == ResponseType.CANCEL) return;
 		    if(response == ResponseType.APPLY) Save();
+		    
 
         }
 	    mNotebook.removePage(mNotebook.getCurrentPage());
+	    Log.Entry("Closing  file: " ~ curr.Name);
 	    docman.RemoveDoc(curr);   
     }
     void CloseAll()
@@ -353,6 +355,7 @@ public:
         mNotebook.insertPage(scrollWin, cast(Widget)newDoc.TabWidget, pos);
         mNotebook.setMenuLabelText(scrollWin, newDoc.Name);
         mNotebook.setCurrentPage(scrollWin);
+        scrollWin.getChild.grabFocus();
         ConnectDoc(newDoc);
         Log.Entry("Document added :" ~ newDoc.Name);
     }
