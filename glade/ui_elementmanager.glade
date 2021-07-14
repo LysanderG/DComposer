@@ -54,6 +54,7 @@
         <property name="can-focus">True</property>
         <property name="model">liststore1</property>
         <property name="search-column">0</property>
+        <property name="tooltip-column">5</property>
         <child internal-child="selection">
           <object class="GtkTreeSelection"/>
         </child>
@@ -100,7 +101,7 @@
         <child>
           <object class="GtkTreeViewColumn">
             <property name="sizing">fixed</property>
-            <property name="title" translatable="yes">Status</property>
+            <property name="title" translatable="yes">Broken</property>
             <property name="clickable">True</property>
             <property name="sort-indicator">True</property>
             <property name="sort-column-id">3</property>

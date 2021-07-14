@@ -33,7 +33,7 @@ interface ELEMENT
 void Engage(ref string[] args)
 {
     //cmdline stuff
-    getopt(args, std.getopt.config.passThrough, "disableElements|X", &mElementsDisabled,"suppress|x", &mSuppressedElements);	
+    getopt(args, std.getopt.config.caseSensitive, std.getopt.config.passThrough, "disableElements|X", &mElementsDisabled,"suppress|x", &mSuppressedElements);	
     dwrite(mSuppressedElements);
     if(mElementsDisabled) 
     {
@@ -223,6 +223,11 @@ bool LoadElement(ref REGISTERED_LIBRARY ElementLibrary)
        Log.Entry(ElementLibrary.mID ~ ": Element has been marked as broken");
        return false;
    }
+   if(ElementLibrary.mSuppressed)
+   {
+       Log.Entry(ElementLibrary.mID ~ ": Not loaded.  Suppressed for session");
+       return false;
+   }
    
    scope(failure)
    {
@@ -307,7 +312,8 @@ void RegisterLibrary(string libraryID)
     tmpReg.mBroken = false;
     
     Config.SetArray!(string[])("registered_libraries", libraryID,
-    [libraryID, libraryID, "Unknown", "Unknown", "false", "false", tmpReg.mAuthors]);
+    [tmpReg.mFile, libraryID, "Unknown", "Unknown", "false", "false", tmpReg.mAuthors]);
+    mRegisteredElements[libraryID] = tmpReg;
 }
 
 

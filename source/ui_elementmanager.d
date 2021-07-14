@@ -124,13 +124,18 @@ class LISTENER
         TreeIter ti;
         foreach (element; GetRegisterdElements())
         {
+            string tooltip;
+            if(element.mEnabled)tooltip = "Element should be loaded on startup";
+            if(element.mSuppressed)tooltip = "Element has beed suppressed for this session";
+            else if(element.mBroken)tooltip = "Element is marked as broken and will not be loaded";
+            
             mStore.append(ti);
             mStore.setValue(ti, 0, element.mID);
             mStore.setValue(ti, 1, element.mInfo);
             mStore.setValue(ti, 2, element.mEnabled);
             mStore.setValue(ti, 3, element.mBroken);
             mStore.setValue(ti, 4, element.mVersion);
-            mStore.setValue(ti, 5, element.mSuppressed);
+            mStore.setValue(ti, 5, tooltip);
             mStore.setValue(ti, 6, element.mFile);
             mStore.setValue(ti, 7, element.mAuthors);
         } 
