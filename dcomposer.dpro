@@ -36,7 +36,8 @@
           ],
           "Related Files": [
                "text_objects\/text_objects",
-               "elements\/curly_indent.d"
+               "elements\/curly_indent.d",
+               "elements\/log_view.d"
           ],
           "Postbuild Scripts": [],
           "String Imports": [],
