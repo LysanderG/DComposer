@@ -65,7 +65,7 @@ class LOG_VIEW : ELEMENT
         box.showAll();  
         fontbtn.addOnFontSet(delegate void(FontButton fb)
         {
-            Config.SetValue("element".idup, "log_view_font".idup, fb.getFont().idup);
+            Config.SetValue("element", "log_view_font", fb.getFont().idup);
             Configure();
         });
         Configure();
@@ -89,7 +89,7 @@ class LOG_VIEW : ELEMENT
 
     void Configure()
     {
-        string cfgstr = Config.GetValue!string("element".idup, "log_view_font".idup,"monospace 8");
+        string cfgstr = Config.GetValue!string("element", "log_view_font","monospace 8".idup);
         dwrite(cfgstr);
         mTree.modifyFont(PgFontDescription.fromString(cfgstr));
     }

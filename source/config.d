@@ -177,8 +177,8 @@ public:
 
     void SetValue(T)(string Section, string Name, T value)
     {
-        if(Section !in mJson.object)mJson[Section] = jsonObject();
-        mJson[Section][Name] = convertJSON(value);
+        if(Section !in mJson.object)mJson[Section.idup] = jsonObject();
+        mJson[Section][Name.idup] = convertJSON(value);
 
         Changed.emit(Section,Name);
     }
@@ -188,24 +188,24 @@ public:
 
     void SetValue(T...)(string Section, string Name, T args)
     {
-        if(Section !in mJson.object)mJson[Section] = jsonObject();
-        mJson[Section][Name] = jsonArray();
+        if(Section !in mJson.object)mJson[Section.idup] = jsonObject();
+        mJson[Section][Name.idup] = jsonArray();
         foreach (arg; args) mJson[Section][Name] ~= convertJSON(arg);
         Changed.emit(Section,Name);
     }
 
     void AppendValue(T...)(string Section, string Name, T args)
     {
-        if(Section !in mJson.object)mJson[Section] = jsonObject();
-        if(Name !in mJson[Section].object) mJson[Section][Name] = jsonArray();
+        if(Section !in mJson.object)mJson[Section.idup] = jsonObject();
+        if(Name !in mJson[Section].object) mJson[Section][Name.idup] = jsonArray();
         foreach(arg; args) mJson[Section][Name] ~= convertJSON(arg);
         Changed.emit(Section,Name);
     }
 
     void AppendObject(string Section, string Name, JSON jobject)
     {
-        if( Section !in mJson.object) mJson[Section] = jsonObject();
-        if( Name !in mJson[Section].object) mJson[Section][Name] = jsonArray();
+        if( Section !in mJson.object) mJson[Section.idup] = jsonObject();
+        if( Name !in mJson[Section].object) mJson[Section][Name.idup] = jsonArray();
         if( !mJson[Section][Name].isArray())return;
 
 
@@ -218,12 +218,12 @@ public:
     {
         if(Section !in mJson.object)
         {
-            mJson[Section] = jsonObject();
+            mJson[Section.idup] = jsonObject();
 
         }
         if(Name !in mJson.object[Section].object)
         {
-            mJson[Section].object[Name] = convertJSON(Default);
+            mJson[Section].object[Name.idup] = convertJSON(Default);
         }
         return cast(T)(mJson[Section][Name]);
     }
@@ -232,13 +232,13 @@ public:
     {
         if(Section !in mJson.object)
         {
-            mJson[Section] = jsonObject();
-            mJson[Section][Name] = jsonArray();
+            mJson[Section.idup] = jsonObject();
+            mJson[Section][Name.idup] = jsonArray();
             mJson[Section][Name] = convertJSON(Default);
         }
         if(Name !in mJson[Section].object)
         {
-            mJson[Section][Name] = jsonArray();
+            mJson[Section][Name.idup] = jsonArray();
             mJson[Section][Name] = convertJSON(Default);
         }
         T[] rv;
