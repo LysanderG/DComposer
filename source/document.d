@@ -53,6 +53,7 @@ private:
     SourceFile  mFile;
     SysTime     mFileTimeStamp;
     TextMark    mInsertMark;
+    bool        mKeyEventHandled;
     
     SourceSearchContext     mSearchContext;
     SourceCompletion        mCompletion;        
@@ -170,19 +171,12 @@ public:
         
         addOnKeyPress(delegate bool(Event keyEvent, Widget self)
         {
-            uint keyvalue;
-            keyEvent.getKeyval(keyvalue);
+            mKeyEventHandled = false;
+             
+            Transmit.DocKeyPress.emit(this, keyEvent);
             
-            switch (keyvalue)
-            {
-                case Keysyms.GDK_1: mTextObject["item"].SelectNext(this);return true;
-                case Keysyms.GDK_2: mTextObject["item"].SelectPrev(this);return true;
-                case Keysyms.GDK_3: mTextObject["item"].StartNext(this);return true;
-                case Keysyms.GDK_4: mTextObject["item"].StartPrev(this);return true;
-                case Keysyms.GDK_5: mTextObject["item"].EndNext(this);return true;
-                case Keysyms.GDK_6: mTextObject["item"].EndPrev(this);return true;
-                default: return false;
-            }
+            if(mKeyEventHandled) return true;
+            //do more handling here... :)
             return false;
         });
         
@@ -294,6 +288,16 @@ public:
     {
         auto bpt = getBackgroundPattern();
         return (bpt ==BackgroundPatternType.GRID)? true: false;
+    }
+    
+    bool GetHasKeyEventBeenHandled()
+    {
+        return mKeyEventHandled;
+    }
+    
+    void SetKeyEventHasBeenHandled()
+    {
+        mKeyEventHandled = true;
     }
     
     void Goto(int line, int col, bool focus)
@@ -452,6 +456,7 @@ public:
     int Line(){return Cursor.getLine();}
     int LineCount(){return getBuffer.getLineCount();}
     int Column(){return Cursor.getLineOffset();}
+    int Offset(){return Cursor.getOffset();}
     
     ///Returns current Identifier at cursor or an empty string
     string Identifier(string markName)
@@ -498,6 +503,47 @@ public:
         return rv;
     }
     
+    //use this to see what identifier is being typed (cursor most likely will not be insideword)
+    //also recognizes '.' as a valid character
+    string IdentifierStart(string markName)
+    {
+        string rv;        
+        TextIter Initial = new TextIter;
+        TextIter Start;
+        TextIter End;
+        auto buff = getBuffer();        
+        buff.getIterAtMark(Initial, buff.getMark(markName));      
+        Start = Initial.copy();       
+        End = Initial.copy();
+        Initial.backwardChar();
+        if(!isIdentifierChar(Initial.getChar())) return rv; //empty  
+        dchar letter;
+        bool backfail = true; //faster than calling isStart??
+        bool forefail = true;
+        while(Start.backwardChar)
+        {
+            letter = Start.getChar();
+            if(letter.isIdentifierChar || (letter == '.')) continue;
+            backfail = false;
+            break;
+        }        
+        if(!backfail) Start.forwardChar();
+        if(!Start.getChar.isIdentifierStartChar()) return rv; //not on a valid identifier ERROR
+        
+        //while(End.forwardChar)
+        //{
+        //    letter = End.getChar();
+        //    if(letter.isIdentifierChar) continue;
+        //    if(letter.isIdentifierStartChar)continue;
+        //    //End.backwardChar();
+        //    forefail = false;
+        //    break;            
+        //}
+        //if((forefail) && (!letter.isIdentifierChar())) return rv;
+        
+        rv = buff.getSlice(Start, End, true);
+        return rv;
+    }
     string Word(string markName)
     {
         string rv;
@@ -523,11 +569,20 @@ public:
     
     void CompleteSymbol(string chosenSymbol)
     {
-        TextIter tiStart, tiEnd;
-        TextIter tiCursor;
+        TextIter InitTi;
+        buff.getIterAtMark(InitTi, buff.getMark("insert"));
         
-        tiCursor = Cursor();    
-        MoveWordBack();
+        while(InitTi.backwardChar())
+        {
+            auto idChar = InitTi.getChar();
+            if(!canFind("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_", idChar))
+            {
+                InitTi.forwardChar();
+                break;
+            }
+        }
+        
+        buff.delete_(InitTi, Cursor());
         buff.insertAtCursor(chosenSymbol);
           
     }

@@ -35,13 +35,14 @@ void DisengageCompletion()
     DisengageTextObjects();
 }
 
+
 class UI_COMPLETION
 {
     public:
     
     void Engage()
     {
-        mComWindow = new Window(GtkWindowType.TOPLEVEL);
+        mComWindow = new Window(GtkWindowType.POPUP);
         mComWindow.setDecorated(false);
         mComScroll = new ScrolledWindow();
         mComStore = new ListStore([GType.STRING, GType.STRING]);
@@ -58,11 +59,14 @@ class UI_COMPLETION
         mComTree.appendColumn(mComTreeCol2);
         mComScroll.setPolicy(PolicyType.NEVER, PolicyType.AUTOMATIC);
         mComTree.setHeadersVisible(false);
-        mComTree.setCanFocus(true);
-        mComWindow.setCanFocus(true);
+        mComTree.setCanFocus(false);
+        mComWindow.setCanFocus(false);
+        mComScroll.setCanFocus(false);
+        mComScroll.setVisible(true);
+        mComTree.setVisible(true);
         
         
-        mTipWindow = new Window(GtkWindowType.TOPLEVEL);
+        mTipWindow = new Window(GtkWindowType.POPUP);
         mTipWindow.setDecorated(false);
         mTipScroll = new ScrolledWindow();
         mTipStore = new ListStore([GType.STRING]);
@@ -74,55 +78,12 @@ class UI_COMPLETION
     }
     void Mesh()
     {
-        mComTree.addOnKeyPress(delegate bool(Event evK, Widget wd)
-        {
-            DOCUMENT Doc = cast(DOCUMENT)GetCurrentDoc();
-            uint keyVal;
-            evK.getKeyval(keyVal);
-            switch (keyVal)
-            {
-                case Keysyms.GDK_Tab:
-                {
-                    SelectionNext(mComTree);
-
-                    break;
-                }
-                case Keysyms.GDK_ISO_Left_Tab:
-                {
-                    SelectionPrev(mComTree);
-                    break;
-                }
-                case Keysyms.GDK_Return:
-                {
-                    CompleteSymbol();
-                    break;
-                }
-                default:
-                {
-                    mComWindow.hide();
-                    return Doc.event(evK);
-                }
-            }
-            return true;
-        });
-        mComTree.addOnFocusOut(delegate bool(Event e, Widget w)
-        {
-            mComWindow.hide();
-            return true;
-        });
-        mComWindow.addOnShow(delegate void(Widget w)
-        {
-            mComTree.grabFocus();
-        });
-        mComWindow.addOnHide(delegate void(Widget w)
-        {
-            Widget attached = mComWindow.getAttachedTo();
-        });
-        
+        Transmit.DocKeyPress.connect(&WatchForKeyPress);
         Log.Entry("Mesh");
     }
     void Disengage()
     {
+        Transmit.DocKeyPress.disconnect(&WatchForKeyPress);
         Log.Entry("Disengaged");
     }
     
@@ -130,7 +91,6 @@ class UI_COMPLETION
     {
         DOCUMENT Document = cast(DOCUMENT)doc;
         mComWindow.setAttachedTo(Document);
-        mComWindow.hide();
         //load liststore
         mComStore.clear();
         foreach (ndx, proposal; Candidates)
@@ -144,29 +104,37 @@ class UI_COMPLETION
         //size
         int xlen, ylen, xlencol1, xlencol2;
         int xoff, yoff;
+        int maxWinY;
         mComTreeCol1.cellGetSize(null, xoff, yoff, xlencol1, ylen);
         mComTreeCol2.cellGetSize(null, xoff, yoff, xlencol2, ylen);
         xlen = xlencol1 + xlencol2;
+        maxWinY = ylen * 8;
         ylen = ylen * cast(int)Candidates.length;
         mComScroll.setMinContentWidth(xlen);
+        //mComScroll.setMinContentHeight(ylen * 6);
+        //mComScroll.setMaxContentHeight(ylen * 8);
+        
+        if(ylen > maxWinY) ylen = maxWinY;
         mComWindow.resize(xlen, ylen);
         
         //position
-        GdkRectangle strong, weak;
-        Document.getCursorLocations(null, strong, weak);
-        int xpos, ypos;
-        Document.bufferToWindowCoords(TextWindowType.TEXT, strong.x, strong.y, xpos, ypos);        
-        ypos += strong.height;
-        Document.getWindow(TextWindowType.TEXT).getOrigin(xoff, yoff);
-        xpos += xoff;
-        ypos += yoff;
-        mComWindow.move(xpos,ypos);
-        
-        
-        mComWindow.setSkipTaskbarHint(true);
-        mComWindow.setSkipPagerHint(true);
-        mComWindow.realize();
-        mComWindow.showAll();
+        PositionWindow(mComWindow, Document, xlen, ylen);
+        //GdkRectangle strong, weak;
+        //Document.getCursorLocations(null, strong, weak);
+        //int xpos, ypos;
+        //Document.bufferToWindowCoords(TextWindowType.TEXT, strong.x, strong.y, xpos, ypos);        
+        //ypos += strong.height;
+        //Document.getWindow(TextWindowType.TEXT).getOrigin(xoff, yoff);
+        //xpos += xoff;
+        //ypos += yoff;
+        //mComWindow.move(xpos,ypos);
+
+        mComWindow.setVisible(true);
+        mComScroll.setVisible(true);
+        mComTree.setVisible(true);
+
+        mComTree.setCursor(new TreePath("0"), null, false); 
+
     }
     private:
     //completion stuffs
@@ -184,6 +152,39 @@ class UI_COMPLETION
     ListStore       mTipStore;
     TreeViewColumn  mTipCol;
     SList!CALLTIP   mTipStack;
+
+
+    void PositionWindow(Window win, DOCUMENT doc, int xlen, int ylen)
+    {
+        int gXpos, gYpos;
+        int gXlen, gYlen;
+        
+        doc.getWindow(TextWindowType.TEXT).getOrigin(gXpos, gYpos);
+        gXlen = doc.getWindow(TextWindowType.TEXT).getWidth();
+        gYlen = doc.getWindow(TextWindowType.TEXT).getHeight();
+        dwrite(gXlen, ",<<<<<>>>>>");
+        
+        int cXpos, cYpos, cXlen, cYlen;
+        GdkRectangle strong, weak;
+        doc.getCursorLocations(null, strong, weak);
+        doc.bufferToWindowCoords(TextWindowType.TEXT, strong.x, strong.y, cXpos, cYpos);        
+        cYpos += strong.height;
+        cXpos += gXpos;
+        cYpos += gYpos;
+        
+        //x
+        int fXpos = cXpos;
+        while(fXpos + xlen > gXpos + gXlen + strong.width) fXpos--;
+        //y
+        int fYpos = cYpos;
+        if(fYpos + ylen > gYpos + gYlen)
+        {
+            fYpos = fYpos - strong.height - ylen;
+        }
+        
+        mComWindow.move(fXpos, fYpos);       
+    }
+
     
     void SelectionNext(TreeView tv)
     {
@@ -228,9 +229,44 @@ class UI_COMPLETION
         TreeIter ti = mComTree.getSelectedIter();
         string chosenCandidate = mComStore.getValueString(ti, 0);
         
-        
         Doc.CompleteSymbol(chosenCandidate);
     }
     
-    
+    void WatchForKeyPress(DOC_IF doc, Event keyEvent)
+    {
+        
+        if(!mComWindow.isVisible())return;
+        dwrite("uicomplete got key press");
+        if(doc.GetHasKeyEventBeenHandled) return;
+        uint keyVal;
+        ModifierType modState;
+        keyEvent.getKeyval(keyVal);
+        keyEvent.getState(modState);
+        
+        switch(keyVal)
+        {
+            case Keysyms.GDK_Tab :
+                SelectionNext(mComTree);
+                doc.SetKeyEventHasBeenHandled();
+                return;
+            case Keysyms.GDK_ISO_Left_Tab:
+                SelectionPrev(mComTree);
+                doc.SetKeyEventHasBeenHandled();
+                return;
+            case Keysyms.GDK_Shift_L:
+            case Keysyms.GDK_Shift_R:
+                return;
+            case Keysyms.GDK_Return:
+            case Keysyms.GDK_KP_Enter:
+                CompleteSymbol();
+                doc.SetKeyEventHasBeenHandled();
+                mComWindow.setVisible(false);
+                return;
+            default:
+                mComWindow.setVisible(false);
+                return;
+        }
+    }
+            
+
 }
