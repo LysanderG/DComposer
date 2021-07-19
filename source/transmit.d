@@ -43,6 +43,7 @@ class TRANSMITTER
     mixin Signal!(DOC_IF, DOC_EVENT, string) DocEvent;
     mixin Signal!(DOC_IF) GatherStatusSections;
     mixin Signal!(DOC_IF, TextIter, string) DocInsertText;
+    mixin Signal!(DOC_IF, Event) DocKeyPress;
 
     //ui_book
     mixin Signal!(string) DocStatusLine;

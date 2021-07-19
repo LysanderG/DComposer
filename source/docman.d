@@ -90,6 +90,8 @@ interface DOC_IF
     void    AddStatusSection(long Sect, string Value);
     void    SetBackgroundGrid(bool on);
     bool    GetBackgroundGrid();
+    bool    GetHasKeyEventBeenHandled();
+    void    SetKeyEventHasBeenHandled();
     void    Goto(int line, int col, bool focus = true);
     bool    FindForward(string regexNeedle);
     bool    FindBackward(string regexNeedle);
@@ -104,8 +106,10 @@ interface DOC_IF
     int     Line();
     int     LineCount();
     int     Column();
+    int     Offset();
     
     string  Identifier (string markName = "insert");
+    string  IdentifierStart(string markName = "insert");
     string  Word(string markName = "insert");
     void    CompleteSymbol(string chosenSymbol);
 }
