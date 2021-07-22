@@ -1,0 +1,14 @@
+{
+	"authors": [
+		"Anthony Goins"
+	],
+	"copyright": "Copyright © 2020, Anthony Goins",
+	"dependencies": {
+		"gtk-d:gtkd": "~>3.9.0",
+		"gtk-d:sv": "~>3.9.0",
+		"gtk-d:vte": "~>3.9.0"
+	},
+	"description": "A minimal D application.",
+	"license": "GPLV3+",
+	"name": "dcomposerx"
+}

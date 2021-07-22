@@ -1,80 +1,58 @@
 module ui_contextmenu;
 
+import gtk.Menu;
+import gtk.MenuItem;
 
-import dcore;
+
 import ui;
-import document;
+import log;
 
-import gobject.ObjectG;
-import gtk.Misc;
 
-extern (C) GtkWidget * gtk_widget_new();
-
-UI_CONTEXTMENU uiContextMenu;
-
-class UI_CONTEXTMENU //class just so I can use signals!
+void EngageContextMenu()
 {
-    void Engage()
-    {
-        DocMan.Event.connect(&WatchForNewDocuments);
 
-        Log.Entry("Engaged");
-    }
-    void PostEngage()
-    {
-        Log.Entry("PostEngaged");
-    }
-    void Disengage()
-    {
-        DocMan.Event.disconnect(&WatchForNewDocuments);
-        Log.Entry("Disengaged");
-    }
-
-    void AddAction(string ActionName)
-    {
-
-        if(GetAction(ActionName) is null) return;
-        ContextMenuItems ~= ActionName;
-
-    }
-    void RemoveAction(string ActionName)
-    {
-        if(GetAction(ActionName) is null) return;
-        string[] nuContextMenuItems;
-        foreach (item; ContextMenuItems)
-        {
-            if(item != ActionName) nuContextMenuItems ~= item;
-        }
-        ContextMenuItems = nuContextMenuItems;
-    }
-
-    void AddSubMenu(string Title, string[] ActionNames)
-    {}
-
-    private:
-
-    string[] ContextMenuItems;
-    void WatchForNewDocuments(string EventName, DOC_IF Doc)
-    {
-        if((EventName == "Create") || (EventName == "Open"))
-        {
-            auto xDoc = cast(DOCUMENT) Doc;
-            xDoc.addOnPopulatePopup(delegate void(Widget BasicWidget, TextView tv)
-            {
-                auto xptr = BasicWidget.getWidgetStruct();
-                Menu x2 = new Menu(cast(GtkMenu*)xptr);
-                auto sep1 = new SeparatorMenuItem;
-                x2.append(sep1);
-
-                foreach(item; ContextMenuItems)
-                {
-                    if(GetAction(item) is null) continue;
-                    x2.append(GetAction(item).createMenuItem);
-                }
-                x2.append(new SeparatorMenuItem);
-                x2.showAll();
-            });
-        }
-    }
+    Log.Entry("Engaged");
 }
 
+void MeshContextMenu()
+{
+    Log.Entry("Meshed");
+}
+void DisengageContextMenu()
+{
+    Log.Entry("Disengaged");
+}
+
+
+
+
+
+void AddMenuPart(string label, MI_DLG miDlg, string action)
+{
+    MENU_PARTS mp = MENU_PARTS(label, miDlg, action);
+    mItems ~= mp;
+}
+
+
+MenuItem[] GetContextItems()
+{
+    MenuItem[] rv;
+    foreach(item; mItems)rv ~= item.Build();
+    return rv;
+}
+
+
+MENU_PARTS[] mItems;
+
+alias MI_DLG = void delegate (MenuItem);
+struct MENU_PARTS
+{
+    string mLabel;
+    MI_DLG mDelegate;
+    string mAction;
+    
+    MenuItem Build()
+    {
+        return new MenuItem(mLabel, mDelegate, mAction);
+    }
+}

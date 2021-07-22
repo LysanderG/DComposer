@@ -1,230 +1,155 @@
 module ui_elementmanager;
 
-import std.path;
-import std.string;
-import std.xml;
-import core.runtime;
-import core.sys.posix.dlfcn;
+import std.conv;
+import std.format;
 
-
-import dcore;
+import qore;
 import ui;
 import elements;
-import ui_preferences;
-
-import gtk.Builder;
-import gtk.Dialog;
-import gtk.TreeView;
-import gtk.ListStore;
-import gtk.Button;
-import gtk.TreeViewColumn;
-import gtk.CellRendererToggle;
-
-import gobject.Value;
 
 
-
-private Dialog mElementManager;
-private TreeView mView;
-private ListStore mStore;
-private Button  mPreferenceBtn;
-private CellRendererToggle mCellToggle;
-private Label mElementInfoLabel;
-
-auto muText = `<span font="monospace 16"><span weight="ultralight">Name        :</span><b>%s</b>
-<span weight="ultralight">Copyright   :</span><b>%s</b>
-<span weight="ultralight">License     :</span><b>%s</b>
-<span weight="ultralight">Authors     :</span><b>%s</b>
-<span weight="ultralight">Description :</span><b>%s</b></span>`;
-
-
-
-void Engage()
+void EngageElementManager()
 {
-
-    AddIcon("ui_element_manager", ResourcePath("plug.png"));
-    AddAction("ActElementManager", "Element Manager ...", "Manage additional elements","ui_element_manager","\0", delegate void(Action){Execute();LoadElements();});
-    AddToMenuBar("ActElementManager", "E_lements");
-
-    "ActElementManager".GetAction().setSensitive(!Config.GetValue!bool("elements", "disabled"));
-
-    auto builder = new Builder;
-    builder.addFromFile( GladePath( Config.GetValue("ui_element_manager", "glade_file", "ui_elements.glade")));
-
-    mElementManager = cast(Dialog)builder.getObject("dialog1");
-    mElementManager.setTransientFor(MainWindow);
-    mView = cast(TreeView)builder.getObject("treeview1");
-    mStore = cast(ListStore)builder.getObject("liststore1");
-    mPreferenceBtn = cast(Button)builder.getObject("button2");
-    mCellToggle = cast(CellRendererToggle)builder.getObject("cellrenderertoggle1");
-    mElementInfoLabel = cast(Label)builder.getObject("label4");
+    mListener = new LISTENER;
+    Transmit.PreferencesUpdateUI.connect(&mListener.LoadStore);
+    mBuilder = new Builder(Config.GetResource("ui_elementmanager", "glade", "glade", "ui_elementmanager.glade"));
+    mRootBox = cast(Box)mBuilder.getObject("rootbox");
+    mTree = cast(TreeView)mBuilder.getObject("elem_tree");
+    mStore = cast(ListStore)mBuilder.getObject("liststore1");
+    mScroll = cast(ScrolledWindow)mBuilder.getObject("scroll_label");
+    mEnableToggle = cast(CellRendererToggle)mBuilder.getObject("enable_toggle");
+    mBrokentoggle = cast(CellRendererToggle)mBuilder.getObject("broken_toggle");
+    mBrokenNotice = cast(ScrolledWindow)mBuilder.getObject("broken_notice");
+    mInfoLabel = cast(Label)mBuilder.getObject("info_label");
+    mSettingsButton = cast(Button)mBuilder.getObject("settings_button");
     
-    void RowActivated(TreePath tp, TreeViewColumn tvc, TreeView me)
+    mTree.getSelection.addOnChanged(delegate void(TreeSelection ts)
     {
-        auto ti = new TreeIter;
-        auto val = new Value;
-        //val.init(GType.BOOLEAN);
-
-
-        mStore.getIter(ti, tp);
-
-        auto libraryKey = mStore.getValueString(ti, 1);
-        mStore.getValue(ti, 0, val);
-        auto tglValue = val.getBoolean();
-        if(tglValue == 0)
+        TreeIter ti = ts.getSelected();
+        if(ti is null)
         {
-            Libraries[libraryKey].mEnabled = true;
-            LoadElements();
+            mBrokenNotice.setVisible(false);
+            mSettingsButton.setSensitive(false);
+            mInfoLabel.setText("No element selected");
+            return;
         }
-        else
-        {
-            Libraries[libraryKey].mEnabled = false;
-            if(Libraries[libraryKey].Ptr !is null)
-            {
-                UnloadElement(libraryKey);
-            }
-        }
-        mPreferenceBtn.setSensitive(Libraries[libraryKey].mEnabled);
 
-        mStore.setValue(ti, 0, Libraries[libraryKey].mEnabled);
-        mStore.setValue(ti, 1, Libraries[libraryKey].mFile.baseName());
-        mStore.setValue(ti, 2, Libraries[libraryKey].mName);
-        mStore.setValue(ti, 3, Libraries[libraryKey].mInfo);
-        mStore.setValue(ti, 4, Libraries[libraryKey].mFile);
+        Value BrokenValue = mStore.getValue(ti, 3, null);
+
+        mBrokenNotice.setVisible(BrokenValue.getBoolean());
+        mInfoLabel.setMarkup(GetInfoString(ti));
+        bool active;  // this should be part of registeredLibrary
+        string currentLibraryID = mStore.getValueString(ti, 0); 
+        if(GetRegisterdElements[currentLibraryID].mPtr !is null) active = true;
+        mSettingsButton.setSensitive(active);
+    });
+    
+    mEnableToggle.addOnToggled(delegate void(string path, CellRendererToggle crt)
+    {
+        TreeIter ti = new TreeIter(mStore, path); 
+        Value bval = new Value;
         
+        mStore.getValue(ti, 2, bval);  
+        bool nuState = !bval.getBoolean;
+          
+        string key = mStore.getValueString(ti, 0); 
         
-
-        if(Libraries[libraryKey].mClassName !in Elements)
-        {
-
-            mElementInfoLabel.setMarkup(format(muText, Libraries[libraryKey].mName, "unknown", "unknown", "unknown", Libraries[libraryKey].mInfo));
-            //mElementInfoLabel.setText(format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Libraries[libraryKey].mName, Libraries[libraryKey].mInfo, "unknown", "unknown", "unknown"));
-            return;
-        }
-        with(Elements[Libraries[libraryKey].mClassName])
-        {
-            string labelText = format(muText, Name, CopyRight, License, Authors.join(", ").encode(), Info);
-            //string labelText = format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Name, Info, CopyRight, License, Authors);
-            mElementInfoLabel.setMarkup(labelText);
-            
-        }
-
-
-    }
-    mView.addOnRowActivated (&RowActivated);
-
-
-    void RowToggled(string Path, CellRendererToggle crt)
+        if(nuState) EnableElement(key);
+        else DisableElement(key);
+        mListener.LoadStore();
+        
+    });
+    mBrokentoggle.addOnToggled(delegate void(string path, CellRendererToggle crt)
     {
-        RowActivated(new TreePath(Path), cast(TreeViewColumn)null, mView);
-    }
-    mCellToggle.addOnToggled(&RowToggled);
-
-    void CursorChanged(TreeView me)
+        TreeIter ti = new TreeIter(mStore, path); 
+        Value bval = new Value;
+        
+        bval.init(GType.BOOLEAN);
+        mStore.getValue(ti, 3, bval);  
+        bool nuState = !bval.getBoolean;
+          
+        string key = mStore.getValueString(ti, 0); 
+        
+        if(nuState) BreakElement(key);
+        else UnbreakElement(key);
+        
+        mListener.LoadStore();
+    });
+    
+    mSettingsButton.addOnClicked(delegate void(Button)
     {
-        auto tp = new TreePath;
-        auto tvc = new TreeViewColumn;
-        auto ti = new TreeIter;
-        auto val = new Value;
-
-        mView.getCursor(tp, tvc);
-        if(tp is null) return;
-        mStore.getIter(ti, tp);
-        mStore.getValue(ti, 0, val);
-
-
-
-
-        auto libraryKey = mStore.getValueString(ti, 1);
-        if(Libraries[libraryKey].mClassName !in Elements)
-        {
-            mPreferenceBtn.setSensitive(false);
-            //mElementInfoLabel.setText(format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Libraries[libraryKey].mName, Libraries[libraryKey].mInfo, "unknown", "unknown", "unknown"));
-            mElementInfoLabel.setMarkup(format(muText, Libraries[libraryKey].mName, "unknown", "unknown", "unknown", Libraries[libraryKey].mInfo));
-            return;
-        }
-        with(Elements[Libraries[libraryKey].mClassName])
-        {
-            mPreferenceBtn.setSensitive(Libraries[libraryKey].mEnabled);
-
-            string labelText = format(muText, Name, CopyRight, License, Authors.join(", ").encode(), Info);
-            mElementInfoLabel.setMarkup(labelText);           
-            
-            //string labelText = format("Name:\t\t\t%s\nDescription:\t%s\nCopyright:\t\t%s\nLicense:\t\t%s\nAuthors:\t\t%s", Name, Info, CopyRight, License, Authors);
-            //mElementInfoLabel.setText(labelText);
-        }
-
-    }
-    mView.addOnCursorChanged(&CursorChanged);
-
-    void PreferenceClicked()
-    {
-        auto tp = new TreePath;
-        auto tvc = new TreeViewColumn;
-        auto ti = new TreeIter;
-
-        mView.getCursor(tp, tvc);
-        if(tp is null)
-        {
-            Log.Entry("Bad state: Preference Button enabled while TreeView cursor is null", "Debug");
-            mPreferenceBtn.setSensitive(false);
-            return;
-        }
-        mStore.getIter(ti, tp);
-        string libKey = mStore.getValueString(ti, 1);
-        //scope(failure)
-
-        auto prefPage = Elements[Libraries[libKey].mClassName].PreferencePage();
-        if (prefPage is null)
-        {
-            ShowMessage("Element Prefences","No user configurable preferences for this element","Are you kidding me?", "OK");
-            return;
-        }
-        ShowPreferencePageDialog(prefPage);
-        Elements[Libraries[libKey].mClassName].Configure();
-    }
-    mPreferenceBtn.addOnClicked(delegate void(Button Me){PreferenceClicked();});
-
+        TreeIter ti = mTree.getSelectedIter();
+        assert(mStore.iterIsValid(ti));
+        string id = mStore.getValueString(ti, 0);
+        ShowSettingDialog(id);        
+    });
+    
     Log.Entry("Engaged");
-
 }
 
-void PostEngage()
+void MeshElementManager()
 {
-    Log.Entry("PostEngaged");
+    AppPreferenceAddWidget("Elements", mRootBox);
+    Log.Entry("Meshed");
 }
 
-void Disengage()
+void DisengageElementManager()
 {
+    Transmit.PreferencesUpdateUI.disconnect(&mListener.LoadStore);
     Log.Entry("Disengaged");
 }
 
-
-void Execute()
+void ElementManagerPreferences()
 {
-    //load up the liststore
-    //AcquireLibraries();
-    mStore.clear();
-    import std.algorithm;
-
-    foreach(lib; Libraries.values.sort!("a.mFile < b.mFile"))
-    {
-        auto ti = new TreeIter;
-        mStore.append(ti);
-
-        mStore.setValue(ti, 0, lib.mEnabled);
-        mStore.setValue(ti, 1, lib.mFile.baseName());
-        mStore.setValue(ti, 2, lib.mName);
-        mStore.setValue(ti, 3, lib.mInfo);
-        mStore.setValue(ti, 4, lib.mFile);
-    }
-
-    mView.setCursor(new TreePath(true), null, false);
-
-    mElementManager.run();
-    mElementManager.hide();
-
-    RegisterLibraries();
+    
 }
 
+Builder             mBuilder;
+Box                 mRootBox;
+TreeView            mTree;
+ListStore           mStore;
+ScrolledWindow      mScroll;
+CellRendererToggle  mEnableToggle;
+CellRendererToggle  mBrokentoggle;
+ScrolledWindow      mBrokenNotice;
+Label               mInfoLabel;
+Button              mSettingsButton;
 
+LISTENER mListener;
+class LISTENER
+{
+   void LoadStore()
+    {
+        mStore.clear();
+        TreeIter ti;
+        foreach (element; GetRegisterdElements())
+        {
+            string tooltip;
+            if(element.mEnabled)tooltip = "Element should be loaded on startup";
+            if(element.mSuppressed)tooltip = "Element has beed suppressed for this session";
+            else if(element.mBroken)tooltip = "Element is marked as broken and will not be loaded";
+            
+            mStore.append(ti);
+            mStore.setValue(ti, 0, element.mID);
+            mStore.setValue(ti, 1, element.mInfo);
+            mStore.setValue(ti, 2, element.mEnabled);
+            mStore.setValue(ti, 3, element.mBroken);
+            mStore.setValue(ti, 4, element.mVersion);
+            mStore.setValue(ti, 5, tooltip);
+            mStore.setValue(ti, 6, element.mFile);
+            mStore.setValue(ti, 7, element.mAuthors);
+        } 
+    }    
+}
+
+string GetInfoString(TreeIter ti)
+{
+    string fmt = format("NAME       :%s\nAUTHORS    :%s\nCOPYRIGHT  :%s\nLICENSE    :%s\nVERSION    :%s\nDESCRIPTION:%s",
+        mStore.getValueString(ti, 0),
+        mStore.getValueString(ti, 7),
+        "Copyright",
+        "license",
+        mStore.getValueString(ti, 4),
+        mStore.getValueString(ti, 1)); 
+        return fmt;
+}

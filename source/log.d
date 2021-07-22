@@ -1,185 +1,152 @@
 module log;
 
-import std.stdio;
-import std.signals;
-import std.path;
 import std.datetime;
 import std.file;
+import std.path;
+import std.process;
+import std.signals;
+import std.stdio;
 import std.string;
+import std.getopt;
 
-import core.stdc.signal;
+import qore;
+
+string mDefaultLogFile = "~/.config/dcomposer/loggity.log";
+int MAX_ENTRIES_MEM = 1024;
+
+void Engage(ref string[] cmdArgs)
+{
+	string logFileName;
+	bool   quietStdOut;
+	
+	auto goResults = getopt(cmdArgs, std.getopt.config.passThrough, "log|l", &logFileName, "quiet|q", &quietStdOut);
+	if(logFileName.length <1)logFileName = mDefaultLogFile.expandTilde();	
+	Log = new LOG;	
+	Log.Engage("xcomposer", !quietStdOut, logFileName);
+}
+
+void Mesh()
+{
+	if(Log.GetEchoStdOut()) //not set by command line so check config
+	{
+		Log.SetEchoStdOut(qore.config.Config.GetValue("log", "echo", true));
+	}	 
+	Log.Mesh();
+}
+
+void Disengage()
+{
+	Log.Disengage();
+}
 
 
-import dcore;
+enum LogCmdOptions =
+`	-l	--log=FILE		Specify a session log file.
+	-q	--quiet			Do not echo log entries to stdout.
+`;
+string GetCmdLineOptions(){return LogCmdOptions;}
 
 
-/**
- * Saves info and errors to file
- *
- * Probably better off using someone elses library
- * */
+
+//system log... elements can create their own logs or use this one.
+public LOG Log;
+
 class LOG
 {
     private :
-    string[]        mEntries;                       //buffer of log entries not yet saved to file
-
-    string          mSystemDefaultLogName;          //system log file can be overridden by interimfilename but reverts
-                                                    //if no -l option on command line
-    string          mInterimFileName;               //override regular log file name from cmdline for one session
-    string          mLogFile;                       //which of the two above is actually being used this session
-
-    int           mMaxLines;                      //flush entries buffer
-    int           mMaxFileSize;                   //if log is this size then don't append overwrite
-
-    bool            mLockEntries;                   //don't dispose of mEntries if this is true
-
-    bool            mEchoToStdOut;                  //whether to write entries to stdout
-
-
+    File 			mLogFile;
+    string[]        mEntries;               //buffer of log entries not yet saved to file
+    string          mLogFileName;           //which of the two above is actually being used this session
+    bool            mEchoToStdOut;          //whether to write entries to stdout
+    bool 			mSaveEntries;			//do not discard Entries from memory (access entries made before all signal connections are made) 
+	int				mPID;					//used to distinguish among concurrently running processes with the same logfile... (happens)
+	int				mMaxEntriesMem;
+	int 			mMaxFileSize;
+	
     public:
-
-    this()
+    
+    void ChangeLogFileName(string NuName)
     {
-
-
-        mInterimFileName = "unspecifiedlogfile.cfg";
-
-        mMaxFileSize = 65_535;
-        mMaxLines = 255;
-
-        mLockEntries = true;
-        mEchoToStdOut = true;
-
-        //signal(SIGSEGV, &SegFlush);
-        //signal(SIGINT, &SegFlush);
-
+        mLogFileName = NuName;
+        mLogFile = File(mLogFileName, "a");
+        Flush();
     }
+    string GetLogFileName(){return mLogFileName;}
+    
+    void SetEchoStdOut(bool echo){mEchoToStdOut = echo;}
+    bool GetEchoStdOut(){return mEchoToStdOut;}
 
-
-    void Engage()
-    {
-        mSystemDefaultLogName = SystemPath( Config.GetValue("log", "default_log_file",  "dcomposer.log"));
-        if(Config.HasKey("log", "interim_log_file"))
-        {
-            mLogFile = Config.GetValue("log", "interim_log_file",buildPath(userDirectory, "error.log"));
-            Config.Remove("log", "interim_log_file");
-        }
-        else mLogFile = mSystemDefaultLogName;
-
-        mMaxLines     = Config.GetValue("log", "max_lines_buffer", mMaxLines);
-        mMaxFileSize  = Config.GetValue("log", "max_file_size", mMaxFileSize);
-        mEchoToStdOut = Config.GetValue("log", "echo_to_std_out", true);
-
-        string mode = "w";
-        if(exists(mLogFile))
-        {
-            if(getSize(mLogFile) < mMaxFileSize) mode = "a";
-        }
-
+    void Engage(string application, bool echoStdOut, string logFileName)
+    {    	
+    	if(!logFileName.dirName.exists) mkdirRecurse(logFileName.dirName);
+    	mLogFileName = logFileName;
+    	mLogFile = File(mLogFileName, "a");
+        
+        mEchoToStdOut = echoStdOut;
+		mPID = thisProcessID;
+		mMaxEntriesMem = MAX_ENTRIES_MEM;
+				
         auto rightnow = Clock.currTime();
         auto logtime = rightnow.toISOExtString();
 
-        auto f = File(mLogFile, mode);
-        f.writeln("<<++ LOG BEGINS ++>>");
-        f.writeln(logtime);
-        f.writeln(DCOMPOSER_VERSION);
-        f.writeln(DCOMPOSER_BUILD_DATE);
-        f.writeln(DCOMPOSER_COPYRIGHT);
-        f.writeln(userDirectory);
-        f.writeln(sysDirectory);
-        //f.writeln(installDirectories);
-//        f.writeln(BUILD_USER);
-//        f.writeln(BUILD_MACHINE);
-//        f.writeln(BUILD_NUMBER) ;
-
-        Entry("\tLog file set to : " ~ mLogFile);
+        Entry("<<<+++ LOG BEGINS +++>>>", "Begin");
+        Entry(application);
+        Entry(logtime, "Start");
+        Entry("Log file set to : " ~ mLogFileName);        
         Entry("Engaged");
+        
+        
     }
-    void PostEngage()
+    
+    void Mesh()
     {
-        Log.Entry("PostEngaged");
+        Entry("Meshed");
     }
 
     void Disengage()
     {
-
         auto rightnow = Clock.currTime();
         auto logtime = rightnow.toISOExtString();
-
-        mLockEntries = false;
-
         Entry("Disengaged");
 
+        //avoids sending a signal?
         mEntries.length += 2;
         mEntries[$-2] = logtime;
         mEntries[$-1] = "<<-- LOG ENDS -->>\n";
-        Flush();
+        mLogFile.writeln(mEntries[$-2]);
+        mLogFile.writeln(mEntries[$-1]);
+        mLogFile.close();
     }
 
 
     void Entry(string Message, string Level = "Info", string Module = __MODULE__ )
     {
-        //Level can be any string
-        //but for now "Debug", "Info", and "Error" will be expected (but not required)
-
+        //Level can be any string, it is ignored by this class. should be less than 8 characters
         emit(Message, Level, Module);
-
-        string x = format ("%8s [%20s] : %s", Level, Module,  Message);
-        //if(Module !is null) x = format("%s in %s", x, Module);
+        string x = format ("%4s %8s [%20s] : %s",mPID, Level, Module,  Message);
         mEntries ~= x;
-        if(mEntries.length >= mMaxLines) Flush();
         if(mEchoToStdOut) writeln(x);
+        if(mLogFile.isOpen())
+        {
+            if(mEntries.length > mMaxEntriesMem)Flush();
+	        mLogFile.writeln(x);
+        }
     }
 
     void Flush()
     {
-        if(mLockEntries)return; //no saving entries while entries are locked
-        auto f = File(mLogFile, "a");
-        foreach (l; mEntries) f.writeln(l);
-        f.flush();
-        f.close();
-         mEntries.length = 0;
+        mLogFile.flush();
+        mEntries.length = 0;
     }
 
     mixin Signal!(string, string, string);
 
-    //this only returns the current buffer of entries!
-    //the only point of this is to catch entries made before LOG_UI is engaged
-    //(you can't show log entries in a gui before the gui is instantiated)
-    //.. ok but what if the buffer is like 1 and 100 entries have been made when LOG_UI is engaged?
-    //well the file is still there, maybe LOG_UI should just process the file
-    //.. then mLogFile will have to be exposed
-    //-- why have a max lines anyway?? It's silly just extra crap, maybe have a flush every BackUpAtLineCount
+  	//returns entries made since last flush ... zero after PostEngage is called  
     string[] GetEntries(){return mEntries.dup;}
 
-    void SetLockEntries(bool Lock){ mLockEntries = Lock;}
-    
-    void QuietStandardOut()
-    {
-        mEchoToStdOut = false;
-    }
 }
 
 
+//used for tracing program ... easy to find and delete with a unique name.
+alias dwrite = std.stdio.writeln;
 
-void dwrite(T...) (T args)
-{
-    writeln(args);
-}
-
-
-import core.stdc.stdlib;
-extern (C) void SegFlush(int SysSig)nothrow @system
-{
-    try
-    {
-        string TheError = format("Caught Signal %s", SysSig);
-        Log.Entry(TheError, "Error");
-        Log.Flush();
-        abort();
-    }
-    catch(Exception X)
-    {
-        return;
-    }
-}

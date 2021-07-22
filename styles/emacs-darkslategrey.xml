@@ -54,7 +54,7 @@
   <!-- Constants -->
   <style name="def:constant"                foreground="#Aquamarine"/>
   <style name="def:string"                  foreground="#LightSalmon"/>
-  <style name="def:special-char"            foreground="#white"/>
+  <style name="def:special-char"            foreground="#White"/>
   <style name="def:special-constant"        foreground="#Aquamarine"/>
   <style name="def:floating-point"          foreground="#Aquamarine"/>
 

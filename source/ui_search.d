@@ -1,489 +1,522 @@
 module ui_search;
 
+//a basic ui for search. can be easily set aside for another.
+
+//ok what i'm doing now
+// search scope current uses the searchcontext from GtkSourceView
+// other scopes use the buggy (when searches are large) implementation i made. 
 import core.memory;
-
-import std.array;
-import std.xml;
-import std.string;
-import std.path;
+import std.algorithm;
+import std.conv;
 import std.file;
+import std.format;
+import std.path;
+import std.range;
 
-import dcore;
+
+import qore;
+import docman;
 import ui;
-import ui_contextmenu;
 
-import gtk.Action;
-import gtk.Builder;
-import gtk.Box;
-import gtk.ComboBoxText;
-import gtk.Button;
-import gtk.CheckButton;
-import gtk.RadioButton;
-import gtk.TreeView;
-import gtk.ListStore;
-import gtk.TreeIter;
-import gtk.ToggleButton;
-import gtk.TreePath;
-import gtk.TreeViewColumn;
-import gtk.Widget;
-import gtk.Entry;
-
-import gdk.Event;
-import gdk.Keysyms;
-
-import gobject.Type;
-
-class UI_SEARCH
+void EngageSearch()
 {
-    private:
-
-    Builder         mBuilder;
-    Box             mRoot;
-    ComboBoxText    mSearchBox;
-    Button          mSearchButton;
-    ToggleButton    mMarkAllButton;
-
-    ComboBoxText    mReplaceBox;
-    Button          mReplaceButton;
-    //Button          mReplaceGoButton;
-    Button          mReplaceAllButton;
-
-    CheckButton     mCaseSensitive;
-    CheckButton     mRegex;
-    CheckButton     mStartsWord;
-    CheckButton     mEndsWord;
-    CheckButton     mRecursion;
-
-    RadioButton     mCurrentDocument;
-    RadioButton     mOpenDocuments;
-    RadioButton     mProjectSourceOnly;
-    RadioButton     mProjectAll;
-    RadioButton     mFolder;
-
-    TreeView        mTree;
-    ListStore       mStore;
-
-    SEARCH_OPTIONS  mOptions;
-    SCOPE           mScope;
-
-    ITEM[]          mSearchResults;
-    size_t          mResultsIndex;		
-
-    bool            mUpdatingMStore; //so as not to react to cursor changes while adding search results
-
-    void SetOptions()
-    {
-        mOptions.CaseSensitive = cast(bool) mCaseSensitive.getActive();
-        mOptions.Regex = cast(bool) mRegex.getActive();
-        mOptions.StartsWord = cast(bool) mStartsWord.getActive();
-        mOptions.EndsWord = cast(bool) mEndsWord.getActive();
-        mOptions.RecurseDirectory = cast(bool) mRecursion.getActive();
-    }
-    void SetScope()
-    {
-        if(mCurrentDocument.getActive())mScope = SCOPE.DOC_CURRENT;
-        if(mOpenDocuments.getActive())mScope = SCOPE.DOC_OPEN;
-        if(mProjectSourceOnly.getActive())mScope = SCOPE.PROJ_SOURCE;
-        if(mProjectAll.getActive())mScope = SCOPE.PROJ_ALL;
-        if(mFolder.getActive())mScope = SCOPE.FOLDER;
-    }
-
-    void UpdateResults()
-    {
-        scope(exit) mUpdatingMStore = false;
-        mUpdatingMStore = true;
-        TreeIter ti = new TreeIter;
-        mStore.clear();
-
-        foreach(item; mSearchResults)
-        {
-            auto ColoredMarkup = item.Text[0..item.OffsetStart].encode() ~ `<span foreground="red"><b><u>` ~ item.Text[item.OffsetStart..item.OffsetEnd].encode() ~ "</u></b></span>" ~item.Text[item.OffsetEnd..$].encode();
-
-            mStore.append(ti);
-            mStore.setValue(ti, 0, item.DocFile);
-            mStore.setValue(ti, 1, cast(int)item.Line+1);
-            mStore.setValue(ti, 2, ColoredMarkup);
-        }
-        //mTree.setCursor(new TreePath("0"), null, 0);
-    }
-
-
-    void Find(ToggleButton IgnoreThisParameter = null)
-    {
-        if(mSearchBox.getActiveText.length < 1) return;
-
-        SetOptions();
-        SetScope();
-
-        mSearchResults = Search(mScope, mSearchBox.getActiveText(), mOptions);
-
-        if(mMarkAllButton.getActive()) MarkAll();
-
-        UpdateResults();
-
-        string ScopeString;
-        final switch(mScope)
-        {
-            case SCOPE.DOC_CURRENT : ScopeString = "current document";break;
-            case SCOPE.DOC_OPEN : ScopeString = "open documents";break;
-            case SCOPE.PROJ_SOURCE : ScopeString = "project source files";break;
-            case SCOPE.PROJ_ALL : ScopeString = "project text files"; break;
-            case SCOPE.FOLDER : ScopeString = "current directory path (" ~ getcwd() ~ ")";break;
-        }
-        string StatusText = format("Search for : \"%s\" in %s found %s results", mSearchBox.getActiveText, ScopeString, mSearchResults.length);
-        AddStatus("searching", StatusText);
-    }
-
-    enum Advance = true;
-    void ReplaceText(bool advance = false)
-    {
-        if(mSearchResults.length == 0) return;
-        if(mReplaceBox.getActiveText().length < 1) return;
-        TreePath tp = new TreePath;
-        TreeIter ti = new TreeIter;
-        TreeViewColumn tvc = new TreeViewColumn;
-
-        mTree.getCursor(tp, tvc);
-
-        if(tp is null) return;
-
-        mStore.getIter(ti, tp);
-
-        string file = ti.getValueString(0);
-        int line = ti.getValueInt(1);
-        DocMan.GoTo(file, line);
-        int itemIndex = tp.getIndices()[0];
-
-        string ReplText = mReplaceBox.getActiveText();
-
-        auto sigResult = mSearchResults[itemIndex];
-
-        DocMan.GetDoc(sigResult.DocFile).ReplaceText(ReplText, sigResult.Line, sigResult.OffsetStart, sigResult.OffsetEnd);
-
-        string NewResultText = sigResult.Text[0..sigResult.OffsetStart] ~ ReplText ~ sigResult.Text[sigResult.OffsetEnd..$];
-        mSearchResults[itemIndex].Text = NewResultText;
-        mSearchResults[itemIndex].OffsetEnd = sigResult.OffsetStart + cast(int)ReplText.length;
-        //also have to adjust other search results on the same line after this one
-        foreach(ref result; mSearchResults[itemIndex+1..$])
-        {
-            if(mSearchResults[itemIndex].DocFile != result.DocFile) break;
-            if(mSearchResults[itemIndex].Line != result.Line)break;
-
-            result.OffsetEnd += ReplText.length - mSearchBox.getActiveText().length;
-            result.OffsetStart += ReplText.length - mSearchBox.getActiveText().length;
-        }
-
-
-
-        UpdateResults();
-        if(advance) tp.next();
-        mTree.setCursor(tp, null, false);
-    }
-
-    void ReplaceAll()
-    {
-        if(DocMan.Empty()) return;
-        if(mReplaceBox.getActiveText().length < 1) return;
-
-        string repText = mReplaceBox.getActiveText();
-        string oriText = mSearchBox.getActiveText();
-
-		DocMan.Current.BeginUserAction();
-        foreach(indx, ref result; mSearchResults)
-        {
-            if(result.DocFile != DocMan.Current.Name)continue;
-            DocMan.Current.ReplaceText(repText, result.Line, result.OffsetStart, result.OffsetEnd);
-            result.Text = result.Text[0..result.OffsetStart] ~ repText ~ result.Text[result.OffsetEnd..$];
-            result.OffsetEnd = result.OffsetStart + cast (int)repText.length;
-            foreach(ref res2; mSearchResults[indx+1..$])
-            {
-                if(res2.DocFile != result.DocFile) break;
-                if(res2.Line != result.Line) break;
-                res2.Text = result.Text;
-                res2.OffsetEnd += repText.length - oriText.length;
-                res2.OffsetStart += repText.length - oriText.length;
-            }
-        }
-        DocMan.Current.EndUserAction();
-        UpdateResults();
-    }
-
-
-    void MarkAll()
-    {
-        foreach(od; DocMan.GetOpenDocs())od.ClearHiliteAllSearchResults();
-
-        if(!mMarkAllButton.getActive()) return;
-
-        foreach(item; mSearchResults)
-        {
-            auto tmpDoc = DocMan.GetDoc(item.DocFile.absolutePath());
-            if(tmpDoc is null) continue;
-            tmpDoc.HiliteAllSearchResults(item.Line, item.OffsetStart, item.OffsetEnd);
-        }
-    }
-
-
-    public:
-
-    void Engage()
-    {
-        mBuilder = new Builder;
-
-        mBuilder.addFromFile( GladePath( Config.GetValue("ui_search", "glade_file",  "ui_search.glade")));
-
-        mRoot = cast(Box) mBuilder.getObject("box10");
-
-        mSearchBox = cast(ComboBoxText)mBuilder.getObject("comboboxtext3");
-        mSearchButton = cast(Button)mBuilder.getObject("button2");
-        mMarkAllButton = cast(ToggleButton)mBuilder.getObject("togglebutton2");
-
-        mReplaceBox = cast (ComboBoxText)mBuilder.getObject("comboboxtext4");
-        mReplaceButton = cast(Button) mBuilder.getObject("button8");
-        //mReplaceGoButton = cast (Button)mBuilder.getObject("button5");
-        mReplaceAllButton = cast(Button)mBuilder.getObject("button9");
-
-        mCaseSensitive = cast (CheckButton) mBuilder.getObject("checkbutton6");
-        mRegex = cast (CheckButton) mBuilder.getObject("checkbutton7");
-        mStartsWord = cast (CheckButton) mBuilder.getObject("checkbutton9");
-        mEndsWord = cast (CheckButton) mBuilder.getObject("checkbutton10");
-        mRecursion = cast (CheckButton) mBuilder.getObject("checkbutton8");
-
-        mCurrentDocument = cast (RadioButton) mBuilder.getObject("radiobutton6");
-        mOpenDocuments = cast (RadioButton) mBuilder.getObject("radiobutton7");
-        mProjectSourceOnly = cast (RadioButton) mBuilder.getObject("radiobutton8");
-        mProjectAll = cast (RadioButton) mBuilder.getObject("radiobutton9");
-        mFolder = cast (RadioButton) mBuilder.getObject("radiobutton10");
-
-        mTree = cast (TreeView) mBuilder.getObject("treeview2");
-        mStore = cast (ListStore) mBuilder.getObject("liststore1");
-
-        mTree.setRulesHint(1);
-
-        mSearchBox.addOnChanged(delegate void(ComboBoxText cbt){Find();});
-        mSearchBox.addOnKeyRelease(delegate bool(Event ev, Widget wi)
-        {
-            if( (ev.key().keyval == GdkKeysyms.GDK_Escape))
-            {
-                auto page = cast(Widget)DocMan.Current();
-                page.grabFocus();
-            }
-            if( (ev.key().keyval == GdkKeysyms.GDK_Tab)) mTree.grabFocus();
-
-            if(ev.key().keyval == GdkKeysyms.GDK_Return) mSearchBox.editingDone();
-            return false;
-        });
-
-        mSearchBox.addOnEditingDone(delegate void (CellEditableIF)
-        {
-            auto txt = mSearchBox.getActiveText();
-            mSearchBox.prependOrReplaceText(txt);
-            mTree.setCursorOnCell(new TreePath("0"), null, null, true);
-            return;
-        });
-
-        mSearchButton.addOnClicked(delegate void(Button){Find();mSearchBox.editingDone();});
-
-        mReplaceBox.addOnKeyRelease(delegate bool(Event ev, Widget wi)
-        {
-            if( (ev.key().keyval == GdkKeysyms.GDK_Escape))
-            {
-                auto page = cast(Widget)DocMan.Current();
-                page.grabFocus();
-            }
-            if(ev.key().keyval == GdkKeysyms.GDK_Return) mReplaceBox.editingDone();
-            return true;
-        });
-
-        mReplaceBox.addOnEditingDone(delegate void (CellEditableIF)
-        {
-            mReplaceBox.prependOrReplaceText(mReplaceBox.getActiveText());
-            return;
-        });
-
-        mReplaceButton.addOnClicked(delegate void(Button){ReplaceText();});
-        //mReplaceGoButton.addOnClicked(delegate void (Button){ReplaceText(Advance);});
-        mReplaceAllButton.addOnClicked(delegate void (Button){ReplaceAll();});
-
-        mTree.addOnCursorChanged (delegate void (TreeView)
-        {
-            if(mUpdatingMStore) return;
-            if(mSearchResults.length == 0) return;
-            TreePath tp = new TreePath;
-            TreeIter ti = new TreeIter;
-            TreeViewColumn tvc = new TreeViewColumn;
-
-            mTree.getCursor(tp, tvc);
-
-            if(tp is null) return;
-
-            mStore.getIter(ti, tp);
-
-            int itemIndex = tp.getIndices()[0];
-
-            string file = ti.getValueString(0);
-            int line = ti.getValueInt(1);
-            if(DocMan.GoTo(file.absolutePath(), line-1, mSearchResults[itemIndex].OffsetStart) == false) return;
-            mTree.grabFocus();
-
-            auto tmpdoc = DocMan.GetDoc(mSearchResults[itemIndex].DocFile);
-            if(tmpdoc is null) return;
-            tmpdoc.HiliteSearchResult(mSearchResults[itemIndex].Line, mSearchResults[itemIndex].OffsetStart, mSearchResults[itemIndex].OffsetEnd);
-        });
-
-        mTree.addOnRowActivated(delegate void(TreePath tp, TreeViewColumn tvc, TreeView self)
-        {
-            auto page = cast(Widget)DocMan.Current();
-            page.grabFocus();
-
-        });
-        mTree.addOnKeyRelease(delegate bool(Event ev, Widget wi)
-        {
-            int direction = 1;
-            switch(ev.key().keyval)
-            {
-                case GdkKeysyms.GDK_k:
-                    direction = -1;
-                    goto case;                
-                case GdkKeysyms.GDK_j:
-                    auto TheInstance = new Value;
-                    TheInstance.init(GType.OBJECT);
-                    TheInstance.setObject(wi);
-                    auto TheStep = new Value(GtkMovementStep.DISPLAY_LINES);
-                    auto TheDirection = new Value(direction);
-                    auto TheRepetions = new Value(1);
-                    auto TheReturnValue = new Value;
-                    TheReturnValue.init(GType.OBJECT);
-                    TheReturnValue.setObject(wi);
-                    auto id = Signals.lookup("move-cursor", Type.fromName("GtkTreeView"));
-                    Signals.emitv([TheInstance, TheStep, TheDirection, TheRepetions], id, 0u, TheReturnValue);
-                    break;
-                default:
-                    break;
-            }
-            return false;
-        });
-        mCaseSensitive.addOnToggled(&Find);
-        mRegex.addOnToggled(&Find);
-        mStartsWord.addOnToggled(&Find);
-        mEndsWord.addOnToggled(&Find);
-        mRecursion.addOnToggled(&Find);
-        mFolder.addOnToggled(&Find);
-        mCurrentDocument.addOnToggled(&Find);
-        mOpenDocuments.addOnToggled(&Find);
-        mProjectSourceOnly.addOnToggled(&Find);
-        mProjectAll.addOnToggled(&Find);
-
-        mMarkAllButton.addOnToggled(delegate void(ToggleButton){MarkAll();});
-        
-        AddIcon("dcmp-view-search_ui", ResourcePath(Config.GetValue("icons","search_ui-view","ui-status-bar.png")));
-        AddToggleAction("ActViewSearchUI", "View Search", "show/hide Search", "dcmp-view-search_ui", "",
-    		delegate void(Action a){auto y = cast(ToggleAction)a;mRoot.setVisible(y.getActive());});
-    	AddToMenuBar("ActViewSearchUI",mRootMenuNames[1]);	
-
-        AddIcon("dcmp-search", ResourcePath( Config.GetValue("icons", "search", "spectacle.png")));
-        AddAction("ActSearch", "Search", "Seek out that which is hidden", "dcmp-search", "<Control>F", delegate void(Action a)
-        {
-            if(DocMan.Current)
-            {
-                auto word = DocMan.Current.Word();
-                if(word.length > 0)
-                {
-                    mSearchBox.prependText(word);
-                    mSearchBox.setActiveText(word);
-                }
-            }
-            auto ToggleExtraViewAction = cast (ToggleAction)"ActViewExtraPane".GetAction();
-            ToggleExtraViewAction.setActive(true);
-            mExtraPane.setCurrentPage(mRoot);
-            mSearchBox.grabFocus();
-
-        });
-        AddToMenuBar("ActSearch", mRootMenuNames[0], 0);
-        //AddToToolBar("ActSearch");
-
-        AddIcon("dcmp-search-next", ResourcePath( Config.GetValue("icons", "search_next", "magnifier--arrow.png")));
-        AddAction("ActSearchNext", "Search Next", "Next found string", "dcmp-search-next","<Control>slash", delegate void(Action a)
-        {
-	        auto tp = new TreePath;
-	        auto tvc = new TreeViewColumn;
-	        mTree.getCursor(tp, tvc);
-	        if(tp is null) return;
-	        if(tvc is null) return;
-	        tp.next();
-	        mTree.setCursor(tp, tvc, false);
-	        mTree.rowActivated(tp, tvc);
-	    });
-	AddToMenuBar("ActSearchNext", mRootMenuNames[0],0);
-        AddExtraPage(mRoot, "Search");
-
-        mExtraPane.setTabReorderable(mRoot, 1);
-
-        Log.Entry("Engaged");
-
-    }
-
-    void PostEngage()
-    {
-	    //view menu action
-	    bool searchVisible = Config.GetValue("ui_search", "visible", true);
-		mRoot.setVisible(searchVisible);
-		auto vact = cast(ToggleAction)GetAction("ActViewSearchUI");
-		vact.setActive(searchVisible);
-		
-        //load combox strings
-        string[] PastSearches = Config.GetArray("ui_search","search_strings", ["one", "two", "three"]);
-        mSearchBox.removeAll();
-        foreach(oldsearch; PastSearches)mSearchBox.appendText(oldsearch);
-
-        string[] PastReplaces = Config.GetArray("ui_search", "replace_strings", ["one", "two", "three"]);
-        mReplaceBox.removeAll();
-        foreach(oldreplace; PastReplaces)mReplaceBox.appendText(oldreplace);
-
-        //mExtraPane.reorderChild(mRoot, Config.GetValue("ui_search", "page_position", 0));
-
-        uiContextMenu.AddAction("ActSearch");
-        Log.Entry("PostEngaged");
-    }
-
-    void Disengage()
-    {
+    auto builder = new Builder(Config.GetResource("ui_search", "glade_file", "glade", "ui_search.glade"));
+    mSideRoot = cast(Widget)builder.getObject("search_side_root");
+    mSearchButton = cast(Button)builder.getObject("search_button");
+    mSearchEntry = cast(Entry)builder.getObject("search_entry");
+    mSearchCombo = cast(ComboBoxText)builder.getObject("search_combo");
+    mHiliteButton = cast(Button)builder.getObject("hilite_button");
     
-		//save visible
-		Config.SetValue("ui_search", "visible", mRoot.getVisible());
+    mReplaceButton = cast(Button)builder.getObject("replace_button");
+    mReplaceAllButton= cast(Button)builder.getObject("replace_all_button");
+    mReplaceEntry = cast(Entry)builder.getObject("replace_entry");
+    mReplaceCombo = cast(ComboBoxText)builder.getObject("replace_combo");
+    
+    //scope
+    mCurrScope = cast(RadioButton)builder.getObject("curr_scope");
+    mSourceScope = cast(RadioButton)builder.getObject("source_scope");
+    mAllScope = cast(RadioButton)builder.getObject("all_scope");
+    mOpenScope = cast(RadioButton)builder.getObject("open_scope");
+    mFolderScope = cast(RadioButton)builder.getObject("folder_scope");
 
-        //store last 20 search and replace strings
-        auto ti = new TreeIter;
-        auto model = mSearchBox.getModel();
-        auto number = model.iterNChildren(null);
-        if(number > 20) number = 20;
-        Config.SetArray("ui_search","search_strings");
-        foreach(ndx; 0..number)
-        {
-            model.iterNthChild(ti, null, ndx);
-            Config.AppendValue("ui_search","search_strings", model.getValueString(ti,0));
-        }
-        model = mReplaceBox.getModel();
-        number = model.iterNChildren(null);
-        if(number > 20) number = 20;
-        Config.SetArray("ui_search", "replace_strings");
-        foreach(ndx; 0..number)
-        {
-            model.iterNthChild(ti, null, ndx);
-            Config.AppendValue("ui_search", "replace_strings", model.getValueString(ti, 0));
-        }
-
-        Config.SetValue("ui_search", "page_position", mExtraPane.pageNum(mRoot));
-
-
-        Log.Entry("Disengaged");
-    }
-    void Vertical()
+    void ScopeToggle(ToggleButton rb)
     {
-        mRoot.OrientableIF.setOrientation(GtkOrientation.VERTICAL);
+        if(rb is mCurrScope)mSearchScope = SEARCH_SCOPE.CURRENT;
+        if(rb is mSourceScope)mSearchScope = SEARCH_SCOPE.SOURCE;
+        if(rb is mAllScope)mSearchScope = SEARCH_SCOPE.ALL;
+        if(rb is mOpenScope)mSearchScope = SEARCH_SCOPE.OPEN;
+        if(rb is mFolderScope)mSearchScope = SEARCH_SCOPE.FOLDER;
     }
-    void Horizontal()
+    
+    mCurrScope.addOnToggled(&ScopeToggle);   
+    mAllScope.addOnToggled(&ScopeToggle);    
+    mSourceScope.addOnToggled(&ScopeToggle);   
+    mOpenScope.addOnToggled(&ScopeToggle);   
+    mFolderScope.addOnToggled(&ScopeToggle);   
+    
+    mSearchButton.addOnClicked(delegate void(Button me)
     {
-        mRoot.OrientableIF.setOrientation(GtkOrientation.HORIZONTAL);
+        SearchAction();
+        AppendComboHistory(mSearchCombo, mSearchEntry.getText());
+    });
+    mSearchEntry.addOnActivate(delegate void(Entry e)
+    {
+        SearchAction();
+        //mSearchCombo.appendText(e.getText());
+        AppendComboHistory(mSearchCombo, e.getText());
+        if(mSearchScope == SEARCH_SCOPE.CURRENT) SearchFindFore();
+        else  mSearchResultsView.grabFocus(); 
+    });
+    
+    mSearchEntry.addOnChanged(delegate void(EditableIF eif)
+    {
+        auto doc = GetCurrentDoc();
+        if(!doc)return;
+        doc.SetSearchHilite(false);
+    });
+    
+    mHiliteButton.addOnClicked(delegate void(Button btn)
+    {
+        auto doc = GetCurrentDoc();
+        if (!doc) return;
+        doc.SetSearchHilite(!doc.GetSearchHilite);
+    });
+    
+    mReplaceEntry.addOnActivate(delegate void(Entry intree)
+    {
+        if(intree.getText().length)
+        {
+            if(GetCurrentDoc !is null)
+                GetCurrentDoc.Replace(mSearchEntry.getText(), mReplaceEntry.getText());
+            AppendComboHistory(mReplaceCombo, mReplaceEntry.getText());
+        }
+    });
+    mReplaceButton.addOnClicked(delegate void(Button btn)
+    {
+        ReplaceAction();
+        AppendComboHistory(mReplaceCombo, mReplaceEntry.getText());
+    });
+    mReplaceAllButton.addOnClicked(delegate void(Button btn)
+    {
+        ReplaceAllAction();
+    });
+    
+       
+    //options
+    mCaseChkBtn = cast(CheckButton)builder.getObject("case_sensitive_checkbtn");
+    mRegexChkBtn = cast(CheckButton)builder.getObject("regex_checkbtn");
+    mBeginChkBtn = cast(CheckButton)builder.getObject("begin_checkbtn");
+    mEndChkBtn = cast(CheckButton)builder.getObject("end_checkbtn");
+    mRecurseChkBtn = cast(CheckButton)builder.getObject("recurse_checkbtn");
+    
+    mCaseChkBtn.addOnToggled(delegate void(ToggleButton tb)
+    {
+        mSearchOptions.mCaseSensitive = tb.getActive();        
+    });
+    mRegexChkBtn.addOnToggled(delegate void(ToggleButton tb)
+    {
+        mSearchOptions.mRegEx = tb.getActive();        
+    });
+    mBeginChkBtn.addOnToggled(delegate void(ToggleButton tb)
+    {
+        mSearchOptions.mWordStart = tb.getActive();        
+    });
+    mEndChkBtn.addOnToggled(delegate void(ToggleButton tb)
+    {
+        mSearchOptions.mWordEnd = tb.getActive();        
+    });
+    mRecurseChkBtn.addOnToggled(delegate void(ToggleButton tb)
+    {
+        mSearchOptions.mRecursion = tb.getActive();        
+    });
+    
+    
+    
+    GActionEntry[] actEntriesSearch = [
+	    {"actionSearch", &action_Search, null, null, null},
+	    {"actionFindFore", &action_FindFore, null, null, null},
+	    {"actionFindBack", &action_FindBack, null, null, null},
+	    {"actionReplace", &action_Replace, null, null, null},
+	    {"actionReplaceAll", &action_ReplaceAll, null, null, null},
+	];
+    mMainWindow.addActionEntries(actEntriesSearch, null);
+    
+    uiApplication.setAccelsForAction("win.actionSearch",["F3"]);
+    AddToolObject("search","Search","Seek out that which is obsure",
+        Config.GetResource("icons","search","resources", "spectacle.png"),"win.actionSearch");
+    uiApplication.setAccelsForAction("win.actionFindFore", ["<ctrl>f"]);
+    AddToolObject("find", "Quick Find", "Um quick! Next occurence!",
+        Config.GetResource("icons", "find", "resources", "spectacle.png"), "win.ActionFindFore");
+    uiApplication.setAccelsForAction("win.actionFindBack", ["<ctrl>g"]);
+    AddToolObject("find back", "Quick Find Back", "Um, quick! Find last occurence!",
+        Config.GetResource("icons", "find_back", "resources", "spectacle.png"), "win.ActionFindBack");
+    uiApplication.setAccelsForAction("win.actionReplace", ["<ctrl>H"]);
+    AddToolObject("replace", "Replace", "Guess!", 
+        Config.GetResource("icons", "replace", "resources", "spectacle.png"), "win.actionReplace");
+    uiApplication.setAccelsForAction("win.actionReplaceAll", ["<ctrl><SHIFT>H"]);
+    AddToolObject("replace_all", "Replace All", "Guess More!", 
+        Config.GetResource("icons", "replace_all", "resources", "spectacle.png"), "win.actionReplace");         
+    //results stuff
+    mExtraRoot = cast(ScrolledWindow)builder.getObject("search_extra_root");
+    mExtraRoot.showAll();
+    mSearchResultsView = cast(TreeView)builder.getObject("results_view");
+    mSearchResultsStore = cast(ListStore)builder.getObject("treasure_store");
+    mSearchAppStatus = new Box(Orientation.HORIZONTAL,1);
+    mSearchAppStatusLabel = new Label("Hello D programmer ;)");
+    mSearchAppStatus.packStart(mSearchAppStatusLabel, false, true, 1);
+    AddEndStatusWidget(mSearchAppStatus);
+    mSearchAppStatus.showAll();
+
+    mSillyNoticeOfResultsLimit = cast(Label)builder.getObject("silly_notice");
+    
+    
+
+    Log.Entry("Engaged");    
+}
+
+void MeshSearch()
+{
+    mSillyNoticeOfResultsLimit.setMarkup("#NOTICE: Searches will be limited to#\n" ~
+                                        mResultsPageLimit.to!string ~" displayed results\n" ~
+                                        "until I figure out how not to\n" ~
+                                        "crash the X server with \n" ~
+                                        "small needles and large haystacks.");
+    AddSubMenuAction(0, 0, "Search", "actionSearch");
+    AddSubMenuAction(0, 1, "Search Next", "actionFindFore");
+    
+    void contextDlg(MenuItem mi){SearchAction();}
+    //MenuItem mi = new MenuItem("Search",&contextDlg, "win.actionSearch"); 
+    AddMenuPart("Search", &contextDlg, "win.actionSearch");
+    
+    auto history = Config.GetArray!string("ui_search","search_history");
+    foreach(h;history)mSearchCombo.appendText(h);
+    history = Config.GetArray!string("ui_search","replacement_history");
+    foreach(h;history)mReplaceCombo.appendText(h);
+    
+    AddSidePane(mSideRoot, "Search Control");
+    AddExtraPane(mExtraRoot, "Search Results");
+    
+    mSearchResultsView.addOnRowActivated(delegate void(TreePath tp, TreeViewColumn tvc, TreeView tv)
+    {
+        TreeIter ti = new TreeIter;
+        mSearchResultsStore.getIter(ti, tp);
+        string sfile;
+        int line, col;
+        sfile = mSearchResultsStore.getValueString(ti, 0);
+        line  = mSearchResultsStore.getValueInt(ti, 1);
+        col   = mSearchResultsStore.getValueInt(ti, 2);
+        docman.OpenDocAt(sfile, line, col);
+
+    });
+
+    mSearchResultsView.addOnKeyPress(delegate bool(Event ev, Widget wj)
+    {
+        bool jumpToResult;
+        TreePath tpath = new TreePath(true);
+        TreePath npath = new TreePath(true);
+        TreeViewColumn tvc = null;
+        mSearchResultsView.getCursor(tpath, tvc);
+        if(tpath is null)
+        {
+            tpath = new TreePath(true);
+            mSearchResultsView.setCursor(tpath, tvc, false);
+            return false;
+        }
+        uint kv;
+        ev.getKeyval(kv);
+        if(kv == Keysyms.GDK_j)
+        {
+            jumpToResult = true;
+            tpath.next();
+            npath = tpath.copy();
+            mSearchResultsView.setCursor(tpath, tvc, false);
+            mSearchResultsView.getCursor(npath, tvc);
+            if(npath is null)
+            {
+                tpath.prev();
+                mSearchResultsView.setCursor(tpath, tvc, false);
+            }
+        }
+        if(kv == Keysyms.GDK_k) 
+        {
+            jumpToResult = true;
+            if(tpath.prev())
+            mSearchResultsView.setCursor(tpath, tvc, false);
+        }
+        if(jumpToResult)
+        {
+            TreeIter ti = new TreeIter;
+            mSearchResultsStore.getIter(ti, tpath);
+            string sfile;
+            int line, col;
+            sfile = mSearchResultsStore.getValueString(ti, 0);
+            line  = mSearchResultsStore.getValueInt(ti, 1);
+            col   = mSearchResultsStore.getValueInt(ti, 2);
+            docman.OpenDocAt(sfile, line, col);
+            mSearchResultsView.grabFocus();
+        }
+        return false;
+    });
+    Log.Entry("\tui_search Meshed");
+}
+
+void DisengageSearch()
+{
+    Log.Entry("Disengaged");
+}
+
+void StoreSearchGui()
+{
+    //search history
+    string[] stores;
+    TreeModelIF tmIF = mSearchCombo.getModel();
+    TreeIter ti = new TreeIter;
+    ti.setModel(tmIF);
+    if(tmIF.getIterFirst(ti))
+    {
+        do
+        {
+            stores ~= tmIF.getValueString(ti, 0);
+        }while(tmIF.iterNext(ti));
+    }
+    Config.SetArray("ui_search", "search_history", stores);
+    
+    //replace history
+    TreeModelIF repModel = mReplaceCombo.getModel();
+    TreeIter repTI = new TreeIter;
+    repTI.setModel(repModel);
+    
+    string[] repStore;
+    if(repModel.getIterFirst(repTI))
+	{    
+        do
+        {
+            repStore ~= repModel.getValueString(repTI, 0);
+        }while(repModel.iterNext(repTI));
+	}
+    Config.SetArray("ui_search", "replacement_history", repStore);   
+    
+    Log.Entry("Gui Stored");
+}
+
+void SearchAction()
+{
+    scope(exit)SetBusyIndicator(false);
+    SetBusyIndicator(true);
+    string sText;
+    auto doc = GetCurrentDoc();
+    if(mMainWindow.getFocus() is cast(Widget)doc)
+    {
+        sText = doc.Selection();
+        if(sText.length < 1) sText = doc.Word();      
+    }
+    if(sText.length)
+    {
+        mSearchCombo.setActiveText(sText, true);
+    }
+    if(mSearchEntry.getText().length < 1) 
+    {
+        mSearchEntry.grabFocus();
+        return;
+    }
+    
+	auto finds = Search(mSearchScope, mSearchEntry.getText(), mSearchOptions);
+	FillSearchResults(finds);
+	UpdateSearchAppStatus(mSearchEntry.getText(), mSearchScope, finds.length);
+	mSearchEntry.grabFocus();
+}
+
+void SearchNextAction()
+{
+}
+void SearchPrevAction()
+{
+}
+
+void SearchFindFore()
+{
+    auto doc = GetCurrentDoc();
+    if(doc is null) return;
+    if(!mSearchEntry.getText().length)
+    {
+        mSearchEntry.grabFocus();
+        return;        
+    }
+    QuickSearchFore(mSearchEntry.getText, mSearchOptions);
+}
+void SearchFindBack()
+{
+    auto doc = GetCurrentDoc();
+    if(doc is null) return;
+    if(!mSearchEntry.getText().length)
+    {
+        mSearchEntry.grabFocus();
+        return;        
+    }
+    QuickSearchBack(mSearchEntry.getText, mSearchOptions);
+}
+
+void ReplaceAction()
+{
+    auto doc = GetCurrentDoc();
+    if(doc is null)return;
+    if(!mReplaceEntry.getText().length)
+    {
+        mReplaceEntry.grabFocus();
+        return;
+    }
+    doc.Replace(mSearchEntry.getText, mReplaceEntry.getText());
+}
+void ReplaceAllAction()
+{
+    auto doc = GetCurrentDoc();
+    if (doc is null) return;
+    if(!mReplaceEntry.getText().length)
+    {
+        mReplaceEntry.grabFocus();
+        return;
+    }
+    doc.ReplaceAll(mReplaceEntry.getText());
+}
+
+Box     mSearchAppStatus;
+Label   mSearchAppStatusLabel;
+Label   mSillyNoticeOfResultsLimit;
+
+void UpdateSearchAppStatus(string needle, SEARCH_SCOPE scp, ulong items )
+{
+    string hr_scp;
+    string currDoc = baseName(CurrentDocName);
+    string CurrFolder = dirName(CurrentDocName);
+    final switch(scp) with (SEARCH_SCOPE)
+    {
+        case CURRENT : hr_scp = "current document (" ~ currDoc ~")";break;
+        case OPEN : hr_scp = "open documents";break;
+        case SOURCE : hr_scp = "project source files";break;
+        case ALL : hr_scp = "all project files";break;
+        case FOLDER : hr_scp = "current folder (" ~ CurrFolder ~ ")"; break;
+    }
+    
+    string status = format("Search for \"%s\" in %s found %s results.", needle, 
+    hr_scp, items);
+    mSearchAppStatusLabel.setText(status);
+}
+
+
+private:
+
+
+
+void FillSearchResults(TREASURE[] treasures)
+{
+    
+    scope(exit)
+    {
+        GC.enable();
+    }
+    GC.disable();
+    mSearchResultsStore.clear();
+    TreeIter ti;
+    
+    foreach(precious; treasures[0..($ < mResultsPageLimit)?$:mResultsPageLimit-1])
+    {
+        string markdown =   precious.mLineText[0..precious.mOffsetBegin].encode() ~
+                            `<span foreground="red"><b><u>` ~
+                            precious.mLineText[precious.mOffsetBegin..precious.mOffsetEnd].encode() ~
+                            `</u></b></span>` ~
+                            precious.mLineText[precious.mOffsetEnd ..$].encode();
+        mSearchResultsStore.append(ti);
+        mSearchResultsStore.setValue(ti, 0, precious.mDocId);
+        mSearchResultsStore.setValue(ti, 1, precious.mLineNo);
+        mSearchResultsStore.setValue(ti, 2, precious.mOffsetBegin);
+        mSearchResultsStore.setValue(ti, 3, markdown);
     }
 }
+
+void AppendComboHistory(ComboBoxText cbt, string nuSearch)
+{
+    string[] searches;
+    TreeModelIF tmIF = cbt.getModel();
+    TreeIter ti = new TreeIter;
+    ti.setModel(tmIF);
+    tmIF.getIterFirst(ti);
+    do { searches ~= tmIF.getValueString(ti, 0);}while(tmIF.iterNext(ti));
+    string[] rv;
+    foreach(item; searches)
+    {
+        if(item == nuSearch) continue;
+        rv ~= item;
+    }
+
+    rv ~= nuSearch;
+    rv = rv.tail(15);
+    cbt.removeAll();
+    rv.each!(n=>cbt.appendText(n));
+    
+}
+
+extern (C)
+{
+    void action_Search(void* simAction, void* varTarget, void* voidUserData)
+	{
+    	SearchAction();
+	}
+    void action_SearchNext(void* simAction, void* varTarget, void* voidUserData)
+	{
+    	SearchNextAction();
+	}
+    void action_SearchPre(void* simAction, void* varTarget, void* voidUserData)
+	{
+    	SearchPrevAction();
+	}
+
+	void action_FindFore(void* simAction, void* varTarget, void* voidUserData)
+	{
+    	SearchFindFore();
+	}
+	void action_FindBack(void* simAction, void* varTarget, void* voidUserData)
+	{
+    	SearchFindBack();
+	}
+	void action_Replace(void* simAction, void* varTarget, void* voidUserData)
+	{
+    	ReplaceAction();
+    }
+	void action_ReplaceAll(void* simAction, void* varTarget, void* voidUserData)
+	{
+    	ReplaceAllAction();
+	}
+	
+}
+
+Widget          mSideRoot;
+ComboBoxText    mSearchCombo;
+Entry           mSearchEntry;
+ComboBoxText    mReplaceCombo;
+Entry           mReplaceEntry;
+
+Button          mSearchButton;
+Button          mHiliteButton;
+Button          mReplaceButton;
+Button          mReplaceAllButton;
+
+CheckButton     mCaseChkBtn;
+CheckButton     mRegexChkBtn;
+CheckButton     mBeginChkBtn;
+CheckButton     mEndChkBtn;
+CheckButton     mRecurseChkBtn;
+
+RadioButton     mCurrScope;
+RadioButton     mSourceScope;
+RadioButton     mAllScope;
+RadioButton     mOpenScope;
+RadioButton     mFolderScope;
+
+SEARCH_SCOPE    mSearchScope;
+SEARCH_OPTIONS  mSearchOptions;
+
+ScrolledWindow  mExtraRoot;
+TreeView        mSearchResultsView;
+ListStore       mSearchResultsStore;
+
+immutable mResultsPageLimit = 1250;

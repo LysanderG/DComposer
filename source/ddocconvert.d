@@ -1,14 +1,16 @@
 module ddocconvert;
 
-import std.string;
-import std.stdio;
-import std.array;
-import std.algorithm.searching;
 import std.algorithm;
+import std.algorithm.searching;
+import std.array;
 import std.regex;
-import std.utf;
+import std.stdio;
+import std.string;
 import std.typecons;
-import dcore;
+import std.utf;
+
+
+import qore;
 
 
 
@@ -289,7 +291,7 @@ string GetMacro(string MacroName)
 
 string FormatDCodeLines(string codeInput)
 {
-    import std.xml;
+
     string rv;
     ulong longestLine;
 
@@ -298,8 +300,8 @@ string FormatDCodeLines(string codeInput)
         if(std.utf.count(line) > longestLine)longestLine = std.utf.count(line);
     }
     foreach(line; codeInput.splitLines(KeepTerminator.no))
-    {
-        auto decodelen = std.xml.decode(line).length;
+    {        
+        auto decodelen = myDecode(line).length;
         auto diff = line.length - decodelen;
         rv ~= line.leftJustify(longestLine + diff) ~ '\n';
 
@@ -317,9 +319,7 @@ string FormatDCodeLines(string codeInput)
  * */
 string FormatParams(string paramInput)
 {
-	dwrite(paramInput);
 	paramInput = ProcessMacros(paramInput ~ ")");
-	dwrite (paramInput);
 	string rv;
 	size_t idWidth = 22;
 	int descWidth = 90;
@@ -339,7 +339,7 @@ string FormatParams(string paramInput)
     {
 		if(header){header=false; continue;}
 		auto x = item[0..$-2];
-		if(id)rv ~= "║" ~ center(x.strip, idWidth,'+') ~ "║";
+		if(id)rv ~= "║" ~ center(x.strip, idWidth,' ') ~ "║";
 		else
 		{
 			foreach(ndx, subItem; item.wrap(descWidth).splitLines())
@@ -562,3 +562,15 @@ string[] OrderedKeys =
     "ESCAPES",
     "DDOC_OTHER",
 ];
+
+
+
+string myDecode(string toUnCode)
+{
+    string rv = replace(toUnCode, "&amp;", "&");
+    rv = replace(rv, "&gt;", ">");
+    rv = replace(rv, "&lt;", "<");    
+    rv = replace(rv, "&quot;", "\"");    
+    rv = replace(rv, "&apos;", "\\");
+    return rv;
+}

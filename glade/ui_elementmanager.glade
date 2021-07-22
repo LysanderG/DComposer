@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface>
+  <requires lib="gtk+" version="3.24"/>
+  <object class="GtkListStore" id="liststore1">
+    <columns>
+      <!-- column-name Name -->
+      <column type="gchararray"/>
+      <!-- column-name Description -->
+      <column type="gchararray"/>
+      <!-- column-name Enabled -->
+      <column type="gboolean"/>
+      <!-- column-name Broken -->
+      <column type="gboolean"/>
+      <!-- column-name Version -->
+      <column type="gchararray"/>
+      <!-- column-name Copyright -->
+      <column type="gchararray"/>
+      <!-- column-name License -->
+      <column type="gchararray"/>
+      <!-- column-name Authors -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">element_base.so</col>
+        <col id="1" translatable="yes">Can you see me</col>
+        <col id="2">True</col>
+        <col id="3">False</col>
+        <col id="4" translatable="yes">nightly</col>
+        <col id="5" translatable="yes">whenever</col>
+        <col id="6" translatable="yes">public</col>
+        <col id="7" translatable="yes">You, me and that other guy</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">test2</col>
+        <col id="1" translatable="yes">what i is</col>
+        <col id="2">True</col>
+        <col id="3">True</col>
+        <col id="4" translatable="yes">directors cut</col>
+        <col id="5" translatable="yes">last year</col>
+        <col id="6" translatable="yes">request only</col>
+        <col id="7" translatable="yes">null</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkBox" id="rootbox">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="orientation">vertical</property>
+    <child>
+      <object class="GtkTreeView" id="elem_tree">
+        <property name="visible">True</property>
+        <property name="can-focus">True</property>
+        <property name="model">liststore1</property>
+        <property name="search-column">0</property>
+        <property name="tooltip-column">5</property>
+        <child internal-child="selection">
+          <object class="GtkTreeSelection"/>
+        </child>
+        <child>
+          <object class="GtkTreeViewColumn">
+            <property name="sizing">fixed</property>
+            <property name="title" translatable="yes">Enabled</property>
+            <property name="clickable">True</property>
+            <property name="sort-indicator">True</property>
+            <property name="sort-column-id">2</property>
+            <child>
+              <object class="GtkCellRendererToggle" id="enable_toggle"/>
+              <attributes>
+                <attribute name="active">2</attribute>
+              </attributes>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkTreeViewColumn">
+            <property name="sizing">autosize</property>
+            <property name="title" translatable="yes">Name</property>
+            <child>
+              <object class="GtkCellRendererText" id="name_renderer"/>
+              <attributes>
+                <attribute name="text">0</attribute>
+              </attributes>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkTreeViewColumn">
+            <property name="sizing">autosize</property>
+            <property name="title" translatable="yes">Description</property>
+            <property name="expand">True</property>
+            <child>
+              <object class="GtkCellRendererText" id="description_renderer"/>
+              <attributes>
+                <attribute name="text">1</attribute>
+              </attributes>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkTreeViewColumn">
+            <property name="sizing">fixed</property>
+            <property name="title" translatable="yes">Broken</property>
+            <property name="clickable">True</property>
+            <property name="sort-indicator">True</property>
+            <property name="sort-column-id">3</property>
+            <child>
+              <object class="GtkCellRendererToggle" id="broken_toggle"/>
+              <attributes>
+                <attribute name="active">3</attribute>
+              </attributes>
+            </child>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">True</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkSeparator">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="padding">2</property>
+        <property name="position">1</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkScrolledWindow" id="broken_notice">
+        <property name="can-focus">True</property>
+        <property name="no-show-all">True</property>
+        <property name="shadow-type">in</property>
+        <property name="min-content-height">150</property>
+        <child>
+          <object class="GtkViewport">
+            <property name="name">label_scroll</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <object class="GtkLabel" id="broken_label">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label" translatable="yes">This element has been marked as broken. 
+Meaning it may have ... 
+	Failed to load. 
+	Does not implement theElement interface.
+	Crashed during use.
+	Marked by user to skip loading.
+	Incompatible version.
+You may remove the broken mark manually,
+and see if it works.</property>
+                <property name="ellipsize">end</property>
+                <property name="max-width-chars">50</property>
+                <property name="xalign">0</property>
+                <property name="yalign">0</property>
+                <attributes>
+                  <attribute name="font-desc" value="Monospace 10"/>
+                  <attribute name="scale" value="1"/>
+                </attributes>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">2</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkSeparator">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="padding">2</property>
+        <property name="position">3</property>
+      </packing>
+    </child>
+    <child>
+      <object class="GtkBox">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <child>
+          <object class="GtkLabel" id="info_label">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="xpad">5</property>
+            <property name="label" translatable="yes">NAME:
+AUTHORS:
+COPYRIGHT:
+LICENSE:
+VERSION:
+DESCRIPTION:</property>
+            <property name="max-width-chars">25</property>
+            <property name="track-visited-links">False</property>
+            <property name="xalign">0</property>
+            <attributes>
+              <attribute name="font-desc" value="Monospace 10"/>
+            </attributes>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="settings_button">
+            <property name="label" translatable="yes">Settings</property>
+            <property name="visible">True</property>
+            <property name="sensitive">False</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="halign">end</property>
+            <property name="valign">start</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">4</property>
+      </packing>
+    </child>
+  </object>
+</interface>

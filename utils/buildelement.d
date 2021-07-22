@@ -1,49 +1,30 @@
-#!/usr/bin/rdmd
-
 module buildelement;
 
+import std.format;
+import std.path;
 import std.process;
 import std.stdio;
-import std.file;
-import std.path;
 
+
+//usage:
+//utils/buildelement element_name | element_name.d
 int main(string[] args)
 {
-    if(args.length == 2)
-    {
-        args.length = 4;
-        args[1] = "/usr/";
-        args[2] = "/usr/";
-    }
-    string DCOMPOSER_PREFIX = args[1];
-    string GTKD_IMPORT = args[2];
-    if (args.length != 4 )
-    {
-        writeln("USAGE: buildelement DCOMPOSER_PREFIX GTKD_IMPORTS ELEMENT_MODULE");
-        writeln("\t DCOMPOSER_PREFIX is the path to where we are building dcomposer not where it is installed");
-        writeln("\t GTKD_IMPORTS is where we can find the gtkd source files");
-        writeln("\t ELEMENT_MODULE is the name of the element source file");
-        writeln("Good luck :)");
-        return 200;
-    }
-    chdir(buildPath(DCOMPOSER_PREFIX, "lib/dcomposer/elements/src"));
+    if(args.length < 2) return 1;
+    if(args.length > 3) return 2;
+    
+    string gtkImportPath;
+    if(args.length == 3) gtkImportPath = args[2];
+    else gtkImportPath = "/usr/local/include/d/gtkd-3/";
+    
+    string rel_file = buildPath ("./elements", setExtension(args[1], ".d"));
+    string output_file = setExtension(rel_file, ".so");
 
-    string[] options = ["dmd",
-                        "-g",
-                        "-debug",
-                        "-I" ~ buildPath(DCOMPOSER_PREFIX, "include/dcomposer"),
-                        "-I" ~ GTKD_IMPORT,
-                        "-I" ~ GTKD_IMPORT ~ "gtkd",
-                        "-I" ~ GTKD_IMPORT ~ "sourceview",
-                        "-I" ~ GTKD_IMPORT ~ "vte",
-                        "-shared",
-                        "-fPIC",
-                        "-defaultlib=libphobos2.so",
-                        "-odelements",
-                        "-of" ~ buildPath(DCOMPOSER_PREFIX, "lib/dcomposer/elements", args[3].setExtension("so")),
-                        buildPath(DCOMPOSER_PREFIX, "lib/dcomposer/elements/src", args[3]),
-                        ];
-    auto rv = execute(options);
-    std.stdio.write("*\n",rv.output);
-    return rv.status;
+    string cmdLine = format("dmd %s -I./source -g -fPIC -shared -of%s -I%s", rel_file, output_file, gtkImportPath);
+    
+    writeln(cmdLine);    
+    auto result = executeShell(cmdLine);
+    writeln(result.output);
+    return result.status;    
+       
 }

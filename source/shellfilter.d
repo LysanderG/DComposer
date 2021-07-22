@@ -1,45 +1,38 @@
 module shellfilter;
 
-//import dcore;
-
-import std.process;
 import std.mmfile;
-import std.stdio;
+import std.path;
+import std.process;
 import std.string;
-import std.algorithm;
-import std.conv;
+
+import config;
 
 
-enum mmFileName = "dcomposer_filter";
-
-string Filter(string InputText, string CmdLine)
+string Filter(string InputText, string FilterCommand)
 {
-	//adding an end o line to prevent freezing on commands that wait for stdin
-	//now removing it because cat nulltextfile | echo //;date   causes error
-    
+    string mmFileName = buildPath(userDirectory, ".shell_filter");
 	string FullCommand;  
       
 	if(InputText.length < 1)
     {
-        FullCommand = "echo | " ~ CmdLine;
+        FullCommand = "echo | " ~ FilterCommand;
     }
     else
-    {
-        
+    {        
         auto txtbytes = InputText.representation();
         auto IFile = new MmFile(mmFileName,  MmFile.Mode.readWriteNew, txtbytes.length, cast(void*)null);
 
         foreach(i, ch; txtbytes)IFile[i] = ch;
-        FullCommand = escapeShellCommand("cat", mmFileName) ~ " | ";// ~ escapeShellCommand(CmdLine) ~ " 2> " ~ mmErrorFile;
+        FullCommand = escapeShellCommand("cat", mmFileName) ~ " |";
 
-        FullCommand ~= " " ~ CmdLine;
+        FullCommand ~= " " ~ FilterCommand;
     }
 
 	auto rv = executeShell(FullCommand);
 
 	if(rv.status)
 	{
-		return "!DCOMPOSER_SHELLFILTER_ERROR!\n"~rv.output;
+		return "!SHELLFILTER_ERROR!\n"~rv.output;
 	}
 	return rv.output;
 }

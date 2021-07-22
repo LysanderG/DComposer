@@ -1,810 +1,290 @@
 module docman;
 
-import dcore;
-import ui;
-
-import std.path;
-import std.file;
-import std.stdio;
-import std.string;
-import std.signals;
-import std.conv;
-import std.utf;
-import std.uni;
-import std.encoding;
+import object;
 import std.algorithm;
-import std.range;
-import std.process :spawnProcess, execute, kill, wait;
+import std.array;
+import std.format;
+import std.file;
+import std.path;
+import std.process: spawnProcess, pConfig = Config;
+import std.stdio;
 
+import qore;
+public import document;
+import ui;
+//import completion_words; //wordstest
+
+
+public:
+
+void Engage(ref string[] args)
+{
+    string[] cmdLineFiles;
+    if(args.length > 1) foreach(arg; args[1..$])
+    {
+        if(arg.extension != ".dpro")cmdLineFiles ~= buildNormalizedPath(getcwd(),arg);
+    }
+    if(cmdLineFiles.length)Config.SetValue!(string[])("docman","cmdLineFiles", cmdLineFiles);
+    else Config.SetValue!(string[])("docman","cmdLineFiles", []);
+    
+    //Words = new WORDS; //wordstest
+    //Words.Engage(); //wordstest
+    
+    Log.Entry("Engaged");
+    
+}
+void Mesh()
+{  
+    string[] openFilesOnStart;
+    openFilesOnStart = Config.GetArray!string("docman", "cmdLineFiles");
+    openFilesOnStart ~= Config.GetArray!string("docman", "last_session_files");
+    
+
+    foreach(startup; openFilesOnStart)
+    { 
+        if(!startup.exists())
+        {
+            Log.Entry(startup ~ " does not exist, skipping");
+            continue;            
+        }
+        OpenDoc(startup);
+    }
+    
+    //Words.Mesh(); //wordstest
+    Log.Entry("Meshed");
+}
+void Disengage()
+{
+    //Words.Disengage(); //wordstest
+    Log.Entry("Disengaged");
+}
+
+//ui agnostic interface to DOCUMENT
+//ostensibly to use something other than GtkSourceView
+//but super unlikely :)
 interface DOC_IF
 {
-
-    @property string Language();
-    @property void Language(string nulang);
-
-    @property void  Name(string nuname);
-    @property string Name();
-    @property string TabLabel();
-
-    @property bool  Virgin();
-    @property void  Virgin(bool nuVirgin);
-
-    @property bool  Modified();
-    @property void  Modified(bool nuModified);
-
-    void Configure();
-    void ShowMe();
-
-    int     Line();
-    int     Column();
-    string  LineText();
-    string  Symbol();
-    string  FullSymbol();
-    string  QualifiedWord(string AtMarkName = "insert");
-    string  Word(string AtMarkName = "insert");
-    string  WordUnderPointer(int x, int y);
-    int     WordLength(int Partial = -1);
-    dchar   GetChar();
-    bool    RefreshCoverage();
-    void    HideGutterCoverage();
-
-    string  GetText();
-    void    SetText(string txt);
-    void    InsertText(string txt);
-    void    ReplaceWord(string txt);
-    void    ReplaceLine(string txt);
-    void    ReplaceSelection(string txt);
-    void    CompleteSymbol(string txt);
-    void    StopUndo();
-    void    RestartUndo();
-    void	BeginUserAction();
-    void	EndUserAction();
-
-    string  Selection();
-    void    GotoLine(int LineNo, int LinePos);
+    static  DOC_IF Create(string DOC_IF_CLASS = "document.DOCUMENT")
+    {
+        auto rv = cast(DOC_IF)Object.factory(DOC_IF_CLASS);
+        return rv;      
+    }
+    //Must call either Init or Load for doc_if to function 
+    void    Init(string nuFileName = null);
+    void    Reconfigure();
+    void    Load(string fileName);
     void    Save();
-    void    SaveAs(string NuName);
+    void    SaveAs(string newFileName);
+    void    SaveCopy(string copyFileName);
     void    Close();
-    void    SetTimeStamp();
-    static  DOC_IF Create(string Title, string ClassType = "unknown")
-    {
-        if(ClassType == "unknown") ClassType = GetClassType((Title));
-        auto rv = cast(DOC_IF)Object.factory(ClassType);
-        rv.Name = Title;
-        rv.Virgin = true;
-        return rv;
-    }
-
-    static  DOC_IF Open(string FileName, int LineNo = 0, int LinePos = 0)
-    {
-
-        auto rv = Create(FileName);
-
-        rv.Virgin = false;
-
-        scope(failure)
-        {
-            ui.ShowMessage("FILE INPUT ERROR", "Unable to open " ~ FileName ~ " confirm permissions and valid utf format.");
-            SetBusyCursor(false);
-            return null;
-        }
-        if(!exists(FileName))return null;
-        SetBusyCursor(true);
-
-        auto txt = ReadUTF8(FileName);
-        rv.SetTimeStamp();
-        rv.StopUndo();
-        rv.SetText(txt);
-        rv.RestartUndo();
-        if( (LineNo) || (LinePos)) rv.GotoLine(LineNo, LinePos);
-
-        SetBusyCursor(false);
-        return rv;
-    }
-
-    void HiliteSearchResult(int LineNo, int Start, int End);
-    void HiliteAllSearchResults(int LineNo, int Start, int End);
-    void ClearHiliteAllSearchResults();
-    void ReplaceText(string NewText, int Line, int StartOffset, int EndOffset);
-    int GetCursorByteIndex();
-    void SetCursorByteIndex(uint pos);
-    RECTANGLE GetCursorRectangle();
-    RECTANGLE GetMarkRectangle(string MarkName);
     
-    string GetLocation(out string name, out int line, out int col);
-
-    bool IndentLines(int Reps);
-    bool UnIndentLines(int Reps);
-
-
-
-    //MOVMENTS
-    bool MoveLeft(int Reps, bool selection_bound);
-    bool MoveUp(int Reps, bool selection_bound);
-    bool MoveDown(int Reps, bool selection_bound);
-    bool MoveRight(int Reps, bool selection_bound);
-    bool MoveLineStart(int Reps, bool selection_bound);
-    bool MoveLineEnd(int Reps, bool selection_bound);
-    bool MovePageUp(int Reps, bool selection_bound);
-    bool MovePageDown(int Reps, bool selection_bound);
-    bool MoveStart(int Reps, bool selection_bound);
-    bool MoveEnd(int Reps, bool selection_bound);
-    bool MoveNextWordStart(int Reps, bool selection_bound);
-    bool MovePrevWordStart(int Reps, bool selection_bound);
-    bool MoveNextWordEnd(int Reps, bool selection_bound);
-    bool MovePrevWordEnd(int Reps, bool selection_bound);
-    bool MovePrevScope(int Reps, bool selection_bound);
-    bool MoveNextScope(int Reps, bool selection_bound);
-    bool MovePrevBlockStart(int Reps, bool selection_bound);
-    bool MoveNextBlockStart(int Reps, bool selection_bound);
-    bool MovePrevBlockEnd(int Reps, bool selection_bound);
-    bool MoveNextBlockEnd(int Reps, bool selection_bound);
-    bool MoveUpperScope(int Reps, bool selection_bount);
-    bool MoveLowerScope(int Reps, bool selection_bound);
-    bool MovePrevStatementStart(int Reps, bool selection_bound);
-    bool MovePrevStatementEnd(int Reps, bool selection_bound);
-    bool MoveNextStatementStart(int Reps, bool selection_bound);
-    bool MoveNextStatementEnd(int Reps, bool selection_bound);
-    bool MovePrevCurrentChar(int Reps, bool selection_bound);
-    bool MoveNextCurrentChar(int Reps, bool selection_bound);
-    bool MoveNextCharArg(char ArgChar, int Reps, bool selection_bound);
-    bool MovePrevCharArg(char ArgChar, int Reps, bool selection_bound);
-    bool MoveBracketMatch(bool selection_bound);
-    bool MovePrevSymbol(int Reps, bool selection_bound);
-    bool MoveNextSymbol(int Reps, bool selection_bound);
-    bool MovePrevParameterStart(int Reps, bool selection_bound);
-    bool MoveNextParameterEnd(int Reps, bool selection_bound);
-    bool MovePrevParameterEnd(int Reps, bool selection_bound);
-    bool MoveNextParameterStart(int Reps, bool selection_bound);
-    bool MoveNextStringBoundary(int Reps, bool selection_bound);
-    bool MovePrevStringBoundary(int Reps, bool selection_bound);
-    bool MoveNextCommentBoundary(int Reps, bool selection_bound);
-    bool MovePrevCommentBoundary(int Reps, bool selection_bound);
-
-    /+//search test -- remove
-    void SearchTest(); +/
-
-    //object movement -- should deprecate all (most) movements above
-    void MoveObjectNext(TEXT_OBJECT Object, int reps, bool selection_bound);
-    void MoveObjectNext(TEXT_OBJECT Object, TEXT_OBJECT_CURSOR cursor, int reps, bool selection_bound);
-    void MoveObjectPrev(TEXT_OBJECT Object, int reps, bool selection_bound);
-    void MoveObjectPrev(TEXT_OBJECT Object, TEXT_OBJECT_CURSOR cursor, int reps, bool selection_bound);
-
-    //void MoveObject(TEXT_OBJECT Object, TEXT_OBJECT_DIRECTION Direction, TEXT_OBJECT_MARK Mark);
-
-    void ScrollUp(int Steps);
-    void ScrollDown(int Steps);
-    void ScrollCenterCursor();
-
+    void *  TabWidget();
+    void *  PageWidget();
+    
+    string  FullName();
+    void    Name(string nuName);
+    string  Name();
+    bool    Virgin();
+    bool	Modified();
+    string  GetStatusLine();
+    void    AddStatusSection(long Sect, string Value);
+    void    SetBackgroundGrid(bool on);
+    bool    GetBackgroundGrid();
+    bool    GetHasKeyEventBeenHandled();
+    void    SetKeyEventHasBeenHandled();
+    void    Goto(int line, int col, bool focus = true);
+    bool    FindForward(string regexNeedle);
+    bool    FindBackward(string regexNeedle);
+    bool    Replace(string regexNeedle, string replacementText);
+    void    ReplaceAll(string replacementText);
+    void    SetSearchHilite(bool state);
+    bool    GetSearchHilite();
+    
+    string  Text();
+    void    Text(string nuText);
+    string  Selection();
+    int     Line();
+    int     LineCount();
+    int     Column();
+    int     Offset();
+    
+    string  Identifier (string markName = "insert");
+    string  IdentifierStart(string markName = "insert");
+    string  Word(string markName = "insert");
+    void    CompleteSymbol(string chosenSymbol);
 }
+
+//#############################################################################
+//#############################################################################
+void OpenDoc(string fileName)
+{
+    scope(failure)
+    {
+        Log.Entry("Unable to open document ",fileName);
+    }
+    auto doc = DOC_IF.Create();
+    doc.Load(fileName);
+    AddDoc(doc);    
+    Transmit.DocManEvent.emit(DOCMAN_EVENT.LOAD, doc.FullName);
+}
+void AddDoc(DOC_IF nuDoc)
+{
+    if(nuDoc.FullName in mDocs) 
+    {
+        Log.Entry("Adding " ~ nuDoc.Name ~ " to document manager");
+        return;
+    }
+    mDocs[nuDoc.FullName] = nuDoc;
+    Transmit.DocManEvent.emit(DOCMAN_EVENT.ADD, nuDoc.FullName);
+}
+void ReplaceDoc(string oldKey, string newKey)
+{
+    auto oldDoc = mDocs[oldKey];
+    if(oldDoc is null) assert(0);
+    if(mDocs.remove(oldKey)) mDocs[newKey] = oldDoc;
+    Transmit.DocManEvent.emit(DOCMAN_EVENT.RENAME, newKey);
+    Log.Entry("Document manger renamed "~oldDoc.Name~" to "~ mDocs[newKey].Name);
+}
+void RemoveDoc(DOC_IF oldDoc)
+{
+	if(oldDoc.Modified)Log.Entry("Removing modified doc ("~ oldDoc.Name ~ ") from document manager");
+	else Log.Entry("Removing (" ~ oldDoc.Name ~ ") from document manager");
+    Transmit.DocManEvent.emit(DOCMAN_EVENT.REMOVE, oldDoc.FullName);
+    mDocs.remove(oldDoc.FullName);
+}
+
+void SaveAll()
+{
+    foreach(doc;GetModifiedDocs)doc.Save();
+}
+
+DOC_IF GetDoc(string docName)
+{
+    if(docName !in mDocs) return null;
+    return mDocs[docName];
+}
+
+DOC_IF GetCurrentDoc()
+{
+    if(CurrentDocName in mDocs) return mDocs[CurrentDocName];
+    return null;
+}
+
+DOC_IF[] GetDocs()
+{
+	return mDocs.values;
+}
+
+bool Empty()
+{
+    return mDocs.length == 0;
+}
+
+bool Opened(string testDoc)
+{
+    if(testDoc in mDocs) return true;
+    return false;
+}
+
+bool OpenDocAt(string fileName, int line, int col, bool focus = true)
+{
+    if(fileName in mDocs)
+    {
+        uiDocBook.Current(mDocs[fileName]);
+        mDocs[fileName].Goto(line, col, focus);
+        return true;
+    }
+    auto nuDoc = DOC_IF.Create();
+    nuDoc.Load(fileName);
+    
+    AddDoc(nuDoc);
+    uiDocBook.AddDocument(nuDoc);
+    nuDoc.Goto(line, col, focus);
+    
+    return false;
+}
+
+
+
+auto GetModifiedDocs()
+{
+    return (mDocs.byValue).filter!("a.Modified").array;
+}
+
+void SaveSessionDocuments()
+{
+    Config.SetArray!(string[])("docman","last_session_files",mDocs.keys);
+}
+
+void Run(string DocName, string[] rdmdOpt ...)
+{  
+    auto Doc = (DocName in mDocs);
+    if(Doc is null) return;
+    scope(failure)
+    {
+        Log.Entry("Failed to run " ~ Doc.FullName);
+    }
+    if(Doc.Virgin)
+    {
+	    Log.Entry(DocName ~ " does not exist on file and can not be run");
+	    return;
+    }
+    string ExecName = Doc.FullName;
+    auto TerminalCommand = Config.GetArray!string("terminal_cmd","run", ["xterm", "-T","dcomposer running document","-e"]);
+
+    auto tFile = std.stdio.File(DocRunScript, "w");
+
+    tFile.writeln("#!/bin/bash");
+    tFile.write("rdmd ");
+    foreach(opt; rdmdOpt) tFile.write(opt ~ " ");
+    tFile.write(ExecName); 
+    tFile.writeln();
+    tFile.writeln(`echo -e "\n\nProgram Terminated with exit code $?.\nPress a key to close terminal..."`);
+    tFile.writeln(`sleep 30`);
+    tFile.writeln(`read -sn1`);
+    tFile.flush();
+    tFile.close();
+    import std.conv;
+    setAttributes(DocRunScript, (getAttributes(DocRunScript) | octal!700));
+
+    string[] CmdStrings;
+    CmdStrings = TerminalCommand;
+    CmdStrings ~= ["./"~DocRunScript];
+
+    try
+    {
+        auto result = spawnProcess(CmdStrings,stdin, stdout, stderr,null, pConfig.detached, null);
+        Log.Entry(`"` ~ Doc.FullName ~ `"` ~ " spawned ... " );
+    }
+    catch(Exception E)
+    {
+        Log.Entry(E.msg);
+        return;
+    }
+}
+
 struct RECTANGLE
 {
     int x, y;
     int xl, yl;
 }
 
-//====================================================================================================================
-//====================================================================================================================
-//====================================================================================================================
-interface UI_DOCBOOK_IF
+enum DOC_EVENT
 {
-    @property DOC_IF Current();
-    @property void Current(DOC_IF nuCurrent);
-
-    bool ConfirmCloseFile(DOC_IF Closer);
-    void Append(DOC_IF nuCurrent);
-    string[] OpenDialog();
-    string SaveAsDialog(string prevName);
-    void ClosePage(DOC_IF);
-    void Revert();
-    void Undo();
-    void Redo();
-    void Cut();
-    void Copy();
-    void Paste();
-    void NotifySelection();
-    void NextPage();
-    void PrevPage();
+    NAME,
+    REVIRGINED,
+    RECONFIGURED,
 }
 
-UI_DOCBOOK_IF GetDocBook(){return ui.DocBook;}
-
-//====================================================================================================================
-//====================================================================================================================
-//====================================================================================================================
-class DOCMAN
+enum DOCMAN_EVENT
 {
-    private:
-
-    DOC_IF[] mDocuments;
-    UI_DOCBOOK_IF mDocBook;
-
-
-    Pid[] mRunPids;
-    enum tmpfilename = "document_run_script";
-    bool mBlockDocumentKeyPress;
-
-
-    string NextTitle(string Extension = ".d")
-    {
-        static int UnTitledCount = 0;
-        immutable string Title = "dcomposer%s";
-        string rv;
-        if(UnTitledCount > 99_999) UnTitledCount = 0;//relax this is nothing just change it
-        do
-        {
-            rv = buildPath(CurrentPath(), format(Title, UnTitledCount));
-            if(UnTitledCount++ > 100_000) return "dcomposer";
-        }while(exists(rv.setExtension(Extension)));
-        return rv.setExtension(Extension);
-    }
-
-
-    public:
-
-    this()
-    {
-    }
-
-    void Engage()
-    {
-        //what do i really need to do here
-
-        Log.Entry("Engaged");
-    }
-
-    void PostEngage()
-    {
-        //AddIcon("nav_point_icon", SystemPath(Config.GetValue("docman", "nav_point_icon", "resources/pin-small.png")));
-
-        mDocBook = GetDocBook();
-        //Reload files opened last session and any cmdline files
-        auto CmdLineFiles = Config.GetArray!string("docman", "cmd_line_files");
-        auto LastSessionFiles = Config.GetArray!string("docman", "last_session_files");
-        Open(cast(string[])CmdLineFiles ~ cast(string[])LastSessionFiles);
-
-        Log.Entry("PostEngaged");
-    }
-    void Disengage()
-    {
-        //save open files for next session .. reimplemented to fix moved pages and save/discard on exit
-        //string[] names;
-        //foreach(xdoc; mDocuments)if(exists(xdoc.Name)) names ~= xdoc.Name;
-        //Config.SetArray("docman","last_session_files", names);
-
-        if( tmpfilename.exists())std.file.remove(tmpfilename);
-        foreach(pid; mRunPids)kill(pid);
-        foreach(pid; mRunPids)wait(pid);
-
-        Log.Entry("Disengaged");
-    }
-
-    void SaveSessionDocuments()
-    {
-        string[] sessionDocs;
-
-        auto pageCount = DocBook.getNPages();
-        foreach(indx; 0 .. pageCount)
-        {
-            auto page = cast(ScrolledWindow)DocBook.getNthPage(indx);
-            if(page is null)continue;
-            auto doc = cast(DOC_IF)page.getChild();
-            if(doc is null) continue;
-            sessionDocs ~= doc.Name();
-        }
-        Config.SetArray("docman","last_session_files", sessionDocs);
-    }
-
-
-
-    @property DOC_IF Current()
-    {
-        return mDocBook.Current();
-    }
-
-    @property int Modified()
-    {
-        int ModifiedFiles;
-        foreach(doc; mDocuments)if(doc.Modified)ModifiedFiles++;
-        return ModifiedFiles;
-    }
-
-    void Create(string DocType = "D source")
-    {
-        string nameindex;
-        string ClassType;
-        switch (DocType)
-        {
-            case "plain text" : nameindex = NextTitle(".txt"); ClassType = "document.DOCUMENT";break;
-            case "D source" : nameindex = NextTitle(".d"); ClassType = "document.DOCUMENT";break;
-            default : ClassType = "document.DOCUMENT";break;
-        }
-        auto tmp = DOC_IF.Create(nameindex, ClassType);
-        tmp.Configure();
-        tmp.ShowMe();
-        mDocBook.Append(tmp);
-        mDocuments ~= tmp;
-
-        Event.emit("Create", Current());
-
-        Log.Entry("Create document");
-    }
-
-    void Open()
-    {
-        auto DocsToOpen = mDocBook.OpenDialog();
-        if(DocsToOpen.length == 0)return;
-        Open(DocsToOpen);
-    }
-    void Open(string[] Files)
-    {
-        foreach(doc; Files)Open(doc);
-    }
-    DOC_IF Open(string FileName, int LineNo = 0, int LinePos = 0)
-    {
-        FileName = FileName.absolutePath();
-        //first see if it is already open
-        auto doc = GetDoc(FileName);
-        if(doc)
-        {
-            mDocBook.Current = doc;
-            if(LineNo >= 0)doc.GotoLine(LineNo, LinePos);
-            return doc;
-        }
-
-        auto nudoc = DOC_IF.Open(FileName, LineNo, LinePos);
-        if(nudoc is null)
-        {
-            Log.Entry("Failed to open " ~ FileName, "Error");    
-            return null;
-        }
-        nudoc.Modified = false;
-        nudoc.Virgin = false;
-        nudoc.Configure();
-
-        mDocuments ~= nudoc;
-        nudoc.ShowMe();
-        mDocBook.Append(nudoc);
-
-        Event.emit("Open", nudoc);
-
-        Log.Entry("Opened " ~ nudoc.Name);
-        return nudoc;
-    }
-
-
-    void Save(DOC_IF xDoc = null)
-    {
-        scope(failure)
-        {
-            Log.Entry("Failed to save " ~ xDoc.Name, "Error");
-            return;
-        }
-        if(xDoc is null) xDoc = Current();
-        if(xDoc is null) return;
-
-        if(xDoc.Virgin())
-        {
-            SaveAs(xDoc);
-            return;
-        }
-        xDoc.Save();
-        Event.emit("Save", xDoc);
-        Log.Entry("Saved " ~ xDoc.Name);
-    }
-
-    void SaveAs(DOC_IF saDoc = null)
-    {
-        if(saDoc is null) saDoc = Current;
-        if(saDoc is null) return;
-
-        string savefile = mDocBook.SaveAsDialog(saDoc.Name);
-        if (savefile.length == 0) return;
-        saDoc.Name = savefile;
-        saDoc.Save();
-        saDoc.Configure();
-        Event.emit("SaveAs", saDoc);
-    }
-    void SaveAll()
-    {
-        foreach(doc; mDocuments)if(doc.Modified())Save(doc);
-    }
-
-    void Close(DOC_IF DocToClose = null)
-    {
-        if(DocToClose is null) DocToClose = Current;
-        if(DocToClose is null) return;
-
-        if(DocToClose.Modified)
-        {
-            if(!mDocBook.ConfirmCloseFile(DocToClose))return;
-        }
-
-        DOC_IF[] tmpDocs;
-        foreach(doc; mDocuments)
-        {
-            if(doc !is DocToClose) tmpDocs ~= doc;
-        }
-        mDocuments = tmpDocs;
-
-        Event.emit("Close", DocToClose);
-        mDocBook.ClosePage(DocToClose);
-        Log.Entry("Closed " ~ DocToClose.Name);
-    }
-    void CloseAll()
-    {
-        foreach(doc; mDocuments)Close(doc);
-    }
-
-    //try run with a script
-    void Run(string[] args = null)
-    {
-        if(Current is null) return;
-        if(Current.Modified)Current.Save();
-
-        scope(failure)
-        {
-            ShowMessage("Error", "Failed to run " ~ Current.TabLabel);
-            Log.Entry("Failed to run " ~ Current.TabLabel);
-        }
-        CurrentPath(Current.Name.baseName());
-
-        string ExecName = Current.Name();
-
-        auto TerminalCommand = Config.GetArray!string("terminal_cmd","run", ["xterm", "-T","dcomposer running project","-e"]);
-
-        auto tFile = std.stdio.File(tmpfilename, "w");
-
-        tFile.writeln("#!/bin/bash");
-        tFile.write("rdmd ", ExecName,);
-        //foreach(arg; args)tFile.write(" ",arg);
-        tFile.writeln();
-        tFile.writeln(`echo -e "\n\nProgram Terminated.\nPress a key to close terminal..."`);
-        tFile.writeln(`read -sn1`);
-        tFile.flush();
-        tFile.close();
-        setAttributes(tmpfilename, 509);
-
-
-        string[] CmdStrings;
-
-        CmdStrings = TerminalCommand;
-        CmdStrings ~= ["./"~tmpfilename];
-
-        try
-        {
-            mRunPids ~= spawnProcess(CmdStrings);
-            Log.Entry(`"` ~ Current.TabLabel ~ `"` ~ " spawned ... " );
-        }
-        catch(Exception E)
-        {
-            Log.Entry(E.msg);
-            return;
-        }
-    }
-
-
-    bool Compile(DOC_IF xDoc = null, string[] Args = [])
-    {
-        scope(exit)SetBusyCursor(false);
-        SetBusyCursor(true);
-
-        if(xDoc is null) xDoc = Current;
-        if(xDoc is null) return false;
-
-        if(xDoc.Modified) xDoc.Save();
-        auto CmdString = Config.GetArray!string("docman","compile_command", ["dmd", "-c", "-o-", "-vcolumns"]);
-        CmdString ~= Args ~ [xDoc.Name];
-
-        auto result = execute(CmdString);
-
-        Message.emit("BEGIN");
-        Message.emit(CmdString.join(" "));
-        if(result.status == 0)
-        {
-            Log.Entry(xDoc.Name ~ " compiled successfully");
-            Message.emit("Success");
-        }
-        else
-        {
-            Log.Entry(xDoc.Name ~ " failed to compile");
-            foreach(ln;result.output.splitLines()){Message.emit(ln);}
-        }
-        Message.emit("END");
-        return (result.status == 0);
-    }
-    
-    void UnitTests()
-    {
-        
-        
-        if(Current is null) return;
-        scope(success) 
-        {
-            Current.RefreshCoverage();
-        }
-        scope(failure)
-        {
-            ShowMessage("Error", "Failed to execute unit tests " ~ Current.TabLabel);
-            Log.Entry("Failed to execute unit tests for " ~ Current.TabLabel);
-            return;
-        }
-        
-        if(Current.Modified)Current.Save();
-
-        CurrentPath(Current.Name.baseName());
-
-        string ExecName = Current.Name();
-        string projOpts;
-        if(Project.TargetType != TARGET.EMPTY)
-        {
-            if(Project.Lists[LIST_NAMES.IMPORT].length)
-                projOpts = " -I" ~ Project.Lists[LIST_NAMES.IMPORT].join(" -I") ~" ";
-            if(Project.Lists[LIST_NAMES.STRING].length)
-                projOpts ~= " -J" ~ Project.Lists[LIST_NAMES.STRING].join(" -J") ~" ";
-        }
-       
-        auto TerminalCommand = Config.GetArray!string("terminal_cmd","run", ["xterm", "-T","dcomposer running project","-e"]);
-        try
-        {
-            auto tFile = std.stdio.File(tmpfilename, "w");
-    
-            tFile.writeln("#!/bin/bash");
-            tFile.writeln("rdmd -unittest -cov --main ", projOpts, ExecName );
-            tFile.writeln("if [ $? = 0 ]; then");
-            tFile.writeln(" echo UNIT TESTS SUCCEEDED");
-            tFile.writeln("fi");
-            tFile.writeln();
-            tFile.writeln(`echo -e "\n\nProgram Terminated.\nPress a key to close terminal..."`);
-            tFile.writeln(`read -sn1`);
-            tFile.flush();
-            tFile.close();
-            setAttributes(tmpfilename, 509);
-    
-    
-            string[] CmdStrings;
-    
-            CmdStrings = TerminalCommand;
-            CmdStrings ~= ["./"~tmpfilename];
-
-
-            auto xpid = spawnProcess(CmdStrings);
-            wait(xpid);
-            Log.Entry(`"` ~ Current.TabLabel ~ `"` ~ " unittests ran and finished" );
-            auto covfile = readText(Current.Name.tr("/", "-").setExtension("lst"));
-            string finalmsg = covfile
-                              .lineSplitter
-                              .array[$-1];
-                              
-            ShowMessage("Code coverage", finalmsg);            
-        }
-        catch(Exception E)
-        {
-            Log.Entry(E.msg);
-            return;
-        }       
-        
-    }
-    
-    void HideGutterCoverage()
-    {
-        auto doc = Current();
-        if(doc) doc.HideGutterCoverage();
-    }
-
-    bool IsOpen(string CheckName)
-    {
-        foreach(doc; mDocuments)
-        {
-            if(doc.Name == CheckName) return true;
-        }
-        return false;
-    }
-
-    DOC_IF GetDoc(string DocName)
-    {
-        foreach(doc; mDocuments)
-        {
-            if(doc.Name == DocName) return doc;
-        }
-        return null;
-    }
-
-    bool Empty()
-    {
-        return (mDocuments.length < 1);
-    }
-
-    bool GoTo(string DocName, int DocLine = 0 , int DocLinePos = 0)
-    {
-        auto docCheck = Open(DocName, DocLine, DocLinePos);
-        if(docCheck is null) return false;
-        if(Current is null) return false;
-        if(Current.Name != DocName)return false;
-        //Current.GotoLine(DocLine);
-        return true;
-    }
-    void Undo()
-    {
-        mDocBook.Undo();
-    }
-    void Redo()
-    {
-        mDocBook.Redo();
-    }
-    void Revert()
-    {
-        mDocBook.Revert();
-    }
-    void Cut()
-    {
-        mDocBook.Cut();
-    }
-    void Copy()
-    {
-        mDocBook.Copy();
-    }
-    void Paste()
-    {
-        mDocBook.Paste();
-    }
-
-    void NotifySelection()
-    {
-        mDocBook.NotifySelection();
-    }
-
-    DOC_IF[] GetOpenDocs()
-    {
-        return mDocuments;
-    }
-
-    void SetBlockDocumentKeyPress(bool setting = true)
-    {
-        mBlockDocumentKeyPress = setting;
-    }
-    bool BlockDocumentKeyPress()
-    {
-        auto rv = mBlockDocumentKeyPress;
-        mBlockDocumentKeyPress = false;
-        return rv;
-    }
-    bool IsDocumentKeyPressBlocked()
-    {
-        return mBlockDocumentKeyPress;
-    }
-
-
-
-    mixin Signal!(string, DOC_IF) Event;
-    mixin Signal!(string) Message;
-    mixin Signal!(void*, string, int, void*) Insertion;
-    mixin Signal!(DOC_IF) PageFocusOut;
-    mixin Signal!(DOC_IF) PageFocusIn;
-    mixin Signal!(uint, uint) DocumentKeyDown;
-    mixin Signal!(uint, uint) DocumentKeyUp;
-    mixin Signal!(void *, DOC_IF) MouseButton;
-    mixin Signal!(DOC_IF, int, int) PreCursorJump;
-    mixin Signal!(DOC_IF, int, int) CursorJump;
-    mixin Signal!(DOC_IF, int) GutterActivated;
-    mixin Signal!(DOC_IF, string) Tooltip;
-    mixin Signal!(DOC_IF, string) SnippetTrigger;
+    ADD,
+    LOAD,
+    RENAME,
+    REMOVE,
 }
 
+private:
 
-
-struct TEXT_OBJECT
-{
-    //needed?
-    string mId;
-    char mKey;
-    
-    
-    TEXT_OBJECT_TYPE mType;
-    
-    string mRegex;
-    string mOperation;
-    
-    TEXT_OBJECT_CURSOR mCursor;
-    
-
-    this(string Name, char key, TEXT_OBJECT_CURSOR cursor, string objectStr)
-    {
-        mId = Name;
-        mKey = key;
-        
-        mCursor = cursor;
-        
-        if(mType == TEXT_OBJECT_TYPE.REGEX) 
-        {
-            mRegex = objectStr;
-        }
-        else
-        {
-            mOperation = objectStr;
-        }
-    }
-    
-    void SetType(TEXT_OBJECT_TYPE type)
-    {
-        mType = type;
-    }
-}
-
-enum TEXT_OBJECT_TYPE
-{
-    REGEX,
-    OPERATION
-}
-
-enum TEXT_OBJECT_CURSOR :string
-{
-    START = "START",
-    END = "END",
-    RANGE = "RANGE"
-}
-
-
-//====================================================================================================================
-//====================================================================================================================
-//====================================================================================================================
-
-
-//=====================================================================================================================
-//=====================================================================================================================
-//                                    misc utility stuff
-//=====================================================================================================================
-//=====================================================================================================================
-
-string GetClassType(string docTitle)
-{
-    string rv;
-    auto ext = docTitle.extension();
-    if(ext.length < 1)ext = "default";
-    rv = (Config.GetValue!string("document_classes", ext, "document.DOCUMENT"));
-    return rv;
-}
-
-
-
-string ReadUTF8(string FileName)
-{
-    bool Succeeded;
-
-    ubyte[] data = cast(ubyte[])read(FileName);
-
-    if(try8(data))  return toUTF8(cast( char[])data);
-    //if(try16(data)) return toUTF8(cast(wchar[])data);
-    if(try32(data)) return toUTF8(cast(dchar[])data);
-    throw new Exception("DComposer is limited opening to valid utf files only.\nEnsure " ~ baseName(FileName) ~ " is properly encoded.\nSorry for any inconvenience.");
-}
-
-bool try8(const ubyte[] data)
-{
-    scope(failure) return false;
-    validate!(char[])(cast(char[])data);
-    return true;
-}
-
-bool try16(const ubyte[] data)
-{
-    scope(failure) return false;
-    validate!(wchar[])(cast(wchar[])data);
-    return true;
-}
-bool try32(const ubyte[] data)
-{
-    scope(failure) return false;
-    validate!(dchar[])(cast(dchar[])data);
-    return true;
-}
-
-bool isWordStartChar(dchar x)
-{
-    return ((x.isAlpha()) || (x == '_'));
-}
-
-bool isWordChar(dchar x)
-{
-    return ( (x.isAlpha()) || (x == '_') || (x.isNumber()));
-}
+DOC_IF[string]      mDocs;
+int                 mSaveCtr;

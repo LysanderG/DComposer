@@ -1,0 +1,638 @@
+[
+    {
+        "dmdVersion": "2.094.0"
+    },
+    {
+        "argType": "NONE",
+        "brief": "generate code for all template instantiations",
+        "switch": "allinst",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "omit generating some runtime information and helper functions",
+        "switch": "betterC",
+        "choices": []
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "bounds checks on, in @safe only, or off",
+        "switch": "boundscheck",
+        "choices": [
+            "on",
+            "safeonly",
+            "off"
+        ]
+    },
+    {
+        "argType": "NONE",
+        "brief": "compile only, do not link",
+        "switch": "c",
+        "choices": []
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "enable or disable specific checks",
+        "switch": "check",
+        "choices": [
+            "assert",
+            "bounds",
+            "in",
+            "invariant",
+            "out",
+            "switch][=[on",
+            "off]"
+        ]
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "list information on all available checks",
+        "switch": "check",
+        "choices": [
+            "h",
+            "help",
+            "?"
+        ]
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "behavior on assert\/boundscheck\/finalswitch failure",
+        "switch": "checkaction",
+        "choices": [
+            "D",
+            "C",
+            "halt",
+            "context"
+        ]
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "list information on all available check actions",
+        "switch": "checkaction",
+        "choices": [
+            "h",
+            "help",
+            "?"
+        ]
+    },
+    {
+        "argType": "NONE",
+        "brief": "turn colored console output on",
+        "switch": "color",
+        "choices": []
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "force colored console output on or off, or only when not redirected (default)",
+        "switch": "color",
+        "choices": [
+            "on",
+            "off",
+            "auto"
+        ]
+    },
+    {
+        "argType": "STRING",
+        "brief": "use config file at filename",
+        "switch": "conf",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "do code coverage analysis",
+        "switch": "cov",
+        "choices": []
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "Include code executed during CTFE in coverage report",
+        "switch": "cov",
+        "choices": [
+            "tf"
+        ]
+    },
+    {
+        "argType": "NUMBER",
+        "brief": "require at least nnn% code coverage",
+        "switch": "cov",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "generate documentation",
+        "switch": "D",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "write documentation file to directory",
+        "switch": "Dd",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "write documentation file to filename",
+        "switch": "Df",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "silently allow deprecated features and symbols",
+        "switch": "d",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "issue an error when deprecated features or symbols are used (halt compilation)",
+        "switch": "de",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "issue a message when deprecated features or symbols are used (default)",
+        "switch": "dw",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "compile in debug code",
+        "switch": "debug",
+        "choices": []
+    },
+    {
+        "argType": "NUMBER",
+        "brief": "compile in debug code <= level",
+        "switch": "debug",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "compile in debug code identified by ident",
+        "switch": "debug",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "set symbolic debug library to name",
+        "switch": "debuglib",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "set default library to name",
+        "switch": "defaultlib",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "print module dependencies (imports\/file\/version\/debug\/lib)",
+        "switch": "deps",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "write module dependencies to filename (only imports)",
+        "switch": "deps",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "set C++ name mangling compatibility with <standard>",
+        "switch": "extern-std",
+        "choices": []
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "list all supported standards",
+        "switch": "extern-std",
+        "choices": [
+            "h",
+            "help",
+            "?"
+        ]
+    },
+    {
+        "argType": "NONE",
+        "brief": "generate position independent code",
+        "switch": "fPIC",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "add symbolic debug info",
+        "switch": "g",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "emit debug info for all referenced types",
+        "switch": "gf",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "always emit stack frame",
+        "switch": "gs",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "add stack stomp code",
+        "switch": "gx",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "generate 'header' file",
+        "switch": "H",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "write 'header' file to directory",
+        "switch": "Hd",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "write 'header' file to filename",
+        "switch": "Hf",
+        "choices": []
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "generate C++ 'header' file",
+        "switch": "HC",
+        "choices": [
+            "=[silent",
+            "verbose]"
+        ]
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "list available modes for C++ 'header' file generation",
+        "switch": "HC",
+        "choices": [
+            "?",
+            "h",
+            "help"
+        ]
+    },
+    {
+        "argType": "STRING",
+        "brief": "write C++ 'header' file to directory",
+        "switch": "HCd",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "write C++ 'header' file to filename",
+        "switch": "HCf",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "print help and exit",
+        "switch": "-help",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "look for imports also in directory",
+        "switch": "I",
+        "choices": []
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "include imported modules in the compilation",
+        "switch": "i",
+        "choices": [
+            "=<pattern>"
+        ]
+    },
+    {
+        "argType": "NONE",
+        "brief": "ignore unsupported pragmas",
+        "switch": "ignore",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "do function inlining",
+        "switch": "inline",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "look for string imports also in directory",
+        "switch": "J",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "pass linkerflag to link",
+        "switch": "L",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "generate library rather than object files",
+        "switch": "lib",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "enable garbage collection for the compiler",
+        "switch": "lowmem",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "generate 32 bit code",
+        "switch": "m32",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "generate 64 bit code",
+        "switch": "m64",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "add default main() (e.g. for unittesting)",
+        "switch": "main",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "open web browser on manual page",
+        "switch": "man",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "generate linker .map file",
+        "switch": "map",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "generate instructions for architecture identified by 'id'",
+        "switch": "mcpu",
+        "choices": []
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "list all architecture options",
+        "switch": "mcpu",
+        "choices": [
+            "h",
+            "help",
+            "?"
+        ]
+    },
+    {
+        "argType": "STRING",
+        "brief": "expand and save mixins to file specified by <filename>",
+        "switch": "mixin",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "use <filespec> as source file for <package.module>",
+        "switch": "mv",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "no array bounds checking (deprecated, use -boundscheck=off)",
+        "switch": "noboundscheck",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "optimize",
+        "switch": "O",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "do not write object file",
+        "switch": "o-",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "write object & library files to directory",
+        "switch": "od",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "name output file to filename",
+        "switch": "of",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "preserve source path for output files",
+        "switch": "op",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "enable an upcoming language change identified by 'name'",
+        "switch": "preview",
+        "choices": []
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "list all upcoming language changes",
+        "switch": "preview",
+        "choices": [
+            "h",
+            "help",
+            "?"
+        ]
+    },
+    {
+        "argType": "NONE",
+        "brief": "profile runtime performance of generated code",
+        "switch": "profile",
+        "choices": []
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "profile runtime allocations",
+        "switch": "profile",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "compile release version",
+        "switch": "release",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "revert language change identified by 'name'",
+        "switch": "revert",
+        "choices": []
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "list all revertable language changes",
+        "switch": "revert",
+        "choices": [
+            "h",
+            "help",
+            "?"
+        ]
+    },
+    {
+        "argType": "NONE",
+        "brief": "<srcfile>    compile, link, and run the program srcfile",
+        "switch": "run",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "generate shared library (DLL)",
+        "switch": "shared",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "help with language change identified by 'name'",
+        "switch": "transition",
+        "choices": []
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "list all language changes",
+        "switch": "transition",
+        "choices": [
+            "h",
+            "help",
+            "?"
+        ]
+    },
+    {
+        "argType": "NONE",
+        "brief": "compile in unit tests",
+        "switch": "unittest",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "verbose",
+        "switch": "v",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "print character (column) numbers in diagnostics",
+        "switch": "vcolumns",
+        "choices": []
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "set the style for file\/line number annotations on compiler messages",
+        "switch": "verror-style",
+        "choices": [
+            "digitalmars",
+            "gnu"
+        ]
+    },
+    {
+        "argType": "NUMBER",
+        "brief": "limit the number of error messages (0 means unlimited)",
+        "switch": "verrors",
+        "choices": []
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "show error messages with the context of the erroring source line",
+        "switch": "verrors",
+        "choices": [
+            "ontex"
+        ]
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "show errors from speculative compiles such as __traits(compiles,...)",
+        "switch": "verrors",
+        "choices": [
+            "pe"
+        ]
+    },
+    {
+        "argType": "NONE",
+        "brief": "print compiler version and exit",
+        "switch": "-version",
+        "choices": []
+    },
+    {
+        "argType": "NUMBER",
+        "brief": "compile in version code >= level",
+        "switch": "version",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "compile in version code identified by ident",
+        "switch": "version",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "list all gc allocations including hidden ones",
+        "switch": "vgc",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "list all variables going into thread local storage",
+        "switch": "vtls",
+        "choices": []
+    },
+    {
+        "argType": "STR_ARRAY",
+        "brief": "list statistics on template instantiations",
+        "switch": "vtemplates",
+        "choices": [
+            "list-instances"
+        ]
+    },
+    {
+        "argType": "NONE",
+        "brief": "warnings as errors (compilation will halt)",
+        "switch": "w",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "warnings as messages (compilation will continue)",
+        "switch": "wi",
+        "choices": []
+    },
+    {
+        "argType": "NONE",
+        "brief": "generate JSON file",
+        "switch": "X",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "write JSON file to filename",
+        "switch": "Xf",
+        "choices": []
+    },
+    {
+        "argType": "STRING",
+        "brief": "pass driverflag to linker driver (cc)",
+        "switch": "Xcc",
+        "choices": []
+    }
+]

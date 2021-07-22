@@ -1,300 +1,325 @@
 module ui_list;
 
-import ui;
-import dcore;
-
-import std.path;
-import std.conv;
 import std.algorithm;
-import std.signals;
+import std.array;
+import std.conv;
+import std.file;
+import std.path;
+import std.process: environment;
+import core.memory;
 
-import gtk.Builder;
-import gtk.Frame;
-import gtk.Label;
-import gtk.TreeView;
-import gtk.CellRendererText;
-import gtk.ListStore;
-import gtk.TreeIter;
-import gtk.Window;
-import gtk.Button;
-import gtk.Entry;
-import gtk.FileChooserDialog;
-import gtk.Widget;
-import gtk.Main;
-import gtk.TreeModelIF;
+import gio.FileIF;
 
-import gdk.Event;
-import gdk.Keysyms;
 
-enum ListType { FILES, PATHS, IDENTIFIERS};
+import ui;
+import qore;
 
 class UI_LIST
 {
-    ListType    mType;
-
-    string      mBasePath;
-
-
-    Frame       mRoot;
-
-    Label       mTitle;
-    TreeView    mView;
-    ListStore   mStore;
-    CellRendererText mCell;
-    Button      mAddBtn;
-    Button      mRemoveBtn;
-    Button      mClearBtn;
-
-    Window      mItemDialog;
-    Entry       mItemEntry;
-    Button      mItemAdd;
-    Button      mItemCancel;
-
-    this(string Title, ListType Type)
+    private:
+    Box         mRootBin;
+    Label       mListTitle;
+    TreeView    mListView;
+    CellRendererText mCellRenderText;
+    ListStore   mListStore;
+    string      mListKey;
+    bool        mEditable;
+    
+    Button      mAddButton;
+    Button      mRemoveButton;
+    Button      mClearButton;
+    
+    string[] UpdateDataList()
     {
-
-        auto builder = new Builder;
-        builder.addFromFile( GladePath( Config.GetValue("ui_list", "glade_file",  "ui_list.glade")));
-
-        mRoot   = cast(Frame)builder.getObject("uilist");
-
-        mTitle  = cast(Label)builder.getObject("title");
-        mView   = cast(TreeView)builder.getObject("treeview1");
-        mStore  = cast(ListStore)builder.getObject("liststore1");
-        mCell   = cast(CellRendererText)builder.getObject("cellrenderertext1");
-        mAddBtn = cast(Button)builder.getObject("addButton");
-        mRemoveBtn = cast(Button)builder.getObject("removeButton");
-        mClearBtn = cast(Button)builder.getObject("clearButton");
-        mItemDialog = cast(Window)builder.getObject("addItem");
-        mItemEntry = cast(Entry)builder.getObject("item");
-        mItemAdd = cast(Button)builder.getObject("addbutton");
-        mItemCancel = cast(Button)builder.getObject("cancelbutton");
-
-        mType = Type;
-        mTitle.setText(Title);
-
-        mBasePath = "/naziHell";
-
-        mClearBtn.addOnClicked(delegate void(Button b){mStore.clear();emit(mTitle.getText(), GetItems());});
-        mRemoveBtn.addOnClicked(delegate void(Button b){RemoveString();});
-        mView.addOnKeyRelease(delegate bool(Event e, Widget w)
+        string[] rv;
+        TreeIter ti = new TreeIter;
+        mListStore.getIterFirst(ti);
+        do
         {
-            uint kv;
-            if(e.getKeyval(kv))
+            rv ~= ti.getValueString(0);
+        }while (mListStore.iterNext(ti));
+        return rv;
+        
+    }
+    
+    string FindLibrary(string library)
+    {
+        scope(exit)GC.enable();
+        GC.disable();
+        string rv;
+        string[] searchPaths;
+        string bigEnvString;
+        
+        //ld env variable
+        if("LD_LIBRARY_PATH" in environment) bigEnvString = environment["LD_LIBRARY_PATH"];
+        searchPaths = split(bigEnvString,':');
+        
+        //projects library paths
+        searchPaths ~= Project.List(LIST_KEYS.LIBRARY_PATHS);
+        
+        //ld.conf stuff
+        //--ok save for a minute
+        
+        searchPaths ~= "/usr";
+        searchPaths ~= "/usr/lib";
+        
+        foreach(path;searchPaths)
+        {
+            foreach(string item; dirEntries(path,SpanMode.shallow))
             {
-                if(kv == GdkKeysyms.GDK_Delete)
-                {
-                    RemoveString();
-                    return true;
-                }
-                if(kv == GdkKeysyms.GDK_Return)
-                {
-                    if(mType == ListType.IDENTIFIERS) return false;
-                    mAddBtn.clicked();
-                    return true;
-                }
+
+                if(canFind(library, item))rv ~= buildNormalizedPath(item) ~ '\n';
             }
-            return false;
-        });
-        mStore.addOnRowChanged(delegate void(TreePath tp, TreeIter ti, TreeModelIF tmif)
-        {
-            //if(tmif.getValueString(ti,0).length == 0)return;
-            emit(mTitle.getText(), GetItems());
-        });
-        mStore.addOnRowDeleted(delegate void(TreePath tp, TreeModelIF tmif)
-        {
-            //if(tmif.getValueString(ti,0).length == 0)return;
-            emit(mTitle.getText(), GetItems());
-        });
-
-        mCell.addOnEdited(delegate void (string path, string text, CellRendererText c)
-        {
-            auto ti = new TreeIter(mStore, path);
-            mStore.setValue(ti, 0, text);
-            mStore.setValue(ti, 1, text);
-            emit(mTitle.getText(), GetItems());
-        });
-
-
-        final switch(mType)
-        {
-            case ListType.IDENTIFIERS :
-            {
-                mCell.setProperty("editable", true);
-                mAddBtn.addOnClicked(delegate void(Button b){AddIdentifier();});
-
-                mItemAdd.addOnClicked(delegate void(Button b){mItemDialog.hide();auto nuString = mItemEntry.getText();if(nuString.length > 0)AddString(nuString);});
-                mItemCancel.addOnClicked(delegate void(Button b){mItemEntry.setText("");mItemDialog.hide();});
-
-                mItemDialog.setTransientFor(ui.MainWindow);
-                mItemDialog.setModal(true);
-                mItemDialog.setPosition(WindowPosition.MOUSE);
-                break;
-            }
-            case ListType.FILES :
-            {
-                mCell.setProperty("editable", false);
-                mAddBtn.addOnClicked(delegate void(Button b){AddFiles();});
-                break;
-            }
-            case ListType.PATHS :
-            {
-                mCell.setProperty("editable", false);
-                mAddBtn.addOnClicked(delegate void(Button b){AddPaths();});
-                break;
-            }
+             //rv ~= dirEntries(path, SpanMode.shallow).filter!(f => f.name.canFind(library)).to!string;
         }
-        mRoot.unparent();
-    }
 
-    string GetTitle()
+        return rv;
+    }
+    
+    public:
+    this (string ListKey)
     {
-        return mTitle.getText();
-    }
+        auto mBuilder = new Builder(Config.GetResource("ui_list", "glade_file", "glade", "ui_list.glade"));
+        mRootBin = cast(Box)mBuilder.getObject("ui_list_root");
+        mListStore = cast(ListStore)mBuilder.getObject("liststore1");
+        mListView = cast(TreeView)mBuilder.getObject("list_view");
+        mCellRenderText = cast(CellRendererText)mBuilder.getObject("lv_text");
+        mListView.setModel(mListStore);
+        mListKey = ListKey; 
+        mListTitle = cast(Label)mBuilder.getObject("list_title_label");
+        mListTitle.setText(ListKey);
+        mListStore.clear();
+        
+        mEditable = true;
+        if ((mListKey == LIST_KEYS.IMPORT_PATHS) ||
+            (mListKey == LIST_KEYS.LIBRARY_PATHS)||
+            (mListKey == LIST_KEYS.POST_SCRIPTS) ||
+            (mListKey == LIST_KEYS.PRE_SCRIPTS)  ||
+            (mListKey == LIST_KEYS.POST_SCRIPTS) ||
+            (mListKey == LIST_KEYS.RELATED)      ||
+            (mListKey == LIST_KEYS.SOURCE)       ||
+            (mListKey == LIST_KEYS.STRING_PATHS)) mEditable = false;
+        if(mListKey == LIST_KEYS.LIBRARIES) mEditable = true;
+        
+        
+        mCellRenderText.addOnEdited(delegate void(string path, string nu_text, CellRendererText crt)
+        {
+            string tooltip = nu_text;
+            if(mListKey == LIST_KEYS.LIBRARIES)
+            {
+                tooltip = FindLibrary(nu_text);                
+            }
+           
+            auto ti = new TreeIter(mListStore, path);
+            mListStore.setValue(ti, 0, nu_text);
+            mListStore.setValue(ti, 1, nu_text);
+            mListStore.setValue(ti, 2, tooltip);
+            mListStore.setValue(ti, 3, mEditable);
+            Project.ListSet(mListKey, GetItems());         
+        });
+        
+        mAddButton = cast(Button)mBuilder.getObject("new_button");
+        mAddButton.addOnClicked(delegate void(Button btn)
+        {
+            if(endsWith(mListKey, "Files"))
+            {
+                AppendFile();
+                return;
+            }
+            if(endsWith(mListKey, "Paths"))
+            {
+                AppendPath();
+                return;
+            }
+            if(mListKey == LIST_KEYS.LIBRARIES)
+            {
+                AppendLibrary("library");
+                return;
+            }
+            AppendItem("new " ~ mListKey);
 
-    ListType GetType()
+        });
+        mRemoveButton = cast(Button)mBuilder.getObject("remove_button");
+        mRemoveButton.addOnClicked(delegate void(Button btn)
+        {
+            RemoveSelectedItems();
+        });
+        
+        mClearButton = cast(Button)mBuilder.getObject("clear_button");
+        mClearButton.addOnClicked(delegate void(Button btn)
+        {
+             ClearItems();   
+        });
+        
+    }
+    Widget GetRootWidget()
     {
-        return mType;
+        return mRootBin;
     }
-
     string[] GetItems()
     {
         string[] rv;
-
-        TreeIter ti = new TreeIter;
-
-        if(mStore.getIterFirst(ti))
+        TreeIter ti;
+        mListStore.getIterFirst(ti);        
+        if(ti is null) return rv;
+        while(mListStore.iterIsValid(ti))
         {
-            rv ~= mStore.getValueString(ti, 1);
-            while(mStore.iterNext(ti)) rv ~= mStore.getValueString(ti, 1);
+            rv ~= mListStore.getValueString(ti, 0);
+            mListStore.iterNext(ti);
         }
-        return rv.dup;
+        return rv;
     }
-
-    void SetItems(string[] items)
+    void SetItems(string[] Items)
     {
-        mStore.clear();
-        foreach(i; items)AddString(i);
-        emit(mTitle.getText(), GetItems());
-    }
-
-
-    void AddString(string nuString)
-    {
-        TreeIter ti = new TreeIter;
-        mStore.append(ti);
-        mStore.setValue(ti, 0, baseName(nuString));
-        mStore.setValue(ti, 1, nuString);
-        emit(mTitle.getText(), GetItems());
-    }
-
-    void RemoveString()
-    {
-        TreeIter ti = new TreeIter;
-        auto viewselection = mView.getSelection();
-        TreeModelIF tmif;
-        viewselection.getSelected(tmif, ti);
-
-        if(ti)mStore.remove(ti);
-        emit(mTitle.getText(), GetItems());
-    }
-
-    void AddIdentifier()
-    {
-        mItemEntry.setText("\0");
-        mItemDialog.present();
-        mItemEntry.grabFocus();
-
-        emit(mTitle.getText(), GetItems());
-    }
-
-    void AddFiles()
-    {
-        auto filechooser = new FileChooserDialog("Choose Files",MainWindow, FileChooserAction.OPEN);
-        filechooser.setSelectMultiple(true);
-        auto rv = filechooser.run();
-        filechooser.hide();
-        if(rv != ResponseType.OK) return;
-
-        auto ChosenFiles = filechooser.getFilenames();
-        while(ChosenFiles !is null)
+        auto ti = new TreeIter;
+        mListView.setModel(null);
+        mListStore.clear();
+        
+        foreach(item; Items)
         {
-            //string afile = toImpl!(string, char *)(cast(char *)ChosenFiles.data());
-	    string afile = to!string(cast(char *)ChosenFiles.data());
-            //don't add duplicates
-            if(!GetItems.canFind(afile))
+            mListStore.append(ti);
+            mListStore.setValue(ti, 0, item);
+            mListStore.setValue(ti, 1, item);
+            mListStore.setValue(ti, 2, item);
+            mListStore.setValue(ti, 3, mEditable);   
+        }
+        mListView.setModel(mListStore);
+        
+    }
+    void AppendItem(string Item)
+    { 
+        auto ti = new TreeIter;
+        mListStore.append(ti);  
+        mListStore.setValue(ti, 0, Item);  
+        mListStore.setValue(ti, 1, Item);
+        mListStore.setValue(ti, 2, Item);
+        mListStore.setValue(ti, 3, mEditable);   
+        mListView.setCursor(mListStore.getPath(ti), mListView.getColumn(0), true);
+    }
+    void AppendFile()
+    {
+        auto fileDialog = new FileChooserDialog("Find Library", mMainWindow, FileChooserAction.OPEN);
+        fileDialog.setModal(true);
+        fileDialog.setSelectMultiple(true);
+        fileDialog.setCurrentFolder(Project.FullPath.dirName());
+
+        auto resp = fileDialog.run();
+        if(resp == ResponseType.OK)
+        {
+            auto items = fileDialog.getFilenames().toArray!string();
+            auto folder = fileDialog.getCurrentFolder();
+            
+            foreach(item; items)
             {
-                auto afileAbsPath = afile.absolutePath();
-                //auto projectAbsPath = Project.Folder.absolutePath(); //assume project folder is a normalized path ( no . .. or ~)
-                if(afileAbsPath.startsWith(mBasePath))afile = afile.relativePath(mBasePath);
-                else afile = afileAbsPath.buildNormalizedPath();
-                AddString(afile);
+                string base = baseName(item);
+                string abs = item;
+                string relative = asRelativePath(item, Project.FullPath().dirName()).to!string;
+                //relative = buildNormalizedPath(Project.FullPath().dirName(), relative);
+                auto ti = new TreeIter;
+                mListStore.append(ti);  
+                mListStore.setValue(ti, 0, relative);  
+                mListStore.setValue(ti, 1, abs);
+                mListStore.setValue(ti, 2, base);
+                mListStore.setValue(ti, 3, mEditable);      
+                Project.ListAppend(mListKey, relative);     //this is not right mLists should be private               
             }
-            ChosenFiles = ChosenFiles.next();
         }
+        fileDialog.close();
     }
-
-    void AddPaths()
+    void AppendPath()
     {
-        auto pathchooser = new FileChooserDialog("Choose Paths",MainWindow, FileChooserAction.SELECT_FOLDER);
-        pathchooser.setSelectMultiple(true);
-        auto rv = pathchooser.run();
-        pathchooser.hide();
-        if(rv != ResponseType.OK) return;
+        auto fileDialog = new FileChooserDialog("Find Library", mMainWindow, FileChooserAction.SELECT_FOLDER);
+        fileDialog.setModal(true);
+        fileDialog.setSelectMultiple(true);
+        fileDialog.setCurrentFolder(Project.FullPath.dirName());
 
-        auto chosenpaths = pathchooser.getFilenames();
-
-        while(chosenpaths !is null)
+        auto resp = fileDialog.run();
+        if(resp == ResponseType.OK)
         {
-            //string apath = toImpl!(string, char *)(cast(char *)chosenpaths.data());
-	    string apath = to!string(cast(char *)chosenpaths.data());
-            if(!GetItems.canFind(apath))
+            auto items = fileDialog.getFilenames().toArray!string();
+            auto folder = fileDialog.getCurrentFolder();
+            
+            foreach(item; items)
             {
-                auto apathAbsPath = apath.absolutePath();
-
-                if(apathAbsPath.startsWith(mBasePath))apath = apath.relativePath(mBasePath);
-                else apath = apathAbsPath.buildNormalizedPath();
-                AddString(apath);
+                string base = item;
+                string abs = item;
+                string relative = relativePath(item, Project.FullPath().dirName());
+                relative = buildNormalizedPath(Project.Location().dirName(), relative);
+                auto ti = new TreeIter;
+                mListStore.append(ti);  
+                mListStore.setValue(ti, 0, relative);  
+                mListStore.setValue(ti, 1, abs);
+                mListStore.setValue(ti, 2, base);
+                mListStore.setValue(ti, 3, mEditable);      
+                Project.ListAppend(mListKey, relative);    //this is not right mLists should be private                
             }
-            chosenpaths = chosenpaths.next();
         }
+        fileDialog.close();
     }
-
-    Widget GetRootWidget()
+    void AppendLibrary(string library)
     {
-        return cast(Widget)mRoot;
+
+        string status = library ~ " not found";
+        string[] paths;
+        string bigString;
+        string foundFiles = FindLibrary(library);
+        
+        auto ti = new TreeIter;
+        mListStore.append(ti);
+        mListStore.setValue(ti, 0, library);
+        mListStore.setValue(ti, 1, library);
+        mListStore.setValue(ti, 2, foundFiles);
+        mListStore.setValue(ti, 3, mEditable);
+        Project.ListAppend(mListKey, library);  
+        mListView.setCursor(mListStore.getPath(ti), mListView.getColumn(0), true);
     }
-
-    mixin Signal!(string, string[]);
-
-    void WatchProj(PROJECT_EVENT event)
+    void RemoveSelectedItems()
     {
-        scope(failure) return;
-        UpdateItems(Project.Lists[GetTitle()]);
+        string[] nuItems;
+        auto ti = new TreeIter;
+        mListStore.getIterFirst(ti);
+        while(mListStore.iterIsValid(ti))
+        {
+            if(!mListView.getSelection.iterIsSelected(ti))
+            {
+                nuItems ~= mListStore.getValueString(ti, 0);
+            }
+            mListStore.iterNext(ti);
+        }
+        Project.ListSet(mListKey, nuItems);
+        SetItems(nuItems);
     }
-
-    void UpdateItems(string[] items)
+    void ClearItems()
     {
-        if(items == GetItems) return;
-        mStore.clear();
-        if(items.length < 1) return;
-        foreach(i; items)UpdateString(i);
-
-    }
-
-
-    void UpdateString(string nuString)
-    {
-        TreeIter ti = new TreeIter;
-        mStore.append(ti);
-        mStore.setValue(ti, 0, baseName(nuString));
-        mStore.setValue(ti, 1, nuString);
-    }
-
-    void SetRootPath(string NuBasePath)
-    {
-        mBasePath = NuBasePath;
-    }
-
+        mListStore.clear();
+        Project.ListSet(mListKey, []);
+    }   
 }
 
+enum LIST_TYPE
+{
+    FILE_RELATIVE,
+    PATH_RELATIVE,
+    FILE_ABSOLUTE,
+    PATH_ABSOLUTE,
+    IDENTIFIER,
+}
+
+
+
+/*
+library should be a simple name eg dl or gtkd-3 vs libdl.so or libgtkd-3.so.3.9.0
+will search in order
+project library paths
+LD_LIBRARY_PATHS
+ld.so.conf paths
+/usr/
+/usr/lib/
+*/
+
+string[] FindLibraries(string library)
+{
+    string[] rv = [library ~ " not found on system"];
+    
+    return rv;
+}
