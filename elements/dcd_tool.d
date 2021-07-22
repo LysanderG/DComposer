@@ -99,13 +99,22 @@ class DCD_TOOL: ELEMENT
             mDcomposerStartedServer = false;
             return;
         }
-        rv = std.process.execute([mServer, " --logLevel=error"]);
+        mDcomposerStartedServer = true;
+        //rv = std.process.execute([mServer, " --logLevel=error"]);
+       std.process.spawnProcess([mServer, "--logLevel=error"], null, std.process.Config.detached);
     }
     
     void WatchForInsert(DOC_IF Doc, TextIter ti, string text)
     {
         int minLen;
         if(text.length != 1) return;
+        
+        if(text == "(")
+        {
+            ProcessCallTip(Doc);
+            return;
+        }
+        
         if(text == ".") minLen = 0;
         else minLen = mMinChars;
         
@@ -118,11 +127,9 @@ class DCD_TOOL: ELEMENT
             case '0': .. case '9':
             case '_': ProcessCompletion(Doc); break;
             case '.': ProcessCompletion(Doc); break;
-            case '(': //for calltip
             default : return;
         }
-            
-        
+                    
     }
     
     
@@ -148,17 +155,47 @@ class DCD_TOOL: ELEMENT
             if(line.length)
             {
                 ptrdiff_t tabPosition = indexOf(line, '\t');
-                dwrite(line, "..",tabPosition);
                 candidates ~= line[0..tabPosition].idup;
                 info ~= line[tabPosition .. $-1].idup;
             }
             indx++;
         }
-        dwrite("c: ",candidates);
-        
         auto rv = std.process.wait(pipes.pid);
         if(candidates.length < 1) return;
         uiCompletion.ShowCompletion(Doc, candidates, info);
     }
+    
+    void ProcessCallTip(DOC_IF Doc)
+    {
+        string[] candidates;   
+        auto pipes = std.process.pipeProcess([mClient, "-c"~Doc.Offset().to!string]);
+        
+        pipes.stdin.write(Doc.Text);
+        pipes.stdin.flush();
+        pipes.stdin.close();
+        
+        int indx = 0;
+        foreach(char[] line; pipes.stdout.byLine())
+        {
+            if(indx == 0)
+            {
+                if(line != "calltips") return;
+                indx++;
+                continue;
+            }
+            if(line.length)
+            {
+                candidates ~= line.idup;
+            }
+            indx++;
+        }
+        
+        auto rv = std.process.wait(pipes.pid);
+        if(candidates.length < 1) return;
+        dwrite("pushing ", candidates);
+        uiCompletion.PushCallTip(Doc, candidates);
+        
+    }
+    
         
 }

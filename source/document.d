@@ -10,7 +10,6 @@ import std.path;
 import std.uni;
 import std.utf;
 
-
 import ui;
 import qore;
 import docman;
@@ -188,6 +187,24 @@ public:
             Transmit.DocInsertText.emit(this, ti, text);
             ValidateTextIters(this, ti);
         },ConnectFlags.AFTER);
+        
+        
+        addOnFocus(delegate bool(GtkDirectionType direction, Widget w)
+        {
+           Transmit.DocFocusChange.emit(this, (w is cast(Widget)this));
+           return false;         
+        });
+        addOnFocusOut(delegate bool(Event evnt, Widget w)
+        {
+            Transmit.DocFocusChange.emit(this, false);
+            return false;
+        });
+        addOnFocusIn(delegate bool(Event event, Widget w)
+        {
+            Transmit.DocFocusChange.emit(this, true);
+            return false;
+        });
+        
         
         //mCompletion = getCompletion();//wordstest
         //mCompletion.addProvider(Words.mWords);//wordstest
