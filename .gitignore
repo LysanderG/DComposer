@@ -22,4 +22,5 @@ utils/dmd_flags*
 tmp_*
 extractflags
 *.backup
+utils/buildelement
 
