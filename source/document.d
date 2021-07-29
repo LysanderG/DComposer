@@ -69,7 +69,7 @@ public:
     string Name(){return baseName(mFullPathName);}
     void   Name(string nuFileName)
     {
-        mFullPathName = nuFileName;
+        mFullPathName = nuFileName.idup;
         UpdateTabWidget();
         Transmit.DocStatusLine.emit(GetStatusLine());
         Transmit.DocEvent.emit(this, DOC_EVENT.NAME, mFullPathName);        
@@ -117,6 +117,7 @@ public:
         setPixelsBelowLines(Config.GetValue("document", "pixels_below_line", 1));
         modifyFont(pango.PgFontDescription.PgFontDescription.fromString(Config.GetValue("document", "font", "Monospace 13")));
         setWrapMode(Config.GetValue("document","wrap_mode", WrapMode.NONE));
+        setBottomMargin(Config.GetValue("document", "bottom_margin", 16));//not adjustable in gui (just added)
         setMonospace(true); 
         Transmit.DocEvent.emit(this, DOC_EVENT.RECONFIGURED, "");  
     }
@@ -152,7 +153,9 @@ public:
         mTabWidget.showAll();
         getBuffer().addOnModifiedChanged(delegate void (TextBuffer Buf){UpdateTabWidget();});
         if(nuFileName is null)Name = NameMaker();
-        else Name = nuFileName;        Config.Reconfigure.connect(&Reconfigure);
+        else Name = nuFileName.idup;
+        
+        Config.Reconfigure.connect(&Reconfigure);
         Config.Changed.connect(&WatchConfigChange);
         Reconfigure();
         //setBackgroundPattern(BackgroundPatternType.GRID);
@@ -160,13 +163,14 @@ public:
         addOnPopulatePopup(delegate void(Widget w, TextView self)
         {
             Menu cMenu = cast(Menu)w;
+            foreach(MenuItem I ; cMenu.getChildren.toArray!MenuItem){dwrite(I.getLabel);}
             foreach(item; GetContextItems())
             {
                 cMenu.append(item);
             }            
             w.showAll();           
             
-        });
+        },ConnectFlags.AFTER);
         
         addOnKeyPress(delegate bool(Event keyEvent, Widget self)
         {
@@ -259,7 +263,6 @@ public:
     }
     void Close()
     {
-        dwrite("aaaaggggggghhhhhh");
     }
     void SaveCopy(string copyFileName)
     {
@@ -327,6 +330,35 @@ public:
         scrollToIter(ti, .25, false, .25, false);
         
     }    
+    void Goto(int offset, bool focus)
+    {
+        TextIter ti = new TextIter;
+        buff.getIterAtOffset(ti, offset);
+        buff.placeCursor(ti);
+        if(focus)grabFocus();
+        scrollToIter(ti, .1, true, 0.1, 0.1);
+    }
+    void GotoByteOffset(int bytes, bool focus)
+    {
+        if(focus)
+        {
+            uiDocBook.Current(this);
+            grabFocus();
+        }
+        uint byteCtr;
+        TextIter destTi;
+        buff.getStartIter(destTi);
+        while(destTi.getBytesInLine() + byteCtr < bytes)
+        {
+            byteCtr += destTi.getBytesInLine();
+            destTi.forwardLine();
+        }
+        destTi.setLineIndex(bytes - byteCtr);
+        while(!scrollToIter(destTi, 0.1, true, 0.1, 0.1)){}
+        buff.placeCursor(destTi);
+        
+    }
+
     TextIter Cursor()
     {
         auto ti = new TextIter;
@@ -659,12 +691,13 @@ extern (C)
     {
         try
         {
-            auto dfile = cast(SourceFileLoader)user_data;
+            SourceFileLoader dfile = cast(SourceFileLoader)user_data;
             auto theTask = new Task(cast(GTask*)res);  
             if(!dfile.loadFinish(theTask))
             {
                 Log.Entry("File load error");
             }
+            Transmit.BufferFinishedLoading.emit(dfile.getLocation.getPath());
         }
         catch(Exception oops)
         {
