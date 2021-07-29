@@ -90,7 +90,6 @@ class LOG_VIEW : ELEMENT
     void Configure()
     {
         string cfgstr = Config.GetValue!string("element", "log_view_font","monospace 8".idup);
-        dwrite(cfgstr);
         mTree.modifyFont(PgFontDescription.fromString(cfgstr));
     }
 

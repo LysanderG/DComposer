@@ -110,7 +110,6 @@ class CURLY_INDENT : ELEMENT
                 scope TextIter deleteAnchorTi = ti.copy();
                 while(skipCloseTi.forwardChar())
                 {
-                    dwrite("continue ", skipCloseTi.getChar());
                     if(isWhite(skipCloseTi.getChar()))continue;
                     if(skipCloseTi.getChar() == '}')
                     {
@@ -120,8 +119,7 @@ class CURLY_INDENT : ELEMENT
                         doc.buff.delete_(ti, deleteAnchorTi);
                         doc.buff.getIterAtMark(ti, doc.buff.getMark("xxx"));
                         doc.buff.placeCursor(ti);
-                        dwrite(ti.getLine());
-                        //dwrite(skipCloseTi.getLine());
+
                         return;
                     }
                     break;
