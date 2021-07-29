@@ -271,6 +271,11 @@ void RemoveSidePaneWidget(Widget oldPage)
 {
     mSidePane.removePage(mSidePane.pageNum(oldPage));
 }
+void SwitchSidePage(Widget pageWidget)
+{
+    mSidePane.setCurrentPage(pageWidget);
+}
+
 
 //extra pane stuff
 int AddExtraPane(Widget nuPage, string nuPageTitle)
@@ -281,6 +286,11 @@ void RemoveExtraPaneWidget(Widget oldPage)
 {
     return mExtraPane.removePage(mExtraPane.pageNum(oldPage));
 }
+void SwitchExtraPage(Widget pageWidget)
+{
+    mExtraPane.setCurrentPage(pageWidget);   
+}
+
 
 void SetBusyIndicator(bool on)
 {
@@ -470,7 +480,6 @@ void DisengageSidePane()
     Log.Entry("\tSidePane Disengaged");
 }
 
-
 //Extra Pane stuff
 void EngageExtraPane(Builder mBuilder)
 {
@@ -493,6 +502,10 @@ void DisengageExtraPane()
 {
     Log.Entry("\tExtraPane Disengaged");
 }
+
+
+
+//statusbar
 void EngageStatusbar(Builder mBuilder)
 {
 	mStatusBox = cast(Box)mBuilder.getObject("status_box");
