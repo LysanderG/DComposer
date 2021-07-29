@@ -214,13 +214,10 @@ class PROJECT
         if(format != "dmd")return;
         if(msg == "begin")
         {
-            dwrite("------");
             return;
         }
-        dwrite("::",msg);
         if(msg == "end")
         {
-            dwrite("^^^^^^^");
             return;
         }
     }
@@ -385,7 +382,7 @@ public:
         if(mUseCustomBuild)
         {
             auto result = execute(mCustomBuildCommand);
-            result.output.splitLines.each!((n){Transmit.Message.emit("compiler", n);});
+            result.output.splitLines.each!((n){Transmit.Message.emit("custom", n);});
             if(result.status == 0) mLastBuildState = BUILD_STATE.SUCCEEDED;
             else mLastBuildState = BUILD_STATE.FAILED;
         }
@@ -399,7 +396,7 @@ public:
             {
                 Transmit.Message.emit(mCompiler, line);
             }
-            Transmit.Message.emit(mCompiler, "end");
+            Transmit.Message.emit(mCompiler, "end "~result.status.to!string);
             if(result.status == 0) mLastBuildState = BUILD_STATE.SUCCEEDED;
             else mLastBuildState = BUILD_STATE.FAILED;
         }
@@ -488,7 +485,7 @@ public:
     void FileName(string nuFileName)
     {
         if(!nuFileName.isValidFilename())return;
-        mFileName = nuFileName;
+        mFileName = nuFileName.idup;
         Transmit.ProjectEvent.emit(this, PROJECT_EVENT.FILE_NAME, mFileName);
     }
     string FileName()
