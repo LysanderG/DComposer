@@ -338,7 +338,8 @@ public:
     void Compile()
     {
         if(!Current)return;
-        docman.Run(Current.FullName, "-c", mDocCmdLineSwitches);
+        string[] switches = ["-c"] ~ mDocCmdLineSwitches;
+        docman.Compile(Current.FullName, switches );
     }
     void UnitTest()
     {

@@ -3,11 +3,14 @@ module docman;
 import object;
 import std.algorithm;
 import std.array;
-import std.format;
+import std.conv;
 import std.file;
+import std.format;
 import std.path;
-import std.process: spawnProcess, pConfig = Config;
 import std.stdio;
+import std.string;
+static import std.process;
+
 
 import qore;
 public import document;
@@ -93,6 +96,8 @@ interface DOC_IF
     bool    GetHasKeyEventBeenHandled();
     void    SetKeyEventHasBeenHandled();
     void    Goto(int line, int col, bool focus = true);
+    void    Goto(int offset, bool focus = true);
+    void    GotoByteOffset(int bytes, bool focus = true);
     bool    FindForward(string regexNeedle);
     bool    FindBackward(string regexNeedle);
     bool    Replace(string regexNeedle, string replacementText);
@@ -215,7 +220,33 @@ void SaveSessionDocuments()
 {
     Config.SetArray!(string[])("docman","last_session_files",mDocs.keys);
 }
+void Compile(string DocName, string[] rdmdOpt ...)
+{
+    auto Doc = (DocName in mDocs);
+    if(Doc is null) return;
+    scope(failure)
+    {
+        Log.Entry("Compilation Failure!!");
+    }
+    if(Doc.Virgin)
+    {
+	    Log.Entry(DocName ~ " does not exist on file and can not be run");
+	    return;
+    }
+    string compileCmd = "rdmd " ~ " -vcolumns ";
+    foreach(opt; rdmdOpt) compileCmd ~= opt ~ " ";
+    compileCmd ~= DocName;
+    dwrite(compileCmd);
+    auto processResult = std.process.executeShell(compileCmd);
+    dwrite(processResult);
+    Transmit.Message.emit("rdmd", "begin");
+    foreach(line; processResult.output.lineSplitter())
+    {
+        Transmit.Message.emit("rdmd", line.idup);
+    }
+    Transmit.Message.emit("rdmd", "end "~ processResult.status.to!string);
 
+}
 void Run(string DocName, string[] rdmdOpt ...)
 {  
     auto Doc = (DocName in mDocs);
@@ -253,8 +284,8 @@ void Run(string DocName, string[] rdmdOpt ...)
 
     try
     {
-        auto result = spawnProcess(CmdStrings,stdin, stdout, stderr,null, pConfig.detached, null);
-        Log.Entry(`"` ~ Doc.FullName ~ `"` ~ " spawned ... " );
+        auto result = std.process.spawnProcess(CmdStrings,stdin, stdout, stderr,null, std.process.Config.detached, null);     
+        Log.Entry(`"` ~ Doc.FullName ~ `"` ~ " spawned ... " );       
     }
     catch(Exception E)
     {
