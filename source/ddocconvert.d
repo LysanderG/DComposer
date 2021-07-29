@@ -574,3 +574,14 @@ string myDecode(string toUnCode)
     rv = replace(rv, "&apos;", "\\");
     return rv;
 }
+string myEncode(string toInCode)
+{
+    string rv = replace(toInCode, "&", "&amp;");
+    rv = replace(rv, ">", "&gt;");
+    rv = replace(rv, "<", "&lt;");    
+    rv = replace(rv, "\"", "&quot;");
+    rv = replace(rv, "\\n", "\n");
+    rv = replace(rv, "\\", "&apos;");
+    return rv;
+
+}
