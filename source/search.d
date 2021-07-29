@@ -103,7 +103,6 @@ TREASURE[] Search(SEARCH_SCOPE sScope, string needle, SEARCH_OPTIONS sOpts)
             }
             break;
         case CURRENT:
-            dwrite(CurrentDocName);
             FindInDoc(CurrentDocName, rgxNeedle, rv);    
             break;
         case FOLDER:

@@ -116,7 +116,6 @@ int GetLineIndentationLevel(DOCUMENT doc, TextIter lineTi)
     lineTi.setLineOffset(0);
     auto oldIndent = GetLineIndentationLevel(doc, lineTi);
     foreach(ctr; 0..oldIndent)doc.unindentLines(lineTi, sameLineTi);
-    dwrite(oldIndent,"/",indentationLevel*4);
     foreach(ctr; 0..(indentationLevel*4))istring ~= " ";
     doc.buff.insert(lineTi, istring);
     ValidateTextIters(doc, lineTi, sameLineTi);

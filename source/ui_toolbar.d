@@ -58,6 +58,10 @@ void AddToolObject(string id, string name, string tooltip, string iconresource, 
     
     mToolObjects[id] = to;
 }
+void RemoveToolObject(string id)
+{
+    mToolObjects.remove("id");
+}
 
 void InsertToolButton(string Id, int pos = -1)
 {

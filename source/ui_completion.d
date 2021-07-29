@@ -367,8 +367,6 @@ class UI_COMPLETION
                     PopCallTips();
                     return;
                 case Keysyms.GDK_parenright:
-                    dwrite("parenright");
-                    //doc.SetKeyEventHasBeenHandled();
                     PopCallTips();
                     return;
                 case Keysyms.GDK_Escape:
@@ -383,7 +381,6 @@ class UI_COMPLETION
     
     void WatchForFocusChange(DOC_IF doc, bool FocusIn)
     {
-        dwrite("focus out!!!");
         mComWindow.setVisible(false);
         mTipStack.clear();
         mTipWindow.setVisible(false);

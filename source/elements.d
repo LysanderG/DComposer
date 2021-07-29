@@ -34,7 +34,7 @@ void Engage(ref string[] args)
 {
     //cmdline stuff
     getopt(args, std.getopt.config.caseSensitive, std.getopt.config.passThrough, "disableElements|X", &mElementsDisabled,"suppress|x", &mSuppressedElements);	
-    dwrite(mSuppressedElements);
+
     if(mElementsDisabled) 
     {
         Log.Entry("Elements disabled for current session (not engaged)");
@@ -86,6 +86,7 @@ void Mesh()
 
 void Disengage()
 {    
+    //Config.Save();
     foreach(reglib; mRegisteredElements)
     {
         string strEnabled = reglib.mEnabled.to!string;
