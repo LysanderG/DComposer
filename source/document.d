@@ -20,7 +20,7 @@ import ui_contextmenu;
 import ui_search;
 
 
-
+import gdk.Rectangle;
 import gsv.SourceBuffer;
 import gsv.SourceCompletion;
 import gsv.SourceFile;
@@ -53,6 +53,11 @@ private:
     SysTime     mFileTimeStamp;
     TextMark    mInsertMark;
     bool        mKeyEventHandled;
+    Idle        mIdle;
+    bool        mBufferLoaded;
+    int         mInitialCursorPos;
+    
+    
     
     SourceSearchContext     mSearchContext;
     SourceCompletion        mCompletion;        
@@ -62,6 +67,29 @@ private:
     void WatchConfigChange(string section, string key)
     {
         if(section == "document") Reconfigure();
+    }
+    
+    bool WatchForIdle()
+    {
+        dwrite("((", FullName,",", mBufferLoaded,"))");
+        if(mBufferLoaded == false) return true;
+        if(mInitialCursorPos < 0) 
+        {
+            mIdle.stop();
+            return false;
+        }
+        GdkRectangle rVisible;
+        getVisibleRect(rVisible);
+        GdkRectangle cPosition, cPositionWeak;
+        getCursorLocations(null, cPosition, cPositionWeak);
+        if((cPosition.y < rVisible.y) || (cPosition.y > rVisible.y + rVisible.height))
+        {
+            GotoByteOffset(mInitialCursorPos, true);   
+            mIdle.stop();
+            return false; 
+        }
+        mIdle.stop();
+        return true;
     }    
 
 public:
@@ -69,6 +97,7 @@ public:
     string Name(){return baseName(mFullPathName);}
     void   Name(string nuFileName)
     {
+        nuFileName = absolutePath(nuFileName);
         mFullPathName = nuFileName.idup;
         UpdateTabWidget();
         Transmit.DocStatusLine.emit(GetStatusLine());
@@ -124,6 +153,7 @@ public:
     
     void Init(string nuFileName = null)
     {
+        mIdle = new Idle(&WatchForIdle);
         mVirgin = true;
         mTabWidget = new Box(Orientation.HORIZONTAL,0);
         mTabLabel = new Label(mFullPathName, false);        
@@ -163,7 +193,6 @@ public:
         addOnPopulatePopup(delegate void(Widget w, TextView self)
         {
             Menu cMenu = cast(Menu)w;
-            foreach(MenuItem I ; cMenu.getChildren.toArray!MenuItem){dwrite(I.getLabel);}
             foreach(item; GetContextItems())
             {
                 cMenu.append(item);
@@ -218,8 +247,9 @@ public:
         Transmit.SigUpdateAppPreferencesOptions.connect(&Reconfigure);
        
     }
-    void Load(string fileName)
+    void Load(string fileName, int pos = -1)
     {
+        mInitialCursorPos = pos;
         Init(fileName);
         if(!fileName.exists)
         {
@@ -231,7 +261,8 @@ public:
         mFile = new SourceFile();
         mFile.setLocation(FileIF.parseName(fileName));
         auto dfileloader = new SourceFileLoader(getBuffer, mFile);
-        dfileloader.loadAsync(G_PRIORITY_DEFAULT, null, null, null, null, &FileLoaded, cast(void*)dfileloader);
+        dfileloader.loadAsync(G_PRIORITY_DEFAULT, null, null, null, null, &FileLoaded, cast(void*)this);
+        
         Name =  fileName;
     }
 
@@ -326,7 +357,11 @@ public:
         buff.getIterAtLineOffset(ti, line, col);
         buff.placeCursor(ti);
         //scrollToIter(ti, 0.75, true, 0, false);
-        if(focus)grabFocus();
+        if(focus)
+        {
+            uiDocBook.Current(this);
+            grabFocus();
+        }
         scrollToIter(ti, .25, false, .25, false);
         
     }    
@@ -338,25 +373,27 @@ public:
         if(focus)grabFocus();
         scrollToIter(ti, .1, true, 0.1, 0.1);
     }
+    //Calling TextView.ScrollToMark() with a "right gravity" TextMark should work for you.
     void GotoByteOffset(int bytes, bool focus)
     {
+        
         if(focus)
         {
             uiDocBook.Current(this);
             grabFocus();
         }
-        uint byteCtr;
+        int byteCtr;
         TextIter destTi;
         buff.getStartIter(destTi);
+        
         while(destTi.getBytesInLine() + byteCtr < bytes)
         {
             byteCtr += destTi.getBytesInLine();
             destTi.forwardLine();
         }
         destTi.setLineIndex(bytes - byteCtr);
-        while(!scrollToIter(destTi, 0.1, true, 0.1, 0.1)){}
-        buff.placeCursor(destTi);
-        
+        buff.placeCursor(destTi);   
+        scrollToIter(destTi, 0.1, true, 0.05, 0.05);     
     }
 
     TextIter Cursor()
@@ -507,6 +544,7 @@ public:
     int Column(){return Cursor.getLineOffset();}
     int Offset(){return Cursor.getOffset();}
     
+    
     ///Returns current Identifier at cursor or an empty string
     string Identifier(string markName)
     {
@@ -632,10 +670,8 @@ public:
         }
         
         buff.delete_(InitTi, Cursor());
-        buff.insertAtCursor(chosenSymbol);
-          
-    }
-    
+        buff.insertAtCursor(chosenSymbol);          
+    }   
     
     //================= 
     void MoveWordBack()
@@ -659,11 +695,7 @@ public:
             }
             lastChar = thisChar;
         }
-
     }
-
-    
-
 }
 
 string NameMaker()
@@ -689,20 +721,18 @@ extern (C)
     import gio.Task;
     void FileLoaded(GObject *source_object, GAsyncResult *res, void * user_data)
     {
-        try
+
+        SourceFileLoader xfile = new SourceFileLoader(cast(GtkSourceFileLoader*)source_object);
+        auto theTask = new Task(cast(GTask*)res); 
+        DOCUMENT doc = cast(DOCUMENT)user_data;
+        doc.mBufferLoaded = true;
+         
+        if(!xfile.loadFinish(theTask))
         {
-            SourceFileLoader dfile = cast(SourceFileLoader)user_data;
-            auto theTask = new Task(cast(GTask*)res);  
-            if(!dfile.loadFinish(theTask))
-            {
-                Log.Entry("File load error");
-            }
-            Transmit.BufferFinishedLoading.emit(dfile.getLocation.getPath());
+            Log.Entry("Buffer load error");
+            return;
         }
-        catch(Exception oops)
-        {
-            Log.Entry(oops.msg, "-Error");
-        }
+        Log.Entry("Buffer loaded");
     }   
     void FileSaved(GObject *source_object, GAsyncResult *res, void * user_data)
 	{   
