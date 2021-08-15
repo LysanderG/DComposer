@@ -51,7 +51,6 @@ private:
     Label       mTabLabel;
     SourceFile  mFile;
     SysTime     mFileTimeStamp;
-    TextMark    mInsertMark;
     bool        mKeyEventHandled;
     Idle        mIdle;
     bool        mBufferLoaded;
@@ -159,6 +158,8 @@ public:
         mTabLabel = new Label(mFullPathName, false);        
         
         mSearchContext = new SourceSearchContext(buff, null);
+        
+        buff.createTag("error_line", "underline", PangoUnderline.ERROR);
                 
         //use an Image because buttons are too damn large. Who wants a giant sized tab row.
         //auto tabXButton = new Image(Config.GetValue("document","close_button_icon", "resources/cross-circle-frame.png"));
@@ -212,8 +213,6 @@ public:
             return false;
         });
         
-        mInsertMark = new TextMark("transmitInsert", false);
-        buff.addMark(mInsertMark, Cursor());
         getBuffer.addOnInsertText(delegate void(TextIter ti, string text, int len, TextBuffer tb)
         {
             SetValidationMark(this, ti);
