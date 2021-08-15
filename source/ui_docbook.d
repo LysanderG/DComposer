@@ -212,7 +212,6 @@ public:
         }
         
         mTimeoutKeeper = new Timeout(800, &TimerStatusUpdate);
-        //Timeout.add(800, &TimerStatusUpdate, cast(void*)mNotebook);
         
     	Log.Entry("\tDocBook Meshed");
     }
@@ -258,7 +257,6 @@ public:
             auto x = DOC_IF.Create();
             x.Name = fileName;
             x.Load(fileName);
-            docman.AddDoc(x);
             AddDocument(x);
             fileList = fileList.next();
         }

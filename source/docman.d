@@ -75,7 +75,7 @@ interface DOC_IF
     //Must call either Init or Load for doc_if to function 
     void    Init(string nuFileName = null);
     void    Reconfigure();
-    void    Load(string fileName);
+    void    Load(string fileName, int pos = 0);
     void    Save();
     void    SaveAs(string newFileName);
     void    SaveCopy(string copyFileName);
@@ -121,25 +121,36 @@ interface DOC_IF
 
 //#############################################################################
 //#############################################################################
-void OpenDoc(string fileName)
+void OpenDoc(string fileName, int pos = 0)
 {
     scope(failure)
     {
         Log.Entry("Unable to open document ",fileName);
     }
+    if(!exists(fileName))
+    {
+        Log.Entry("Attempted to open non existant file :" ~ fileName);
+        return;
+    }
+    if(fileName.Opened()) 
+    {
+        uiDocBook.Current(mDocs[fileName]);
+        mDocs[fileName].GotoByteOffset(pos);
+        return;
+    }
     auto doc = DOC_IF.Create();
-    doc.Load(fileName);
-    AddDoc(doc);    
-    Transmit.DocManEvent.emit(DOCMAN_EVENT.LOAD, doc.FullName);
+    doc.Load(fileName, pos);
+    //Transmit.DocManEvent.emit(DOCMAN_EVENT.LOAD, doc.FullName);
 }
 void AddDoc(DOC_IF nuDoc)
 {
     if(nuDoc.FullName in mDocs) 
     {
-        Log.Entry("Adding " ~ nuDoc.Name ~ " to document manager");
+        Log.Entry(nuDoc.Name ~ " already managed");
         return;
     }
     mDocs[nuDoc.FullName] = nuDoc;
+    Log.Entry("Managing document " ~ nuDoc.Name);
     Transmit.DocManEvent.emit(DOCMAN_EVENT.ADD, nuDoc.FullName);
 }
 void ReplaceDoc(string oldKey, string newKey)
@@ -202,7 +213,7 @@ bool OpenDocAt(string fileName, int line, int col, bool focus = true)
     auto nuDoc = DOC_IF.Create();
     nuDoc.Load(fileName);
     
-    AddDoc(nuDoc);
+    //AddDoc(nuDoc);
     uiDocBook.AddDocument(nuDoc);
     nuDoc.Goto(line, col, focus);
     
