@@ -116,7 +116,6 @@ class UI_COMPLETION
         markID++;
         
         mTipStack.insertFront(nu);
-        dwrite(mTipStack.front.mLocationMarkName);
         ShowCallTip();
     }
     void PopCallTips()
@@ -172,11 +171,9 @@ class UI_COMPLETION
     
   void ShowCallTip()
     {
-        dwrite(" > ", mTipStack.empty);
         if(mTipStack.empty)return;
         
         DOCUMENT Document = cast(DOCUMENT)(mTipStack.front.mDoc);
-        dwrite(" > ", Document);
         mTipWindow.setAttachedTo(Document);
         //load liststore
         mTipStore.clear();

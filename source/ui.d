@@ -40,6 +40,7 @@ public import gio.MenuItem : GMenuItem = MenuItem;
 public import gio.MenuModel;
 public import gio.SimpleAction;
 public import gio.SimpleActionGroup;
+public import glib.Idle;
 public import glib.Timeout;
 public import glib.Variant;
 public import glib.VariantType;
@@ -146,6 +147,9 @@ void Engage(ref string[] args)
 	uiApplication.addOnActivate(delegate void(GApplication app)
 	{        
     });
+    
+    
+    
     
     EngagePreferences();
     
