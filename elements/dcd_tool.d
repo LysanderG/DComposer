@@ -120,7 +120,8 @@ class DCD_TOOL: ELEMENT
     
     string      mServer;
     string      mClient;
-    string[]    mImportPaths;
+    string[]    mImportPaths;          //always imported paths ... phobos or gtkd or whatever user wants
+    string[]    mManagedImportPaths;   //paths that change according to current project
     int         mMinChars;
     bool        mDcomposerStartedServer;
     MENU_PARTS  mContextDoc;
@@ -155,6 +156,15 @@ class DCD_TOOL: ELEMENT
         {
             std.process.execute([mClient, "-I"~imp]);
         }
+        mManagedImportPaths ~= ipaths;
+    }
+    void RemoveManagedImportPaths()
+    {
+        foreach(ipath; mManagedImportPaths)
+        {
+            std.process.execute([mClient, "-R"~ipath]);
+        }
+        mManagedImportPaths.length = 0;
     }
     
     void WatchForInsert(DOC_IF Doc, TextIter ti, string text)
@@ -187,8 +197,24 @@ class DCD_TOOL: ELEMENT
     
     void WatchForProjectImports(PROJECT project, PROJECT_EVENT event, string key)
     {
-        if(key != LIST_KEYS.IMPORT_PATHS) return;
-        AddImportPaths(project.List(key));   
+        switch (event) with(PROJECT_EVENT)
+        {
+            case CREATED:
+            case CLOSED:
+                RemoveManagedImportPaths();
+                return;
+            case OPENED:
+                RemoveManagedImportPaths();
+                AddImportPaths(Project.List(LIST_KEYS.IMPORT_PATHS));
+                return;
+            case LISTS:
+                if(key != LIST_KEYS.IMPORT_PATHS) return;
+                AddImportPaths(Project.List(key));
+                return;
+            default:
+                return;
+        }
+  
     }
     
     
