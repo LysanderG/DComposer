@@ -47,6 +47,7 @@ class MESSAGE_VIEW : ELEMENT
             docfile = mMessageList.getValueString(ti, 0);
             line = mMessageList.getValueInt(ti, 1);
             col = mMessageList.getValueInt(ti, 2);
+            if(line <= 0)return;
             docfile = absolutePath(docfile);
             OpenDocAt(docfile, line-1, col-1);
         });
@@ -105,14 +106,17 @@ class MESSAGE_VIEW : ELEMENT
                     {
                         string status = message[4.. $];
                         AppendStore(" ", 0,0, Source ~ ": exit status " ~ status);
+                    ApplyErrorLineTag();
                         return;
                     }
                     AppendStore(" ", 0,0, Source ~ " finished");
+                    ApplyErrorLineTag();
                 }
                 if(message == "begin")
                 {
                     SwitchExtraPage(mRoot);
                     ResetMessages();
+                    RemoveErrorLineTag();
                     AppendStore(" ", 0, 0, "Tool running");
                     break;
                 }
@@ -145,6 +149,45 @@ class MESSAGE_VIEW : ELEMENT
         mMessageList.setValue(ti, 1, line);
         mMessageList.setValue(ti, 2, col);
         mMessageList.setValue(ti, 3, error);
+    }
+    
+    void ApplyErrorLineTag()
+    {
+        dwrite("applyerrorlinetag");
+        TreeIter ti;
+        TextIter tiStart, tiEnd;
+        bool looping = mMessageList.getIterFirst(ti);
+        
+        while(looping)
+        {
+        
+            string fname = mMessageList.getValueString(ti, 0);
+            int eline = mMessageList.getValueInt(ti, 1)-1;
+            fname = fname.absolutePath();
+            dwrite(fname);
+            if(Opened(fname))
+            {
+                dwrite("\there");
+                DOCUMENT edoc = cast(DOCUMENT)GetDoc(fname);
+                edoc.buff.getIterAtLine(tiStart, eline);
+                tiEnd = tiStart.copy();
+                tiEnd.forwardToLineEnd();
+                edoc.buff.applyTagByName("error_line", tiStart, tiEnd);
+            }
+            looping = mMessageList.iterNext(ti);
+        }
+    }
+    
+    void RemoveErrorLineTag()
+    {
+        TextIter tiStart, tiEnd;
+        foreach(doc; GetDocs)
+        {
+            DOCUMENT edoc = cast(DOCUMENT)doc;
+            edoc.buff.getStartIter(tiStart);
+            edoc.buff.getEndIter(tiEnd);
+            edoc.buff.removeTagByName("error_line", tiStart, tiEnd);
+        }
     }
 }
 
