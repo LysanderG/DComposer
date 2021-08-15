@@ -30,7 +30,6 @@ class DCD_TOOL: ELEMENT
         
         
         Transmit.DocInsertText.connect(&WatchForInsert);
-        Transmit.BufferFinishedLoading.connect(&WatchForFinishedLoading);
         Transmit.ProjectEvent.connect(&WatchForProjectImports);
         
         //Goto symbol declaration;
@@ -43,6 +42,7 @@ class DCD_TOOL: ELEMENT
         AddToolObject("locate", "Locate Symbol","Find where symbol is defined.",
             Config.GetResource("icons","locate","resources", "spectacle.png"),"win.actionLocate");
         mContextLocate = AddMenuPart("Locate Symbol", &LocateAction, "win.actionLocate");
+        
         
         //documentation
         mDocsScroll = new ScrolledWindow();
@@ -76,8 +76,7 @@ class DCD_TOOL: ELEMENT
         RemoveMenuPart(mContextDoc);
         RemoveMenuPart(mContextLocate);
         StopServer();
-        //Transmit.ProjectEvent.disconnect(&WatchForProjectImports);
-        Transmit.BufferFinishedLoading.disconnect(&WatchForFinishedLoading);
+        Transmit.ProjectEvent.disconnect(&WatchForProjectImports);
         Transmit.DocInsertText.disconnect(&WatchForInsert);
         Log.Entry("Disengaged");
     }
@@ -156,13 +155,6 @@ class DCD_TOOL: ELEMENT
         {
             std.process.execute([mClient, "-I"~imp]);
         }
-    }
-    
-    void WatchForFinishedLoading(string fullFilePath)
-    {
-        if(fullFilePath !in WaitingLoads) return;
-        GetDoc(fullFilePath).GotoByteOffset(WaitingLoads[fullFilePath]);
-        WaitingLoads.remove(fullFilePath);
     }
     
     void WatchForInsert(DOC_IF Doc, TextIter ti, string text)
@@ -275,7 +267,6 @@ class DCD_TOOL: ELEMENT
         
 }
 
-int[string] WaitingLoads;
 extern (C)
 {
     void action_locate(void* simAction, void* varTarget, void* voidUserData)
@@ -283,6 +274,7 @@ extern (C)
 
     	DCD_TOOL dcd = cast (DCD_TOOL)voidUserData;
         DOC_IF Doc = GetCurrentDoc();
+        if(Doc is null)return;
         std.process.ProcessPipes pipes = std.process.pipeProcess([dcd.mClient, "-c"~Doc.Offset().to!string, "-l"]);
 
         pipes.stdin.write(Doc.Text);
@@ -301,11 +293,12 @@ extern (C)
         
         if(Opened(file))
         {
-            GetDoc(file).Goto(pos);
+            GetDoc(file).GotoByteOffset(pos);
             return;
         }        
-        docman.OpenDocAt(file,0,0);
-        WaitingLoads[file] = pos;        
+        docman.OpenDoc(file, pos);
+        uiDocBook.AddDocument(GetDoc(file));
+        dwrite("here");  
 	}
 	
 	void action_documentation(void* simAction, void* varTarget, void* voidUserData)
