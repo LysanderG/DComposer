@@ -3,6 +3,7 @@ module message_view;
 import std.algorithm;
 import std.conv;
 import std.format;
+import std.path;
 
 import ui;
 import qore;
@@ -46,6 +47,7 @@ class MESSAGE_VIEW : ELEMENT
             docfile = mMessageList.getValueString(ti, 0);
             line = mMessageList.getValueInt(ti, 1);
             col = mMessageList.getValueInt(ti, 2);
+            docfile = absolutePath(docfile);
             OpenDocAt(docfile, line-1, col-1);
         });
         
@@ -114,15 +116,17 @@ class MESSAGE_VIEW : ELEMENT
                     AppendStore(" ", 0, 0, "Tool running");
                     break;
                 }
-                try
+
                 {
+                    auto errorMsg = message.idup;
+                    scope(failure)
+                    {
+                        AppendStore(" ", 0,0,errorMsg);
+                        return;
+                    }
                     formattedRead(message, "%s(%s,%s): %s", file, line, column, msgPayload);
                     AppendStore(file, line, column, msgPayload);
-                }
-                catch(Exception x)
-                {
-                    return;
-                }
+                }                
                 break;
             } 
             default:break;
